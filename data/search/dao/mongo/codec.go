@@ -114,7 +114,7 @@ func (m *Codex) Unmarshal(indexed interface{}) (interface{}, error) {
 	}
 	result := &tree.IndexableNode{}
 	if e := cursor.Decode(result); e == nil {
-		return &result.Node, nil
+		return result.Node, nil
 	} else {
 		return nil, e
 	}
@@ -187,10 +187,14 @@ func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields
 	}
 	if sortFields != "" {
 		// Example: opts{Sort: bson.D{{"ts", -1}, {"nano", -1}}}
+		nss := m.QueryNsProvider.Namespaces()
 		var sorts []string
 		for _, sf := range strings.Split(sortFields, ",") {
-			if sortField, ok := validSortFields[strings.TrimSpace(sf)]; ok {
+			sf = strings.TrimSpace(sf)
+			if sortField, ok := validSortFields[sf]; ok {
 				sorts = append(sorts, sortField)
+			} else if _, ok2 := nss[sf]; ok2 {
+				sorts = append(sorts, "meta."+sf)
 			}
 		}
 		if len(sorts) > 0 {
@@ -267,6 +271,18 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}
 
+	if len(queryObject.ExcludedPathPrefix) > 0 {
+		nors := bson.A{}
+		for _, prefix := range queryObject.ExcludedPathPrefix {
+			nors = append(nors, bson.M{"path": bson.M{"$regex": primitive.Regex{Pattern: "^" + prefix, Options: "i"}}})
+		}
+		filters = append(filters, bson.E{Key: "$nor", Value: nors})
+	}
+
+	if queryObject.PathDepth > 0 {
+		filters = append(filters, bson.E{Key: "path_depth", Value: queryObject.PathDepth})
+	}
+
 	if queryObject.Type > 0 {
 		nodeType := "file"
 		if queryObject.Type == 2 {
@@ -276,7 +292,16 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	}
 
 	if queryObject.Extension != "" {
-		filters = append(filters, bson.E{"extension", strings.ToLower(queryObject.Extension)})
+		pp := strings.Split(strings.ReplaceAll(queryObject.Extension, "|", ","), ",")
+		if len(pp) > 1 {
+			ors := bson.A{}
+			for _, ex := range pp {
+				ors = append(ors, bson.D{{"extension", strings.ToLower(ex)}})
+			}
+			filters = append(filters, bson.E{"$or", ors})
+		} else {
+			filters = append(filters, bson.E{"extension", strings.ToLower(queryObject.Extension)})
+		}
 	}
 
 	if len(queryObject.UUIDs) == 1 {
@@ -305,14 +330,22 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 
 	if queryObject.GeoQuery != nil {
 		if queryObject.GeoQuery.Center != nil && len(queryObject.GeoQuery.Distance) > 0 {
-			point := &tree.GeoJson{}
-			point.Type = "Point"
-			point.Coordinates = []float64{queryObject.GeoQuery.Center.Lon, queryObject.GeoQuery.Center.Lat}
 			distance, er := geo.ParseDistance(queryObject.GeoQuery.Distance)
 			if er != nil {
 				return nil, nil, er
 			}
-			filters = append(filters, bson.E{"geo_json", bson.M{"$near": bson.M{"$geometry": point, "$maxDistance": distance}}})
+			filters = append(filters, bson.E{
+				Key: "geo_json",
+				Value: bson.M{
+					"$geoWithin": bson.M{
+						"$centerSphere": bson.A{
+							[]float64{queryObject.GeoQuery.Center.Lon, queryObject.GeoQuery.Center.Lat},
+							distance / 6378137.0, // convert meters to radians
+						},
+					},
+				},
+			})
+
 		} else if queryObject.GeoQuery.TopLeft != nil && queryObject.GeoQuery.BottomRight != nil {
 			type Polygon struct {
 				Type        string        `bson:"type"`
@@ -403,6 +436,7 @@ func (m *Codex) GetModel(sc configx.Values) (interface{}, bool) {
 					{"extension": 1},
 					{"node_type": 1},
 					{"geo_json": 2}, // Special value for 2dsphere
+					{"path_depth": 1},
 				},
 				IDName: "uuid",
 			},

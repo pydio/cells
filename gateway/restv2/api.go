@@ -126,7 +126,6 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		StorageETag: n.GetEtag(),
 
 		// TODO Not Impl Yet
-		IsRecycled: false,
 		Activities: nil,
 	}
 	opts := &TNOptions{}
@@ -146,6 +145,9 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 	}
 	for k, v := range n.GetMetaStore() {
 		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
+			if k == common.MetaNamespaceRecycleRestore {
+				rn.IsRecycled = true
+			}
 			continue
 		}
 		switch k {

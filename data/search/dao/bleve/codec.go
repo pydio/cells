@@ -278,6 +278,14 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 		}
 		boolean.AddMust(subQ)
 	}
+	// Exclude some specific paths, may be used to exclude recycled files
+	if len(queryObject.ExcludedPathPrefix) > 0 {
+		for _, pref := range queryObject.ExcludedPathPrefix {
+			exclude := bleve.NewPrefixQuery(pref)
+			exclude.SetField("Path")
+			boolean.AddMustNot(exclude)
+		}
+	}
 	// Limit to a given node type
 	if queryObject.Type > 0 {
 		nodeType := "file"
@@ -289,10 +297,29 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 		boolean.AddMust(typeQuery)
 	}
 
+	if queryObject.PathDepth > 0 {
+		mind := float64(queryObject.PathDepth)
+		maxd := float64(queryObject.PathDepth + 1)
+		pDepth := bleve.NewNumericRangeQuery(&mind, &maxd)
+		pDepth.SetField("PathDepth")
+		boolean.AddMust(pDepth)
+	}
+
 	if len(queryObject.Extension) > 0 {
-		extQuery := bleve.NewTermQuery(strings.ToLower(queryObject.Extension))
-		extQuery.SetField("Extension")
-		boolean.AddMust(extQuery)
+		pp := strings.Split(strings.ReplaceAll(queryObject.Extension, "|", ","), ",")
+		if len(pp) > 1 {
+			subQ := bleve.NewBooleanQuery()
+			for _, ex := range pp {
+				extQuery := bleve.NewTermQuery(strings.ToLower(ex))
+				extQuery.SetField("Extension")
+				subQ.AddShould(extQuery)
+			}
+			boolean.AddMust(subQ)
+		} else {
+			extQuery := bleve.NewTermQuery(strings.ToLower(queryObject.Extension))
+			extQuery.SetField("Extension")
+			boolean.AddMust(extQuery)
+		}
 	}
 
 	if len(queryObject.FreeString) > 0 {
@@ -345,13 +372,21 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 
 	// Handle sorting
 	if sortFields != "" {
+		nss := b.queryNSProvider.Namespaces()
 		var sorts []string
 		for _, sf := range strings.Split(sortFields, ",") {
-			if sortField, ok := validSortFields[strings.TrimSpace(sf)]; ok {
+			sf = strings.TrimSpace(sf)
+			if sortField, ok := validSortFields[sf]; ok {
 				if sortDesc {
 					sorts = append(sorts, "-"+sortField)
 				} else {
 					sorts = append(sorts, "+"+sortField)
+				}
+			} else if _, ok2 := nss[sf]; ok2 {
+				if sortDesc {
+					sorts = append(sorts, "-Meta."+sf)
+				} else {
+					sorts = append(sorts, "+Meta."+sf)
 				}
 			}
 		}

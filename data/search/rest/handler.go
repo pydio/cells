@@ -23,6 +23,7 @@ package rest
 
 import (
 	"context"
+	"path"
 	"regexp"
 	"strings"
 	"sync"
@@ -164,7 +165,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 	if query == nil {
 		return rsp.WriteEntity(&rest.SearchResults{Total: 0})
 	}
-	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest)
+	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest, true)
 	if er != nil {
 		return er
 	}
@@ -177,7 +178,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 
 }
 
-func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
+func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest, filterReserved bool, additionalPrefixes ...*rest.LookupFilter_PathPrefix) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
 
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "PerformSearch")
@@ -271,7 +272,19 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 			}
 			log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", rootNode.Path))
 			nodesPrefixes[rootNode.Path] = p
-			query.PathPrefix = append(query.PathPrefix, rootNode.Path)
+			if len(additionalPrefixes) > 0 {
+				for _, pf := range additionalPrefixes {
+					if pf.Exclude {
+						// Include original, and exclude sub-path
+						query.PathPrefix = append(query.PathPrefix, rootNode.Path)
+						query.ExcludedPathPrefix = append(query.ExcludedPathPrefix, path.Join(rootNode.Path, pf.Prefix))
+					} else {
+						query.PathPrefix = append(query.PathPrefix, path.Join(rootNode.Path, pf.Prefix))
+					}
+				}
+			} else {
+				query.PathPrefix = append(query.PathPrefix, rootNode.Path)
+			}
 		}
 
 		sClient, err := s.getClient(ctx).Search(ctx, searchRequest)
@@ -281,7 +294,7 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 
 		defer sClient.CloseSend()
 
-		log.Logger(ctx).Debug("Start Searching")
+		log.Logger(ctx).Debug("Start Searching", zap.Any("Query", query))
 		var ordered []string
 		var resolved []*tree.Node
 
@@ -350,7 +363,11 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 								}
 							}
 							log.Logger(ctx).Debug("Append result " + filtered.Path)
-							results <- filtered.WithoutReservedMetas()
+							if filterReserved {
+								results <- filtered.WithoutReservedMetas()
+							} else {
+								results <- filtered
+							}
 						}
 					}
 				}

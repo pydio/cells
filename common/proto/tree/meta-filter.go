@@ -325,7 +325,7 @@ type GeoJson struct {
 }
 
 type IndexableNode struct {
-	Node       `bson:"inline"`
+	*Node      `bson:"inline"`
 	ReloadCore bool `bson:"-"`
 	ReloadNs   bool `bson:"-"`
 
@@ -333,6 +333,7 @@ type IndexableNode struct {
 	Basename    string                 `bson:"basename"`
 	NodeType    string                 `bson:"node_type"`
 	Extension   string                 `bson:"extension"`
+	PathDepth   int                    `bson:"path_depth"`
 	TextContent string                 `bson:"text_content,omitempty"`
 	GeoPoint    map[string]interface{} `bson:"-"`                  // Used by Bleve
 	GeoJson     *GeoJson               `bson:"geo_json,omitempty"` // Used by Mongo
@@ -352,7 +353,7 @@ func (i *IndexableNode) MemLoad() {
 	i.Meta = i.AllMetaDeserialized(nil)
 	i.ModifTime = time.Unix(i.MTime, 0)
 	var basename string
-	i.GetMeta(common.MetaNamespaceNodeName, &basename)
+	_ = i.GetMeta(common.MetaNamespaceNodeName, &basename)
 	i.Basename = basename
 	if i.Type == 1 {
 		i.NodeType = "file"
@@ -360,12 +361,13 @@ func (i *IndexableNode) MemLoad() {
 	} else {
 		i.NodeType = "folder"
 	}
-	i.GetMeta(common.MetaNamespaceGeoLocation, &i.GeoPoint)
+	i.PathDepth = len(strings.Split(strings.Trim(i.Path, "/"), "/"))
+	_ = i.GetMeta(common.MetaNamespaceGeoLocation, &i.GeoPoint)
 	i.MetaStore = nil
 }
 
 func NewMemIndexableNode(n *Node) *IndexableNode {
-	i := &IndexableNode{Node: *n}
+	i := &IndexableNode{Node: n}
 	i.MemLoad()
 	return i
 }

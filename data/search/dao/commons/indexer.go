@@ -91,7 +91,7 @@ func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool) err
 	}
 
 	indexNode := &tree.IndexableNode{
-		Node:       *n,
+		Node:       n,
 		ReloadCore: reloadCore || forceCore,
 		ReloadNs:   !reloadCore,
 	}

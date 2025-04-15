@@ -339,19 +339,104 @@ enum Flag {
   WithPreSignedURLs = 6;
 }
 
+message LookupScope {
+  // These locators will restrict the query to their children
+  // Root can be empty (or /) to target top folder for listing
+  NodeLocator Root = 1;
+  // When using a Root, restrict listing to a certain depth:
+  // 0 (default) or 1 will list children at first level,
+  // -1 searches all children recursively
+  // Number N will list *until* level N
+  int32 RootRelativeDepth = 2;
+  // These locators will restrict the query to these nodes, along any additional filtering
+  repeated NodeLocator Nodes = 3;
+}
+
+message LookupFilter {
+  message SizeRange {
+    int64 Min = 1;
+    int64 Max = 2;
+  }
+  message DateRange {
+    int64 Min = 1;
+    int64 Max = 2;
+    string RelativeDuration = 3;
+  }
+  message PathPrefix {
+    string Prefix = 1;
+    bool Exclude = 2;
+  }
+  message TextSearch {
+    enum In {
+      BaseName = 0;
+      Contents = 1;
+      BaseOrContents = 2;
+    };
+    string Term = 1;
+    In SearchIn = 2;
+  }
+  message MetaFilter {
+    enum Op {
+      Must = 0;
+      Should = 1;
+      Not = 2;
+    }
+    string Namespace = 1;
+    string Term = 2;
+    Op Operation = 3;
+  }
+  message StatusFilter {
+    enum DeletedStatus {
+      Not = 0;
+      Only = 1;
+      Any = 2;
+    }
+    DeletedStatus Deleted = 1;
+    bool IsDraft = 2;
+    bool IsBookmarked = 3;
+    bool HasPublicLink = 4;
+  }
+
+
+  // Search by text
+  TextSearch Text = 1;
+  // Filter by Type (LEAF|COLLECTION)
+  tree.NodeType Type = 2;
+  // Filter on size
+  SizeRange Size = 3;
+  // Filter on date
+  DateRange Date = 4;
+  // Restricted list of extensions, combined as OR
+  repeated string Extensions = 5;
+  // Metadata search, combined as AND
+  repeated MetaFilter Metadata = 6;
+  // Status Filter
+  StatusFilter Status = 7;
+  // Additional restriction/exclusion of certain prefixes, starting from the root
+  repeated PathPrefix Prefixes = 8;
+  // Bleve-like search query for advanced usage
+  string FreeExpression = 9;
+
+}
+
 // Request for list/search. Accepts either
 // - a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes
 // - a Query to search nodes in a more flexible way
 message LookupRequest {
-  oneof Input {
-    NodeLocators Locators = 1;
-    tree.Query Query = 2;
-  }
+  LookupScope Scope = 1;
+  LookupFilter Filters = 2;
+
   int64 Offset = 3;
   int64 Limit = 4;
   string SortField = 5;
   bool SortDirDesc = 6;
   repeated Flag Flags = 7;
+
+  // Will be deprecated
+  oneof Input {
+    NodeLocators Locators = 8;
+    tree.Query Query = 9;
+  }
 }
 
 enum VersionsTypes {

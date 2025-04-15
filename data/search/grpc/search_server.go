@@ -46,7 +46,6 @@ import (
 type SearchServer struct {
 	tree.UnimplementedSearcherServer
 	protosync.UnimplementedSyncEndpointServer
-	RuntimeCtx context.Context
 
 	eventsChannel    chan *broker.TypeWithContext[*tree.NodeChangeEvent]
 	TreeClient       tree.NodeProviderClient
