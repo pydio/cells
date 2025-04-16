@@ -130,7 +130,6 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		//registry.WithMeta("name", o.Name),
 		registry.WithType(registry2.ItemType_EDGE),
 		registry.WithFilter(func(item registry.Item) bool {
-
 			if item.Name() != "storage_"+o.Name {
 				return false
 			}
@@ -183,6 +182,7 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 
 		// Try to fit Input parameter type and Storage types
 		for _, edge := range registry.ItemsAs[registry.Edge](edges) {
+
 			for _, st := range storages {
 				if edge.Vertices()[1] == st.ID() {
 					meta := edge.Metadata()
