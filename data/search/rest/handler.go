@@ -165,7 +165,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 	if query == nil {
 		return rsp.WriteEntity(&rest.SearchResults{Total: 0})
 	}
-	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest, true)
+	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest, false, true)
 	if er != nil {
 		return er
 	}
@@ -178,7 +178,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 
 }
 
-func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest, filterReserved bool, additionalPrefixes ...*rest.LookupFilter_PathPrefix) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
+func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest, firstLevelSearch, filterReserved bool, additionalPrefixes ...*rest.LookupFilter_PathPrefix) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
 
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "PerformSearch")
@@ -285,6 +285,10 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 			} else {
 				query.PathPrefix = append(query.PathPrefix, rootNode.Path)
 			}
+		}
+		if firstLevelSearch && len(query.PathPrefix) > 0 {
+			depth := len(strings.Split(strings.Trim(query.PathPrefix[0], "/"), "/"))
+			query.PathDepth = int32(depth) + 1
 		}
 
 		sClient, err := s.getClient(ctx).Search(ctx, searchRequest)

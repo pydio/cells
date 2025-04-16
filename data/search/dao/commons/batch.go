@@ -121,7 +121,7 @@ func (b *LocalBatch) Flush(ctx context.Context, batchOpts ...indexer.BatchOption
 	if l == 0 {
 		return nil
 	}
-	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l), zap.Any("inserts", b.inserts))
+	log.Logger(b.ctx).Debug("Flushing search batch", zap.Int("size", l))
 	excludes := b.nsProvider.ExcludeIndexes()
 	var nn []*tree.IndexableNode
 	if er := b.nsProvider.InitStreamers(b.ctx); er != nil {

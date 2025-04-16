@@ -120,7 +120,7 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 		}
 		go func() {
 			defer streamer.CloseSend()
-			_ = commons.ForEach(st, e, func(vResp *tree.ListNodesResponse) error {
+			sendErr := commons.ForEach(st, e, func(vResp *tree.ListNodesResponse) error {
 				vNode := vResp.GetNode().Clone()
 				var ff map[string]string
 				if filter := sflags.VersionsFilter(); filter != "" {
@@ -139,6 +139,9 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 				}
 				return streamer.Send(&tree.ListNodesResponse{Node: vNode})
 			})
+			if sendErr != nil {
+				log.Logger(ctx).Error("handler-version failed to send node to streamer", zap.Error(sendErr))
+			}
 		}()
 
 		return streamer, nil

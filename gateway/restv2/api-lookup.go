@@ -73,14 +73,17 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 	var bulkRequest *rest.GetBulkMetaRequest
 	var statUuids []string
 	var additionalPrefixes []*rest.LookupFilter_PathPrefix
+	var recursive bool
 
 	if input.Input != nil {
 		// Legacy - should be deprecated
 		switch input.Input.(type) {
 		case *rest.LookupRequest_Query:
 			searchQuery = input.GetQuery()
+			recursive = true
 
 		case *rest.LookupRequest_Locators:
+			recursive = false
 			if len(input.GetLocators().Many) == 0 {
 				return errors.WithMessage(errors.InvalidParameters, "please provide at least path or uuid for locators")
 			}
@@ -111,6 +114,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		if scope = input.GetScope(); scope == nil {
 			scope = &rest.LookupScope{}
 		}
+		recursive = scope.Recursive
 		if filter = input.GetFilters(); filter == nil {
 			filter = &rest.LookupFilter{}
 		}
@@ -278,7 +282,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			SortField:   input.GetSortField(),
 			SortDirDesc: input.GetSortDirDesc(),
 		}
-		nn, coll.Facets, coll.Pagination, er = h.SearchHandler.PerformSearch(ctx, searchRequest, false, additionalPrefixes...)
+		nn, coll.Facets, coll.Pagination, er = h.SearchHandler.PerformSearch(ctx, searchRequest, !recursive, false, additionalPrefixes...)
 		if er != nil {
 			return er
 		}

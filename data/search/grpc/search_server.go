@@ -261,7 +261,7 @@ func (s *SearchServer) TriggerResync(ctx context.Context, req *protosync.ResyncR
 	}
 
 	wg := sync.WaitGroup{}
-	bg := context.Background()
+	bg := context.WithoutCancel(ctx)
 	throttle := make(chan struct{}, 2)
 
 	for _, root := range roots {

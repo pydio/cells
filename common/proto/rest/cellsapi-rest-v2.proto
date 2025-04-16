@@ -343,11 +343,9 @@ message LookupScope {
   // These locators will restrict the query to their children
   // Root can be empty (or /) to target top folder for listing
   NodeLocator Root = 1;
-  // When using a Root, restrict listing to a certain depth:
-  // 0 (default) or 1 will list children at first level,
-  // -1 searches all children recursively
-  // Number N will list *until* level N
-  int32 RootRelativeDepth = 2;
+  // Whether to list/search first level of children
+  // or all children recursively. This does not apply if no Root or empty Root is provided
+  bool Recursive = 2;
   // These locators will restrict the query to these nodes, along any additional filtering
   repeated NodeLocator Nodes = 3;
 }

@@ -1163,14 +1163,13 @@
           "title": "These locators will restrict the query to these nodes, along any additional filtering",
           "type": "array"
         },
+        "Recursive": {
+          "title": "Whether to list/search first level of children\nor all children recursively. This does not apply if no Root or empty Root is provided",
+          "type": "boolean"
+        },
         "Root": {
           "$ref": "#/definitions/restNodeLocator",
           "title": "These locators will restrict the query to their children\nRoot can be empty (or /) to target top folder for listing"
-        },
-        "RootRelativeDepth": {
-          "format": "int32",
-          "title": "When using a Root, restrict listing to a certain depth:\n0 (default) or 1 will list children at first level,\n-1 searches all children recursively\nNumber N will list *until* level N",
-          "type": "integer"
         }
       },
       "type": "object"
