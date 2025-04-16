@@ -24,16 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
@@ -49,6 +40,13 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/filex"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -281,7 +279,9 @@ ENVIRONMENT
 			managerLogger.Info("Stopping discovery services now")
 			discovery.StopAll()
 		}
-
+		if !runtime.IsFork() {
+			managerLogger.Info("All servers stopped")
+		}
 		return nil
 	},
 }
