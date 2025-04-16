@@ -999,47 +999,49 @@ func (m *manager) initStorages(ctx context.Context, store configx.Values, base s
 		}
 	}
 
-	storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
-	if err != nil {
-		return err
-	}
-
-	services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-	if err != nil {
-		return err
-	}
-
-	for _, ss := range services {
-		var svc service.Service
-		if !ss.As(&svc) {
-			continue
-		}
-
-		// Find storage and link it
-		// TODO - Named stores should come from the config then ?
-		var namedStores map[string][]map[string]string
-		if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+	/*
+		storageItems, err := m.internalRegistry.List(registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
 			return err
 		}
 
-		if len(namedStores) == 0 {
-			continue
-		}
+			services, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+			if err != nil {
+				return err
+			}
 
-		for name, stores := range namedStores {
-			for _, st := range stores {
-				for _, storageItem := range storageItems {
-					if st["type"] == storageItem.Name() {
-						st["name"] = name
+			for _, ss := range services {
+				var svc service.Service
+				if !ss.As(&svc) {
+					continue
+				}
 
-						if _, err := m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st); err != nil {
-							fmt.Println("ERror while registering ", storageItem.ID(), ss.Name())
+				// Find storage and link it
+				// TODO - Named stores should come from the config then ?
+				var namedStores map[string][]map[string]string
+				if err := store.Val(base, "services", ss.Name(), "storages").Scan(&namedStores); err != nil {
+					return err
+				}
+
+				if len(namedStores) == 0 {
+					continue
+				}
+
+				for name, stores := range namedStores {
+					for _, st := range stores {
+						for _, storageItem := range storageItems {
+							if st["type"] == storageItem.Name() {
+								st["name"] = name
+
+								if _, err := m.internalRegistry.RegisterEdge(ss.ID(), storageItem.ID(), "storage", st); err != nil {
+									fmt.Println("ERror while registering ", storageItem.ID(), ss.Name())
+								}
+							}
 						}
 					}
 				}
 			}
-		}
-	}
+	*/
 
 	return nil
 }
@@ -1941,6 +1943,7 @@ func (m *manager) WatchServices() {
 
 										out, err := st.Get(ctx)
 										if err != nil {
+											log.Logger(ctx).Error("failed to get storage", zap.Error(err))
 											continue
 										}
 
