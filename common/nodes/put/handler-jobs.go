@@ -69,7 +69,7 @@ func (m *DynamicJobsHandler) MultipartCreate(ctx context.Context, node *tree.Nod
 		for k, v := range checkedMeta {
 			uNode.MustSetMeta(k, v)
 		}
-		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMeta))
+		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 		if _, er = cl.UpdateNode(ctx, &tree.UpdateNodeRequest{From: uNode, To: uNode}); er != nil {
 			log.Logger(ctx).Warn("Failed to update node", zap.Error(er))
 		} else {

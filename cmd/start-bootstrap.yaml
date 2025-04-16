@@ -84,7 +84,7 @@ services: &services
     storages:
       main:
         - type: bolt
-          prefix: chat.db
+          file: chat.db
   pydio.grpc.data-key:
     storages:
       main:

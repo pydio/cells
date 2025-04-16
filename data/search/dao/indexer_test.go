@@ -27,6 +27,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -64,7 +65,7 @@ func init() {
 	global, _ = mock.RegisterMockConfig(context.Background())
 }
 
-func createNodes(ctx context.Context, s search.Engine) error {
+func createNodes(ctx context.Context, s search.Engine, nodes ...*tree.Node) error {
 
 	node := &tree.Node{
 		Uuid:  "docID1",
@@ -98,6 +99,12 @@ func createNodes(ctx context.Context, s search.Engine) error {
 		log.Println("Error while indexing node", e)
 	}
 
+	for _, n := range nodes {
+		if e := s.IndexNode(ctx, n, false); e != nil {
+			log.Println("Error while indexing node", e)
+		}
+	}
+
 	if er := s.(*commons.Server).Flush(ctx); er != nil {
 		return er
 	}
@@ -106,7 +113,7 @@ func createNodes(ctx context.Context, s search.Engine) error {
 	return nil
 }
 
-func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Query) (results []*tree.Node, total uint64, err error) {
+func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Query, sorting ...string) (results []*tree.Node, total uint64, err error) {
 
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
@@ -134,65 +141,19 @@ func performSearch(ctx context.Context, index search.Engine, queryObject *tree.Q
 			}
 		}
 	}()
+	var sortField string
+	var sortDirDesc bool
+	if len(sorting) > 0 {
+		parts := strings.Split(sorting[0], ":")
+		sortField = parts[0]
+		sortDirDesc = strings.ToLower(parts[1]) == "desc"
+	}
 
-	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, totalChan, doneChan)
+	e := index.SearchNodes(ctx, queryObject, 0, 10, sortField, sortDirDesc, resultsChan, facetsChan, totalChan, doneChan)
 	wg.Wait()
 	return results, total, e
 
 }
-
-//func TestNewBleveEngine(t *testing.T) {
-//	test.RunStorageTests(testcases(), func(ctx context.Context, server Engine) {
-//	Convey("Test create bleve engine then reopen it", t, func() {
-//
-//		st, err := storage.OpenStorage(mgr.Context(), "bleve://"+filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
-//		So(err, ShouldBeNil)
-//
-//		var idx *bleve.Indexer
-//		st.Get(context.TODO(), &idx)
-//
-//		server := NewBleveDAO(global, idx)
-//		So(server, ShouldNotBeNil)
-//
-//		e := server.Close(context.TODO())
-//		So(e, ShouldBeNil)
-//
-//		server = NewBleveDAO(global, idx)
-//		So(server, ShouldNotBeNil)
-//
-//		e = server.Close(context.TODO())
-//		So(e, ShouldBeNil)
-//	})
-//
-//}
-
-//func TestMakeIndexableNode(t *testing.T) {
-//
-//	Convey("Create Indexable Node", t, func() {
-//
-//		mtime := time.Now().Unix()
-//		mtimeNoNano := time.Unix(mtime, 0)
-//		node := &tree.Node{
-//			Path:      "/path/to/node.txt",
-//			MTime:     mtime,
-//			Type:      1,
-//			MetaStore: make(map[string]string),
-//		}
-//		node.MustSetMeta(common.MetaNamespaceNodeName, "node.txt")
-//
-//		b := NewBatch(global, nil, meta.NewNsProvider(context.Background()), BatchOptions{config: configx.New()})
-//		indexNode := &tree.IndexableNode{Node: *node}
-//		e := b.loadIndexableNode(indexNode, nil)
-//		So(e, ShouldBeNil)
-//		So(indexNode.NodeType, ShouldEqual, "file")
-//		So(indexNode.ModifTime, ShouldResemble, mtimeNoNano)
-//		So(indexNode.Basename, ShouldEqual, "node.txt")
-//		So(indexNode.Extension, ShouldEqual, "txt")
-//		So(indexNode.Meta, ShouldResemble, map[string]interface{}{"name": "node.txt"})
-//		So(indexNode.MetaStore, ShouldBeNil)
-//	})
-//
-//}
 
 func TestIndexNode(t *testing.T) {
 	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
@@ -294,6 +255,13 @@ func TestSearchNode(t *testing.T) {
 			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				Extension: "txt,png",
+			}
+			results, _, e = performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
 
 			// Remove now
 			So(server.DeleteNode(ctx, &tree.Node{Uuid: "node-with-uppercase-extension"}), ShouldBeNil)
@@ -458,6 +426,232 @@ func TestSearchNode(t *testing.T) {
 			So(results, ShouldHaveLength, 0)
 
 		})
+	})
+}
+
+func TestSearchOnPathPrefixes(t *testing.T) {
+
+	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
+
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		testNodes := []*tree.Node{
+			{
+				Uuid:      "docID100",
+				Path:      "/path/recycle_bin/deleted-node.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"deleted-node.txt\""},
+			},
+		}
+		if err = createNodes(ctx, server, testNodes...); err != nil {
+			panic(err)
+		}
+
+		Convey("Search Node by name with Path Prefix", t, func() {
+
+			queryObject := &tree.Query{
+				FileName:   "node",
+				PathPrefix: []string{"/path"},
+			}
+
+			results, _, e := performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
+
+			queryObject = &tree.Query{
+				FileName:   "node",
+				PathPrefix: []string{"/wrong/path"},
+			}
+
+			results, _, e = performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 0)
+
+			// Now exclude recycle contents
+			queryObject = &tree.Query{
+				FileName:           "node",
+				PathPrefix:         []string{"/path"},
+				ExcludedPathPrefix: []string{"/path/recycle_bin/"},
+			}
+
+			results, _, e = performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+		})
+
+	})
+}
+
+func TestSearchOnWithPathDepth(t *testing.T) {
+
+	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
+
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		testNodes := []*tree.Node{
+			{
+				Uuid:      "docID100",
+				Path:      "/path/something/test1.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"test4.txt\""},
+			},
+			{
+				Uuid:      "docID101",
+				Path:      "/path/something/test2.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      12,
+				MetaStore: map[string]string{"name": "\"test2.txt\""},
+			},
+			{
+				Uuid:      "docID102",
+				Path:      "/path/something/test3.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"test3.txt\""},
+			},
+			{
+				Uuid:      "docID103",
+				Path:      "/path/something/subfolder",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_COLLECTION,
+				MetaStore: map[string]string{"name": "\"subfolder\""},
+			},
+			{
+				Uuid:      "docID104",
+				Path:      "/path/something/subfolder/subtest.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"subtest.txt\""},
+			},
+		}
+		if err = createNodes(ctx, server, testNodes...); err != nil {
+			panic(err)
+		}
+
+		Convey("Search Node by name with Path Prefix", t, func() {
+			queryObject := &tree.Query{
+				PathPrefix: []string{"/path/something/"},
+			}
+
+			results, _, e := performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 5)
+
+			queryObject = &tree.Query{
+				PathPrefix: []string{"/path/something/"},
+				PathDepth:  3,
+			}
+
+			results, _, e = performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 4)
+
+		})
+	})
+}
+
+func TestSearchSorting(t *testing.T) {
+
+	test.RunStorageTests(testcases(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
+
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		testNodes := []*tree.Node{
+			{
+				Uuid:      "docID100",
+				Path:      "/sorted/aaa.txt",
+				MTime:     time.Now().Add(-10 * time.Second).Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      36,
+				MetaStore: map[string]string{"name": "\"aaa.txt\""},
+			},
+			{
+				Uuid:      "docID101",
+				Path:      "/sorted/bbb.txt",
+				MTime:     time.Now().Add(-5 * time.Second).Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      12,
+				MetaStore: map[string]string{"name": "\"bbb.txt\""},
+			},
+			{
+				Uuid:      "docID102",
+				Path:      "/sorted/ccc.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"ccc.txt\""},
+			},
+		}
+		if err = createNodes(ctx, server, testNodes...); err != nil {
+			panic(err)
+		}
+
+		Convey("Search Nodes with Sorting options", t, func() {
+
+			queryObject := &tree.Query{
+				PathPrefix: []string{"/sorted/"},
+			}
+
+			results, _, e := performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 3)
+
+			// MTIME ASC
+			results, _, e = performSearch(ctx, server, queryObject, "mtime:asc")
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 3)
+			So(results[0].GetUuid(), ShouldEqual, "docID100")
+			So(results[1].GetUuid(), ShouldEqual, "docID101")
+			So(results[2].GetUuid(), ShouldEqual, "docID102")
+
+			// MTIME DESC
+			results, _, e = performSearch(ctx, server, queryObject, "mtime:desc")
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 3)
+			So(results[0].GetUuid(), ShouldEqual, "docID102")
+			So(results[1].GetUuid(), ShouldEqual, "docID101")
+			So(results[2].GetUuid(), ShouldEqual, "docID100")
+
+			// SIZE ASC
+			results, _, e = performSearch(ctx, server, queryObject, "size:asc")
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 3)
+			So(results[0].GetUuid(), ShouldEqual, "docID101")
+			So(results[1].GetUuid(), ShouldEqual, "docID102")
+			So(results[2].GetUuid(), ShouldEqual, "docID100")
+
+			// SIZE DESC
+			results, _, e = performSearch(ctx, server, queryObject, "size:desc")
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 3)
+			So(results[0].GetUuid(), ShouldEqual, "docID100")
+			So(results[1].GetUuid(), ShouldEqual, "docID102")
+			So(results[2].GetUuid(), ShouldEqual, "docID101")
+		})
+
 	})
 }
 

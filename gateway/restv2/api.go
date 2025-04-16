@@ -59,10 +59,11 @@ type Handler struct {
 	UserMetaHandler  *umeta.UserMetaHandler
 }
 
-type ConvertToolMeta struct {
-	Processing bool   `json:"Processing,omitempty"`
-	Error      bool   `json:"Error,omitempty"`
-	Key        string `json:"Key,omitempty"`
+type PreviewMeta struct {
+	Processing  bool   `json:"Processing,omitempty"`
+	Error       bool   `json:"Error,omitempty"`
+	Key         string `json:"Key,omitempty"`
+	ContentType string `json:"ContentType,omitempty"`
 }
 
 type PreSigner interface {
@@ -125,7 +126,6 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		StorageETag: n.GetEtag(),
 
 		// TODO Not Impl Yet
-		IsRecycled: false,
 		Activities: nil,
 	}
 	opts := &TNOptions{}
@@ -145,6 +145,9 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 	}
 	for k, v := range n.GetMetaStore() {
 		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
+			if k == common.MetaNamespaceRecycleRestore {
+				rn.IsRecycled = true
+			}
 			continue
 		}
 		switch k {
@@ -294,8 +297,9 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 	}
 	if len(thumbs.Thumbnails) == 0 {
 		ff = append(ff, &rest.FilePreview{
-			Processing: thumbs.Processing,
-			Error:      thumbs.Error,
+			ContentType: "image/jpg",
+			Processing:  thumbs.Processing,
+			Error:       thumbs.Error,
 		})
 		return
 	}
@@ -330,28 +334,33 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 // OtherPreview takes a simple value to build a rest.FilePreview
 func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo ...TNOption) (f *rest.FilePreview) {
 	var imageKey string
-	var objectKey *ConvertToolMeta
+	var objectKey *PreviewMeta
+	cType := ""
+
 	if e := json.Unmarshal([]byte(jsonValue), &objectKey); e == nil {
 		if objectKey.Key == "" {
 			return &rest.FilePreview{
-				Processing: objectKey.Processing,
-				Error:      objectKey.Error,
+				Processing:  objectKey.Processing,
+				Error:       objectKey.Error,
+				ContentType: objectKey.ContentType,
 			}
 		}
 		imageKey = objectKey.Key
+		cType = objectKey.ContentType
 	} else if er := json.Unmarshal([]byte(jsonValue), &imageKey); er == nil {
 		// old meta version with just a string
 	} else {
 		log.Logger(ctx).Error("Cannot unmarshall preview to string or object, this is not normal", zap.Error(er), zap.Error(e))
 	}
 
-	cType := ""
-	ext := strings.TrimPrefix(filepath.Ext(imageKey), ".")
-	switch ext {
-	case "pdf":
-		cType = "application/pdf"
-	case "png", "jpg", "webp", "jpeg":
-		cType = "image/" + ext
+	if cType == "" {
+		ext := strings.TrimPrefix(filepath.Ext(imageKey), ".")
+		switch ext {
+		case "pdf":
+			cType = "application/pdf"
+		case "png", "jpg", "webp", "jpeg":
+			cType = "image/" + ext
+		}
 	}
 	key := path.Join(slug, imageKey)
 	var pGet *rest.PreSignedURL

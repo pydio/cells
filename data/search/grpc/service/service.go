@@ -68,7 +68,6 @@ func init() {
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				searcher := &grpc2.SearchServer{
-					RuntimeCtx: c,
 					// NsProvider:       nsProvider,
 					ReIndexThrottler: make(chan struct{}, 5),
 				}

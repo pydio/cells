@@ -6156,6 +6156,13 @@
           "title": "Look for a specific ETag value, may only be useful to lookup for files with __temporary__ ETag",
           "type": "string"
         },
+        "ExcludedPathPrefix": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nodes below these paths will be excluded from results",
+          "type": "array"
+        },
         "Extension": {
           "title": "Search files by their extension, use pipe symbol | if you wish to allow many extensions.\nExample png|pdf|jpg",
           "type": "string"

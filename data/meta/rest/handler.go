@@ -109,7 +109,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 					}
 				}
 				if inRequest && !bulkRequest.Versions {
-					nn = append(nn, readResp.WithoutReservedMetas())
+					nn = append(nn, readResp)
 				}
 			} else {
 				er = errors.Tag(err, errors.NodeNotFound)
@@ -128,7 +128,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 				continue
 			}
 			if node, err := h.loadNodeByPath(ctx, p, flags); err == nil {
-				nn = append(nn, node.WithoutReservedMetas())
+				nn = append(nn, node)
 			}
 		}
 	}
@@ -136,7 +136,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 	if len(nn) > 0 {
 		for i, n := range nn {
 			if n.Uuid != "" {
-				nn[i] = n.WithoutReservedMetas()
+				nn[i] = n
 			}
 		}
 	}
@@ -164,7 +164,8 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 		}
 		hasFilter := false
 		for k, v := range bulkRequest.GetFilters() {
-			if k == "type" {
+			switch k {
+			case "type":
 				switch v {
 				case "LEAF":
 					listRequest.FilterType = tree.NodeType_LEAF
@@ -179,6 +180,8 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 						total = childrenCount
 					}
 				}
+			case tree.MetaFilterGrep, tree.MetaFilterForceGrep, tree.MetaFilterNoGrep:
+				folderNode.MustSetMeta(k, v)
 			}
 		}
 		cc, countDiffers, err := h.fillChildren(ctx, listRequest, childrenCount)
@@ -192,9 +195,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
 
-			//todo recheck - why would we re-issue a readnode here ?
-			//if resp, e := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
-			er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
+			if wEr := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 				c, n, e := inputFilter(ctx, fNode, "in")
 				if e != nil {
 					return e
@@ -204,13 +205,9 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 					Target: n,
 				})
 				return nil
-			})
-			if er != nil {
+			}); wEr != nil {
 				log.Logger(ctx).Debug("Cannot publish READ event on node", fNode.Zap(), zap.Error(er))
 			}
-			//} else {
-			//	log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
-			//}
 		}
 
 		// Handle Pagination
@@ -296,7 +293,7 @@ func (h *Handler) fillChildren(ctx context.Context, listRequest *tree.ListNodesR
 			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
 				continue
 			}
-			oo = append(oo, r.Node.WithoutReservedMetas())
+			oo = append(oo, r.Node)
 		}
 		if len(oo) >= int(limit) { // limit is reached, break
 			break

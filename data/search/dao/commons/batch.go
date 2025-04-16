@@ -121,7 +121,7 @@ func (b *LocalBatch) Flush(ctx context.Context, batchOpts ...indexer.BatchOption
 	if l == 0 {
 		return nil
 	}
-	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l))
+	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l), zap.Any("inserts", b.inserts))
 	excludes := b.nsProvider.ExcludeIndexes()
 	var nn []*tree.IndexableNode
 	if er := b.nsProvider.InitStreamers(b.ctx); er != nil {
@@ -160,7 +160,7 @@ func (b *LocalBatch) Flush(ctx context.Context, batchOpts ...indexer.BatchOption
 
 func (b *LocalBatch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {
 	if indexNode.ReloadCore {
-		if resp, e := b.getUuidRouter().ReadNode(b.ctx, &tree.ReadNodeRequest{Node: &indexNode.Node}); e != nil {
+		if resp, e := b.getUuidRouter().ReadNode(b.ctx, &tree.ReadNodeRequest{Node: indexNode.Node}); e != nil {
 			return e
 		} else {
 			rNode := resp.Node
@@ -169,19 +169,20 @@ func (b *LocalBatch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes m
 					rNode.MetaStore[k] = v
 				}
 			}
-			indexNode.Node = *rNode
+			indexNode.Node = resp.GetNode()
 		}
 	} else if indexNode.ReloadNs {
-		if resp, e := b.nsProvider.ReadNode(&indexNode.Node); e != nil {
+		if resp, e := b.nsProvider.ReadNode(indexNode.Node); e != nil {
 			return e
 		} else {
-			indexNode.Node = *resp
+			indexNode.Node = resp
 		}
 	}
+	indexNode.PathDepth = len(strings.Split(strings.Trim(indexNode.Path, "/"), "/"))
 	indexNode.Meta = indexNode.AllMetaDeserialized(excludes)
 	indexNode.ModifTime = time.Unix(indexNode.MTime, 0)
 	var basename string
-	indexNode.GetMeta(common.MetaNamespaceNodeName, &basename)
+	_ = indexNode.GetMeta(common.MetaNamespaceNodeName, &basename)
 	indexNode.Basename = basename
 	if indexNode.Type == 1 {
 		indexNode.NodeType = "file"
@@ -189,7 +190,7 @@ func (b *LocalBatch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes m
 	} else {
 		indexNode.NodeType = "folder"
 	}
-	indexNode.GetMeta(common.MetaNamespaceGeoLocation, &indexNode.GeoPoint)
+	_ = indexNode.GetMeta(common.MetaNamespaceGeoLocation, &indexNode.GeoPoint)
 	if indexNode.GeoPoint != nil {
 		lat, ok1 := indexNode.GeoPoint["lat"].(float64)
 		lon, ok2 := indexNode.GeoPoint["lon"].(float64)

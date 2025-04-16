@@ -522,6 +522,8 @@ message Query {
     repeated string Paths = 13;
     // Recursive listing of nodes below a given path. Combine with the PathDepth parameter to limit request results
     repeated string PathPrefix = 1;
+    // Nodes below these paths will be excluded from results
+    repeated string ExcludedPathPrefix = 19;
     // Range for file size - size bigger than
     int64 MinSize = 2;
     // Range for file size - size is smaller than

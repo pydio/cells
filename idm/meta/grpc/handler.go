@@ -99,6 +99,10 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			// DELETE
 			if prev, err := dao.Del(ctx, metaData); err == nil {
 				prevValue = prev
+				// Remove this namespace from ResolvedNode as it will used for targets later on
+				if metaData.ResolvedNode != nil && metaData.ResolvedNode.MetaStore != nil {
+					delete(metaData.ResolvedNode.MetaStore, metaData.Namespace)
+				}
 			} else {
 				return nil, err
 			}

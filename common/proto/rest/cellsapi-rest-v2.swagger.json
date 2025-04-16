@@ -3,11 +3,112 @@
     "application/json"
   ],
   "definitions": {
-    "MetaUpdateOp": {
-      "default": "PUT",
+    "LookupFilterDateRange": {
+      "properties": {
+        "Max": {
+          "format": "int64",
+          "type": "string"
+        },
+        "Min": {
+          "format": "int64",
+          "type": "string"
+        },
+        "RelativeDuration": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LookupFilterMetaFilter": {
+      "properties": {
+        "Namespace": {
+          "type": "string"
+        },
+        "Operation": {
+          "$ref": "#/definitions/LookupFilterMetaFilterOp"
+        },
+        "Term": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LookupFilterMetaFilterOp": {
+      "default": "Must",
       "enum": [
-        "PUT",
-        "DELETE"
+        "Must",
+        "Should",
+        "Not"
+      ],
+      "type": "string"
+    },
+    "LookupFilterPathPrefix": {
+      "properties": {
+        "Exclude": {
+          "type": "boolean"
+        },
+        "Prefix": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LookupFilterSizeRange": {
+      "properties": {
+        "Max": {
+          "format": "int64",
+          "type": "string"
+        },
+        "Min": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LookupFilterStatusFilter": {
+      "properties": {
+        "Deleted": {
+          "$ref": "#/definitions/StatusFilterDeletedStatus"
+        },
+        "HasPublicLink": {
+          "type": "boolean"
+        },
+        "IsBookmarked": {
+          "type": "boolean"
+        },
+        "IsDraft": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "LookupFilterTextSearch": {
+      "properties": {
+        "SearchIn": {
+          "$ref": "#/definitions/LookupFilterTextSearchIn"
+        },
+        "Term": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LookupFilterTextSearchIn": {
+      "default": "BaseName",
+      "enum": [
+        "BaseName",
+        "Contents",
+        "BaseOrContents"
+      ],
+      "type": "string"
+    },
+    "StatusFilterDeletedStatus": {
+      "default": "Not",
+      "enum": [
+        "Not",
+        "Only",
+        "Any"
       ],
       "type": "string"
     },
@@ -962,8 +1063,63 @@
       "title": "Info about content locking",
       "type": "object"
     },
+    "restLookupFilter": {
+      "properties": {
+        "Date": {
+          "$ref": "#/definitions/LookupFilterDateRange",
+          "title": "Filter on date"
+        },
+        "Extensions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Restricted list of extensions, combined as OR",
+          "type": "array"
+        },
+        "FreeExpression": {
+          "title": "Bleve-like search query for advanced usage",
+          "type": "string"
+        },
+        "Metadata": {
+          "items": {
+            "$ref": "#/definitions/LookupFilterMetaFilter",
+            "type": "object"
+          },
+          "title": "Metadata search, combined as AND",
+          "type": "array"
+        },
+        "Prefixes": {
+          "items": {
+            "$ref": "#/definitions/LookupFilterPathPrefix",
+            "type": "object"
+          },
+          "title": "Additional restriction/exclusion of certain prefixes, starting from the root",
+          "type": "array"
+        },
+        "Size": {
+          "$ref": "#/definitions/LookupFilterSizeRange",
+          "title": "Filter on size"
+        },
+        "Status": {
+          "$ref": "#/definitions/LookupFilterStatusFilter",
+          "title": "Status Filter"
+        },
+        "Text": {
+          "$ref": "#/definitions/LookupFilterTextSearch",
+          "title": "Search by text"
+        },
+        "Type": {
+          "$ref": "#/definitions/treeNodeType",
+          "title": "Filter by Type (LEAF|COLLECTION)"
+        }
+      },
+      "type": "object"
+    },
     "restLookupRequest": {
       "properties": {
+        "Filters": {
+          "$ref": "#/definitions/restLookupFilter"
+        },
         "Flags": {
           "items": {
             "$ref": "#/definitions/restFlag"
@@ -984,6 +1140,9 @@
         "Query": {
           "$ref": "#/definitions/treeQuery"
         },
+        "Scope": {
+          "$ref": "#/definitions/restLookupScope"
+        },
         "SortDirDesc": {
           "type": "boolean"
         },
@@ -992,6 +1151,28 @@
         }
       },
       "title": "Request for list/search. Accepts either\n- a list of Locators (using path/* will list a folder's first level children) to retrieve stats about nodes\n- a Query to search nodes in a more flexible way",
+      "type": "object"
+    },
+    "restLookupScope": {
+      "properties": {
+        "Nodes": {
+          "items": {
+            "$ref": "#/definitions/restNodeLocator",
+            "type": "object"
+          },
+          "title": "These locators will restrict the query to these nodes, along any additional filtering",
+          "type": "array"
+        },
+        "Root": {
+          "$ref": "#/definitions/restNodeLocator",
+          "title": "These locators will restrict the query to their children\nRoot can be empty (or /) to target top folder for listing"
+        },
+        "RootRelativeDepth": {
+          "format": "int32",
+          "title": "When using a Root, restrict listing to a certain depth:\n0 (default) or 1 will list children at first level,\n-1 searches all children recursively\nNumber N will list *until* level N",
+          "type": "integer"
+        }
+      },
       "type": "object"
     },
     "restMetaToggle": {
@@ -1009,7 +1190,7 @@
     "restMetaUpdate": {
       "properties": {
         "Operation": {
-          "$ref": "#/definitions/MetaUpdateOp"
+          "$ref": "#/definitions/restMetaUpdateOp"
         },
         "UserMeta": {
           "$ref": "#/definitions/restUserMeta"
@@ -1021,6 +1202,14 @@
       ],
       "title": "Update operation on Metadata",
       "type": "object"
+    },
+    "restMetaUpdateOp": {
+      "default": "PUT",
+      "enum": [
+        "PUT",
+        "DELETE"
+      ],
+      "type": "string"
     },
     "restMode": {
       "default": "Default",
@@ -2123,6 +2312,13 @@
         "ETag": {
           "title": "Look for a specific ETag value, may only be useful to lookup for files with __temporary__ ETag",
           "type": "string"
+        },
+        "ExcludedPathPrefix": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nodes below these paths will be excluded from results",
+          "type": "array"
         },
         "Extension": {
           "title": "Search files by their extension, use pipe symbol | if you wish to allow many extensions.\nExample png|pdf|jpg",
