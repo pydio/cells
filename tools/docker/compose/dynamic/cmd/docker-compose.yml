@@ -1,0 +1,96 @@
+networks:
+  cells-v5:
+    external: false
+
+configs:
+  install-conf.yml:
+    content: |
+      # This is the minimal configuration to directly start a pre-configured server in sandbox mode.
+      # Simply run 'docker compose up -d', you can log in with admin/admin at https://localhost:8080
+      # After accepting the self-signed certificate
+      
+      # Adapt to your convenience and refer to the documentation to explore further possibilities.
+      
+      # WebUI Admin definition
+      frontendlogin: admin
+      frontendpassword: admin
+      
+      {{- if .EnableMysql }}
+      dbconnectiontype: manual
+      dbmanualdsn: mysql://cells:cells@tcp(mysql:3306)/cells?parseTime=true&prefix={{`{{.Meta.prefix}}`}}&policies={{`{{.Meta.policies}}`}}&singular={{`{{.Meta.singular}}`}}
+      {{- end}}
+      
+      {{- if .EnableMariaDB }}
+      dbconnectiontype: manual
+      dbmanualdsn: mysql://cells:cells@tcp(mariadb:3306)/cells?parseTime=true&prefix={{`{{.Meta.prefix}}`}}&policies={{`{{.Meta.policies}}`}}&singular={{`{{.Meta.singular}}`}}
+      {{- end}}
+      
+      {{- if .EnablePostgres }}
+      dbconnectiontype: manual
+      dbmanualdsn: postgres://postgres:P@ssw0rd@localhost:5432/testdb?sslmode=disable&prefix={{`{{.Meta.prefix}}`}}&policies={{`{{.Meta.policies}}`}}&singular={{`{{.Meta.singular}}`}}
+      {{- end}}
+      
+      {{- if .EnableMongoDB }}
+      documentsdsn: mongodb://mongodb:27017/cells?prefix={{`{{.Meta.prefix}}`}}
+      usedocumentsdsn: true
+      {{- end }}
+      
+
+services:
+  cells:
+    extends:
+      file: ./docker-compose-cells.yml
+      service: cells
+    environment:
+      - CELLS_INSTALL_YAML=/pydio/config/install.yml
+    configs:
+      - source: install-conf.yml
+        target: /pydio/config/install.yml
+    volumes:
+      - cellsdir:/var/cells
+    networks:
+      - cells-v5
+    depends_on:
+      {{- if .EnableMysql }}
+      mysql:
+        condition: service_healthy
+      {{- end }}
+      {{- if .EnableMariaDB }}
+      mariadb:
+        condition: service_healthy
+      {{- end }}
+      {{- if .EnableMongoDB }}
+      mongodb:
+        condition: service_healthy
+      {{- end }}
+
+
+  {{- if .EnableMysql }}
+  mysql:
+    extends:
+      file: ./docker-compose-mysql.yml
+      service: mysql
+    networks:
+      - cells-v5
+  {{- end }}
+
+  {{- if .EnableMariaDB }}
+  mariadb:
+    extends:
+      file: ./docker-compose-mariadb.yml
+      service: mariadb
+    networks:
+      - cells-v5
+  {{- end }}
+
+  {{- if .EnableMongoDB }}
+  mongodb:
+    extends:
+      file: ./docker-compose-mongodb.yml
+      service: mongodb
+    networks:
+      - cells-v5
+  {{- end }}
+
+volumes:
+  cellsdir: {}

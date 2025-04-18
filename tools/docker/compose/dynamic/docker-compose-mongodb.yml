@@ -1,0 +1,7 @@
+services:
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    expose: [ 27017 ]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet

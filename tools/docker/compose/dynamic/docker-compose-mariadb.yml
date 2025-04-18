@@ -1,0 +1,24 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: cells
+      MARIADB_USER: cells
+      MARIADB_PASSWORD: cells
+    command:
+      [
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+        --max_connections=10000,
+        --max_allowed_packet=254108864,
+        --net_read_timeout=600,
+        --net_write_timeout=600
+      ]
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
