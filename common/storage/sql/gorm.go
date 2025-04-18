@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,8 +49,8 @@ func init() {
 			mgr.RegisterStorage(gormType, controller.WithCustomOpener(OpenPool))
 		}
 		mgr.RegisterStorage("gorm", controller.WithCustomOpener(OpenPool))
-
 	})
+
 	schema.RegisterSerializer("proto_enum", EnumSerial{})
 	schema.RegisterSerializer("bool_int", BoolInt{})
 }
@@ -141,6 +142,9 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			"singular":                 "",
 			"hookNames":                "",
 			"ssl":                      "",
+			"maxConnections":           "10",
+			"maxIdleConnections":       "5",
+			"connMaxLifetime":          "1m",
 			crypto.KeyCertUUID:         "",
 			crypto.KeyCertCAUUID:       "",
 			crypto.KeyCertKeyUUID:      "",
@@ -204,9 +208,24 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			}
 			conn, er = sql.Open(scheme, clean)
 
-			//conn.SetMaxIdleConns(10)
-			//conn.SetMaxOpenConns(100)
-			//conn.SetConnMaxLifetime(time.Minute)
+			maxIdleConnections, err := strconv.Atoi(expectedVars["maxIdleConnections"])
+			if err != nil {
+				return nil, err
+			}
+
+			maxOpenConnections, err := strconv.Atoi(expectedVars["maxConnections"])
+			if err != nil {
+				return nil, err
+			}
+
+			connMaxLifetime, err := time.ParseDuration(expectedVars["connMaxLifetime"])
+			if err != nil {
+				return nil, err
+			}
+
+			conn.SetMaxIdleConns(maxIdleConnections)
+			conn.SetMaxOpenConns(maxOpenConnections)
+			conn.SetConnMaxLifetime(connMaxLifetime)
 		default:
 			conn, er = sql.Open(scheme, clean)
 
@@ -242,7 +261,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 
 		customLogger := NewLogger(logger.Config{
 			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Warn, // Log level
+			LogLevel:                  logger.Info, // Log level
 			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
 			// ParameterizedQueries:      true,        // Don't include params in the SQL log
 			// Colorful: false, // Disable color
