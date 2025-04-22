@@ -45,7 +45,7 @@ func (m *DynamicJobsHandler) MultipartCreate(ctx context.Context, node *tree.Nod
 	if acl.HasAdminKey(ctx) {
 		return m.Next.MultipartCreate(ctx, node, requestData)
 	}
-	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && (branchInfo.Binary || branchInfo.TransparentBinary) {
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && (branchInfo.Binary || branchInfo.IndexedBinary) {
 		return m.Next.MultipartCreate(ctx, node, requestData)
 	}
 	var checkedMeta map[string]interface{}
@@ -80,31 +80,38 @@ func (m *DynamicJobsHandler) MultipartCreate(ctx context.Context, node *tree.Nod
 }
 
 func (m *DynamicJobsHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
+	skipDescriptorsMeta := false
 	if acl.HasAdminKey(ctx) {
-		return m.Next.PutObject(ctx, node, reader, requestData)
+		skipDescriptorsMeta = true
 	}
-	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && (branchInfo.Binary || branchInfo.TransparentBinary) {
-		return m.Next.PutObject(ctx, node, reader, requestData)
+	if branchInfo, er := nodes.GetBranchInfo(ctx, "in"); er == nil && (branchInfo.Binary || branchInfo.IndexedBinary) {
+		skipDescriptorsMeta = true
 	}
-	var checkedMeta map[string]interface{}
-	var err error
-	if ctx, node, checkedMeta, err = m.applyInputDescriptors(ctx, node, requestData.Size); err != nil {
-		log.Logger(ctx).Warn("Error while applying jobs middlewares", zap.Error(err))
-	} else if checkedMeta != nil && len(checkedMeta) > 0 {
-		if requestData.CheckedMetadata == nil {
-			requestData.CheckedMetadata = map[string]interface{}{}
+	var additionalMetadata map[string]interface{}
+	if !skipDescriptorsMeta {
+		var checkedMeta map[string]interface{}
+		var err error
+		if ctx, node, checkedMeta, err = m.applyInputDescriptors(ctx, node, requestData.Size); err != nil {
+			log.Logger(ctx).Warn("Error while applying jobs middlewares", zap.Error(err))
+		} else if checkedMeta != nil && len(checkedMeta) > 0 {
+			additionalMetadata = checkedMeta
+			if requestData.CheckedMetadata == nil {
+				requestData.CheckedMetadata = map[string]interface{}{}
+			}
+			for k, v := range checkedMeta {
+				requestData.CheckedMetadata[k] = v
+			}
 		}
-		for k, v := range checkedMeta {
-			requestData.CheckedMetadata[k] = v
-		}
+	} else {
+		additionalMetadata = requestData.CheckedMetadata
 	}
 	oi, er := m.Next.PutObject(ctx, node, reader, requestData)
 	if er != nil {
 		return oi, er
 	}
-	if len(checkedMeta) > 0 {
+	if additionalMetadata != nil && len(additionalMetadata) > 0 {
 		uNode := node.Clone()
-		for k, v := range checkedMeta {
+		for k, v := range additionalMetadata {
 			uNode.MustSetMeta(k, v)
 		}
 		cl := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))

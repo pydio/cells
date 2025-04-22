@@ -63,7 +63,7 @@ func (a *FilterHandler) skipContext(ctx context.Context, identifier ...string) b
 		id = identifier[0]
 	}
 	bI, er := nodes.GetBranchInfo(ctx, id)
-	return er == nil && (bI.Binary || bI.TransparentBinary)
+	return er == nil && (bI.Binary || bI.IndexedBinary)
 }
 
 // ReadNode checks if node is readable and forward to next middleware.

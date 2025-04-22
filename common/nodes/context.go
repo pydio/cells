@@ -37,10 +37,10 @@ import (
 type BranchInfo struct {
 	LoadedSource
 	*idm.Workspace
-	Root              *tree.Node
-	Binary            bool
-	TransparentBinary bool
-	AncestorsList     map[string][]*tree.Node
+	Root          *tree.Node
+	Binary        bool
+	IndexedBinary bool
+	AncestorsList map[string][]*tree.Node
 }
 
 // IsInternal check if either datasource is internal or branch has Binary flag

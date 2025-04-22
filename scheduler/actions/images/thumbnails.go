@@ -345,6 +345,9 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		oi, err := router.PutObject(tCtx, tNode, buf, &models.PutRequestData{
 			Size:     tNode.Size,
 			Metadata: requestMeta,
+			CheckedMetadata: map[string]interface{}{
+				common.MetaNamespaceAclRefNodeUuid: node.Uuid,
+			},
 		})
 		if err != nil {
 			return false, err

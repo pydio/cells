@@ -192,6 +192,7 @@ const (
 	MetaNamespaceDatasourceInternal  = MetaNamespaceReservedPrefix_ + "meta-data-source-internal"
 	MetaNamespaceNodeTestLocalFolder = MetaNamespaceReservedPrefix_ + "test:local-folder-storage"
 	MetaNamespaceRecycleRestore      = MetaNamespaceReservedPrefix_ + "recycle_restore"
+	MetaNamespaceAclRefNodeUuid      = MetaNamespaceReservedPrefix_ + "acl-ref-node-uuid"
 	MetaNamespaceInsideRecycle       = "inside_recycle"
 	MetaNamespaceNodeName            = "name"
 	MetaNamespaceMime                = "mime"
