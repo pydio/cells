@@ -80,11 +80,15 @@ services: &services
       main:
         - type: bleve
           file: search.bleve?mapping=node&rotationSize=-1
+        - type: mongo
+          prefix: search_
   pydio.grpc.chat:
     storages:
       main:
         - type: bolt
           file: chat.db
+        - type: mongo
+          prefix: chat_
   pydio.grpc.data-key:
     storages:
       main:
@@ -95,16 +99,22 @@ services: &services
       main:
         - type: bolt
           file: activities.db
+        - type: mongo
+          prefix: activities_
   pydio.grpc.versions:
     storages:
       main:
         - type: bolt
           file: versions.db
+        - type: mongo
+          prefix: versions_
   pydio.grpc.mailer:
     storages:
       main:
         - type: bolt
           file: queue.db
+        - type: mongo
+          prefix: mailer_
   pydio.grpc.docstore:
     storages:
       main:
@@ -112,19 +122,27 @@ services: &services
           file: docstore.db
         - type: bleve
           file: docstore.bleve?rotationSize=-1
+        - type: mongo
+          prefix: docstore_
   pydio.grpc.log:
     storages:
       main:
         - type: bleve
           file: syslog.bleve?mapping=log&rotationSize=-1
+        - type: mongo
+          prefix: syslog_
   pydio.grpc.jobs:
     storages:
       main:
         - type: bolt
           file: jobs.db
+        - type: mongo
+          prefix: jobs_
       logs:
         - type: bleve
           file: tasklogs.bleve?mapping=log&rotationSize=-1
+        - type: mongo
+          prefix: jobs_
   pydio.grpc.role:
     storages:
       main:

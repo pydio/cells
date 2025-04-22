@@ -73,7 +73,6 @@ func (a *RefFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	// CHECK ADDITIONAL ACL-REF
 	if refNode := resp.GetNode().GetStringMeta(common.MetaNamespaceAclRefNodeUuid); refNode != "" {
 
-		log.Logger(ctx).Debugf("ReadNode: check permission on ref node %s", refNode)
 		parentNode := &tree.Node{Uuid: refNode}
 
 		accessList, ok := FromContext(ctx)
@@ -87,7 +86,10 @@ func (a *RefFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 			return nil, err
 		}
 		if !accessList.CanRead(ctx, parents...) {
+			log.Logger(ctx).Debugf("RefNode permission check FAILED on ref node %s", refNode)
 			return nil, errors.WithStack(errors.PathNotReadable)
+		} else {
+			log.Logger(ctx).Debugf("RefNode permission check PASSED on ref node %s", refNode)
 		}
 	}
 
