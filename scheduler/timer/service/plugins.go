@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
@@ -51,22 +52,30 @@ func init() {
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, _ *generic.Server) error {
-				tm := runtime.MultiContextManager()
 
-				_ = tm.Watch(c, func(ct context.Context, id string) error {
-					pLocks.Lock()
-					defer pLocks.Unlock()
-					tp := timer.NewEventProducer(ct)
-					// TODO - can it be done in a migration somehow ?
-					go tp.Start()
-					producers[id] = tp
-					return nil
-				}, func(_ context.Context, id string) error {
-					pLocks.Lock()
-					defer pLocks.Unlock()
-					delete(producers, id)
-					return nil
-				}, true)
+				go func() {
+					// Wait that all services are started.
+					// Producer(s) may have already been started by the events subscribed below
+					<-time.After(10 * time.Second)
+					tm := runtime.MultiContextManager()
+					_ = tm.Watch(c, func(ct context.Context, id string) error {
+						pLocks.Lock()
+						defer pLocks.Unlock()
+						// It was already registered
+						if _, ok := producers[id]; ok {
+							return nil
+						}
+						tp := timer.NewEventProducer(ct)
+						go tp.Start()
+						producers[id] = tp
+						return nil
+					}, func(_ context.Context, id string) error {
+						pLocks.Lock()
+						defer pLocks.Unlock()
+						delete(producers, id)
+						return nil
+					}, true)
+				}()
 
 				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &jobs.JobChangeEvent{}
@@ -76,6 +85,9 @@ func init() {
 							defer pLocks.RUnlock()
 							if producer, ok := producers[cID]; ok {
 								return producer.Handle(ct, msg)
+							} else {
+								producers[cID] = timer.NewEventProducer(ct)
+								go producers[cID].Start()
 							}
 							return fmt.Errorf("cannot find timer.Producer for corresponding context")
 						} else {

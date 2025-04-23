@@ -48,7 +48,8 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
 			service.WithStorageDrivers(log.Drivers),
-			// TODO - Recheck
+			// TODO - Recheck - This does NOT triggering telemetry reload
+			// TODO - PLUS it does not feel right to have this default config set by the service
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up: func(ctx context.Context) error {
@@ -71,17 +72,6 @@ func init() {
 				},
 			}}),
 			service.WithStorageMigrator(log.Migrate),
-			/*
-				service.WithIndexer(log.NewDAO,
-					service.WithStoragePrefix("syslog"),
-					service.WithStorageMigrator(log.Migrate),
-					service.WithStorageSupport(bleve.Driver, mongodb.Driver),
-					service.WithStorageDefaultDriver(func() (string, string) {
-						return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "syslog.bleve?mapping=log")
-					}),
-				),
-
-			*/
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := &grpc2.Handler{

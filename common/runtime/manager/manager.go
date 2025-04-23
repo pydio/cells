@@ -502,11 +502,21 @@ func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], 
 func (m *manager) initTelemetry(ctx context.Context, bootstrap config.Store, storePool *openurl.Pool[config.Store]) {
 	// Default is taken from bootstrap
 	conf := &telemetry.Config{
-		Loggers: []log.LoggerConfig{{
-			Encoding: "console",
-			Level:    "info",
-			Outputs:  []string{"stdout:///"},
-		}},
+		Loggers: []log.LoggerConfig{
+			{
+				Encoding: "console",
+				Level:    "info",
+				Outputs:  []string{"stdout:///"},
+			},
+			{
+				Encoding: "json",
+				Level:    "info",
+				Outputs: []string{
+					"file://" + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + "/pydio.log",
+					"service:///?service=pydio.grpc.log",
+				},
+			},
+		},
 	}
 
 	// Then read from bootstrap
