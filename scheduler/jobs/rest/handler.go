@@ -118,7 +118,6 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 			LoadTasks:  jobs.TaskStatus_Running,
 			JobIDs:     hasRunning,
 		})
-		fmt.Println("HERE 9", err)
 		if er := commons.ForEach(stream2, err, func(resp *jobs.ListJobsResponse) error {
 			loadedJobs[resp.Job.ID].Tasks = resp.Job.Tasks
 			return nil

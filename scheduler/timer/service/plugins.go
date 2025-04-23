@@ -58,7 +58,7 @@ func init() {
 					defer pLocks.Unlock()
 					tp := timer.NewEventProducer(ct)
 					// TODO - can it be done in a migration somehow ?
-					//go tp.Start()
+					go tp.Start()
 					producers[id] = tp
 					return nil
 				}, func(_ context.Context, id string) error {

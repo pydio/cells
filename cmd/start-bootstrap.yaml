@@ -40,6 +40,7 @@ servers:
   generic:
     type: generic
     services:
+      - filter: "{{ .Name }} ~= pydio\\.generic\\..*"
 
 queues:
   debouncer:
