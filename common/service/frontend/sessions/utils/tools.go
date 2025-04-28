@@ -23,10 +23,7 @@ var (
 // a minisite unique identifier.
 func SessionName(r *http.Request) string {
 	sessionName := "pydio"
-	if h, ok := r.Header["X-Pydio-Minisite"]; ok {
-		sessionName = sessionName + "-" + strings.Join(h, "")
-	}
-	if h, ok := r.Header[common.XPydioFrontendSessionUuid]; ok {
+	if h, ok := r.Header[common.XPydioMinisite]; ok {
 		sessionName = sessionName + "-" + strings.Join(h, "")
 	}
 	return sessionName

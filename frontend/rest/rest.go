@@ -222,10 +222,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	isMinisite := false
-	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
-		isMinisite = true
-	}
-	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
+	if h := req.HeaderParameter(common.XPydioMinisite); h != "" {
 		isMinisite = true
 	}
 

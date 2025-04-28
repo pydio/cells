@@ -230,10 +230,10 @@ const (
 	XPydioClientUuid            = "X-Pydio-Client-Uuid"
 	XPydioSessionUuid           = "X-Pydio-Session"
 	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
-	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
 	XPydioSiteHash              = "X-Pydio-Site-Hash"
 	XPydioDebugSession          = "X-Pydio-Debug-Session"
+	XPydioMinisite              = "X-Pydio-Minisite"
 	XContentType                = "Content-Type"
 	InputResourceUUID           = "Create-Resource-Uuid"
 	InputVersionId              = "Create-Version-Id"
@@ -309,7 +309,7 @@ var (
 		XPydioClientUuid,
 		XPydioSessionUuid,
 		XPydioIndexationSessionUuid,
-		XPydioFrontendSessionUuid,
+		XPydioMinisite,
 		XPydioMoveUuid,
 		XPydioDebugSession,
 	}

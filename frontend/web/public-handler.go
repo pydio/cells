@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
@@ -148,6 +149,17 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		tplConf.ErrorMessage = "Internal server error"
 		return 500, tplConf, linkData
 	}
+
+	// Disable websocket
+	if config.Get(ctx, config.FrontendPluginPath("action.share", "MINISITES_DISABLE_WEBSOCKET")...).Bool() {
+		bootConf.ENDPOINT_WEBSOCKET = ""
+	}
+	if config.Get(ctx, config.FrontendPluginPath("action.share", "MINISITES_S3_SECONDARY_BUCKET")...).Bool() {
+		bootConf.ENDPOINT_S3_GATEWAY = routing.RouteIngressURIContext(ctx, common.RouteBucketData, common.DefaultRouteBucketData)
+	}
+	// Force rebase to public URI
+	tplConf.Rebase = "/" + strings.Trim(bootConf.PUBLIC_BASEURI, "/") + "/"
+
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,
