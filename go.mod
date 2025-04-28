@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.2
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.1-20241127180247-a33202765966.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.6-20250425153114-8976f5be98c1.1
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/PaesslerAG/gval v1.2.4
@@ -161,7 +161,7 @@ require (
 	google.golang.org/grpc v1.69.2
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
 	google.golang.org/grpc/examples v0.0.0-20220706173102-a6dcb714b2fe
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.6
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v2 v2.4.0
