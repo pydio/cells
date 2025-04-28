@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	mapstructure "github.com/go-viper/mapstructure/v2"
-	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common/proto/install"
@@ -28,7 +28,7 @@ func TestDecode(t *testing.T) {
 	}
 	fmt.Println(tls)
 
-	if err := jsonpb.Unmarshal(strings.NewReader(data), &tls); err != nil {
+	if err := protojson.Unmarshal([]byte(data), &tls); err != nil {
 		t.Fatal(err)
 	}
 
