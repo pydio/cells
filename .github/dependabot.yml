@@ -1,11 +1,11 @@
 updates:
-  - package-ecosystem: "go"
+  - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
     target-branch: "main"
 
-  - package-ecosystem: "go"
+  - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
