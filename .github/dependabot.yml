@@ -1,0 +1,12 @@
+updates:
+  - package-ecosystem: "go"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+
+  - package-ecosystem: "go"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "next"
