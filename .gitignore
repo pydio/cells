@@ -34,3 +34,4 @@ minio.exe
 
 /frontend/assets/*
 
+.env

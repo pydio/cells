@@ -1,8 +1,8 @@
 module github.com/pydio/cells/v4
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.22.12
+toolchain go1.23.4
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
@@ -118,13 +118,13 @@ require (
 	go.uber.org/zap v1.27.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.37.0
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/image v0.19.0
-	golang.org/x/net v0.35.0
+	golang.org/x/net v0.39.0
 	golang.org/x/oauth2 v0.20.0
-	golang.org/x/sync v0.11.0
-	golang.org/x/text v0.22.0
+	golang.org/x/sync v0.13.0
+	golang.org/x/text v0.24.0
 	golang.org/x/time v0.5.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240506185236-b8a5c65736ae
 	google.golang.org/grpc v1.63.2
@@ -495,8 +495,8 @@ require (
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20240507223354-67b13616a595 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/term v0.29.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/tools v0.27.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/api v0.180.0 // indirect
