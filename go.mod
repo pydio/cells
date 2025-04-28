@@ -6,6 +6,7 @@ toolchain go1.23.2
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.1-20241127180247-a33202765966.1
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/PaesslerAG/gval v1.2.4
 	github.com/PaesslerAG/jsonpath v0.1.1
@@ -39,7 +40,7 @@ require (
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/spec v0.21.0
 	github.com/go-openapi/strfmt v0.23.0
-	github.com/go-openapi/swag v0.23.0
+	github.com/go-openapi/swag v0.23.1
 	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.8.1
@@ -76,6 +77,7 @@ require (
 	github.com/lpar/gzipped v1.1.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/matcornic/hermes/v2 v2.1.0
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/minio/cli v1.24.2
 	github.com/minio/md5-simd v1.1.2
@@ -121,6 +123,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/tidwall/gjson v1.18.0
 	github.com/tomwright/dasel v1.27.3
+	github.com/valyala/fasttemplate v1.2.2
 	github.com/yudai/gojsondiff v1.0.0
 	github.com/yvasiyarov/php_session_decoder v0.0.0-20180803065642-a065a3b0b7d1
 	github.com/zalando/go-keyring v0.2.6
@@ -146,13 +149,13 @@ require (
 	go.uber.org/zap v1.27.0
 	gocloud.dev v0.30.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.37.0
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
 	golang.org/x/image v0.23.0
-	golang.org/x/net v0.33.0
+	golang.org/x/net v0.39.0
 	golang.org/x/oauth2 v0.24.0
-	golang.org/x/sync v0.10.0
-	golang.org/x/text v0.21.0
+	golang.org/x/sync v0.13.0
+	golang.org/x/text v0.24.0
 	golang.org/x/time v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241223144023-3abc09e42ca8
 	google.golang.org/grpc v1.69.2
@@ -170,6 +173,8 @@ require (
 	gorm.io/gorm v1.25.12
 	gorm.io/plugin/dbresolver v1.5.3
 	gorm.io/plugin/opentelemetry v0.1.11
+	istio.io/api v1.24.2
+	istio.io/client-go v1.24.2
 	k8s.io/apimachinery v0.32.1
 	k8s.io/client-go v0.32.1
 )
@@ -185,7 +190,6 @@ require (
 	git.apache.org/thrift.git v0.13.0 // indirect
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/BurntSushi/toml v1.4.0 // indirect
-	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
@@ -278,7 +282,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-openapi/analysis v0.23.0 // indirect
-	github.com/go-openapi/jsonpointer v0.21.0 // indirect
+	github.com/go-openapi/jsonpointer v0.21.1 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/validate v0.24.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
@@ -373,11 +377,10 @@ require (
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/mattn/goveralls v0.0.12 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mholt/acmez/v3 v3.0.0 // indirect
@@ -397,7 +400,6 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
@@ -471,7 +473,6 @@ require (
 	github.com/urfave/cli v1.22.14 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20191214114701-be27abe028fe // indirect
@@ -514,8 +515,8 @@ require (
 	go.uber.org/zap/exp v0.3.0 // indirect
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20241104001025-71ed71b4faf9 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/tools v0.28.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/api v0.180.0 // indirect
@@ -529,8 +530,6 @@ require (
 	gorm.io/datatypes v1.2.0 // indirect
 	gorm.io/hints v1.1.2 // indirect
 	howett.net/plist v1.0.0 // indirect
-	istio.io/api v1.24.2 // indirect
-	istio.io/client-go v1.24.2 // indirect
 	k8s.io/api v0.32.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect
