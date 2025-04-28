@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2025 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -114,11 +114,21 @@ class PydioApi{
 
     setPydioObject(pydioObject){
         this._pydioObject = pydioObject;
-        this._baseUrl = pydioObject.Parameters.get('serverAccessPath');
     }
 
     getPydioObject(){
         return this._pydioObject;
+    }
+
+    getBucket() {
+        if(this._bucket) {
+            return this._bucket;
+        }
+        if(this._pydioObject && this._pydioObject.Parameters.has('ENDPOINT_S3_GATEWAY')) {
+            this._bucket = this._pydioObject.Parameters.get('ENDPOINT_S3_GATEWAY').replace('/', '');
+            return this._bucket;
+        }
+        return 'io'
     }
 
     loadFile(filePath, onComplete=null, onError=null){
@@ -280,7 +290,7 @@ class PydioApi{
             targetPath = targetPath.substring(1);
         }
         const params = {
-            Bucket: 'io',
+            Bucket: this.getBucket(),
             Key: targetPath,
             ContentType: 'application/octet-stream',
             // This may be needed for encrypted datasource
@@ -328,7 +338,7 @@ class PydioApi{
             targetPath = targetPath.substring(1);
         }
         const params = {
-            Bucket: 'io',
+            Bucket: this.getBucket(),
             Key: targetPath,
             ContentType: 'application/octet-stream'
         };
@@ -405,12 +415,13 @@ class PydioApi{
         }
 
         let params = {
-            Bucket: 'io',
+            Bucket: this.getBucket(),
             Key: slug + node.getPath(),
             Expires: longExpire ? 6000 : 600
         };
         if (bucketParams !== null) {
-            params = bucketParams;
+            // Always override Bucket from input
+            params = {...bucketParams, Bucket: this.getBucket()};
         }
         if(cType) {
             params['ResponseContentType'] = cType;
@@ -483,7 +494,7 @@ class PydioApi{
             const slug = this.getSlugForNode(node)
             awsLoader().then(({S3}) => {
                 const params = {
-                    Bucket: "io",
+                    Bucket: this.getBucket(),
                     Key: slug + node.getPath(),
                     ResponseContentType: 'text/plain',
                     ResponseCacheControl: "no-cache",
@@ -506,7 +517,7 @@ class PydioApi{
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             awsLoader().then(({S3}) => {
                 const params = {
-                    Bucket: "io",
+                    Bucket: this.getBucket(),
                     Key: this.getSlugForNode(node) + node.getPath(),
                     Body: content,
                 };
@@ -551,7 +562,7 @@ class PydioApi{
                 pydio.UI.sendDownloadToHiddenForm(null, {presignedUrl: url});
             }
         }, '', {
-            Bucket: 'io',
+            Bucket: this.getBucket(),
             Key: slug + node.getPath(),
             VersionId: versionId
         }, node.getLabel());
@@ -564,7 +575,7 @@ class PydioApi{
             const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
             awsLoader().then(({S3}) => {
                 const params = {
-                    Bucket: "io",
+                    Bucket: this.getBucket(),
                     Key: slug + node.getPath(),
                     CopySource:encodeURIComponent('io/' + slug + node.getPath() + '?versionId=' + versionId)
                 };
