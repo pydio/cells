@@ -24,6 +24,7 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
 import {useNodeContent} from "./hooks";
+import {ListContext} from "./ChildrenList";
 const { moment } = Pydio.requireLib('boot');
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
@@ -73,19 +74,20 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
                 {"type":"paragraph", "content" : []}
             );
         }
-        let found = false;
-        initialContent.map(block => {
-            if(block.type === 'childrenList') {
-                block.props.dataModel = dataModel
-                block.props.entryProps = entryProps
-                found = true;
-            }
-        })
-        if(!found) {
+
+        if(!initialContent.find(block => block.type === 'childrenList')) {
             initialContent.push({
-                type: "childrenList",
-                props:{dataModel, entryProps}
+                "type": "heading",
+                "props": {"level": 3},
+                "content": [
+                    {
+                        "type": "text",
+                        "text": '🗂️ Contents',
+                        "styles": {}
+                    }
+                ]
             })
+            initialContent.push({type: "childrenList"})
         }
 
         const reloadIdentifier = nodeUUID + '#' + (loaded?'loaded':'loading')
@@ -114,7 +116,31 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
     }
 
     return (
-        <div style={{...style, position:'relative'}}>{body}{saveBlock}</div>
+        <ListContext.Provider value={{dataModel, entryProps}}>
+            <div
+                onDragOver={(e) => {
+                e.stopPropagation();  // Prevent React-DND from seeing it
+                e.preventDefault();   // Enable drop
+            }}
+                onDragEnter={(e) => {
+                e.stopPropagation();  // Prevent React-DND from seeing it
+                e.preventDefault();   // Enable drop
+            }}
+                onDragLeave={(e) => {
+                e.stopPropagation();  // Prevent React-DND from seeing it
+                e.preventDefault();   // Enable drop
+            }}
+            onDrop={(e) => {
+                if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                    // do not intercept file dropping!
+                    return
+                }
+               e.stopPropagation();  // Critical
+               e.preventDefault();
+           }}
+            style={{...style, position:'relative'}}
+            >{body}{saveBlock}</div>
+        </ListContext.Provider>
     )
 }
 

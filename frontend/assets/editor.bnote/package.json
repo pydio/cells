@@ -29,6 +29,8 @@
   "dependencies": {
     "@blocknote/core": "^0.26.0",
     "@blocknote/mantine": "^0.26.0",
-    "@blocknote/react": "^0.26.0"
+    "@blocknote/react": "^0.26.0",
+    "@mantine/core": "^7.17.5",
+    "react-icons": "^5.5.0"
   }
 }

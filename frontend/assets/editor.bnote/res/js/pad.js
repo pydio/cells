@@ -20,11 +20,12 @@
 import React, {useState, useEffect} from 'react'
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
+import { useCreateBlockNote, getDefaultReactSlashMenuItems, SuggestionMenuController } from "@blocknote/react";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, locales,  filterSuggestionItems } from "@blocknote/core";
 import {ChildrenList} from './ChildrenList';
 import {Mention, MentionSuggestionMenu} from './Mention'
 import {NodeRef, NodesSuggestionMenu} from "./NodeRef";
+import {Alert, insertAlertItem} from './Alert'
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -32,6 +33,7 @@ const schema = BlockNoteSchema.create({
         ...defaultBlockSpecs,
         // Adds the Alert block.
         childrenList: ChildrenList,
+        alert: Alert,
     },
     inlineContentSpecs: {
         ...defaultInlineContentSpecs,
@@ -39,6 +41,14 @@ const schema = BlockNoteSchema.create({
         nodeRef:NodeRef,
     }
 });
+
+// List containing all default Slash Menu Items, as well as our custom one.
+const getCustomSlashMenuItems = (
+    editor
+) => [
+    ...getDefaultReactSlashMenuItems(editor),
+    insertAlertItem(editor),
+];
 
 const css = `
         .bn-container *{
@@ -66,6 +76,10 @@ const css = `
         .react-mui-context.mui3-token .bn-children-list .mimefont-container {
             background-color: transparent !important;
         }
+        .react-mui-context.mui3-token .bn-container .bn-selected .mimefont-container div.mimefont, 
+        .react-mui-context.mui3-token .bn-container .bn-selected .mimefont-container span.overlay-icon-span {
+            color: var(--md-sys-color-on-secondary) !important;
+        }
         .ProseMirror-selectednode>.bn-block-content[data-content-type="childrenList"]>*{
             outline: none;
         }
@@ -82,7 +96,16 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
     // Creates a new editor instance.
     const editor = useCreateBlockNote({
         schema,
-        initialContent:initialContent.length?initialContent:null
+        initialContent:initialContent.length?initialContent:null,
+        // We override the `placeholders` in our dictionary
+        dictionary: {
+            ...locales.en,
+            placeholders: {
+                ...locales.en.placeholders,
+                // We override the default placeholder
+                default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
+            }
+        }
     });
 
 
@@ -108,6 +131,13 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 editor={editor}
                 theme={darkMode?"dark":"light"}
             >
+                <SuggestionMenuController
+                    triggerCharacter={"/"}
+                    // Replaces the default Slash Menu items with our custom ones.
+                    getItems={async (query) =>
+                        filterSuggestionItems(getCustomSlashMenuItems(editor), query)
+                    }
+                />
                 <MentionSuggestionMenu editor={editor}/>
                 <NodesSuggestionMenu editor={editor}/>
             </BlockNoteView>

@@ -52,7 +52,7 @@ export const NodeRef = createReactInlineContentSpec(
 );
 
 export const getNodesMenuItems = (editor, query) => {
-    return api.search({basename:query}, 'all', 10, true).then(res => {
+    return api.search({basename:query}, 'all', 10, true, 'mtime', true).then(res => {
         const {Results} = res;
         return Results.map(node => {
             const label = node.getLabel()
@@ -73,5 +73,5 @@ export const getNodesMenuItems = (editor, query) => {
 export const NodesSuggestionMenu = ({editor}) => <SuggestionMenuController
     triggerCharacter={"%"}
     getItems={(query) => getNodesMenuItems(editor, query)}
-    minQueryLength={2}
+    minQueryLength={0}
 />
