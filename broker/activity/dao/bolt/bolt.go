@@ -105,6 +105,9 @@ func (dao *boltdbimpl) Migrate(ctx context.Context) error {
 func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType acproto.OwnerType, ownerId string, bucketName activity.BoxName) (*bolt.Bucket, error) {
 
 	mainBucket := tx.Bucket([]byte(ownerType.String()))
+	if mainBucket == nil {
+		return nil, fmt.Errorf("bucket %s does not exist, a migration step must have been missed", ownerType)
+	}
 	if createIfNotExist {
 
 		objectBucket, err := mainBucket.CreateBucketIfNotExists([]byte(ownerId))
