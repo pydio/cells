@@ -71,7 +71,7 @@ Names
 
 {{- define "cells.urlUser" -}}
 {{- if and .enabled .user .password }}
-{{- printf "%s@" .user }}
+{{- printf "%s:%s@" .user .password}}
 {{- end }}
 {{- end }}
 
@@ -81,9 +81,10 @@ Names
 {{- end }}
 {{- end }}
 
+
 {{- define "cells.urlTLSParams" -}}
 {{- if .enabled }}
-{{- printf "?tlsCertUUID=%s-%s&tlsCertKeyUUID=%s-%s&tlsCertCAUUID=%s-%s" .prefix .certFilename .prefix .certKeyFilename .prefix .caFilename }}
+{{- printf "?tls=true&tlsCertUUID=%s-%s&tlsCertKeyUUID=%s-%s&tlsCertCAUUID=%s-%s" .prefix .certFilename .prefix .certKeyFilename .prefix .caFilename }}
 {{- end }}
 {{- end }}
 
@@ -156,7 +157,7 @@ REDIS HOST
 {{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.redis.tls.enabled) }}
 {{- $user := include "cells.urlUser" (dict "enabled" .Values.redis.auth.enabled "user" "root" "password" "$(REDIS_PASSWORD)") }}
 {{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.redis.tls.enabled "prefix" "redis" "certFilename" .Values.redis.tls.certFilename "certKeyFilename" .Values.redis.tls.certKeyFilename "caFilename" .Values.redis.tls.certCAFilename) }}
-{{- printf "redis%s://%s@%s:%s%s%s" $tls $user (include "cells.redisHost" .) (include "cells.redisPort" .) $path $tlsParams }}
+{{- printf "redis%s://%s%s:%s%s%s" $tls $user (include "cells.redisHost" .) (include "cells.redisPort" .) $path $tlsParams }}
 {{- end }}
 {{- end }}
 
@@ -192,6 +193,15 @@ MARIADB HOST
 {{ include "cells.fullname" (dict "Release" .Release "Values" .Values.mariadb "Chart" (dict "Name" "mariadb")) }}
 {{- end }}
 
+{{- define "cells.mariadbDatabaseName" -}}
+{{- if ne .Values.mariadb.auth.database "" }}
+{{- printf .Values.mariadb.auth.database }}
+{{- else }}
+{{- printf "cells" }}
+{{- end }}
+{{- end }}
+
+
 {{- define "cells.mariadbHost" -}}
 {{- printf "%s-mariadb.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
@@ -201,10 +211,9 @@ MARIADB HOST
 {{- end }}
 
 {{- define "cells.mariadbURL" -}}
-{{- $tls := include "cells.urlTLSScheme" (dict "enabled" .Values.mariadb.tls.enabled) }}
-{{- $user := include "cells.urlUser" (dict "enabled" .Values.etcd.auth.rbac.create "user" "root" "password" "$(ETCD_ROOT_PASSWORD)") }}
-{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.etcd.auth.client.secureTransport "prefix" "etcd" "certFilename" .Values.etcd.auth.client.certFilename "certKeyFilename" .Values.etcd.auth.client.certKeyFilename "caFilename" .Values.etcd.auth.client.caFilename) }}
-{{- printf "mysql://%s:%s/%s?%s" $tls $user (include "cells.mariadbHost" .) (include "cells.mariadbPort" .) (include "cells.mariadbName" .) $tlsParams }}
+{{- $user := include "cells.urlUser" (dict "enabled" "true" "user" "root" "password" "$(MARIADB_ROOT_PASSWORD)") }}
+{{- $tlsParams := include "cells.urlTLSParams" (dict "enabled" .Values.mariadb.tls.enabled "prefix" "mariadb" "certFilename" .Values.mariadb.tls.certFilename "certKeyFilename" .Values.mariadb.tls.certKeyFilename "caFilename" .Values.mariadb.tls.caFilename) }}
+{{- printf "mysql://%s%s:%s/%s%s" $user (include "cells.mariadbHost" .) (include "cells.mariadbPort" .) (include "cells.mariadbDatabaseName" .) $tlsParams }}
 {{- end }}
 
 {{/*
@@ -230,6 +239,14 @@ MARIADB GALERA HOST
 {{/*
 MONGODB HOST
 */}}
+
+
+{{- define "cells.mongoUrlScheme" -}}
+{{- if eq .architecture "replicaset" }}
+{{- printf "&srvScheme=true" }}
+{{- end }}
+{{- end }}
+
 {{- define "cells.mongodbName" -}}
 {{ include "cells.fullname" (dict "Release" .Release "Values" .Values.mongodb "Chart" (dict "Name" "mongodb")) }}
 {{- end }}
@@ -242,8 +259,22 @@ MONGODB HOST
 {{ .Values.mongodb.service.ports.mongodb | toString }}
 {{- end }}
 
+
 {{- define "cells.mongodbURL" -}}
-{{- printf "mongodb://%s:%s" (include "cells.mongodbHost" .) (include "cells.mongodbPort" .) }}
+{{- $scheme := include "cells.mongoUrlScheme" .Values.mongodb }}
+{{- $user := include "cells.urlUser" (dict 
+"enabled" .Values.mongodb.auth.enabled 
+"user" .Values.mongodb.auth.rootUser 
+"password" .Values.mongodb.auth.rootPassword) 
+}}
+{{- $tlsParams := include "cells.urlTLSParams" (dict 
+"enabled" .Values.mongodb.tls.enabled 
+"prefix" "mongodb" 
+"certFilename" .Values.mongodb.tls.certFilename 
+"certKeyFilename" .Values.mongodb.tls.certKeyFilename 
+"caFilename" .Values.mongodb.tls.caFilename) 
+}}
+{{- printf "mongodb://%s%s:%s/%s%s%s" $user (include "cells.mongodbHost" .) (include "cells.mongodbPort" .) (include "cells.mongodbName" .) $tlsParams $scheme }}
 {{- end }}
 
 {{/*
