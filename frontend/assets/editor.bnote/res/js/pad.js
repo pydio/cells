@@ -22,10 +22,11 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote, getDefaultReactSlashMenuItems, SuggestionMenuController } from "@blocknote/react";
 import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, locales,  filterSuggestionItems } from "@blocknote/core";
-import {ChildrenList} from './ChildrenList';
-import {Mention, MentionSuggestionMenu} from './Mention'
-import {NodeRef, NodesSuggestionMenu} from "./NodeRef";
-import {Alert, insertAlertItem} from './Alert'
+import {ChildrenList} from './blocks/ChildrenList';
+import {Mention, MentionSuggestionMenu} from './mentions/Mention'
+import {NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
+import {Alert, insertAlertItem} from './blocks/Alert'
+import {Title} from './blocks/Title'
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -34,6 +35,7 @@ const schema = BlockNoteSchema.create({
         // Adds the Alert block.
         childrenList: ChildrenList,
         alert: Alert,
+        title: Title
     },
     inlineContentSpecs: {
         ...defaultInlineContentSpecs,

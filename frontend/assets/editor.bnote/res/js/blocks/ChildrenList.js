@@ -97,16 +97,23 @@ const List = ({entryProps}) => {
         nn.sort(sortNodesNatural)
         return nn.map(child => <Item dataModel={dataModel} node={child} entryProps={entryProps}/>);
     })
-    if(!node) {
+    if(!node || !items.length) {
         return null;
     }
     if(!items.length) {
         items.push(<EmptyItem/>)
     }
+    //const testBorder = {borderLeft: '3px solid var(--md-sys-color-outline-variant-50)',marginLeft: 8, paddingLeft: 8}
 
     return (
         <div style={{lineHeight:'1.3em'}}>
-            <div className={"bn-children-list"}>{items}</div>
+            <h3 style={{fontSize:'1.3em', fontWeight:700, marginBottom: 10}}>
+                <span style={{marginRight:6}}>🗂️</span>
+                <span style={{marginRight:6}}>Folder Contents</span>
+            </h3>
+            <div className={"bn-children-list"}>
+                {items}
+            </div>
         </div>
     );
 }

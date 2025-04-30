@@ -24,8 +24,7 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
 import {useNodeContent} from "./hooks";
-import {ListContext} from "./ChildrenList";
-const { moment } = Pydio.requireLib('boot');
+import {ListContext} from "./blocks/ChildrenList";
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
 let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
@@ -36,57 +35,22 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
 
     if(node && node.isLoaded() && loaded) {
         const nodeUUID = node.getMetadata().get('uuid')
-        const initialContent = content || []
-        if(!initialContent.length) {
-            let title = node.getLabel()
-            if(node.getMetadata().has('ws_root')) {
-                title = Pydio.getInstance().user.getActiveRepositoryObject().getLabel() || title
-            }
-            const date = moment(new Date(parseInt(node.getMetadata().get('ajxp_modiftime'))*1000)).fromNow()
-            initialContent.push({
-                    "type": "heading",
-                    "props": {
-                        "level": 2
-                    },
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": title,
-                            "styles": {}
-                        }
-                    ]
-                },
-                {
-                    "type": "paragraph",
-                    "props": {
-                        "textColor": "gray",
-                    },
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Created "+date,
-                            "styles": {
-                                "textColor": "gray"
-                            }
-                        }
-                    ],
-                },
-                {"type":"paragraph", "content" : []}
-            );
+        let initialContent = content || []
+        let title = node.getLabel()
+        if(node.getMetadata().has('ws_root')) {
+            title = Pydio.getInstance().user.getActiveRepositoryObject().getLabel() || title
+        }
+        const heading = initialContent.find(block => block.type === 'title' && block.content && block.content.length)
+        if(heading) {
+            heading.content[0].text = title;
+        } else {
+            initialContent = [{
+                "type": "title",
+                "content": [{"type": "text","text": title,"styles": {}}, ]
+            }, ...initialContent]
         }
 
         if(!initialContent.find(block => block.type === 'childrenList')) {
-            initialContent.push({
-                "type": "heading",
-                "props": {"level": 3},
-                "content": [
-                    {
-                        "type": "text",
-                        "text": '🗂️ Contents',
-                        "styles": {}
-                    }
-                ]
-            })
             initialContent.push({type: "childrenList"})
         }
 

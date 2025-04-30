@@ -134,7 +134,7 @@ export const insertAlertItem = (editor) => ({
             content: [{ type: "text", text: "", styles:{}}],
         }),
     aliases: ["alert", "al"],
-    group: "Other",
+    group: "Others",
     icon: <RiAlertFill size={18} />,
     subtext: "Capture reader's attention with a warning",
 });
