@@ -80,6 +80,21 @@ func GetVirtualProvider() VirtualProvider {
 	return &virtualNodesManager{}
 }
 
+// VirtualResolveAll retrieves all virtual nodes referenced by AccessList and resolves them in context
+func VirtualResolveAll(ctx context.Context, accessList *permissions.AccessList) {
+	virtualManager := GetVirtualProvider()
+	for _, vNode := range virtualManager.ListNodes(ctx) {
+		if _, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
+			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, false); err == nil {
+				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
+				accessList.ReplicateBitmask(ctx, vNode.Uuid, resolvedRoot.Uuid, true)
+			} else {
+				log.Logger(ctx).Error("Error while resolving virtual node for access list", zap.String("virtual", vNode.Uuid), zap.Error(err))
+			}
+		}
+	}
+}
+
 // Load requests the virtual nodes from the DocStore service.
 func (m *virtualNodesManager) Load(ctx context.Context, forceReload ...bool) (vNodes []*tree.Node, loginLower bool, e error) {
 	ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, cacheConfig)

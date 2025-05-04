@@ -533,6 +533,12 @@ importers:
       '@blocknote/react':
         specifier: ^0.26.0
         version: 0.26.0(@types/hast@3.0.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/core':
+        specifier: ^7.17.5
+        version: 7.17.5(@mantine/hooks@7.17.2(react@18.3.1))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@18.3.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.14.6
@@ -2556,10 +2562,10 @@ packages:
     resolution: {integrity: sha512-31LjRU3mbRoofVmq1zr2MkAMj6+yLrR+pJ8F/SzxP581+0PEVfvRbmGp48yZ+KWZBRqcLR6PEnT4B+4ZsXJ/Dw==}
     engines: {node: '>=14'}
 
-  '@mantine/core@7.17.2':
-    resolution: {integrity: sha512-R6MYhitJ0JEgrhadd31Nw9FhRaQwDHjXUs5YIlitKH/fTOz9gKSxKjzmNng3bEBQCcbEDOkZj3FRcBgTUh/F0Q==}
+  '@mantine/core@7.17.5':
+    resolution: {integrity: sha512-66g/lr281cDPfucjtPw8gFo/yNS9G5iSKqysvPGuDpUBG2bEw8FsJMIsU0bMXtravToIpa3vJRrFUuPndPGnpQ==}
     peerDependencies:
-      '@mantine/hooks': 7.17.2
+      '@mantine/hooks': 7.17.5
       react: ^18.x || ^19.x
       react-dom: ^18.x || ^19.x
 
@@ -2582,6 +2588,7 @@ packages:
   '@mui/base@5.0.0-alpha.122':
     resolution: {integrity: sha512-IgZEFQyHa39J1+Q3tekVdhPuUm1fr3icddaNLmiAIeYTVXmR7KR5FhBAIL0P+4shlPq0liUPGlXryoTm0iCeFg==}
     engines: {node: '>=12.0.0'}
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
@@ -6700,8 +6707,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  react-textarea-autosize@8.5.6:
-    resolution: {integrity: sha512-aT3ioKXMa8f6zHYGebhbdMD2L00tKeRX1zuVuDx9YQK/JLLRSaSxq3ugECEmUB9z2kvk6bFSIoRHLkkUv0RJiw==}
+  react-textarea-autosize@8.5.9:
+    resolution: {integrity: sha512-U1DGlIQN5AwgjTyOEnI1oCcMuEr1pv1qOtklB2l4nyMGbHzWrI0eFsYK0zos2YWqAolJyG0IWJaqWmWj5ETh0A==}
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -8633,7 +8640,7 @@ snapshots:
     dependencies:
       '@blocknote/core': 0.26.0(@types/hast@3.0.4)
       '@blocknote/react': 0.26.0(@types/hast@3.0.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mantine/core': 7.17.2(@mantine/hooks@7.17.2(react@18.3.1))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/core': 7.17.5(@mantine/hooks@7.17.2(react@18.3.1))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/hooks': 7.17.2(react@18.3.1)
       '@mantine/utils': 6.0.22(react@18.3.1)
       react: 18.3.1
@@ -8884,7 +8891,7 @@ snapshots:
 
   '@livekit/components-styles@0.3.2': {}
 
-  '@mantine/core@7.17.2(@mantine/hooks@7.17.2(react@18.3.1))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/core@7.17.5(@mantine/hooks@7.17.2(react@18.3.1))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/react': 0.26.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/hooks': 7.17.2(react@18.3.1)
@@ -8893,7 +8900,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-number-format: 5.4.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-remove-scroll: 2.6.3(@types/react@18.3.12)(react@18.3.1)
-      react-textarea-autosize: 8.5.6(@types/react@18.3.12)(react@18.3.1)
+      react-textarea-autosize: 8.5.9(@types/react@18.3.12)(react@18.3.1)
       type-fest: 4.37.0
     transitivePeerDependencies:
       - '@types/react'
@@ -14046,7 +14053,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  react-textarea-autosize@8.5.6(@types/react@18.3.12)(react@18.3.1):
+  react-textarea-autosize@8.5.9(@types/react@18.3.12)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.26.0
       react: 18.3.1

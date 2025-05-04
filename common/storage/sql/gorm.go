@@ -14,6 +14,7 @@ import (
 	mysql2 "github.com/go-sql-driver/mysql"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,6 +28,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/controller"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -53,10 +55,22 @@ func init() {
 
 	schema.RegisterSerializer("proto_enum", EnumSerial{})
 	schema.RegisterSerializer("bool_int", BoolInt{})
+
+	// Custom logger silences ErrInvalidConn as there is a retry mechanism
+	_ = mysql2.SetLogger(&mysqlLogger{})
 }
 
 type pool struct {
 	*openurl.Pool[*gorm.DB]
+}
+
+type mysqlLogger struct{}
+
+func (*mysqlLogger) Print(v ...any) {
+	if len(v) > 0 && v[0] == mysql2.ErrInvalidConn {
+		return
+	}
+	log.Logger(runtime.AsCoreContext(context.Background())).Warnf("[mysql] %v", v)
 }
 
 func cleanDSN(dsn string, vars map[string]string, parserType string) (string, error) {
@@ -222,7 +236,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			if err != nil {
 				return nil, err
 			}
-
+			log.Logger(ctx).Info("MySQL Config", zap.Any("maxOpenConns", maxOpenConnections), zap.Any("maxIdleConns", maxIdleConnections), zap.Any("connMaxLifetime", connMaxLifetime))
 			conn.SetMaxIdleConns(maxIdleConnections)
 			conn.SetMaxOpenConns(maxOpenConnections)
 			conn.SetConnMaxLifetime(connMaxLifetime)

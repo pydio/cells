@@ -27,20 +27,13 @@ import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResour
 const saveNow = (blocks, contentMeta, nodeUuid, setDirty)=>{
     const api = new UserMetaServiceApi(PydioApi.getRestClient());
 
-    const bb = blocks.map(b => {
-        if(b.type === 'childrenList') {
-            return {type:'childrenList', props:{}}
-        }
-        return b;
-    });
-
     let request = new IdmUpdateUserMetaRequest();
     request.MetaDatas = [];
     request.Operation = 'PUT';
     const meta = new IdmUserMeta();
     meta.NodeUuid = nodeUuid;
     meta.Namespace = contentMeta;
-    meta.JsonValue = JSON.stringify(bb);
+    meta.JsonValue = JSON.stringify(blocks);
     meta.Policies = [
         ServiceResourcePolicy.constructFromObject({
             Action: 'READ',

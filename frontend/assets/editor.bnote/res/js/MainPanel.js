@@ -24,7 +24,7 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
 import {useNodeContent} from "./hooks";
-const { moment } = Pydio.requireLib('boot');
+import {ListContext} from "./blocks/ChildrenList";
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
 let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
@@ -35,57 +35,23 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
 
     if(node && node.isLoaded() && loaded) {
         const nodeUUID = node.getMetadata().get('uuid')
-        const initialContent = content || []
-        if(!initialContent.length) {
-            let title = node.getLabel()
-            if(node.getMetadata().has('ws_root')) {
-                title = Pydio.getInstance().user.getActiveRepositoryObject().getLabel() || title
-            }
-            const date = moment(new Date(parseInt(node.getMetadata().get('ajxp_modiftime'))*1000)).fromNow()
-            initialContent.push({
-                    "type": "heading",
-                    "props": {
-                        "level": 2
-                    },
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": title,
-                            "styles": {}
-                        }
-                    ]
-                },
-                {
-                    "type": "paragraph",
-                    "props": {
-                        "textColor": "gray",
-                    },
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Created "+date,
-                            "styles": {
-                                "textColor": "gray"
-                            }
-                        }
-                    ],
-                },
-                {"type":"paragraph", "content" : []}
-            );
+        let initialContent = content || []
+        let title = node.getLabel()
+        if(node.getMetadata().has('ws_root')) {
+            title = Pydio.getInstance().user.getActiveRepositoryObject().getLabel() || title
         }
-        let found = false;
-        initialContent.map(block => {
-            if(block.type === 'childrenList') {
-                block.props.dataModel = dataModel
-                block.props.entryProps = entryProps
-                found = true;
-            }
-        })
-        if(!found) {
-            initialContent.push({
-                type: "childrenList",
-                props:{dataModel, entryProps}
-            })
+        const heading = initialContent.find(block => block.type === 'title' && block.content && block.content.length)
+        if(heading) {
+            heading.content[0].text = title;
+        } else {
+            initialContent = [{
+                "type": "title",
+                "content": [{"type": "text","text": title,"styles": {}}, ]
+            }, ...initialContent]
+        }
+
+        if(!initialContent.find(block => block.type === 'childrenList')) {
+            initialContent.push({type: "childrenList"})
         }
 
         const reloadIdentifier = nodeUUID + '#' + (loaded?'loaded':'loading')
@@ -114,7 +80,31 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
     }
 
     return (
-        <div style={{...style, position:'relative'}}>{body}{saveBlock}</div>
+        <ListContext.Provider value={{dataModel, entryProps}}>
+            <div
+                onDragOver={(e) => {
+                e.stopPropagation();  // Prevent React-DND from seeing it
+                e.preventDefault();   // Enable drop
+            }}
+                onDragEnter={(e) => {
+                e.stopPropagation();  // Prevent React-DND from seeing it
+                e.preventDefault();   // Enable drop
+            }}
+                onDragLeave={(e) => {
+                e.stopPropagation();  // Prevent React-DND from seeing it
+                e.preventDefault();   // Enable drop
+            }}
+            onDrop={(e) => {
+                if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                    // do not intercept file dropping!
+                    return
+                }
+               e.stopPropagation();  // Critical
+               e.preventDefault();
+           }}
+            style={{...style, position:'relative'}}
+            >{body}{saveBlock}</div>
+        </ListContext.Provider>
     )
 }
 

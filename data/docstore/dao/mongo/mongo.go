@@ -214,7 +214,7 @@ func (m *mongoImpl) toDocument(doc *mDoc) *proto.Document {
 func (m *mongoImpl) buildFilters(storeID string, query *proto.DocumentQuery) (interface{}, *options.FindOptions, error) {
 
 	var o *options.FindOptions
-	if query.Offset > 0 || query.Limit > 0 {
+	if query != nil && (query.Offset > 0 || query.Limit > 0) {
 		o = &options.FindOptions{}
 		if query.Offset > 0 {
 			offset := query.Offset

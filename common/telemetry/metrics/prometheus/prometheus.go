@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	otelprom "go.opentelemetry.io/otel/exporters/prometheus"
 
@@ -39,17 +40,25 @@ func init() {
 	metrics.DefaultURLMux().Register("prom", &Opener{})
 }
 
+var (
+	promExporter *otelprom.Exporter
+	promErr      error
+	once         sync.Once
+)
+
 type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvider, error) {
 	// Check other options
-	promExporter, err := otelprom.New(
-		otelprom.WithoutScopeInfo(),
-		otelprom.WithoutCounterSuffixes(),
-		otelprom.WithoutTargetInfo(),
-	)
-	if err != nil {
-		return nil, err
+	once.Do(func() {
+		promExporter, promErr = otelprom.New(
+			otelprom.WithoutScopeInfo(),
+			otelprom.WithoutCounterSuffixes(),
+			otelprom.WithoutTargetInfo(),
+		)
+	})
+	if promErr != nil {
+		return nil, promErr
 	}
 
 	if u.Scheme == "prom+file" {

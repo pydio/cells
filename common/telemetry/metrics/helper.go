@@ -21,6 +21,8 @@
 package metrics
 
 import (
+	"sync"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 )
@@ -90,13 +92,22 @@ func (m *helper) Timer(name string, description ...string) Timer {
 
 var (
 	current MeterHelper
+	root    metric.Meter
+	once    sync.Once
 )
+
+func rootMeter() metric.Meter {
+	once.Do(func() {
+		root = otel.Meter("root")
+	})
+	return root
+}
 
 func Helper() MeterHelper {
 
 	if current == nil {
 		current = &helper{
-			Meter: otel.Meter("root"),
+			Meter: rootMeter(),
 		}
 	}
 
@@ -106,7 +117,7 @@ func Helper() MeterHelper {
 // TaggedHelper stores tags internally and add them as Attributes at record time.
 func TaggedHelper(tags map[string]string) MeterHelper {
 	return &helper{
-		Meter: otel.Meter("root"),
+		Meter: rootMeter(),
 		tags:  tags,
 	}
 }

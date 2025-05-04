@@ -18,23 +18,33 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState} from 'react'
+import React, {useState, createContext, useContext} from 'react'
 import { createReactBlockSpec } from "@blocknote/react";
 const {FilePreview} = Pydio.requireLib('workspaces');
 const { useDataModelContextNodeAsItems, useDataModelSelection, sortNodesNatural } = Pydio.requireLib('components')
 import ContextMenuModel from 'pydio/model/context-menu'
 import Pydio from 'pydio'
 
+export const ListContext = createContext({
+    dataModel:Pydio.getInstance().getContextHolder(),
+    entryProps:{handleClicks: () => {} }
+})
 
-const Item = ({dataModel, node, entryProps}) => {
+const Item = ({dataModel, node}) => {
 
     const [hover, setHover] = useState(false);
     const selected = useDataModelSelection(dataModel, node)
+    const {entryProps} = useContext(ListContext)
     const {handleClicks} = entryProps;
 
+    let backgroundColor = hover?'var(--md-sys-color-outline-variant-50)':'inherit';
+    if(selected){
+        backgroundColor = 'var(--md-sys-color-primary)'
+    }
+
     return (
-        <div
-            style={{display:'flex', paddingLeft: 4}}
+        <p
+            style={{display:'flex', paddingLeft: 0}}
             onClick={(event) => handleClicks(node, node.isLeaf() ? "simple" : "double", event)}
             onDoubleClick={(event) => handleClicks(node, "double", event)}
             onMouseEnter={()=>setHover(true)}
@@ -45,39 +55,41 @@ const Item = ({dataModel, node, entryProps}) => {
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY)
             }}
         >
-            <span className={"mdi mdi-subdirectory-arrow-right"}/>
             <div style={{
-                flex: 1, display:'flex', alignItems:'center',
-                margin:3,
+                flex: 1, display:'flex', alignItems:'flex-start',
                 cursor:'pointer',
-                border: ((hover || selected) && node.isLeaf())?'1px solid var(--md-sys-color-primary)':'1px solid transparent',
-                backgroundColor:selected?'var(--md-sys-color-primary)':'inherit',
+                backgroundColor,
                 color:selected?'var(--md-sys-color-on-primary)':'inherit',
-                borderRadius:6, paddingRight:8
+                borderRadius:6,
+                margin: '1px 0',
+                padding:'3px 8px 2px 1px',
+                transition:'background-color 0.1s'
             }}>
-                <div style={{marginRight: 2}}>
+                <div style={{marginRight: 5}} className={selected?"bn-selected":null}>
                     <FilePreview
                         node={node}
                         loadThumbnail={false}
                         style={{
-                            height: 22, width:22, fontSize: 16,
+                            height: 22, width:22, fontSize: 18,
                             borderRadius: 2, textAlign:'center',
                         }}
                         mimeFontStyle={{margin:'0 auto'}}
                     />
                 </div>
-                <div style={{flex: 1, fontSize: 14, fontWeight:600, textDecoration:(hover && !node.isLeaf())?'underline':'none'}}>{node.getLabel()}</div>
+                <div style={{flex: 1, fontSize: 'inherit'}}>{node.getLabel()}</div>
             </div>
-        </div>
+        </p>
     )
 };
 
 const EmptyItem = () => {
-    return <div style={{fontSize: 14, padding: '3px 20px'}}>No pages or files - Create one</div>
+    return <div style={{fontSize: 'inherit', padding: '3px 1px'}}>No pages or files</div>
 }
 
 
-const List = ({dataModel, entryProps}) => {
+const List = ({entryProps}) => {
+
+    const {dataModel} = useContext(ListContext);
 
     const {node, items} = useDataModelContextNodeAsItems(dataModel, (n) => {
         const nn = []
@@ -85,17 +97,23 @@ const List = ({dataModel, entryProps}) => {
         nn.sort(sortNodesNatural)
         return nn.map(child => <Item dataModel={dataModel} node={child} entryProps={entryProps}/>);
     })
-    if(!node) {
+    if(!node || !items.length) {
         return null;
     }
     if(!items.length) {
         items.push(<EmptyItem/>)
     }
+    //const testBorder = {borderLeft: '3px solid var(--md-sys-color-outline-variant-50)',marginLeft: 8, paddingLeft: 8}
 
     return (
         <div style={{lineHeight:'1.3em'}}>
-            <h2 style={{fontWeight: 600}}><span className={"mdi mdi-folder-open-outline"} style={{marginRight: 3}}/>{node.getLabel()}</h2>
-            <div className={"bn-children-list"}>{items}</div>
+            <h3 style={{fontSize:'1.3em', fontWeight:700, marginBottom: 10}}>
+                <span style={{marginRight:6}}>🗂️</span>
+                <span style={{marginRight:6}}>Folder Contents</span>
+            </h3>
+            <div className={"bn-children-list"}>
+                {items}
+            </div>
         </div>
     );
 }
@@ -104,15 +122,12 @@ const List = ({dataModel, entryProps}) => {
 export const ChildrenList = createReactBlockSpec(
     {
         type: "childrenList",
-        propSchema: {
-            dataModel:{default:null},
-            entryProps:{default:null}
-        },
+        propSchema: {},
         content: "none",
     },
     {
         render: (props) => {
-            return <List dataModel={props.block.props.dataModel} entryProps={props.block.props.entryProps}/>
+            return <List/>
         },
     }
 );

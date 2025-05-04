@@ -63,6 +63,7 @@ func pathComposer(oo ...nodes.Option) []nodes.Option {
 		path.WithRecyclePathHandler(),
 		sync.WithCache(), // options.SynchronousCache
 		events.WithAudit(),
+		acl.WithRefFilter(),
 		acl.WithFilter(),
 		events.WithRead(),
 		put.WithJobsDynamicMiddlewares(),

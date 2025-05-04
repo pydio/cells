@@ -22,9 +22,7 @@ import React, {useState, useEffect, useMemo} from 'react'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {InfoPanelCard} = Pydio.requireLib('workspaces');
-import AjxpNode from 'pydio/model/node'
 import Pad from './pad'
-import {debounce} from 'lodash'
 import { muiThemeable } from 'material-ui/styles'
 import {useNodeContent} from "./hooks";
 

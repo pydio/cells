@@ -192,6 +192,7 @@ const (
 	MetaNamespaceDatasourceInternal  = MetaNamespaceReservedPrefix_ + "meta-data-source-internal"
 	MetaNamespaceNodeTestLocalFolder = MetaNamespaceReservedPrefix_ + "test:local-folder-storage"
 	MetaNamespaceRecycleRestore      = MetaNamespaceReservedPrefix_ + "recycle_restore"
+	MetaNamespaceAclRefNodeUuid      = MetaNamespaceReservedPrefix_ + "acl-ref-node-uuid"
 	MetaNamespaceInsideRecycle       = "inside_recycle"
 	MetaNamespaceNodeName            = "name"
 	MetaNamespaceMime                = "mime"
@@ -229,10 +230,10 @@ const (
 	XPydioClientUuid            = "X-Pydio-Client-Uuid"
 	XPydioSessionUuid           = "X-Pydio-Session"
 	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
-	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
 	XPydioSiteHash              = "X-Pydio-Site-Hash"
 	XPydioDebugSession          = "X-Pydio-Debug-Session"
+	XPydioMinisite              = "X-Pydio-Minisite"
 	XContentType                = "Content-Type"
 	InputResourceUUID           = "Create-Resource-Uuid"
 	InputVersionId              = "Create-Version-Id"
@@ -308,7 +309,7 @@ var (
 		XPydioClientUuid,
 		XPydioSessionUuid,
 		XPydioIndexationSessionUuid,
-		XPydioFrontendSessionUuid,
+		XPydioMinisite,
 		XPydioMoveUuid,
 		XPydioDebugSession,
 	}

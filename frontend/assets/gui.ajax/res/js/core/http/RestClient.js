@@ -23,7 +23,6 @@ import PydioStorage from './PydioStorage'
 import dayjs from 'dayjs'
 import qs from 'query-string'
 import {ApiClient, JobsServiceApi, RestUserJobRequest, RestFrontSessionRequest, RestFrontSessionResponse} from 'cells-sdk';
-import genUuid from 'uuid4'
 import lscache from 'lscache'
 
 // Override parseDate method to support ISO8601 cross-browser
@@ -40,10 +39,14 @@ class RestClient extends ApiClient{
      */
     constructor(pydioObject, options = {}){
         super();
-        this.uuid = genUuid()
-        this.defaultHeaders = {}; // Make sure to not set User-Agent
+        // Override ApiClient defaults
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
+        this.defaultHeaders = {}; // Make sure to not set User-Agent
+        if(pydioObject.Parameters.get('MINISITE')) {
+            this.defaultHeaders['X-Pydio-Minisite'] = pydioObject.Parameters.get('MINISITE');
+        }
         this.enableCookies = true; // enables withCredentials()
+
         this.pydio = pydioObject;
         this.options = options;
         if(this.options.plugins) {

@@ -122,6 +122,9 @@ export default class PydioBootstrap{
 
         if(this.parameters.get('ajxpResourcesFolder')){
             connexion._libUrl = this.parameters.get('ajxpResourcesFolder') + "/dist";
+            if(this.parameters.get('MINISITE') && this.parameters.get('PUBLIC_BASEURI')) {
+                connexion._libUrl = this.parameters.get('PUBLIC_BASEURI') + connexion._libUrl
+            }
             window.ajxpResourcesFolder = this.parameters.get('ajxpResourcesFolder') + "/themes/" + this.parameters.get("theme");
         }
 

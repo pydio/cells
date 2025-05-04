@@ -34,18 +34,18 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/pydio/cells/v5/common/proto/object"
+	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
-func WithStore(name string, transparentGet, allowPut, allowAnonRead bool) nodes.Option {
+func WithStore(name string, indexedStore, allowPut, allowAnonRead bool) nodes.Option {
 	return func(options *nodes.RouterOptions) {
 		options.Wrappers = append(options.Wrappers, &Handler{
-			StoreName:      name,
-			TransparentGet: transparentGet,
-			AllowPut:       allowPut,
-			AllowAnonRead:  allowAnonRead,
+			StoreName:     name,
+			Indexed:       indexedStore,
+			AllowPut:      allowPut,
+			AllowAnonRead: allowAnonRead,
 		})
 	}
 }
@@ -53,10 +53,10 @@ func WithStore(name string, transparentGet, allowPut, allowAnonRead bool) nodes.
 // Handler captures put/get calls to an internal storage
 type Handler struct {
 	abstract.Handler
-	StoreName      string
-	TransparentGet bool
-	AllowPut       bool
-	AllowAnonRead  bool
+	StoreName     string
+	Indexed       bool
+	AllowPut      bool
+	AllowAnonRead bool
 }
 
 func (a *Handler) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
@@ -96,40 +96,44 @@ func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts .
 		if e := a.checkContextForAnonRead(ctx); e != nil {
 			return nil, e
 		}
-		s3client := source.Client
-		/*
-			statOpts := minio.StatObjectOptions{}
-			if meta, mOk := context2.MinioMetaFromContext(ctx); mOk {
-				for k, v := range meta {
-					statOpts.Set(k, v)
-				}
-			}
-		*/
-		objectInfo, err := s3client.StatObject(ctx, source.ObjectsBucket, path.Base(in.Node.Path), nil)
-		if err != nil {
-			return nil, err
-		}
-		node := &tree.Node{
-			Path:  a.StoreName + "/" + objectInfo.Key,
-			Size:  objectInfo.Size,
-			MTime: objectInfo.LastModified.Unix(),
-			Etag:  objectInfo.ETag,
-			Type:  tree.NodeType_LEAF,
-			Uuid:  objectInfo.Key,
-			Mode:  0777,
-		}
-		// Special case if DS is encrypted - update node with clear size
-		if a.TransparentGet && source.EncryptionMode != object.EncryptionMode_CLEAR {
-			if rn, e := nodes.GetSourcesPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(source.Name, path.Base(in.Node.Path))}}, opts...); e == nil {
-				node.Size = rn.GetNode().GetSize()
-			} else {
-				log.Logger(ctx).Debug("Could not update clear size for binary store in read node", zap.Error(e))
-			}
-		}
 
-		return &tree.ReadNodeResponse{
-			Node: node,
-		}, nil
+		// Nodes are indexed, use index to stat
+		if a.Indexed {
+
+			ctx = nodes.WithBranchInfo(ctx, "in", nodes.BranchInfo{
+				LoadedSource:  source,
+				IndexedBinary: true,
+				Workspace:     &idm.Workspace{UUID: "ROOT"},
+			})
+			clone := in.Node.Clone()
+			dsKey := path.Base(in.Node.Path)
+			clone.Path = path.Join(source.Name, dsKey)
+			clone.MustSetMeta(common.MetaNamespaceDatasourcePath, dsKey)
+			clone.MustSetMeta(common.MetaNamespaceDatasourceName, source.Name)
+			in.Node = clone
+			resp, err := a.Next.ReadNode(ctx, in, opts...)
+			return resp, err
+
+		} else {
+			s3client := source.Client
+			objectInfo, err := s3client.StatObject(ctx, source.ObjectsBucket, path.Base(in.Node.Path), nil)
+			if err != nil {
+				return nil, err
+			}
+			node := &tree.Node{
+				Path:  a.StoreName + "/" + objectInfo.Key,
+				Size:  objectInfo.Size,
+				MTime: objectInfo.LastModified.Unix(),
+				Etag:  objectInfo.ETag,
+				Type:  tree.NodeType_LEAF,
+				Uuid:  objectInfo.Key,
+				Mode:  0777,
+			}
+
+			return &tree.ReadNodeResponse{
+				Node: node,
+			}, nil
+		}
 
 	}
 	return a.Next.ReadNode(ctx, in, opts...)
@@ -145,9 +149,9 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 			filter := node.Clone()
 			filter.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Base(node.Path))
 			filterBi := nodes.BranchInfo{LoadedSource: source}
-			if a.TransparentGet {
+			if a.Indexed {
 				// Do not set the Binary flag and just replace node info
-				filterBi.TransparentBinary = true
+				filterBi.IndexedBinary = true
 				filter.Path = path.Join(source.Name, path.Base(node.Path))
 			} else {
 				filterBi.Binary = true

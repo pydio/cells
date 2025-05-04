@@ -403,6 +403,8 @@ func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string
 	for k, v := range metaStore {
 		if k == common.MetaNamespaceDatasourceName ||
 			k == common.MetaNamespaceDatasourcePath ||
+			k == common.MetaNamespaceDatasourceInternal ||
+			k == common.MetaFlagIndexed ||
 			k == common.InputResourceUUID ||
 			k == common.InputDraftMode ||
 			k == common.InputVersionId ||

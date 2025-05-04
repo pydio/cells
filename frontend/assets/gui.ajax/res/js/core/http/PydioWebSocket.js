@@ -103,6 +103,9 @@ class PydioWebSocket extends Observable {
      */
     open() {
         let wsPath = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET");
+        if(!wsPath) {
+            return;
+        }
         if(wsPath && wsPath[0] === '/'){
             wsPath = wsPath.substr(1)
         }

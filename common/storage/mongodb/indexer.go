@@ -156,7 +156,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	}
 	var sendTotal *uint64
 	// Eventually override options
-	if op, ok := i.codec.(indexer.QueryOptionsProvider); ok {
+	if op, ok := codec.(indexer.QueryOptionsProvider); ok {
 		if oo, e := op.BuildQueryOptions(query, offset, limit, sortFields, sortDesc); e == nil {
 			opts = oo.(*options.FindOptions)
 		}
@@ -381,9 +381,11 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 							ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
 						}
 					}
-					if _, e := conn.DeleteMany(ctx, bson.M{"$or": ors}); e != nil {
-						log.Logger(ctx).Error("error while flushing pre-deletes:" + e.Error())
-						return e
+					if len(ors) > 0 {
+						if _, e := conn.DeleteMany(ctx, bson.M{"$or": ors}); e != nil {
+							log.Logger(ctx).Error("error while flushing pre-deletes:" + e.Error())
+							return e
+						}
 					}
 				}
 				if _, e := conn.InsertMany(ctx, inserts); e != nil {
