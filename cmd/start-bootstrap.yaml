@@ -191,7 +191,7 @@ services: &services
     storages:
       main:
         - type: sql
-          prefix: ladon_
+          prefix: idm_ladon_
           singular: "true"
   pydio.grpc.user-meta:
     storages:
