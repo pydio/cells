@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"go.uber.org/multierr"
 
@@ -82,6 +83,10 @@ type Config struct {
 	Profiling   profile.Config     `json:"profiling" yaml:"profiling"`
 }
 
+var (
+	metricsOnce sync.Once
+)
+
 // Reload reads config and call underlying loaders for each aspect (logging, metrics, profiling, tracing)
 func (c Config) Reload(ctx context.Context) error {
 	if c.OTelService.Name == "" {
@@ -96,18 +101,20 @@ func (c Config) Reload(ctx context.Context) error {
 			errs = append(errs, fmt.Errorf("error initializing tracer %v", er))
 		}
 	}
-	if len(c.Metrics.Readers) > 0 {
-		if er := metrics.InitReaders(ctx, c.OTelService, c.Metrics); er != nil {
-			errs = append(errs, fmt.Errorf("error initializing metrics %v", er))
-		}
-	} else if runtime.GetBool(runtime.KeyEnableMetrics) {
-		// Legacy way of enabling metrics
+	if len(c.Metrics.Readers) == 0 && runtime.GetBool(runtime.KeyEnableMetrics) {
 		if os.Getenv("CELLS_METRICS_BASIC_AUTH") != "" {
 			c.Metrics.Readers = append(c.Metrics.Readers, "prom://")
 		} else {
 			c.Metrics.Readers = append(c.Metrics.Readers, "prom+file:///{{.ServiceDataDir}}/prom_clients.json")
 		}
 	}
+	metricsOnce.Do(func() {
+		if len(c.Metrics.Readers) > 0 {
+			if er := metrics.InitReaders(ctx, c.OTelService, c.Metrics); er != nil {
+				errs = append(errs, fmt.Errorf("error initializing metrics %v", er))
+			}
+		}
+	})
 
 	if len(c.Profiling.Publishers) == 0 && runtime.GetBool(runtime.KeyEnablePprof) {
 		// Legacy way of enabling Pprof

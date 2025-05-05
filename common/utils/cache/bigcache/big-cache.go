@@ -87,7 +87,7 @@ func (o *URLOpener) Open(ctx context.Context, u *url.URL) (cache.Cache, error) {
 	cac := &bigCache{
 		BigCache: bc,
 		ticker:   time.NewTicker(30 * time.Second),
-		scope:    metrics.ServiceHelper(u.Path),
+		scope:    metrics.ServiceHelper(u.Query().Get("prefix")),
 	}
 	go func() {
 		for range cac.ticker.C {

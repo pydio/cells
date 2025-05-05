@@ -41,7 +41,11 @@ type EventSubscriber struct {
 }
 
 var (
-	cacheConfig = cache.Config{Eviction: "10m"}
+	cacheConfig = cache.Config{
+		Prefix:      "pydio.grpc.tree/data",
+		Eviction:    "10m",
+		CleanWindow: "20m",
+	}
 )
 
 func NewEventSubscriber(t *TreeServer) *EventSubscriber {

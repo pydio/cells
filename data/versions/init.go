@@ -44,6 +44,7 @@ import (
 
 var (
 	policiesCacheConf = cache.Config{
+		Prefix:      "pydio.grpc.versions/policies",
 		Eviction:    "1h",
 		CleanWindow: "1h",
 	}

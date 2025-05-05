@@ -39,6 +39,7 @@ var (
 		return hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
 	}
 	partsCacheConf = cache.Config{
+		Prefix:      "nodes/multiparts/parts",
 		Eviction:    "48h",
 		CleanWindow: "24h",
 	}

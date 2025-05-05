@@ -535,7 +535,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 func (m *Handler) getMetaClient() meta.UserMetaClient {
 	if m.metaClient == nil {
 		m.metaClient = meta.NewUserMetaClient(cache.Config{
-			Prefix:      "namespaces",
+			Prefix:      "nodes/metadata",
 			Eviction:    "10s",
 			CleanWindow: "3m",
 		})

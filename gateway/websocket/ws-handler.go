@@ -336,6 +336,9 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 	}
 
 	taskOwner := event.TaskUpdated.TriggerOwner
+	// Filter error message for websocket events
+	event.TaskUpdated.UserSpaceErrorStatus()
+
 	message, _ := protojson.Marshal(event)
 	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
 		if !runtime.MultiMatches(session.Request.Context(), ctx) {

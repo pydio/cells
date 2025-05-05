@@ -57,7 +57,7 @@ func WithQuota() nodes.Option {
 }
 
 var cacheConfig = cache.Config{
-	Prefix:          "acl-quota",
+	Prefix:          "nodes/acl-quota",
 	Eviction:        "30s",
 	CleanWindow:     "3m",
 	DiscardFallback: true,

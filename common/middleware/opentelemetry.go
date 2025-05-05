@@ -23,6 +23,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -107,9 +108,32 @@ func SpanFromContext(ctx context.Context) trace.SpanContext {
 	return trace.SpanContextFromContext(ctx)
 }
 
-// HttpTracingMiddleware enabled tracing on HTTP server
+// HttpTracingMiddleware enables tracing and metrics with route tagging on an HTTP server.
 func HttpTracingMiddleware(operation string) func(h http.Handler) http.Handler {
-	return otelhttp.NewMiddleware(operation)
+	return func(h http.Handler) http.Handler {
+		// Adds http.route attribute to both spans and metrics
+		return WithRouteTag(operation, otelhttp.NewMiddleware(operation,
+			otelhttp.WithMeterProvider(otel.GetMeterProvider()),
+		)(h))
+	}
+}
+
+// WithRouteTag annotates spans and metrics with the provided route name
+// with HTTP route attribute. We could enable the Path as attribute for better precision
+func WithRouteTag(route string, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		routeKey := attribute.Key("http.route").String("/" + strings.Trim(route, "/"))
+		//pathKey := attribute.Key("http.path").String(r.URL.Path)
+		span := trace.SpanFromContext(r.Context())
+		span.SetAttributes(routeKey)
+		//span.SetAttributes(pathKey)
+		labeler, _ := otelhttp.LabelerFromContext(r.Context())
+		labeler.Add(routeKey)
+		//labeler.Add(pathKey)
+		r = r.WithContext(otelhttp.ContextWithLabeler(r.Context(), labeler))
+
+		h.ServeHTTP(w, r)
+	})
 }
 
 type customHandler struct {

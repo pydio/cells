@@ -47,6 +47,7 @@ import (
 
 var (
 	partsCacheConf = cache.Config{
+		Prefix:      "nodes/multiparts/versions",
 		Eviction:    "48h",
 		CleanWindow: "24h",
 	}

@@ -44,6 +44,7 @@ import (
 )
 
 var groupsCacheConfig = cache.Config{
+	Prefix:      "pydio.grpc.policy/groups",
 	Eviction:    "72h",
 	CleanWindow: "72h",
 }

@@ -46,7 +46,7 @@ import (
 var (
 	noCache   bool
 	cacheConf = cache.Config{
-		Prefix:   "activities",
+		Prefix:   "pydio.grpc.activity/server/activities",
 		Eviction: "5m",
 	}
 	batchPool     *openurl.Pool[indexer.Batch]

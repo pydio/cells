@@ -38,7 +38,7 @@ func NewSessionDAO(session string, concurrency int, d DAO) DAO {
 		cacheConf: cache.Config{
 			Eviction:    cacheEviction,
 			CleanWindow: cacheWindow,
-			Prefix:      "index-" + session,
+			Prefix:      "index/session/" + session,
 		},
 		concurrency: concurrency,
 	}

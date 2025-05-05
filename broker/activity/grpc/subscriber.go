@@ -68,7 +68,7 @@ func NewEventsSubscriber(ctx context.Context, handlerName string) *MicroEventsSu
 		RuntimeCtx:  ctx,
 		handlerName: handlerName,
 		cacheConfig: cache.Config{
-			Prefix:      "activities-subscriber",
+			Prefix:      "pydio.grpc.activity/subscriber/activities",
 			Eviction:    "3m",
 			CleanWindow: "10m",
 		},

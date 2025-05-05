@@ -60,6 +60,7 @@ var (
 		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
 	cacheConfig = cache.Config{
+		Prefix:      "pydio.grpc.user/data",
 		Eviction:    "10s",
 		CleanWindow: "20s",
 	}

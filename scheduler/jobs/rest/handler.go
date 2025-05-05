@@ -85,10 +85,12 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		uName = claims.Name
 		profile = claims.Profile
 	}
+	var userSpace bool
 	if request.Owner == "*" && profile == common.PydioProfileAdmin {
 		request.Owner = ""
 	} else {
 		request.Owner = uName
+		userSpace = true
 	}
 
 	var hasRunning []string
@@ -123,6 +125,14 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 			return nil
 		}); er != nil {
 			return er
+		}
+	}
+
+	if userSpace {
+		for _, j := range output.Jobs {
+			for _, task := range j.Tasks {
+				task.UserSpaceErrorStatus()
+			}
 		}
 	}
 
