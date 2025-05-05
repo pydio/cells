@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2025. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 package jobs
 
 import (
-	"time"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/protobuf/proto"
@@ -67,45 +65,6 @@ func (job *Job) Zap() zapcore.Field {
 // ZapId simply calls zap.String() with JobId standard key and this Job Id
 func (job *Job) ZapId() zapcore.Field {
 	return zap.String(common.KeyJobId, job.GetID())
-}
-
-func (task *Task) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddString("ID", task.ID)
-	encoder.AddString("Status", task.Status.String())
-	encoder.AddString("StatusMessage", task.StatusMessage)
-	encoder.AddString("TriggerOwner", task.TriggerOwner)
-	encoder.AddString("JobID", task.JobID)
-	if task.StartTime > 0 {
-		encoder.AddTime("StartTime", time.Unix(int64(task.StartTime), 0))
-	}
-	if task.EndTime > 0 {
-		encoder.AddTime("EndTime", time.Unix(int64(task.EndTime), 0))
-	}
-	if task.CanStop {
-		encoder.AddBool("CanStop", task.CanStop)
-	}
-	if task.CanPause {
-		encoder.AddBool("CanPause", task.CanPause)
-	}
-	if task.HasProgress {
-		encoder.AddBool("HasProgress", task.HasProgress)
-		encoder.AddFloat32("Progress", task.Progress)
-	}
-	return nil
-}
-
-// Zap simply returns a zapcore.Field object populated with this Task under a standard key
-func (task *Task) Zap() zapcore.Field {
-	return zap.Object(common.KeyTask, task)
-}
-
-// ZapId simply calls zap.String() with TaskId standard key and this Task Id
-func (task *Task) ZapId() zapcore.Field {
-	return zap.String(common.KeyTaskId, task.GetID())
-}
-
-func (task *Task) GetCtxOperationID() string {
-	return task.GetJobID() + "-" + task.GetID()[0:8]
 }
 
 // MustMarshalAny is an util function to avoid error check
