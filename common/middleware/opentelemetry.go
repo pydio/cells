@@ -119,17 +119,17 @@ func HttpTracingMiddleware(operation string) func(h http.Handler) http.Handler {
 }
 
 // WithRouteTag annotates spans and metrics with the provided route name
-// with HTTP route attribute.
+// with HTTP route attribute. We could enable the Path as attribute for better precision
 func WithRouteTag(route string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		routeKey := attribute.Key("http.route").String("/" + strings.Trim(route, "/"))
-		pathKey := attribute.Key("http.path").String(r.URL.Path)
+		//pathKey := attribute.Key("http.path").String(r.URL.Path)
 		span := trace.SpanFromContext(r.Context())
 		span.SetAttributes(routeKey)
-		span.SetAttributes(pathKey)
+		//span.SetAttributes(pathKey)
 		labeler, _ := otelhttp.LabelerFromContext(r.Context())
 		labeler.Add(routeKey)
-		labeler.Add(pathKey)
+		//labeler.Add(pathKey)
 		r = r.WithContext(otelhttp.ContextWithLabeler(r.Context(), labeler))
 
 		h.ServeHTTP(w, r)
