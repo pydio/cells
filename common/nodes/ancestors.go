@@ -35,12 +35,12 @@ import (
 
 var (
 	ancestorsConfig = cache.Config{
-		Prefix:      "ancestors",
+		Prefix:      "nodes/ancestors",
 		Eviction:    "1500ms",
 		CleanWindow: "3m",
 	}
 	ancestorsParentsConfig = cache.Config{
-		Prefix:      "ancestors-parents",
+		Prefix:      "nodes/ancestors-parents",
 		Eviction:    "1500ms",
 		CleanWindow: "3m",
 	}

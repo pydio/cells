@@ -847,6 +847,7 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) error {
 }
 
 var paramsCacheConfig = cache.Config{
+	Prefix:      "pydio.rest.user/params",
 	Eviction:    "24h",
 	CleanWindow: "24h",
 }

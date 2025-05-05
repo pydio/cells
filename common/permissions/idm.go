@@ -48,7 +48,7 @@ var (
 	//usersCachePool *openurl.Pool[cache.Cache]
 	//usersOnce      sync.Once
 	usersCacheConfig = cache.Config{
-		Prefix:      "users",
+		Prefix:      "permissions/users",
 		Eviction:    "5s",
 		CleanWindow: "30s",
 	}

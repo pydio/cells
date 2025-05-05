@@ -53,7 +53,7 @@ import (
 
 var (
 	cacheConfig = cache.Config{
-		Prefix:          "virtual-nodes",
+		Prefix:          "nodes/virtual-nodes",
 		Eviction:        "60s",
 		CleanWindow:     "120s",
 		DiscardFallback: true,

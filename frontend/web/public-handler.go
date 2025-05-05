@@ -67,6 +67,7 @@ import (
 
 var (
 	cacheConfig = cache.Config{
+		Prefix:      "web/public",
 		Eviction:    "30s",
 		CleanWindow: "5m",
 	}

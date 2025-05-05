@@ -27,6 +27,7 @@ func WithJobsDynamicMiddlewares() nodes.Option {
 }
 
 var mdCacheConfig = cache.Config{
+	Prefix:          "nodes/multiparts/metadata",
 	Eviction:        "30s",
 	CleanWindow:     "120s",
 	DiscardFallback: true,

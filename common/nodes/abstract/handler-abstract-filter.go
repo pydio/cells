@@ -42,7 +42,7 @@ import (
 )
 
 var rootNodesCacheConfig = cache.Config{
-	Prefix:      "root-nodes",
+	Prefix:      "nodes/root-nodes",
 	Eviction:    "10s",
 	CleanWindow: "60s",
 }

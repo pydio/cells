@@ -31,7 +31,7 @@ import (
 
 var (
 	cacheConfig = cache.Config{
-		Prefix:      "resources",
+		Prefix:      "sql/resources",
 		Eviction:    "30s",
 		CleanWindow: "2m",
 	}

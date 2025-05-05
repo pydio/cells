@@ -44,6 +44,7 @@ import (
 )
 
 var keyCacheConfig = cache.Config{
+	Prefix:      "pydio.grpc.key/keys",
 	Eviction:    "24h",
 	CleanWindow: "24h",
 }

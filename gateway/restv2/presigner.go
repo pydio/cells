@@ -35,7 +35,7 @@ func NewV4SignerForRequest(r *http.Request, expSeconds int64) (PreSigner, error)
 	ctx := r.Context()
 	// Cache for half the expiration time
 	ca, err := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{
-		Prefix:      "presign",
+		Prefix:      "requests/presign",
 		CleanWindow: fmt.Sprintf("%ds", expSeconds),
 		Eviction:    fmt.Sprintf("%ds", expSeconds/2),
 	})

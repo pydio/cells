@@ -49,7 +49,7 @@ var (
 	cacheNodePrefix = "__node__"
 	cacheDiffPrefix = "__diff__"
 	syncCacheConfig = cache.Config{
-		Prefix:      "nodes-cache",
+		Prefix:      "nodes/sync-cache",
 		Eviction:    "30s",
 		CleanWindow: "1m",
 	}

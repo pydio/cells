@@ -58,7 +58,7 @@ const (
 
 // var polCachePool *openurl.Pool[cache.Cache]
 var polCacheConfig = cache.Config{
-	Prefix:      "policies",
+	Prefix:      "permissions/policies",
 	Eviction:    "1m",
 	CleanWindow: "10m",
 }

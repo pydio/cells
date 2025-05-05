@@ -47,7 +47,7 @@ import (
 
 var (
 	revCacheConfig = cache.Config{
-		Prefix:      "nodes-reverse",
+		Prefix:      "nodes/reverse",
 		Eviction:    "120s",
 		CleanWindow: "10m",
 	}

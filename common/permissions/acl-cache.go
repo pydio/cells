@@ -39,7 +39,7 @@ import (
 var (
 	aclOnce         sync.Once
 	ancestorsConfig = cache.Config{
-		Prefix:      "acls",
+		Prefix:      "permissions/acls",
 		Eviction:    "60s",
 		CleanWindow: "30s",
 	}

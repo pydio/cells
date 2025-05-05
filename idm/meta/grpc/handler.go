@@ -52,7 +52,7 @@ type Handler struct {
 }
 
 var cacheConfig = cache.Config{
-	Prefix: "pydio.grpc.user-meta",
+	Prefix: "pydio.grpc.user-meta/data",
 }
 
 func NewHandler(ctx context.Context) *Handler {
