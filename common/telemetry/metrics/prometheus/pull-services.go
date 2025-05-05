@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel/sdk/metric"
 
@@ -61,6 +62,7 @@ func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx cont
 
 type fileProvider struct {
 	metric.Reader
+	registry *prometheus.Registry
 	filePath string
 }
 
@@ -89,7 +91,7 @@ func (f *fileProvider) InitHTTPPullService(ctx context.Context, route string) {
 		ctx,
 		!runtime.IsFork(),
 		func(ctx context.Context, mux routing.RouteRegistrar) error {
-			mux.Route(route).Handle(pattern, promhttp.Handler())
+			mux.Route(route).Handle(pattern, promhttp.HandlerFor(f.registry, promhttp.HandlerOpts{}))
 			return nil
 		},
 		func(ctx context.Context, mux routing.RouteRegistrar) error {
@@ -101,6 +103,7 @@ func (f *fileProvider) InitHTTPPullService(ctx context.Context, route string) {
 
 type httpProvider struct {
 	metric.Reader
+	registry   *prometheus.Registry
 	login, pwd string
 }
 
@@ -114,7 +117,7 @@ func (p *httpProvider) InitHTTPPullService(ctx context.Context, route string) {
 		false,
 		func(ctx context.Context, mux routing.RouteRegistrar) error {
 			router := mux.Route(route)
-			router.Handle(pattern, &basicAuth{inner: promhttp.Handler(), login: []byte(p.login), pwd: []byte(p.pwd)})
+			router.Handle(pattern, &basicAuth{inner: promhttp.HandlerFor(p.registry, promhttp.HandlerOpts{}), login: []byte(p.login), pwd: []byte(p.pwd)})
 			/// For main process, also add the central index
 			if !runtime.IsFork() {
 				index := NewIndex(ctx)

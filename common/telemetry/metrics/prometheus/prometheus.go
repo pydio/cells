@@ -27,8 +27,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"sync"
 
+	"github.com/prometheus/client_golang/prometheus"
 	otelprom "go.opentelemetry.io/otel/exporters/prometheus"
 
 	"github.com/pydio/cells/v5/common/runtime"
@@ -40,23 +40,17 @@ func init() {
 	metrics.DefaultURLMux().Register("prom", &Opener{})
 }
 
-var (
-	promExporter *otelprom.Exporter
-	promErr      error
-	once         sync.Once
-)
-
 type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvider, error) {
-	// Check other options
-	once.Do(func() {
-		promExporter, promErr = otelprom.New(
-			otelprom.WithoutScopeInfo(),
-			otelprom.WithoutCounterSuffixes(),
-			otelprom.WithoutTargetInfo(),
-		)
-	})
+	// Use local registry to avoid collision with prometheus.DefaultGatherer
+	promReg := prometheus.NewRegistry()
+	promExporter, promErr := otelprom.New(
+		otelprom.WithRegisterer(promReg),
+		otelprom.WithoutScopeInfo(),
+		otelprom.WithoutCounterSuffixes(),
+		otelprom.WithoutTargetInfo(),
+	)
 	if promErr != nil {
 		return nil, promErr
 	}
@@ -65,6 +59,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvide
 		return &fileProvider{
 			Reader:   promExporter,
 			filePath: u.Path,
+			registry: promReg,
 		}, nil
 	} else if u.Scheme == "prom" {
 		var login, password string
@@ -85,9 +80,10 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvide
 			return nil, fmt.Errorf("please set a username/password in ENV using CELLS_METRICS_BASIC_AUTH or in URL")
 		}
 		return &httpProvider{
-			Reader: promExporter,
-			login:  login,
-			pwd:    password,
+			Reader:   promExporter,
+			registry: promReg,
+			login:    login,
+			pwd:      password,
 		}, nil
 	} else {
 		return nil, fmt.Errorf("unsupported scheme %s, please use prom (http) or prom+file (file) schemes", u.Scheme)

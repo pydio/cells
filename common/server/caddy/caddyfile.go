@@ -43,9 +43,6 @@ const (
   auto_https disable_redirects
 {{if .DisableAdmin}}  admin off{{end}}
 {{if .Storage}}  storage {{.Storage}}{{end}}
-{{if .EnableMetrics}}  servers {
-    metrics
-  }{{end}}
 {{if .RedirectLogWriter}}  log{
      output cells
  	 format json
