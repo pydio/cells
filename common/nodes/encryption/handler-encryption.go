@@ -289,7 +289,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	n, err := e.Next.PutObject(ctx, node, encryptionMaterials, requestData)
 
-	if plainSizeUnknown && branchInfo.FlatStorage {
+	if err == nil && plainSizeUnknown && branchInfo.FlatStorage {
 		ps, psErr := e.recomputeNodePlainSize(ctx, node, dsName)
 		if psErr != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to update node plain size info", zap.Error(psErr))
