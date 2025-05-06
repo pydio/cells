@@ -81,12 +81,12 @@ EXAMPLES
 
 			uuidFound := lookupUuid != "" && lookupUuid == node.GetUuid()
 			
-			if gw.Match(base) || uuidFound {
+			if (er == nil && gw != nil && gw.Match(base)) || uuidFound {
 				if !header {
 					fmt.Println(promptui.IconGood + " Found Matches!")
 					fmt.Println("")
-					fmt.Println("Type \t | MTime \t | Size \t | Uuid \t\t\t\t | Path ")
-					fmt.Println("----- \t | ----- \t | ----- \t | ----- \t\t\t\t | -----")
+					fmt.Println("Type \t | Uuid \t\t\t\t | MTime \t | Size \t | Path ")
+					fmt.Println("----- \t |------------------------------------ \t | ----- \t | ----- \t | -----")
 					header = true
 				}
 				typeName := "Folder"
@@ -94,7 +94,7 @@ EXAMPLES
 					typeName = "File"
 				}
 				mTime := time.Unix(node.GetMTime(), 0).Format("06-01-02")
-				fmt.Println(typeName + "\t | " + mTime + "\t | " + humanize.IBytes(uint64(node.GetSize()))  + "\t | " + node.GetUuid() + "\t | " + node.GetPath())
+				fmt.Println(typeName + "\t | " + node.GetUuid() + "\t | " + mTime + "\t | " + humanize.IBytes(uint64(node.GetSize()))  + "\t | " + node.GetPath())
 			}
 			if uuidFound {
 				return breakErr
