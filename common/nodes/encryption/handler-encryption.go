@@ -283,6 +283,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
+	var plainSizeUnknown bool
 	// Update Size : set Plain as Meta and Encrypted as Size.
 	if requestData.Metadata == nil {
 		requestData.Metadata = make(map[string]string, 1)
@@ -291,11 +292,22 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
 		requestData.Metadata[common.XAmzMetaClearSize] = fmt.Sprintf("%d", requestData.Size)
 	} else {
+		plainSizeUnknown = true
 		requestData.Metadata[common.XAmzMetaClearSize] = common.XAmzMetaClearSizeUnknown
 	}
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 
 	n, err := e.Next.PutObject(ctx, node, encryptionMaterials, requestData)
+
+	if err == nil && plainSizeUnknown && branchInfo.FlatStorage {
+		ps, psErr := e.recomputeNodePlainSize(ctx, node, dsName)
+		if psErr != nil {
+			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to update node plain size info", zap.Error(psErr))
+		} else {
+			log.Logger(ctx).Info("Updated node plain size info", zap.Any("plainSize", ps))
+		}
+	}
+
 	return n, err
 }
 
@@ -670,6 +682,28 @@ func (e *Handler) getNodeKeyManagerClient() encryption.NodeKeyManagerClient {
 		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(grpc.GetClientConnFromCtx(e.RuntimeCtx, common.ServiceEncKey))
 	}
 	return nodeEncryptionClient
+}
+
+func (e *Handler) recomputeNodePlainSize(ctx context.Context, node *tree.Node, dsName string) (int64, error) {
+	psResp, psErr := e.getNodeKeyManagerClient().GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
+		NodeId: node.Uuid,
+		UserId: "ds:" + dsName,
+	})
+	if psErr != nil {
+		return 0, psErr
+	}
+	plainSize := psResp.GetSize()
+	r, rErr := e.ClientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}})
+	if rErr != nil {
+		return 0, rErr
+	}
+	update := r.GetNode()
+	update.Size = plainSize
+	_, uerr := e.ClientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: update, UpdateIfExists: true})
+	if uerr != nil {
+		return 0, uerr
+	}
+	return plainSize, nil
 }
 
 // setBlockStream

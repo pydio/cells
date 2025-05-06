@@ -132,8 +132,14 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	// Prepare ctx with info about the target branch
 	branchInfo := nodes.BranchInfo{LoadedSource: source}
 	ctx = nodes.WithBranchInfo(ctx, "to", branchInfo)
+	handler := getRouter(c.GetRuntimeContext())
 
-	sourceNode := node.Clone()
+	// Reload node (do not rely on incoming event if some metadata has changed)
+	rr, re := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
+	if re != nil {
+		return input.WithError(re), re
+	}
+	sourceNode := rr.GetNode()
 
 	vPath := node.Uuid + "__" + resp.Version.Uuid
 	targetNode := &tree.Node{
@@ -145,7 +151,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		},
 	}
 
-	objectInfo, err := getRouter(c.GetRuntimeContext()).CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
+	objectInfo, err := handler.CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
@@ -172,7 +178,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
 		ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
 		for _, version := range response.PruneVersions {
-			_, errDel := getRouter(c.GetRuntimeContext()).DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
+			_, errDel := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
 			if errDel != nil {
 				return input.WithError(errDel), errDel
 			}
