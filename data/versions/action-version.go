@@ -139,7 +139,13 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	branchInfo := nodes.BranchInfo{LoadedSource: source}
 	ctx = nodes.WithBranchInfo(ctx, "to", branchInfo)
 
-	sourceNode := node.Clone()
+	handler := getRouter()
+	// Reload node, do not rely on incoming event if something has changed
+	rr, re := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
+	if re != nil {
+		return input.WithError(re), re
+	}
+	sourceNode := rr.GetNode()
 	targetNode := resp.Version.GetLocation()
 	if targetNode == nil {
 		er := errors.WithMessage(errors.NodeNotFound, "no content revision location found")
@@ -147,7 +153,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithError(er), er
 	}
 
-	objectInfo, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
+	objectInfo, err := handler.CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
 		err = errors.WithMessage(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
@@ -175,7 +181,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
 		ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
 		for _, version := range response.PruneVersions {
-			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
+			_, errDel := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
 			if errDel != nil {
 				return input.WithError(errDel), errDel
 			}
