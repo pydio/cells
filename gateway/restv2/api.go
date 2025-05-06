@@ -134,7 +134,11 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 	}
 	if opts.PreSigner != nil {
 		bucket := common.DefaultRouteBucketIO
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, n.GetPath()); err == nil {
+		key := n.GetPath()
+		if !n.IsLeaf() {
+			key += ".zip"
+		}
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
 			rn.PreSignedGET = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),
