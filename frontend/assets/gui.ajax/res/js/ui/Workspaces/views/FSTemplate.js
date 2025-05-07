@@ -35,6 +35,7 @@ import WorkspacesList from "../wslist/WorkspacesList";
 import {MUITour} from "./WelcomeMuiTour";
 import {MultiColumnPanel} from "../detailpanes/MultiColumnPanel";
 import genUuid from 'uuid4'
+import AppBarRight from "./AppBarRight";
 
 const CurrentTemplateKey = 'FSTemplate'
 const TemplatesKey = 'FSTemplatePresets'
@@ -348,7 +349,7 @@ class FSTemplate extends React.Component {
             infoPanelOpen = false
         }
 
-        let classes = ['vertical_fit', 'react-fs-template'];
+        let classes = ['vertical_fit', 'react-fs-template', 'display-mode-' + displayMode];
         const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed: !infoPanelOpen, displayMode})
 
         // Making sure we only pass the style to the parent element
@@ -386,6 +387,10 @@ class FSTemplate extends React.Component {
         const {searchTools, searchTools:{values, empty, searchLoading}} = this.props;
 
         if(searchView) {
+            // Force not pages on search
+            if (displayMode === 'pages') {
+                displayMode = 'list'
+            }
             leftPanelProps.workspacesListProps = {
                 ...leftPanelProps.workspacesListProps,
                 searchTools,
@@ -421,6 +426,7 @@ class FSTemplate extends React.Component {
                     muiTheme={muiTheme}
                     styles={styles}
 
+                    displayMode={displayMode}
                     headerHeight={headerHeight}
                     sortingInfo={displayMode!=='detail'&&displayMode!=='masonry'?sortingInfo:null}
                     searchView={searchView}
@@ -463,7 +469,31 @@ class FSTemplate extends React.Component {
                             }
                         }}
                         style={styles.listStyle}
-                    />
+                    >
+                        {displayMode === 'pages' &&
+                            <AppBarRight
+                                pydio={pydio}
+                                muiTheme={muiTheme}
+                                styles={styles}
+                                containerStyle={{position:'absolute', top:20, right:10, display:'flex', alignItems:'center', zoom: 0.9}}
+
+                                displayMode={displayMode}
+                                headerHeight={headerHeight}
+                                sortingInfo={displayMode!=='detail'&&displayMode!=='masonry'?sortingInfo:null}
+
+                                searchIconButton={true}
+                                searchTools={searchTools}
+                                onUpdateSearchView={(u) => u?this.setSearchView():this.unsetSearchView()}
+
+                                showChatTab={showChatTab}
+                                chatOpen={chatOpen}
+                                showInfoPanel={showInfoPanel}
+                                infoPanelOpen={infoPanelOpen}
+                                onToggleRightPanel={(p) => this.toggleRightPanel(p)}
+                                onOpenDrawer={(e)=>this.openDrawer(e)}
+                            />
+                        }
+                    </MainFilesList>
                     <MultiColumnPanel
                         {...props}
                         closed={!infoPanelOpen}
