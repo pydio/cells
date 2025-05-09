@@ -53,18 +53,21 @@ func init() {
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up: func(ctx context.Context) error {
-					if err := config.Get(ctx, "defaults/telemetry/loggers").Set([]map[string]any{{
-						"encoding": "console",
-						"level":    "info",
-						"outputs":  []string{"stdout:///"},
-					}, {
-						"encoding": "json",
-						"level":    "info",
-						"outputs": []string{
-							"file://" + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + "/pydio.log",
-							"service:///?service=pydio.grpc.log",
+					if err := config.Get(ctx, "defaults/telemetry/loggers").Set([]map[string]any{
+						{
+							"encoding": "console",
+							"level":    "info",
+							"outputs":  []string{"stdout:///"},
 						},
-					}}); err != nil {
+						{
+							"encoding": "json",
+							"level":    "info",
+							"outputs": []string{
+								"file://" + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + "/pydio.log",
+								//"service:///?service=pydio.grpc.log",
+							},
+						},
+					}); err != nil {
 						return err
 					}
 
