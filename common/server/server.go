@@ -127,28 +127,37 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		o(opt)
 	}
 
-	g := &errgroup.Group{}
-	for _, h := range opt.BeforeServe {
-		func(bs func(oo ...registry.RegisterOption) error) {
-			g.Go(func() error {
-				ch := make(chan error, 1)
+	if opt.BlockUntilServe {
+		for _, h := range opt.BeforeServe {
+			if err := h(opt.RegistryOptions...); err != nil {
+				return err
+			}
+		}
+	} else {
 
-				go func() {
-					ch <- bs(opt.RegistryOptions...)
-				}()
+		g := &errgroup.Group{}
+		for _, h := range opt.BeforeServe {
+			func(bs func(oo ...registry.RegisterOption) error) {
+				g.Go(func() error {
+					ch := make(chan error, 1)
 
-				select {
-				case <-time.After(10 * time.Second):
-					return errors.New("[ERROR] BeforeServe timeout")
-				case err := <-ch:
-					return err
-				}
-			})
-		}(h)
-	}
+					go func() {
+						ch <- bs(opt.RegistryOptions...)
+					}()
 
-	if er := g.Wait(); er != nil {
-		return er
+					select {
+					case <-time.After(10 * time.Second):
+						return errors.New("[ERROR] BeforeServe timeout")
+					case err := <-ch:
+						return err
+					}
+				})
+			}(h)
+		}
+
+		if er := g.Wait(); er != nil {
+			return er
+		}
 	}
 
 	_, err := s.S.RawServe(opt)
@@ -174,10 +183,35 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	//	}
 	//}
 
-	// Apply AfterServe non-blocking
-	for _, h := range opt.AfterServe {
-		if er := h(); er != nil {
-			fmt.Println("["+s.Name()+"]", "There was an error while applying an AfterServe", er)
+	if opt.BlockUntilServe {
+		for _, h := range opt.AfterServe {
+			if err := h(opt.RegistryOptions...); err != nil {
+				return err
+			}
+		}
+	} else {
+		g2 := &errgroup.Group{}
+		for _, h := range opt.AfterServe {
+			func(as func(oo ...registry.RegisterOption) error) {
+				g2.Go(func() error {
+					ch := make(chan error, 1)
+
+					go func() {
+						ch <- as(opt.RegistryOptions...)
+					}()
+
+					select {
+					case <-time.After(10 * time.Second):
+						return errors.New("[ERROR] BeforeServe timeout")
+					case err := <-ch:
+						return err
+					}
+				})
+			}(h)
+		}
+
+		if er := g2.Wait(); er != nil {
+			return er
 		}
 	}
 

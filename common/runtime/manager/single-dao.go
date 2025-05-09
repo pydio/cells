@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -47,7 +48,12 @@ storages:
   storage{{ $idx }}: 
     uri: {{ $dsn }}
   {{- end }}
-services:
+servers:
+  generic:
+    type: generic
+    services:
+      - filter:  "true ~= .*"
+services: 
   test:
     storages:
       main:
@@ -67,6 +73,11 @@ storages:
   storage{{ $idx }}: 
     uri: {{ $dsn }}
   {{- end }}
+servers:
+  generic:
+    type: generic
+    services:
+      - filter:  "true ~= .*"
 services:
   {{- range $name, $storage := .Services }}
   {{$name}}:
@@ -142,9 +153,11 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	ctx = propagator.With(ctx, service.ContextKey, svc)
 	ctx = runtime.MultiContextManager().RootContext(ctx)
 
-	if err := mgr.ServeAll(); err != nil {
+	if err := mgr.ServeAll(server.WithBlockUntilServe()); err != nil {
 		return nil, err
 	}
+
+	fmt.Println("Finished serving")
 
 	return ctx, nil
 }
@@ -204,7 +217,7 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 	//ctx = propagator.With(ctx, service.ContextKey, svc)
 	ctx = runtime.MultiContextManager().RootContext(ctx)
 
-	if err := mgr.ServeAll(); err != nil {
+	if err := mgr.ServeAll(server.WithBlockUntilServe()); err != nil {
 		return nil, err
 	}
 

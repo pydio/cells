@@ -251,7 +251,7 @@ func (m *manager) Bootstrap(bootstrapYAML string) error {
 	}
 
 	// Connecting to the control plane if necessary
-	/*reg, err := registry.OpenRegistry(m.ctx, runtime.RegistryURL())
+	reg, err := registry.OpenRegistry(m.ctx, runtime.RegistryURL())
 	if err == nil {
 		// Registering everything
 		items, err := m.internalRegistry.List()
@@ -269,7 +269,7 @@ func (m *manager) Bootstrap(bootstrapYAML string) error {
 				}
 			}),
 		)
-	}*/
+	}
 
 	m.ctx = propagator.With(m.ctx, registry.ContextKey, m.internalRegistry)
 
@@ -1193,9 +1193,8 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		return err
 	}
 
-	go m.WatchServices()
-
-	<-time.After(200 * time.Millisecond)
+	// TODO - should it be here ?
+	// m.WatchServices()
 
 	//go m.bootstrap.WatchConfAndReset(m.ctx, runtime.GetRuntime().GetString(runtime.KeyConfig), func(err error) {
 	//	fmt.Println("[bootstrap-watcher]" + err.Error())
@@ -1335,6 +1334,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 	serviceFilterTemplate := template.New("serviceFilter")
 
 	var targetOpts []registry.Option
+
 	// Retrieving server services information to see which services we need to start
 	if b, ok := srv.Metadata()["services"]; ok {
 		var sm []map[string]string
@@ -1447,6 +1447,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 				}))
 			}
 		}
+
 		services := m.Registry().ListAdjacentItems(
 			registry.WithAdjacentSourceItems([]registry.Item{m.root}),
 			registry.WithAdjacentEdgeOptions(registry.WithName("Node")),
@@ -1540,16 +1541,12 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 		server.WithBeforeServe(func(...registry.RegisterOption) error {
 			return svc.Start(registry.WithContextR(m.ctx))
 		}),
-		/*server.WithAfterServe(func(...registry.RegisterOption) error {
-			return runtime.MultiContextManager().Iterate(svc.Options().RuntimeContext(), func(ctx context.Context, name string) error {
-				ctx = propagator.With(ctx, service.ContextKey, svc)
-				if err := service.UpdateServiceVersion(ctx, svc.Options()); err != nil {
-					fmt.Println("I have an error here ", err)
-				}
 
-				return nil
-			})
-		}),*/
+		// Adding a first iteration that loop through the currently initiated storages
+		server.WithAfterServe(func(...registry.RegisterOption) error {
+			return m.linkServiceToStorages(svc)
+		}),
+
 		server.WithAfterServe(func(...registry.RegisterOption) error {
 			return svc.OnServe(registry.WithContextR(m.ctx))
 		}),
@@ -1885,144 +1882,123 @@ func (m *manager) WatchServers() {
 	}
 }
 
-func (m *manager) WatchServices() {
+func (m *manager) linkServiceToStorages(svc service.Service) error {
+	if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
 
-	w, err := m.internalRegistry.Watch(registry.WithType(pb.ItemType_SERVICE))
-	if err != nil {
-		return
-	}
-	defer w.Stop()
+		var mcm Manager
+		propagator.Get(ctx, ContextKey, &mcm)
 
-	for {
-		res, er := w.Next()
-		if er != nil {
-			break
+		ctx = propagator.With(ctx, service.ContextKey, svc)
+		ctx = context.WithValue(ctx, "managertype", "multicontext")
+
+		var store config.Store
+		propagator.Get(ctx, config.ContextKey, &store)
+
+		storageItems, err := mcm.Registry().List(registry.WithType(pb.ItemType_STORAGE))
+		if err != nil {
+			return err
 		}
 
-		for _, i := range res.Items() {
+		if len(storageItems) > 0 && len(svc.Options().StorageOptions.SupportedDrivers) > 0 {
 
-			var svc service.Service
-			if i.As(&svc) {
-				if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
+			var resolutionData map[string][]map[string]string
+			if svc.Options().Metadata["resolutionData"] != "" {
+				if err := json.Unmarshal([]byte(svc.Options().Metadata["resolutionData"]), &resolutionData); err != nil {
+					return err
+				}
+			}
 
-					var mcm Manager
-					propagator.Get(ctx, ContextKey, &mcm)
+			for key, supportedDrivers := range svc.Options().StorageOptions.SupportedDrivers {
 
-					ctx = propagator.With(ctx, service.ContextKey, svc)
-					ctx = context.WithValue(ctx, "managertype", "multicontext")
+				for _, supportedDriver := range supportedDrivers {
 
-					var store config.Store
-					propagator.Get(ctx, config.ContextKey, &store)
-
-					storageItems, err := mcm.Registry().List(registry.WithType(pb.ItemType_STORAGE))
-					if err != nil {
-						return err
+					handlerV := reflect.ValueOf(supportedDriver.Handler)
+					handlerT := reflect.TypeOf(supportedDriver.Handler)
+					if handlerV.Kind() != reflect.Func {
+						return errors.New("storage handler is not a function")
 					}
 
-					if len(storageItems) > 0 && len(svc.Options().StorageOptions.SupportedDrivers) > 0 {
-
-						var resolutionData map[string][]map[string]string
-						if svc.Options().Metadata["resolutionData"] != "" {
-							if err := json.Unmarshal([]byte(svc.Options().Metadata["resolutionData"]), &resolutionData); err != nil {
-								return err
-							}
-						}
-
-						for key, supportedDrivers := range svc.Options().StorageOptions.SupportedDrivers {
-
-							for _, supportedDriver := range supportedDrivers {
-
-								handlerV := reflect.ValueOf(supportedDriver.Handler)
-								handlerT := reflect.TypeOf(supportedDriver.Handler)
-								if handlerV.Kind() != reflect.Func {
-									return errors.New("storage handler is not a function")
-								}
-
-								startsAt := 0
-								// Check if first expected parameter is a context, if so, use the input context
-								if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
-									startsAt = 1
-								}
-
-								for i := startsAt; i < handlerT.NumIn(); i++ {
-									for _, storageItem := range storageItems {
-										var st storage.Storage
-										if !storageItem.As(&st) {
-											continue
-										}
-
-										out, err := st.Get(ctx)
-										if err != nil {
-											log.Logger(ctx).Error("failed to get storage", zap.Error(err))
-											continue
-										}
-
-										if reflect.TypeOf(out) == handlerT.In(i) || (handlerT.In(i).Kind() == reflect.Interface && reflect.TypeOf(out).Implements(handlerT.In(i))) {
-											var meta map[string]string
-											for _, meta = range resolutionData[key] {
-												if meta["type"] == storageItem.Metadata()["driver"] {
-													break
-												}
-											}
-
-											// We need to register the edge between these two
-											_, err := mcm.Registry().RegisterEdge(svc.ID(), storageItem.ID(), "storage_"+key, meta)
-											if err != nil {
-												return err
-											}
-										}
-
-									}
-								}
-							}
-						}
+					startsAt := 0
+					// Check if first expected parameter is a context, if so, use the input context
+					if handlerT.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
+						startsAt = 1
 					}
 
-					go func(c context.Context, s service.Service) {
-						if s.Options().MigrateIterator.Lister != nil {
-							var errs []error
-							for _, key := range s.Options().MigrateIterator.Lister(ctx) {
-								c = propagator.With(c, s.Options().MigrateIterator.ContextKey, key)
-								errs = append(errs, service.UpdateServiceVersion(c, s.Options()))
-							}
-							if outE := multierr.Combine(errs...); outE != nil {
-								log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
+					for i := startsAt; i < handlerT.NumIn(); i++ {
+						for _, storageItem := range storageItems {
+							var st storage.Storage
+							if !storageItem.As(&st) {
+								continue
 							}
 
-						} else {
-							if err := service.UpdateServiceVersion(c, s.Options()); err != nil {
-								return
-							}
-						}
-
-						if w := s.Options().MigrateWatcher.Watcher; w != nil {
-							rw, err := w(c)
+							out, err := st.Get(ctx)
 							if err != nil {
-								return
+								log.Logger(ctx).Error("failed to get storage", zap.Error(err))
+								continue
 							}
 
-							for {
-								_, err := rw.Next()
-								if err != nil {
-									continue
+							if reflect.TypeOf(out) == handlerT.In(i) || (handlerT.In(i).Kind() == reflect.Interface && reflect.TypeOf(out).Implements(handlerT.In(i))) {
+								var meta map[string]string
+								for _, meta = range resolutionData[key] {
+									if meta["type"] == storageItem.Metadata()["driver"] {
+										break
+									}
 								}
 
-								for _, key := range store.Val("services/pydio.grpc.data.index/sources").StringArray() {
-									c = propagator.With(c, s.Options().MigrateIterator.ContextKey, key)
-									if err := service.UpdateServiceVersion(c, s.Options()); err != nil {
-										continue
-									}
+								// We need to register the edge between these two
+								_, err := mcm.Registry().RegisterEdge(svc.ID(), storageItem.ID(), "storage_"+key, meta)
+								if err != nil {
+									return err
 								}
 							}
 						}
-
-					}(ctx, svc)
-
-					return nil
-				}); err != nil {
-					panic(err)
+					}
 				}
 			}
 		}
+
+		s := svc
+		if s.Options().MigrateIterator.Lister != nil {
+			var errs []error
+			for _, key := range s.Options().MigrateIterator.Lister(ctx) {
+				ctx = propagator.With(ctx, s.Options().MigrateIterator.ContextKey, key)
+				errs = append(errs, service.UpdateServiceVersion(ctx, s.Options()))
+			}
+			if outE := multierr.Combine(errs...); outE != nil {
+				log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
+			}
+
+		} else {
+			if err := service.UpdateServiceVersion(ctx, s.Options()); err != nil {
+				return nil
+			}
+		}
+
+		if w := s.Options().MigrateWatcher.Watcher; w != nil {
+			rw, err := w(ctx)
+			if err != nil {
+				return nil
+			}
+
+			for {
+				_, err := rw.Next()
+				if err != nil {
+					continue
+				}
+
+				for _, key := range store.Val("services/pydio.grpc.data.index/sources").StringArray() {
+					ctx = propagator.With(ctx, s.Options().MigrateIterator.ContextKey, key)
+					if err := service.UpdateServiceVersion(ctx, s.Options()); err != nil {
+						continue
+					}
+				}
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return err
 	}
+
+	return nil
 }

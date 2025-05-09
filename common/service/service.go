@@ -319,7 +319,7 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 // to server.Start()
 func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	w := &sync.WaitGroup{}
-	w.Add(len(s.Opts.AfterServe) + 1)
+	w.Add(len(s.Opts.AfterServe))
 	refCtx := s.Opts.runtimeCtx
 	if refCtx == nil {
 		refCtx = s.Opts.rootContext

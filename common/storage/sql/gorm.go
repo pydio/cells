@@ -207,6 +207,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			if tlsConfig != nil {
 				pgxConfig.TLSConfig = tlsConfig
 			}
+
 			conn = stdlib.OpenDB(*pgxConfig)
 		case MySQLDriver:
 			if tlsConfig != nil {
@@ -236,6 +237,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			log.Logger(ctx).Info("MySQL Config", zap.Any("maxOpenConns", maxOpenConnections), zap.Any("maxIdleConns", maxIdleConnections), zap.Any("connMaxLifetime", connMaxLifetime))
 			conn.SetMaxIdleConns(maxIdleConnections)
 			conn.SetMaxOpenConns(maxOpenConnections)
@@ -308,6 +310,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		// also replace Default
 		logger.Default = customLogger
 		// This enables tracing and metrics on DB
