@@ -25,11 +25,12 @@ import Textfit from "react-textfit";
 import Breadcrumb from "./Breadcrumb";
 import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
 import {RefreshAction} from "./RefreshAction";
+import AppBarRight from "./AppBarRight";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo={}}) => {
+const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo={}, displayMode}) => {
 
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -124,8 +125,17 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
         );
     }
 
+    const masterStyle = {...styles.appBarStyle}
+    if(displayMode === 'pages') {
+        masterStyle.opacity = 0;
+        masterStyle.height = 0;
+        masterStyle.margin = 0;
+        masterStyle.overflow = 'hidden';
+    }
+    const appBarRightProps = {pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo, displayMode}
+
     return (
-        <Paper zDepth={styles.appBarZDepth} style={styles.appBarStyle} rounded={false}>
+        <Paper zDepth={styles.appBarZDepth} style={masterStyle} rounded={false}>
             {searchView &&
                 <div>
                     <IconButton
@@ -194,52 +204,7 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
                     </div>
                 </div>
             </div>
-            <div style={{display:'flex', alignItems:'center'}}>
-                {!smallScreen &&
-                    <UnifiedSearchForm
-                        style={{flex: 1}}
-                        active={searchView}
-                        preventOpen={searchViewTransition}
-                        pydio={pydio}
-                        formStyles={styles.searchForm}
-                        searchTools={searchTools}
-                        onRequestOpen={()=>onUpdateSearchView(true)}
-                        onRequestClose={()=>onUpdateSearchView(false)}
-                    />
-                }
-                <Toolbar
-                    pydio={pydio}
-                    id="display-toolbar"
-                    toolbars={["display_toolbar"]}
-                    renderingType="icon-font"
-                    mergeItemsAsOneMenu={true}
-                    mergedMenuIcom={"mdi mdi-settings"}
-                    mergedMenuTitle={pydio.MessageHash['151']}
-                    buttonStyle={styles.buttonsIconStyle}
-                    flatButtonStyle={styles.buttonsStyle}
-                />
-                <div style={{display:'flex', paddingRight: 10}}>
-                    {showInfoPanel &&
-                        <IconButton
-                            iconClassName={"mdi mdi-information"}
-                            style={infoPanelOpen ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={infoPanelOpen ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onToggleRightPanel('info-panel')}}
-                            tooltip={pydio.MessageHash[infoPanelOpen ? '86':'341']}
-                        />
-                    }
-                    {!searchView && showChatTab &&
-                        <IconButton
-                            iconClassName={chatOpen ? "mdi mdi-message-bulleted-off" : "mdi mdi-message-text"}
-                            style={styles.buttonsStyle}
-                            iconStyle={styles.buttonsIconStyle}
-                            onClick={()=>{onToggleRightPanel('chat')}}
-                            tooltip={pydio.MessageHash[chatOpen ? '86':'635']}
-                            tooltipPosition={"bottom-left"}
-                        />
-                    }
-                </div>
-            </div>
+            <AppBarRight {...appBarRightProps} containerStyle={{display:'flex', alignItems:'center'}}/>
         </Paper>
     )
 

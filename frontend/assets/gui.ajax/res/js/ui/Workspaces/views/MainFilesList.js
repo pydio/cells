@@ -822,13 +822,17 @@ class MainFilesList extends React.Component {
     render() {
 
         const {pydio, dataModel, style, onScroll} = this.props;
+        const {searchResults, searchScope, searchLoading, searchEmpty} = this.props;
         const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
         let dMode = displayMode;
+        // Override display Mode
         if(dMode.indexOf('grid-') === 0){
             near = parseInt(dMode.split('-')[1]);
             dMode = 'grid';
+        } else if(dMode === 'pages' && searchResults) {
+            dMode = 'list';
         }
         let additionalStyle = {}
 
@@ -939,7 +943,6 @@ class MainFilesList extends React.Component {
             className += ' ' + contextNode.getMetadata().get('local:custom-list-classes').join(' ');
         }
 
-        const {searchResults, searchScope, searchLoading, searchEmpty} = this.props;
         let groupProps = {};
         if(searchResults) {
             groupProps = {
@@ -1004,16 +1007,19 @@ class MainFilesList extends React.Component {
                 )
             }
             return (
-                <BlockNote.MainPanel
-                    dataModel={dataModel}
-                    style={{...style, overflowY: 'scroll'}}
-                    contentMeta={this.props.pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')}
-                    entryProps={{
-                        handleClicks:this.entryHandleClicks.bind(this),
-                        renderIcon:this.entryRenderIcon.bind(this),
-                        renderActions: this.entryRenderActions.bind(this)
-                    }}
-                />
+                <div style={{...style, position:'relative', overflowY: 'scroll'}}>
+                    <BlockNote.MainPanel
+                        dataModel={dataModel}
+                        style={null}
+                        contentMeta={this.props.pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')}
+                        entryProps={{
+                            handleClicks:this.entryHandleClicks.bind(this),
+                            renderIcon:this.entryRenderIcon.bind(this),
+                            renderActions: this.entryRenderActions.bind(this)
+                        }}
+                    />
+                    {this.props.children}
+                </div>
             );
         }
 

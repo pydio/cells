@@ -125,7 +125,7 @@ func (streamer *setBlockStream) Close() error {
 	if err != nil {
 		return err
 	}
-	log.Logger(streamer.ctx).Info("Got response", zap.Any("response", resp))
+	log.Logger(streamer.ctx).Debug("setBlockStream.Close received response", zap.Any("response", resp))
 	streamer.ca()
 	return nil
 }
