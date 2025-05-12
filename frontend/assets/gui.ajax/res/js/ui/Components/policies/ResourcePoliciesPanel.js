@@ -156,6 +156,7 @@ class ResourcePoliciesPanel extends React.Component{
         const {idmUser} = this.state;
         const userSubjects = idmUser.Roles.map(role => 'role:' + role.Uuid);
         userSubjects.push('user:' + idmUser.Login);
+        userSubjects.push('subject:' + idmUser.Uuid);
 
         for(let i=0; i<userSubjects.length; i++){
             for(let j=0; j < policies.length; j++){
@@ -169,7 +170,7 @@ class ResourcePoliciesPanel extends React.Component{
 
     findCrtUserSubject(policies){
         const {idmUser} = this.state;
-        const search = ['user:'+idmUser.Login, 'role:'+idmUser.Uuid];
+        const search = ['subject:'+idmUser.Uuid, 'user:'+idmUser.Login, 'role:'+idmUser.Uuid];
         const pp = policies.filter(p => search.indexOf(p.Subject) > -1);
         if(pp.length){
             return pp[0].Subject;
@@ -260,7 +261,7 @@ class ResourcePoliciesPanel extends React.Component{
                 subject = 'role:' + IdmUser.Uuid;
                 label = attributes['displayName'] || IdmUser.GroupLabel;
             } else {
-                subject = 'user:' + IdmUser.Login;
+                subject = 'subject:' + IdmUser.Uuid;
                 label = attributes['displayName'] || IdmUser.Login;
             }
         } else {

@@ -72,7 +72,9 @@ class VisibilityPanel extends React.Component {
 
         const {linkModel, pydio} = this.props;
         let subjectsHidden = [];
-        subjectsHidden["user:" + linkModel.getLink().UserLogin] = true;
+        const shareLink = linkModel.getLink()
+        subjectsHidden["user:" + shareLink.UserLogin] = true;
+        subjectsHidden["subject:" + shareLink.UserUuid] = true;
         let subjectDisables = {READ:subjectsHidden, WRITE:subjectsHidden};
         return (
             <div style={this.props.style}>
@@ -81,7 +83,7 @@ class VisibilityPanel extends React.Component {
                         pydio={pydio}
                         resourceType="link"
                         description={this.props.getMessage('link.visibility.advanced')}
-                        resourceId={linkModel.getLink().Uuid}
+                        resourceId={shareLink.Uuid}
                         skipTitle={true}
                         onSavePolicies={this.onSavePolicies.bind(this)}
                         subjectsDisabled={subjectDisables}
