@@ -80,11 +80,20 @@ spec:
             {{- if .Values.redis.enabled }}
             - name: CELLS_CACHE
               value: {{ include "cells.redisURL" (list . "/cache") }}
+            {{- end }}
+
+            # always use default shortcache (local mem, not redis)
             {{- if .Values.redis.shortcacheEnabled }}
             - name: CELLS_SHORTCACHE
               value: {{ include "cells.redisURL" (list . "/shortcache") }}
             {{- end }}
-            {{- end }}
+
+            # Use nats jetstream for persist queue
+            {{- if .Values.nats.jetstream.enabled }}
+            - name: CELLS_PERSISTQUEUE
+              value: {{ include "cells.natsURL" . }}
+            {{- end }}  
+
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
               value: {{ include "cells.vaultURL" . }}/secret?key=keyring
@@ -130,7 +139,13 @@ spec:
         {{- if .Values.etcd.enabled }}
         - name: wait-for-etcd
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.etcdHost" . | quote }} {{ include "cells.etcdPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
+          command: ["sh", "-c" ]
+          args:
+            - >
+              until wget --spider -q http://{{ include "cells.etcdHost" . }}:{{ include "cells.etcdPort" . }}/health; do
+                echo "Waiting for the service ETCD for being healthy & ready";
+                sleep 2;
+              done;
         {{- end }}
         {{- if .Values.redis.enabled }}
         - name: wait-for-redis
@@ -148,7 +163,7 @@ spec:
           command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vaultHost" . | quote }} {{ include "cells.vaultPort" . | quote }}; do echo waiting for vault; sleep 2; done']
         {{- end }}
         {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-        - name: install-certs-etcd
+        - name: install-certs
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -178,6 +193,14 @@ spec:
             - name: minio-secret
               mountPath: /var/certs/minio
             {{- end }}
+            {{- if and .Values.mariadb.enabled .Values.mariadb.tls.enabled }}
+            - name: mariadb-secret
+              mountPath: /var/certs/minio
+            {{- end }}
+            {{- if and .Values.mongodb.enabled .Values.mongodb.tls.enabled }}
+            - name: mongodb-secret
+              mountPath: /var/certs/minio
+            {{- end }}                        
         {{- end }}
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -262,6 +285,16 @@ spec:
           secret:
             secretName: {{ .Values.minio.tls.existingSecret }}
         {{- end }}
+        {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
+        - name: mariadb-secret
+          secret:
+            secretName: {{ .Values.mariadb.tls.existingSecret }}
+        {{- end }}
+        {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
+        - name: mongodb-secret
+          secret:
+            secretName: {{ .Values.mongodb.tls.existingSecret }}
+        {{- end }}                        
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
