@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -54,6 +55,13 @@ const (
 	PolicyNodeMetaSize      = "NodeMetaSize"
 	PolicyNodeMetaMTime     = "NodeMetaMTime"
 	PolicyNodeMeta_         = "NodeMeta:"
+
+	PolicySubjectLoginPrefix   = "user:"
+	PolicySubjectUuidPrefix    = "subject:"
+	PolicySubjectProfilePrefix = "profile:"
+	PolicySubjectRolePrefix    = "role:"
+
+	PolicySubjectSelf = "self"
 )
 
 // var polCachePool *openurl.Pool[cache.Cache]
@@ -78,33 +86,54 @@ func getCheckersCache(ctx context.Context) cache.Cache {
 }
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
-func PolicyRequestSubjectsFromUser(user *idm.User) []string {
+func PolicyRequestSubjectsFromUser(ctx context.Context, user *idm.User, inheritProfiles bool) []string {
 	subjects := []string{
-		fmt.Sprintf("user:%s", user.Login),
+		PolicySubjectLoginPrefix + user.Login,
+		PolicySubjectUuidPrefix + user.Uuid,
 	}
-	if prof, ok := user.Attributes["profile"]; ok {
-		subjects = append(subjects, fmt.Sprintf("profile:%s", prof))
+	prof, ok := user.Attributes[idm.UserAttrProfile]
+	if !ok {
+		log.Logger(ctx).Warn("No profile found for user, this is not expected")
+	}
+	if inheritProfiles {
+		// Add all profiles up to the current one (e.g admin will check for anon, shared, standard, admin)
+		for _, p := range common.PydioUserProfiles {
+			subjects = append(subjects, PolicySubjectProfilePrefix+p)
+			if p == prof {
+				break
+			}
+		}
 	} else {
-		subjects = append(subjects, "profile:standard")
+		subjects = append(subjects, PolicySubjectProfilePrefix+prof)
 	}
 	for _, r := range user.Roles {
-		subjects = append(subjects, fmt.Sprintf("role:%s", r.Uuid))
+		subjects = append(subjects, PolicySubjectRolePrefix+r.Uuid)
 	}
 	return subjects
 }
 
 // PolicyRequestSubjectsFromClaims builds an array of string subjects from the passed Claims.
-func PolicyRequestSubjectsFromClaims(claims claim.Claims) []string {
+func PolicyRequestSubjectsFromClaims(ctx context.Context, claims claim.Claims, inheritProfiles bool) []string {
 	subjects := []string{
-		fmt.Sprintf("user:%s", claims.Name),
+		PolicySubjectLoginPrefix + claims.Name,
+		PolicySubjectUuidPrefix + claims.Subject,
 	}
-	if claims.Profile != "" {
-		subjects = append(subjects, fmt.Sprintf("profile:%s", claims.Profile))
+	if claims.Profile == "" {
+		log.Logger(ctx).Warn("No profile found in claims, this is not expected")
+	}
+	if inheritProfiles {
+		// Add all profiles up to the current one (e.g admin will check for anon, shared, standard, admin)
+		for _, p := range common.PydioUserProfiles {
+			subjects = append(subjects, PolicySubjectProfilePrefix+p)
+			if p == claims.Profile {
+				break
+			}
+		}
 	} else {
-		subjects = append(subjects, "profile:standard")
+		subjects = append(subjects, PolicySubjectProfilePrefix+claims.Profile)
 	}
 	for _, r := range strings.Split(claims.Roles, ",") {
-		subjects = append(subjects, fmt.Sprintf("role:%s", r))
+		subjects = append(subjects, PolicySubjectRolePrefix+r)
 	}
 	return subjects
 }

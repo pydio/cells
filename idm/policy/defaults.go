@@ -221,7 +221,7 @@ var (
 				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "all-users-login",
 					Description: "PolicyGroup.OIDC.Rule1",
-					Subjects:    []string{"user:<.+>", "profile:<.+>", "role:<.+>"},
+					Subjects:    []string{"user:<.+>", "subject:<.+>", "profile:<.+>", "role:<.+>"},
 					Resources:   []string{"oidc"},
 					Actions:     []string{"login"},
 					Effect:      ladon.AllowAccess,

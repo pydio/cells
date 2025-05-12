@@ -11,8 +11,8 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
-	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -59,14 +59,14 @@ func InitDefaults(ctx context.Context) error {
 		newUser, err := CreateIfNotExists(ctx, dao, &idm.User{
 			Login:      login,
 			Password:   pwd,
-			Attributes: map[string]string{"profile": common.PydioProfileAdmin},
+			Attributes: map[string]string{idm.UserAttrProfile: common.PydioProfileAdmin},
 		})
 		if err != nil {
 			return err
 		} else if newUser != nil {
-			builder := service2.NewResourcePoliciesBuilder()
+			builder := permissions.NewResourcePoliciesBuilder()
 			builder = builder.WithProfileRead(common.PydioProfileStandard)
-			builder = builder.WithUserWrite(login)
+			builder = builder.WithSubjectWrite(newUser.GetUuid())
 			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 			if _, err := dao.AddPolicies(ctx, false, newUser.Uuid, builder.Policies()); err != nil {
 				return err
@@ -81,7 +81,7 @@ func InitDefaults(ctx context.Context) error {
 			}}); err != nil {
 				return err
 			}
-			log.Logger(ctx).Info("Initialization: created admin user: " + login + " and its associated role")
+			log.Logger(ctx).Info("Initialization: created admin user '" + login + "' and its associated role")
 		}
 	}
 
@@ -95,11 +95,11 @@ func InitDefaults(ctx context.Context) error {
 	}
 
 	if newAnon != nil {
-		builder := service2.NewResourcePoliciesBuilder()
-		builder = builder.WithUserRead(common.PydioS3AnonUsername)
+		builder := permissions.NewResourcePoliciesBuilder()
+		builder = builder.WithSubjectRead(newAnon.GetUuid())
 		builder = builder.WithProfileRead(common.PydioProfileAdmin)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-		if _, err := dao.AddPolicies(ctx, false, newAnon.Uuid, builder.Policies()); err != nil {
+		if _, err := dao.AddPolicies(ctx, false, newAnon.GetUuid(), builder.Policies()); err != nil {
 			return err
 		}
 		// Create user role

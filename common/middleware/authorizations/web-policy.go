@@ -49,7 +49,7 @@ func HttpWrapperPolicy(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		subjects := []string{"profile:anon"}
+		subjects := []string{permissions.PolicySubjectProfilePrefix + common.PydioProfileAnon}
 		policyRequestContext := make(map[string]string)
 
 		// Find profile in claims, if any
@@ -57,7 +57,7 @@ func HttpWrapperPolicy(h http.Handler) http.Handler {
 			log.Logger(ctx).Debug("Got Claims", zap.Any("claims", claims))
 			policyRequestContext[HTTPMetaJwtClientApp] = claims.GetClientApp()
 			policyRequestContext[HTTPMetaJwtIssuer] = claims.Issuer
-			subjects = permissions.PolicyRequestSubjectsFromClaims(claims)
+			subjects = permissions.PolicyRequestSubjectsFromClaims(ctx, claims, false)
 		} else {
 			log.Logger(ctx).Debug("No Claims Found", zap.Any("ctx", ctx))
 		}

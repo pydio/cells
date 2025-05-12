@@ -91,11 +91,11 @@ func (apiStore *ApiStore) CreateUser(ctx context.Context, identity *idm.User) (*
 
 	if resp, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: identity}); e == nil {
 
-		builder := service.NewResourcePoliciesBuilder()
+		builder := permissions.NewResourcePoliciesBuilder()
 		builder = builder.WithOwner(resp.User.Uuid)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-		builder = builder.WithUserRead(identity.Login)
-		builder = builder.WithUserWrite(identity.Login)
+		builder = builder.WithSubjectRead(identity.Uuid)
+		builder = builder.WithSubjectWrite(identity.Uuid)
 
 		// Create role associated
 		associatedRole := idm.Role{
@@ -224,11 +224,11 @@ func (apiStore *ApiStore) PutGroup(ctx context.Context, identity *idm.User) erro
 
 	userClient := idm.NewUserServiceClient(grpc.ResolveConn(apiStore.runtime, common.ServiceUserGRPC))
 	if resp, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: (*idm.User)(identity)}); e == nil {
-		builder := service.NewResourcePoliciesBuilder()
+		builder := permissions.NewResourcePoliciesBuilder()
 		builder = builder.WithOwner(resp.User.Uuid)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-		builder = builder.WithUserRead(identity.Login)
-		builder = builder.WithUserWrite(identity.Login)
+		builder = builder.WithSubjectRead(identity.Uuid)
+		builder = builder.WithSubjectWrite(identity.Uuid)
 
 		// Create role associated
 		associatedRole := idm.Role{
@@ -545,7 +545,7 @@ func (apiStore *ApiStore) createShareLink(ctx context.Context, ownerUser *idm.Us
 	// Update Workspace Policies to make sure it's readable by the new user
 	workspace.Policies = append(workspace.Policies, &service.ResourcePolicy{
 		Resource: workspace.UUID,
-		Subject:  fmt.Sprintf("user:%s", user.Login),
+		Subject:  fmt.Sprintf("subject:%s", user.Uuid),
 		Action:   service.ResourcePolicyAction_READ,
 		Effect:   service.ResourcePolicy_allow,
 	})

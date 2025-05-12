@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/service"
 )
 
@@ -33,7 +34,7 @@ func ModifyLogin(ctx context.Context, dao DAO, req *service.ModifyLoginRequest) 
 	if req.GetDryRun() {
 
 		// Check Policies
-		if pp, e := dao.GetPoliciesForSubject(ctx, "user:"+req.OldLogin); e != nil {
+		if pp, e := dao.GetPoliciesForSubject(ctx, permissions.PolicySubjectLoginPrefix+req.OldLogin); e != nil {
 			return nil, e
 		} else {
 			mm = append(mm, fmt.Sprintf("Found %d policy(ies) for login %s", len(pp), req.OldLogin))
@@ -45,7 +46,7 @@ func ModifyLogin(ctx context.Context, dao DAO, req *service.ModifyLoginRequest) 
 	} else {
 
 		// Apply Policies
-		if count, e := dao.ReplacePoliciesSubject(ctx, "user:"+req.OldLogin, "user:"+req.NewLogin); e != nil {
+		if count, e := dao.ReplacePoliciesSubject(ctx, permissions.PolicySubjectLoginPrefix+req.OldLogin, permissions.PolicySubjectLoginPrefix+req.NewLogin); e != nil {
 			return nil, e
 		} else {
 			mm = append(mm, fmt.Sprintf("Replace %d policies in table", count))

@@ -23,7 +23,6 @@ package auth
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
@@ -41,7 +40,7 @@ import (
 // an in-memory ladon.Manager. It reloads policies every 1mn.
 func checkOIDCPolicies(ctx context.Context, user *idm.User) error {
 
-	subjects := permissions.PolicyRequestSubjectsFromUser(user)
+	subjects := permissions.PolicyRequestSubjectsFromUser(ctx, user, false)
 	policyContext := make(map[string]string)
 	permissions.PolicyContextFromMetadata(policyContext, ctx)
 
@@ -66,9 +65,9 @@ func checkOIDCPolicies(ctx context.Context, user *idm.User) error {
 			Action:   "login",
 			Context:  reqCtx,
 		}
-		if err := checker.IsAllowed(request); err != nil && err == ladon.ErrRequestForcefullyDenied {
+		if er := checker.IsAllowed(request); er != nil && errors.Is(er, ladon.ErrRequestForcefullyDenied) {
 			break
-		} else if err == nil {
+		} else if er == nil {
 			allow = true
 		} // Else "default deny" => continue checking
 	}
@@ -105,31 +104,21 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 
 		subjects = append(subjects, "*")
 		if claims, ok := claim.FromContext(ctx); ok {
-			subjects = append(subjects, SubjectsFromClaim(claims)...)
+			subjects = append(subjects, permissions.PolicyRequestSubjectsFromClaims(ctx, claims, true)...)
 		} else if uName := claim.UserNameFromContext(ctx); uName != "" {
 			if uName == common.PydioSystemUsername {
-				subjects = append(subjects, "profile:"+common.PydioProfileAdmin)
+				subjects = append(subjects, permissions.PolicySubjectProfilePrefix+common.PydioProfileAdmin)
 			} else if u, e := permissions.SearchUniqueUser(ctx, uName, ""); e == nil {
-				subjects = append(subjects, "user:"+u.Login)
-				for _, p := range common.PydioUserProfiles {
-					subjects = append(subjects, "profile:"+p)
-					if p == u.Attributes[idm.UserAttrProfile] {
-						break
-					}
-				}
-				for _, r := range u.Roles {
-					subjects = append(subjects, "role:"+r.Uuid)
-				}
+				subjects = append(subjects, permissions.PolicyRequestSubjectsFromUser(ctx, u, true)...)
 			} else {
-				// Todo - is it necessary? we previously did not return the error...
 				if !errors.Is(e, errors.UserNotFound) {
 					log.Logger(ctx).Warn("[policies] Cannot find user '"+uName+"' although in context", zap.Error(e))
 				}
 				return nil, e
 			}
 		} else {
-			log.Logger(ctx).Error("Cannot find claims in context", zap.Any("c", ctx))
-			subjects = append(subjects, "profile:anon")
+			log.Logger(ctx).Error("Cannot find claims in context, using anon profile", zap.Any("c", ctx))
+			subjects = append(subjects, permissions.PolicySubjectProfilePrefix+common.PydioProfileAnon)
 		}
 
 	case rest.ResourcePolicyQuery_USER:
@@ -148,29 +137,8 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 		if user, err := permissions.SearchUniqueUser(ctx, "", q.UserId); err != nil {
 			return subjects, errors.WithMessage(errors.StatusBadRequest, "resources", "Cannot find user with id "+q.UserId+", error was "+err.Error())
 		} else {
-			for _, role := range user.Roles {
-				subjects = append(subjects, "role:"+role.Uuid)
-			}
-			subjects = append(subjects, "user:"+user.Login)
-			subjects = append(subjects, "profile:"+user.Attributes[idm.UserAttrProfile])
+			subjects = append(subjects, permissions.PolicyRequestSubjectsFromUser(ctx, user, false)...)
 		}
-	}
-	return
-}
-
-// SubjectsFromClaim builds a list of subjects based on Claim attributes.
-func SubjectsFromClaim(claim claim.Claims) (subjects []string) {
-	subjects = append(subjects, "user:"+claim.Name)
-	// Add all profiles up to the current one (e.g admin will check for anon, shared, standard, admin)
-	for _, p := range common.PydioUserProfiles {
-		subjects = append(subjects, "profile:"+p)
-		if p == claim.Profile {
-			break
-		}
-	}
-	//subjects = append(subjects, "profile:"+claims.Profile)
-	for _, r := range strings.Split(claim.Roles, ",") {
-		subjects = append(subjects, "role:"+r)
 	}
 	return
 }
