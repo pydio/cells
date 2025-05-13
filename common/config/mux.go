@@ -144,9 +144,8 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		st = storeWithEncrypter{Store: st, Encrypter: enc, Decrypter: enc}
 	}
 
-	rp := PoolFromURL(ctx, u, OpenStore)
-
-	st = NewStoreWithRefPool(st, rp)
+	//rp := PoolFromURL(ctx, u, OpenStore)
+	//st = NewStoreWithRefPool(st, rp)
 
 	st, err = defaultURLMux.OpenStore(ctx, urlstr, st)
 	if err != nil {
