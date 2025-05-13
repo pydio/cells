@@ -15,7 +15,9 @@ var (
           "sub1.pydio:8081"
         ],
         "TLSConfig": {
-          "SelfSigned": {}
+          "SelfSigned": {
+            "Hostnames": ["sub1.pydio"]
+          }
         },
         "HeaderMods": [
           { "Key": "X-Pydio-Header", "Value": "header-value1" }
@@ -53,5 +55,7 @@ func TestProxyUnmarshal(t *testing.T) {
 		So(p.HeaderMods, ShouldHaveLength, 1)
 		So(p.HeaderMods[0].Key, ShouldEqual, "X-Pydio-Header")
 		So(p.HeaderMods[0].Value, ShouldEqual, "header-value1")
+
+		So(p.GetTLSSelfSigned().GetHostnames(), ShouldEqual, []string{"sub1.pydio"})
 	})
 }

@@ -89,6 +89,7 @@ var (
 type Manager interface {
 	Context() context.Context
 	Registry() registry.Registry
+	SOTWRegistry() registry.Registry
 	ServeAll(...server.ServeOption) error
 	StopAll()
 	SetServeOptions(...server.ServeOption)
@@ -121,6 +122,7 @@ type manager struct {
 	// registries
 	// - internal
 	internalRegistry registry.Registry
+	sotwRegistry     registry.Registry
 
 	root       registry.Item
 	rootIsFork bool
@@ -250,9 +252,13 @@ func (m *manager) Bootstrap(bootstrapYAML string) error {
 		return err
 	}
 
+	// Default state of the world to the internal registry
+	m.sotwRegistry = m.internalRegistry
 	// Connecting to the control plane if necessary
 	reg, err := registry.OpenRegistry(m.ctx, runtime.RegistryURL())
 	if err == nil {
+		m.sotwRegistry = reg
+
 		// Registering everything
 		items, err := m.internalRegistry.List()
 		if err != nil {
@@ -323,6 +329,10 @@ func (m *manager) Context() context.Context {
 
 func (m *manager) Registry() registry.Registry {
 	return m.internalRegistry
+}
+
+func (m *manager) SOTWRegistry() registry.Registry {
+	return m.sotwRegistry
 }
 
 func (m *manager) RegisterStorage(scheme string, opts ...controller.Option[storage.Storage]) {
@@ -1549,6 +1559,13 @@ func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption 
 
 		server.WithAfterServe(func(...registry.RegisterOption) error {
 			return svc.OnServe(registry.WithContextR(m.ctx))
+		}),
+
+		server.WithAfterServe(func(...registry.RegisterOption) error {
+			if ms, ok := svc.(registry.MetaSetter); ok {
+				ms.SetMetadata(svc.Metadata())
+			}
+			return m.Registry().Register(svc)
 		}),
 	}
 }

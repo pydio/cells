@@ -232,6 +232,10 @@ func RunTests(t *testing.T, init func(context.Context), f func(context.Context))
 		t.Fatal(err)
 	}
 
+	if err := mgr.Bootstrap(singleYAML); err != nil {
+		t.Fatal(err)
+	}
+
 	ctx = mgr.Context()
 	ctx = runtime.MultiContextManager().RootContext(ctx)
 

@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -56,10 +57,12 @@ SERVICES MANAGEMENT
 func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) error {
 
 	// Create a list of all plugins
-	var pluginsReg registry.Registry
-	if !propagator.Get(req.Request.Context(), registry.ContextKey, &pluginsReg) {
-		return errors.WithMessage(errors.StatusInternalServerError, "Should have a registry")
+	var mgr manager.Manager
+	if !propagator.Get(req.Request.Context(), manager.ContextKey, &mgr) {
+		return errors.WithMessage(errors.StatusInternalServerError, "Should have a manager")
 	}
+
+	pluginsReg := mgr.SOTWRegistry()
 
 	services, err := pluginsReg.List(registry.WithType(rpb.ItemType_SERVICE))
 	if err != nil {
