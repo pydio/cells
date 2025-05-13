@@ -80,16 +80,30 @@ func (ev storeWithRefPool) Watch(opts ...watch.WatchOption) (watch.Receiver, err
 			if refV, ok := value["$ref"]; ok {
 				store, key, ok := ev.resolveRef(refV)
 				if ok {
+
 					rcvr, err := store.Watch(watch.WithPath(strings.Join(append([]string{key}, wo.Path[i+1:]...), delimiter)))
 					if err != nil {
 						return nil, err
 					}
 
-					return &receiverWithPathSwitch{
+					r := &receiverWithPathSwitch{
 						Receiver: rcvr,
 						pathFrom: key,
 						pathTo:   strings.Join(wo.Path[:i], "/"),
-					}, nil
+					}
+
+					if wo.ChangesOnly {
+						return &receiverWithStoreChangesOnly{
+							Receiver: r,
+							Values:   NewStore().Val(),
+							level:    len(wo.Path),
+						}, nil
+					} else {
+						return &receiverWithStore{
+							Receiver: r,
+							Values:   NewStore().Val(),
+						}, nil
+					}
 				}
 			}
 
@@ -123,11 +137,24 @@ func (ev storeWithRefPool) Watch(opts ...watch.WatchOption) (watch.Receiver, err
 					return nil, err
 				}
 
-				return &receiverWithPathSwitch{
+				r := &receiverWithPathSwitch{
 					Receiver: rcvr,
 					pathFrom: key,
 					pathTo:   strings.Join(wo.Path, "/"),
-				}, nil
+				}
+
+				if wo.ChangesOnly {
+					return &receiverWithStoreChangesOnly{
+						Receiver: r,
+						Values:   NewStore().Val(),
+						level:    len(wo.Path),
+					}, nil
+				} else {
+					return &receiverWithStore{
+						Receiver: r,
+						Values:   NewStore().Val(),
+					}, nil
+				}
 			}
 
 		}
@@ -154,7 +181,19 @@ func (ev storeWithRefPool) Watch(opts ...watch.WatchOption) (watch.Receiver, err
 	}
 
 	// And combine them
-	return watch.NewCombinedReceiver(receivers), nil
+	r := watch.NewCombinedReceiver(receivers)
+	if wo.ChangesOnly {
+		return &receiverWithStoreChangesOnly{
+			Receiver: r,
+			Values:   NewStore().Val(),
+			level:    len(wo.Path),
+		}, nil
+	} else {
+		return &receiverWithStore{
+			Receiver: r,
+			Values:   NewStore().Val(),
+		}, nil
+	}
 }
 
 func (ev storeWithRefPool) Close(ctx context.Context) error {

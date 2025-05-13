@@ -9,6 +9,7 @@ import (
 
 	cgrpc "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
@@ -31,7 +32,8 @@ var (
 
 type testHandler struct {
 	pb.UnimplementedConfigServer
-	store config.Store
+	store   config.Store
+	watcher watch.Watcher
 }
 
 func (t *testHandler) Get(ctx context.Context, request *pb.GetRequest) (*pb.GetResponse, error) {
@@ -45,7 +47,11 @@ func (t *testHandler) Get(ctx context.Context, request *pb.GetRequest) (*pb.GetR
 }
 
 func (t *testHandler) Set(ctx context.Context, request *pb.SetRequest) (*pb.SetResponse, error) {
-	t.store.Val(request.GetPath()).Set(request.GetValue().GetData())
+	var data any
+	if err := json.Unmarshal(request.GetValue().GetData(), &data); err != nil {
+		return nil, errors.WithMessage(errors.StatusInternalServerError, err.Error())
+	}
+	t.store.Val(request.GetPath()).Set(data)
 	return &pb.SetResponse{}, nil
 }
 
@@ -58,7 +64,7 @@ func (t *testHandler) Delete(ctx context.Context, request *pb.DeleteRequest) (*p
 }
 
 func (t *testHandler) Watch(request *pb.WatchRequest, stream pb.Config_WatchServer) error {
-	w, err := t.store.Watch(watch.WithPath(request.GetPath()))
+	w, err := t.watcher.Watch(watch.WithPath(request.GetPath()))
 	if err != nil {
 		return err
 	}
@@ -91,8 +97,11 @@ func TestManagerConnection(t *testing.T) {
 				service.Name("service.test"),
 				service.Context(ctx),
 				service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
+					st := kv.NewStore()
+					w := watch.NewWatcher[kv.Store](st)
 					pb.RegisterConfigServer(registrar, &testHandler{
-						store: kv.NewStore(),
+						store:   st,
+						watcher: w,
 					})
 					return nil
 				}),
