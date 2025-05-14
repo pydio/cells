@@ -22,10 +22,10 @@ package resources
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -47,21 +47,24 @@ func (c *PoliciesCleaner) Handle(ctx context.Context, dao resources.DAO, msg *id
 		return nil
 	}
 
-	var subject string
+	var subjects []string
 	if c.Options.SubscribeRoles && msg.Role != nil {
-		subject = fmt.Sprintf("role:%s", msg.Role.Uuid)
+		subjects = append(subjects, permissions.PolicySubjectRolePrefix+msg.Role.Uuid)
 	}
 	if c.Options.SubscribeUsers && msg.User != nil {
 		if msg.User.IsGroup {
-			subject = fmt.Sprintf("role:%s", msg.User.Uuid)
+			subjects = append(subjects, permissions.PolicySubjectRolePrefix+msg.User.Uuid)
 		} else {
-			subject = fmt.Sprintf("user:%s", msg.User.Login)
+			subjects = append(subjects, permissions.PolicySubjectUuidPrefix+msg.User.Uuid)
+			subjects = append(subjects, permissions.PolicySubjectLoginPrefix+msg.User.Login)
 		}
 	}
 
-	if len(subject) > 0 {
+	for _, subject := range subjects {
 		log.Logger(ctx).Info("Deleting policies on event", zap.Any("event", msg), zap.String("subject", subject))
-		return dao.DeletePoliciesBySubject(ctx, subject)
+		if er := dao.DeletePoliciesBySubject(ctx, subject); er != nil {
+			log.Logger(ctx).Info("Failed to delete policies on event", zap.String("subject", subject), zap.Error(er))
+		}
 	}
 	return nil
 

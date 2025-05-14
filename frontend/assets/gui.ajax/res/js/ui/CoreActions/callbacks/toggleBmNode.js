@@ -49,11 +49,6 @@ export default function toggleBookmarkNode(node, selection){
         userMeta.NodeUuid = nodeUuid;
         userMeta.Namespace = "bookmark";
         userMeta.JsonValue = "\"true\"";
-        userMeta.Policies = [
-            ServiceResourcePolicy.constructFromObject({Resource:nodeUuid, Action:'OWNER', Subject:'user:' + userId, Effect:'allow'}),
-            ServiceResourcePolicy.constructFromObject({Resource:nodeUuid, Action:'READ', Subject:'user:' + userId, Effect:'allow'}),
-            ServiceResourcePolicy.constructFromObject({Resource:nodeUuid, Action:'WRITE', Subject:'user:' + userId, Effect:'allow'}),
-        ];
         request.MetaDatas = [userMeta];
         return api.updateUserMeta(request).then(() => {
             pydio.notify("reload-bookmarks");

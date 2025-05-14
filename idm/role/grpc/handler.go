@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	pbservice "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -39,9 +40,41 @@ import (
 )
 
 var (
+	rootPolicies = []*pbservice.ResourcePolicy{
+		{
+			Action:  pbservice.ResourcePolicyAction_READ,
+			Subject: "*",
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
+		{
+			Action:  pbservice.ResourcePolicyAction_WRITE,
+			Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileAdmin,
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
+	}
 	defaultPolicies = []*pbservice.ResourcePolicy{
-		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
-		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
+		{
+			Action:  pbservice.ResourcePolicyAction_READ,
+			Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileStandard,
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
+		{
+			Action:  pbservice.ResourcePolicyAction_WRITE,
+			Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileAdmin,
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
+	}
+	externalPolicies = []*pbservice.ResourcePolicy{
+		{
+			Action:  pbservice.ResourcePolicyAction_READ,
+			Subject: "*",
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
+		{
+			Action:  pbservice.ResourcePolicyAction_WRITE,
+			Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileStandard,
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
 	}
 )
 
@@ -152,7 +185,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 			log.Logger(ctx).Error("could not delete policies for removed role "+r.Label, zap.Error(err2))
 			continue
 		}
-		err2 = dao.DeletePoliciesBySubject(ctx, fmt.Sprintf("role:%s", r.Uuid))
+		err2 = dao.DeletePoliciesBySubject(ctx, permissions.PolicySubjectRolePrefix+r.Uuid)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies by subject for removed role "+r.Label, zap.Error(err2))
 			continue

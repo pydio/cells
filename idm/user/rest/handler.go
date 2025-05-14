@@ -526,9 +526,9 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 				UserRole: true,
 				Label:    "User " + response.User.Login,
 				Policies: []*service2.ResourcePolicy{
-					{Subject: "profile:standard", Action: service2.ResourcePolicyAction_READ, Effect: service2.ResourcePolicy_allow},
-					{Subject: "user:" + response.User.Login, Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
-					{Subject: "profile:admin", Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
+					{Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileStandard, Action: service2.ResourcePolicyAction_READ, Effect: service2.ResourcePolicy_allow},
+					{Subject: permissions.PolicySubjectUuidPrefix + response.User.Uuid, Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
+					{Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileAdmin, Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
 				},
 			}
 		}
@@ -885,7 +885,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 }
 
 func allowedUserSpecialPermissions(ctx context.Context, claims claim.Claims) bool {
-	subjects := permissions.PolicyRequestSubjectsFromClaims(claims)
+	subjects := permissions.PolicyRequestSubjectsFromClaims(ctx, claims, false)
 	client := idm.NewPolicyEngineServiceClient(grpc2.ResolveConn(ctx, common.ServicePolicyGRPC))
 	request := &idm.PolicyEngineRequest{
 		Subjects: subjects,

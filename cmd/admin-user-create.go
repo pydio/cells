@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/service"
 )
@@ -90,21 +91,14 @@ EXAMPLES
 		}
 
 		// Create user
-		r := service.ResourcePolicyAction_READ
-		w := service.ResourcePolicyAction_WRITE
-		allow := service.ResourcePolicy_allow
-		policies := []*service.ResourcePolicy{
-			{Action: r, Effect: allow, Subject: "profile:standard"},
-			{Action: w, Effect: allow, Subject: "user:" + login},
-			{Action: w, Effect: allow, Subject: "profile:admin"},
-		}
+		policies := permissions.NewResourcePoliciesBuilder().WithStandardUserPolicies().Policies()
 
 		newUser := &idm.User{
 			Login:      login,
 			GroupPath:  groupPath,
 			Password:   userCreatePassword,
 			Policies:   policies,
-			Attributes: map[string]string{"profile": common.PydioProfileStandard},
+			Attributes: map[string]string{idm.UserAttrProfile: common.PydioProfileStandard},
 		}
 
 		userClient := idmc.UserServiceClient(ctx)

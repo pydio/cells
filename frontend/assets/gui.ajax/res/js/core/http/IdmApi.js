@@ -760,12 +760,12 @@ class IdmApi {
                     Effect: 'allow',
                 }),
                 ServiceResourcePolicy.constructFromObject({
-                    Subject: "user:" + idmUser.Login,
+                    Subject: "subject:" + idmUser.Uuid,
                     Action : 'READ',
                     Effect: 'allow',
                 }),
                 ServiceResourcePolicy.constructFromObject({
-                    Subject: "user:" + idmUser.Login,
+                    Subject: "subject:" + idmUser.Uuid,
                     Action : 'WRITE',
                     Effect: 'allow',
                 }),
@@ -798,22 +798,22 @@ class IdmApi {
                     Effect: 'allow',
                 }),
                 ServiceResourcePolicy.constructFromObject({
-                    Subject: "user:" + idmUser.Login,
+                    Subject: "subject:" + idmUser.Uuid,
                     Action : 'READ',
                     Effect: 'allow',
                 }),
                 ServiceResourcePolicy.constructFromObject({
-                    Subject: "user:" + idmUser.Login,
+                    Subject: "subject:" + idmUser.Uuid,
                     Action : 'WRITE',
                     Effect: 'allow',
                 }),
                 ServiceResourcePolicy.constructFromObject({
-                    Subject: "user:" + newUserLogin,
+                    Subject: "subject:self", // will be replaced by new Uuid at creation
                     Action : 'READ',
                     Effect: 'allow',
                 }),
                 ServiceResourcePolicy.constructFromObject({
-                    Subject: "user:" + newUserLogin,
+                    Subject: "subject:self", // will be replaced by new Uuid at creation
                     Action : 'WRITE',
                     Effect: 'allow',
                 }),

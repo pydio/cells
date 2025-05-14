@@ -31,9 +31,9 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/forms"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
-	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/slug"
@@ -147,7 +147,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 
 	userServiceClient := idm.NewUserServiceClient(grpc.ResolveConn(f.GetRuntimeContext(), common.ServiceUserGRPC))
 	rolesServiceClient := idm.NewRoleServiceClient(grpc.ResolveConn(f.GetRuntimeContext(), common.ServiceRoleGRPC))
-	builder := service.NewResourcePoliciesBuilder()
+	builder := permissions.NewResourcePoliciesBuilder()
 
 	groupPaths := []string{"/"}
 	// Create Groups
@@ -230,7 +230,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 					"country":     v.Region,
 					"profile":     "standard",
 				},
-				Policies: builder.Reset().WithStandardUserPolicies(v.Login).Policies(),
+				Policies: builder.Reset().WithStandardUserPolicies().Policies(),
 			},
 		}); err != nil {
 			output := input.WithError(err)
@@ -242,7 +242,11 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 					Uuid:     response.User.Uuid,
 					Label:    slug.Make(v.Label),
 					UserRole: true,
-					Policies: builder.Reset().WithStandardUserPolicies(v.Login).Policies(),
+					Policies: builder.Reset().
+						WithProfileWrite(common.PydioProfileAdmin).
+						WithProfileRead(common.PydioProfileStandard).
+						WithSubjectWrite(response.User.Uuid).
+						Policies(),
 				},
 			})
 			if e != nil {

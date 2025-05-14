@@ -22,7 +22,6 @@ package share
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -58,12 +57,6 @@ func (sc *Client) GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User
 		if len(link.Policies) == 0 {
 			// Apply default policies and make sure user can read himself
 			link.Policies = sc.OwnerResourcePolicies(ctx, ownerUser, newUuid)
-			link.Policies = append(link.Policies, &service.ResourcePolicy{
-				Resource: newUuid,
-				Subject:  fmt.Sprintf("user:%s", login),
-				Action:   service.ResourcePolicyAction_READ,
-				Effect:   service.ResourcePolicy_allow,
-			})
 		}
 		hiddenUser := &idm.User{
 			Uuid:      newUuid,

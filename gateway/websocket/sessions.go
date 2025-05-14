@@ -31,7 +31,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
@@ -100,7 +99,7 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 	session.Set(SessionUsernameKey, claims.Name)
 	session.Set(SessionProfileKey, claims.Profile)
 	session.Set(SessionClaimsKey, claims)
-	session.Set(SessionSubjectsKey, append([]string{"*"}, auth.SubjectsFromClaim(claims)...))
+	session.Set(SessionSubjectsKey, append([]string{"*"}, permissions.PolicyRequestSubjectsFromClaims(ctx, claims, true)...))
 	session.Set(SessionLimiterKey, rate.NewLimiter(LimiterRate, LimiterBurst))
 	ctx = middleware.HttpRequestInfoToMetadata(session.Request)
 	if md, ok := propagator.FromContextCopy(ctx); ok {
