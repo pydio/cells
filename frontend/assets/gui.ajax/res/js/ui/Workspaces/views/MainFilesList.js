@@ -151,24 +151,31 @@ class ComponentConfigsParser {
 class MainFilesList extends React.Component {
     static propTypes = {
         pydio: PropTypes.instanceOf(Pydio),
-        horizontalRibbon: PropTypes.bool
+        horizontalRibbon: PropTypes.bool,
+        fixedDisplayMode: PropTypes.string,
+        fixedColumns: PropTypes.object,
     };
 
     constructor(props, context) {
         super(props, context);
-        let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
-        configParser.loadConfigs('FilesList').then((columns) => {
-            this.setState({columns});
-        })
-        const dMode = this.getPrefValue('FilesList.DisplayMode', this.props.displayMode || 'list');
+        const {dataModel, fixedDisplayMode, fixedColumns} = this.props;
+        const configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
+        if (!fixedColumns) {
+            configParser.loadConfigs('FilesList').then((columns) => {
+                this.setState({columns});
+            })
+        }
+        let dMode = this.getPrefValue('FilesList.DisplayMode', this.props.displayMode || 'list');
         let tSize = 200;
         if(dMode === 'grid-320') {
             tSize = 320;
         } else if(dMode === 'grid-80') {
             tSize = 80;
-        }
 
-        const {dataModel} = this.props;
+        }
+        if(fixedDisplayMode) {
+            dMode = fixedDisplayMode;
+        }
 
         this.state = {
             contextNode : dataModel.getContextNode(),
@@ -178,7 +185,7 @@ class MainFilesList extends React.Component {
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
-            columns     : configParser.getDefaultListColumns(props.pydio),
+            columns     : fixedColumns || configParser.getDefaultListColumns(props.pydio),
             parentIsScrolling: props.parentIsScrolling,
             repositoryId: props.pydio.repositoryId
         };
@@ -203,7 +210,7 @@ class MainFilesList extends React.Component {
     }
 
     componentDidMount() {
-        const {dataModel, pydio, onDisplayModeChange} = this.props;
+        const {dataModel, pydio, onDisplayModeChange, fixedDisplayMode} = this.props;
         // Hook to the central datamodel
         this._contextObserver = () =>{
             this.setState({contextNode: dataModel.getContextNode()});
@@ -216,8 +223,10 @@ class MainFilesList extends React.Component {
                 showExtensions: this.getPrefValue('FilesList.ShowExtensions', false),
                 pinBookmarks: this.getPrefValue('FilesList.PinBookmarks', false)
             })
-            const displayMode = this.getPrefValue('FilesList.DisplayMode', 'list')
-            this.setState({displayMode})
+            if(!fixedDisplayMode) {
+                const displayMode = this.getPrefValue('FilesList.DisplayMode', 'list')
+                this.setState({displayMode})
+            }
         }
         pydio.observe('reload_layout_preferences', this._prefObserver)
 
@@ -228,7 +237,7 @@ class MainFilesList extends React.Component {
         }else{
             window.attachEvent('onresize', this._thumbObserver);
         }
-        if(onDisplayModeChange && this.state && this.state.displayMode){
+        if(!fixedDisplayMode && onDisplayModeChange && this.state && this.state.displayMode){
             onDisplayModeChange(this.state.displayMode);
         }
     }
@@ -255,14 +264,15 @@ class MainFilesList extends React.Component {
             || nextProps.searchLoading !== this.props.searchLoading
             || nextProps.searchResults !== this.props.searchResults
             || nextProps.searchScope !== this.props.searchScope
+            || nextProps.fixedDisplayMode !== this.props.fixedDisplayMode
             || nextProps.style !== this.props.style
             || nextState !== this.state );
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const {pydio, onDisplayModeChange} = this.props;
+        const {pydio, fixedDisplayMode, fixedColumns, onDisplayModeChange} = this.props;
         const {repositoryId} = prevState;
-        const {displayMode} = this.state;
+        const {displayMode:originalDisplayMode} = this.state;
         if(prevProps.dataModel !== this.props.dataModel) {
             prevProps.dataModel.stopObserving("context_changed", this._contextObserver);
             this.props.dataModel.observe("context_changed", this._contextObserver);
@@ -270,12 +280,16 @@ class MainFilesList extends React.Component {
         }
         if(repositoryId !== pydio.repositoryId) {
             pydio.getController().updateGuiActions(this.getPydioActions());
-            let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
-            configParser.loadConfigs('FilesList').then((columns) => {
-                this.setState({columns});
-            })
-            const dMode = this.getPrefValue('FilesList.DisplayMode', displayMode || 'list');
-            if(prevState.displayMode !== dMode && dMode.indexOf('grid-') === 0){
+            if(!fixedColumns) {
+                const configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
+                configParser.loadConfigs('FilesList').then((columns) => {
+                    this.setState({columns});
+                })
+            }
+            let dMode = this.getPrefValue('FilesList.DisplayMode', displayMode || 'list');
+            if(fixedDisplayMode) {
+                dMode = fixedDisplayMode
+            } else if(prevState.displayMode !== dMode && dMode.indexOf('grid-') === 0){
                 let tSize = 160;
                 if(dMode === 'grid-320') {
                     tSize = 320;
@@ -288,7 +302,7 @@ class MainFilesList extends React.Component {
                 repositoryId: pydio.repositoryId,
                 displayMode:dMode
             }, ()=>{
-                if(onDisplayModeChange) {
+                if(onDisplayModeChange && dMode !== originalDisplayMode) {
                     onDisplayModeChange(dMode);
                 }
             })
@@ -768,29 +782,39 @@ class MainFilesList extends React.Component {
     }
 
     getPydioActions(keysOnly = false){
+        const {fixedDisplayMode} = this.props;
         if(keysOnly){
+            if(fixedDisplayMode) {
+                return ['toggle_show_extensions'];
+            }
             return ['switch_display_mode', 'toggle_show_extensions'];
         }
-        const multiAction = new Action({
-            name:'switch_display_mode',
-            icon_class:'mdi mdi-view-list',
-            text_id:150,
-            title_id:151,
-            text:Pydio.getMessages()[150],
-            title:Pydio.getMessages()[151],
-            hasAccessKey:false,
-            subMenu:true,
-            subMenuUpdateImage:true
-        }, {
-            selection:false,
-            dir:true,
-            actionBar:true,
-            actionBarGroup:'display_toolbar',
-            contextMenu:false,
-            infoPanel:false
-        }, {}, {}, {
-            dynamicBuilder:this.buildDisplayModeItems.bind(this),
-        });
+        const actions = new Map();
+
+        if(!fixedDisplayMode) {
+            const multiAction = new Action({
+                name:'switch_display_mode',
+                icon_class:'mdi mdi-view-list',
+                text_id:150,
+                title_id:151,
+                text:Pydio.getMessages()[150],
+                title:Pydio.getMessages()[151],
+                hasAccessKey:false,
+                subMenu:true,
+                subMenuUpdateImage:true
+            }, {
+                selection:false,
+                dir:true,
+                actionBar:true,
+                actionBarGroup:'display_toolbar',
+                contextMenu:false,
+                infoPanel:false
+            }, {}, {}, {
+                dynamicBuilder:this.buildDisplayModeItems.bind(this),
+            });
+            actions.set('switch_display_mode', multiAction);
+        }
+
         const extAction = new Action(
             {
                 name:'toggle_show_extensions',
@@ -812,9 +836,6 @@ class MainFilesList extends React.Component {
                 dynamicBuilder: this.buildShowExtensionsItems.bind(this)
             }
         );
-
-        const actions = new Map();
-        actions.set('switch_display_mode', multiAction);
         actions.set('toggle_show_extensions', extAction);
         return actions;
     }
