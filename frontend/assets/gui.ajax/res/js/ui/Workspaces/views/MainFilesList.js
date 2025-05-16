@@ -286,7 +286,7 @@ class MainFilesList extends React.Component {
                     this.setState({columns});
                 })
             }
-            let dMode = this.getPrefValue('FilesList.DisplayMode', displayMode || 'list');
+            let dMode = this.getPrefValue('FilesList.DisplayMode', originalDisplayMode || 'list');
             if(fixedDisplayMode) {
                 dMode = fixedDisplayMode
             } else if(prevState.displayMode !== dMode && dMode.indexOf('grid-') === 0){
