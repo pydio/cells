@@ -1,0 +1,70 @@
+:root {
+    --alert-warning-bg: #fff6e6;
+    --alert-error-bg:   #ffe6e6;
+    --alert-info-bg:    #e6ebff;
+    --alert-success-bg: #e6ffe6;
+}
+
+[data-color-scheme="dark"] {
+    --alert-warning-bg: #805d20;
+    --alert-error-bg:   #802020;
+    --alert-info-bg:    #203380;
+    --alert-success-bg: #208020;
+}
+
+
+.alert {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    border-radius: 4px;
+    min-height: 48px;
+    padding: 4px;
+
+    &[data-alert-type="warning"] {
+        background-color: var(--alert-warning-bg);
+    }
+    &[data-alert-type="error"] {
+        background-color: var(--alert-error-bg);
+    }
+    &[data-alert-type="info"] {
+        background-color: var(--alert-info-bg);
+    }
+    &[data-alert-type="success"] {
+        background-color: var(--alert-success-bg);
+    }
+
+    .inline-content {
+        flex-grow: 1;
+    }
+
+    .alert-icon-wrapper {
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 12px;
+        margin-right: 12px;
+        height: 18px;
+        width: 18px;
+        user-select: none;
+        cursor: pointer;
+    }
+
+    .alert-icon{
+        &[data-alert-icon-type="warning"] {
+            color: #e69819
+        }
+        &[data-alert-icon-type="error"] {
+            color: #d80d0d
+        }
+        &[data-alert-icon-type="info"] {
+            color: #507aff
+        }
+        &[data-alert-icon-type="success"] {
+            color: #0bc10b
+        }
+    }
+}
+

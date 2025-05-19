@@ -21,9 +21,13 @@
 import React, {useState, createContext, useContext} from 'react'
 import { createReactBlockSpec } from "@blocknote/react";
 const {FilePreview} = Pydio.requireLib('workspaces');
+import { MdViewList, MdGridView } from "react-icons/md";
+
 const { useDataModelContextNodeAsItems, useDataModelSelection, sortNodesNatural } = Pydio.requireLib('components')
 import ContextMenuModel from 'pydio/model/context-menu'
 import Pydio from 'pydio'
+import './ChildrenListStyles.less'
+import {BlockMenu} from "./BlockMenu";
 
 export const ListContext = createContext({
     dataModel:Pydio.getInstance().getContextHolder(),
@@ -55,28 +59,13 @@ const Item = ({dataModel, node}) => {
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY)
             }}
         >
-            <div style={{
-                flex: 1, display:'flex', alignItems:'flex-start',
-                cursor:'pointer',
-                backgroundColor,
-                color:selected?'var(--md-sys-color-on-primary)':'inherit',
-                borderRadius:6,
-                margin: '1px 0',
-                padding:'3px 8px 2px 1px',
-                transition:'background-color 0.1s'
-            }}>
-                <div style={{marginRight: 5}} className={selected?"bn-selected":null}>
-                    <FilePreview
-                        node={node}
-                        loadThumbnail={false}
-                        style={{
-                            height: 22, width:22, fontSize: 18,
-                            borderRadius: 2, textAlign:'center',
-                        }}
-                        mimeFontStyle={{margin:'0 auto'}}
-                    />
-                </div>
-                <div style={{flex: 1, fontSize: 'inherit'}}>{node.getLabel()}</div>
+            <div className={selected?'list-item bn-selected':'list-item'}>
+                <FilePreview
+                    node={node}
+                    loadThumbnail={true}
+                    mimeFontStyle={{margin:'0 auto'}}
+                />
+                <div className={'node-label'}>{node.getLabel()}</div>
             </div>
         </p>
     )
@@ -87,7 +76,7 @@ const EmptyItem = () => {
 }
 
 
-const List = ({entryProps}) => {
+const List = ({entryProps, editor, block}) => {
 
     const {dataModel} = useContext(ListContext);
 
@@ -103,15 +92,40 @@ const List = ({entryProps}) => {
     if(!items.length) {
         items.push(<EmptyItem/>)
     }
-    //const testBorder = {borderLeft: '3px solid var(--md-sys-color-outline-variant-50)',marginLeft: 8, paddingLeft: 8}
+
+    const menuItems = [
+        {value:'list', title:'List', icon:MdViewList},
+        {value:'grid', title:'Grid', icon:MdGridView}
+    ]
+    const displayMenuTarget = <span style={{cursor:'pointer'}} className={"mdi mdi-dots-vertical-circle-outline"}/>
+    const menuHandler = (value) => {
+        if(value !== block.props.display) {
+            editor.updateBlock(block, {
+                type: "childrenList",
+                props: { display: value },
+            })
+        }
+    }
+
 
     return (
-        <div style={{lineHeight:'1.3em'}}>
-            <h3 style={{fontSize:'1.3em', fontWeight:700, marginBottom: 10}}>
-                <span style={{marginRight:6}}>🗂️</span>
-                <span style={{marginRight:6}}>Folder Contents</span>
-            </h3>
-            <div className={"bn-children-list"}>
+        <div style={{lineHeight:'1.3em', width:'100%'}}>
+            <div style={{display:'flex'}}>
+                <h3 style={{flex: 1, fontSize:'1.3em', fontWeight:700, marginBottom: 10}}>
+                    <span style={{marginRight:6}}>🗂️</span>
+                    <span style={{marginRight:6, flex:1}}>Folder Contents</span>
+                </h3>
+                <span style={{fontSize:'1rem'}}>
+                    <BlockMenu
+                        title={"Display"}
+                        target={displayMenuTarget}
+                        values={menuItems}
+                        onValueSelected={menuHandler}
+                        position={'bottom-end'}
+                    />
+                </span>
+            </div>
+            <div className={"bn-children-list " + block.props.display}>
                 {items}
             </div>
         </div>
@@ -122,12 +136,17 @@ const List = ({entryProps}) => {
 export const ChildrenList = createReactBlockSpec(
     {
         type: "childrenList",
-        propSchema: {},
+        propSchema: {
+            display: {
+                default:'list',
+                values:['list', 'grid']
+            }
+        },
         content: "none",
     },
     {
         render: (props) => {
-            return <List/>
+            return <List editor={props.editor} block={props.block}/>
         },
     }
 );

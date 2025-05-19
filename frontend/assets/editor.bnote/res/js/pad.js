@@ -75,12 +75,11 @@ const css = `
         .react-mui-context .bn-container h6{
             font-weight: inherit;
         }
-        .react-mui-context.mui3-token .bn-children-list .mimefont-container {
-            background-color: transparent !important;
+        .react-mui-context .bn-container div[role="menu"] {
+            background: var(--bn-colors-menu-background);
         }
-        .react-mui-context.mui3-token .bn-container .bn-selected .mimefont-container div.mimefont, 
-        .react-mui-context.mui3-token .bn-container .bn-selected .mimefont-container span.overlay-icon-span {
-            color: var(--md-sys-color-on-secondary) !important;
+        .react-mui-context .bn-container div[role="menu"] button {
+            font-size: var(--mantine-font-size-sm);
         }
         .ProseMirror-selectednode>.bn-block-content[data-content-type="childrenList"]>*{
             outline: none;

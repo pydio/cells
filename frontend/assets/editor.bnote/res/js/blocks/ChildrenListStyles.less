@@ -1,0 +1,102 @@
+.bn-children-list{
+
+  .list-item{
+    flex: 1;
+    display:flex;
+    align-items:flex-start;
+    cursor:pointer;
+    color: inherit;
+    border-radius:6px;
+    margin: 1px 0;
+    padding:3px 8px 2px 1px;
+    transition:background-color 0.1s;
+    &:hover{
+      background-color:var(--md-sys-color-outline-variant-50);
+    }
+    &.bn-selected, &.bn-selected:hover{
+      background-color: var(--md-sys-color-primary);
+      color:var(--md-sys-color-on-primary);
+    }
+  }
+
+  &.list{
+    .list-item{
+      .mimefont-container{
+        margin-right: 5px;
+        height: 22px;
+        width:22px;
+        font-size: 18px;
+        border-radius: 2px;
+        text-align:center;
+        background-color: transparent !important;
+      }
+      .node-label{
+        flex: 1;
+        font-size: inherit;
+      }
+      &.bn-selected, &.bn-selected:hover{
+        .mimefont-container{
+          div.mimefont,span.overlay-icon-span{
+            color: var(--md-sys-color-on-secondary) !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+    > p {
+      margin: 0;
+      background-color: var(--md-sys-color-mimefont-background);
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 1.1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .list-item {
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      .mimefont-container{
+        margin-right: 0;
+        background-color: var(--md-sys-color-surface) !important;
+        border: 2px solid var(--md-sys-color-mimefont-background);
+        border-radius: 8px 8px 0 0;
+        border-bottom: 0;
+        font-size: 30px;
+        flex: 1;
+        width: 100%;
+        display: flex;
+        align-items: center !important;
+        > div > div {
+          border-radius: 8px 8px 0 0;
+          background-position: top center !important;
+        }
+      }
+      .node-label{
+        flex: none;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 100%;
+        padding: 5px 10px;
+        font-size: 13px;
+      }
+      &.bn-selected{
+        .mimefont-container{
+          border-color: var(--md-sys-color-primary);
+        }
+      }
+    }
+  }
+}
