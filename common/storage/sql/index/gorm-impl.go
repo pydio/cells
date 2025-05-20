@@ -728,6 +728,9 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	nodeToMPath := nodeTo.GetMPath()
 	mpathFromStr := nodeFromMPath.ToString()
 	mpathToStr := nodeToMPath.ToString()
+	if strings.HasPrefix(mpathToStr, mpathFromStr+".") {
+		return errors.WithMessage(errors.StatusForbidden, "Cannot move a folder inside himself")
+	}
 	mpathFromLevel := nodeFromMPath.Length()
 	mpathToLevel := nodeToMPath.Length()
 	levelDiff := mpathToLevel - mpathFromLevel

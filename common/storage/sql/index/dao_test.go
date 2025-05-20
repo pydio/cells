@@ -997,6 +997,64 @@ func TestSmallArborescence(t *testing.T) {
 	}, true)
 }
 
+func TestMoveInsideOwnChild(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+
+			Convey("Test Move inside own child is forbidden", t, func() {
+				arborescence := []string{
+					"/test",
+					"/test copie",
+					"/test copie/1/2/3/4/whatever",
+					"/test copie/1/2/3/4/whatever-else",
+					"/test copie/1/2/3/4/whatever-else/child",
+					"/test copie/1/2/3/4/whatever-else/child1",
+				}
+
+				// Creating the arborescence
+				nodes := make(map[string]*tree.MPath)
+				for _, path := range arborescence {
+					mN, cc, err := dao.GetOrCreateNodeByPath(ctx, path, &tree.Node{Uuid: slug.Make(path)})
+					So(err, ShouldBeNil)
+					So(len(cc), ShouldBeGreaterThanOrEqualTo, 1) // First is 2 as the ROOT is created, then 1
+					nodes[path] = mN.GetMPath()
+				}
+
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				// Then we move a node
+				originalNode, err := dao.GetNodeByPath(ctx, "/test copie")
+				So(err, ShouldBeNil)
+				pathFrom := originalNode.GetMPath()
+
+				nodeTo, err := dao.GetNodeByPath(ctx, "/test copie/1/2/3")
+				So(err, ShouldBeNil)
+
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				// Then we move a node
+				nodeFrom, _ := dao.GetNodeByMPath(ctx, pathFrom)
+
+				// First of all, we delete the existing node
+				if nodeTo != nil {
+					err = dao.DelNode(ctx, nodeTo)
+					So(err, ShouldBeNil)
+				}
+
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
+				So(err, ShouldNotBeNil)
+
+				// printTree(ctxWithCache)
+				// printNodes(ctxWithCache)
+			})
+		}
+	}, true)
+}
+
 func TestOtherArborescence(t *testing.T) {
 	ctx := context.Background()
 
