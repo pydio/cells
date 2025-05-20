@@ -100,17 +100,28 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 		var handler nodes.Handler
 		targetNode := &tree.Node{}
 		pa := n.GetLocator().GetPath()
+		var iNode *tree.Node
+		var er error
+
 		if pa != "" {
 			handler = pathRouter
 			targetNode.SetPath(pa)
+			iNode, er = nodes.FindNodeByInsensitiveName(ctx, pathRouter, targetNode)
 		} else {
 			handler = uuidRouter
 			targetNode.SetUuid(n.GetLocator().GetUuid())
+			rr, er1 := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode, StatFlags: []uint32{tree.StatFlagMetaMinimal}})
+			if er1 != nil {
+				er = er1
+			} else {
+				iNode = rr.GetNode()
+			}
 		}
+
 		cr := &rest.CheckResult{InputLocator: n.GetLocator(), Exists: false}
-		if rr, er := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode, StatFlags: []uint32{tree.StatFlagMetaMinimal}}); er == nil {
+		if er == nil {
 			cr.Exists = true
-			cr.Node = h.TreeNodeToNode(ctx, rr.GetNode())
+			cr.Node = h.TreeNodeToNode(ctx, iNode)
 			if pa != "" && findNext {
 				// Find next available name
 				var childrenLocks []string

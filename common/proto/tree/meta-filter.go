@@ -293,8 +293,13 @@ func (m *MetaFilter) grepToLikes(field, g string, neg bool, builder FilterBuilde
 		not = "NOT "
 	}
 	for _, p := range strings.Split(g, "|") {
-		parts = append(parts, field+" "+not+"LIKE ?")
-		arguments = append(arguments, m.grepToLike(p))
+		word, insensitive := m.grepToLike(p)
+		if insensitive {
+			parts = append(parts, "LOWER("+field+") "+not+"LIKE LOWER(?)")
+		} else {
+			parts = append(parts, field+" "+not+"LIKE ?")
+		}
+		arguments = append(arguments, word)
 	}
 	if len(parts) > 1 {
 		if builder != nil {
@@ -307,16 +312,17 @@ func (m *MetaFilter) grepToLikes(field, g string, neg bool, builder FilterBuilde
 	}
 }
 
-func (m *MetaFilter) grepToLike(g string) string {
-	word := strings.ReplaceAll(g, "(?i)", "")
-	word = strings.Trim(word, "^$")
+func (m *MetaFilter) grepToLike(g string) (string, bool) {
+	insensitive := strings.Contains(g, "(?i)")
+	g = strings.ReplaceAll(g, "(?i)", "")
+	word := strings.Trim(g, "^$")
 	if !strings.HasPrefix(g, "^") {
 		word = "%" + word
 	}
 	if !strings.HasSuffix(g, "$") {
 		word += "%"
 	}
-	return word
+	return word, insensitive
 }
 
 type GeoJson struct {

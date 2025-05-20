@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
@@ -106,7 +107,7 @@ func SuffixPathIfNecessary(ctx context.Context, cli Handler, targetNode *tree.No
 
 	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
 	searchNode.MustSetMeta(tree.MetaFilterForceGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
-	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
+	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false, StatFlags: []uint32{tree.StatFlagMetaMinimal}}
 	_ = cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
 		if node.Path == searchNode.Path {
 			return nil
@@ -132,4 +133,27 @@ func SuffixPathIfNecessary(ctx context.Context, cli Handler, targetNode *tree.No
 		}
 	}
 	return nil
+}
+
+// FindNodeByInsensitiveName performs a ListRequest with a MetaFilterGrep on node name
+// to find node with same basename in a case-insensitive way.
+func FindNodeByInsensitiveName(ctx context.Context, cli Handler, testNode *tree.Node) (res *tree.Node, err error) {
+	dir, baseName := path.Split(testNode.Path)
+	searchNode := &tree.Node{Path: dir}
+	searchNode.MustSetMeta(tree.MetaFilterGrep, "(?i)^"+baseName+"$")
+	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false, StatFlags: []uint32{tree.StatFlagMetaMinimal}}
+	err = cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
+		if node.Path == searchNode.Path {
+			return nil
+		}
+		res = node
+		return nil
+	}, true)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		err = errors.WithMessage(errors.NodeNotFound, "node not found")
+	}
+	return
 }
