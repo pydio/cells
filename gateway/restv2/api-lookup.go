@@ -270,8 +270,12 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		// Use TreeHandler
 		bulkRequest.Offset = int32(input.GetOffset())
 		bulkRequest.Limit = int32(input.GetLimit())
-		bulkRequest.SortField = input.GetSortField()
-		bulkRequest.SortDirDesc = input.GetSortDirDesc()
+		if input.GetSortField() != "" {
+			bulkRequest.SortField = input.GetSortField()
+			bulkRequest.SortDirDesc = input.GetSortDirDesc()
+		} else {
+			bulkRequest.SortField = tree.MetaSortNatural
+		}
 		nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, bulkRequest, h.parseFlags(input.GetFlags()), bulkRecursive)
 		if er != nil {
 			return er
