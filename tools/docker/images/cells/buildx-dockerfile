@@ -46,7 +46,7 @@ RUN ln -s /opt/pydio/bin/cells /bin/cells \
     && chmod +x /opt/pydio/bin/docker-entrypoint.sh \
     && echo "Pydio Cells Home Docker Image" > /opt/pydio/package.info \
     && echo "  A ready-to-go Docker image based on BusyBox ${arch} to configure and launch Cells in no time." >> /opt/pydio/package.info \
-    && echo "  Generated on $(date) with docker build script from version ${version}" >> /opt/pydio/package.info
+    && echo "  Generated on $(date) with docker build script from version ${version:-nightly}" >> /opt/pydio/package.info
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["cells", "start"]
