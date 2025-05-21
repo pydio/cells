@@ -79,7 +79,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 	}
 	output := &rest.BulkMetaResponse{}
 	ctx := req.Request.Context()
-	nn, pag, err := h.LoadNodes(ctx, &bulkRequest, tree.Flags{})
+	nn, pag, err := h.LoadNodes(ctx, &bulkRequest, tree.Flags{}, false)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) erro
 	return resp.WriteEntity(output)
 }
 
-func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRequest, flags tree.Flags) (nn []*tree.Node, pagination *rest.Pagination, er error) {
+func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRequest, flags tree.Flags, recursiveListing bool) (nn []*tree.Node, pagination *rest.Pagination, er error) {
 	var folderNodes []*tree.Node
 	flags = append(flags, tree.StatFlagFolderCounts)
 	for _, p := range bulkRequest.NodePaths {
@@ -161,6 +161,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 			SortField:    bulkRequest.SortField,
 			SortDirDesc:  bulkRequest.SortDirDesc,
 			StatFlags:    flags,
+			Recursive:    recursiveListing,
 		}
 		hasFilter := false
 		for k, v := range bulkRequest.GetFilters() {
