@@ -32,7 +32,7 @@ import ReactDOM from 'react-dom'
 import FilePreview from './FilePreview'
 import {IconButton} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
-const {SimpleList, Masonry} = Pydio.requireLib('components');
+const {SimpleList, ModernSimpleList, Masonry} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
 import {debounce} from 'lodash'

@@ -19,7 +19,7 @@
  */
 
 
-import React from "react";
+import React, {Fragment} from "react";
 import Pydio from "pydio";
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import IconButtonMenu from '../menu/IconButtonMenu'
@@ -93,23 +93,22 @@ class SortColumns extends React.Component {
                     text: data['label'],
                     iconClassName: icon
                 }
-            }else if(displayMode === 'menu_data'){
+            }else if(displayMode === 'menu_data') {
                 return {
-                    name            : (
-                        <span style={{display:'flex'}}>
-                            <span style={{flex:1, fontWeight:isActive?500:'inherit'}}>{data['label']}</span>
+                    name: (
+                        <span style={{display: 'flex'}}>
+                            <span style={{flex: 1, fontWeight: isActive ? 500 : 'inherit'}}>{data['label']}</span>
                             {isActive && <span className={'mdi mdi-checkbox-marked-circle-outline'}/>}
                         </span>),
-                    callback        : () => { this.onHeaderClick(key, callback) },
-                    icon_class      : icon || 'mdi mdi-sort'// (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
+                    callback: () => {
+                        this.onHeaderClick(key, callback)
+                    },
+                    icon_class: icon || 'mdi mdi-sort'// (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
                 }
+            } else if (displayMode === 'col') {
+                return React.createElement(displayMode, {key, style, onClick:() => {this.onHeaderClick(key, callback)}})
             }else{
-                return (<span
-                    key={key}
-                    className={className}
-                    style={style}
-                    onClick={ () => {this.onHeaderClick(key, callback)} }
-                >{data['label']}</span>);
+                return React.createElement(displayMode, {key, className, style, onClick:() => {this.onHeaderClick(key, callback)}}, data['label'])
             }
 
         })
@@ -177,16 +176,33 @@ class SortColumns extends React.Component {
     }
 
     render() {
-        if(this.props.displayMode === 'hidden'){
-            return null;
-        } else if(this.props.displayMode === 'menu'){
-            return (
-                <IconButtonMenu buttonTitle="Sort by..." buttonClassName="mdi mdi-sort-descending" menuItems={this.getColumnsItems('menu', this.props.pydio.getController())} onMenuClicked={(o) => this.onMenuClicked(o)}/>
-            );
-        }else{
-            return (
-                <div className={"mui-toolbar-group mui-left"}>{this.getColumnsItems('header', this.props.pydio.getController())}</div>
-            );
+        const {displayMode, pydio} = this.props;
+        const controller = pydio.getController();
+
+        switch (displayMode){
+            case 'hidden':
+                return null;
+            case 'menu':
+                return (
+                    <IconButtonMenu
+                        buttonTitle="Sort by..."
+                        buttonClassName="mdi mdi-sort-descending"
+                        menuItems={this.getColumnsItems('menu', controller)}
+                        onMenuClicked={(o) => this.onMenuClicked(o)}
+                    />
+                );
+            case 'th':
+                return (
+                    <Fragment>
+                        <colgroup>{this.getColumnsItems('col', controller)}</colgroup>
+                        <thead><tr>{this.getColumnsItems('th', controller)}</tr></thead>
+                    </Fragment>
+                )
+                break;
+            default:
+                return (
+                    <div className={"mui-toolbar-group mui-left"}>{this.getColumnsItems('span', this.props.pydio.getController())}</div>
+                );
         }
 
     }
