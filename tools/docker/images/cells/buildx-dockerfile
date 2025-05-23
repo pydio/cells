@@ -25,12 +25,11 @@ RUN wget --output-document=jq "https://download.pydio.com/pub/linux/tools/jq-lin
 RUN chmod +x /pydio/cells /pydio/jq 
 
 # Create the target image
-FROM busybox:glibc
+FROM busybox
 ARG version
 
 # Add necessary files
 COPY docker-entrypoint.sh /opt/pydio/bin/docker-entrypoint.sh
-COPY libdl.so.2 /opt/pydio/bin/libdl.so.2
 COPY --from=certs /pydio/jq /bin/jq
 COPY --from=certs /etc/ssl/certs /etc/ssl/certs
 COPY --from=certs /pydio/cells /opt/pydio/bin/cells
@@ -41,7 +40,6 @@ WORKDIR $CELLS_WORKING_DIR
 
 # Final configuration
 RUN ln -s /opt/pydio/bin/cells /bin/cells \
-    && ln -s /opt/pydio/bin/libdl.so.2 /lib64/libdl.so.2 \
     && ln -s /opt/pydio/bin/docker-entrypoint.sh /bin/docker-entrypoint.sh \
     && chmod +x /opt/pydio/bin/docker-entrypoint.sh \
     && echo "Pydio Cells Home Docker Image" > /opt/pydio/package.info \
