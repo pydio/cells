@@ -119,8 +119,8 @@ func (l *wrappingStreamer) Send(in interface{}) error {
 		return err
 	} else {
 		// First sending the message size 2 bytes
-		b := make([]byte, 2)
-		binary.BigEndian.PutUint16(b, uint16(len(out)))
+		b := make([]byte, 4)
+		binary.BigEndian.PutUint32(b, uint32(len(out)))
 		if _, err := l.w.Write(b); err != nil {
 			return err
 		}
@@ -147,12 +147,12 @@ func (l *wrappingStreamer) Recv() (*tree.WrappingStreamerResponse, error) {
 	}
 
 	// Getting the Next message size
-	size := make([]byte, 2)
+	size := make([]byte, 4)
 	if _, err := l.r.Read(size); err != nil {
 		return nil, err
 	}
 
-	in := make([]byte, binary.BigEndian.Uint16(size))
+	in := make([]byte, binary.BigEndian.Uint32(size))
 
 	if _, err := l.r.Read(in); err != nil {
 		return nil, err
