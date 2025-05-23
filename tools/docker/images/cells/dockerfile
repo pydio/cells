@@ -1,9 +1,9 @@
 # Handle certificate and download in a distinct stage to reduce image size
-FROM alpine as certs
+FROM alpine AS certs
 ARG version
 
 RUN apk update && apk add ca-certificates
-ENV CELLS_VERSION ${version}
+ENV CELLS_VERSION=${version}
 
 WORKDIR /pydio
 RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
@@ -21,8 +21,8 @@ COPY --from=certs /pydio/jq /bin/jq
 COPY --from=certs /etc/ssl/certs /etc/ssl/certs
 COPY --from=certs /pydio/cells /opt/pydio/bin/cells
 
-ENV CADDYPATH /var/cells/certs 
-ENV CELLS_WORKING_DIR /var/cells
+ENV CADDYPATH=/var/cells/certs 
+ENV CELLS_WORKING_DIR=/var/cells
 WORKDIR $CELLS_WORKING_DIR
 
 # Final configuration
