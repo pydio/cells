@@ -541,7 +541,7 @@ require (
 
 //replace github.com/pydio/caddyvault => ../caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250526155056-3a6422608c6a
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250526175410-0b3908e74845
 
 // replace github.com/minio/minio => ../minio
 

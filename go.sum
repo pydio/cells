@@ -2829,8 +2829,8 @@ github.com/pydio/caddyvault v1.0.3 h1:QPf1cUNwDkxjevZdLS7x4ryDqMDYXznDGctUjiRgTH
 github.com/pydio/caddyvault v1.0.3/go.mod h1:TqPZn8TE/NPaDqtkX8zCRr/XXpCPjyPloQcBe1zOrbg=
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef h1:5FyN7pndX4GyCAb0gdZgN78qJ1IGL1/Mj19bTijXgfk=
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef/go.mod h1:H+DrbjBEehySj5ykZVFHF12kpfWtmKpsoyDZ16kUyqk=
-github.com/pydio/minio v0.0.0-20250526155056-3a6422608c6a h1:TS4vCx5qdRHexMBycfqnNEqEuEKUiT5uKWsWESD+L2A=
-github.com/pydio/minio v0.0.0-20250526155056-3a6422608c6a/go.mod h1:HoUTQc0mRkohJS2IVuXivpHo6KQO2A+FQjtTSCJO/2w=
+github.com/pydio/minio v0.0.0-20250526175410-0b3908e74845 h1:35m4py2/WcCDh/Bw45roWJalcsI3f8YPUlfOYTDVsXY=
+github.com/pydio/minio v0.0.0-20250526175410-0b3908e74845/go.mod h1:HoUTQc0mRkohJS2IVuXivpHo6KQO2A+FQjtTSCJO/2w=
 github.com/quic-go/qpack v0.5.1 h1:giqksBPnT/HDtZ6VhtFKgoLOWmlyo9Ei6u9PqzIMbhI=
 github.com/quic-go/qpack v0.5.1/go.mod h1:+PC4XFrEskIVkcLzpEkbLqq1uCoxPhQuvK5rH1ZgaEg=
 github.com/quic-go/quic-go v0.48.2 h1:wsKXZPeGWpMpCGSWqOcqpW2wZYic/8T3aqiOID0/KWE=
