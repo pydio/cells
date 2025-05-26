@@ -23,7 +23,6 @@ const ModernListEntry = muiThemeable()((props) => {
         mainIcon,
         firstLine,
         secondLine,
-        thirdLine,
         actions,
         style,
         className,
@@ -60,8 +59,6 @@ const ModernListEntry = muiThemeable()((props) => {
     };
 
     const entryStyles = {
-        border: '1px solid transparent',
-        cursor: 'default',
         ...style,
     };
 
@@ -83,7 +80,7 @@ const ModernListEntry = muiThemeable()((props) => {
     const slug = nodeLabel.toLowerCase().replace(/\s+/g, '-');
 
 
-    let dynamicClasses = `modern-list-entry ${className || ''}`;
+    let dynamicClasses = className || '';
     if (selected) dynamicClasses += ' selected';
     if (hover && !noHover) dynamicClasses += ' hover';
     //if (isDragging) dynamicClasses += ' dragging';
@@ -98,8 +95,6 @@ const ModernListEntry = muiThemeable()((props) => {
 
     let {children} = props
     if(!children) {
-        entryStyles.display = 'flex'
-        entryStyles.alignItems = 'center'
         children = (
             <React.Fragment>
                 {iconCell && <div className="material-list-icon">{iconCell}</div>}
@@ -112,7 +107,7 @@ const ModernListEntry = muiThemeable()((props) => {
                     {firstLine && <div className="material-list-line-1">{firstLine}</div>}
                     {secondLine && <div className="material-list-line-2">{secondLine}</div>}
                 </div>
-                {actions && <div className="material-list-action">{actions}</div>}
+                {actions && <div className="material-list-actions">{actions}</div>}
             </React.Fragment>
         )
     }
@@ -151,19 +146,12 @@ ModernListEntry.propTypes = {
     mainIcon: PropTypes.string,
     firstLine: PropTypes.node,
     secondLine: PropTypes.node,
-    thirdLine: PropTypes.node,
     actions: PropTypes.element,
     style: PropTypes.object,
     className: PropTypes.string,
     noHover: PropTypes.bool,
     setInlineEditionAnchor: PropTypes.func,
     selectedAsBorder: PropTypes.bool,
-    // DND props are implicitly handled by useDrag/useDrop and not exposed directly in this component's propTypes
-    // connectDragSource: PropTypes.func, // Handled by useDrag
-    // connectDropTarget: PropTypes.func, // Handled by useDrop
-    // isDragging: PropTypes.bool, // From useDrag
-    // canDrop: PropTypes.bool, // From useDrop
-    // isOver: PropTypes.bool, // From useDrop
 };
 
 ModernListEntry.defaultProps = {

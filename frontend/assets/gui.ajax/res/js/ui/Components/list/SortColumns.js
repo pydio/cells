@@ -176,7 +176,7 @@ class SortColumns extends React.Component {
     }
 
     render() {
-        const {displayMode, pydio} = this.props;
+        const {displayMode, pydio, actionColumn = false} = this.props;
         const controller = pydio.getController();
 
         switch (displayMode){
@@ -194,8 +194,8 @@ class SortColumns extends React.Component {
             case 'th':
                 return (
                     <Fragment>
-                        <colgroup>{this.getColumnsItems('col', controller)}</colgroup>
-                        <thead><tr>{this.getColumnsItems('th', controller)}</tr></thead>
+                        <colgroup>{this.getColumnsItems('col', controller)}{actionColumn?<col/>:null}</colgroup>
+                        <thead><tr>{this.getColumnsItems('th', controller)}{actionColumn?<thead/>:null}</tr></thead>
                     </Fragment>
                 )
                 break;

@@ -19,8 +19,7 @@ const ModernTableListEntry = (props) => {
     const {
         node,
         tableKeys,
-        renderActions,
-        actions: originalActions, // Rename to avoid conflict in spread props
+        entryRenderActions,
         setInlineEditionAnchor,
         style,
         ...restProps
@@ -67,11 +66,6 @@ const ModernTableListEntry = (props) => {
 
         const cellStyle = {
             width: columnDef.width || 'auto',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            paddingRight: '16px', // Spacing between cells
-            display: 'table-cell',
         };
 
         // First cell gets the renameRef
@@ -91,32 +85,20 @@ const ModernTableListEntry = (props) => {
         );
     });
 
-    const determinedActions = renderActions ? renderActions(node) : originalActions;
+    if(entryRenderActions) {
+        generatedCells.push((
+            <td key={"actions"} className={"cell material-list-actions"}>{entryRenderActions(node)}</td>
+        ))
+    }
 
-    const entryStyle = {
-        //display: 'flex',
-        //alignItems: 'center',
-        width: '100%', // Ensure it takes full width for table layout
-        ...style,
-    };
-
-    // Override ModernListEntry's internal content flex direction
-    // and provide a container for the cells that will allow them to layout inline
-    const firstLineContainerStyle = {
-        display: 'flex',
-        flexDirection: 'row',
-        flexGrow: 1,
-        overflow: 'hidden', // Prevent cells from breaking the layout
-    };
 
     return (
         <ModernListEntry
             {...restProps}
             element={'tr'}
             node={node}
-            //style={entryStyle}
+            className={'modern-list-entry'}
             iconCell={null} // Table rows usually don't have a single "main" icon
-            actions={determinedActions}
             setInlineEditionAnchor={undefined} // Pass undefined as this component handles it
         >{generatedCells}</ModernListEntry>
     );
@@ -125,7 +107,7 @@ const ModernTableListEntry = (props) => {
 ModernTableListEntry.propTypes = {
     node: PropTypes.object, // Should be a Pydio Node object
     tableKeys: PropTypes.object.isRequired, // Defines columns, labels, widths, and custom renderers
-    renderActions: PropTypes.func,
+    entryRenderActions: PropTypes.func,
     actions: PropTypes.element, // Passed to ModernListEntry if renderActions is not used
     setInlineEditionAnchor: PropTypes.func,
     style: PropTypes.object,
