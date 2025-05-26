@@ -35,12 +35,8 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-gorm/caches v1.0.1
 	github.com/go-jose/go-jose/v3 v3.0.3
-	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/loads v0.22.0
-	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/spec v0.21.0
-	github.com/go-openapi/strfmt v0.23.0
-	github.com/go-openapi/swag v0.23.1
 	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.8.1
@@ -101,7 +97,6 @@ require (
 	github.com/prometheus/client_golang v1.20.5
 	github.com/pydio/caddyvault v1.0.3
 	github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef
-	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
 	github.com/r3labs/diff/v3 v3.0.1
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/rjeczalik/notify v0.9.3
@@ -195,7 +190,6 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
-	github.com/RoaringBitmap/roaring v1.9.4 // indirect
 	github.com/RoaringBitmap/roaring/v2 v2.4.5 // indirect
 	github.com/agoda-com/opentelemetry-logs-go v0.5.0 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
@@ -282,9 +276,11 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-openapi/analysis v0.23.0 // indirect
+	github.com/go-openapi/errors v0.22.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.1 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
-	github.com/go-openapi/validate v0.24.0 // indirect
+	github.com/go-openapi/strfmt v0.23.0 // indirect
+	github.com/go-openapi/swag v0.23.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/go-xmlfmt/xmlfmt v0.0.0-20191208150333-d5b6f63a941b // indirect
 	github.com/gobuffalo/envy v1.10.2 // indirect
@@ -409,7 +405,6 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/oleiade/reflections v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.21.0 // indirect
-	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/openzipkin/zipkin-go v0.4.2 // indirect
 	github.com/ory/go-acc v0.2.9-0.20230103102148-6b1c9a70dbbe // indirect
 	github.com/ory/go-convenience v0.1.0 // indirect
@@ -546,6 +541,8 @@ require (
 
 //replace github.com/pydio/caddyvault => ../caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250314155004-84d2714bc31f
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20250526155056-3a6422608c6a
+
+// replace github.com/minio/minio => ../minio
 
 //replace github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.16
