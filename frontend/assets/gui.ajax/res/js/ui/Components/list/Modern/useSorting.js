@@ -1,4 +1,24 @@
-import {useCallback, useMemo, useState} from 'react'
+/*
+ * Copyright 2025 Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+import React, {useCallback, useEffect, useMemo, useState} from 'react'
 
 const sortNodesNatural = (nodeA, nodeB, direction) => {
     // Always push recycle to bottom
@@ -26,6 +46,8 @@ const nodesSorterByAttribute = (nodeA, nodeB, attribute, direction, sortType) =>
     let valA = metaA ? metaA.get(attribute) : undefined;
     let valB = metaB ? metaB.get(attribute) : undefined;
 
+    console.log(attribute, direction, sortType, valA, valB)
+
     // Basic type handling
     if(sortType === 'number') {
         valA = parseFloat(valA)
@@ -41,9 +63,10 @@ const nodesSorterByAttribute = (nodeA, nodeB, attribute, direction, sortType) =>
         if (typeof valB === 'string') valB = valB.toLowerCase();
         if (typeof valA === 'number' && typeof valB === 'undefined') valB = 0;
         if (typeof valB === 'number' && typeof valA === 'undefined') valA = 0;
+        if (typeof valA === 'string' && typeof valB === 'undefined') valB = '';
+        if (typeof valB === 'string' && typeof valA === 'undefined') valA = '';
     }
 
-    console.log(valA, valB, typeof valA, typeof valB)
     if (valA < valB) return direction === 'asc' ? -1 : 1;
     if (valA > valB) return direction === 'asc' ? 1 : -1;
     return 0;
@@ -95,14 +118,13 @@ const nodeRemoteSortingInfo = (node) => {
 
 }
 
-const useSorting = ({dataModel, node, defaultSortingInfo}) => {
-    const [currentSortingInfo, setCurrentSortingInfo] = useState(defaultSortingInfo || null);
+const useSortingControlled = ({sortingInfo, onSortingInfoChanged, dataModel, node, defaultSortingInfo}) => {
 
     const sorter = useMemo(() => {
         if (!node || !dataModel) return null;
         if (nodeRemoteSortingInfo(node)) return null;
-        return prepareSortFunction(currentSortingInfo);
-    }, [node, dataModel, currentSortingInfo]);
+        return prepareSortFunction(sortingInfo);
+    }, [node, dataModel, sortingInfo]);
 
     const handleSortChange = useCallback((columnDef) => {
         if (!node || !dataModel) return;
@@ -139,10 +161,9 @@ const useSorting = ({dataModel, node, defaultSortingInfo}) => {
             // This part is tricky, as direct context change might not be the right API.
             // For now, we call handleReload. If PydioDataModel has a more specific API, it should be used.
             // Example: dataModel.requireContextChange(node, true);
-            console.log('RELOAD CONTEXT')
             dataModel.requireContextChange(node, true);
             // Update state immediately to reflect remote sort intention, actual data comes on reload
-            setCurrentSortingInfo(newSortingInfo);
+            onSortingInfoChanged(newSortingInfo);
 
         } else { // Local Sort
             if (node.getMetadata && node.getMetadata().get("remoteOrder")) {
@@ -154,25 +175,137 @@ const useSorting = ({dataModel, node, defaultSortingInfo}) => {
             let clear = false;
             const sortType = columnDef.sortType || 'string';
 
-            if (currentSortingInfo && currentSortingInfo.attribute === newKey && !currentSortingInfo.remote) {
-                if(currentSortingInfo.direction === 'asc') {
+            if (sortingInfo && sortingInfo.attribute === newKey && !sortingInfo.remote) {
+                if(sortingInfo.direction === 'asc') {
                     newDir = 'desc'
                 } else {
                     clear = true
                 }
             }
             if (clear) {
-                setCurrentSortingInfo(defaultSortingInfo);
+                onSortingInfoChanged(defaultSortingInfo);
             } else {
                 const si = { attribute: newKey, direction: newDir, sortType: sortType, remote: false }
-                setCurrentSortingInfo(si);
+                onSortingInfoChanged(si);
             }
         }
 
-    }, [node, dataModel, currentSortingInfo]);
+    }, [node, dataModel, sortingInfo]);
 
-    return {currentSortingInfo, sorter, handleSortChange}
+    return {sorter, handleSortChange}
 
 };
 
-export {useSorting}
+const useSorting = ({dataModel, node, defaultSortingInfo, onSortingInfoChanged}) => {
+    const [currentSortingInfo, setCurrentSortingInfo] = useState(defaultSortingInfo || null);
+    useEffect(() => {
+        if(onSortingInfoChanged) {
+            onSortingInfoChanged(currentSortingInfo)
+        }
+    }, [currentSortingInfo, onSortingInfoChanged]);
+
+    const data = useSortingControlled({
+        sortingInfo:currentSortingInfo,
+        onSortingInfoChanged:setCurrentSortingInfo,
+        dataModel,
+        node,
+        defaultSortingInfo
+    })
+    return {...data, currentSortingInfo}
+}
+
+const useSortingColumns = ({columns, sortingInfo, onSortingInfoChanged}) => {
+    const listColumns = useCallback((as) => {
+
+        const dataStatus = (key, data, inputClass) => {
+            let icon;
+            //let className = 'cell header_cell cell-' + key;
+            let className = inputClass || '';
+            let isActive;
+            if(data['sortType']){
+                className += ' sortable';
+                if(sortingInfo && ( sortingInfo.attribute === key || (sortingInfo.remote && data.remoteSortAttribute && sortingInfo.attribute === data.remoteSortAttribute))){
+                    if(data['sortType'] === 'number') {
+                        icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-numeric-ascending' : 'mdi mdi-sort-numeric-descending';
+                    } else {
+                        icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-alphabetical-ascending' : 'mdi mdi-sort-alphabetical-descending';
+                    }
+                    className += ' active-sort-' + sortingInfo.direction;
+                    isActive = true
+                }
+            }
+            return {icon, className, isActive}
+        }
+
+        let userMetas = []
+        let allKeys = {...columns}
+        if(typeof as === 'string' && as === 'menu_data') {
+            Object.keys(allKeys).filter(key => key.indexOf('usermeta-') === 0).forEach(k => {
+                userMetas.push({...allKeys[k], name: k})
+                delete (allKeys[k])
+            })
+        }
+
+        const entries = Object.keys(allKeys).map(key => {
+            let data = allKeys[key];
+            const {icon, className, isActive} = dataStatus(key, data)
+            let onClick = () => {}
+            if(data.sortType) {
+                onClick = () => onSortingInfoChanged({...data, attribute: key, name:key})
+            }
+
+            switch (typeof as) {
+                case 'string':
+                    if(as === 'menu') {
+                        data['name'] = key;
+                        return {
+                            payload: data,
+                            text: data['label'],
+                            iconClassName: icon
+                        }
+                    }else if(as === 'menu_data') {
+                        return {
+                            name: (
+                                <span style={{display: 'flex'}}>
+                            <span style={{flex: 1, fontWeight: isActive ? 500 : 'inherit'}}>{data['label']}</span>
+                                    {isActive && <span className={'mdi mdi-checkbox-marked-circle-outline'}/>}
+                        </span>),
+                            callback: onClick,
+                            icon_class: icon || 'mdi mdi-sort'// (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
+                        }
+                    }
+                    break
+                case 'function':
+                    return as(data, className, onClick)
+            }
+        })
+
+        if(userMetas.length) {
+            entries.push({
+                name: pydio.MessageHash['ajax_gui.sorter.metas.more'],
+                icon_class: 'mdi mdi-tag-multiple-outline',
+                subMenu:userMetas.map(meta => {
+                    const {icon, className, isActive} = dataStatus(meta.name, meta)
+                    const label = (
+                        <span style={{display:'flex'}}>
+                            <span style={{flex:1, fontWeight:isActive?500:'inherit'}}>{meta['label']}</span>
+                            {isActive && <span className={'mdi mdi-checkbox-marked-circle-outline'}/>}
+                        </span>
+                    )
+                    return {
+                        text: label,
+                        iconClassName:icon || 'mdi mdi-tag-outline',
+                        payload:() => {this.onHeaderClick(meta.name, callback)}
+                    }
+                })
+            })
+        }
+
+        return entries;
+
+    }, [columns, sortingInfo, onSortingInfoChanged])
+
+    return {listColumns}
+}
+
+export {useSorting, useSortingColumns, useSortingControlled}

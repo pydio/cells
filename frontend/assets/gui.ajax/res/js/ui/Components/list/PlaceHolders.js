@@ -26,7 +26,7 @@ export default function PlaceHolders(props) {
 
     const {displayMode, elementHeight, tableKeys} = props;
     let customPH, multiplePH = [];
-    if(displayMode === 'grid') {
+    if(displayMode === 'grid' || displayMode === 'masonry') {
         // Create thumbs like PH
         const tSize = Math.max(40, elementHeight)
         customPH = (
@@ -40,11 +40,11 @@ export default function PlaceHolders(props) {
         for (let i = 0; i <10; i++) {
             multiplePH.push(customPH);
         }
-        multiplePH = <div style={{display:'flex', flexWrap:'wrap'}}>{multiplePH}</div>
+        multiplePH = <div className={"ph-cells"} style={{display:'flex', flexWrap:'wrap'}}>{multiplePH}</div>
     } else if (tableKeys) {
         // Create table lines PH
         customPH = (
-            <div style={{width: '100%', display:'flex', alignItems:'baseline', height: 42, borderBottom:'1px solid rgba(0,0,0,.03)'}}>
+            <div className={"ph-cells"} style={{width: '100%', display:'flex', alignItems:'baseline', height: 42, borderBottom:'1px solid rgba(0,0,0,.03)'}}>
                 {Object.keys(tableKeys).map(k => {
                     if(k === 'ajxp_label'){
                         return (

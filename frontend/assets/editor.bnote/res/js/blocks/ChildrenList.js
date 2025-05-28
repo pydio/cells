@@ -18,13 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState, createContext, useContext} from 'react'
+import React, {useState, useEffect, useCallback, createContext, useContext} from 'react'
 import { createReactBlockSpec } from "@blocknote/react";
-const {FilePreview} = Pydio.requireLib('workspaces');
-import { MdViewList, MdGridView } from "react-icons/md";
+const {FilePreview, useRichMetaLine, useRichMetaActions} = Pydio.requireLib('workspaces');
+const {useColumnsFromRegistry} = Pydio.requireLib('hoc');
+const {useSorting} = Pydio.requireLib('components');
+import {MdViewList, MdGridView, MdTableRows, MdGridGoldenratio, MdSort} from "react-icons/md";
 
-const { useDataModelContextNodeAsItems, useDataModelSelection, sortNodesNatural } = Pydio.requireLib('components')
-import ContextMenuModel from 'pydio/model/context-menu'
+const { ModernSimpleList } = Pydio.requireLib('components')
 import Pydio from 'pydio'
 import './ChildrenListStyles.less'
 import {BlockMenu} from "./BlockMenu";
@@ -34,71 +35,57 @@ export const ListContext = createContext({
     entryProps:{handleClicks: () => {} }
 })
 
-const Item = ({dataModel, node}) => {
+const ModernList = ({entryProps, editor, block}) => {
 
-    const [hover, setHover] = useState(false);
-    const selected = useDataModelSelection(dataModel, node)
-    const {entryProps} = useContext(ListContext)
-    const {handleClicks} = entryProps;
-
-    let backgroundColor = hover?'var(--md-sys-color-outline-variant-50)':'inherit';
-    if(selected){
-        backgroundColor = 'var(--md-sys-color-primary)'
-    }
-
-    return (
-        <p
-            style={{display:'flex', paddingLeft: 0}}
-            onClick={(event) => handleClicks(node, node.isLeaf() ? "simple" : "double", event)}
-            onDoubleClick={(event) => handleClicks(node, "double", event)}
-            onMouseEnter={()=>setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            onContextMenu={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY)
-            }}
-        >
-            <div className={selected?'list-item bn-selected':'list-item'}>
-                <FilePreview
-                    node={node}
-                    loadThumbnail={true}
-                    mimeFontStyle={{margin:'0 auto'}}
-                />
-                <div className={'node-label'}>{node.getLabel()}</div>
-            </div>
-        </p>
-    )
-};
-
-const EmptyItem = () => {
-    return <div style={{fontSize: 'inherit', padding: '3px 1px'}}>No pages or files</div>
-}
-
-
-const List = ({entryProps, editor, block}) => {
+    const pydio = Pydio.getInstance()
 
     const {dataModel} = useContext(ListContext);
+    const [contextNode, setContextNode] = useState(dataModel && dataModel.getContextNode())
+    const {columns} = useColumnsFromRegistry({pydio})
+    if(columns && columns['ajxp_label']) {
+        columns['ajxp_label'].width = '30%';
+    }
 
-    const {node, items} = useDataModelContextNodeAsItems(dataModel, (n) => {
-        const nn = []
-        n.getChildren().forEach(child => nn.push(child))
-        nn.sort(sortNodesNatural)
-        return nn.map(child => <Item dataModel={dataModel} node={child} entryProps={entryProps}/>);
+    useEffect(() => {
+        const observer = () => setContextNode(dataModel.getContextNode())
+        dataModel.observe('context_changed', observer)
+        return () => {
+            dataModel.stopObserving('context_changed', observer)
+        }
+    }, [dataModel]);
+
+    const classes = ['modern-list', 'bn-children-list']
+    const additionalAttrs = {}
+    const {display} = block.props
+    switch (display) {
+        case 'grid':
+            classes.push('material-list-grid')
+            break
+        case 'detail':
+            classes.push('table-mode')
+            additionalAttrs['data-content-type'] = 'table'
+            break
+        case 'masonry-160':
+            classes.push('masonry-grid', 'masonry-size-160')
+            break
+        default:
+            break
+    }
+
+    const {currentSortingInfo, handleSortChange} = useSorting({
+        dataModel,
+        node:contextNode,
+        defaultSortingInfo:{sortType:'file-natural',attribute:'',direction:'asc'}
     })
-    if(!node || !items.length) {
-        return null;
-    }
-    if(!items.length) {
-        items.push(<EmptyItem/>)
-    }
 
-    const menuItems = [
+
+    const displayMenuItems = [
         {value:'list', title:'List', icon:MdViewList},
-        {value:'grid', title:'Grid', icon:MdGridView}
+        {value:'detail', title:'Table', icon:MdTableRows},
+        {value:'grid', title:'Grid', icon:MdGridView},
+        {value:'masonry-160', title:'Waterfall', icon:MdGridGoldenratio}
     ]
-    const displayMenuTarget = <span style={{cursor:'pointer'}} className={"mdi mdi-dots-vertical-circle-outline"}/>
-    const menuHandler = (value) => {
+    const displayMenuHandler = (value) => {
         if(value !== block.props.display) {
             editor.updateBlock(block, {
                 type: "childrenList",
@@ -106,6 +93,38 @@ const List = ({entryProps, editor, block}) => {
             })
         }
     }
+
+    const sortMenuItems = Object.keys(columns).filter(k => columns[k].sortType).map(k => {
+        const col = columns[k]
+        return {value:{...col, attribute:k}, title:col.label, icon:MdSort}
+    })
+    const sortMenuHandler = (value) => {
+        handleSortChange(value)
+    }
+
+    const entryRenderIcon = useCallback((node) => {
+        const lightBackground = display === 'grid' || display === 'masonry'
+        const hasThumbnail = !!node.getMetadata().get("thumbnails") || !!node.getMetadata().get('ImagePreview');
+        const processing = !!node.getMetadata().get('Processing');
+        const uploading = node.getMetadata().get('local:UploadStatus') === 'loading'
+        const uploadprogress = node.getMetadata().get('local:UploadProgress');
+        return (
+            <FilePreview
+                loadThumbnail={hasThumbnail && !processing && display !== 'detail'}
+                node={node}
+                processing={processing}
+                lightBackground={lightBackground}
+                displayLarge={lightBackground}
+                mimeFontOverlay={display === 'list'}
+                uploading={uploading}
+                uploadprogress={uploadprogress}
+            />
+        );
+
+    }, [display]);
+
+    const entryRenderActions = useRichMetaActions({pydio,dataModel,displayMode:display})
+    const entryRenderSecondLine = useRichMetaLine({pydio, columns})
 
 
     return (
@@ -117,19 +136,49 @@ const List = ({entryProps, editor, block}) => {
                 </h3>
                 <span style={{fontSize:'1rem'}}>
                     <BlockMenu
-                        title={"Display"}
-                        target={displayMenuTarget}
-                        values={menuItems}
-                        onValueSelected={menuHandler}
+                        groups={[
+                            {title:'Display', values:displayMenuItems, onValueSelected:displayMenuHandler},
+                            {title:'Sort By...', values:sortMenuItems, onValueSelected:sortMenuHandler}
+                        ]}
+                        target={<span style={{cursor:'pointer'}} className={"mdi mdi-dots-vertical-circle-outline"}/>}
                         position={'bottom-end'}
                     />
                 </span>
             </div>
-            <div className={"bn-children-list " + block.props.display}>
-                {items}
-            </div>
+            <ModernSimpleList
+                pydio={pydio}
+                node={contextNode}
+                dataModel={dataModel}
+                observeNodeReload={true}
+                className={classes.join(' ')}
+                //style={style}
+                displayMode={display}
+                usePlaceHolder={false}
+                skipParentNavigation={true}
+
+                tableKeys={columns}
+                sortingInfo={currentSortingInfo}
+                handleSortChange={handleSortChange}
+
+                additionalAttrs={additionalAttrs}
+
+                entryRenderIcon={entryRenderIcon}
+                entryRenderParentIcon={entryRenderIcon}
+                entryRenderFirstLine={(node)=> node.getLabel()}
+                entryRenderSecondLine={display=== 'list' ? entryRenderSecondLine : null}
+                entryRenderActions={display !== 'detail' ? entryRenderActions : null}
+                tableEntryRenderCell={(node) => (
+                    <span>
+                        {entryRenderIcon(node)}
+                        {node.getLabel()}
+                    </span>
+                )}
+
+            />
         </div>
-    );
+
+    )
+
 }
 
 // Inline listing block.
@@ -139,14 +188,14 @@ export const ChildrenList = createReactBlockSpec(
         propSchema: {
             display: {
                 default:'list',
-                values:['list', 'grid']
+                values:['list', 'grid', 'detail', 'masonry-160']
             }
         },
         content: "none",
     },
     {
         render: (props) => {
-            return <List editor={props.editor} block={props.block}/>
+            return <ModernList editor={props.editor} block={props.block}/>
         },
     }
 );

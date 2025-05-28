@@ -112,15 +112,17 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
             }}>
                 <span
                     className={'mdi mdi-sort-' + (sortingInfo.direction === 'asc'? 'ascending':'descending')}
-                    style={{marginRight: 6, cursor:'pointer'}}
-                    onClick={() => sortingInfo.toggle()}
+                    style={{marginRight: 6, cursor: sortingInfo.toggle ? 'pointer' : 'default'}}
+                    onClick={() => sortingInfo.toggle && sortingInfo.toggle()}
                 />
                 {sortingInfo.label}
-                <span
-                    className={'mdi mdi-close'}
-                    style={{marginLeft: 6, opacity:0.5, cursor:'pointer'}}
-                    onClick={() => sortingInfo.toggle(true)}
-                />
+                {sortingInfo.toggle &&
+                    <span
+                        className={'mdi mdi-close'}
+                        style={{marginLeft: 6, opacity:0.5, cursor:'pointer'}}
+                        onClick={() => sortingInfo.toggle(true)}
+                    />
+                }
             </div>
         );
     }

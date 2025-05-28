@@ -30,6 +30,7 @@ import {useDataModelSelection, useDataModelContextNodeAsItems} from './list/hook
 import {sortNodesNatural, nodesSorterByAttribute} from "./list/sorters";
 
 import {ModernSimpleList} from "./list/Modern/ModernSimpleList";
+import {useSorting, useSortingColumns} from "./list/Modern/useSorting";
 
 import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 
@@ -89,6 +90,8 @@ const PydioComponents = {
     useDataModelContextNodeAsItems,
     sortNodesNatural,
     nodesSorterByAttribute,
+    useSorting,
+    useSortingColumns,
 
     TreeView                : TreeView,
     DNDTreeView             : DNDTreeView,

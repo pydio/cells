@@ -198,7 +198,6 @@ class SortColumns extends React.Component {
                         <thead><tr>{this.getColumnsItems('th', controller)}{actionColumn?<thead/>:null}</tr></thead>
                     </Fragment>
                 )
-                break;
             default:
                 return (
                     <div className={"mui-toolbar-group mui-left"}>{this.getColumnsItems('span', this.props.pydio.getController())}</div>

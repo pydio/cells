@@ -19,5 +19,9 @@
  */
 
 import {useImagePreview, useDiaporamaBadge} from "./useImagePreview";
+import {useUserPreference} from "./useUserPreference";
+import {usePydioActions} from "./usePydioActions";
+import {useColumnsFromRegistry} from "./useColumnsFromRegistry";
+import {ListColumnsParser} from "./ListColumnsParser";
 
-export {useImagePreview, useDiaporamaBadge}
+export {useImagePreview, useDiaporamaBadge, useUserPreference, usePydioActions, useColumnsFromRegistry, ListColumnsParser}
