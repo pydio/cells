@@ -55,8 +55,15 @@ const renameFunction = ()  => {
     const n = pydio.getUserSelection().getSelectedNodes()[0];
     if(n){
         let res = n.notify("node_action", {type:"prompt-rename", callback:(value)=>{callback(n, value);}});
-        if((!res || res[0] !== true) && n.getParent()){
-            n.getParent().notify("child_node_action", {type:"prompt-rename", child:n, callback:(value)=>{callback(n, value);}});
+        if(!res || res[0] !== true) {
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitleId: 6,
+                legendId: 158,
+                fieldLabelId: n.isLeaf()?174:173,
+                dialogSize: 'sm',
+                submitValue: (value) => callback(n, value),
+                warnSpace: true,
+            });
         }
     }
 }
