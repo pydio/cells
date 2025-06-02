@@ -44,14 +44,19 @@ import (
 
 var (
 	presignDefaultExpiration int64 = 900
+	presignBucketName              = common.DefaultRouteBucketIO
 )
 
 func init() {
-	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "", "Override default expiration for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "900s", "Override default expiration for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_BUCKET_SECONDARY", "false", "Use secondary bucket for pre-signed queries")
 	if exp := os.Getenv("CELLS_PRESIGN_DEFAULT_EXPIRATION"); exp != "" {
 		if d, er := time.ParseDuration(exp); er == nil {
 			presignDefaultExpiration = int64(math.Round(d.Seconds()))
 		}
+	}
+	if sb := os.Getenv("CELLS_PRESIGN_BUCKET_SECONDARY"); sb == "true" {
+		presignBucketName = common.DefaultRouteBucketData
 	}
 }
 
