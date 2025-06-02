@@ -154,8 +154,6 @@ ENVIRONMENT
 
   4. Other environment variables (development or advanced fine-tuning)
 
-` + runtime.DocRegisteredEnvVariables("CELLS_SQL_DEFAULT_CONN", "CELLS_SQL_LONG_CONN", "CELLS_CACHES_HARD_LIMIT", "CELLS_UPDATE_HTTP_PROXY") + `
-
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 
