@@ -21,13 +21,36 @@ import (
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
+type SignerProviderFunc func(endpoint *url.URL, apiKey, apiSecret, region, session string, expiration int64) PreSigner
+
+var SignerProvider SignerProviderFunc = func(endpoint *url.URL, apiKey, apiSecret, region, session string, expiration int64) PreSigner {
+	return &v4Signer{
+		endpoint:   endpoint,
+		apiKey:     apiKey,
+		apiSecret:  apiSecret,
+		region:     region,
+		expiration: expiration,
+	}
+}
+
 type v4Signer struct {
 	apiKey     string
 	apiSecret  string
 	region     string
 	endpoint   *url.URL
-	scheme     string
 	expiration int64
+}
+
+func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error) {
+	u := *v.endpoint
+	u.Path = path.Join(bucket, key)
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, time.Now(), err
+	}
+	exp := time.Now().Add(time.Duration(v.expiration) * time.Second)
+	req = signer.PreSignV4(*req, v.apiKey, v.apiSecret, "", v.region, v.expiration)
+	return req, exp, nil
 }
 
 func NewV4SignerForRequest(r *http.Request, expSeconds int64) (PreSigner, error) {
@@ -83,25 +106,5 @@ func NewV4SignerForRequest(r *http.Request, expSeconds int64) (PreSigner, error)
 		_ = ca.Set(cacheKey, []byte(apiKey+"::"+apiSecret))
 	}
 
-	s := &v4Signer{
-		endpoint:   endpoint,
-		region:     "us-east-1",
-		expiration: expSeconds,
-		apiKey:     apiKey,
-		apiSecret:  apiSecret,
-	}
-
-	return s, nil
-}
-
-func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error) {
-	u := *v.endpoint
-	u.Path = path.Join(bucket, key)
-	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-	if err != nil {
-		return nil, time.Now(), err
-	}
-	exp := time.Now().Add(time.Duration(v.expiration) * time.Second)
-	req = signer.PreSignV4(*req, v.apiKey, v.apiSecret, "", v.region, v.expiration)
-	return req, exp, nil
+	return SignerProvider(endpoint, apiKey, apiSecret, "us-east-1", "", expSeconds), nil
 }
