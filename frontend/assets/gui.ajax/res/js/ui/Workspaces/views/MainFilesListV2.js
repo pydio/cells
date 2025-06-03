@@ -19,19 +19,14 @@
  */
 
 import React, {useState, useCallback, useEffect} from 'react';
-import PropTypes from 'prop-types'
 
 import Pydio from 'pydio'
-import PathUtils from 'pydio/util/path'
 import ResourcesManager from 'pydio/http/resources-manager'
 
 import FilePreview from './FilePreview'
-import {IconButton} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {ModernSimpleList, useSorting} = Pydio.requireLib('components');
-const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 const {usePydioActions, useColumnsFromRegistry} =  Pydio.requireLib('hoc');
-import OverlayIcon from './OverlayIcon'
 import {muiThemeable} from 'material-ui/styles'
 import {useActionDisplayMode} from "./useActionDisplayMode";
 import {useActionExtensionsPin} from "./useActionExtensionsPin";
@@ -95,8 +90,13 @@ let MainFilesListV2 = (props) => {
                         label = ff[0].label
                     }
                 }
-                //TODO
-                si.toggle = ()  => handleSortChange(si)
+                si.toggle = (close)  => {
+                    if(close) {
+                        handleSortChange(si, {clearOnly: true})
+                    } else {
+                        handleSortChange(si, {toggleOnly: true})
+                    }
+                }
             }
             onSortingInfoChange({...si, label})
         }

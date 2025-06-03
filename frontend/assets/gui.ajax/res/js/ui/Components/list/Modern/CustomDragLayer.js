@@ -24,11 +24,13 @@ function CustomDragLayer({ isDragging, item,   clientOffset}) {
         zIndex:        9999,
         width: 200,
         height: 100,
-        backgroundColor: 'rgba(255,255,255,.5)',
+        backgroundColor: 'rgba(255,255,255,.9)',
         borderRadius: 8,
         display:'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        overflow:'hidden',
+        padding: 20
     };
 
     return (

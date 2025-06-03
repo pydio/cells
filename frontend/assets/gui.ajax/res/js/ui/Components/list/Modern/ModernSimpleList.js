@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 
 // Pydio Specific Imports - Assuming Pydio global is available
@@ -62,9 +62,17 @@ const ModernSimpleList = (props) => {
         entryRenderFirstLine,
         entryRenderSecondLine,
         tableEntryRenderCell,
+        customToolbar,
         additionalAttrs={}
     } = props;
 
+    const [elementsPerLine, setElementsPerLine] = useState(1)
+
+    useEffect(() => {
+        if(displayMode.indexOf('grid') === -1) {
+            setElementsPerLine(1)
+        }
+    }, [displayMode]);
 
     const {items, isLoading, error, selection, updateSelection, updateSelectionFromItemEvent, currentSortingInfo, handleSortChange} =  useItems(props)
 
@@ -73,7 +81,7 @@ const ModernSimpleList = (props) => {
     const {handleKeyDown} = useKeyNavigation({
         selection,
         updateSelection,
-        elementsPerLine:1,
+        elementsPerLine,
         items,
         fireDeleteCallback: () => {
             pydio.Controller.fireActionByKey('key_delete')
@@ -113,6 +121,7 @@ const ModernSimpleList = (props) => {
     return (
         <div className={className} {...additionalAttrs}>
             {emptyState && <EmptyStateView {...emptyState}/>}
+            {customToolbar}
             {!emptyState && (
                 <LayoutComponent
                     pydio={pydio}
@@ -126,6 +135,7 @@ const ModernSimpleList = (props) => {
                     handleSortChange={handleSortChange}
                     displayMode={displayMode}
                     onScroll={onScroll}
+                    setItemsPerRow={displayMode.indexOf('grid')=== 0 ? (i) => setElementsPerLine(i) : null}
                     tableEntryRenderCell={tableEntryRenderCell}
                     entryRenderActions={entryRenderActions}
                     entryRenderIcon={entryRenderIcon}

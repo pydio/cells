@@ -18,15 +18,39 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback, useRef} from "react";
+import React, {useRef, useEffect, useCallback} from "react";
 import {ModernListEntry} from "./ModernListEntry";
 import {useFocusOnClick} from "./useFocusOnClick";
-import {FontIcon} from "material-ui";
 
-const ModernLayoutDefault = ({pydio, items, handleKeyDown, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderFirstLine, entryRenderSecondLine, entryRenderActions, selection}) => {
+const ModernLayoutDefault = ({pydio, items, handleKeyDown, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderFirstLine, entryRenderSecondLine, entryRenderActions, selection, setItemsPerRow}) => {
 
     const ref = useRef()
     useFocusOnClick(ref)
+
+    const update = useCallback(() => {
+        const container = ref.current;
+        if (!container) return;
+        const children = Array.from(container.children);
+        if (children.length < 2) return; // can't compute with 0–1 items
+        const tops = children.map(child => child.offsetTop);
+        // Find the first different offset (i.e. second row)
+        const firstRowTop = tops[0];
+        let rowBreakIndex = tops.findIndex(top => top !== firstRowTop);
+        // If all items are on the same line, fallback to count them all
+        if (rowBreakIndex === -1) rowBreakIndex = children.length;
+        setItemsPerRow(rowBreakIndex);
+
+    }, setItemsPerRow)
+
+    useEffect(() => {
+        if(!setItemsPerRow) {
+            return
+        }
+        const observer = new ResizeObserver(update);
+        if (ref.current) observer.observe(ref.current);
+
+        return () => observer.disconnect();
+    }, [setItemsPerRow]);
 
     return (
         <div className="list-area" style={{ width: '100%'}} tabIndex={100} onKeyDown={handleKeyDown} ref={ref}>

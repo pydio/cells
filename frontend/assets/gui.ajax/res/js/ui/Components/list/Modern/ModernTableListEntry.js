@@ -143,6 +143,7 @@ const ModernTableListEntry = (props) => {
             element={'tr'}
             node={node}
             className={'modern-list-entry'}
+            selectedClassName={'selected-dark'}
         >{tableCells}</ModernListEntry>
     );
 };

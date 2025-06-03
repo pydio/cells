@@ -26,16 +26,12 @@ import { usePositioner, useResizeObserver, useMasonry } from "masonic";
 import CustomDragLayer from "./CustomDragLayer";
 import {useFocusOnClick} from "./useFocusOnClick";
 
-const ModernLayoutMasonry = ({pydio, items, tableKeys, currentSortingInfo, handleSortChange, handleKeyDown, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderActions, entryRenderFirstLine, displayMode, selection, onScroll}) => {
+const ModernLayoutMasonry = ({pydio, items, handleKeyDown, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderActions, entryRenderFirstLine, displayMode, selection, onScroll}) => {
 
     const containerRef = useRef(null);
     useFocusOnClick(containerRef)
     const { width, height } = useSize(containerRef);
     const { scrollTop, isScrolling } = useScroller(containerRef);
-
-//    useEffect(() => {
-        //triggerResize();
-//    }, [additionalStyle.marginLeft])
 
     useEffect( () => {
         if(onScroll){

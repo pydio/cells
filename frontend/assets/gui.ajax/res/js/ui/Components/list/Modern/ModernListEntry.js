@@ -20,14 +20,13 @@
 
 import React, {useState, useRef, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import { FontIcon } from 'material-ui';
 import {muiThemeable} from "material-ui/styles";
 import ReactDOM from "react-dom";
 import {DragSource, DropTarget, flow} from "react-dnd";
 import Pydio from 'pydio'
 import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../../util/DND';
 import {withNodeListenerEntry} from "../withNodeListenerEntry";
-const {withContextMenu} = Pydio.requireLib('hoc');
+const {withContextMenu, NativeFileDropProvider} = Pydio.requireLib('hoc');
 
 const ContextMenuWrapper = withContextMenu((props) => {
     const {muiTheme, element, node, iconCell, firstLine, secondLine, ...others} = props;
@@ -47,10 +46,11 @@ const ModernListEntry = withNodeListenerEntry(muiThemeable()((props) => {
         entryRenderSecondLine,
         style,
         className,
+        selectedClassName,
         noHover,
         setInlineEditionAnchor,
         selectedAsBorder,
-        canDrop, isOver, nativeIsOver, connectDragSource, isDragging, connectDropTarget,
+        canDrop, nativeCanDrop, isOver, nativeIsOver, connectDragSource, isDragging, connectDropTarget,
     } = props;
 
     const [hover, setHover] = useState(false);
@@ -92,6 +92,9 @@ const ModernListEntry = withNodeListenerEntry(muiThemeable()((props) => {
     }
     if (selected) {
         dynamicClasses.push('selected')
+        if(selectedClassName) {
+            dynamicClasses.push(selectedClassName)
+        }
     }
     if (hover && !noHover) {
         dynamicClasses.push('hover')
@@ -99,8 +102,11 @@ const ModernListEntry = withNodeListenerEntry(muiThemeable()((props) => {
     if (isDragging) {
         dynamicClasses.push('dragging');
     }
-    if( canDrop && isOver || nativeIsOver){
+    if( (canDrop && isOver) || (nativeCanDrop && nativeIsOver )){
         dynamicClasses.push('droppable-active')
+    }
+    if(node.getMetadata().has('local:entry-classes')) {
+        dynamicClasses.push(...node.getMetadata().get('local:entry-classes'))
     }
     if (node && node.getLabel) {
         const nodeLabel = node && node.getLabel ? node.getLabel() : 'Unnamed Node';
@@ -181,5 +187,28 @@ const DragDropListEntry = flow(
     DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)
 )(ModernListEntry);
 
+const NativeDropListEntry = NativeFileDropProvider(DragDropListEntry,
+    (items, files, props) => {
+        const pydio = Pydio.getInstance()
+        const {UploaderModel} = global;
+        if(!UploaderModel) {
+            return
+        }
 
-export { DragDropListEntry as ModernListEntry, ContextMenuWrapper };
+        const {node} = props;
+        if(node.getMetadata().get('node_readonly') === 'true' || node.getMetadata().get('level_readonly') === 'true'){
+            pydio.UI.displayMessage('ERROR', 'You are not allowed to upload files here');
+            return;
+        }
+        const storeInstance = UploaderModel.Store.getInstance();
+        storeInstance.handleDropEventResults(items, files, node);
+        if(!storeInstance.getAutoStart() || pydio.Parameters.get('MINISITE')){
+            pydio.getController().fireAction('upload');
+        }
+    },
+    (props) => {
+        const {node} = props;
+        return !node.isLeaf() || node.getMetadata().has('local:dropFunc')
+    })
+
+export { NativeDropListEntry as ModernListEntry, ContextMenuWrapper };

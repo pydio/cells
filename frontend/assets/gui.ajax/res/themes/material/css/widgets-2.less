@@ -158,11 +158,7 @@
         border-bottom-width: 0px;
         border-radius: var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius) 0 0;
         overflow: hidden;
-        .mui-toolbar-group.mui-left .header_cell{
-          border-radius: 40px;
-          &:first-of-type{
-            border-radius: var(--md-sys-color-card-border-radius) 40px 40px 0;
-          }
+        .header_cell{
           color: var(--md-sys-color-on-surface-variant);
           &:hover{
             background: var(--md-sys-color-surface-5);
@@ -273,7 +269,10 @@
   .masonry-grid {
     margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
     &.modern-list{
-      margin-top: 0;
+      margin: -1px;
+      > div {
+        padding: 2px;
+      }
     }
     .masonry-card {
       background-color: var(--md-sys-color-surface);
@@ -288,6 +287,7 @@
           border-radius: 0 0 @masonry-mui3-radius @masonry-mui3-radius;// var(--md-sys-color-card-border-radius);
         }
         .masonry-label {
+          display: block !important;
           color: white;
         }
       }

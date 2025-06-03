@@ -207,7 +207,7 @@
 
 
       /* ACTIONS */
-      .material-list-actions {
+      div.material-list-actions { // does not apply to TD
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -321,7 +321,6 @@
           &.header_cell.sortable{
             cursor: pointer;
             &.active-sort-asc, &.active-sort-desc{
-              background-color: rgb(237, 242, 247);
               &::before{
                 display: block;
                 position: absolute;
@@ -341,7 +340,6 @@
           display: none;
         }
         .material-list-actions{
-          padding-top: 4px;
           text-align: right;
           .overlay_icon_div{
             width: 100% !important;

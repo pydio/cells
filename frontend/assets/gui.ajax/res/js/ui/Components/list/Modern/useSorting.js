@@ -46,8 +46,6 @@ const nodesSorterByAttribute = (nodeA, nodeB, attribute, direction, sortType) =>
     let valA = metaA ? metaA.get(attribute) : undefined;
     let valB = metaB ? metaB.get(attribute) : undefined;
 
-    console.log(attribute, direction, sortType, valA, valB)
-
     // Basic type handling
     if(sortType === 'number') {
         valA = parseFloat(valA)
@@ -126,8 +124,10 @@ const useSortingControlled = ({sortingInfo, onSortingInfoChanged, dataModel, nod
         return prepareSortFunction(sortingInfo);
     }, [node, dataModel, sortingInfo]);
 
-    const handleSortChange = useCallback((columnDef) => {
+    const handleSortChange = useCallback((columnDef, additional) => {
         if (!node || !dataModel) return;
+
+        const {clearOnly=false, toggleOnly=false} = additional || {};
 
         const isRemoteSortable = columnDef.remoteSortAttribute && node.getMetadata && node.getMetadata().get("paginationData");
         let newSortingInfo;
@@ -137,10 +137,16 @@ const useSortingControlled = ({sortingInfo, onSortingInfoChanged, dataModel, nod
             let newDir = 'asc';
             let clear = false
             if (currentRemoteSort && currentRemoteSort.attribute === columnDef.remoteSortAttribute) {
-                if(currentRemoteSort.direction === 'asc') {
+                if(clearOnly) {
+                    clear = true
+                } else if(currentRemoteSort.direction === 'asc') {
                     newDir = 'desc';
                 } else if (currentRemoteSort.direction === 'desc') {
-                    clear = true
+                    if(toggleOnly) {
+                        newDir = 'asc'
+                    } else {
+                        clear = true
+                    }
                 }
             }
 
@@ -176,10 +182,16 @@ const useSortingControlled = ({sortingInfo, onSortingInfoChanged, dataModel, nod
             const sortType = columnDef.sortType || 'string';
 
             if (sortingInfo && sortingInfo.attribute === newKey && !sortingInfo.remote) {
-                if(sortingInfo.direction === 'asc') {
+                if (clearOnly) {
+                    clear = true
+                } else if(sortingInfo.direction === 'asc') {
                     newDir = 'desc'
                 } else {
-                    clear = true
+                    if(toggleOnly) {
+                        newDir = 'asc'
+                    } else {
+                        clear = true
+                    }
                 }
             }
             if (clear) {

@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import React, {useRef, useState, useEffect} from 'react'
 
 const {useImagePreview} = Pydio.requireLib('hoc');
-import {ContextMenuWrapper, ModernListEntry} from "./ModernListEntry";
+import {ModernListEntry} from "./ModernListEntry";
 import {withNodeListenerEntry} from "../withNodeListenerEntry";
 
 const rotations = {
@@ -108,7 +108,7 @@ function useIsVisible(ref) {
 
 const ModernMasonryEntry = withNodeListenerEntry(({width, data, setInlineEditionAnchor}) => {
 
-    const {node, isParent, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderActions, selection} = data;
+    const {node, isParent, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderActions, entryRenderFirstLine, selection} = data;
     // ratio may be modified by exif orientation
     let {ratio, src} = usePreview(node);
     const selected = selection.get(node)
@@ -158,6 +158,11 @@ const ModernMasonryEntry = withNodeListenerEntry(({width, data, setInlineEdition
         }
     }, [node])
 
+    let label = entryRenderFirstLine?entryRenderFirstLine(node):node.getLabel()
+    if(isParent) {
+        label = parentLabel
+    }
+
     return (
         <ModernListEntry
             node={node}
@@ -173,7 +178,7 @@ const ModernMasonryEntry = withNodeListenerEntry(({width, data, setInlineEdition
             {!isParent && !src && entryRenderIcon(node)}
             {!isParent && entryRenderActions && <div style={{position:'absolute', top: 0, left: 0}}>{entryRenderActions(node)}</div>}
             {src && <div className={'masonry-label-overlay'} style={{position:'absolute', bottom: 0, left: 0, right: 0, height: 50}}/>}
-            <div className={'masonry-label'} ref={renameRef} style={{display:(selected||!src)?'block':'none',...labelStyle}}>{isParent?parentLabel:node.getLabel()}</div>
+            <div className={'masonry-label'} ref={renameRef} style={{display:(selected||!src)?'block':'none',...labelStyle}}>{label}</div>
         </ModernListEntry>
     );
 

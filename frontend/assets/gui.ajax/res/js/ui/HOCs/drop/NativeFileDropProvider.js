@@ -21,7 +21,7 @@
 const {Component} = require('react')
 const {findDOMNode} = require('react-dom')
 
-export default function(PydioComponent, onDropFunction){
+export default function(PydioComponent, onDropFunction, canDropFunction){
 
     let DND, Backend;
     try{
@@ -63,15 +63,23 @@ export default function(PydioComponent, onDropFunction){
             }
             onDropFunction(items, dataTransfer.files, props);
 
-        }
+        },
+
     };
+
+    if(canDropFunction) {
+        fileTarget.canDrop = canDropFunction
+    }
 
     NativeFileDropProvider = DND.DropTarget(Backend.NativeTypes.FILE, fileTarget, function (connect, monitor) {
         return {
             connectDropTarget   : connect.dropTarget(),
             canDrop             : monitor.canDrop(),
+            nativeCanDrop       : monitor.canDrop(),
             isOver              : monitor.isOver(),
-            isOverCurrent       : monitor.isOver({shallow:true})
+            isOverCurrent       : monitor.isOver({shallow:true}),
+            nativeIsOver        : monitor.isOver(),
+            nativeIsOverCurrent : monitor.isOver({shallow:true})
         };
     })(NativeFileDropProvider);
 
