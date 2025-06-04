@@ -90,10 +90,10 @@ export const Alert = createReactBlockSpec(
                 <div className={"alert"} data-alert-type={props.block.props.type}>
                     {/*Icon which opens a menu to choose the Alert type*/}
                     <BlockMenu
-                        title={"Alert Type"}
-                        values={alertTypes}
+                        groups={[
+                            {title:'Alert Type', values:alertTypes, onValueSelected:menuHandler}
+                        ]}
                         target={menuTarget}
-                        onValueSelected={menuHandler}
                     />
 
                     {/*Rich text field for user to type in*/}

@@ -248,6 +248,7 @@ let MainFilesListV2 = (props) => {
         }
     } else if(dMode === 'pages' && searchResults) {
         dMode = 'list';
+        className += ' list-mode';
     } else if (dMode === 'detail') {
         className += ' table-mode'
     } else if(dMode.indexOf('masonry')=== 0) {

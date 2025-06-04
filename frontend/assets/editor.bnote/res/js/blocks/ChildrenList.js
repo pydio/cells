@@ -23,7 +23,7 @@ import { createReactBlockSpec } from "@blocknote/react";
 const {FilePreview, useRichMetaLine, useRichMetaActions} = Pydio.requireLib('workspaces');
 const {useColumnsFromRegistry} = Pydio.requireLib('hoc');
 const {useSorting} = Pydio.requireLib('components');
-import {MdViewList, MdGridView, MdTableRows, MdGridGoldenratio, MdSort} from "react-icons/md";
+import {MdOutlineViewCompact, MdOutlineViewList, MdGridView, MdOutlineViewQuilt, MdOutlineViewColumn, MdGridGoldenratio, MdSort} from "react-icons/md";
 
 const { ModernSimpleList } = Pydio.requireLib('components')
 import Pydio from 'pydio'
@@ -41,11 +41,6 @@ const ModernList = ({entryProps, editor, block}) => {
 
     const {dataModel} = useContext(ListContext);
     const [contextNode, setContextNode] = useState(dataModel && dataModel.getContextNode())
-    const {columns} = useColumnsFromRegistry({pydio})
-    if(columns && columns['ajxp_label']) {
-        columns['ajxp_label'].width = '30%';
-    }
-
     useEffect(() => {
         const observer = () => setContextNode(dataModel.getContextNode())
         dataModel.observe('context_changed', observer)
@@ -54,10 +49,21 @@ const ModernList = ({entryProps, editor, block}) => {
         }
     }, [dataModel]);
 
+    const {columns} = useColumnsFromRegistry({pydio})
+    if(columns && columns['ajxp_label']) {
+        columns['ajxp_label'].width = '30%';
+    }
+
     const classes = ['modern-list', 'bn-children-list']
     const additionalAttrs = {}
     const {display} = block.props
     switch (display) {
+        case 'compact':
+            classes.push('compact-mode')
+            break
+        case 'list':
+            classes.push('list-expanded-mode')
+            break
         case 'grid':
             classes.push('material-list-grid')
             break
@@ -80,10 +86,11 @@ const ModernList = ({entryProps, editor, block}) => {
 
 
     const displayMenuItems = [
-        {value:'list', title:'List', icon:MdViewList},
-        {value:'detail', title:'Table', icon:MdTableRows},
+        {value:'compact', title:'Compact', icon:MdOutlineViewCompact},
+        {value:'list', title:'Details', icon:MdOutlineViewList},
+        {value:'detail', title:'Table', icon:MdOutlineViewColumn},
         {value:'grid', title:'Grid', icon:MdGridView},
-        {value:'masonry-160', title:'Waterfall', icon:MdGridGoldenratio}
+        {value:'masonry-160', title:'Waterfall', icon:MdOutlineViewQuilt}
     ]
     const displayMenuHandler = (value) => {
         if(value !== block.props.display) {
@@ -110,7 +117,7 @@ const ModernList = ({entryProps, editor, block}) => {
         const uploadprogress = node.getMetadata().get('local:UploadProgress');
         return (
             <FilePreview
-                loadThumbnail={hasThumbnail && !processing && display !== 'detail'}
+                loadThumbnail={hasThumbnail && !processing}
                 node={node}
                 processing={processing}
                 lightBackground={lightBackground}
@@ -137,8 +144,8 @@ const ModernList = ({entryProps, editor, block}) => {
                 <span style={{fontSize:'1rem'}}>
                     <BlockMenu
                         groups={[
-                            {title:'Display', values:displayMenuItems, onValueSelected:displayMenuHandler},
-                            {title:'Sort By...', values:sortMenuItems, onValueSelected:sortMenuHandler}
+                            {title:'Display', crtValue:display, values:displayMenuItems, onValueSelected:displayMenuHandler},
+                            {title:'Sort By...', crtValue:currentSortingInfo, values:sortMenuItems, onValueSelected:sortMenuHandler}
                         ]}
                         target={<span style={{cursor:'pointer'}} className={"mdi mdi-dots-vertical-circle-outline"}/>}
                         position={'bottom-end'}

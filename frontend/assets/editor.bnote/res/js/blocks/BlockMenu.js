@@ -7,24 +7,20 @@ const BlockMenu = ({target, groups, position='bottom-start'}) => {
             <Menu.Target>{target}</Menu.Target>
             {/*Dropdown to change the Alert type*/}
             <Menu.Dropdown>
-                {groups.map(({title, values = [], onValueSelected = (v)=>{}}) => {
+                {groups && groups.map(({title, values = [], onValueSelected = (v)=>{}, crtValue}) => {
                     return (
                         <Fragment>
                             <Menu.Label>{title}</Menu.Label>
-                            {values.map((entry) => {
+                            {values && values.map((entry) => {
                                 const ItemIcon = entry.icon;
 
                                 return (
                                     <Menu.Item
                                         key={entry.value}
-                                        leftSection={
-                                            <ItemIcon
-                                                className={"alert-icon"}
-                                                data-alert-icon-type={entry.value}
-                                            />
-                                        }
+                                        value={entry.value}
+                                        leftSection={ <ItemIcon data-alert-icon-type={entry.value} /> }
                                         onClick={() => onValueSelected(entry.value)}>
-                                        {entry.title}
+                                        <span style={{fontWeight:entry.value===crtValue?'bold':'normal'}}>{entry.title}</span>
                                     </Menu.Item>
                                 );
                             })}
