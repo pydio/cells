@@ -21,7 +21,9 @@ import React, {useState, useEffect} from 'react'
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote, getDefaultReactSlashMenuItems, SuggestionMenuController } from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, locales,  filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
+import { en } from '@blocknote/core/locales'
+import {codeBlock} from "@blocknote/code-block";
 import {ChildrenList} from './blocks/ChildrenList';
 import {Mention, MentionSuggestionMenu} from './mentions/Mention'
 import {NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
@@ -100,13 +102,14 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         initialContent:initialContent.length?initialContent:null,
         // We override the `placeholders` in our dictionary
         dictionary: {
-            ...locales.en,
+            ...en,
             placeholders: {
-                ...locales.en.placeholders,
+                ...en.placeholders,
                 // We override the default placeholder
                 default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
             }
-        }
+        },
+        codeBlock
     });
 
 

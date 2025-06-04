@@ -27,9 +27,10 @@
     "build-prod": "NODE_ENV=production webpack --config webpack.config.js"
   },
   "dependencies": {
-    "@blocknote/core": "^0.26.0",
-    "@blocknote/mantine": "^0.26.0",
-    "@blocknote/react": "^0.26.0",
+    "@blocknote/code-block": "0.32.0-hackdays.0",
+    "@blocknote/core": "0.31.1",
+    "@blocknote/mantine": "0.31.1",
+    "@blocknote/react": "0.31.1",
     "@mantine/core": "^7.17.5",
     "react-icons": "^5.5.0"
   }
