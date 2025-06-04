@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v5/broker/log"
 	grpc2 "github.com/pydio/cells/v5/broker/log/grpc"
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/config"
 	proto "github.com/pydio/cells/v5/common/proto/log"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -48,32 +47,37 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
 			service.WithStorageDrivers(log.Drivers),
-			// TODO - Recheck - This does NOT triggering telemetry reload
+			// TODO - Recheck - This does NOT trigger telemetry reload
 			// TODO - PLUS it does not feel right to have this default config set by the service
-			service.Migrations([]*service.Migration{{
-				TargetVersion: service.FirstRun(),
-				Up: func(ctx context.Context) error {
-					if err := config.Get(ctx, "defaults/telemetry/loggers").Set([]map[string]any{
-						{
-							"encoding": "console",
-							"level":    "info",
-							"outputs":  []string{"stdout:///"},
-						},
-						{
-							"encoding": "json",
-							"level":    "info",
-							"outputs": []string{
-								"file://" + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + "/pydio.log",
-								//"service:///?service=pydio.grpc.log",
+			// What we should do here:
+			// register only the service:/// outputs on existing json definition (or add one) AND make sure
+			// the telemetry config is properly reloaded
+			/*
+				service.Migrations([]*service.Migration{{
+					TargetVersion: service.FirstRun(),
+					Up: func(ctx context.Context) error {
+						if err := config.Get(ctx, "defaults/telemetry/loggers").Set([]map[string]any{
+							{
+								"encoding": "console",
+								"level":    "info",
+								"outputs":  []string{"stdout:///"},
 							},
-						},
-					}); err != nil {
-						return err
-					}
+							{
+								"encoding": "json",
+								"level":    "info",
+								"outputs": []string{
+									"file://" + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + "/pydio.log",
+									//"service:///?service=pydio.grpc.log",
+								},
+							},
+						}); err != nil {
+							return err
+						}
 
-					return config.Save(ctx, "migration", "migration")
-				},
-			}}),
+						return config.Save(ctx, "migration", "migration")
+					},
+				}}),
+			*/
 			service.WithStorageMigrator(log.Migrate),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
