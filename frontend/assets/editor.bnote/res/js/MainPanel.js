@@ -82,6 +82,7 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
     return (
         <ListContext.Provider value={{dataModel, entryProps}}>
             <div
+                /*
                 onDragOver={(e) => {
                 e.stopPropagation();  // Prevent React-DND from seeing it
                 e.preventDefault();   // Enable drop
@@ -101,7 +102,7 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
                 }
                e.stopPropagation();  // Critical
                e.preventDefault();
-           }}
+           }}*/
             style={{...style, position:'relative'}}
             >{body}{saveBlock}</div>
         </ListContext.Provider>

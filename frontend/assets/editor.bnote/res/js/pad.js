@@ -20,7 +20,14 @@
 import React, {useState, useEffect} from 'react'
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
-import { useCreateBlockNote, getDefaultReactSlashMenuItems, SuggestionMenuController } from "@blocknote/react";
+import {
+    useCreateBlockNote,
+    getDefaultReactSlashMenuItems,
+    SuggestionMenuController,
+    AddBlockButton,
+    SideMenu,
+    SideMenuController,
+} from "@blocknote/react";
 import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
 import { en } from '@blocknote/core/locales'
 import {codeBlock} from "@blocknote/code-block";
@@ -29,6 +36,7 @@ import {Mention, MentionSuggestionMenu} from './mentions/Mention'
 import {NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
 import {Alert, insertAlertItem} from './blocks/Alert'
 import {Title} from './blocks/Title'
+import {SideMenuButton} from "./SideMenuButton";
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -134,7 +142,17 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 onChange={() => onChange(editor.document)}
                 editor={editor}
                 theme={darkMode?"dark":"light"}
+                sideMenu={false}
             >
+                <SideMenuController
+                    sideMenu={(props) => (
+                        <SideMenu {...props} blockDragStart={()=>{}} blockDragEnd={()=>{}}>
+                            {/* Button which removes the hovered block. */}
+                            <AddBlockButton {...props} />
+                            <SideMenuButton {...props} />
+                        </SideMenu>
+                    )}
+                />
                 <SuggestionMenuController
                     triggerCharacter={"/"}
                     // Replaces the default Slash Menu items with our custom ones.
