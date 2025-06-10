@@ -165,7 +165,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 	if query == nil {
 		return rsp.WriteEntity(&rest.SearchResults{Total: 0})
 	}
-	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest, false, true)
+	nn, ff, pag, er := s.PerformSearch(ctx, &searchRequest, false, true, false)
 	if er != nil {
 		return er
 	}
@@ -178,7 +178,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) error {
 
 }
 
-func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest, firstLevelSearch, filterReserved bool, additionalPrefixes ...*rest.LookupFilter_PathPrefix) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
+func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchRequest, firstLevelSearch, filterReserved bool, ensurePrefixesTrailingSlash bool, additionalPrefixes ...*rest.LookupFilter_PathPrefix) (nn []*tree.Node, facets []*tree.SearchFacet, pagination *rest.Pagination, err error) {
 
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "PerformSearch")
@@ -284,6 +284,11 @@ func (s *Handler) PerformSearch(ctx context.Context, searchRequest *tree.SearchR
 				}
 			} else {
 				query.PathPrefix = append(query.PathPrefix, rootNode.Path)
+			}
+		}
+		if ensurePrefixesTrailingSlash {
+			for i, pf := range query.PathPrefix {
+				query.PathPrefix[i] = strings.TrimRight(pf, "/") + "/"
 			}
 		}
 		if firstLevelSearch && len(query.PathPrefix) > 0 {

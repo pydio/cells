@@ -296,7 +296,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			SortField:   input.GetSortField(),
 			SortDirDesc: input.GetSortDirDesc(),
 		}
-		nn, coll.Facets, coll.Pagination, er = h.SearchHandler.PerformSearch(ctx, searchRequest, !recursive, false, additionalPrefixes...)
+		nn, coll.Facets, coll.Pagination, er = h.SearchHandler.PerformSearch(ctx, searchRequest, !recursive, false, true, additionalPrefixes...)
 		if er != nil {
 			return er
 		}
