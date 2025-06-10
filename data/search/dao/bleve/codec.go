@@ -534,23 +534,30 @@ func (b *Codec) extractConfigs(cfg configx.Values) (basenameAnalyzer, contentAna
 }
 
 func (b *Codec) makeBaseNameField(term string, boost float64, ba string) query.Query {
-	if ba == defaultBasenameAnalyzer && !strings.Contains(term, " ") {
-		term = strings.Trim(strings.ToLower(term), "* ")
-		wCard := bleve.NewWildcardQuery("*" + term + "*")
-		wCard.SetField("Basename")
-		if boost > 0 {
-			wCard.SetBoost(boost)
-		}
-		return wCard
-	} else {
-		wCard := bleve.NewMatchQuery(term)
-		wCard.Analyzer = ba
-		wCard.SetField("Basename")
-		if boost > 0 {
-			wCard.SetBoost(boost)
-		}
-		return wCard
+
+	term = strings.Trim(strings.ToLower(term), "* ")
+
+	exactMatch := bleve.NewMatchPhraseQuery(term)
+	exactMatch.Analyzer = ba
+	exactMatch.SetField("Basename")
+	exactMatch.SetBoost(boost + 5)
+
+	wCard := bleve.NewWildcardQuery("*" + term + "*")
+	wCard.SetField("Basename")
+	wCard.SetBoost(boost + 2)
+
+	match := bleve.NewMatchQuery(term)
+	match.Analyzer = ba
+	match.SetField("Basename")
+	if boost > 0 {
+		match.SetBoost(boost)
 	}
+
+	bq := bleve.NewBooleanQuery()
+	bq.AddShould(exactMatch)
+	bq.AddShould(wCard)
+	bq.AddShould(match)
+	return bq
 }
 
 func (b *Codec) makeContentField(term string, ca string) query.Query {
