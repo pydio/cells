@@ -59,6 +59,17 @@ func (dao *FolderSizeCacheSQL) GetNodeByMPath(ctx context.Context, path *tree.MP
 	return node, nil
 }
 
+func (dao *FolderSizeCacheSQL) GetNodeByPath(ctx context.Context, nodePath string) (tree.ITreeNode, error) {
+	node, err := dao.DAO.GetNodeByPath(ctx, nodePath)
+	if err != nil {
+		return nil, err
+	}
+	if node != nil && !node.GetNode().IsLeaf() {
+		dao.folderSize(ctx, node)
+	}
+	return node, nil
+}
+
 // GetNodeByUUID returns the node stored with the unique uuid
 func (dao *FolderSizeCacheSQL) GetNodeByUUID(ctx context.Context, uuid string) (tree.ITreeNode, error) {
 
