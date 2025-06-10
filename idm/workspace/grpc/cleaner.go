@@ -97,16 +97,18 @@ func NewWsCleaner(ctx context.Context, h idm.WorkspaceServiceServer) *WsCleaner 
 	}
 	// Start listening to ws
 	go func() {
-		select {
-		case <-ctx.Done():
-			return
-		case ev := <-listener:
-			if err := w.deleteEmptyWs(ev.ctx, ev.id); err != nil {
-				log.Logger(ctx).Info("Error while trying to delete workspace without ACLs (" + ev.id + ")")
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case ev := <-listener:
+				if err := w.deleteEmptyWs(ev.ctx, ev.id); err != nil {
+					log.Logger(ctx).Info("Error while trying to delete workspace without ACLs (" + ev.id + ")")
+				}
+				lock.Lock()
+				delete(w.batches, ev.id)
+				lock.Unlock()
 			}
-			lock.Lock()
-			delete(w.batches, ev.id)
-			lock.Unlock()
 		}
 	}()
 	return w
@@ -130,7 +132,7 @@ func (c *WsCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 	if batcher, ok := c.batches[acl.WorkspaceID]; ok {
 		batcher.incoming <- acl
 	} else {
-		batcher := NewAclBatcher(context.WithoutCancel(ctx), acl.WorkspaceID, c.listener, 3*time.Second)
+		batcher = NewAclBatcher(context.WithoutCancel(ctx), acl.WorkspaceID, c.listener, 3*time.Second)
 		c.batches[acl.WorkspaceID] = batcher
 		batcher.incoming <- acl
 	}
