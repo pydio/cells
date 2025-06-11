@@ -28,10 +28,10 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/log"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // RichContext enriches the passed logger with as much info as possible
@@ -88,7 +88,9 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 			}
 		}
 	}
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+
+	uName, claims := permissions.FindUserNameInContext(ctx)
+	if claims.Name != "" {
 		uuid := claims.Subject
 		fields = append(fields,
 			zap.String(common.KeyUsername, claims.Name),
@@ -97,7 +99,10 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 			zap.String(common.KeyProfile, claims.Profile),
 			zap.String(common.KeyRoles, claims.Roles),
 		)
+	} else if uName != "" && uName != common.PydioSystemUsername {
+		fields = append(fields, zap.String(common.KeyUsername, uName))
 	}
+
 	if len(fields) == 0 {
 		return logger
 	}
