@@ -115,7 +115,7 @@ func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.P
 	values := config.Get(ctx, pc.configPath...)
 	span.AddEvent("Sites Loaded")
 
-	log.Logger(ctx).Warn("OAuth ConfigProvider not if cache for " + rootURL.String() + ", creating one")
+	log.Logger(ctx).Debug("OAuth ConfigProvider not in cache for " + rootURL.String() + ", creating one")
 	p, err := configToProvider(ctx, values, rootURL.String(), sites, site)
 	if err != nil {
 		panic(err)
