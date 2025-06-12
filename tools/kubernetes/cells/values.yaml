@@ -305,6 +305,10 @@ mariadb:
   volumePermissions:
     enabled: true
 
+# Legacy - use mariadb as galera is already shipped
+mariadb-galera:
+  enabled: false
+
 redis:
   enabled: false
   volumePermissions:
