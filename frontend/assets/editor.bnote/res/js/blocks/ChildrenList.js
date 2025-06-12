@@ -23,31 +23,58 @@ import { createReactBlockSpec } from "@blocknote/react";
 const {FilePreview, useRichMetaLine, useRichMetaActions} = Pydio.requireLib('workspaces');
 const {useColumnsFromRegistry} = Pydio.requireLib('hoc');
 const {useSorting} = Pydio.requireLib('components');
-import {MdOutlineViewCompact, MdOutlineViewList, MdGridView, MdOutlineViewQuilt, MdOutlineViewColumn, MdGridGoldenratio, MdSort} from "react-icons/md";
+import {MdOutlineViewCompact, MdOutlineViewList, MdGridView, MdOutlineViewQuilt, MdOutlineViewColumn, MdSort} from "react-icons/md";
+import {Paper} from '@mantine/core'
 
 const { ModernSimpleList } = Pydio.requireLib('components')
 import Pydio from 'pydio'
 import './ChildrenListStyles.less'
 import {BlockMenu} from "./BlockMenu";
+import {insertOrUpdateBlock} from "@blocknote/core";
+import {RiFolderOpenFill} from "react-icons/ri";
+import AjxpNode from 'pydio/model/node'
+import DataModel from 'pydio/model/data-model'
+import {useHover} from "../hooks";
 
 export const ListContext = createContext({
     dataModel:Pydio.getInstance().getContextHolder(),
     entryProps:{handleClicks: () => {} }
 })
 
-const ModernList = ({entryProps, editor, block}) => {
+const ModernList = ({editor, block}) => {
 
     const pydio = Pydio.getInstance()
+    const {path, repositoryId} = block.props
+    const {dataModel:ctxDataModel} = useContext(ListContext);
+    let dataModel = ctxDataModel
+    let initialNode = dataModel && dataModel.getContextNode()
+    let error = false
+    if (path) {
+        const providerProps = {}
+        if(repositoryId) {
+            if (pydio.user.getRepositoriesList().get(repositoryId)){
+                providerProps.tmp_repository_id = repositoryId
+            } else {
+                error = true
+            }
+        }
+        dataModel = DataModel.RemoteDataModelFactory(providerProps);
+        initialNode = dataModel.getRootNode()
+    }
+    const [contextNode, setContextNode] = useState(initialNode)
 
-    const {dataModel} = useContext(ListContext);
-    const [contextNode, setContextNode] = useState(dataModel && dataModel.getContextNode())
     useEffect(() => {
         const observer = () => setContextNode(dataModel.getContextNode())
         dataModel.observe('context_changed', observer)
+        if(path) {
+            dataModel.requireContextChange(new AjxpNode(path))
+        }
         return () => {
             dataModel.stopObserving('context_changed', observer)
         }
-    }, [dataModel]);
+    }, []);
+
+    const {hover, hoverProps, hoverMoreStyle} = useHover()
 
     const {columns} = useColumnsFromRegistry({pydio})
     if(columns && columns['ajxp_label']) {
@@ -92,14 +119,14 @@ const ModernList = ({entryProps, editor, block}) => {
         {value:'grid', title:'Grid', icon:MdGridView},
         {value:'masonry-160', title:'Waterfall', icon:MdOutlineViewQuilt}
     ]
-    const displayMenuHandler = (value) => {
+    const displayMenuHandler = useCallback( (value) => {
         if(value !== block.props.display) {
             editor.updateBlock(block, {
                 type: "childrenList",
                 props: { display: value },
             })
         }
-    }
+    }, [block, editor])
 
     const sortMenuItems = Object.keys(columns).filter(k => columns[k].sortType).map(k => {
         const col = columns[k]
@@ -133,13 +160,16 @@ const ModernList = ({entryProps, editor, block}) => {
     const entryRenderActions = useRichMetaActions({pydio,dataModel,displayMode:display})
     const entryRenderSecondLine = useRichMetaLine({pydio, columns})
 
+    if(error) {
+        return <div>Repository not found</div>
+    }
 
     return (
-        <div style={{lineHeight:'1.3em', width:'100%'}}>
+        <Paper radius={'md'} withBorder={true} p={'md'} style={{lineHeight:'1.3em', width:'100%'}} {...hoverProps}>
             <div style={{display:'flex'}}>
-                <h3 style={{flex: 1, fontSize:'1.3em', fontWeight:700, marginBottom: 10}}>
-                    <span style={{marginRight:6}}>🗂️</span>
-                    <span style={{marginRight:6, flex:1}}>Folder Contents</span>
+                <h3 style={{flex: 1, fontSize:'1.1em', fontWeight:600, marginBottom: 10}}>
+                    <span style={{marginRight:6}} className={'mdi mdi-folder-open-outline'}/>️
+                    <span style={{marginRight:6, flex:1}}>{path || 'Current Folder Contents'}</span>
                 </h3>
                 <span style={{fontSize:'1rem'}}>
                     <BlockMenu
@@ -147,7 +177,7 @@ const ModernList = ({entryProps, editor, block}) => {
                             {title:'Display', crtValue:display, values:displayMenuItems, onValueSelected:displayMenuHandler},
                             {title:'Sort By...', crtValue:currentSortingInfo, values:sortMenuItems, onValueSelected:sortMenuHandler}
                         ]}
-                        target={<span style={{cursor:'pointer'}} className={"mdi mdi-dots-vertical-circle-outline"}/>}
+                        target={<span style={{cursor:'pointer', ...hoverMoreStyle}} className={"mdi mdi-dots-vertical-circle-outline"}/>}
                         position={'bottom-end'}
                     />
                 </span>
@@ -173,7 +203,7 @@ const ModernList = ({entryProps, editor, block}) => {
                 entryRenderParentIcon={entryRenderIcon}
                 entryRenderFirstLine={(node)=> node.getLabel()}
                 entryRenderSecondLine={display=== 'list' ? entryRenderSecondLine : null}
-                entryRenderActions={display !== 'detail' ? entryRenderActions : null}
+                entryRenderActions={display !== 'detail' && !path ? entryRenderActions : null}
                 tableEntryRenderCell={(node) => (
                     <span>
                         {entryRenderIcon(node)}
@@ -182,7 +212,7 @@ const ModernList = ({entryProps, editor, block}) => {
                 )}
 
             />
-        </div>
+        </Paper>
 
     )
 
@@ -194,8 +224,14 @@ export const ChildrenList = createReactBlockSpec(
         type: "childrenList",
         propSchema: {
             display: {
-                default:'list',
-                values:['list', 'grid', 'detail', 'masonry-160']
+                default:'compact',
+                values:['compact', 'list', 'grid', 'detail', 'masonry-160']
+            },
+            path: {
+                default: ''
+            },
+            repositoryId: {
+                default: ''
             }
         },
         content: "none",
@@ -206,3 +242,20 @@ export const ChildrenList = createReactBlockSpec(
         },
     }
 );
+
+// Custom Slash Menu item to insert a block after the current one.
+export const insertChildrenList = (editor) => ({
+    title: "Contents",
+    onItemClick: () =>
+        // If the block containing the text caret is empty, `insertOrUpdateBlock`
+        // changes its type to the provided block. Otherwise, it inserts the new
+        // block below and moves the text caret to it.
+        insertOrUpdateBlock(editor, {
+            type: "childrenList",
+            props: {display:'compact'},
+        }),
+    aliases: ["contents", "co"],
+    group: "Others",
+    icon: <RiFolderOpenFill size={18} />,
+    subtext: "Display current folder contents",
+});

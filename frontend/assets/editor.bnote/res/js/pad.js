@@ -31,12 +31,13 @@ import {
 import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
 import { en } from '@blocknote/core/locales'
 import {codeBlock} from "@blocknote/code-block";
-import {ChildrenList} from './blocks/ChildrenList';
+import {ChildrenList, insertChildrenList} from './blocks/ChildrenList';
 import {Mention, MentionSuggestionMenu} from './mentions/Mention'
-import {NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
+import {NodeBlock, NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
 import {Alert, insertAlertItem} from './blocks/Alert'
 import {Title} from './blocks/Title'
 import {SideMenuButton} from "./SideMenuButton";
+import ContextMenuModel from 'pydio/model/context-menu'
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -45,7 +46,8 @@ const schema = BlockNoteSchema.create({
         // Adds the Alert block.
         childrenList: ChildrenList,
         alert: Alert,
-        title: Title
+        title: Title,
+        nodeBlock: NodeBlock
     },
     inlineContentSpecs: {
         ...defaultInlineContentSpecs,
@@ -58,6 +60,7 @@ const schema = BlockNoteSchema.create({
 const getCustomSlashMenuItems = (
     editor
 ) => [
+    insertChildrenList(editor),
     ...getDefaultReactSlashMenuItems(editor),
     insertAlertItem(editor),
 ];
@@ -143,6 +146,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 editor={editor}
                 theme={darkMode?"dark":"light"}
                 sideMenu={false}
+                onClick={(e) => ContextMenuModel.getInstance().close()}
             >
                 <SideMenuController
                     sideMenu={(props) => (

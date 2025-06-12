@@ -3,9 +3,11 @@ import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import {ListContext} from './ChildrenList'
 import Pydio from 'pydio'
+import {SaveContext} from "../MainPanel";
 const { moment } = Pydio.requireLib('boot');
 const {ButtonMenu} = Pydio.requireLib('components');
 const LangUtils = require('pydio/util/lang')
+import { MdSave } from "react-icons/md";
 
 
 // The Title block.
@@ -21,6 +23,7 @@ export const Title = createReactBlockSpec(
     {
         render: (props) => {
             const {dataModel} = useContext(ListContext)
+            const {dirty} = useContext(SaveContext)
             const node = dataModel.getContextNode();
             const date = moment(new Date(parseInt(node.getMetadata().get('ajxp_modiftime'))*1000)).fromNow()
             let description
@@ -56,7 +59,7 @@ export const Title = createReactBlockSpec(
             return (
                 <div style={{paddingBottom: 20}}>
                     {segments && <div style={{fontSize: '0.8em'}}>{segments}</div>}
-                    <h1 style={{fontSize:'2em', fontWeight:700, display:'flex'}}>
+                    <h1 style={{fontSize:'2em', fontWeight:700, display:'flex', alignItems:'baseline'}}>
                         {/*Rich text field for user to type in*/}
                         <div className={"inline-content"} style={{flexGrow:'initial', width:'auto'}} ref={props.contentRef} />
                         <ButtonMenu
@@ -67,6 +70,7 @@ export const Title = createReactBlockSpec(
                             buttonTitle={"+"}
                             controller={pydio.Controller}
                         />
+                        {dirty && <span style={{fontSize:16, fontWeight:'normal', opacity: 0.3}}><MdSave/></span>}
                     </h1>
                     <div style={{color:'gray'}}>{description?description+' - ':null}Created {date}</div>
                 </div>
