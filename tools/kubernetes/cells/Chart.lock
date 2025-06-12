@@ -5,6 +5,9 @@ dependencies:
 - name: mariadb
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 20.5.5
+- name: mariadb-galera
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 14.2.8
 - name: redis
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 21.2.3
@@ -29,5 +32,5 @@ dependencies:
 - name: cert-manager
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 1.5.3
-digest: sha256:2bfe31cebc5887b9a6e000c9898ada01bb3a34520e8e30843fe8064831b352f2
-generated: "2025-06-11T07:31:40.087503+02:00"
+digest: sha256:9ac1520ab189af6173b99b63cb9cfcc5def24f7a09c9937bb0295c815b1ee44f
+generated: "2025-06-12T10:45:47.684217+02:00"
