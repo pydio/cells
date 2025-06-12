@@ -1,11 +1,13 @@
-# Changes between v4.4.13 and v4.4.14
+# Changes between v4.4.14 and v4.4.15
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.13...v4.4.14)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.4.14...v4.4.15)
 
-- [#d940847](https://github.com/pydio/cells/commit/d940847e99848b7a9022b5044bd523fe8f1eb17f): fix(nodes): backport a fix for messages sizes in stream-wrappers.go
-- [#43aafef](https://github.com/pydio/cells/commit/43aafefdc4aa3efff4bb255f3923685c256ecaea): chore(docker): clean buildx docker file => we do not use CGo anymore
-- [#ae80cba](https://github.com/pydio/cells/commit/ae80cbaccaa445fb4f71f4881c54ca5c0f77b652): chore(docker): make linter happy
-- [#deefb78](https://github.com/pydio/cells/commit/deefb783dac848b4271260b3b6091927329b83cd): Release v4.4.14-alpha01
-- [#bff4767](https://github.com/pydio/cells/commit/bff4767f4a086f4b6f18935a397c0e844c044d5d): fix(docker): better default for nightly image, when no default is provided
-- [#6b85a5d](https://github.com/pydio/cells/commit/6b85a5deeca1b28c4ca5f5ba391940685d196287): feat(docker): also publish ARM images
-- [#0dd3797](https://github.com/pydio/cells/commit/0dd3797463459258fdafd6d9f555fe5019e0d0d7): chore(release): next development cycle
+- [#d3f0030](https://github.com/pydio/cells/commit/d3f0030fb18d9b2d3cd3a67f580bdeac6519ccb3): Disabling galera
+- [#ee46edb](https://github.com/pydio/cells/commit/ee46edbe4008be36d9f38f84830f696848aa3602): Disabling galera
+- [#0e204a1](https://github.com/pydio/cells/commit/0e204a1eb4e265a86ba449b57d1496f324516c72): Disabling galera
+- [#c546a42](https://github.com/pydio/cells/commit/c546a42aff794fa5754008dcec60651ba90a8b23): Updating helm charts version
+- [#e9ada59](https://github.com/pydio/cells/commit/e9ada5951907fd5c68d583650fc13c67d95f29fb): fix(wrapper): ensure username if no claims found
+- [#6af35d5](https://github.com/pydio/cells/commit/6af35d5bda3e9ca6167c4d7cfef78717818ca0d5): Merge remote-tracking branch 'origin/main'
+- [#87da7af](https://github.com/pydio/cells/commit/87da7af1e8b07166343a50d31fd58c80408e99b0): fix(UX): fix NotificationsList error when a job has no tasks, fix GenericInfoCard display in shrink mode.
+- [#06b5b2e](https://github.com/pydio/cells/commit/06b5b2e10fcf097ed0e6a3cd62515dbdd4c57d9f): Update nats.go
+- [#b36d16d](https://github.com/pydio/cells/commit/b36d16d031440bb1a56e2b5861bdb7e71334d131): chore: next development cycle
