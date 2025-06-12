@@ -18,13 +18,27 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {useState, useEffect, useMemo} from 'react';
+import {useState, useEffect, useMemo, useCallback} from 'react';
 import {debounce} from "lodash";
 import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
 
+export const useHover = () => {
+    const [hover, setHover] = useState(false)
+    const onMouseEnter = useCallback(() => {
+        setHover(true)
+    }, [hover])
+    const onMouseLeave = useCallback(() => {
+        setHover(false)
+    }, [hover])
+    return {
+        hover,
+        hoverProps: {onMouseEnter, onMouseLeave},
+        hoverMoreStyle: {opacity:hover?0.77:0}
+    }
+}
 
-const saveNow = (blocks, contentMeta, nodeUuid, setDirty)=>{
+export const saveNow = (blocks, contentMeta, nodeUuid, setDirty = () => {})=>{
     const api = new UserMetaServiceApi(PydioApi.getRestClient());
 
     let request = new IdmUpdateUserMetaRequest();
@@ -47,7 +61,7 @@ const saveNow = (blocks, contentMeta, nodeUuid, setDirty)=>{
         }),
     ];
     request.MetaDatas.push(meta);
-    api.updateUserMeta(request).then(() => {
+    return api.updateUserMeta(request).then(() => {
         console.log('Saved to Metadata')
         setDirty(false)
     }).catch(e => {
@@ -69,6 +83,8 @@ export const useNodeContent = (node, contentMeta) => {
         () =>
             debounce((blocks) => saveNow(blocks, contentMeta, nodeUUID, setDirty), 1500), [nodeUUID])
 
+    const saveImmediate = useMemo(() => (blocks) => saveNow(blocks, contentMeta, nodeUUID, setDirty), [nodeUUID])
+
     useEffect(()=> {
         setLoaded(false)
         setContent([])
@@ -88,6 +104,6 @@ export const useNodeContent = (node, contentMeta) => {
     }, [loaded, trigger]);
 
 
-    return {loaded, content, save, dirty, setDirty}
+    return {loaded, content, save, saveNow: saveImmediate, dirty, setDirty}
 
 }

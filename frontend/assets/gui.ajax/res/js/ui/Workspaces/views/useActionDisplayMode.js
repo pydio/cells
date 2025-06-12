@@ -49,16 +49,6 @@ const useActionDisplayMode = ({fixedDisplayMode, preferencePrefix = 'FSTemplate.
             )
         }
 
-        if(Pydio.getInstance().Registry.findEditorById('editor.bnote') && pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')) {
-            list.push(
-                {
-                    name: 'Pages',
-                    icon_class: 'mdi mdi-file-document-multiple',
-                    value: 'pages',
-                }
-            )
-        }
-
         return list.map(item => {
             const i = {...item};
             const value = item.value;

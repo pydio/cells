@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {createContext} from 'react'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
@@ -27,11 +27,16 @@ import {useNodeContent} from "./hooks";
 import {ListContext} from "./blocks/ChildrenList";
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
+export const SaveContext = createContext({
+    dirty: false,
+    saving: false
+})
+
 let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
 
     const {node} = useDataModelContextNodeAsItems(dataModel, (n) => {return []})
     const {content=[], loaded, save, dirty, setDirty} = useNodeContent(node, contentMeta)
-    let body, saveBlock;
+    let body;
 
     if(node && node.isLoaded() && loaded) {
         const nodeUUID = node.getMetadata().get('uuid')
@@ -48,10 +53,6 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
                 "type": "title",
                 "content": [{"type": "text","text": title,"styles": {}}, ]
             }, ...initialContent]
-        }
-
-        if(!initialContent.find(block => block.type === 'childrenList')) {
-            initialContent.push({type: "childrenList"})
         }
 
         const reloadIdentifier = nodeUUID + '#' + (loaded?'loaded':'loading')
@@ -72,14 +73,10 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
             />
         )
 
-        if(dirty) {
-            saveBlock = <div style={{
-                position:'absolute', top: 35, right:50, opacity:0.5,
-                fontStyle:'italic', fontSize: 14}}>Changes not saved...</div>
-        }
     }
 
     return (
+        <SaveContext.Provider value={{dirty, saving: false}}>
         <ListContext.Provider value={{dataModel, entryProps}}>
             <div
                 /*
@@ -104,8 +101,9 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
                e.preventDefault();
            }}*/
             style={{...style, position:'relative'}}
-            >{body}{saveBlock}</div>
+            >{body}</div>
         </ListContext.Provider>
+        </SaveContext.Provider>
     )
 }
 

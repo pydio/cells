@@ -3,6 +3,7 @@
         actions="BlockNote.Actions" className="BlockNote" mimes="note" label="CONF_MESSAGE[Block Note]" description="CONF_MESSAGE[Collaborative Pad]">
 	<server_settings>
 		<global_param name="BNOTE_PAGES_META" type="string" label="CONF_MESSAGE[Pages Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to store folder pages contents. Metadata must be created before using that.]" exposed="true"/>
+		<global_param name="BNOTE_KNOWLEDGE_BASE" type="string" label="CONF_MESSAGE[KB Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to enable/disable knowledge base behavior.]" exposed="true"/>
 	</server_settings>
 	<client_settings>
         <resources>
@@ -15,6 +16,17 @@
 		<extensions>
 			<extension mime="note" messageId="bnote.ext" font="file-document-edit-outline"/>
 		</extensions>
+		<actions>
+			<action name="ctx_create_kb">
+				<gui text="bnote.action" title="bnote.action" iconClass="mdi mdi-playlist-check" accessKey="" hasAccessKey="false" weight="110">
+					<context selection="false" dir="" recycle="hidden" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="change" inZip="false" evalMetadata="metadata.has('CellNode') &amp;&amp; Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE')"/>
+				</gui>
+				<rightsContext noUser="false" userLogged="only" read="true" write="true" adminOnly=""/>
+				<processing>
+					<clientCallback module="BlockNote.Callbacks.toggleKnowledgeBase"/>
+				</processing>
+			</action>
+		</actions>
 		<!--
 		<client_configs>
 			<component_config component="InfoPanel">

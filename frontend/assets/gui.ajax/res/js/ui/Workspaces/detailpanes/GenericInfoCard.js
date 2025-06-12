@@ -75,7 +75,7 @@ let GenericInfoCard = (props) => {
         }
         const sepColor = muiTheme.palette.mui3?muiTheme.palette.mui3['outline-variant-50']:'#eee'
         return (
-            <InfoPanelCard identifier={"preview-multiple"} alwaysOpen={true} {...props} primaryToolbars={toolbars}>
+            <InfoPanelCard shrinkTitle={props.pydio.MessageHash['addressbook.pick.multiple']} identifier={"preview-multiple"} alwaysOpen={true} {...props} primaryToolbars={toolbars}>
                 <div style={{padding:'0'}}>
                     {nodes.map(function(node){
                         return (

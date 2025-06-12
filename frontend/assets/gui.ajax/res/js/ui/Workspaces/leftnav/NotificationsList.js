@@ -109,23 +109,23 @@ export default function({pydio, ASLib, activities = [], jobs = [], loading=false
 
     all.forEach(function(obj, i){
 
-        let fromNow = obj.running? m('tasks.subheader') :  obj.time.fromNow();
-        if (fromNow !== previousFrom) {
+        const {job, running, activity, time} = obj
+        let fromNow = running? m('tasks.subheader') :  time.fromNow();
+        if (fromNow !== previousFrom && (activity || job && job.Tasks)) {
             const padding = content.length ? '20px 16px 8px' : '0 16px 8px';
             content.push(<div style={{padding, ...dateSepStyle}}>{fromNow}</div>);
         }
-        if(obj.activity) {
+        if(activity) {
             content.push(
                 <Activity
-                    key={'ac-' + obj.activity.id}
-                    activity={obj.activity}
+                    key={'ac-' + activity.id}
+                    activity={activity}
                     oneLiner={true}
                     onRequestClose={onRequestClose}
                     styles={styles}
                 />
             );
-        } else{
-            const {job, running} = obj;
+        } else if (job && job.Tasks) {
             let actionIcon, bg, label = labelStyle;
             const taskId = (job.Tasks && job.Tasks.length && job.Tasks[0].ID) || job.ID;
             if(running) {

@@ -22,8 +22,10 @@ import Editor from './editor'
 import * as Actions from './actions'
 import InfoPanel from "./InfoPanel";
 import MainPanel from "./MainPanel";
+import {Callbacks} from "./Callbacks";
 
 export { Editor }
 export { Actions }
 export { InfoPanel }
 export { MainPanel }
+export { Callbacks }

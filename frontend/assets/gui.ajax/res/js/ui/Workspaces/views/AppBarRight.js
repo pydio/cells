@@ -54,17 +54,19 @@ const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton,
                     tooltip={pydio.MessageHash['87']}
                 />
             }
-            <Toolbar
-                pydio={pydio}
-                id="display-toolbar"
-                toolbars={["display_toolbar"]}
-                renderingType="icon-font"
-                mergeItemsAsOneMenu={true}
-                mergedMenuIcom={"mdi mdi-settings"}
-                mergedMenuTitle={pydio.MessageHash['151']}
-                buttonStyle={styles.buttonsIconStyle}
-                flatButtonStyle={styles.buttonsStyle}
-            />
+            {displayMode !== 'pages' &&
+                <Toolbar
+                    pydio={pydio}
+                    id="display-toolbar"
+                    toolbars={["display_toolbar"]}
+                    renderingType="icon-font"
+                    mergeItemsAsOneMenu={true}
+                    mergedMenuIcom={"mdi mdi-settings"}
+                    mergedMenuTitle={pydio.MessageHash['151']}
+                    buttonStyle={styles.buttonsIconStyle}
+                    flatButtonStyle={styles.buttonsStyle}
+                />
+            }
             <div style={{display:'flex', paddingRight: 10}}>
                 {showInfoPanel &&
                     <IconButton

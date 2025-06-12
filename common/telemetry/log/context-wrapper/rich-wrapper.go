@@ -100,6 +100,10 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 			zap.String(common.KeyProfile, claims.Profile),
 			zap.String(common.KeyRoles, claims.Roles),
 		)
+	} else if u := claim.UserNameFromContext(ctx); u != "" && u != common.PydioSystemUsername {
+		fields = append(fields,
+			zap.String(common.KeyUsername, u),
+		)
 	}
 	if len(fields) == 0 {
 		return logger

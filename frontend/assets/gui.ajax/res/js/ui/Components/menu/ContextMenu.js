@@ -113,11 +113,16 @@ class ContextMenu extends Component{
 
     componentDidMount(){
         this._modelOpen = this.modelOpen.bind(this);
+        this._modelClose = () => {
+            if(this.menu.current) this.menu.current.hideMenu()
+        }
         ContextMenuModel.getInstance().observe("open", this._modelOpen);
+        ContextMenuModel.getInstance().observe("close", this._modelClose);
     }
 
     componentWillUnmount(){
         ContextMenuModel.getInstance().stopObserving("open", this._modelOpen);
+        ContextMenuModel.getInstance().stopObserving("close", this._modelClose);
     }
 
     render(){

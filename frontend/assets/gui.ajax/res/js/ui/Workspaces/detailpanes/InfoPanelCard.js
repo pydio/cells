@@ -93,7 +93,7 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
 
     // Recompute open status
     if(alwaysOpen) {
-        open = true
+        open = !shrinkMode
     } else if(shrinkMode) {
         open = false
     } else if(!identifier || popoverPanel || currentPin === identifier){
