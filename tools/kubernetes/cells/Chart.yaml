@@ -18,7 +18,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.2
+version: 1.0.0-beta
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -45,34 +45,33 @@ keywords:
   - cluster
 
 dependencies:
+  - name: common
+    version: 2.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
   - name: mariadb
     condition: mariadb.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
-  - name: mariadb-galera
-    condition: mariadb-galera.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "20.5.5"
   - name: redis
     condition: redis.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "21.x.x"
   - name: nats
     condition: nats.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "9.0.17"
   - name: mongodb
     condition: mongodb.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "16.5.7"
   - name: etcd
     condition: etcd.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "11.3.x"
   - name: minio
     condition: minio.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: x.x.x
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "16.0.10"
   - name: ingress-nginx
     condition: ingress.enabled
     repository: https://kubernetes.github.io/ingress-nginx
@@ -82,7 +81,6 @@ dependencies:
     repository: https://helm.releases.hashicorp.com
     version: x.x.x
   - name: cert-manager
-    condition: tls.enabled
-    repository: https://charts.jetstack.io
+    condition: cert-manager.enabled
+    repository: "oci://registry-1.docker.io/bitnamicharts"
     version: x.x.x
-
