@@ -311,12 +311,22 @@ export default class MetaNodeProvider{
             nodeName = PathUtils.getBasename(obj.Path);
         }
         let slug = workspaceSlug;
+        let metaRepoId;
         if(!workspaceSlug){
             if(obj.MetaStore['repository_id']){
                 const wsId = JSON.parse(obj.MetaStore['repository_id']);
                 if (pydio.user.getRepositoriesList().has(wsId)){
                     slug = pydio.user.getRepositoriesList().get(wsId).getSlug();
                 }
+            }
+        } else {
+            const activeRepo = pydio.user.getActiveRepositoryObject()
+            if (workspaceSlug !== activeRepo.getSlug()) {
+                pydio.user.getRepositoriesList().forEach(r => {
+                    if(r.getSlug() === workspaceSlug) {
+                        metaRepoId = r.getId()
+                    }
+                })
             }
         }
         if(!slug){
@@ -329,6 +339,12 @@ export default class MetaNodeProvider{
 
         let node = new AjxpNode('/' + obj.Path, obj.Type === "LEAF", nodeName, '', null);
 
+        if(metaRepoId) {
+            node.getMetadata().set('repository_id', metaRepoId)
+        }
+        if(slug) {
+            node.getMetadata().set('repository_slug', slug)
+        }
         let meta = obj.MetaStore;
         for (let k in meta){
             if (meta.hasOwnProperty(k)) {

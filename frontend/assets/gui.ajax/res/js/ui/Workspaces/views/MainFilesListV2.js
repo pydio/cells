@@ -35,7 +35,6 @@ import {useEmptyErrorStatesProps} from "./useEmptyErrorStatesProps";
 import {useRichMetaActions} from "./useRichMetaActions";
 import {useRichMetaLine} from "./useRichMetaLine";
 
-
 let MainFilesListV2 = (props) => {
     const {
         pydio,
@@ -68,9 +67,29 @@ let MainFilesListV2 = (props) => {
     const [contextNode, setContextNode] = useState(dataModel.getContextNode())
 
     const [BlockNote, setBlockNote] = useState()
+    const [blockMeta, setBlockNoteMeta] = useState('')
+    const [contextKB, setContextKB] = useState(false)
+
+    const updateBlockMeta = useCallback((node, meta) => {
+        let kb = false
+        if(node && meta){
+            kb = node.getMetadata().get(meta) || node.hasMetadataInBranch(meta, true) || false
+        }
+        setContextKB(kb)
+        if(onDisplayModeChange && node.isLoaded()){
+            onDisplayModeChange(kb?'pages':displayMode)
+        }
+    }, [onDisplayModeChange]);
+
     useEffect(() => {
-        if(pydio.Registry.findEditorById('editor.bnote') && pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')){
-            ResourcesManager.loadClass('BlockNote').then((lib) => setBlockNote(lib))
+        if(pydio.Registry.findEditorById('editor.bnote') &&
+            pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META') &&
+            pydio.getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE')
+        ){
+            ResourcesManager.loadClass('BlockNote').then((lib) => {
+                setBlockNote(lib)
+                setBlockNoteMeta(pydio.getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE'))
+            })
         }
     }, []);
 
@@ -122,12 +141,22 @@ let MainFilesListV2 = (props) => {
     }, [displayMode, showExtensions, pinBookmarks]);
 
     useEffect(() => {
-        const observer = () => setContextNode(dataModel.getContextNode())
+        const obs = () => updateBlockMeta(contextNode, blockMeta)
+        obs()
+        contextNode.observe('node_replaced', obs)
+        return contextNode.stopObserving('node_replaced', obs)
+    }, [contextNode, blockMeta]);
+
+    useEffect(() => {
+        const observer = () => {
+            setContextNode(dataModel.getContextNode())
+            updateBlockMeta(dataModel.getContextNode(), blockMeta)
+        }
         dataModel.observe('context_changed', observer)
         return () => {
             dataModel.stopObserving('context_changed', observer)
         }
-    }, [dataModel]);
+    }, [dataModel, blockMeta]);
 
     const getPydioActions = useCallback((keysOnly = false)=>{
         if(keysOnly){
@@ -236,6 +265,24 @@ let MainFilesListV2 = (props) => {
 
     let className = 'modern-list vertical-layout layout-fill files-list main-files-list';
 
+    if(BlockNote && blockMeta && contextKB) {
+        const {MainPanel} = BlockNote
+        return (
+            <div style={{...style, position:'relative', overflowY: 'scroll'}}>
+                <MainPanel
+                    dataModel={dataModel}
+                    style={null}
+                    contentMeta={pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')}
+                    entryProps={{
+                        renderIcon:entryRenderIcon,
+                        renderActions: entryRenderActions
+                    }}
+                />
+                {props.children}
+            </div>
+        );
+    }
+
     let dMode = displayMode;
     // Override display Mode
     let near;
@@ -259,26 +306,6 @@ let MainFilesListV2 = (props) => {
         // Fully replace
         className = "modern-list vertical-layout layout-fill masonry-grid "+"masonry-size-"+cWidth
 
-    } else if (dMode === 'pages') {
-        if(!BlockNote) {
-            return (
-                <div>Loading...</div>
-            )
-        }
-        return (
-            <div style={{...style, position:'relative', overflowY: 'scroll'}}>
-                <BlockNote.MainPanel
-                    dataModel={dataModel}
-                    style={null}
-                    contentMeta={pydio.getPluginConfigs('editor.bnote').get('BNOTE_PAGES_META')}
-                    entryProps={{
-                        renderIcon:entryRenderIcon,
-                        renderActions: entryRenderActions
-                    }}
-                />
-                {props.children}
-            </div>
-        );
     }
 
     if(contextNode.getMetadata().has('local:custom-list-classes')) {

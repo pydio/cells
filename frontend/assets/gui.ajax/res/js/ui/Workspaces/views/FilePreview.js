@@ -26,6 +26,7 @@ import {muiThemeable} from 'material-ui/styles';
 import {CircularProgress} from 'material-ui';
 import Color from 'color'
 import FuncUtils from 'pydio/util/func'
+import AjxpNode from 'pydio/model/node'
 
 class CircularWithValue extends PureComponent {
     render() {
@@ -74,7 +75,9 @@ class FilePreview extends PureComponent {
             // Additional styling
             style           : PropTypes.object,
             mimeFontStyle   : PropTypes.object,
-            mimeClassName   : PropTypes.string
+            mimeClassName   : PropTypes.string,
+            // hooks
+            onUpdateRatio : PropTypes.func
         }
     }
 
