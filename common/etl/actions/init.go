@@ -35,20 +35,8 @@ func init() {
 		return &SyncUsersAction{}
 	})
 
-	manager.Register(SyncWorkspacesActionName, func() actions.ConcreteAction {
-		return &SyncWorkspacesAction{}
-	})
-
 	manager.Register(SyncSharesActionName, func() actions.ConcreteAction {
 		return &SyncSharesAction{}
-	})
-
-	manager.Register(MigratePydioMetaActionName, func() actions.ConcreteAction {
-		return &MigratePydioMetaAction{}
-	})
-
-	manager.Register(MigrateGlobalMetaName, func() actions.ConcreteAction {
-		return &MigrateGlobalMetaAction{}
 	})
 
 }

@@ -58,6 +58,11 @@ var (
 			test.TemplateMongoEnvWithPrefix(mongo.FastMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
 		}
 	}
+	mongoOnly = func() []test.StorageTestCase {
+		return []test.StorageTestCase{
+			test.TemplateMongoEnvWithPrefix(mongo.FastMongoDAO, "search_tests_"+uuid.New()[:6]+"_"),
+		}
+	}
 	global context.Context
 )
 
@@ -482,6 +487,56 @@ func TestSearchOnPathPrefixes(t *testing.T) {
 			}
 
 			results, _, e = performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+		})
+
+	})
+}
+
+func TestSearchDashedBasename(t *testing.T) {
+	// We only test on MONGO here, we know that it fails in Bleve
+	test.RunStorageTests(mongoOnly(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
+
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		testNodes := []*tree.Node{
+			{
+				Uuid:      "docID100",
+				Path:      "/path/dashed-name.txt",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"dashed-name.txt\""},
+			},
+		}
+		if err = createNodes(ctx, server, testNodes...); err != nil {
+			panic(err)
+		}
+
+		Convey("Search Node by name", t, func() {
+
+			results, _, e := performSearch(ctx, server, &tree.Query{
+				FileName: "dashed-name",
+			})
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+			results, _, e = performSearch(ctx, server, &tree.Query{
+				FileName: "dashed",
+			})
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+			results, _, e = performSearch(ctx, server, &tree.Query{
+				FileName: "name",
+			})
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
 

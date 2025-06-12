@@ -489,8 +489,7 @@ func CopyMoveTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 		} else {
 			dir, base = path.Split(targetNodePath)
 		}
-		targetNode := &tree.Node{Path: dir}
-		targetCtx, targetNode, nodeErr := inputFilter(ctx, targetNode, targetId)
+		targetCtx, targetNode, nodeErr := inputFilter(ctx, &tree.Node{Path: dir}, targetId)
 		if nodeErr != nil {
 			log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", targetNode), zap.Error(nodeErr))
 			return nodeErr
@@ -507,15 +506,21 @@ func CopyMoveTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 		var createSize int64
 		var loadedNodes []*tree.Node
 		for i, p := range selectedPaths {
-			node := &tree.Node{Path: p}
-			srcCtx, node, nodeErr := inputFilter(ctx, node, sourceId)
-			if nodeErr != nil {
-				return nodeErr
+			if p == "" || p == "/" {
+				return errors.WithMessage(errors.StatusForbidden, "Cannot move the root")
 			}
-			if rErr := router.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); rErr != nil {
+			srcCtx, srcNode, nodeEr := inputFilter(ctx, &tree.Node{Path: p}, sourceId)
+			if nodeEr != nil {
+				return nodeEr
+			}
+			if strings.HasPrefix(targetNode.GetPath(), srcNode.GetPath()+"/") {
+				return errors.WithMessage(errors.StatusForbidden, "Cannot move a folder inside himself")
+			}
+
+			if rErr := router.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: srcNode}); rErr != nil {
 				return rErr
 			}
-			r, e := router.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
+			r, e := router.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: srcNode.Path}})
 			if e != nil {
 				return e
 			}
@@ -535,7 +540,7 @@ func CopyMoveTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 				}
 			}
 			loadedNodes = append(loadedNodes, r.Node)
-			selectedPaths[i] = node.Path
+			selectedPaths[i] = srcNode.Path
 		}
 
 		if len(loadedNodes) > 1 {

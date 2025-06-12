@@ -41,7 +41,6 @@ var BasePluginsBox = service.PluginBox{
 		"access.homepage",
 		"access.settings",
 		"action.compression",
-		"action.migration",
 		"action.share",
 		"action.user",
 		"auth.pydio",

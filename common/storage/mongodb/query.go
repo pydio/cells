@@ -87,9 +87,9 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 		if wc == "T*" { // Special case for boolean query
 			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: true})
 		} else if insensitive {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": primitive.Regex{Pattern: regexp, Options: "i"}}})
+			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 		} else {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
+			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp}})
 		}
 	case *query.MatchQuery:
 		match := v.Match
@@ -127,9 +127,9 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 				regexp += "$"
 			}
 			if insensitive {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": primitive.Regex{Pattern: regexp, Options: "i"}}})
+				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 			} else {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
+				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp}})
 			}
 		} else {
 			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: phrase})

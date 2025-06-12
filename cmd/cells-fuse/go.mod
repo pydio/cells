@@ -13,7 +13,7 @@ require (
 	github.com/pydio/cells/v5 v5.0.0-20250207085626-68a467308e4b
 	github.com/schollz/progressbar/v3 v3.17.1
 	github.com/spf13/cobra v1.9.1
-	go.etcd.io/bbolt v1.3.11
+	go.etcd.io/bbolt v1.4.0
 )
 
 require (

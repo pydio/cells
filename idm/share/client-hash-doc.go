@@ -22,13 +22,9 @@ package share
 
 import (
 	"context"
-	"net/url"
-	"path"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
-	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/docstore"
@@ -181,13 +177,8 @@ func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.Shar
 		}
 	}
 
-	publicBase := routing.RouteIngressURIContext(ctx, common.RoutePublic, common.DefaultRoutePublic)
-	shareLink.LinkUrl = path.Join(publicBase, shareLink.LinkHash)
-	if configBase := config.Get(ctx, "services", common.ServiceRestNamespace_+common.ServiceShare, "url").String(); configBase != "" {
-		if cfu, e := url.Parse(configBase); e == nil {
-			cfu.Path = path.Join(publicBase, shareLink.LinkHash)
-			shareLink.LinkUrl = cfu.String()
-		}
+	if er = PublicLinkUrlBuilder.BuildLinkURL(ctx, shareLink); er != nil {
+		return er
 	}
 
 	return nil

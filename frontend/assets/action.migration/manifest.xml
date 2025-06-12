@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<plugin id="action.migration" label="CONF_MESSAGE[Migration]" description="CONF_MESSAGE[Tools for migrating data from other platforms to Pydio Cells]">
-    <client_settings>
-        <resources>
-            <js className="MigrationComponents" file="plug/action.migration/res/dist/MigrationComponents.min.js" depends="AdminWorkspaces"/>
-            <i18n namespace="migration" remote="plug/action.migration/res/i18n"/>
-        </resources>
-    </client_settings>
-</plugin>

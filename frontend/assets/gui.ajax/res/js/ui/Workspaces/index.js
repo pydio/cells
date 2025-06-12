@@ -20,6 +20,10 @@
 
 import OpenNodesModel from './OpenNodesModel'
 import MainFilesList from './views/MainFilesList'
+import {MainFilesListV2} from "./views/MainFilesListV2";
+import {useRichMetaLine} from "./views/useRichMetaLine";
+import {useRichMetaActions} from "./views/useRichMetaActions";
+
 import Breadcrumb from './views/Breadcrumb'
 import FilePreview from './views/FilePreview'
 import FSTemplate from './views/FSTemplate'
@@ -54,6 +58,9 @@ import {Scheme} from './views/WelcomeTour'
 const classes = {
     OpenNodesModel,
     MainFilesList,
+    MainFilesListV2,
+    useRichMetaActions,
+    useRichMetaLine,
     EditionPanel,
     Breadcrumb,
     UnifiedSearchForm,

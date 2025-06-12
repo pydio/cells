@@ -29,6 +29,9 @@ import Timeline from './list/Timeline'
 import {useDataModelSelection, useDataModelContextNodeAsItems} from './list/hooks'
 import {sortNodesNatural, nodesSorterByAttribute} from "./list/sorters";
 
+import {ModernSimpleList} from "./list/Modern/ModernSimpleList";
+import {useSorting, useSortingColumns} from "./list/Modern/useSorting";
+
 import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 
 import LabelWithTip from './elements/LabelWithTip'
@@ -74,11 +77,12 @@ import Dialog from './stepper/Dialog'
 
 const PydioComponents = {
 
-    SortableList            : SortableList,
-    SimpleList              : SimpleList,
-    NodeListCustomProvider  : NodeListCustomProvider,
-    ListEntry               : ListEntry,
-    ListPaginator           : ListPaginator,
+    SortableList,
+    SimpleList,
+    ModernSimpleList,
+    NodeListCustomProvider,
+    ListEntry,
+    ListPaginator,
     MaterialTable,
     Masonry,
     Timeline,
@@ -86,6 +90,8 @@ const PydioComponents = {
     useDataModelContextNodeAsItems,
     sortNodesNatural,
     nodesSorterByAttribute,
+    useSorting,
+    useSortingColumns,
 
     TreeView                : TreeView,
     DNDTreeView             : DNDTreeView,

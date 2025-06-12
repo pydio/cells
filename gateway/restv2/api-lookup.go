@@ -44,14 +44,19 @@ import (
 
 var (
 	presignDefaultExpiration int64 = 900
+	presignBucketName              = common.DefaultRouteBucketIO
 )
 
 func init() {
-	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "", "Override default expiration for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "900s", "Override default expiration for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_BUCKET_SECONDARY", "false", "Use secondary bucket for pre-signed queries")
 	if exp := os.Getenv("CELLS_PRESIGN_DEFAULT_EXPIRATION"); exp != "" {
 		if d, er := time.ParseDuration(exp); er == nil {
 			presignDefaultExpiration = int64(math.Round(d.Seconds()))
 		}
+	}
+	if sb := os.Getenv("CELLS_PRESIGN_BUCKET_SECONDARY"); sb == "true" {
+		presignBucketName = common.DefaultRouteBucketData
 	}
 }
 
@@ -71,6 +76,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 	router := h.UuidClient(true)
 	var searchQuery *tree.Query
 	var bulkRequest *rest.GetBulkMetaRequest
+	var bulkRecursive bool
 	var statUuids []string
 	var additionalPrefixes []*rest.LookupFilter_PathPrefix
 	var recursive bool
@@ -173,22 +179,26 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 					bulkRequest.Filters[tree.MetaFilterNoGrep] = common.RecycleBinName
 				}
 			}
-
-			log.Logger(ctx).Info("LISTING nodes", zap.Any("bulk", bulkRequest))
+			bulkRecursive = scope.Recursive
+			log.Logger(ctx).Info("LISTING nodes", zap.Any("bulk", bulkRequest), zap.Bool("recursive", bulkRecursive))
 
 		} else {
 			searchQuery = &tree.Query{}
 
+			var rootScopeLength int
 			if hasRootScope {
 				searchQuery.PathPrefix = append(searchQuery.PathPrefix, rootScope)
+				rootScopeLength = len(strings.Split(strings.Trim(rootScope, "/"), "/"))
 			}
 
 			if deletedStatus != rest.LookupFilter_StatusFilter_Any {
 				exclude := deletedStatus == rest.LookupFilter_StatusFilter_Not
-				additionalPrefixes = append(additionalPrefixes, &rest.LookupFilter_PathPrefix{
-					Prefix:  common.RecycleBinName,
-					Exclude: exclude,
-				})
+				if rootScopeLength <= 1 { // pass an additional prefixes only if root scope if "/" or "/ws-slug"
+					additionalPrefixes = append(additionalPrefixes, &rest.LookupFilter_PathPrefix{
+						Prefix:  common.RecycleBinName,
+						Exclude: exclude,
+					})
+				}
 			}
 
 			searchQuery.Type = filter.Type
@@ -265,9 +275,13 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		// Use TreeHandler
 		bulkRequest.Offset = int32(input.GetOffset())
 		bulkRequest.Limit = int32(input.GetLimit())
-		bulkRequest.SortField = input.GetSortField()
-		bulkRequest.SortDirDesc = input.GetSortDirDesc()
-		nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, bulkRequest, h.parseFlags(input.GetFlags()))
+		if input.GetSortField() != "" {
+			bulkRequest.SortField = input.GetSortField()
+			bulkRequest.SortDirDesc = input.GetSortDirDesc()
+		} else {
+			bulkRequest.SortField = tree.MetaSortNatural
+		}
+		nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, bulkRequest, h.parseFlags(input.GetFlags()), bulkRecursive)
 		if er != nil {
 			return er
 		}
@@ -282,7 +296,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 			SortField:   input.GetSortField(),
 			SortDirDesc: input.GetSortDirDesc(),
 		}
-		nn, coll.Facets, coll.Pagination, er = h.SearchHandler.PerformSearch(ctx, searchRequest, !recursive, false, additionalPrefixes...)
+		nn, coll.Facets, coll.Pagination, er = h.SearchHandler.PerformSearch(ctx, searchRequest, !recursive, false, true, additionalPrefixes...)
 		if er != nil {
 			return er
 		}

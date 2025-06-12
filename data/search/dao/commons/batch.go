@@ -24,7 +24,6 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path/filepath"
 	"slices"
@@ -140,21 +139,23 @@ func (b *LocalBatch) Flush(ctx context.Context, batchOpts ...indexer.BatchOption
 	// Now create an indexer batch, fill it and directly flush it
 	batch, err := idx.NewBatch(ctx, batchOpts...)
 	if err != nil {
-		fmt.Println("Cannot create indexer.NewBatch!", err.Error())
 		return err
 	}
 	for _, n := range nn {
-		if er := batch.Insert(n); er != nil {
-			fmt.Println("Search batch - InsertOne error", er.Error())
+		if er = batch.Insert(n); er != nil {
+			log.Logger(ctx).Warn("Search batch - InsertOne error", zap.Error(er))
 		}
 	}
 	for uuid := range b.deletes {
-		if er := batch.Delete(uuid); er != nil {
-			fmt.Println("Search batch - DeleteOne error", er.Error())
+		if er = batch.Delete(uuid); er != nil {
+			log.Logger(ctx).Warn("Search batch - DeleteOne error", zap.Error(er))
 		}
 		delete(b.deletes, uuid)
 	}
-	return batch.Flush()
+	if er = batch.Flush(); er != nil {
+		log.Logger(ctx).Warn("Error while flushing local batch", zap.Error(er))
+	}
+	return batch.Close()
 
 }
 

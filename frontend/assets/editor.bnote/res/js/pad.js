@@ -20,13 +20,23 @@
 import React, {useState, useEffect} from 'react'
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
-import { useCreateBlockNote, getDefaultReactSlashMenuItems, SuggestionMenuController } from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, locales,  filterSuggestionItems } from "@blocknote/core";
+import {
+    useCreateBlockNote,
+    getDefaultReactSlashMenuItems,
+    SuggestionMenuController,
+    AddBlockButton,
+    SideMenu,
+    SideMenuController,
+} from "@blocknote/react";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
+import { en } from '@blocknote/core/locales'
+import {codeBlock} from "@blocknote/code-block";
 import {ChildrenList} from './blocks/ChildrenList';
 import {Mention, MentionSuggestionMenu} from './mentions/Mention'
 import {NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
 import {Alert, insertAlertItem} from './blocks/Alert'
 import {Title} from './blocks/Title'
+import {SideMenuButton} from "./SideMenuButton";
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -75,12 +85,11 @@ const css = `
         .react-mui-context .bn-container h6{
             font-weight: inherit;
         }
-        .react-mui-context.mui3-token .bn-children-list .mimefont-container {
-            background-color: transparent !important;
+        .react-mui-context .bn-container div[role="menu"] {
+            background: var(--bn-colors-menu-background);
         }
-        .react-mui-context.mui3-token .bn-container .bn-selected .mimefont-container div.mimefont, 
-        .react-mui-context.mui3-token .bn-container .bn-selected .mimefont-container span.overlay-icon-span {
-            color: var(--md-sys-color-on-secondary) !important;
+        .react-mui-context .bn-container div[role="menu"] button {
+            font-size: var(--mantine-font-size-sm);
         }
         .ProseMirror-selectednode>.bn-block-content[data-content-type="childrenList"]>*{
             outline: none;
@@ -101,13 +110,14 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         initialContent:initialContent.length?initialContent:null,
         // We override the `placeholders` in our dictionary
         dictionary: {
-            ...locales.en,
+            ...en,
             placeholders: {
-                ...locales.en.placeholders,
+                ...en.placeholders,
                 // We override the default placeholder
                 default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
             }
-        }
+        },
+        codeBlock
     });
 
 
@@ -132,7 +142,17 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 onChange={() => onChange(editor.document)}
                 editor={editor}
                 theme={darkMode?"dark":"light"}
+                sideMenu={false}
             >
+                <SideMenuController
+                    sideMenu={(props) => (
+                        <SideMenu {...props} blockDragStart={()=>{}} blockDragEnd={()=>{}}>
+                            {/* Button which removes the hovered block. */}
+                            <AddBlockButton {...props} />
+                            <SideMenuButton {...props} />
+                        </SideMenu>
+                    )}
+                />
                 <SuggestionMenuController
                     triggerCharacter={"/"}
                     // Replaces the default Slash Menu items with our custom ones.

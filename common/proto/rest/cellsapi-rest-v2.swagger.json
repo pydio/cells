@@ -2984,27 +2984,6 @@
             "name": "Namespace",
             "required": true,
             "type": "string"
-          },
-          {
-            "default": "PUT",
-            "enum": [
-              "PUT",
-              "DELETE"
-            ],
-            "in": "query",
-            "name": "Operation.Operation",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "collectionFormat": "multi",
-            "in": "query",
-            "items": {
-              "type": "string"
-            },
-            "name": "Operation.Values",
-            "required": true,
-            "type": "array"
           }
         ],
         "responses": {

@@ -80,16 +80,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					},
 				},
 				{
-					Key:         "migration",
-					Label:       "migration.title",
-					Description: "migration.legend",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-import",
-						Advanced:  true,
-						Component: "MigrationComponents.Dashboard",
-					},
-				},
-				{
 					Key:         "template-paths",
 					Label:       "settings.3c",
 					Description: "settings.3c",

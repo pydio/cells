@@ -58,7 +58,7 @@ export const Title = createReactBlockSpec(
                     {segments && <div style={{fontSize: '0.8em'}}>{segments}</div>}
                     <h1 style={{fontSize:'2em', fontWeight:700, display:'flex'}}>
                         {/*Rich text field for user to type in*/}
-                        <div className={"inline-content"} style={{flexGrow:'initial'}} ref={props.contentRef} />
+                        <div className={"inline-content"} style={{flexGrow:'initial', width:'auto'}} ref={props.contentRef} />
                         <ButtonMenu
                             pydio={pydio}
                             {...newButtonProps}

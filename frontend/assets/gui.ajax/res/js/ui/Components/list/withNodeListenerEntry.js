@@ -24,6 +24,22 @@ const withNodeListenerEntry = (ListEntryComponent, nodeGetter=undefined) => {
 
     class NodeListenerComponent extends React.Component{
 
+        constructor(props) {
+            super(props);
+            this.setInlineEditionAnchor = this.setInlineEditionAnchor.bind(this)
+        }
+
+        setInlineEditionAnchor(anchor, editorStyle) {
+            // guard against no-op if you like:
+            if (
+                this.state.anchor !== anchor ||
+                this.state.editorStyle !== editorStyle
+            ) {
+                this.setState({ anchor, editorStyle });
+            }
+        }
+
+
         state={
             edit: false
         }
@@ -76,7 +92,7 @@ const withNodeListenerEntry = (ListEntryComponent, nodeGetter=undefined) => {
                 <Fragment>
                     <ListEntryComponent
                         {...this.props}
-                        setInlineEditionAnchor={(a, style)=>{this.setState({anchor:a, editorStyle:style})} }
+                        setInlineEditionAnchor={this.setInlineEditionAnchor}
                     />
                     {edit && anchor &&
                         <InlineEditor

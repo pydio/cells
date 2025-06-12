@@ -212,6 +212,11 @@ func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields
 	return opts, nil
 }
 
+func (m *Codex) regexTerm(term string) primitive.Regex {
+	pattern := strings.ReplaceAll(strings.Trim(term, " \""), " ", "[\\W_-]*")
+	return primitive.Regex{Pattern: pattern, Options: "i"}
+}
+
 // BuildQuery builds a mongo filter plus an Aggregation Pipeline to be performed for computing facets.
 // Range and sorting parameters are not handled here, but by BuildQueryOptions method.
 func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (interface{}, interface{}, error) {
@@ -219,17 +224,17 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 
 	queryObject := query.(*tree.Query)
 	if term := queryObject.GetFileNameOrContent(); term != "" && term != "*" {
-		// add weight on basename ?
+		rx := m.regexTerm(term)
 		filters = append(filters, bson.E{"$or", bson.A{
-			bson.M{"basename": bson.M{"$regex": primitive.Regex{Pattern: term, Options: "i"}}},
-			bson.M{"text_content": bson.M{"$regex": primitive.Regex{Pattern: term, Options: "i"}}},
+			bson.M{"basename": rx},
+			bson.M{"text_content": rx},
 		}})
 	} else {
 		if bn := queryObject.GetFileName(); bn != "" {
-			filters = append(filters, bson.E{"basename", bson.M{"$regex": primitive.Regex{Pattern: bn, Options: "i"}}})
+			filters = append(filters, bson.E{"basename", m.regexTerm(bn)})
 		}
 		if cn := queryObject.GetContent(); cn != "" {
-			filters = append(filters, bson.E{"text_content", bson.M{"$regex": primitive.Regex{Pattern: cn, Options: "i"}}})
+			filters = append(filters, bson.E{"text_content", m.regexTerm(cn)})
 		}
 	}
 
@@ -259,14 +264,14 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	if len(queryObject.Paths) > 0 {
 		ors := bson.A{}
 		for _, pa := range queryObject.Paths {
-			ors = append(ors, bson.M{"path": bson.M{"$regex": primitive.Regex{Pattern: "^" + pa + "$", Options: "i"}}})
+			ors = append(ors, bson.M{"path": primitive.Regex{Pattern: "^" + pa + "$", Options: "i"}})
 		}
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 
 	} else if len(queryObject.PathPrefix) > 0 {
 		ors := bson.A{}
 		for _, prefix := range queryObject.PathPrefix {
-			ors = append(ors, bson.M{"path": bson.M{"$regex": primitive.Regex{Pattern: "^" + prefix, Options: "i"}}})
+			ors = append(ors, bson.M{"path": primitive.Regex{Pattern: "^" + prefix, Options: "i"}})
 		}
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}
@@ -274,7 +279,7 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	if len(queryObject.ExcludedPathPrefix) > 0 {
 		nors := bson.A{}
 		for _, prefix := range queryObject.ExcludedPathPrefix {
-			nors = append(nors, bson.M{"path": bson.M{"$regex": primitive.Regex{Pattern: "^" + prefix, Options: "i"}}})
+			nors = append(nors, bson.M{"path": primitive.Regex{Pattern: "^" + prefix, Options: "i"}})
 		}
 		filters = append(filters, bson.E{Key: "$nor", Value: nors})
 	}

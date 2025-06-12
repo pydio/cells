@@ -267,7 +267,7 @@ func (h *Handler) publishDraftNode(ctx context.Context, node *tree.Node, draftNS
 		MetaDatas: []*idm.UserMeta{{
 			NodeUuid:     node.GetUuid(),
 			Namespace:    draftNS,
-			ResolvedNode: node,
+			ResolvedNode: nil, // on-purpose, let the meta service reload it.
 		}},
 	})
 	return er

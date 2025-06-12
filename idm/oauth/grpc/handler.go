@@ -748,7 +748,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 		return nil, err
 	}
 
-	session := oauth2.NewSession("")
+	session := oauth2.NewSessionWithCustomClaims(ctx, reg.Config(), "")
 
 	values := url.Values{}
 	values.Set("client_id", config.DefaultOAuthClientID)
@@ -789,7 +789,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest) (*
 		return nil, err
 	}
 
-	session := oauth2.NewSession("")
+	session := oauth2.NewSessionWithCustomClaims(ctx, reg.Config(), "")
 
 	values := url.Values{}
 	values.Set("client_id", config.DefaultOAuthClientID)

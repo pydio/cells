@@ -115,7 +115,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
 		policyContext := make(map[string]string)
 		permissions.PolicyContextFromMetadata(policyContext, ctx)
-		subjects := permissions.PolicyRequestSubjectsFromUser(user)
+		subjects := permissions.PolicyRequestSubjectsFromUser(ctx, user, false)
 
 		// Check all subjects, if one has deny return false
 		policyRequest := &idm.PolicyEngineRequest{

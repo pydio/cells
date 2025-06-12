@@ -75,15 +75,9 @@ import (
 	_ "github.com/pydio/cells/v5/data/source/index/service"
 	_ "github.com/pydio/cells/v5/data/source/objects/service"
 	_ "github.com/pydio/cells/v5/data/source/sync/service"
-	//	_ "github.com/pydio/cells/v5/data/source/index"
-	//_ "github.com/pydio/cells/v5/data/source/index/grpc/service"
-	//_ "github.com/pydio/cells/v5/data/source/objects/grpc/service"
-	//	_ "github.com/pydio/cells/v5/data/source/sync"
-	//	_ "github.com/pydio/cells/v5/data/source/sync/grpc/service"
 
 	// ETL Stores
 	_ "github.com/pydio/cells/v5/common/etl/stores/cells/local"
-	_ "github.com/pydio/cells/v5/common/etl/stores/pydio8"
 
 	// Registry
 	_ "github.com/pydio/cells/v5/common/registry/config"

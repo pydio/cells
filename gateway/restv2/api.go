@@ -133,12 +133,11 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		o(opts)
 	}
 	if opts.PreSigner != nil {
-		bucket := common.DefaultRouteBucketIO
 		key := n.GetPath()
 		if !n.IsLeaf() {
 			key += ".zip"
 		}
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
 			rn.PreSignedGET = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),
@@ -307,13 +306,12 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 		})
 		return
 	}
-	bucket := common.DefaultRouteBucketIO
 	for _, t := range thumbs.Thumbnails {
 		key := fmt.Sprintf("%s/%s-%d.%s", slug, nodeId, t.Size, t.Format)
 		//url := common.DefaultRouteBucketIO + "/" + key
 		var pGet *rest.PreSignedURL
 		if opts.PreSigner != nil {
-			if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
 				pGet = &rest.PreSignedURL{
 					Url:       req.URL.String(),
 					ExpiresAt: exp.Unix(),
@@ -326,7 +324,7 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 		ff = append(ff, &rest.FilePreview{
 			Processing:   thumbs.Processing,
 			ContentType:  "image/" + t.Format,
-			Bucket:       strings.TrimPrefix(bucket, "/"),
+			Bucket:       strings.TrimPrefix(common.DefaultRouteBucketIO, "/"),
 			Key:          key,
 			PreSignedGET: pGet,
 			Dimension:    int32(t.Size),
@@ -372,9 +370,8 @@ func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo .
 	for _, o := range oo {
 		o(opts)
 	}
-	bucket := common.DefaultRouteBucketIO
 	if opts.PreSigner != nil {
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, bucket, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
 			pGet = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),
@@ -386,7 +383,7 @@ func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo .
 
 	return &rest.FilePreview{
 		ContentType:  cType,
-		Bucket:       strings.TrimPrefix(bucket, "/"),
+		Bucket:       strings.TrimPrefix(common.DefaultRouteBucketIO, "/"),
 		Key:          key,
 		PreSignedGET: pGet,
 	}

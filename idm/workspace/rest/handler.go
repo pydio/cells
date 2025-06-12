@@ -107,8 +107,8 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		// If Policies are empty, create default policies
 		if len(inputWorkspace.Policies) == 0 {
 			inputWorkspace.Policies = []*service.ResourcePolicy{
-				{Subject: "profile:standard", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
-				{Subject: "profile:" + common.PydioProfileAdmin, Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
+				{Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileStandard, Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
+				{Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileAdmin, Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
 			}
 		}
 	}

@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
-	pbservice "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -47,33 +46,6 @@ type insertRole struct {
 	Role *idm.Role
 	Acls []*idm.ACL
 }
-
-var (
-	rootPolicies = []*pbservice.ResourcePolicy{
-		{
-			Action:  pbservice.ResourcePolicyAction_READ,
-			Subject: "*",
-			Effect:  pbservice.ResourcePolicy_allow,
-		},
-		{
-			Action:  pbservice.ResourcePolicyAction_WRITE,
-			Subject: "profile:" + common.PydioProfileAdmin,
-			Effect:  pbservice.ResourcePolicy_allow,
-		},
-	}
-	externalPolicies = []*pbservice.ResourcePolicy{
-		{
-			Action:  pbservice.ResourcePolicyAction_READ,
-			Subject: "*",
-			Effect:  pbservice.ResourcePolicy_allow,
-		},
-		{
-			Action:  pbservice.ResourcePolicyAction_WRITE,
-			Subject: "profile:" + common.PydioProfileStandard,
-			Effect:  pbservice.ResourcePolicy_allow,
-		},
-	}
-)
 
 func InitRoles(ctx context.Context) error {
 	dao, er := manager.Resolve[role.DAO](ctx)

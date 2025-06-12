@@ -45,6 +45,8 @@ const (
 	MetaSortNameCI = "name_ci"
 	MetaSortMPath  = "mpath1,mpath2,mpath3,mpath4"
 	MetaSortType   = "leaf"
+	// MetaSortNatural sorts first by folders then by names
+	MetaSortNatural = "natural"
 )
 
 var (
@@ -60,7 +62,7 @@ type cmp struct {
 
 func ValidSortField(sortField string) bool {
 	return sortField == MetaSortName || sortField == MetaSortNameCI || sortField == MetaSortTime || sortField == MetaSortSize ||
-		sortField == MetaSortType || sortField == MetaSortMPath
+		sortField == MetaSortType || sortField == MetaSortMPath || sortField == MetaSortNatural
 }
 
 // MetaFilter holds specific filtering conditions, generally transformed from standard
@@ -163,18 +165,23 @@ func (m *MetaFilter) Build(builder FilterBuilder) {
 
 	// Add orderBy
 	if m.sortField != "" {
-		sortDesc := m.sortDesc
-		if m.sortField == MetaSortType { // Switch for backward compat on "leaf" : v4 was 0/1, v5 is 1/2
-			sortDesc = !sortDesc
-		}
-		dir := "ASC"
-		if sortDesc {
-			dir = "DESC"
-		}
-		if m.sortField == MetaSortNameCI {
-			builder.OrderBy("LOWER(name)", dir)
+		if m.sortField == MetaSortNatural {
+			builder.OrderBy("leaf", "DESC")
+			builder.OrderBy("LOWER(name)", "ASC")
 		} else {
-			builder.OrderBy(m.sortField, dir)
+			sortDesc := m.sortDesc
+			if m.sortField == MetaSortType { // Switch for backward compat on "leaf" : v4 was 0/1, v5 is 1/2
+				sortDesc = !sortDesc
+			}
+			dir := "ASC"
+			if sortDesc {
+				dir = "DESC"
+			}
+			if m.sortField == MetaSortNameCI {
+				builder.OrderBy("LOWER(name)", dir)
+			} else {
+				builder.OrderBy(m.sortField, dir)
+			}
 		}
 	}
 	return
@@ -293,8 +300,13 @@ func (m *MetaFilter) grepToLikes(field, g string, neg bool, builder FilterBuilde
 		not = "NOT "
 	}
 	for _, p := range strings.Split(g, "|") {
-		parts = append(parts, field+" "+not+"LIKE ?")
-		arguments = append(arguments, m.grepToLike(p))
+		word, insensitive := m.grepToLike(p)
+		if insensitive {
+			parts = append(parts, "LOWER("+field+") "+not+"LIKE LOWER(?)")
+		} else {
+			parts = append(parts, field+" "+not+"LIKE ?")
+		}
+		arguments = append(arguments, word)
 	}
 	if len(parts) > 1 {
 		if builder != nil {
@@ -307,16 +319,17 @@ func (m *MetaFilter) grepToLikes(field, g string, neg bool, builder FilterBuilde
 	}
 }
 
-func (m *MetaFilter) grepToLike(g string) string {
-	word := strings.ReplaceAll(g, "(?i)", "")
-	word = strings.Trim(word, "^$")
+func (m *MetaFilter) grepToLike(g string) (string, bool) {
+	insensitive := strings.Contains(g, "(?i)")
+	g = strings.ReplaceAll(g, "(?i)", "")
+	word := strings.Trim(g, "^$")
 	if !strings.HasPrefix(g, "^") {
 		word = "%" + word
 	}
 	if !strings.HasSuffix(g, "$") {
 		word += "%"
 	}
-	return word
+	return word, insensitive
 }
 
 type GeoJson struct {

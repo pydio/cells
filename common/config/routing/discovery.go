@@ -42,14 +42,13 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 	var pcs []*install.ProxyConfig
 
 	// Try to retrieve the proxy config directly from the hash
-	if siteHash, ok := meta[common.XPydioSiteHash]; ok && len(siteHash) == 1 {
+	if siteHash, ok := meta[common.XPydioSiteHash]; ok && len(siteHash) > 0 {
 		for _, site := range ss {
 			if site.Hash() == siteHash {
 				pcs = append(pcs, site)
 				break
 			}
 		}
-
 		if len(pcs) == 0 {
 			return nil, nil, false
 		}
@@ -65,15 +64,21 @@ func SiteFromContext(ctx context.Context, ss []*install.ProxyConfig) (*install.P
 				}
 			}
 		}
+		/*
+			// WHY CREATE A FALLBACK NON-EXISTING SITE?
+			// This cannot work as "host" does not makes a valid url (no scheme)
+			// This triggers Panic in grpc I[#/urls/self] S[#/properties/urls/properties/self] validation failed
+			//  I[#/urls/self/issuer] S[#/properties/urls/properties/self/properties/issuer/format] "local.pydio/oidc/" is not valid "uri"
+			// We actually don't have the scheme in the HttpMetaXXX
+			u, err := url.Parse(host)
+			if err != nil {
+				return nil, nil, false
+			}
 
-		u, err := url.Parse(host)
-		if err != nil {
-			return nil, nil, false
-		}
-
-		return &install.ProxyConfig{
-			ReverseProxyURL: host,
-		}, u, true
+			return &install.ProxyConfig{
+				ReverseProxyURL: host,
+			}, u, true
+		*/
 	}
 
 	return nil, nil, false

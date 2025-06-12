@@ -22,7 +22,6 @@ package share
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"strings"
 
@@ -397,13 +396,13 @@ func (sc *Client) UpdatePoliciesFromAcls(ctx context.Context, workspace *idm.Wor
 	for _, p := range initialPolicies {
 		toRemove := false
 		for _, roleId := range removeReads {
-			if p.Subject == "role:"+roleId && p.Action == service.ResourcePolicyAction_READ {
+			if p.Subject == permissions.PolicySubjectRolePrefix+roleId && p.Action == service.ResourcePolicyAction_READ {
 				toRemove = true
 				break
 			}
 		}
-		if p.Action == service.ResourcePolicyAction_READ && strings.HasPrefix(p.Subject, "role:") {
-			ignoreAdds[strings.TrimPrefix(p.Subject, "role:")] = true
+		if p.Action == service.ResourcePolicyAction_READ && strings.HasPrefix(p.Subject, permissions.PolicySubjectRolePrefix) {
+			ignoreAdds[strings.TrimPrefix(p.Subject, permissions.PolicySubjectRolePrefix)] = true
 		}
 		if !toRemove {
 			output = append(output, p)
@@ -415,7 +414,7 @@ func (sc *Client) UpdatePoliciesFromAcls(ctx context.Context, workspace *idm.Wor
 			continue
 		}
 		output = append(output, &service.ResourcePolicy{
-			Subject:  "role:" + roleAdd,
+			Subject:  permissions.PolicySubjectRolePrefix + roleAdd,
 			Resource: resourceId,
 			Action:   service.ResourcePolicyAction_READ,
 			Effect:   service.ResourcePolicy_allow,
@@ -568,7 +567,6 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerLogin string, scope 
 func (sc *Client) OwnerResourcePolicies(ctx context.Context, ownerUser *idm.User, resourceId string) []*service.ResourcePolicy {
 
 	userId := ownerUser.Uuid
-	userLogin := ownerUser.Login
 
 	return []*service.ResourcePolicy{
 		{
@@ -579,19 +577,19 @@ func (sc *Client) OwnerResourcePolicies(ctx context.Context, ownerUser *idm.User
 		},
 		{
 			Resource: resourceId,
-			Subject:  fmt.Sprintf("user:%s", userLogin),
+			Subject:  permissions.PolicySubjectUuidPrefix + userId,
 			Action:   service.ResourcePolicyAction_READ,
 			Effect:   service.ResourcePolicy_allow,
 		},
 		{
 			Resource: resourceId,
-			Subject:  fmt.Sprintf("user:%s", userLogin),
+			Subject:  permissions.PolicySubjectUuidPrefix + userId,
 			Action:   service.ResourcePolicyAction_WRITE,
 			Effect:   service.ResourcePolicy_allow,
 		},
 		{
 			Resource: resourceId,
-			Subject:  fmt.Sprintf("profile:%s", common.PydioProfileAdmin),
+			Subject:  permissions.PolicySubjectProfilePrefix + common.PydioProfileAdmin,
 			Action:   service.ResourcePolicyAction_WRITE,
 			Effect:   service.ResourcePolicy_allow,
 		},

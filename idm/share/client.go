@@ -176,7 +176,7 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 		// Update Workspace Policies to make sure it's readable by the new user
 		workspace.Policies = append(workspace.Policies, &service2.ResourcePolicy{
 			Resource: workspace.UUID,
-			Subject:  fmt.Sprintf("user:%s", user.Login),
+			Subject:  permissions.PolicySubjectUuidPrefix + user.Uuid,
 			Action:   service2.ResourcePolicyAction_READ,
 			Effect:   service2.ResourcePolicy_allow,
 		})

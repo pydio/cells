@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
@@ -114,6 +115,7 @@ func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.P
 	values := config.Get(ctx, pc.configPath...)
 	span.AddEvent("Sites Loaded")
 
+	log.Logger(ctx).Debug("OAuth ConfigProvider not in cache for " + rootURL.String() + ", creating one")
 	p, err := configToProvider(ctx, values, rootURL.String(), sites, site)
 	if err != nil {
 		panic(err)

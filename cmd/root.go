@@ -126,6 +126,8 @@ func init() {
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+
+	StartCmd.Long += runtime.DocRegisteredEnvVariables("CELLS_SQL_DEFAULT_CONN", "CELLS_SQL_LONG_CONN", "CELLS_CACHES_HARD_LIMIT", "CELLS_UPDATE_HTTP_PROXY") + "\n\n"
 	ctx, cancel = context.WithCancel(context.Background())
 	if err := RootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)

@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	pbservice "github.com/pydio/cells/v5/common/proto/service"
@@ -56,8 +57,16 @@ import (
 
 var (
 	defaultPolicies = []*pbservice.ResourcePolicy{
-		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
-		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
+		{
+			Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileStandard,
+			Action:  pbservice.ResourcePolicyAction_READ,
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
+		{
+			Subject: permissions.PolicySubjectProfilePrefix + common.PydioProfileAdmin,
+			Action:  pbservice.ResourcePolicyAction_WRITE,
+			Effect:  pbservice.ResourcePolicy_allow,
+		},
 	}
 	cacheConfig = cache.Config{
 		Prefix:      "pydio.grpc.user/data",
@@ -180,10 +189,16 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		if !req.User.IsGroup {
 			// A user must be able to edit his own profile!
 			insertPolicies = append(insertPolicies, &pbservice.ResourcePolicy{
-				Subject: "user:" + out.Login,
+				Subject: permissions.PolicySubjectUuidPrefix + out.Uuid,
 				Action:  pbservice.ResourcePolicyAction_WRITE,
 				Effect:  pbservice.ResourcePolicy_allow,
 			})
+		}
+	} else {
+		for _, policy := range insertPolicies {
+			if policy.Subject == permissions.PolicySubjectUuidPrefix+permissions.PolicySubjectSelf {
+				policy.Subject = permissions.PolicySubjectUuidPrefix + out.Uuid
+			}
 		}
 	}
 	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(insertPolicies)), zap.Int("createdNodes length", len(createdNodes)))
@@ -311,9 +326,10 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 
 				_ = dao.DeletePoliciesForResource(ctx, deleted.Uuid)
 				if deleted.IsGroup {
-					_ = dao.DeletePoliciesBySubject(ctx, fmt.Sprintf("role:%s", deleted.Uuid))
+					_ = dao.DeletePoliciesBySubject(ctx, permissions.PolicySubjectRolePrefix+deleted.Uuid)
 				} else {
-					_ = dao.DeletePoliciesBySubject(ctx, fmt.Sprintf("user:%s", deleted.Uuid))
+					_ = dao.DeletePoliciesBySubject(ctx, permissions.PolicySubjectUuidPrefix+deleted.Uuid)
+					_ = dao.DeletePoliciesBySubject(ctx, permissions.PolicySubjectLoginPrefix+deleted.Login)
 				}
 
 				// Propagate deletion event

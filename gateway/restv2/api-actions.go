@@ -80,7 +80,7 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 	case rest.UserActionType_copy, rest.UserActionType_move:
 		cmo := input.GetCopyMoveOptions()
 		if len(inPaths) == 0 || cmo == nil || cmo.GetTargetPath() == "" {
-			return errors.WithMessage(errors.StatusBadRequest, "invalid delete parameters (no input nodes or target path)")
+			return errors.WithMessage(errors.StatusBadRequest, "invalid copy/move parameters (no input nodes or target path)")
 		}
 		targetIsParent := cmo.GetTargetIsParent()
 		j, er := userspace.CopyMoveTask(ctx, router, inPaths, cmo.GetTargetPath(), targetIsParent, actionID == rest.UserActionType_move, ll...)

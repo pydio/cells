@@ -164,12 +164,12 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 			if !ok {
 				return nil, errors.WithStack(errors.MissingClaims)
 			}
-			meta.Policies = []*serviceproto.ResourcePolicy{
-				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: c.Subject, Effect: serviceproto.ResourcePolicy_allow},
-				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + c.Name, Effect: serviceproto.ResourcePolicy_allow},
-				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "user:" + c.Name, Effect: serviceproto.ResourcePolicy_allow},
-				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},
-			}
+			meta.Policies = permissions.NewResourcePoliciesBuilder().
+				WithOwner(c.Subject).
+				WithSubjectRead(c.Subject).
+				WithSubjectWrite(c.Subject).
+				WithProfileWrite(common.PydioProfileAdmin).
+				Policies()
 		} else {
 			meta.Policies = ns.Policies
 		}

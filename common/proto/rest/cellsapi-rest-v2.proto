@@ -708,6 +708,12 @@ message NamespaceValuesRequest{
   NamespaceValuesOperation Operation = 2;
 }
 
+// List known values for a given namespace
+message ListNamespaceValuesRequest{
+  // List persisted values for this namespace
+  string Namespace = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
 // Response for Namespaces values
 message NamespaceValuesResponse{
   // List of existing values
@@ -830,7 +836,7 @@ service NodeService {
     };
   }
   // List values for a given namespace
-  rpc ListNamespaceValues(NamespaceValuesRequest) returns (NamespaceValuesResponse){
+  rpc ListNamespaceValues(ListNamespaceValuesRequest) returns (NamespaceValuesResponse){
     option (google.api.http) = {
       get: "/n/meta/namespace/{Namespace}"
     };

@@ -25,6 +25,7 @@ const {withSearch} = Pydio.requireLib('hoc')
 const {PromptValidators} = Pydio.requireLib('boot')
 import Action from 'pydio/model/action'
 import {muiThemeable} from 'material-ui/styles'
+import {MainFilesListV2} from './MainFilesListV2'
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import WelcomeTour from './WelcomeTour'
@@ -410,6 +411,12 @@ class FSTemplate extends React.Component {
             }];
         }
 
+        // Temporary switch between files list versions
+        let ListComponent = MainFilesList
+        if (pydio.Registry.findEditorById('editor.bnote')) {
+            ListComponent = MainFilesListV2
+        }
+
         return (
             <MasterLayout
                 pydio={pydio}
@@ -450,7 +457,7 @@ class FSTemplate extends React.Component {
                             {...leftPanelProps.workspacesListProps}
                         />
                     }
-                    <MainFilesList
+                    <ListComponent
                         ref="list"
                         key={searchView?"search-results":"files-list"}
                         pydio={pydio}
@@ -493,7 +500,7 @@ class FSTemplate extends React.Component {
                                 onOpenDrawer={(e)=>this.openDrawer(e)}
                             />
                         }
-                    </MainFilesList>
+                    </ListComponent>
                     <MultiColumnPanel
                         {...props}
                         closed={!infoPanelOpen}
