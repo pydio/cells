@@ -1,24 +1,40 @@
-apiVersion: apps/v1
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
 kind: Deployment
 metadata:
   name: {{ include "cells.fullname" . }}
   labels:
     {{- include "cells.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
+  {{- if gt (.Values.replicaCount | int) 1 }}
   replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.autoscaling.enabled }}
   strategy:
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 1
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:
       {{- include "cells.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+      {{- if (include "cells.vault.enabled" .) }}
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "app"
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-inject-token: "true"
+{{/*        vault.hashicorp.com/auth-config: |*/}}
+{{/*          {*/}}
+{{/*            "mount_path": "auth/kubernetes",*/}}
+{{/*            "method": "kubernetes",*/}}
+{{/*            "config": {*/}}
+{{/*              "role": "app"*/}}
+{{/*            }*/}}
+{{/*          }*/}}
+      {{- end }}
+      {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }} 
       {{- end}}
       labels:
@@ -31,6 +47,18 @@ spec:
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -39,58 +67,34 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh"]
           args:
-            ['-c', 'source /var/cells-install/source && cells start']
+            ['-c', 'source /var/cells-install/source && cells start --log debug']
           env:
             - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            {{- if .Values.debug -}}
+            - name: CELLS_LOG
+              value: debug
+            {{- else }}
+            - name: CELLS_LOG
+              value: info
+            {{- end }}
             - name: CELLS_BIND_ADDRESS
               value: 0.0.0.0
             - name: CELLS_WORKING_DIR
               value: /var/cells
-            - name: PYDIO_LOG
-              value: info
-            {{- if .Values.etcd.enabled }}
-            {{- if or .Values.etcd.auth.rbac.create .Values.etcd.auth.rbac.enabled }}
-            - name: ETCD_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "etcd.secretName" .Subcharts.etcd }}
-                  key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
-            {{- end}}
-            - name: CELLS_CONFIG
-              value: {{ include "cells.etcdURL" (list . "/config") }}
-            - name: CELLS_VAULT
-              value: {{ include "cells.etcdURL" (list . "/vault") }}
-            - name: CELLS_REGISTRY
-              value: {{ include "cells.etcdURL" (list . "/registry") }}
-            {{- end }}
-            {{- if .Values.nats.enabled }}
-            - name: CELLS_BROKER
-              value: {{ include "cells.natsURL" . }}
-            {{- end }}
-            {{- if and (or .Values.redis.enabled .Values.redis.shortcacheEnabled) .Values.redis.auth.enabled }}
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "redis.secretName" .Subcharts.redis }}
-                  key: {{ include "redis.secretPasswordKey" .Subcharts.redis }}
-            {{- end }}
-            {{- if .Values.redis.enabled }}
-            - name: CELLS_CACHE
-              value: {{ include "cells.redisURL" (list . "/cache") }}
-            {{- if .Values.redis.shortcacheEnabled }}
-            - name: CELLS_SHORTCACHE
-              value: {{ include "cells.redisURL" (list . "/shortcache") }}
-            {{- end }}
-            {{- end }}
-            {{- if .Values.vault.enabled }}
-            - name: CELLS_KEYRING
-              value: {{ include "cells.vaultURL" . }}/secret?key=keyring
-            - name: CELLS_CERTS_STORE
-              value: {{ include "cells.vaultURL" . }}/caddycerts
-            {{- end }}
+            {{- include "cells.discovery.envvar" . | nindent 12 -}}
+            {{- include "cells.broker.envvar" . | nindent 12 -}}
+            {{- include "cells.cache.envvar" . | nindent 12 -}}
+            {{- include "cells.vault.envvar" . | nindent 12 -}}
+            {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.database.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.vault.auth.envvar" . | nindent 12 -}}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12}}
             {{- end }}
@@ -111,8 +115,16 @@ spec:
               containerPort: {{ .Values.service.discoveryPort }}
               protocol: TCP
           volumeMounts:
-            - name: cells
+            - name: data
+              mountPath: /var/cells
+            - name: install
               mountPath: /var/cells-install
+            {{- if (include "cells.s3.tls.enabled" .) }}
+            - name: s3-ca-certs
+              mountPath: /etc/ssl/certs/ca-local-root.crt
+              subPath: tls.crt
+              readOnly: false
+            {{- end }}
           readinessProbe:
             httpGet:
               path: /
@@ -127,28 +139,42 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       initContainers:
-        {{- if .Values.etcd.enabled }}
-        - name: wait-for-etcd
+        {{- if (include "cells.database.enabled" .) }}
+        - name: wait-for-database
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.etcdHost" . | quote }} {{ include "cells.etcdPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
+          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.database.host" . | quote }} {{ include "cells.database.port" . | quote }}; do echo waiting for database; sleep 2; done' ]
         {{- end }}
-        {{- if .Values.redis.enabled }}
-        - name: wait-for-redis
+        {{- if (include "cells.nosql.enabled" .) }}
+        - name: wait-for-nosql
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.redisHost" . | quote }} {{ include "cells.redisPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
+          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.nosql.host" . | quote }} {{ include "cells.nosql.port" . | quote }}; do echo waiting for nosql; sleep 2; done' ]
         {{- end }}
-        {{- if .Values.nats.enabled }}
-        - name: wait-for-nats
+        {{- if (include "cells.discovery.enabled" .) }}
+        - name: wait-for-discovery
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.natsHost" . | quote }} {{ include "cells.natsPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.discovery.host" . | quote }} {{ include "cells.discovery.port" . | quote }}; do echo waiting for discovery; sleep 2; done']
         {{- end }}
-        {{- if .Values.vault.enabled }}
+        {{- if (include "cells.cache.enabled" .) }}
+        - name: wait-for-cache
+          image: busybox
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.cache.host" . | quote }} {{ include "cells.cache.port" . | quote }}; do echo waiting for cache; sleep 2; done']
+        {{- end }}
+        {{- if (include "cells.broker.enabled" .) }}
+        - name: wait-for-broker
+          image: busybox
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }}; do echo waiting for broker; sleep 2; done']
+        {{- end }}
+        {{- if (include "cells.s3.enabled" .) }}
+        - name: wait-for-s3
+          image: busybox
+          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }}; do echo waiting for s3; sleep 2; done' ]
+        {{- end }}
+        {{- if (include "cells.vault.enabled" .) }}
         - name: wait-for-vault
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vaultHost" . | quote }} {{ include "cells.vaultPort" . | quote }}; do echo waiting for vault; sleep 2; done']
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }}; do echo waiting for vault; sleep 2; done']
         {{- end }}
-        {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-        - name: install-certs-etcd
+        - name: install-certs
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -156,29 +182,116 @@ spec:
             - "-c"
             - |
               sleep 3
-              source /var/cells-install/source
-              for i in /var/certs/*/*; do
-                cells admin cert import $i --uuid $(basename $(dirname $i))-$(basename $i);
-              done
+              if [ -f /var/cells-install/source ]; then
+                source /var/cells-install/source
+              fi
+              if [ -d /var/certs/ca ]; then
+                for i in /var/certs/ca/*/*; do
+                  echo "Importing ca certificate for $i"
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i);
+                done
+              fi
+              if [ -d /var/certs/server ]; then
+                for i in /var/certs/server/*/*; do
+                  echo "Importing client certificate for $i"
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i);
+                done
+              fi
+              if [ -d /var/certs/client ]; then
+                for i in /var/certs/client/*/*; do
+                  echo "Importing client certificate for $i"
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i);
+                done
+              fi
           env:
+            {{- if (include "cells.vault.enabled" .) }}
             - name: CELLS_CERTS_STORE
-              value: {{ include "cells.vaultURL" . }}/caddycerts
+              value: {{ include "cells.vault.url" (list . "/caddycerts") }}
+            {{- else }}
+            - name: CELLS_CERTS_STORE
+              value: file:///var/cells/certs
+            {{- end }}
           volumeMounts:
-            - name: cells
+            - name: install
               mountPath: /var/cells-install
-            {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-            - name: etcd-secret
-              mountPath: /var/certs/etcd
+            - name: data
+              mountPath: /var/cells
+            {{- if (include "cells.tls.enabled" .) }}
+            - name: cells-ca-certs
+              mountPath: /var/certs/ca/cells
+            - name: cells-server-certs
+              mountPath: /var/certs/server/cells
             {{- end }}
-            {{- if and .Values.redis.enabled .Values.redis.tls.enabled }}
-            - name: redis-secret
-              mountPath: /var/certs/redis
+            {{- if (include "cells.discovery.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.discovery.tls.ca.existingSecret" .))) }}
+            - name: discovery-ca-certs
+              mountPath: /var/certs/ca/discovery
             {{- end }}
-            {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
-            - name: minio-secret
-              mountPath: /var/certs/minio
+            {{- if (not (empty (include "cells.discovery.tls.client.existingSecret" .))) }}
+            - name: discovery-client-certs
+              mountPath: /var/certs/client/discovery
             {{- end }}
-        {{- end }}
+            {{- end }}
+            {{- if (include "cells.broker.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.broker.tls.ca.existingSecret" .))) }}
+            - name: broker-ca-certs
+              mountPath: /var/certs/ca/broker
+            {{- end }}
+            {{- if (not (empty (include "cells.broker.tls.client.existingSecret" .))) }}
+            - name: broker-client-certs
+              mountPath: /var/certs/client/broker
+            {{- end }}
+            {{- end }}
+            {{- if (include "cells.cache.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.cache.tls.ca.existingSecret" .))) }}
+            - name: cache-ca-certs
+              mountPath: /var/certs/ca/cache
+            {{- end }}
+            {{- if (not (empty (include "cells.cache.tls.client.existingSecret" .))) }}
+            - name: cache-client-certs
+              mountPath: /var/certs/client/cache
+            {{- end }}
+            {{- end }}
+            {{- if (include "cells.database.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.database.tls.ca.existingSecret" .))) }}
+            - name: db-ca-certs
+              mountPath: /var/certs/ca/db
+            {{- end }}
+            {{- if (not (empty (include "cells.database.tls.client.existingSecret" .))) }}
+            - name: db-client-certs
+              mountPath: /var/certs/client/db
+            {{- end }}
+            {{- end }}
+            {{- if (include "cells.nosql.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.nosql.tls.ca.existingSecret" .))) }}
+            - name: nosql-ca-certs
+              mountPath: /var/certs/ca/nosql
+            {{- end }}
+            {{- if (not (empty (include "cells.nosql.tls.client.existingSecret" .))) }}
+            - name: nosql-client-certs
+              mountPath: /var/certs/client/nosql
+            {{- end }}
+            {{- end }}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
+            - name: vault-ca-certs
+              mountPath: /var/certs/ca/vault
+            {{- end }}
+            {{- if (not (empty (include "cells.vault.tls.client.existingSecret" .))) }}
+            - name: vault-client-certs
+              mountPath: /var/certs/client/vault
+            {{- end }}
+            {{- end }}
+            {{- if (include "cells.s3.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.s3.tls.ca.existingSecret" .))) }}
+            - name: s3-ca-certs
+              mountPath: /var/certs/ca/s3
+            {{- end }}
+            {{- if (not (empty (include "cells.s3.tls.client.existingSecret" .))) }}
+            - name: s3-client-certs
+              mountPath: /var/certs/client/s3
+            {{- end }}
+            {{- end }}
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -187,90 +300,110 @@ spec:
             - "-c"
             - |
               sleep 3
-              source /var/cells-install/source
+              if [ -f /var/cells-install/source ]; then
+                source /var/cells-install/source
+              fi
               if ! cells admin config check; then 
                 cells configure
               fi
               sleep 3
           env:
+            - name: CELLS_WORKING_DIR
+              value: /var/cells
             - name: CELLS_INSTALL_YAML
               value: /var/cells-install/install-conf.yaml
-            {{- if .Values.etcd.enabled }}
-            {{- if or .Values.etcd.auth.rbac.create .Values.etcd.auth.rbac.enabled }}
-            - name: ETCD_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "etcd.secretName" .Subcharts.etcd }}
-                  key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
-            {{- end }}
-            - name: CELLS_CONFIG
-              value: {{ include "cells.etcdURL" (list . "/config") }}
-            - name: CELLS_VAULT
-              value: {{ include "cells.etcdURL" (list . "/vault") }}
-            {{- end }}
-            {{- if .Values.vault.enabled }}
-            - name: CELLS_KEYRING
-              value: {{ include "cells.vaultURL" . }}/secret?key=keyring
-            {{- end }}
-            {{- if .Values.mariadb.enabled }}
-            - name: MARIADB_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-mariadb
-                  key: mariadb-root-password
-            {{- end }}
-            {{- if index .Values "mariadb-galera" "enabled" }}
-            - name: MARIADB_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-mariadb-galera
-                  key: mariadb-root-password
-            {{- end }}
-            {{- if .Values.minio.enabled }}
-            - name: MINIO_ROOT_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-minio
-                  key: root-user
-            - name: MINIO_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-minio
-                  key: root-password
-            {{- end }}
-            - name: CELLS_CERTS_STORE
-              value: {{ include "cells.vaultURL" . }}/caddycerts
+            {{- include "cells.discovery.envvar" . | nindent 12 -}}
+            {{- include "cells.broker.envvar" . | nindent 12 -}}
+            {{- include "cells.cache.envvar" . | nindent 12 -}}
+            {{- include "cells.vault.envvar" . | nindent 12 -}}
+            {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.database.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.vault.auth.envvar" . | nindent 12 }}
           volumeMounts:
-            - name: cells
+            - name: data
+              mountPath: /var/cells
+            - name: install
               mountPath: /var/cells-install
       volumes:
-        - name: cells
+        - name: install
           configMap:
             name: {{ include "cells.fullname" . }}
-        {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-        - name: etcd-secret
+        {{- if (include "cells.tls.enabled" .) }}
+        - name: cells-ca-certs
           secret:
-            secretName: {{ .Values.etcd.auth.client.existingSecret }}
-        {{- end }}
-        {{- if and .Values.redis.enabled .Values.redis.tls.enabled }}
-        - name: redis-secret
+            secretName: {{ include "cells.tls.ca.existingSecret" . }}
+        - name: cells-server-certs
           secret:
-            secretName: {{ .Values.redis.tls.existingSecret }}
+            secretName: {{ include "cells.tls.server.existingSecret" . }}
         {{- end }}
-        {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
-        - name: minio-secret
+        {{- if (include "cells.discovery.tls.enabled" .) }}
+        {{- if (not (empty (include "cells.discovery.tls.ca.existingSecret" .))) }}
+        - name: discovery-ca-certs
           secret:
-            secretName: {{ .Values.minio.tls.existingSecret }}
+            secretName: {{ include "cells.discovery.tls.ca.existingSecret" . }}
+        {{- end -}}
+        {{- if (not (empty (include "cells.discovery.tls.client.existingSecret" .))) }}
+        - name: discovery-client-certs
+          secret:
+            secretName: {{ include "cells.discovery.tls.client.existingSecret" . }}
         {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        {{- if (include "cells.broker.tls.enabled" .) }}
+        - name: broker-ca-certs
+          secret:
+            secretName: {{ include "cells.broker.tls.ca.existingSecret" . }}
+        - name: broker-client-certs
+          secret:
+            secretName: {{ include "cells.broker.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if (include "cells.cache.tls.enabled" .) }}
+        - name: cache-ca-certs
+          secret:
+            secretName: {{ include "cells.cache.tls.ca.existingSecret" . }}
+        - name: cache-client-certs
+          secret:
+            secretName: {{ include "cells.cache.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if (include "cells.database.tls.enabled" .) }}
+        - name: db-ca-certs
+          secret:
+            secretName: {{ include "cells.database.tls.ca.existingSecret" . }}
+        - name: db-client-certs
+          secret:
+            secretName: {{ include "cells.database.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if (include "cells.nosql.tls.enabled" .) }}
+        - name: nosql-ca-certs
+          secret:
+            secretName: {{ include "cells.nosql.tls.ca.existingSecret" . }}
+        - name: nosql-client-certs
+          secret:
+            secretName: {{ include "cells.nosql.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if (include "cells.s3.tls.enabled" .) }}
+        - name: s3-ca-certs
+          secret:
+            secretName: {{ include "cells.s3.tls.ca.existingSecret" . }}
+        - name: s3-client-certs
+          secret:
+            secretName: {{ include "cells.s3.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if (include "cells.vault.tls.enabled" .) }}
+        - name: vault-ca-certs
+          secret:
+            secretName: {{ include "cells.vault.tls.ca.existingSecret" . }}
+        - name: vault-client-certs
+          secret:
+            secretName: {{ include "cells.vault.tls.client.existingSecret" . }}
+        {{- end }}
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "cells.claimName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

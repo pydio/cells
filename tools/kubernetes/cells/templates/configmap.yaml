@@ -4,7 +4,9 @@ metadata:
   name: {{ include "cells.fullname" . }}
 data:
   source: |
+    {{- if (include "cells.vault.enabled" .) }}
     export VAULT_TOKEN=$(cat /vault/secrets/token)
+    {{- end }}
   install-conf.yaml: |
     proxyconfigs:
       - binds:
@@ -18,51 +20,57 @@ data:
       {{- if .Values.service.reverseproxyurl }}
         reverseproxyurl: {{ .Values.service.reverseproxyurl }}
       {{- end }}
-      {{- if .Values.service.tlsconfig }}
+      {{- if (include "cells.tls.enabled" . ) }}
         tlsconfig:
-          {{ toYaml .Values.service.tlsconfig | nindent 10 }}
+          {{- if (include "cells.tls.selfSigned" .) }}
+          selfsigned:
+          {{- else }}
+          certificate:
+            certfile: /var/cells/certs/cells-server-tls.crt
+            keyfile: /var/cells/certs/cells-server-tls.key
+            cellsrootca: /var/cells/certs/cells-tls-ca.crt
+          {{- end }}
       {{- end }}
-    
+
     customconfigs:
-      {{ toYaml .Values.service.customconfigs | nindent 6 }}
+      {{- toYaml .Values.service.customconfigs | nindent 6 }}
 
-    {{- if .Values.mariadb.enabled}}
-    dbmanualdsn: {{ include "cells.mariadbURL" . }}
+    {{- if (include "cells.database.enabled" .) }}
     dbconnectiontype: tcp
-    dbtcphostname: {{ include "cells.mariadbHost" . }}
-    dbtcpport: {{ include "cells.mariadbPort" . }}
-    dbtcpname: cells
-    dbtcpuser: root
-    dbtcppassword: {$MARIADB_ROOT_PASSWORD}
-    {{- end }}
-    
-    {{- if (index .Values "mariadb-galera" "enabled") }}
-    dbconnectiontype: tcp
-    dbtcphostname: {{ include "cells.mariadbGaleraHost" . }}
-    dbtcpport: {{ include "cells.mariadbGaleraPort" . }}
-    dbtcpname: cells
-    dbtcpuser: root
-    dbtcppassword: {$MARIADB_ROOT_PASSWORD}
-    {{- end }}
+    dbtcphostname: {{ include "cells.database.host" . }}
+    dbtcpport: {{ include "cells.database.port" . }}
+    dbtcpname: {{ include "cells.database.name" . }}
+    {{- if (include "cells.database.auth.enabled" .) }}
+    dbtcpuser: {${{ include "cells.database.auth.user" . }}}
+    dbtcppassword: {${{ include "cells.database.auth.password" . }}}
+    {{- end -}}
+    {{- end -}}
 
-    documentsdsn: {{ include "cells.mongodbURL" . }}/cells
+    {{- if (include "cells.nosql.enabled" .) }}
+    documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}
     usedocumentsdsn: true
+    {{- else }}
+    usedocumentsdsn: false
+    {{- end }}
 
     # Defined in .env file
     frontendlogin: admin
     frontendpassword: P@ssw0rd
 
+    {{- if (include "cells.s3.enabled" .) }}
     dstype: S3
-    dss3custom: {{ include "cells.minioURL" . }}
-    dss3apikey: {$MINIO_ROOT_USER}
-    dss3apisecret: {$MINIO_ROOT_PASSWORD}
+    dss3custom: {{ include "cells.s3.url" (list . "") }}
+    dss3apikey: {{ include "cells.s3.auth.user" . }}
+    dss3apisecret: {{ include "cells.s3.auth.password" . }}
     dss3bucketdefault: pydiods1
     dss3bucketpersonal: personal
     dss3bucketcells: cellsdata
     dss3bucketbinaries: binaries
     dss3bucketthumbs: thumbnails
     dss3bucketversions: versions
+    {{- end }}
 ---
+{{- if .Values.vault.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -72,6 +80,9 @@ data:
     #!/bin/sh
 
     OUTPUT=/tmp/output.txt
+    echo "Waiting for Vault token..."
+    #while [ ! -f /root/.vault-token ]; do echo "Waiting..."; sleep 1; done
+
     export VAULT_TOKEN=$(cat /root/.vault-token)
     export VAULT_ADDR=http://127.0.0.1:8200
 
@@ -93,8 +104,8 @@ data:
       ttl=8760h
     
     vault write pki/config/urls \
-      issuing_certificates="{{ include "cells.vaultURL" . }}/v1/pki/ca" \
-      crl_distribution_points="{{ include "cells.vaultURL" . }}/v1/pki/crl"
+      issuing_certificates="{{ include "cells.vault.url" (list . "/v1/pki/ca") }}" \
+      crl_distribution_points="{{ include "cells.vault.url" (list . "/v1/pki/crl") }}"
     
     vault secrets tune -max-lease-ttl=8760h pki
     
@@ -117,29 +128,18 @@ data:
     vault write auth/kubernetes/role/app \
        bound_service_account_names=app \
        bound_service_account_namespaces=cells \
-       policies=app,pki \
+       policies=app,pki,default \
        ttl=24h
 
     vault token create -policy=app
 
   app-policy.hcl: |
-    path "auth/token/lookup-self" {
-        capabilities = ["read"]
-    }
-    path "sys/internal/ui/mounts/auth/token/lookup-self" {
-        capabilities = ["read"]
-    }
-    path "secret/*" {
-        capabilities = ["create", "update", "read", "delete"]
-    }
-    path "caddycerts/*" {
-        capabilities = ["create", "update", "read", "delete"]
-    }
-    path "pki*" {
-        capabilities = ["create", "update", "read", "delete"]
-    }
+    path "secret/*"     { capabilities = ["create", "update", "read", "delete"] }
+    path "caddycerts/*" { capabilities = ["create", "update", "read", "delete"] }
 
   pki-policy.hcl: |
     path "pki*"                    { capabilities = ["read", "list"] } 
     path "pki/sign/application"    { capabilities = ["create", "update"] }
     path "pki/issue/application"   { capabilities = ["create"] }
+
+{{- end}}
