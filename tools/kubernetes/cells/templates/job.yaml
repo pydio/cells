@@ -1,0 +1,64 @@
+{{- if .Values.externalVault.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "common.names.fullname" . }}-vault-test
+  annotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-4",
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded",
+  }
+spec:
+  template:
+    metadata:
+      annotations: {
+        vault.hashicorp.com/agent-inject: "true",
+        vault.hashicorp.com/auth-type: "kubernetes",
+        vault.hashicorp.com/role: "app",
+        vault.hashicorp.com/agent-pre-populate-only : "true",
+        vault.hashicorp.com/agent-inject-token: "true",
+      }
+    spec:
+      serviceAccountName: app
+      containers:
+        - name: vault
+          image: hashicorp/vault
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+
+              echo "Waiting for Vault token..."
+              while [ ! -f /vault/secrets/token ]; do echo "Waiting..."; sleep 1; done
+
+              export VAULT_ADDR="{{ printf "http://%s:%s" (include "cells.vault.host" .) (include "cells.vault.port" .) }}"
+
+              vault login -no-print $(cat /vault/secrets/token)
+
+              echo "Logged in..."
+
+              if [ "$(vault token capabilities caddycerts/test)" != "create, delete, read, update" ]; then
+                echo "Role should have permission to create, delete, read and update caddycerts kv"
+                exit 1;
+              fi
+
+              if [ "$(vault token capabilities secret/test)" != "create, delete, read, update" ]; then
+                echo "Role should have permission to create, delete, read and update secret kv"
+                exit 1;
+              fi
+
+              if [ "$(vault token capabilities pki/sign/application)" != "create, update" ]; then
+                echo "Role should have permission create and update a pki signature"
+                exit 1;
+              fi
+
+              if [ "$(vault token capabilities pki/issue/application)" != "create" ]; then
+                echo "Role should have permission to issue a pki"
+                exit 1;
+              fi
+
+              echo "All permissions set correctly..."
+
+              exit 0
+      restartPolicy: OnFailure
+  {{- end -}}

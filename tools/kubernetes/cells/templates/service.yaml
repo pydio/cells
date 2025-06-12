@@ -14,7 +14,7 @@ metadata:
       {{- end }}
       {{- if .Values.commonAnnotations }}
       {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-      {{- end }}
+    {{- end }}
   {{- end }}
 spec:
   type: {{ .Values.service.type }}

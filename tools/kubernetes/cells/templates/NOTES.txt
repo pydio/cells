@@ -8,10 +8,54 @@ CHART NAME: {{ .Chart.Name }}
  | |     __/ |
  |_|    |___/
 
-{{- if .Values.ingress.enabled }}
+{{- if .Release.IsUpgrade }}
+Please ensure that the table hydra_jwk in the sql database is empty for an upgrade :
+    delete from hydra_jwk;
+{{- end }}
+{{- if and .Release.IsInstall .Values.externalVault.enabled }}
+
+For an externally managed vault, you need to make sure your Vault is correctly initialized and unsealed upon each pod restart :
+
+    https://developer.hashicorp.com/vault/docs/platform/k8s/helm/run#initialize-and-unseal-vault
+
+And you need to make sure that the following auth, roles, secrets and policies are set :
+
+    # Enable kubernetes authentication
+    vault auth enable kubernetes
+
+    vault write auth/kubernetes/config \
+        kubernetes_host=https://kubernetes.default.svc \
+        kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+    # Enable kubernetes roles
+    vault write auth/kubernetes/role/app \
+        bound_service_account_names=app \
+        bound_service_account_namespaces=cells \
+        policies=app,pki,default \
+        ttl=24h
+
+    # Enable secrets stores
+    vault secrets enable -version=2 -path=secret kv
+    vault secrets enable -version=2 -path=caddycerts kv
+    vault secrets enable pki
+
+    # Enable policies
+    vault policy write app - <<EOF
+        path "secret/*"     { capabilities = ["create", "update", "read", "delete"] }
+        path "caddycerts/*" { capabilities = ["create", "update", "read", "delete"] }
+EOF
+
+    vault policy write pki - <<EOF
+        path "pki*"                    { capabilities = ["read", "list"] }
+        path "pki/sign/application"    { capabilities = ["create", "update"] }
+        path "pki/issue/application"   { capabilities = ["create"] }
+EOF
+
+{{- end }}
+{{- if (include "cells.ingress.enabled" $) }}
 
 Your application URL is :
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostname }}{{ .Values.ingress.path }}
+  http{{ if (include "cells.ingress.tls.enabled" $) }}s{{ end }}://{{ (include "cells.ingress.hostname" $) }}{{ .Values.ingress.path }}
 
 NOTE: It may take a few minutes for the pods to be ready and accessible by the load balancer
 

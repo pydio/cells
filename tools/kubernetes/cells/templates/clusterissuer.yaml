@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled }}
+{{- if and false .Values.ingress.enabled }}
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
