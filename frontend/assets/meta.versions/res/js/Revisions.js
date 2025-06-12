@@ -83,7 +83,11 @@ class Revisions extends Component {
 
     load() {
         const {node} = this.props;
-        const provider = new MetaNodeProvider({versions:'true',file:node.getPath(), silent:true});
+        const providerProps = {versions:'true',file:node.getPath(), silent:true}
+        if(node.getMetadata().has('repository_id')) {
+            providerProps['tmp_repository_id'] = node.getMetadata().get('repository_id')
+        }
+        const provider = new MetaNodeProvider(providerProps);
         const versionsRoot = new Node("/", false, "Versions", "folder.png", provider);
         this.setState({empty: false})
         provider.loadNode(versionsRoot, (n) => {
