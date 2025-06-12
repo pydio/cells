@@ -128,7 +128,7 @@ class Viewer extends Component {
     }
 
     render() {
-        const {loadThumbnail, containerWidth, currentPin} = this.props;
+        const {loadThumbnail, containerWidth, currentPin, onUpdateRatio} = this.props;
         const {url, pdfUrl, crtPage = 1, numPages, showPaginator, lastKnownHeight} = this.state || {}
         let mw = 250;
         if(containerWidth > 300) {
@@ -161,7 +161,13 @@ class Viewer extends Component {
                         pdfUrl={pdfUrl}
                         pageNumber={crtPage}
                         onNumPages={(n) => this.setState({numPages: n})}
-                        onKnownHeight={(h) => this.setState({lastKnownHeight:h})}
+                        onKnownHeight={(h) => {
+                            if(onUpdateRatio) {
+                                console.log('update ratio?', h, mw)
+                                onUpdateRatio(h / mw)
+                            }
+                            this.setState({lastKnownHeight:h})
+                        }}
                     />
                     {paginator}
                     <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeCss(lastKnownHeight, currentPin)}}/>
