@@ -213,6 +213,9 @@ func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields
 }
 
 func (m *Codex) regexTerm(term string) primitive.Regex {
+	if term == "*" {
+		return primitive.Regex{Pattern: ".*", Options: "i"}
+	}
 	pattern := strings.ReplaceAll(strings.Trim(term, " \""), " ", "[\\W_-]*")
 	return primitive.Regex{Pattern: pattern, Options: "i"}
 }
@@ -223,7 +226,7 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	var filters []bson.E
 
 	queryObject := query.(*tree.Query)
-	if term := queryObject.GetFileNameOrContent(); term != "" && term != "*" {
+	if term := queryObject.GetFileNameOrContent(); term != "" {
 		rx := m.regexTerm(term)
 		filters = append(filters, bson.E{"$or", bson.A{
 			bson.M{"basename": rx},

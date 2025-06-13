@@ -234,6 +234,19 @@ func TestSearchNode(t *testing.T) {
 
 		})
 
+		Convey("Search Node '*'", t, func() {
+
+			queryObject := &tree.Query{
+				FileName: "*",
+				Type:     tree.NodeType_LEAF,
+			}
+
+			results, _, e := performSearch(ctx, server, queryObject)
+			So(e, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+
+		})
+
 		Convey("Search Node by extension", t, func() {
 
 			queryObject := &tree.Query{
