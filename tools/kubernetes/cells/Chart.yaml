@@ -52,6 +52,11 @@ dependencies:
     condition: mariadb.enabled
     repository: "oci://registry-1.docker.io/bitnamicharts"
     version: "20.5.5"
+  # Mariadb galera is legacy as it is included in mariadb
+  - name: mariadb-galera
+    condition: mariadb-galera.enabled
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "x.x.x"
   - name: redis
     condition: redis.enabled
     repository: "oci://registry-1.docker.io/bitnamicharts"

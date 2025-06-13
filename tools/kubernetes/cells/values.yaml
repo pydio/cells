@@ -305,6 +305,11 @@ mariadb:
   volumePermissions:
     enabled: true
 
+# Legacy - do not use - use mariadb or externalDatabase instead
+mariadb-galera:
+  enabled: false
+
+
 redis:
   enabled: false
   volumePermissions:
