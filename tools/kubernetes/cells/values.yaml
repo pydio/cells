@@ -304,6 +304,8 @@ mariadb:
   enabled: false
   volumePermissions:
     enabled: true
+  networkPolicy:
+    enabled: false
 
 # Legacy - do not use - use mariadb or externalDatabase instead
 mariadb-galera:
