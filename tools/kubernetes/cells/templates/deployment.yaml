@@ -63,7 +63,11 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.image.local }}
+          image: "{{ .Values.image.repository }}"
+          {{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh"]
           args:
@@ -138,6 +142,9 @@ spec:
             periodSeconds: 20
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" .) | nindent 8 }}
+        {{- end }}
       initContainers:
         {{- if (include "cells.database.enabled" .) }}
         - name: wait-for-database
@@ -175,7 +182,11 @@ spec:
           command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }}; do echo waiting for vault; sleep 2; done']
         {{- end }}
         - name: install-certs
+          {{- if .Values.image.local }}
+          image: "{{ .Values.image.repository }}"
+          {{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - "/bin/sh"
@@ -216,7 +227,7 @@ spec:
               mountPath: /var/cells-install
             - name: data
               mountPath: /var/cells
-            {{- if (include "cells.tls.enabled" .) }}
+            {{- if and (include "cells.tls.enabled" .) (not (include "cells.tls.selfSigned" .)) }}
             - name: cells-ca-certs
               mountPath: /var/certs/ca/cells
             - name: cells-server-certs
@@ -293,7 +304,11 @@ spec:
             {{- end }}
             {{- end }}
         - name: install
+          {{- if .Values.image.local }}
+          image: "{{ .Values.image.repository }}"
+          {{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - "/bin/sh"
@@ -328,11 +343,14 @@ spec:
               mountPath: /var/cells
             - name: install
               mountPath: /var/cells-install
+        {{- if .Values.initContainers }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.initContainers "context" .) | nindent 8 }}
+        {{- end }}
       volumes:
         - name: install
           configMap:
             name: {{ include "cells.fullname" . }}
-        {{- if (include "cells.tls.enabled" .) }}
+        {{- if and (include "cells.tls.enabled" .) (not (include "cells.tls.selfSigned" .)) }}
         - name: cells-ca-certs
           secret:
             secretName: {{ include "cells.tls.ca.existingSecret" . }}
@@ -407,3 +425,6 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
