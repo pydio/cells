@@ -288,7 +288,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 			}
 
 			var storeNow bool
-			if stored, o := buffer[task.JobID][task.ID]; !o || stored.Status == proto.TaskStatus_Finished {
+			if stored, o := buffer[task.JobID][task.ID]; !o || stored.Status == proto.TaskStatus_Finished || task.Status == proto.TaskStatus_Finished {
 				storeNow = true
 			}
 

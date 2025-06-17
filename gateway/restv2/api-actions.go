@@ -144,7 +144,10 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 		if er != nil {
 			return errors.Tag(er, errors.StatusBadRequest)
 		}
-		interval := duration / 5
+		interval := duration / 10
+		if interval < 100*time.Millisecond {
+			interval = 100 * time.Millisecond
+		}
 		var bb []*rest.BackgroundAction
 		er = std.Retry(ctx, func() error {
 			var tasks []*rest.BackgroundAction
