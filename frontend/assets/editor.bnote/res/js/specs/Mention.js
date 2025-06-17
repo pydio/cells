@@ -61,3 +61,5 @@ export const MentionSuggestionMenu = ({editor}) => <SuggestionMenuController
     triggerCharacter={"@"}
     getItems={(query) => getMentionMenuItems(editor, query)}
 />
+
+export const mentionInlineSpecs = {mention: Mention}

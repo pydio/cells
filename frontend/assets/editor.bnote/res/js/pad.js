@@ -31,28 +31,24 @@ import {
 import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
 import { en } from '@blocknote/core/locales'
 import {codeBlock} from "@blocknote/code-block";
-import {ChildrenList, insertChildrenList} from './blocks/ChildrenList';
-import {Mention, MentionSuggestionMenu} from './mentions/Mention'
-import {NodeBlock, NodeRef, NodesSuggestionMenu} from "./mentions/NodeRef";
-import {Alert, insertAlertItem} from './blocks/Alert'
-import {Title} from './blocks/Title'
+import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
+import {nodeBlockSpecs, nodeInlineSpecs, insertChildrenList, NodesSuggestionMenu} from "./specs/NodeRef";
+import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
 import {SideMenuButton} from "./SideMenuButton";
 import ContextMenuModel from 'pydio/model/context-menu'
+import {headerBlockSpecs} from "./specs/Header";
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
-        // Adds all default blocks.
         ...defaultBlockSpecs,
-        // Adds the Alert block.
-        childrenList: ChildrenList,
-        alert: Alert,
-        title: Title,
-        nodeBlock: NodeBlock
+        ...nodeBlockSpecs,
+        ...alertBlockSpecs,
+        ...headerBlockSpecs
     },
     inlineContentSpecs: {
         ...defaultInlineContentSpecs,
-        mention:Mention,
-        nodeRef:NodeRef,
+        ...nodeInlineSpecs,
+        ...mentionInlineSpecs,
     }
 });
 
@@ -60,8 +56,8 @@ const schema = BlockNoteSchema.create({
 const getCustomSlashMenuItems = (
     editor
 ) => [
-    insertChildrenList(editor),
     ...getDefaultReactSlashMenuItems(editor),
+    insertChildrenList(editor),
     insertAlertItem(editor),
 ];
 

@@ -18,11 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuController, useBlockNoteEditor} from "@blocknote/react";
+import {createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuController} from "@blocknote/react";
 import SearchApi from 'pydio/http/search-api';
 import Pydio from 'pydio'
-import {SingleNode} from "./SingleNode";
+import {SingleNode} from "../blocks/SingleNode";
 import uuid4 from 'uuid4'
+import React from "react";
+import {insertOrUpdateBlock} from "@blocknote/core";
+import {RiFolderOpenFill} from "react-icons/ri";
+import {ModernList} from "../blocks/ChildrenList";
 
 const api = new SearchApi(Pydio.getInstance())
 
@@ -31,9 +35,11 @@ export const NodeRef = createReactInlineContentSpec(
         type: "nodeRef",
         propSchema: {
             inlineId: { default: ''},
+            nodeUuid: { default: "" },
             path: { default: "" },
             label: { default: "" },
             repositoryId: { default: "" },
+            displayPicker: { default: false }
         },
         content: "none",
     },
@@ -47,9 +53,10 @@ export const NodeBlock = createReactBlockSpec(
         type: "nodeBlock",
         propSchema: {
             inlineId: { default: ''},
+            nodeUuid: { default: "" },
             path: { default: "" },
-            label: { default: "" },
             repositoryId: { default: "" },
+            label: { default: "" },
             blockSize: { default: 'md'}
         },
         content: "none",
@@ -57,6 +64,28 @@ export const NodeBlock = createReactBlockSpec(
     {
         render: (props) => {
             return <SingleNode {...props} inline={false} {...props.block.props}/>
+        },
+    }
+);
+
+// Inline listing block.
+export const ChildrenList = createReactBlockSpec(
+    {
+        type: "childrenList",
+        propSchema: {
+            display: {
+                default: 'compact',
+                values: ['compact', 'list', 'grid', 'detail', 'masonry-160']
+            },
+            nodeUuid: {default: ''},
+            path: {default: ''},
+            repositoryId: {default: ''}
+        },
+        content: "none",
+    },
+    {
+        render: (props) => {
+            return <ModernList editor={props.editor} block={props.block}/>
         },
     }
 );
@@ -70,7 +99,15 @@ export const getNodesMenuItems = (editor, query) => {
                 title: <span>{node.getMetadata().get('repository_display')} - {node.getPath()}</span>,
                 onItemClick: () => {
                     editor.insertInlineContent([
-                        { type: "nodeRef", props: { inlineId: uuid4(), label, path: node.getPath(), repositoryId:node.getMetadata().get('repository_id') } },
+                        {
+                            type: "nodeRef",
+                            props: {
+                                inlineId: uuid4(),
+                                label,
+                                nodeUuid: node.getMetadata().get('uuid'),
+                                path: node.getPath(),
+                                repositoryId:node.getMetadata().get('repository_id')
+                            } },
                         " ", // add a space after the mention
                     ]);
                 }
@@ -85,3 +122,28 @@ export const NodesSuggestionMenu = ({editor}) => <SuggestionMenuController
     getItems={(query) => getNodesMenuItems(editor, query)}
     minQueryLength={0}
 />
+// Custom Slash Menu item to insert a block after the current one.
+export const insertChildrenList = (editor) => ({
+    title: "Contents",
+    onItemClick: () =>
+        // If the block containing the text caret is empty, `insertOrUpdateBlock`
+        // changes its type to the provided block. Otherwise, it inserts the new
+        // block below and moves the text caret to it.
+        insertOrUpdateBlock(editor, {
+            type: "childrenList",
+            props: {display: 'compact'},
+        }),
+    aliases: ["contents", "co"],
+    group: "Others",
+    icon: <RiFolderOpenFill size={18}/>,
+    subtext: "Display current folder contents",
+});
+
+export const nodeBlockSpecs = {
+    childrenList: ChildrenList,
+    nodeBlock: NodeBlock
+}
+
+export const nodeInlineSpecs = {
+    nodeRef: NodeRef
+}

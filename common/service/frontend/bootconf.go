@@ -61,6 +61,7 @@ type CustomWording struct {
 type BootConf struct {
 	AjxpResourcesFolder          string `json:"ajxpResourcesFolder"`
 	ENDPOINT_REST_API            string
+	ENDPOINT_REST_API_V2         string
 	ENDPOINT_S3_GATEWAY          string
 	ENDPOINT_WEBSOCKET           string
 	PUBLIC_BASEURI               string
@@ -144,6 +145,7 @@ func ComputeBootConf(ctx context.Context, pool *PluginsPool, showVersion ...bool
 	b := &BootConf{
 		AjxpResourcesFolder:          "/plug/gui.ajax/res",
 		ENDPOINT_REST_API:            routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST),
+		ENDPOINT_REST_API_V2:         routing.RouteIngressURIContext(ctx, common.RouteApiRESTv2, common.DefaultRouteRESTv2),
 		ENDPOINT_S3_GATEWAY:          routing.RouteIngressURIContext(ctx, common.RouteBucketIO, common.DefaultRouteBucketIO),
 		ENDPOINT_WEBSOCKET:           strings.TrimRight(routing.RouteIngressURIContext(ctx, common.RouteWebsocket, common.DefaultRouteWebsocket), "/") + "/event",
 		PUBLIC_BASEURI:               routing.RouteIngressURIContext(ctx, common.RoutePublic, common.DefaultRoutePublic),

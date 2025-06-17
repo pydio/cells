@@ -24,7 +24,7 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
 import {useNodeContent} from "./hooks";
-import {ListContext} from "./blocks/ChildrenList";
+import {PydioContext} from "./hooks/context";
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
 export const SaveContext = createContext({
@@ -77,7 +77,7 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
 
     return (
         <SaveContext.Provider value={{dirty, saving: false}}>
-        <ListContext.Provider value={{dataModel, entryProps}}>
+        <PydioContext.Provider value={{dataModel, entryProps}}>
             <div
                 /*
                 onDragOver={(e) => {
@@ -102,7 +102,7 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
            }}*/
             style={{...style, position:'relative'}}
             >{body}</div>
-        </ListContext.Provider>
+        </PydioContext.Provider>
         </SaveContext.Provider>
     )
 }

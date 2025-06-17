@@ -18,63 +18,91 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState, useEffect, useCallback, createContext, useContext} from 'react'
-import { createReactBlockSpec } from "@blocknote/react";
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
+import {MdSort} from "react-icons/md";
+import {Paper} from '@mantine/core'
+import Pydio from 'pydio'
+import {BlockMenu} from "./BlockMenu";
+import DataModel from 'pydio/model/data-model'
+import {useHover} from "../hooks";
+import {useResolveSingleNode} from "../hooks/useLoadSingleNode";
+import {useSingleNodeActions} from "../hooks/useSingleNodeActions";
+import {useSingleNodeDisplay} from "../hooks/useSingleNodeDisplay";
+import {PydioContext} from "../hooks/context";
+
+import './styles/ChildrenListStyles.less'
+
 const {FilePreview, useRichMetaLine, useRichMetaActions} = Pydio.requireLib('workspaces');
 const {useColumnsFromRegistry} = Pydio.requireLib('hoc');
 const {useSorting} = Pydio.requireLib('components');
-import {MdOutlineViewCompact, MdOutlineViewList, MdGridView, MdOutlineViewQuilt, MdOutlineViewColumn, MdSort} from "react-icons/md";
-import {Paper} from '@mantine/core'
 
 const { ModernSimpleList } = Pydio.requireLib('components')
-import Pydio from 'pydio'
-import './ChildrenListStyles.less'
-import {BlockMenu} from "./BlockMenu";
-import {insertOrUpdateBlock} from "@blocknote/core";
-import {RiFolderOpenFill} from "react-icons/ri";
-import AjxpNode from 'pydio/model/node'
-import DataModel from 'pydio/model/data-model'
-import {useHover} from "../hooks";
 
-export const ListContext = createContext({
-    dataModel:Pydio.getInstance().getContextHolder(),
-    entryProps:{handleClicks: () => {} }
-})
-
-const ModernList = ({editor, block}) => {
+export const ModernList = ({editor, block}) => {
 
     const pydio = Pydio.getInstance()
-    const {path, repositoryId} = block.props
-    const {dataModel:ctxDataModel} = useContext(ListContext);
-    let dataModel = ctxDataModel
-    let initialNode = dataModel && dataModel.getContextNode()
-    let error = false
-    if (path) {
-        const providerProps = {}
-        if(repositoryId) {
-            if (pydio.user.getRepositoriesList().get(repositoryId)){
-                providerProps.tmp_repository_id = repositoryId
-            } else {
-                error = true
-            }
-        }
-        dataModel = DataModel.RemoteDataModelFactory(providerProps);
-        initialNode = dataModel.getRootNode()
-    }
-    const [contextNode, setContextNode] = useState(initialNode)
+    const {nodeUuid, path} = block.props
+    const {dataModel:ctxDataModel} = useContext(PydioContext);
+    const [dataModel, setDataModel] = useState(ctxDataModel)
+    const [contextNode, setContextNode] = useState(!nodeUuid && ctxDataModel.getContextNode())
+    const [resolvedNode, setResolvedNode] = useState(null)
+    const [error, setError] = useState(null)
 
+    // Resolve uuidNode if set, otherwise will fallback to current context node
+    const setNode = useCallback((rootNode)=>{
+        const providerProps = {}
+        if(rootNode.getMetadata().has('repository_id')) {
+            providerProps.tmp_repository_id = rootNode.getMetadata().get('repository_id')
+        }
+        const dm = DataModel.RemoteDataModelFactory(providerProps);
+        setDataModel(dm);
+        setContextNode(dm.getRootNode())
+        setResolvedNode(rootNode);
+    }, [nodeUuid])
+    useResolveSingleNode({nodeUuid, setNode, setError})
+
+    // Handle contextNode
     useEffect(() => {
+        if(!dataModel){
+            return
+        }
         const observer = () => setContextNode(dataModel.getContextNode())
         dataModel.observe('context_changed', observer)
-        if(path) {
-            dataModel.requireContextChange(new AjxpNode(path))
+        if(resolvedNode) {
+            dataModel.requireContextChange(resolvedNode)
         }
         return () => {
             dataModel.stopObserving('context_changed', observer)
         }
-    }, []);
+    }, [dataModel, resolvedNode]);
 
-    const {hover, hoverProps, hoverMoreStyle} = useHover()
+    // Bind local dataModel selection to global datamodel in both ways
+    useEffect(() => {
+        if(!dataModel || dataModel === ctxDataModel) {
+            return
+        }
+        const observerUp = () => {
+            const nodes = dataModel.getSelectedNodes()
+            if(nodes && nodes.length) {
+                ctxDataModel.setSelectedNodes(dataModel.getSelectedNodes(), dataModel)
+            }
+        }
+        const observerDown = () => {
+            if(ctxDataModel.getSelectionSource() !== dataModel){
+                console.log('clearing local DM')
+                dataModel.setSelectedNodes([])
+            }
+        }
+        dataModel.observe('selection_changed', observerUp)
+        ctxDataModel.observe('selection_changed', observerDown)
+        return () => {
+            dataModel.stopObserving('selection_changed', observerUp)
+            ctxDataModel.stopObserving('selection_changed', observerDown)
+        }
+        // Map selection to global DM
+    }, [dataModel]);
+
+    const {hoverProps, hoverMoreStyle} = useHover()
 
     const {columns} = useColumnsFromRegistry({pydio})
     if(columns && columns['ajxp_label']) {
@@ -111,30 +139,34 @@ const ModernList = ({editor, block}) => {
         defaultSortingInfo:{sortType:'file-natural',attribute:'',direction:'asc'}
     })
 
+    // BUILD MENUS
+    const sortMenuGroup = useMemo(() => {
 
-    const displayMenuItems = [
-        {value:'compact', title:'Compact', icon:MdOutlineViewCompact},
-        {value:'list', title:'Details', icon:MdOutlineViewList},
-        {value:'detail', title:'Table', icon:MdOutlineViewColumn},
-        {value:'grid', title:'Grid', icon:MdGridView},
-        {value:'masonry-160', title:'Waterfall', icon:MdOutlineViewQuilt}
-    ]
-    const displayMenuHandler = useCallback( (value) => {
-        if(value !== block.props.display) {
-            editor.updateBlock(block, {
-                type: "childrenList",
-                props: { display: value },
-            })
+        const sortMenuItems = Object.keys(columns).filter(k => columns[k].sortType).map(k => {
+            const col = columns[k]
+            return {value:{...col, attribute:k}, title:col.label, icon:MdSort}
+        })
+
+        return {
+            title: 'Sort By...',
+            values: sortMenuItems,
+            crtValue: currentSortingInfo,
+            onValueSelected: handleSortChange
         }
-    }, [block, editor])
 
-    const sortMenuItems = Object.keys(columns).filter(k => columns[k].sortType).map(k => {
-        const col = columns[k]
-        return {value:{...col, attribute:k}, title:col.label, icon:MdSort}
+    }, [columns, handleSortChange, currentSortingInfo])
+
+    const displayMenuGroup = useSingleNodeDisplay({
+        node:contextNode,
+        isBlockFolder:true,
+        skipInline:!resolvedNode,
+        crtValue:block.props.display,
+        blockOrInlineProps:{...block.props, block},
     })
-    const sortMenuHandler = (value) => {
-        handleSortChange(value)
-    }
+
+    const actions = useSingleNodeActions({node: resolvedNode})
+    const menuGroups = resolvedNode?[actions, displayMenuGroup, sortMenuGroup]:[displayMenuGroup, sortMenuGroup]
+
 
     const entryRenderIcon = useCallback((node) => {
         const lightBackground = display === 'grid' || display === 'masonry'
@@ -169,93 +201,46 @@ const ModernList = ({editor, block}) => {
             <div style={{display:'flex'}}>
                 <h3 style={{flex: 1, fontSize:'1.1em', fontWeight:600, marginBottom: 10}}>
                     <span style={{marginRight:6}} className={'mdi mdi-folder-open-outline'}/>️
-                    <span style={{marginRight:6, flex:1}}>{path || 'Current Folder Contents'}</span>
+                    <span style={{marginRight:6, flex:1}}>{resolvedNode && resolvedNode.getLabel() || path || 'Current Folder Contents'}</span>
                 </h3>
                 <span style={{fontSize:'1rem'}}>
-                    <BlockMenu
-                        groups={[
-                            {title:'Display', crtValue:display, values:displayMenuItems, onValueSelected:displayMenuHandler},
-                            {title:'Sort By...', crtValue:currentSortingInfo, values:sortMenuItems, onValueSelected:sortMenuHandler}
-                        ]}
-                        target={<span style={{cursor:'pointer', ...hoverMoreStyle}} className={"mdi mdi-dots-vertical-circle-outline"}/>}
-                        position={'bottom-end'}
-                    />
+                    <BlockMenu groups={menuGroups} settingsStyle={{...hoverMoreStyle}}/>
                 </span>
             </div>
-            <ModernSimpleList
-                pydio={pydio}
-                node={contextNode}
-                dataModel={dataModel}
-                observeNodeReload={true}
-                className={classes.join(' ')}
-                //style={style}
-                displayMode={display}
-                usePlaceHolder={false}
-                skipParentNavigation={true}
+            {error && <div>{path && 'Cannot load ' + path + ': '}{error.message}</div>}
+            {contextNode &&
+                <ModernSimpleList
+                    pydio={pydio}
+                    node={contextNode}
+                    dataModel={dataModel}
+                    observeNodeReload={true}
+                    className={classes.join(' ')}
+                    //style={style}
+                    displayMode={display}
+                    usePlaceHolder={false}
+                    skipParentNavigation={true}
 
-                tableKeys={columns}
-                sortingInfo={currentSortingInfo}
-                handleSortChange={handleSortChange}
+                    tableKeys={columns}
+                    sortingInfo={currentSortingInfo}
+                    handleSortChange={handleSortChange}
 
-                additionalAttrs={additionalAttrs}
+                    additionalAttrs={additionalAttrs}
 
-                entryRenderIcon={entryRenderIcon}
-                entryRenderParentIcon={entryRenderIcon}
-                entryRenderFirstLine={(node)=> node.getLabel()}
-                entryRenderSecondLine={display=== 'list' ? entryRenderSecondLine : null}
-                entryRenderActions={display !== 'detail' && !path ? entryRenderActions : null}
-                tableEntryRenderCell={(node) => (
-                    <span>
+                    entryRenderIcon={entryRenderIcon}
+                    entryRenderParentIcon={entryRenderIcon}
+                    entryRenderFirstLine={(node)=> node.getLabel()}
+                    entryRenderSecondLine={display=== 'list' ? entryRenderSecondLine : null}
+                    entryRenderActions={display !== 'detail' && !path ? entryRenderActions : null}
+                    tableEntryRenderCell={(node) => (
+                        <span>
                         {entryRenderIcon(node)}
-                        {node.getLabel()}
+                            {node.getLabel()}
                     </span>
-                )}
-
-            />
+                    )}
+                />
+            }
         </Paper>
 
     )
 
 }
-
-// Inline listing block.
-export const ChildrenList = createReactBlockSpec(
-    {
-        type: "childrenList",
-        propSchema: {
-            display: {
-                default:'compact',
-                values:['compact', 'list', 'grid', 'detail', 'masonry-160']
-            },
-            path: {
-                default: ''
-            },
-            repositoryId: {
-                default: ''
-            }
-        },
-        content: "none",
-    },
-    {
-        render: (props) => {
-            return <ModernList editor={props.editor} block={props.block}/>
-        },
-    }
-);
-
-// Custom Slash Menu item to insert a block after the current one.
-export const insertChildrenList = (editor) => ({
-    title: "Contents",
-    onItemClick: () =>
-        // If the block containing the text caret is empty, `insertOrUpdateBlock`
-        // changes its type to the provided block. Otherwise, it inserts the new
-        // block below and moves the text caret to it.
-        insertOrUpdateBlock(editor, {
-            type: "childrenList",
-            props: {display:'compact'},
-        }),
-    aliases: ["contents", "co"],
-    group: "Others",
-    icon: <RiFolderOpenFill size={18} />,
-    subtext: "Display current folder contents",
-});
