@@ -32,10 +32,7 @@ data:
           {{- end }}
       {{- end }}
 
-    customconfigs:
-      {{- toYaml .Values.service.customconfigs | nindent 6 }}
-
-    {{- if (include "cells.database.enabled" .) }}
+    {{ if (include "cells.database.enabled" .) }}
     dbconnectiontype: tcp
     dbtcphostname: {{ include "cells.database.host" . }}
     dbtcpport: {{ include "cells.database.port" . }}
@@ -43,8 +40,11 @@ data:
     {{- if (include "cells.database.auth.enabled" .) }}
     dbtcpuser: {${{ include "cells.database.auth.user" . }}}
     dbtcppassword: {${{ include "cells.database.auth.password" . }}}
-    {{- end -}}
-    {{- end -}}
+    {{- end }}
+    {{ else }}
+    dbconnectiontype: manual
+    dbmanualdsn: sqlite:///var/cells/pydio.db
+    {{ end }}
 
     {{- if (include "cells.nosql.enabled" .) }}
     documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}
@@ -69,6 +69,9 @@ data:
     dss3bucketthumbs: thumbnails
     dss3bucketversions: versions
     {{- end }}
+
+    customconfigs:
+      {{- toYaml .Values.service.customconfigs | nindent 6 }}
 ---
 {{- if .Values.vault.enabled }}
 apiVersion: v1
@@ -80,58 +83,91 @@ data:
     #!/bin/sh
 
     OUTPUT=/tmp/output.txt
-    echo "Waiting for Vault token..."
-    #while [ ! -f /root/.vault-token ]; do echo "Waiting..."; sleep 1; done
 
     export VAULT_TOKEN=$(cat /root/.vault-token)
     export VAULT_ADDR=http://127.0.0.1:8200
 
-    vault operator init -n 1 -t 1 >> ${OUTPUT?}
+    COUNT=1
+    LIMIT=30
+    while [ 1 ]; do
 
-    unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
-    root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
+      VAULT_STATUS=$(vault status -format json)
+      EXIT_STATUS=$?
 
-    vault operator unseal ${unseal?}
+      if echo \"$VAULT_STATUS\" | grep '"initialized": false'; then
+        if echo \"$VAULT_STATUS\" | grep '"type": "shamir"'; then
+          vault operator init -n 1 -t 1 >> ${OUTPUT?}
 
-    vault login -no-print ${root?}
+          unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+          vault operator unseal ${unseal?}
+        else
+          vault operator init >> ${OUTPUT?}
+        fi
 
-    vault secrets enable -version=2 -path=secret kv
-    vault secrets enable -version=2 -path=caddycerts kv
-    vault secrets enable pki
-    
-    vault write pki/root/generate/internal \
-      common_name={{ include "cells.serviceDomain" . }} \
-      ttl=8760h
-    
-    vault write pki/config/urls \
-      issuing_certificates="{{ include "cells.vault.url" (list . "/v1/pki/ca") }}" \
-      crl_distribution_points="{{ include "cells.vault.url" (list . "/v1/pki/crl") }}"
-    
-    vault secrets tune -max-lease-ttl=8760h pki
-    
-    vault write pki/roles/application \
-      allowed_domains=*.{{ include "cells.serviceDomain" . }} \
-      allow_any_name=true \
-      allow_subdomains=true \
-      max_ttl=72h
-    
-    vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
+        vault operator init -n 1 -t 1 >> ${OUTPUT?}
 
-    vault auth enable kubernetes
+        unseal=$(cat ${OUTPUT?} | grep "Unseal Key 1:" | sed -e "s/Unseal Key 1: //g")
+        root=$(cat ${OUTPUT?} | grep "Initial Root Token:" | sed -e "s/Initial Root Token: //g")
 
-    vault write auth/kubernetes/config \
-        kubernetes_host=https://kubernetes.default.svc \
-        kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        vault operator unseal ${unseal?}
 
-    vault policy write app /vault/userconfig/cells-vault/app-policy.hcl
+        vault login -no-print ${root?}
 
-    vault write auth/kubernetes/role/app \
-       bound_service_account_names=app \
-       bound_service_account_namespaces=cells \
-       policies=app,pki,default \
-       ttl=24h
+        vault secrets enable -version=2 -path=secret kv
+        vault secrets enable -version=2 -path=caddycerts kv
+        vault secrets enable pki
 
-    vault token create -policy=app
+        vault write pki/root/generate/internal \
+          common_name={{ include "cells.serviceDomain" . }} \
+          ttl=8760h
+
+        vault write pki/config/urls \
+          issuing_certificates="{{ include "cells.vault.url" (list . "/v1/pki/ca") }}" \
+          crl_distribution_points="{{ include "cells.vault.url" (list . "/v1/pki/crl") }}"
+
+        vault secrets tune -max-lease-ttl=8760h pki
+
+        vault write pki/roles/application \
+          allowed_domains=*.{{ include "cells.serviceDomain" . }} \
+          allow_any_name=true \
+          allow_subdomains=true \
+          max_ttl=72h
+
+        vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
+
+        vault auth enable kubernetes
+
+        vault write auth/kubernetes/config \
+            kubernetes_host=https://kubernetes.default.svc \
+            kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+        vault policy write app /vault/userconfig/cells-vault/app-policy.hcl
+
+        vault write auth/kubernetes/role/app \
+           bound_service_account_names=app \
+           bound_service_account_namespaces=cells \
+           policies=app,pki,default \
+           ttl=24h
+
+        vault token create -policy=app
+      elif [ $EXIT_STATUS -eq 2 ]; then
+        echo "$VAULT_STATUS"
+        exit 0
+
+      elif [ $COUNT -ge $LIMIT ]; then
+        # Dont know what happened... Exiting
+        echo "$VAULT_STAUS"
+        exit 1
+      else
+        # For debugging\n
+        echo "$VAULT_STATUS"
+        exit 0
+      fi
+
+      COUNT=$((COUNT+1))
+
+      sleep 1
+    done
 
   app-policy.hcl: |
     path "secret/*"     { capabilities = ["create", "update", "read", "delete"] }
@@ -142,4 +178,4 @@ data:
     path "pki/sign/application"    { capabilities = ["create", "update"] }
     path "pki/issue/application"   { capabilities = ["create"] }
 
-{{- end}}
+{{- end }}
