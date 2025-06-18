@@ -48,6 +48,29 @@ export const NodeRef = createReactInlineContentSpec(
     }
 );
 
+export const  pasteHandler= ({ event, editor, defaultPasteHandler }) => {
+    const text = event.clipboardData?.getData("text/plain") || "";
+    // split out any "node://UUID" chunks
+    const parts = text.split(/(node:\/\/[A-Za-z0-9-]+)/g);
+    if (parts.some((p) => p.startsWith("node://"))) {
+        const inlineContent = parts.map((chunk) => {
+            const m = /^node:\/\/([A-Za-z0-9-]+)$/.exec(chunk);
+            if (m) {
+                return {
+                    type: "nodeRef",
+                    props: { nodeUuid: m[1], inlineId: uuid4() },
+                };
+            }
+            return chunk;
+        });
+        // insert your mix of text + captureNodes
+        editor.insertInlineContent(inlineContent);
+        return true;  // we handled it
+    }
+    // otherwise let BlockNote do its default thing
+    return defaultPasteHandler();
+}
+
 export const NodeBlock = createReactBlockSpec(
     {
         type: "nodeBlock",

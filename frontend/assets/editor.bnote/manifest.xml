@@ -15,17 +15,55 @@
 	<registry_contributions>
 		<extensions>
 			<extension mime="note" messageId="bnote.ext" font="file-document-edit-outline"/>
+			<extension mime="meta:metadata.get(Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE'))" messageId="bnote.mime-page" font="file-document-edit-outline"/>
 		</extensions>
 		<actions>
-			<action name="ctx_create_kb">
-				<gui text="bnote.action" title="bnote.action" iconClass="mdi mdi-playlist-check" accessKey="" hasAccessKey="false" weight="110">
-					<context selection="false" dir="" recycle="hidden" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="change" inZip="false" evalMetadata="metadata.has('CellNode') &amp;&amp; Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE')"/>
+			<action name="ctx_enable_kb">
+				<gui text="bnote.enable_kb" title="bnote.enable_kb" iconClass="mdi mdi-playlist-check" hasAccessKey="false" weight="110">
+					<context selection="false" dir="true" file="false" recycle="hidden" actionBar="true" contextMenu="true"
+							 infoPanel="false" actionBarGroup="change" inZip="false"
+							 evalMetadata="Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE') &amp;&amp; !metadata.get(Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE'))"/>
 				</gui>
 				<rightsContext noUser="false" userLogged="only" read="true" write="true" adminOnly=""/>
 				<processing>
 					<clientCallback module="BlockNote.Callbacks.toggleKnowledgeBase"/>
 				</processing>
 			</action>
+			<action name="ctx_disable_kb">
+				<gui text="bnote.disable_kb" title="bnote.disable_kb" iconClass="mdi mdi-playlist-check" hasAccessKey="false" weight="110">
+					<context selection="false" dir="true" file="false" recycle="hidden" actionBar="true" contextMenu="true"
+							 infoPanel="false" actionBarGroup="change" inZip="false"
+							 evalMetadata="Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE') &amp;&amp; metadata.get(Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE'))"/>
+				</gui>
+				<rightsContext noUser="false" userLogged="only" read="true" write="true" adminOnly=""/>
+				<processing>
+					<clientCallback module="BlockNote.Callbacks.toggleKnowledgeBase"/>
+				</processing>
+			</action>
+			<action name="mkpage">
+				<gui text="bnote.mkpage" title="bnote.mkpage" iconClass="mdi mdi-file-document-plus-outline" weight="-1">
+					<context selection="false" dir="true" recycle="hidden" actionBar="true"
+							 contextMenu="true" infoPanel="false" actionBarGroup="create,minisite" inZip="false"
+							 evalMetadata="Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE')"
+					/>
+				</gui>
+				<rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+				<processing>
+					<clientCallback module="BlockNote.Callbacks.mkPage"/>
+				</processing>
+			</action>
+			<action name="clipboard_copy_ref">
+				<gui text="bnote.copy_ref" title="bnote.copy_ref" iconClass="mdi mdi-content-paste">
+					<context selection="true" dir="true" file="true" recycle="hidden" actionBar="true"
+							 contextMenu="true" infoPanel="false" actionBarGroup="other" inZip="false"/>
+					<selectionContext dir="true" file="true" recycle="false" unique="true" enableRoot="true"/>
+				</gui>
+				<rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
+				<processing>
+					<clientCallback module="BlockNote.Callbacks.copyRef"/>
+				</processing>
+			</action>
+
 		</actions>
 		<!--
 		<client_configs>

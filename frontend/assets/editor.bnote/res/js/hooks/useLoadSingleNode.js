@@ -1,10 +1,8 @@
 import {useEffect, useState} from 'react'
-import {NodeServiceApi} from 'cells-sdk-ts'
-import axios from "axios";
 import Pydio from 'pydio'
-import PydioApi from 'pydio/http/api'
 import AjxpNode from 'pydio/model/node';
 import PathUtils from 'pydio/util/path'
+import {NodeServiceApiFactory} from "./NodeServiceApiFactory";
 
 export const useResolveSingleNode = ({nodeUuid, setNode, setError}) => {
     useEffect(() => {
@@ -12,18 +10,7 @@ export const useResolveSingleNode = ({nodeUuid, setNode, setError}) => {
             return
         }
         const pydio = Pydio.getInstance()
-        PydioApi.getRestClient().getOrUpdateJwt().then(token => {
-            const frontU = pydio.getFrontendUrl();
-            const url = `${frontU.protocol}//${frontU.host}/`;
-            console.log(url + pydio.Parameters.get('ENDPOINT_REST_API_V2'))
-            const instance = axios.create({
-                baseURL: url + pydio.Parameters.get('ENDPOINT_REST_API_V2'),
-                timeout: 3000,
-                headers: {
-                    Authorization:'Bearer ' + token
-                }
-            });
-            const api= new NodeServiceApi(undefined, undefined, instance)
+        NodeServiceApiFactory(pydio).then(api => {
             api.getByUuid(nodeUuid).then(res => {
                 const fullPathParts = res.data.Path.split('/')
                 const slug = fullPathParts.shift()
@@ -44,6 +31,8 @@ export const useResolveSingleNode = ({nodeUuid, setNode, setError}) => {
             }).catch((e) => {
                 setError(e)
             })
+        }).catch(e => {
+            setError(e)
         })
     }, [nodeUuid, setNode, setError]);
 

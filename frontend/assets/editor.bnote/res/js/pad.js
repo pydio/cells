@@ -32,7 +32,7 @@ import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSu
 import { en } from '@blocknote/core/locales'
 import {codeBlock} from "@blocknote/code-block";
 import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
-import {nodeBlockSpecs, nodeInlineSpecs, insertChildrenList, NodesSuggestionMenu} from "./specs/NodeRef";
+import {nodeBlockSpecs, nodeInlineSpecs, insertChildrenList, NodesSuggestionMenu, pasteHandler} from "./specs/NodeRef";
 import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
 import {SideMenuButton} from "./SideMenuButton";
 import ContextMenuModel from 'pydio/model/context-menu'
@@ -93,9 +93,6 @@ const css = `
         .ProseMirror-selectednode>.bn-block-content[data-content-type="childrenList"]>*{
             outline: none;
         }
-        .tree-icon.mdi.mdi-folder:before {
-            content: '\\F0DC9';
-        }
     `
 
 
@@ -116,6 +113,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
             }
         },
+        pasteHandler:pasteHandler,
         codeBlock
     });
 

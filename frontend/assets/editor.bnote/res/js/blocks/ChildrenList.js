@@ -201,7 +201,14 @@ export const ModernList = ({editor, block}) => {
             <div style={{display:'flex'}}>
                 <h3 style={{flex: 1, fontSize:'1.1em', fontWeight:600, marginBottom: 10}}>
                     <span style={{marginRight:6}} className={'mdi mdi-folder-open-outline'}/>️
-                    <span style={{marginRight:6, flex:1}}>{resolvedNode && resolvedNode.getLabel() || path || 'Current Folder Contents'}</span>
+                    <span style={{marginRight:6, flex:1}}>
+                        {resolvedNode && resolvedNode.getLabel() || path || 'Table of Contents'}
+                        <span
+                            className={'mdi mdi-reload'}
+                            style={{marginLeft:6, fontSize: 12, cursor:'pointer', ...hoverMoreStyle}}
+                            onClick={()=>{dataModel.requireContextChange(contextNode, true)}}
+                        />
+                    </span>
                 </h3>
                 <span style={{fontSize:'1rem'}}>
                     <BlockMenu groups={menuGroups} settingsStyle={{...hoverMoreStyle}}/>
