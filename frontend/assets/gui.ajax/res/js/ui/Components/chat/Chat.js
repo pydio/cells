@@ -233,7 +233,7 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
                 {dropping &&
                     <div className={"dropping-panel"}>
                         <div style={{display:'flex', alignItems:'center'}}>
-                            <span className={'mdi mdi-' + (dropping.isLeaf()?'file':'folder')} style={{marginRight: 5}}/>
+                            <span className={dropping.getSvgSource()} style={{marginRight: 5}}/>
                             <span style={{flex: 1}}>{dropping.getLabel()}</span>
                             <div className={"mdi mdi-close"} title={m('dropzone.remove')} onClick={() => setDropping(null)}></div>
                         </div>

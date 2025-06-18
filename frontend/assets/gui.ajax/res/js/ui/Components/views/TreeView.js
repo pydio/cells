@@ -265,13 +265,7 @@ var SimpleTreeNode = createReactClass({
             if(getRightIcon) {
                 rightIcon = getRightIcon(node);
             }
-            let icon = 'mdi mdi-folder';
-            const ajxpMime = node.getAjxpMime();
-            if(ajxpMime === 'ajxp_browsable_archive'){
-                icon = 'mdi mdi-archive';
-            }else if(ajxpMime === 'ajxp_recycle'){
-                icon = 'mdi mdi-delete';
-            }
+            const icon = node.getSvgSource()
             let loader;
             if(showLoader && node.isLoading()) {
                 loader = <CircularProgress size={14} style={{marginLeft:7}} thickness={1}/>

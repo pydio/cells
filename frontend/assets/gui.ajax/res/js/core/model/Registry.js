@@ -385,11 +385,29 @@ export default class Registry{
             return this._fileExtensions;
         }
         this._fileExtensions = new Map();
+        this._metaExtensions = new Map();
         const nodes = XMLUtils.XPathSelectNodes(this._registry, 'extensions/*');
         nodes.forEach((node) => {
-            this._fileExtensions.set(node.getAttribute('mime'), {messageId: node.getAttribute('messageId'), fontIcon: node.getAttribute('font')})
+            const mime = node.getAttribute('mime');
+            const ext = {messageId: node.getAttribute('messageId'), fontIcon: node.getAttribute('font')}
+            if(mime.indexOf('meta:') !== 0) {
+                this._fileExtensions.set(mime, ext)
+            } else {
+                const evaluator = new Function('metadata', 'return ' + mime.replace('meta:', ''))
+                this._metaExtensions.set(evaluator, ext)
+            }
         });
         return this._fileExtensions;
+    }
+
+    /**
+     * @returns {Map<function, object>}
+     */
+    getMetaExtensions() {
+        if(!this._metaExtensions) {
+            this.getFilesExtensions()
+        }
+        return this._metaExtensions
     }
 
 }

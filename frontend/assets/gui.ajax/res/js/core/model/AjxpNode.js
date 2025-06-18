@@ -406,8 +406,19 @@ export default class AjxpNode extends Observable{
     /**
      * @returns String
      */
-    getSvgSource() {
-        return this.getMetadata().get("fonticon");
+    getSvgSource(useDefault=true) {
+        let fontIcon = this.getMetadata().get("fonticon")
+        if(!fontIcon){
+            if(useDefault) {
+                fontIcon = this.isLeaf() ? 'file' : 'folder'
+            } else {
+                return ''
+            }
+        }
+        if(fontIcon && fontIcon.startsWith('icomoon')){
+            return fontIcon
+        }
+        return 'mdi mdi-' + fontIcon
     }
 
     /**

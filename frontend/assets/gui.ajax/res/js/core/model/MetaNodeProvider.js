@@ -367,19 +367,38 @@ export default class MetaNodeProvider{
             if(pydio) node.setLabel(pydio.MessageHash[122]);
             node.getMetadata().set('mimestring', pydio.MessageHash[122]);
         }
-        if(node.isLeaf() && pydio && pydio.Registry){
-            const ext = PathUtils.getFileExtension(node.getPath());
-            const registered = pydio.Registry.getFilesExtensions();
-            if(registered.has(ext)){
-                const {messageId, fontIcon} = registered.get(ext);
-                node.getMetadata().set('fonticon',fontIcon);
-                node.getMetadata().set('mimestring_id',messageId);
-                if(pydio.MessageHash[messageId]){
-                    node.getMetadata().set('mimestring',pydio.MessageHash[messageId]);
+        if(pydio && pydio.Registry){
+            if(node.isLeaf()){
+                const ext = PathUtils.getFileExtension(node.getPath());
+                const filesExt = pydio.Registry.getFilesExtensions();
+                if(filesExt.has(ext)){
+                    const {messageId, fontIcon} = filesExt.get(ext);
+                    node.getMetadata().set('fonticon',fontIcon);
+                    node.getMetadata().set('mimestring_id',messageId);
+                    if(pydio.MessageHash[messageId]){
+                        node.getMetadata().set('mimestring',pydio.MessageHash[messageId]);
+                    }
                 }
+            } else {
+                node.getMetadata().set('mimestring',pydio.MessageHash[8]);
             }
-        } else if(!node.isLeaf()) {
-            node.getMetadata().set('mimestring',pydio.MessageHash[8]);
+            const metaExtensions = pydio.Registry.getMetaExtensions()
+            if(metaExtensions && metaExtensions.size) {
+                metaExtensions.forEach((value, evaluator) => {
+                    try{
+                        if(evaluator(node.getMetadata())){
+                            const {messageId, fontIcon} = value;
+                            node.getMetadata().set('fonticon',fontIcon);
+                            node.getMetadata().set('mimestring_id',messageId);
+                            if(pydio.MessageHash[messageId]){
+                                node.getMetadata().set('mimestring',pydio.MessageHash[messageId]);
+                            }
+                        }
+                    } catch(e){
+                        console.error('cannot evaluate metaExtension', e)
+                    }
+                })
+            }
         }
         if (obj.Size !== undefined){
             node.getMetadata().set('bytesize', obj.Size);

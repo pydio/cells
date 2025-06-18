@@ -226,11 +226,7 @@ class FilePreview extends PureComponent {
             element = <EditorClass pydio={Pydio.getInstance()} {...this.props} preview={true} mimeFontStyle={mimeFontStyle} />
             additionalClass = ' editor_mime_' + node.getAjxpMime();
         } else {
-            let icClass = node.getSvgSource() || (node.isLeaf() ? 'file': 'folder');
-            if(icClass && !icClass.startsWith('icomoon')){
-                icClass = 'mdi mdi-' + icClass;
-            }
-            element = <div key="icon" className={mimeClassName || 'mimefont ' + icClass} style={mimeFontStyle}/>
+            element = <div key="icon" className={mimeClassName || 'mimefont ' + node.getSvgSource()} style={mimeFontStyle}/>
         }
 
 

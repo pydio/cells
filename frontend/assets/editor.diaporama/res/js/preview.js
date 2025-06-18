@@ -52,10 +52,7 @@ export default ({node, containerWidth, ...remainingProps}) => {
     let mFont;
     const {mimeFontOverlay} = remainingProps;
     if(mimeFontOverlay && node.isLeaf() && node.getMetadata().get('ImagePreview')){
-        const icClass = node.getSvgSource()
-        if (icClass){
-            mFont = 'mdi mdi-' + icClass
-        }
+        mFont = node.getSvgSource(false)
     }
     return (<ImageContainer
         {...remainingProps}

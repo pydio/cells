@@ -123,11 +123,7 @@ export default ({href, children}) => {
             title = m('doc.not-found')
         }
         if(singleNode) {
-            let icClass = singleNode.getSvgSource() || (singleNode.isLeaf() ? 'file': 'folder');
-            if(icClass && !icClass.startsWith('icomoon')){
-                icClass = 'mdi mdi-' + icClass;
-            }
-            icon = 'mimefont ' + icClass
+            icon = 'mimefont ' + singleNode.getSvgSource()
         }
         if(singleNode && wsLib && hasPreview) {
             // Directly return preview

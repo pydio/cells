@@ -374,13 +374,13 @@ class MainFilesList extends React.Component {
                 style = {width:34 * elements.length}
             }
             content = <div className="overlay_icon_div" style={style}>{elements}</div>;
-            if(displayMode.indexOf('grid-') === 0 && node.isLeaf() && node.getMetadata().get('ImagePreview') && node.getSvgSource()) {
+            if(displayMode.indexOf('grid-') === 0 && node.isLeaf() && node.getMetadata().get('ImagePreview') && node.getSvgSource(false)) {
                 // Append font-icon for specific cases
                 content = (
                     <React.Fragment>
                         {content}
                         <span style={{flex: 1}}/>
-                        <div className={'mdi mdi-'+node.getSvgSource()+' mimefont mimefont-overlay'}/>
+                        <div className={node.getSvgSource(false)+' mimefont mimefont-overlay'}/>
                     </React.Fragment>
                 );
             }

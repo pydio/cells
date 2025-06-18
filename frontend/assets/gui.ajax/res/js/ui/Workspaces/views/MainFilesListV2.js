@@ -73,7 +73,7 @@ let MainFilesListV2 = (props) => {
     const updateBlockMeta = useCallback((node, meta) => {
         let kb = false
         if(node && meta){
-            kb = node.getMetadata().get(meta) || node.hasMetadataInBranch(meta, true) || false
+            kb = node.getMetadata().get(meta) || false
         }
         setContextKB(kb)
         if(onDisplayModeChange && node.isLoaded()){
