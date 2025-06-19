@@ -29,8 +29,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type BleveFieldTransformerFunc func(string, query.Query, bool) (string, []bson.E, bool)
+
 // BleveQueryToMongoFilters parses a Blevesearch query string to a slice of bson primitives
-func BleveQueryToMongoFilters(queryString string, insensitive bool, fieldTransformer func(string) string) (filters []bson.E, err error) {
+func BleveQueryToMongoFilters(queryString string, insensitive bool, fieldTransformer BleveFieldTransformerFunc) (filters []bson.E, err error) {
 	q, e := bleve.NewQueryStringQuery(queryString).Parse()
 	if e != nil {
 		return nil, e
@@ -54,7 +56,7 @@ func BleveQueryToMongoFilters(queryString string, insensitive bool, fieldTransfo
 }
 
 // uniqueQueryToFilters recursively parses bleve queries to create mongo filters
-func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, insensitive bool, not bool) (filters []bson.E) {
+func uniqueQueryToFilters(m query.Query, fieldTransformer BleveFieldTransformerFunc, insensitive bool, not bool) (filters []bson.E) {
 	switch v := m.(type) {
 	case *query.ConjunctionQuery:
 		for _, sm := range v.Conjuncts {
@@ -75,6 +77,11 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 			}
 		}
 	case *query.WildcardQuery:
+		fName, ff, transformed := fieldTransformer(v.Field(), v, not)
+		if transformed {
+			filters = append(filters, ff...)
+			break
+		}
 		wc := v.Wildcard
 		regexp := ""
 		if !strings.HasPrefix(wc, "*") {
@@ -85,15 +92,19 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 			regexp += "$"
 		}
 		if wc == "T*" { // Special case for boolean query
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: true})
+			filters = append(filters, bson.E{Key: fName, Value: true})
 		} else if insensitive {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp, Options: "i"}})
+			filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 		} else {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp}})
+			filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp}})
 		}
 	case *query.MatchQuery:
+		fName, ff, transformed := fieldTransformer(v.Field(), v, not)
+		if transformed {
+			filters = append(filters, ff...)
+			break
+		}
 		match := v.Match
-		fName := fieldTransformer(v.Field())
 		if strings.HasPrefix(match, "[") && strings.HasSuffix(match, "]") {
 			arr := strings.Split(strings.Trim(match, "[]"), ",")
 			vals := bson.A{}
@@ -113,6 +124,11 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 			}
 		}
 	case *query.MatchPhraseQuery:
+		fName, ff, transformed := fieldTransformer(v.Field(), v, not)
+		if transformed {
+			filters = append(filters, ff...)
+			break
+		}
 		phrase := strings.Trim(v.MatchPhrase, "\"")
 		if !strings.Contains(phrase, "*") && strings.Contains(phrase, " ") {
 			phrase = "*" + phrase + "*"
@@ -127,27 +143,32 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 				regexp += "$"
 			}
 			if insensitive {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp, Options: "i"}})
+				filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 			} else {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: primitive.Regex{Pattern: regexp}})
+				filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp}})
 			}
 		} else {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: phrase})
+			filters = append(filters, bson.E{Key: fName, Value: phrase})
 		}
 	case *query.NumericRangeQuery:
+		fName, ff, transformed := fieldTransformer(v.Field(), v, not)
+		if transformed {
+			filters = append(filters, ff...)
+			break
+		}
 		if v.Min != nil {
 			ref := "$gt"
 			if v.InclusiveMin != nil && *v.InclusiveMin {
 				ref = "$gte"
 			}
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{ref: v.Min}})
+			filters = append(filters, bson.E{Key: fName, Value: bson.M{ref: v.Min}})
 		}
 		if v.Max != nil {
 			ref := "$lt"
 			if v.InclusiveMax != nil && *v.InclusiveMax {
 				ref = "$lte"
 			}
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{ref: v.Max}})
+			filters = append(filters, bson.E{Key: fName, Value: bson.M{ref: v.Max}})
 		}
 	}
 	return

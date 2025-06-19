@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -201,7 +202,7 @@ func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType proto.OwnerType
 	}
 	if streamFilter != "" {
 		var fieldErs []error
-		if additionalFilters, err := mongodb.BleveQueryToMongoFilters(streamFilter, true, func(s string) string {
+		if additionalFilters, err := mongodb.BleveQueryToMongoFilters(streamFilter, true, func(s string, _ query.Query, _ bool) (string, []bson.E, bool) {
 			var fe error
 			if s, fe = activity.QueryFieldsTransformer(s); fe != nil {
 				fieldErs = append(fieldErs, fe)
@@ -209,7 +210,7 @@ func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType proto.OwnerType
 			if s == "updated" {
 				s = "updated.seconds"
 			}
-			return "object." + s
+			return "object." + s, nil, false
 		}); err != nil {
 			return err
 		} else if len(fieldErs) > 0 {

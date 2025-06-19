@@ -23,6 +23,7 @@ package mongo
 import (
 	"context"
 
+	query2 "github.com/blevesearch/bleve/v2/search/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -239,8 +240,8 @@ func (m *mongoImpl) buildFilters(storeID string, query *proto.DocumentQuery) (in
 		filter = append(filter, bson.E{Key: "owner", Value: query.Owner})
 	}
 	if query.MetaQuery != "" {
-		ff, e := mongodb.BleveQueryToMongoFilters(query.MetaQuery, false, func(s string) string {
-			return "data." + s
+		ff, e := mongodb.BleveQueryToMongoFilters(query.MetaQuery, false, func(s string, _ query2.Query, _ bool) (string, []bson.E, bool) {
+			return "data." + s, nil, false
 		})
 		if e != nil {
 			return nil, o, e

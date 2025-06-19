@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve/v2/geo"
+	query2 "github.com/blevesearch/bleve/v2/search/query"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -220,6 +221,48 @@ func (m *Codex) regexTerm(term string) primitive.Regex {
 	return primitive.Regex{Pattern: pattern, Options: "i"}
 }
 
+// customMetaQuery adds a specific parsing for Tags values
+func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string, []bson.E, bool) {
+	if s == "Basename" {
+		return "basename", nil, false
+	} else if s == "Uuid" {
+		return "uuid", nil, false
+	}
+	if strings.HasPrefix(s, "Meta.") {
+		s = strings.TrimPrefix(s, "Meta.")
+		nss := m.QueryNsProvider.Namespaces()
+		if ns, ok := nss[s]; ok {
+			if def, _ := ns.UnmarshallDefinition(); def != nil && (def.GetType() == "tags") {
+				switch qTyped := q.(type) {
+				case *query2.MatchQuery:
+					if vals := strings.Split(qTyped.Match, ","); len(vals) >= 1 {
+						var filters []bson.E
+						// For multiple values, replace by multiple regexes
+						for _, part := range vals {
+							tok := strings.TrimSpace(part)
+							if tok == "" {
+								continue
+							}
+							op := "$regex"
+							re := primitive.Regex{Pattern: tok, Options: "i"}
+							if not {
+								op = "$not"
+							}
+							filters = append(filters, bson.E{
+								Key:   "meta." + s,
+								Value: bson.M{op: re},
+							})
+						}
+						return "meta." + s, filters, true
+					}
+				}
+			}
+		}
+		s = "meta." + s
+	}
+	return s, nil, false
+}
+
 // BuildQuery builds a mongo filter plus an Aggregation Pipeline to be performed for computing facets.
 // Range and sorting parameters are not handled here, but by BuildQueryOptions method.
 func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (interface{}, interface{}, error) {
@@ -323,17 +366,9 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	}
 
 	if queryObject.FreeString != "" {
-		if freeFilters, er := mongodb.BleveQueryToMongoFilters(queryObject.FreeString, true, func(s string) string {
-			if s == "Basename" {
-				return "basename"
-			} else if s == "Uuid" {
-				return "uuid"
-			}
-			return strings.Replace(s, "Meta.", "meta.", 1)
-		}); er == nil {
+		if freeFilters, er := mongodb.BleveQueryToMongoFilters(queryObject.FreeString, true, m.customMetaQueryCodex); er == nil {
 			filters = append(filters, freeFilters...)
 		}
-
 	}
 
 	if queryObject.GeoQuery != nil {
