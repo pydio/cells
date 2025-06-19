@@ -29,7 +29,9 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -230,6 +232,15 @@ ENVIRONMENT
 			if len(proxyConf.Binds) == 0 {
 				fatalIfError(cmd, fmt.Errorf("no bind was found in default site, non interactive install probably has a wrong format"))
 			}
+
+			if niExitAfterInstall {
+				<-time.After(time.Second)
+				cmd.Println("")
+				cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
+				cmd.Println("")
+				os.Exit(0)
+			}
+
 		} else {
 			// We don't have anything to install, we are going to populate the InstallConf with the config we have to prepare the environment
 			installConf.DbManualDSN = config.Get(ctx, "defaults/database/dsn").String()
