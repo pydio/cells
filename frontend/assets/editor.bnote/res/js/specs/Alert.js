@@ -23,10 +23,12 @@ import {createReactBlockSpec} from "@blocknote/react";
 import {RiAlertFill} from "react-icons/ri";
 import {AlertBlock} from "../blocks/AlertBlock";
 
+export const AlertSpecType = 'alert'
+
 // The Alert block.
 export const Alert = createReactBlockSpec(
     {
-        type: "alert",
+        type: AlertSpecType,
         propSchema: {
             textAlignment: defaultProps.textAlignment,
             textColor: defaultProps.textColor,
@@ -53,7 +55,7 @@ export const insertAlertItem = (editor) => ({
         // block below and moves the text caret to it. We use this function with
         // a block containing 'Hello World' in bold.
         insertOrUpdateBlock(editor, {
-            type: "alert",
+            type: AlertSpecType,
             props: {type:'warning'},
             content: [{ type: "text", text: "", styles:{}}],
         }),

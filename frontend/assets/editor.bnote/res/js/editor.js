@@ -24,6 +24,7 @@ import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { muiThemeable } from 'material-ui/styles'
 import Pad from './pad'
+import {ChildrenListSpecType} from "./specs/NodeRef";
 
 const {EditorActions} = Pydio.requireLib('hoc')
 
@@ -78,7 +79,7 @@ class Editor extends Component {
         let initialContent = []
         try{
             initialContent = JSON.parse(content)
-            initialContent = initialContent.filter(block => block.type !== 'childrenList')
+            initialContent = initialContent.filter(block => block.type !== ChildrenListSpecType)
         }catch (e) {}
 
         const readonly = node.hasMetadataInBranch("node_readonly", "true")

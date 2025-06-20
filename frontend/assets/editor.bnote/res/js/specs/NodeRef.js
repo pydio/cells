@@ -30,9 +30,13 @@ import {ModernList} from "../blocks/ChildrenList";
 
 const api = new SearchApi(Pydio.getInstance())
 
+export const NodeRefSpecType = 'nodeRef'
+export const NodeBlockSpecType = 'nodeBlock'
+export const ChildrenListSpecType = 'childrenList'
+
 export const NodeRef = createReactInlineContentSpec(
     {
-        type: "nodeRef",
+        type: NodeRefSpecType,
         propSchema: {
             inlineId: { default: ''},
             nodeUuid: { default: "" },
@@ -57,7 +61,7 @@ export const  pasteHandler= ({ event, editor, defaultPasteHandler }) => {
             const m = /^node:\/\/([A-Za-z0-9-]+)$/.exec(chunk);
             if (m) {
                 return {
-                    type: "nodeRef",
+                    type: NodeRefSpecType,
                     props: { nodeUuid: m[1], inlineId: uuid4() },
                 };
             }
@@ -73,7 +77,7 @@ export const  pasteHandler= ({ event, editor, defaultPasteHandler }) => {
 
 export const NodeBlock = createReactBlockSpec(
     {
-        type: "nodeBlock",
+        type: NodeBlockSpecType,
         propSchema: {
             inlineId: { default: ''},
             nodeUuid: { default: "" },
@@ -94,7 +98,7 @@ export const NodeBlock = createReactBlockSpec(
 // Inline listing block.
 export const ChildrenList = createReactBlockSpec(
     {
-        type: "childrenList",
+        type: ChildrenListSpecType,
         propSchema: {
             display: {
                 default: 'compact',
@@ -123,7 +127,7 @@ export const getNodesMenuItems = (editor, query) => {
                 onItemClick: () => {
                     editor.insertInlineContent([
                         {
-                            type: "nodeRef",
+                            type: NodeRefSpecType,
                             props: {
                                 inlineId: uuid4(),
                                 label,
@@ -147,16 +151,16 @@ export const NodesSuggestionMenu = ({editor}) => <SuggestionMenuController
 />
 // Custom Slash Menu item to insert a block after the current one.
 export const insertChildrenList = (editor) => ({
-    title: "Contents",
+    title: "Table of Contents",
     onItemClick: () =>
         // If the block containing the text caret is empty, `insertOrUpdateBlock`
         // changes its type to the provided block. Otherwise, it inserts the new
         // block below and moves the text caret to it.
         insertOrUpdateBlock(editor, {
-            type: "childrenList",
+            type: ChildrenListSpecType,
             props: {display: 'compact'},
         }),
-    aliases: ["contents", "co"],
+    aliases: ["toc", "contents", "co"],
     group: "Others",
     icon: <RiFolderOpenFill size={18}/>,
     subtext: "Display current folder contents",

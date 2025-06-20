@@ -18,28 +18,33 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {NodeServiceApi} from 'cells-sdk-ts'
-import axios from "axios";
-import PydioApi from 'pydio/http/api'
-
-/**
- *
- * @param pydio
- * @returns {Promise<NodeServiceApi>}
- * @constructor
- */
-export const NodeServiceApiFactory = (pydio) => {
-    return PydioApi.getRestClient().getOrUpdateJwt().then(token => {
-        const frontU = pydio.getFrontendUrl();
-        const url = `${frontU.protocol}//${frontU.host}`;
-        const baseURL = url + pydio.Parameters.get('ENDPOINT_REST_API_V2');
-        const instance = axios.create({
-            baseURL,
-            timeout: 3000,
-            headers: {
-                Authorization:'Bearer ' + token
-            }
-        });
-        return new NodeServiceApi(undefined, undefined, instance)
-    })
+.bn-editor {
+  background-color:transparent;
+}
+.react-mui-context .bn-container {
+  *{
+    white-space: pre-wrap;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  &.bn-readonly {
+    table {
+      margin-bottom: 20px;
+    }
+    p.bn-inline-content {
+      min-height: 20px;
+    }
+  }
+  h1, h2, h3, h4, h5, h6{
+    font-weight: inherit;
+  }
+  div[role="menu"] {
+    background: var(--bn-colors-menu-background);
+  }
+  div[role="menu"] button {
+    font-size: var(--mantine-font-size-sm);
+  }
+  .ProseMirror-selectednode>.bn-block-content>.disable-outline{
+    outline: none;
+  }
 }

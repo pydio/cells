@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
@@ -36,7 +36,9 @@ import {nodeBlockSpecs, nodeInlineSpecs, insertChildrenList, NodesSuggestionMenu
 import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
 import {SideMenuButton} from "./SideMenuButton";
 import ContextMenuModel from 'pydio/model/context-menu'
-import {headerBlockSpecs} from "./specs/Header";
+import {headerBlockSpecs, HeaderSpecType} from "./specs/Header";
+import {findExistingHeader} from "./hooks/useNodeTitle";
+import './pad-styles.less'
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -61,41 +63,6 @@ const getCustomSlashMenuItems = (
     insertAlertItem(editor),
 ];
 
-const css = `
-        .bn-container *{
-            white-space: pre-wrap;
-            user-select: text;
-            -webkit-user-select: text;
-        }
-        .bn-editor {
-            background-color:transparent;
-        }
-        .bn-container.bn-readonly table {
-            margin-bottom: 20px;
-        }
-        .bn-container.bn-readonly p.bn-inline-content {
-            min-height: 20px;
-        }
-        .react-mui-context .bn-container h1,
-        .react-mui-context .bn-container h2,
-        .react-mui-context .bn-container h3,
-        .react-mui-context .bn-container h4,
-        .react-mui-context .bn-container h5,
-        .react-mui-context .bn-container h6{
-            font-weight: inherit;
-        }
-        .react-mui-context .bn-container div[role="menu"] {
-            background: var(--bn-colors-menu-background);
-        }
-        .react-mui-context .bn-container div[role="menu"] button {
-            font-size: var(--mantine-font-size-sm);
-        }
-        .ProseMirror-selectednode>.bn-block-content>.disable-outline{
-            outline: none;
-        }
-    `
-
-
 export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
 
     const [htmlReady, setHtmlReady] = useState('')
@@ -117,6 +84,15 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         codeBlock
     });
 
+    const onChangePreventHeaderDelete = useCallback(()=>{
+        const blocks = editor.document
+        if(!findExistingHeader(blocks)){
+            editor.insertBlocks([{type:HeaderSpecType}], blocks && blocks.length ? blocks[0]: null, 'before')
+            return
+        }
+        onChange(blocks)
+    }, [editor, onChange])
+
 
     let main;
     if(false && readOnly) {
@@ -136,7 +112,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         main = (
             <BlockNoteView
                 editable={!readOnly}
-                onChange={() => onChange(editor.document)}
+                onChange={onChangePreventHeaderDelete}
                 editor={editor}
                 theme={darkMode?"dark":"light"}
                 sideMenu={false}
@@ -171,7 +147,6 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
              onKeyUp={(e) => e.stopPropagation()}
         >
             {main}
-            <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
         </div>
     );
 };

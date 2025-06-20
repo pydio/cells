@@ -1,3 +1,23 @@
+/*
+ * Copyright 2025 Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import {useCallback, useMemo} from 'react'
 import {useBlockNoteEditor} from "@blocknote/react";
 import {
@@ -10,6 +30,7 @@ import {
     MdShortText
 } from "react-icons/md";
 import uuid4 from "uuid4";
+import {ChildrenListSpecType, NodeBlockSpecType, NodeRefSpecType} from "../specs/NodeRef";
 export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBlockFolder = false, blockOrInlineProps}) => {
 
     const editor = useBlockNoteEditor();
@@ -25,16 +46,16 @@ export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBloc
                  otherProps.inlineId = uuid4()
              }
             editor.removeBlocks([block])
-            editor.insertInlineContent([{type: "nodeRef", props: {...otherProps}}], {updateSelection: true});
+            editor.insertInlineContent([{type: NodeRefSpecType, props: {...otherProps}}], {updateSelection: true});
         } else if(blockSize) { // We already have a block size, it's a size toggle
             const newBlockSize = value === 'full' ? 'lg' : 'md'
             editor.updateBlock(block, {
-                type: 'nodeBlock',
+                type: NodeBlockSpecType,
                 props: {...block.props, blockSize: newBlockSize}
             })
         } else if(isBlockFolder) { // it's a display toggle
             editor.updateBlock(block, {
-                type: 'childrenList',
+                type: ChildrenListSpecType,
                 props: {...block.props, display: value}
             })
         } else if(inlineId) {
@@ -44,7 +65,7 @@ export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBloc
                     return
                 }
                 block.content.forEach((content) => {
-                    if(content.type === "nodeRef" && content.props.inlineId === inlineId){
+                    if(content.type === NodeRefSpecType && content.props.inlineId === inlineId){
                         zeBlock = block
                         zeBlockUnique = block.content.length === 1
                     }
@@ -54,12 +75,12 @@ export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBloc
                 if(node.isLeaf()){
                     const newBlockSize = value === 'full' ? 'lg' : 'md'
                     editor.insertBlocks([{
-                        type: "nodeBlock",
+                        type: NodeBlockSpecType,
                         props: {...inlineContent.props, blockSize: newBlockSize},
                     }], zeBlock, 'after')
                 } else {
                     editor.insertBlocks([{
-                        type: 'childrenList',
+                        type: ChildrenListSpecType,
                         props: {nodeUuid, path, repositoryId}
                     }], zeBlock, 'after')
                 }

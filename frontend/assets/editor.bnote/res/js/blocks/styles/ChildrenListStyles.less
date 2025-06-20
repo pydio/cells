@@ -4,6 +4,20 @@
     &.table-mode{
       font-size: 12px;
       overflow-x: auto;
+      /* TEST - SHOULD BE UP ONE LEVEL AS IT SCROLLS WITH THE REST*/
+      &.horizontal-scroll{
+        position: relative;
+        &::before {
+          content: "";
+          position: absolute;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          width: 20px;
+          background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgb(221 221 221) 100%);
+          z-index: 100;
+        }
+      }
       tr {
         height: auto;
         .cell{
@@ -14,6 +28,7 @@
             font-size: 13px;
             font-weight: 600;
             min-width: 280px !important;
+            cursor: pointer;
             > span {
               white-space: nowrap;
               div.mimefont-container.with-editor-badge {
@@ -22,6 +37,9 @@
                 border-radius: 4px;
                 overflow: hidden;
                 border: 1px solid var(--md-sys-color-outline-variant-50);
+              }
+              &:hover {
+                text-decoration: underline;
               }
             }
             &.header_cell {

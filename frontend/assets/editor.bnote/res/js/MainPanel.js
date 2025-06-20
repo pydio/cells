@@ -23,8 +23,8 @@ import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
-import {useNodeContent} from "./hooks";
 import {PydioContext} from "./hooks/context";
+import {useNodeContent} from "./hooks/useNodeContent";
 const { useDataModelContextNodeAsItems } = Pydio.requireLib('components')
 
 export const SaveContext = createContext({

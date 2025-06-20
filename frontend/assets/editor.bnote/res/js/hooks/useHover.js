@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Abstrium SAS <team (at) pyd.io>
+ * Copyright 2025 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,14 +18,20 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Editor from './editor'
-import * as Actions from './actions'
-import InfoPanel from "./InfoPanel";
-import MainPanel from "./MainPanel";
-import {Callbacks} from "./Callbacks";
+import {useCallback, useState} from 'react';
 
-export { Editor }
-export { Actions }
-export { InfoPanel }
-export { MainPanel }
-export { Callbacks }
+export const useHover = () => {
+    const [hover, setHover] = useState(false)
+    const onMouseEnter = useCallback(() => {
+        setHover(true)
+    }, [hover])
+    const onMouseLeave = useCallback(() => {
+        setHover(false)
+    }, [hover])
+    return {
+        hover,
+        hoverProps: {onMouseEnter, onMouseLeave},
+        hoverMoreStyle: {opacity:hover?0.77:0}
+    }
+}
+

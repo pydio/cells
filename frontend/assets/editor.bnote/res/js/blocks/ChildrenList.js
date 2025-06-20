@@ -24,7 +24,7 @@ import {Paper} from '@mantine/core'
 import Pydio from 'pydio'
 import {BlockMenu} from "./BlockMenu";
 import DataModel from 'pydio/model/data-model'
-import {useHover} from "../hooks";
+import {useHover} from "../hooks/useHover";
 import {useResolveSingleNode} from "../hooks/useLoadSingleNode";
 import {useSingleNodeActions} from "../hooks/useSingleNodeActions";
 import {useSingleNodeDisplay} from "../hooks/useSingleNodeDisplay";

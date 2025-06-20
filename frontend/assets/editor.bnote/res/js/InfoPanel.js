@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2025 Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,7 +24,8 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {InfoPanelCard} = Pydio.requireLib('workspaces');
 import Pad from './pad'
 import { muiThemeable } from 'material-ui/styles'
-import {useNodeContent} from "./hooks";
+
+import {useNodeContent} from "./hooks/useNodeContent";
 
 let InfoPanel = ({node, muiTheme, ...infoProps}) => {
 

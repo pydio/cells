@@ -21,9 +21,11 @@
 import {createReactInlineContentSpec, SuggestionMenuController} from "@blocknote/react";
 import PydioApi from 'pydio/http/api';
 
+export const MentionSpecType = 'mention'
+
 export const Mention = createReactInlineContentSpec(
     {
-        type: "mention",
+        type: MentionSpecType,
         propSchema: {
             user: {
                 default: "Unknown",
@@ -48,7 +50,7 @@ export const getMentionMenuItems = (editor, query) => {
                 title:label,
                 onItemClick: () => {
                     editor.insertInlineContent([
-                        { type: "mention", props: { user: label } },
+                        { type: MentionSpecType, props: { user: label } },
                         " ", // add a space after the mention
                     ]);
                 }
