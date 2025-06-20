@@ -137,7 +137,7 @@ const SingleNode = (props) => {
 
         const width = blockSize === 'lg'?'100%':320
         return (
-            <Paper shadow={'xs'} radius={'md'} withBorder={true} onClick={selectNode} style={{position:'relative', width}}>
+            <Paper shadow={'xs'} radius={'md'} withBorder={true} onClick={selectNode} style={{position:'relative', width}} className={"disable-outline"}>
                 <Preview
                     node={node}
                     rich={true}

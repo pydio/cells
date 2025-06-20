@@ -4,6 +4,7 @@
 	<server_settings>
 		<global_param name="BNOTE_PAGES_META" type="string" label="CONF_MESSAGE[Pages Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to store folder pages contents. Metadata must be created before using that.]" exposed="true"/>
 		<global_param name="BNOTE_KNOWLEDGE_BASE" type="string" label="CONF_MESSAGE[KB Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to enable/disable knowledge base behavior.]" exposed="true"/>
+		<global_param name="BNOTE_ABSTRACT_META" type="string" label="CONF_MESSAGE[Pages Abstract Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to be used as description for pages]" exposed="true"/>
 	</server_settings>
 	<client_settings>
         <resources>

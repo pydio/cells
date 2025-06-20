@@ -18,11 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {useContext} from 'react'
+import {useContext, useState} from 'react'
 import Pydio from 'pydio'
 import {SaveContext} from "../MainPanel";
 import {MdSave} from "react-icons/md";
 import {PydioContext} from "../hooks/context";
+import {useNodeTitle} from "../hooks/useNodeTitle";
+import {InlineEditableText} from "./InlineEditableText";
 
 const { moment } = Pydio.requireLib('boot');
 const {ButtonMenu} = Pydio.requireLib('components');
@@ -33,11 +35,9 @@ export const HeaderBlock = (props) => {
     const {dirty} = useContext(SaveContext)
     const node = dataModel.getContextNode();
     const date = moment(new Date(parseInt(node.getMetadata().get('ajxp_modiftime'))*1000)).fromNow()
-    let description
+    const {title, description, renameCallback, abstractCallback} = useNodeTitle({node})
     const activeRepo = Pydio.getInstance().user.getActiveRepositoryObject()
-    if(node.getMetadata().has('ws_root')) {
-        description = activeRepo.getDescription() || '';
-    }
+
     const pydio = Pydio.getInstance()
     const newButtonProps = {
         buttonStyle:{height: 30, lineHeight: '26px', marginLeft: 6},
@@ -64,11 +64,11 @@ export const HeaderBlock = (props) => {
     });
 
     return (
-        <div style={{paddingBottom: 20}}>
+        <div style={{paddingBottom: 20}} className={"disable-outline"}>
             {segments && <div style={{fontSize: '0.8em'}}>{segments}</div>}
             <h1 style={{fontSize:'2em', fontWeight:700, display:'flex', alignItems:'baseline'}}>
                 {/*Rich text field for user to type in*/}
-                <div className={"inline-content"} style={{flexGrow:'initial', width:'auto'}} ref={props.contentRef} />
+                <div className={"inline-content"} style={{flexGrow:'initial', width:'auto'}}>{renameCallback?<InlineEditableText value={title} onCommit={(v)=>renameCallback(node, v)}/>:title}</div>
                 <ButtonMenu
                     pydio={pydio}
                     {...newButtonProps}
@@ -79,7 +79,11 @@ export const HeaderBlock = (props) => {
                 />
                 {dirty && <span style={{fontSize:16, fontWeight:'normal', opacity: 0.3}}><MdSave/></span>}
             </h1>
-            <div style={{color:'gray'}}>{description?description+' - ':null}Created {date}</div>
+            <div style={{color:'gray'}}>
+                {!abstractCallback && description}
+                {abstractCallback && <InlineEditableText value={description||'Add description'} onCommit={(v) => abstractCallback(node, v)}/>}
+                &nbsp;-&nbsp;Created {date}
+            </div>
         </div>
 
     );

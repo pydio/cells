@@ -20,8 +20,10 @@
 
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {debounce} from "lodash";
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
+import {defaultHeaderBlocks, findExistingHeader, getPageTitleFromNode} from "./hooks/useNodeTitle";
 
 export const useHover = () => {
     const [hover, setHover] = useState(false)
@@ -62,18 +64,17 @@ export const saveNow = (blocks, contentMeta, nodeUuid, setDirty = () => {})=>{
     ];
     request.MetaDatas.push(meta);
     return api.updateUserMeta(request).then(() => {
-        console.log('Saved to Metadata')
         setDirty(false)
     }).catch(e => {
         console.error('Cannot save metadata', e)
     })
 }
 
-export const useNodeContent = (node, contentMeta) => {
+export const useNodeContent = (node, contentMeta, withDefaultHeader) => {
 
     const [loaded, setLoaded] = useState(false)
     const [trigger, trig] = useState(0)
-    const [content, setContent] = useState('')
+    const [content, setContent] = useState([])
     const [dirty, setDirty] = useState(false)
 
     const nodeLoaded = node.isLoaded()
@@ -95,14 +96,18 @@ export const useNodeContent = (node, contentMeta) => {
         if(loaded) {
             return
         }
+        let ct = []
         if(node && node.getMetadata().has(contentMeta)) {
-            setContent(node.getMetadata().get(contentMeta))
-            setLoaded(true)
-        } else {
-            setLoaded(true)
+            ct = node.getMetadata().get(contentMeta)
         }
+        if(withDefaultHeader) {
+            if(!findExistingHeader(ct)) {
+                ct = [...defaultHeaderBlocks(), ...ct]
+            }
+        }
+        setContent(ct)
+        setLoaded(true)
     }, [loaded, trigger]);
-
 
     return {loaded, content, save, saveNow: saveImmediate, dirty, setDirty}
 

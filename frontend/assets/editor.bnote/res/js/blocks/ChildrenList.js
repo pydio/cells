@@ -197,7 +197,7 @@ export const ModernList = ({editor, block}) => {
     }
 
     return (
-        <Paper radius={'md'} withBorder={true} p={'md'} style={{lineHeight:'1.3em', width:'100%'}} {...hoverProps}>
+        <Paper className={"disable-outline"} radius={'md'} withBorder={true} p={'md'} style={{lineHeight:'1.3em', width:'100%'}} {...hoverProps}>
             <div style={{display:'flex'}}>
                 <h3 style={{flex: 1, fontSize:'1.1em', fontWeight:600, marginBottom: 10}}>
                     <span style={{marginRight:6}} className={'mdi mdi-folder-open-outline'}/>️

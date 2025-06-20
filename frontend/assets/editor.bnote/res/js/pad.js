@@ -90,7 +90,7 @@ const css = `
         .react-mui-context .bn-container div[role="menu"] button {
             font-size: var(--mantine-font-size-sm);
         }
-        .ProseMirror-selectednode>.bn-block-content[data-content-type="childrenList"]>*{
+        .ProseMirror-selectednode>.bn-block-content>.disable-outline{
             outline: none;
         }
     `

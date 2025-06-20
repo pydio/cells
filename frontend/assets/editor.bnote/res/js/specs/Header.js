@@ -23,7 +23,7 @@ import {createReactBlockSpec} from "@blocknote/react";
 import {defaultProps} from "@blocknote/core";
 import {HeaderBlock} from "../blocks/HeaderBlock";
 
-export const Header = createReactBlockSpec(
+export const HeaderV0 = createReactBlockSpec(
     {
         type: "title",
         propSchema: {
@@ -37,4 +37,17 @@ export const Header = createReactBlockSpec(
     }
 );
 
-export const headerBlockSpecs = {title: Header}
+export const Header = createReactBlockSpec(
+    {
+        type: "header",
+        propSchema: {
+            textColor: defaultProps.textColor
+        },
+        content: "none",
+    },
+    {
+        render: (props) => <HeaderBlock {...props}/>,
+    }
+);
+
+export const headerBlockSpecs = {header:Header, title: HeaderV0}

@@ -32,36 +32,21 @@ export const SaveContext = createContext({
     saving: false
 })
 
-let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta}) => {
+let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta, abstractMeta}) => {
 
     const {node} = useDataModelContextNodeAsItems(dataModel, (n) => {return []})
-    const {content=[], loaded, save, dirty, setDirty} = useNodeContent(node, contentMeta)
+    const {content=[], loaded, save, dirty, setDirty} = useNodeContent(node, contentMeta, true)
     let body;
 
     if(node && node.isLoaded() && loaded) {
         const nodeUUID = node.getMetadata().get('uuid')
-        let initialContent = content || []
-        let title = node.getLabel()
-        if(node.getMetadata().has('ws_root')) {
-            title = Pydio.getInstance().user.getActiveRepositoryObject().getLabel() || title
-        }
-        const heading = initialContent.find(block => block.type === 'title' && block.content && block.content.length)
-        if(heading) {
-            heading.content[0].text = title;
-        } else {
-            initialContent = [{
-                "type": "title",
-                "content": [{"type": "text","text": title,"styles": {}}, ]
-            }, ...initialContent]
-        }
-
         const reloadIdentifier = nodeUUID + '#' + (loaded?'loaded':'loading')
         const nodeReadonly = node.getMetadata().get('node_readonly')==='true'
         body = (
             <Pad
                 readOnly={nodeReadonly}
                 darkMode={muiTheme.darkMode}
-                initialContent={initialContent}
+                initialContent={content}
                 onChange={(blocks) => {
                     if(nodeReadonly) {
                         return
