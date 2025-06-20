@@ -224,41 +224,46 @@ func (m *Codex) regexTerm(term string) primitive.Regex {
 // customMetaQuery adds a specific parsing for Tags values
 func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string, []bson.E, bool) {
 	if s == "Basename" {
+
 		return "basename", nil, false
+
 	} else if s == "Uuid" {
+
 		return "uuid", nil, false
-	}
-	if strings.HasPrefix(s, "Meta.") {
+
+	} else if strings.HasPrefix(s, "Meta.") {
 		s = strings.TrimPrefix(s, "Meta.")
-		nss := m.QueryNsProvider.Namespaces()
-		if ns, ok := nss[s]; ok {
-			if def, _ := ns.UnmarshallDefinition(); def != nil && (def.GetType() == "tags") {
-				switch qTyped := q.(type) {
-				case *query2.MatchQuery:
-					if vals := strings.Split(qTyped.Match, ","); len(vals) >= 1 {
-						var filters []bson.E
-						// For multiple values, replace by multiple regexes
-						for _, part := range vals {
-							tok := strings.TrimSpace(part)
-							if tok == "" {
-								continue
-							}
-							op := "$regex"
-							re := primitive.Regex{Pattern: tok, Options: "i"}
-							if not {
-								op = "$not"
-							}
-							filters = append(filters, bson.E{
-								Key:   "meta." + s,
-								Value: bson.M{op: re},
-							})
-						}
-						return "meta." + s, filters, true
-					}
-				}
-			}
+		finalMeta := "meta." + s
+		nss := m.QueryNsProvider.TypedNamespaces()
+		ns, ok := nss[s]
+		if !ok || ns.GetType() != "tags" {
+			return finalMeta, nil, false
 		}
-		s = "meta." + s
+		switch qTyped := q.(type) {
+		case *query2.MatchQuery:
+			if vals := strings.Split(qTyped.Match, ","); len(vals) >= 1 {
+				var filters []bson.E
+				// For multiple values, replace by multiple regexes
+				for _, part := range vals {
+					tok := strings.TrimSpace(part)
+					if tok == "" {
+						continue
+					}
+					op := "$regex"
+					re := primitive.Regex{Pattern: tok, Options: "i"}
+					if not {
+						op = "$not"
+					}
+					filters = append(filters, bson.E{
+						Key:   finalMeta,
+						Value: bson.M{op: re},
+					})
+				}
+				return finalMeta, filters, true
+			}
+		default:
+			return finalMeta, nil, false
+		}
 	}
 	return s, nil, false
 }
@@ -437,17 +442,18 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 		fDef = append(fDef, bson.E{fieldName, bson.A{bucketDef}})
 	}
 
-	fDef = append(fDef, bson.E{"node_type", bson.A{bson.D{bson.E{"$sortByCount", "$node_type"}}}})
-	fDef = append(fDef, bson.E{"extension", bson.A{bson.D{bson.E{"$sortByCount", "$extension"}}}})
+	fDef = append(fDef, bson.E{Key: "node_type", Value: bson.A{bson.D{bson.E{Key: "$sortByCount", Value: "$node_type"}}}})
+	fDef = append(fDef, bson.E{Key: "extension", Value: bson.A{bson.D{bson.E{Key: "$sortByCount", Value: "$extension"}}}})
 
-	nss := m.QueryNsProvider.Namespaces()
-	for metaName := range m.QueryNsProvider.IncludedIndexes() {
-		def, _ := nss[metaName].UnmarshallDefinition()
-		if def != nil && (def.GetType() == "integer" || def.GetType() == "boolean" || def.GetType() == "date") {
+	for metaName, def := range m.QueryNsProvider.TypedNamespaces() {
+		if !def.Indexable {
+			continue
+		}
+		if def.GetType() == "integer" || def.GetType() == "boolean" || def.GetType() == "date" {
 			continue
 		}
 		fieldName := "meta." + metaName
-		fDef = append(fDef, bson.E{"meta-" + metaName, bson.A{bson.D{bson.E{"$sortByCount", "$" + fieldName}}}})
+		fDef = append(fDef, bson.E{Key: "meta-" + metaName, Value: bson.A{bson.D{bson.E{Key: "$sortByCount", Value: "$" + fieldName}}}})
 	}
 
 	facets := bson.D{

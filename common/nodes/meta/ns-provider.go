@@ -38,18 +38,20 @@ var (
 // NsProvider lists all namespaces info from services declared ServiceMetaNsProvider
 // It watches events to maintain the list
 type NsProvider struct {
-	sync.RWMutex // this handles a lock for the namespaces field
-	Ctx          context.Context
-	namespaces   []*idm.UserMetaNamespace
-	loaded       bool
-	streamers    []tree.NodeProviderStreamer_ReadNodeStreamClient
-	closer       context.CancelFunc
+	sync.RWMutex    // this handles a lock for the namespaces field
+	Ctx             context.Context
+	namespaces      []*idm.UserMetaNamespace
+	typedNamespaces map[string]*idm.TypedUserMetaNamespace
+	loaded          bool
+	streamers       []tree.NodeProviderStreamer_ReadNodeStreamClient
+	closer          context.CancelFunc
 }
 
 // NewNsProvider creates a new namespace provider
 func NewNsProvider(ctx context.Context) *NsProvider {
 	ns := &NsProvider{
-		Ctx: ctx,
+		Ctx:             ctx,
+		typedNamespaces: make(map[string]*idm.TypedUserMetaNamespace),
 	}
 	if TestPresetNamespaces != nil {
 		ns.namespaces = TestPresetNamespaces
@@ -68,6 +70,20 @@ func (p *NsProvider) Namespaces() map[string]*idm.UserMetaNamespace {
 	defer p.RUnlock()
 	ns := make(map[string]*idm.UserMetaNamespace, len(p.namespaces))
 	for _, n := range p.namespaces {
+		ns[n.Namespace] = n
+	}
+	return ns
+}
+
+// TypedNamespaces returns pre-decoded namespaces
+func (p *NsProvider) TypedNamespaces() map[string]*idm.TypedUserMetaNamespace {
+	if !p.loaded {
+		p.Load()
+	}
+	p.RLock()
+	defer p.RUnlock()
+	ns := make(map[string]*idm.TypedUserMetaNamespace, len(p.typedNamespaces))
+	for _, n := range p.typedNamespaces {
 		ns[n.Namespace] = n
 	}
 	return ns
@@ -130,6 +146,12 @@ func (p *NsProvider) Load() {
 				break
 			}
 			p.namespaces = append(p.namespaces, r.UserMetaNamespace)
+			if def, dErr := r.GetUserMetaNamespace().UnmarshallDefinition(); dErr == nil {
+				p.typedNamespaces[r.GetUserMetaNamespace().GetNamespace()] = &idm.TypedUserMetaNamespace{
+					MetaNamespaceDefinition: def,
+					UserMetaNamespace:       r.GetUserMetaNamespace(),
+				}
+			}
 		}
 		p.Unlock()
 	}
@@ -187,6 +209,7 @@ func (p *NsProvider) ReadNode(node *tree.Node) (*tree.Node, error) {
 func (p *NsProvider) Clear() {
 	p.Lock()
 	p.namespaces = nil
+	p.typedNamespaces = map[string]*idm.TypedUserMetaNamespace{}
 	p.loaded = false
 	p.Unlock()
 }

@@ -21,12 +21,9 @@
 package commons
 
 import (
-	"compress/gzip"
 	"context"
 	"errors"
-	"io"
 	"path/filepath"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -38,7 +35,6 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/meta"
-	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/indexer"
@@ -46,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/data/search"
+	"github.com/pydio/cells/v5/data/search/analyzers"
 )
 
 // LocalBatch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -191,53 +188,11 @@ func (b *LocalBatch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes m
 	} else {
 		indexNode.NodeType = "folder"
 	}
-	_ = indexNode.GetMeta(common.MetaNamespaceGeoLocation, &indexNode.GeoPoint)
-	if indexNode.GeoPoint != nil {
-		lat, ok1 := indexNode.GeoPoint["lat"].(float64)
-		lon, ok2 := indexNode.GeoPoint["lon"].(float64)
-		if ok1 && ok2 {
-			indexNode.GeoJson = &tree.GeoJson{Type: "Point", Coordinates: []float64{lon, lat}}
-		}
+	// Apply custom analyzers
+	if er := analyzers.Parse(b.ctx, indexNode, b.options.config); er != nil {
+		return er
 	}
 
-	// Index Contents?
-	if b.options.config != nil && b.options.config.Val("indexContent").Bool() && indexNode.IsLeaf() {
-		cRef := b.options.config.Val("contentRef").Default("pydio:ContentRef").String()
-		exts := strings.Split(strings.TrimSpace(b.options.config.Val("plainTextExtensions").String()), ",")
-		legacyContentRef := "ContentRef"
-		ref := indexNode.GetStringMeta(legacyContentRef)
-		if pr := indexNode.GetStringMeta(cRef); pr != "" {
-			ref = pr
-		}
-		if ref != "" {
-			delete(indexNode.Meta, legacyContentRef)
-			delete(indexNode.Meta, cRef)
-			if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &models.GetRequestData{Length: -1}); e == nil {
-				if strings.HasSuffix(ref, ".gz") {
-					// Content is gzip-compressed
-					if gR, e := gzip.NewReader(reader); e == nil {
-						if contents, e := io.ReadAll(gR); e == nil {
-							indexNode.TextContent = string(contents)
-						}
-						_ = gR.Close()
-					}
-				} else if contents, e := io.ReadAll(reader); e == nil {
-					indexNode.TextContent = string(contents)
-				}
-				_ = reader.Close()
-			}
-		} else if slices.ContainsFunc(exts, func(s string) bool {
-			return strings.ToLower(strings.TrimSpace(s)) == indexNode.Extension
-		}) {
-			if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: indexNode.GetPath()}, &models.GetRequestData{Length: -1}); e == nil {
-				if contents, er := io.ReadAll(reader); er == nil {
-					indexNode.TextContent = string(contents)
-				}
-				_ = reader.Close()
-			}
-		}
-
-	}
 	indexNode.MetaStore = nil
 	return nil
 }

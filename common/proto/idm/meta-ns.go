@@ -31,6 +31,11 @@ type MetaNamespaceDefinition interface {
 	DefaultHide() bool
 }
 
+type TypedUserMetaNamespace struct {
+	MetaNamespaceDefinition
+	*UserMetaNamespace
+}
+
 type metaNsDef struct {
 	Type  string
 	Data  interface{} `json:"data,omitempty"`
