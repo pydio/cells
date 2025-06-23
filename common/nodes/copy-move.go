@@ -210,12 +210,13 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			log.Logger(ctx).Debug("[Flat Target] Creating target folder before copy")
 			// Manually create target folder
 			tgtUuid := uuid.New()
-			tgt := ctx
+			rootFolderCtx := ctx
 			if move {
 				tgtUuid = sourceNode.Uuid
-				tgt = propagator.WithAdditionalMetadata(tgt, map[string]string{common.XPydioMoveUuid: session})
+				rootFolderCtx = propagator.WithAdditionalMetadata(rootFolderCtx, map[string]string{common.XPydioMoveUuid: session})
+				rootFolderCtx = WithSkipDefaultMeta(rootFolderCtx)
 			}
-			if _, e := router.CreateNode(tgt, &tree.CreateNodeRequest{Node: &tree.Node{
+			if _, e := router.CreateNode(rootFolderCtx, &tree.CreateNodeRequest{Node: &tree.Node{
 				Uuid:  tgtUuid,
 				Path:  targetNode.Path,
 				Type:  tree.NodeType_COLLECTION,
@@ -294,6 +295,12 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				folderNode.Path = targetPath
 				folderNode.Uuid = uuid.New()
 				createContext := skipAclContext
+				if move {
+					createContext = WithSkipDefaultMeta(createContext)
+				} else {
+					// Clear metadata before copy!
+					folderNode.MetaStore = map[string]string{}
+				}
 				sess := session
 				if (targetFlat || sourceFlat) && move {
 					if sourceFlat && fileCounts == 0 && fI == len(children)-1 {

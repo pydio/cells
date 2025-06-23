@@ -241,3 +241,11 @@ func NewStore(opt ...configx.Option) (st Store) {
 
 	return st
 }
+
+// WithStubStore creates an in-memory pool with an empty store, for use in tests
+func WithStubStore(ctx context.Context) context.Context {
+	pool := openurl.MustMemPool[Store](ctx, func(ctx context.Context, url string) Store {
+		return NewStore()
+	})
+	return propagator.With[*openurl.Pool[Store]](ctx, ContextKey, pool)
+}

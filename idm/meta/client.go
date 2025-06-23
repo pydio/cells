@@ -67,6 +67,7 @@ type ExtractionSource string
 var (
 	ExtractAmzHeaders   ExtractionSource = "amz_headers"
 	ExtractNodeMetadata ExtractionSource = "node_metadata"
+	ExtractNone         ExtractionSource = "none"
 )
 
 const (
@@ -271,7 +272,7 @@ func (u *umClient) ExtractAndPut(ctx context.Context, resolved *tree.Node, ctxWo
 		if um, er = u.fromNodeMeta(ctx, resolved, meta, id, draftNs); er != nil {
 			return nil, er
 		}
-	} else {
+	} else if source != ExtractNone {
 		return nil, fmt.Errorf("unknown extraction source: %s", source)
 	}
 	if len(id) > 0 {

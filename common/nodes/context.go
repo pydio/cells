@@ -85,6 +85,14 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, error) {
 	return BranchInfo{}, errors.WithStack(errors.BranchInfoMissing)
 }
 
+// GetContextWorkspaceOrNil tries to find a valid branching of context workspace
+func GetContextWorkspaceOrNil(ctx context.Context, identifier string) *idm.Workspace {
+	if i, e := GetBranchInfo(ctx, identifier); e == nil && i.Workspace != nil {
+		return i.Workspace
+	}
+	return nil
+}
+
 // AncestorsListFromContext tries to load ancestors or get them from cache
 func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
@@ -176,4 +184,16 @@ func WithSkipAclCheck(ctx context.Context) context.Context {
 // HasSkipAclCheck checks if the SkipAclCheck flag is set in context
 func HasSkipAclCheck(ctx context.Context) bool {
 	return ctx.Value(ctxSkipAclCheckKey{}) != nil
+}
+
+type ctxSkipDefaultMeta struct{}
+
+// WithSkipDefaultMeta instructs interceptors to skip applying default metadata an resource creation
+func WithSkipDefaultMeta(ctx context.Context) context.Context {
+	return context.WithValue(ctx, ctxSkipDefaultMeta{}, true)
+}
+
+// HasSkipDefaultMeta checks if the corresponding flag is set
+func HasSkipDefaultMeta(ctx context.Context) bool {
+	return ctx.Value(ctxSkipDefaultMeta{}) != nil
 }

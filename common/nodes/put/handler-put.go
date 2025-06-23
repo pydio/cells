@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -153,13 +152,9 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 		if err != nil || !nodes.IsFlatStorage(ctx, "in") {
 			return resp, err
 		}
-		var ctxWs *idm.Workspace
-		if er == nil && info.Workspace != nil {
-			ctxWs = info.Workspace
-		}
-		// Handle input metadata if set, except if it's an internal operation like copy/move
-		if !nodes.HasSkipAclCheck(ctx) {
-			_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), ctxWs, in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
+		// Handle input metadata, unless specified (typically when creating resources at Move)
+		if !nodes.HasSkipDefaultMeta(ctx) {
+			_, err = m.getMetaClient().ExtractAndPut(ctx, resp.GetNode(), nodes.GetContextWorkspaceOrNil(ctx, "in"), in.GetNode().GetMetaStore(), meta.ExtractNodeMetadata)
 		}
 		return resp, err
 	}
@@ -372,6 +367,18 @@ func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadI
 	return e
 }
 
+// CopyObject captures Copy operation (not move) to set default metadata
+func (m *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
+	oi, er := m.Next.CopyObject(ctx, from, to, requestData)
+	if !requestData.IsMove() {
+		ctxWs := nodes.GetContextWorkspaceOrNil(ctx, "to")
+		if _, err := m.getMetaClient().ExtractAndPut(ctx, to, ctxWs, nil, meta.ExtractNone); err != nil {
+			return models.ObjectInfo{}, err
+		}
+	}
+	return oi, er
+}
+
 func retryOnDuplicate(ctx context.Context, callback func(context.Context) (*tree.CreateNodeResponse, error), retries ...int) (*tree.CreateNodeResponse, error) {
 	resp, e := callback(ctx)
 	var r int
@@ -445,10 +452,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		return nil, nil, er
 	}
 
-	var ctxWs *idm.Workspace
-	if i, e := nodes.GetBranchInfo(ctx, "in"); e == nil && i.Workspace != nil {
-		ctxWs = i.Workspace
-	}
+	ctxWs := nodes.GetContextWorkspaceOrNil(ctx, "in")
 	createdNode := createResp.GetNode()
 	if _, er = m.getMetaClient().ExtractAndPut(ctx, createdNode, ctxWs, requestData.Metadata, meta.ExtractAmzHeaders); er != nil {
 		return nil, nil, er
