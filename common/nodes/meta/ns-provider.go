@@ -55,6 +55,15 @@ func NewNsProvider(ctx context.Context) *NsProvider {
 	}
 	if TestPresetNamespaces != nil {
 		ns.namespaces = TestPresetNamespaces
+		ns.typedNamespaces = make(map[string]*idm.TypedUserMetaNamespace)
+		for _, preset := range TestPresetNamespaces {
+			if def, err := preset.UnmarshallDefinition(); err == nil && def != nil {
+				ns.typedNamespaces[preset.Namespace] = &idm.TypedUserMetaNamespace{
+					UserMetaNamespace:       preset,
+					MetaNamespaceDefinition: def,
+				}
+			}
+		}
 		ns.loaded = true
 	}
 	ns.Watch(ctx)

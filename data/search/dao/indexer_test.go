@@ -979,3 +979,96 @@ func TestExcludedNamespace(t *testing.T) {
 		})
 	})
 }
+
+func TestMongoTagsNamespace(t *testing.T) {
+	test.RunStorageTests(mongoOnly(), t, func(ctx context.Context) {
+		defer func() {
+			commons.BatchPoolInit = sync.Once{}
+		}()
+		server, err := manager.Resolve[search.Engine](ctx)
+		if err != nil {
+			panic(err)
+		}
+		Convey("Preset Namespaces", t, func() {
+			meta.TestPresetNamespaces = []*idm.UserMetaNamespace{
+				{
+					Namespace:      "tags",
+					Label:          "Tags",
+					Order:          0,
+					Indexable:      true,
+					JsonDefinition: `{"type": "tags"}`,
+				},
+			}
+
+			node := &tree.Node{
+				Uuid:  "docID1",
+				Path:  "/path/to/node.txt",
+				MTime: time.Now().Unix(),
+				Type:  1,
+				Size:  24,
+				MetaStore: map[string]string{
+					"tags": "\"value1,value2,Les Ingénieurs,Une Autre Valeur\"",
+				},
+			}
+			So(server.IndexNode(ctx, node, false), ShouldBeNil)
+			node2 := &tree.Node{
+				Uuid:  "docID2",
+				Path:  "/path/to/node2.txt",
+				MTime: time.Now().Unix(),
+				Type:  1,
+				Size:  24,
+				MetaStore: map[string]string{
+					"tags": "\"value1\"",
+				},
+			}
+			So(server.IndexNode(ctx, node, false), ShouldBeNil)
+			So(server.IndexNode(ctx, node2, false), ShouldBeNil)
+			So(server.(*commons.Server).Flush(ctx), ShouldBeNil)
+			<-time.After(2 * time.Second)
+
+			queryObject := &tree.Query{
+				FreeString: "+Meta.tags:\"value1\"",
+			}
+			nn, _, er := performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 2)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value2\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value2,value1\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			// Test without quotes
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:value2,value1",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"Les Ingénieurs\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"Les Ingénieurs,value1\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+		})
+	})
+}

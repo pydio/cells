@@ -221,6 +221,26 @@ func (m *Codex) regexTerm(term string) primitive.Regex {
 	return primitive.Regex{Pattern: pattern, Options: "i"}
 }
 
+// regexComaTerms replaces multiple values by multiple regexes
+func (m *Codex) regexComaTerms(metaName string, terms []string, not bool) (filters []bson.E) {
+	for _, part := range terms {
+		tok := strings.TrimSpace(part)
+		if tok == "" {
+			continue
+		}
+		op := "$regex"
+		re := primitive.Regex{Pattern: tok, Options: "i"}
+		if not {
+			op = "$not"
+		}
+		filters = append(filters, bson.E{
+			Key:   metaName,
+			Value: bson.M{op: re},
+		})
+	}
+	return
+}
+
 // customMetaQuery adds a specific parsing for Tags values
 func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string, []bson.E, bool) {
 	if s == "Basename" {
@@ -242,24 +262,13 @@ func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string
 		switch qTyped := q.(type) {
 		case *query2.MatchQuery:
 			if vals := strings.Split(qTyped.Match, ","); len(vals) >= 1 {
-				var filters []bson.E
-				// For multiple values, replace by multiple regexes
-				for _, part := range vals {
-					tok := strings.TrimSpace(part)
-					if tok == "" {
-						continue
-					}
-					op := "$regex"
-					re := primitive.Regex{Pattern: tok, Options: "i"}
-					if not {
-						op = "$not"
-					}
-					filters = append(filters, bson.E{
-						Key:   finalMeta,
-						Value: bson.M{op: re},
-					})
-				}
-				return finalMeta, filters, true
+				ff := m.regexComaTerms(finalMeta, vals, not)
+				return finalMeta, ff, true
+			}
+		case *query2.MatchPhraseQuery:
+			if vals := strings.Split(qTyped.MatchPhrase, ","); len(vals) >= 1 {
+				ff := m.regexComaTerms(finalMeta, vals, not)
+				return finalMeta, ff, true
 			}
 		default:
 			return finalMeta, nil, false
