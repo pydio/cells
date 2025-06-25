@@ -142,7 +142,7 @@ function UnifiedSearchForm (props){
         onRequestOpen();
     }
 
-    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, closeButton} = props;
+    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, additionalRightButton, closeButton} = props;
     const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
 
     if(uniqueSearchScope) {
@@ -331,6 +331,7 @@ function UnifiedSearchForm (props){
                                         <IconButton onClick={togglePopover} tooltip={pydio.MessageHash['searchengine.advanced-filter.tooltip']}
                                                     style={buttonStyle} iconStyle={buttonIconStyle} iconClassName={"mdi mdi-tune"}/>
                                     }
+                                    {active && additionalRightButton}
                                     {active && uniqueSearchScope && closeButton}
                                 </span>
                                 ),

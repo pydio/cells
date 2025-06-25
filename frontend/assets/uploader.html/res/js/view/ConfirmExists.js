@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, Checkbox, RadioButtonGroup, RadioButton, RaisedButton, FlatButton} from 'material-ui'
+import {Dialog, Checkbox, RadioButtonGroup, RadioButton, RaisedButton, FlatButton} from 'material-ui'
 
 class ConfirmExists extends React.Component {
 
@@ -55,24 +55,33 @@ class ConfirmExists extends React.Component {
         const {value, saveValue} = this.state;
 
         return (
-            <div style={{position:'absolute', padding: 16, fontSize:14, top: 49, left: 0, right: 0, bottom: 0, display: 'flex', alignItems:'center', backgroundColor:'rgba(0, 0, 0, 0.7)'}}>
-                <Paper style={{width: 500, padding: 16, fontSize:14, margin:'0 auto'}} zDepth={2}>
-                    <div>
-                        <h5>{pydio.MessageHash[124]}</h5>
-                        <RadioButtonGroup ref="group" name="shipSpeed" defaultSelected={value} onChange={this.radioChange.bind(this)}>
-                            <RadioButton value="rename-folders" label={pydio.MessageHash['html_uploader.confirm.rename.all']} style={{paddingBottom: 8}}/>
-                            <RadioButton value="rename" label={pydio.MessageHash['html_uploader.confirm.rename.merge']} style={{paddingBottom: 8}}/>
-                            <RadioButton value="overwrite" label={pydio.MessageHash['html_uploader.confirm.overwrite']}/>
-                        </RadioButtonGroup>
+            <Dialog
+                title={pydio.MessageHash[124]}
+                actions={[
+                    <FlatButton label={pydio.MessageHash[54]} onClick={()=> this.cancel()}/>,
+                    <FlatButton label={pydio.MessageHash[48]} onClick={() => this.submit()} primary={true}/>
+                ]}
+                modal={true}
+                open={true}
+                bodyStyle={{paddingBottom: 0}}
+                contentStyle={{width: 420, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
+            >
+                <div>
+                    <RadioButtonGroup ref="group" name="shipSpeed" defaultSelected={value}
+                                      onChange={this.radioChange.bind(this)}>
+                        <RadioButton value="rename-folders"
+                                     label={pydio.MessageHash['html_uploader.confirm.rename.all']}
+                                     style={{paddingBottom: 8}}/>
+                        <RadioButton value="rename" label={pydio.MessageHash['html_uploader.confirm.rename.merge']}
+                                     style={{paddingBottom: 8}}/>
+                        <RadioButton value="overwrite"
+                                     label={pydio.MessageHash['html_uploader.confirm.overwrite']}/>
+                    </RadioButtonGroup>
+                    <div style={{marginTop:30}}>
+                        <Checkbox label={pydio.MessageHash['html_uploader.confirm.save.choice']} checked={saveValue} onCheck={(e,v) => this.checkChange(e,v)}/>
                     </div>
-                    <div style={{display:'flex', marginTop: 30, alignItems: 'center'}}>
-                        <Checkbox label={pydio.MessageHash['html_uploader.confirm.save.choice']} checked={saveValue} onCheck={this.checkChange.bind(this)}/>
-                        <span style={{flex: 1}}/>
-                        <FlatButton label={pydio.MessageHash[54]} onClick={this.cancel.bind(this)}/>
-                        <RaisedButton primary={true} label={pydio.MessageHash[48]} onClick={this.submit.bind(this)}/>
-                    </div>
-                </Paper>
-            </div>
+                </div>
+            </Dialog>
         );
     }
 
