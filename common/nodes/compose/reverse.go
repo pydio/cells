@@ -149,7 +149,10 @@ func (r *Reverse) getRoot(ctx context.Context, rootId string) *tree.Node {
 	if ca.Get(rootId, &node) {
 		return node
 	}
-	resp, e := r.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
+	resp, e := r.GetClientsPool(ctx).GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+		Node:      &tree.Node{Uuid: rootId},
+		StatFlags: []uint32{tree.StatFlagNone},
+	})
 	if e == nil && resp.Node != nil {
 		resp.Node.Path = strings.Trim(resp.Node.Path, "/")
 		_ = ca.Set(rootId, resp.Node.Clone())

@@ -23,6 +23,7 @@ package share
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 	"sync"
 
@@ -30,6 +31,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/client/commons/jobsc"
 	"github.com/pydio/cells/v5/common/client/commons/treec"
@@ -60,7 +62,6 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 
 	router := sc.getUuidRouter(ctx)
 	throttle := make(chan struct{}, 5)
-	eventFilter := compose.ReverseClient(nodes.AsAdmin())
 	wg := &sync.WaitGroup{}
 	wg.Add(len(detectedRoots))
 	var loaded []*tree.Node
@@ -72,29 +73,11 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 				wg.Done()
 				<-throttle
 			}()
-			request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rid}}
+			request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rid}, StatFlags: []uint32{tree.StatFlagMetaMinimal}}
 			if resp, err := router.ReadNode(ensureCtx, request); err == nil {
-				node := resp.Node
-				var multipleMeta []*tree.WorkspaceRelativePath
-				for _, ws := range accessList.GetWorkspaces() {
-					if filtered, ok := eventFilter.WorkspaceCanSeeNode(ensureCtx, accessList, ws, resp.Node); ok {
-						multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
-							WsLabel: ws.Label,
-							WsUuid:  ws.UUID,
-							WsSlug:  ws.Slug,
-							Path:    filtered.Path,
-						})
-						node = filtered
-					}
-				}
-				if len(multipleMeta) == 0 {
-					log.Logger(ctx).Error("Trying to load a node that does not correspond to accessible workspace, this is not normal", node.Zap("input"))
-					return
-				}
-				node.AppearsIn = multipleMeta
-				loaded = append(loaded, node.WithoutReservedMetas())
+				loaded = append(loaded, resp.GetNode().WithoutReservedMetas())
 			} else {
-				log.Logger(ctx).Debug("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
+				log.Logger(ctx).Warn("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
 			}
 		}(rootId)
 	}
@@ -105,6 +88,28 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 	}
 	return
 
+}
+
+// ContextualizeRootToWorkspace looks up inside the node AppearsIn metadata to replace absolute path with relative one
+func (sc *Client) contextualizeRootToWorkspace(node *tree.Node, workspaceUUID string, pathPrefixes ...string) bool {
+	for _, ai := range node.AppearsIn {
+		test := path.Join(ai.WsSlug, ai.Path)
+		if ai.Path == "" {
+			test += "/"
+		}
+		if len(pathPrefixes) > 0 {
+			for _, pp := range pathPrefixes {
+				if strings.HasPrefix(test, pp) {
+					node.Path = test
+					return true
+				}
+			}
+		} else if workspaceUUID == "" || ai.WsUuid == workspaceUUID {
+			node.Path = test
+			return true
+		}
+	}
+	return false
 }
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
@@ -153,7 +158,9 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 			// Update node meta
 			createResp.Node.MustSetMeta(common.MetaFlagCellNode, true)
 			metaClient := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
-			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
+			if _, er := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node}); er != nil {
+				return false, er
+			}
 			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 		} else {
 			return false, errors.WithMessagef(errors.StatusInternalServerError, "Wrong configuration, missing rooms virtual node")
@@ -211,9 +218,9 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 		}
 
 		for _, role := range roles {
-			for _, acl := range acls {
-				if acl.RoleID == role.Uuid && acl.Action.Name == "default-cells-policy" {
-					parentPol = strings.TrimPrefix(strings.Trim(acl.Action.Value, `"`), "policy:")
+			for _, a := range acls {
+				if a.RoleID == role.Uuid && a.Action.Name == "default-cells-policy" {
+					parentPol = strings.TrimPrefix(strings.Trim(a.Action.Value, `"`), "policy:")
 				}
 			}
 		}
@@ -261,41 +268,55 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 
 // DeleteRootNodeRecursively loads all children of a root node and delete them, including the
 // .pydio hidden files when they are folders.
-func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
+func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerUser *idm.User, roomNode *tree.Node) error {
 
 	manager := abstract.GetVirtualProvider()
-	if root, exists := manager.ByUuid(ctx, "cells"); exists {
-		parentNode, err := manager.ResolveInContext(ctx, root, true)
-		if err != nil {
-			return err
-		}
-		realNode := &tree.Node{Path: parentNode.Path + "/" + strings.TrimRight(roomNode.Path, "/")}
-		// Now send deletion to scheduler
-		cli := jobsc.JobServiceClient(ctx)
-		jobUuid := "cells-delete-" + uuid.New()
-		q, _ := anypb.New(&tree.Query{
-			Paths: []string{realNode.Path},
-		})
-		job := &jobs.Job{
-			ID:             jobUuid,
-			Owner:          ownerName,
-			Label:          "Deleting Cell specific data",
-			MaxConcurrency: 1,
-			AutoStart:      true,
-			AutoClean:      true,
-			Actions: []*jobs.Action{
-				{
-					ID:         "actions.tree.delete",
-					Parameters: map[string]string{},
-					NodesSelector: &jobs.NodesSelector{
-						Query: &service.Query{SubQueries: []*anypb.Any{q}},
-					},
+	root, exists := manager.ByUuid(ctx, "cells")
+	if !exists {
+		return errors.WithMessage(errors.StatusInternalServerError, "Root node does not exist")
+	}
+	parentNode, err := manager.ResolveInContext(auth.WithImpersonate(ctx, ownerUser), root, true)
+	if err != nil {
+		return err
+	}
+	router := compose.UuidClient(nodes.AsAdmin())
+	resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: roomNode.GetUuid()}, StatFlags: []uint32{tree.StatFlagNone}})
+	if er != nil {
+		return er
+	}
+	if !strings.HasPrefix(resp.Node.GetPath(), parentNode.GetPath()) {
+		return fmt.Errorf("resolved root node is not a cells template path child, this is not normal")
+	}
+
+	log.Logger(ctx).Info("Cell Deletion implies removing custom node", resp.Node.Zap())
+
+	// Now send deletion to scheduler
+	crtUser := claim.UserNameFromContext(ctx)
+	// Now send deletion to scheduler
+	cli := jobsc.JobServiceClient(ctx)
+	jobUuid := "cells-delete-" + uuid.New()
+	q, _ := anypb.New(&tree.Query{
+		Paths: []string{resp.GetNode().GetPath()},
+	})
+	job := &jobs.Job{
+		ID:             jobUuid,
+		Owner:          crtUser,
+		Label:          "Deleting Cell specific data",
+		MaxConcurrency: 1,
+		AutoStart:      true,
+		AutoClean:      true,
+		Actions: []*jobs.Action{
+			{
+				ID:         "actions.tree.delete",
+				Parameters: map[string]string{},
+				NodesSelector: &jobs.NodesSelector{
+					Query: &service.Query{SubQueries: []*anypb.Any{q}},
 				},
 			},
-		}
-		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
-			return er
-		}
+		},
+	}
+	if _, er = cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
+		return er
 	}
 	return nil
 }

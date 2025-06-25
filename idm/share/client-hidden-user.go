@@ -230,17 +230,20 @@ func (sc *Client) ClearLostHiddenUsers(ctx context.Context) error {
 		if er != nil {
 			break
 		}
-		if doc, er := sc.SearchHashDocumentForUser(ctx, resp.User.Login); er == nil && doc != nil {
-			log.Logger(ctx).Debug("Found Link for user", resp.User.ZapLogin(), zap.Any("doc", doc))
-		} else if er == nil && doc == nil {
-			deleteQ, _ := anypb.New(&idm.UserSingleQuery{Uuid: resp.User.Uuid})
-			if _, e := uClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{deleteQ}}}); e != nil {
-				log.Logger(ctx).Error("Error while trying to delete lost hidden user", resp.User.ZapLogin(), zap.Error(e))
-			} else {
-				log.Logger(ctx).Info("Found and deleted hidden User without any link attached!", resp.User.ZapLogin())
-			}
-		} else if er != nil {
+		doc, err := sc.SearchHashDocumentForUser(ctx, resp.User.Login)
+		if err != nil {
 			log.Logger(ctx).Error("Cannot load docs for user", resp.User.ZapLogin(), zap.Error(er))
+			continue
+		}
+		if doc != nil {
+			log.Logger(ctx).Debug("Found Link for user", resp.User.ZapLogin(), zap.Any("doc", doc))
+			continue
+		}
+		deleteQ, _ := anypb.New(&idm.UserSingleQuery{Uuid: resp.User.Uuid})
+		if _, e = uClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{deleteQ}}}); e != nil {
+			log.Logger(ctx).Error("Error while trying to delete lost hidden user", resp.User.ZapLogin(), zap.Error(e))
+		} else {
+			log.Logger(ctx).Info("Found and deleted hidden User without any link attached!", resp.User.ZapLogin())
 		}
 	}
 	return nil

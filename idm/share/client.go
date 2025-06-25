@@ -550,20 +550,33 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 }
 
 // DeleteCell deletes a Cell by its ID
-func (sc *Client) DeleteCell(ctx context.Context, id string, ownerLogin string) error {
+func (sc *Client) DeleteCell(ctx context.Context, id string, ownerUUID string) error {
 
 	ws, e := sc.GetCellWorkspace(ctx, id)
-	if e != nil || ws == nil {
+	if e != nil {
 		return errors.Tag(e, errors.CellNotFound)
+	} else if ws == nil {
+		return errors.WithMessage(errors.CellNotFound, "nil workspace")
 	} else if !sc.checker.IsContextEditable(ctx, id, ws.Policies) {
 		return errors.WithStack(errors.CellNotEditable)
 	}
 
 	currWsLabel := ws.Label
+	if ownerUUID == "" {
+		for _, p := range ws.Policies {
+			if p.Action == service2.ResourcePolicyAction_OWNER {
+				ownerUUID = p.Subject
+				break
+			}
+		}
+	}
+	if ownerUUID == "" {
+		return fmt.Errorf("cannot find original owner UUID")
+	}
 
 	log.Logger(ctx).Debug("Delete share room", zap.Any("workspaceId", id))
 	// This will load the workspace and its root, and eventually remove the Room root totally
-	if err := sc.DeleteWorkspace(ctx, ownerLogin, idm.WorkspaceScope_ROOM, id); err != nil {
+	if err := sc.DeleteWorkspace(ctx, ownerUUID, idm.WorkspaceScope_ROOM, id); err != nil {
 		return err
 	}
 

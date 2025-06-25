@@ -399,7 +399,8 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		// Put back the pydio: attributes
 		if update.Attributes != nil {
 			for k, v := range update.Attributes {
-				if strings.HasPrefix(k, idm.UserAttrPrivatePrefix) {
+				// Ignore UserAttrPassHashed for backward-fix, it should not be stored anyway
+				if strings.HasPrefix(k, idm.UserAttrPrivatePrefix) && k != idm.UserAttrPassHashed {
 					if inputUser.Attributes == nil {
 						inputUser.Attributes = map[string]string{}
 					}
