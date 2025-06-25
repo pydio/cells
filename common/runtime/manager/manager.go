@@ -1373,18 +1373,18 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 						f := strings.SplitN(or, " ", 3)
 						var fn func(any, any) (bool, error)
 						switch f[1] {
-						case "=":
+						case "=", "==":
 							fn = func(a any, b any) (bool, error) {
 								aa, ok := a.(string)
 								if !ok {
 									return false, errors.New("wrong format")
 								}
 
-								bb, ok := b.(string)
+								bb, ok := b.([]byte)
 								if !ok {
 									return false, errors.New("wrong format")
 								}
-								return aa == bb, nil
+								return aa == string(bb), nil
 							}
 						case "in":
 							fn = func(a any, b any) (bool, error) {

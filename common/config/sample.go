@@ -21,8 +21,24 @@
 package config
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v5/common"
+	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
+
+// SaveNewFromSample parses Json default sample and save it to context config
+func SaveNewFromSample(ctx context.Context) error {
+	var data interface{}
+	if err := json.Unmarshal([]byte(SampleConfig), &data); err != nil {
+		return err
+	}
+	if err := Set(ctx, data); err == nil {
+		return Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
+	} else {
+		return err
+	}
+}
 
 // SampleConfig is the default config used during the first install
 var SampleConfig = `{

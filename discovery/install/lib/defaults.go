@@ -71,7 +71,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 
 	c := &install.InstallConfig{}
 	c.DbConnectionType = "tcp"
-	c.DbTCPHostname = "localhost"
+	c.DbTCPHostname = "127.0.0.1"
 	c.DbTCPPort = "3306"
 	c.DbTCPName = "cells"
 	c.DbTCPUser = "root"

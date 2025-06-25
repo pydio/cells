@@ -76,7 +76,8 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 	conf.ParseTime = true
 
 	// Check DB Connection
-	dsn := conf.FormatDSN()
+	// TODO - HARDCODE SCHEME FOR NOW
+	dsn := "mysql://" + conf.FormatDSN() + "&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}"
 
 	return dsn, nil
 

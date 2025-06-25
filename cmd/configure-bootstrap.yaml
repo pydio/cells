@@ -1,0 +1,24 @@
+#------------------------------------------
+# Install Bootstrap Keys
+# Just starting [rest/web].install services
+#  along with Caddy proxy
+#------------------------------------------
+runtime: install
+connections:
+  grpcconn:
+    uri: 0.0.0.0:8030
+    services:
+      - filter: "{{ .Name }} ~= pydio.grpc..*"
+listeners:
+  http:
+    type: tcp
+    bind: 0.0.0.0
+    port: 8033
+servers:
+  proxy:
+    type: caddy+proxy
+  http:
+    type: http
+    listener: http
+    services:
+      - filter: "{{ .Name }} = pydio.web.install or {{ .Name }} ~= pydio.rest.install"

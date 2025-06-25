@@ -28,6 +28,7 @@ import (
 	"os/exec"
 	"os/user"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/manifoldco/promptui"
@@ -35,12 +36,17 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	cruntime "github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	unet "github.com/pydio/cells/v5/common/utils/net"
+
+	_ "embed"
 )
 
 func init() {
@@ -49,6 +55,9 @@ func init() {
 
 var (
 	DefaultStartCmd *cobra.Command
+
+	//go:embed configure-bootstrap.yaml
+	configureWebYAML string
 )
 
 // ConfigureCmd launches a wizard (either in this CLI or in your web browser) to configure a new instance of Pydio Cells.
@@ -154,92 +163,84 @@ ENVIRONMENT
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		// Start an empty manager
+		originalCtx := cmd.Context()
+		ctx = cruntime.MultiContextManager().RootContext(cmd.Context())
+		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		if err != nil {
+			return err
+		}
+		_ = mgr.Bootstrap("")
+		ctx = mgr.Context()
+		cmd.SetContext(ctx)
+
+		if err := config.SaveNewFromSample(ctx); err != nil {
+			return err
+		}
+		var niModeBrowser bool
+
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
 		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")
-		cmd.Println("Make sure to prepare access and credentials to a MySQL 5.6+ (or MariaDB equivalent) server.")
-		cmd.Println("Pick your installation mode when you are ready.")
-		cmd.Println("")
-
-		var proxyConf *install.ProxyConfig
-
-		ctx := cmd.Context()
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
-
-			ctx = cruntime.MultiContextManager().RootContext(cmd.Context())
-
-			mgr, err := manager.NewManager(ctx, "cmd", nil)
-			if err != nil {
-				return err
-			}
-
-			ctx = mgr.Context()
-			cmd.SetContext(ctx)
-			//var er error
-			//ctx, _, er = initConfig(ctx, false)
-			//fatalIfError(cmd, er)
-
 			installConf, err := nonInteractiveInstall(ctx)
 			fatalIfError(cmd, err)
 			if installConf.FrontendLogin != "" {
 				// We assume we have completely configured Cells. Exit.
 				// Allow time for config to be saved - probably a better way ?
+				cmd.Println(promptui.IconGood + " Non-interactive install performed inside '" + cruntime.ApplicationWorkingDir() + "', you can now use the start command.")
 				<-time.After(1 * time.Second)
 				return nil
 			}
 
-			// we only non-interactively configured the proxy, launching browser install
-			// make sure default bind is set here
-			proxyConf = installConf.GetProxyConfig()
-			if len(proxyConf.Binds) == 0 {
+			// we only non-interactively configured the proxy, launching browser install, make sure default bind is set here
+			niModeBrowser = true
+			if len(installConf.GetProxyConfig().Binds) == 0 {
 				fatalIfError(cmd, fmt.Errorf("no bind was found in default site, non interactive install probably has a wrong format"))
 			}
+		}
 
-		} else {
-			if !niModeCli {
-				// Ask user to choose between browser or CLI interactive install
-				p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
-				installIndex, _, err := p.Run()
-				fatalIfError(cmd, err)
-				niModeCli = installIndex == 1
-			}
+		if !niModeCli && !niModeBrowser {
+			cmd.Println("Make sure to prepare access and credentials to a MySQL 5.6+ (or MariaDB equivalent) server.")
+			cmd.Println("Pick your installation mode when you are ready.")
+			cmd.Println("")
 
-			var er error
-			ctx, _, er = initConfig(ctx, !niModeCli)
-			fatalIfError(cmd, er)
-
-			// Gather proxy information
-			sites, err := routing.LoadSites(ctx)
+			// Ask user to choose between browser or CLI interactive install
+			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
+			installIndex, _, err := p.Run()
 			fatalIfError(cmd, err)
-			proxyConf = sites[0]
+			niModeCli = installIndex == 1
+		}
 
-			// Eventually switch default to HTTP instead of HTTPS
-			proxyConf, err = switchDefaultTls(cmd, proxyConf, niNoTls)
+		// Gather proxy information
+		sites, err := routing.LoadSites(ctx)
+		fatalIfError(cmd, err)
+		proxyConf := sites[0]
+
+		// Eventually switch default to HTTP instead of HTTPS
+		proxyConf, err = switchDefaultTls(cmd, proxyConf, niNoTls)
+		fatalIfError(cmd, err)
+
+		// In Browser mode (and bind url is not explicitly set), make sure to find an available HttpAlt port
+		if !niModeCli {
+			var message string
+			proxyConf, message, err = checkDefaultBusy(cmd, proxyConf, true)
 			fatalIfError(cmd, err)
-
-			// In Browser mode (and bind url is not explicitly set), make sure to find an available HttpAlt port
-			if !niModeCli {
-				var message string
-				proxyConf, message, err = checkDefaultBusy(cmd, proxyConf, true)
-				fatalIfError(cmd, err)
-				if message != "" {
-					cmd.Println(promptui.IconWarn, message)
-				}
+			if message != "" {
+				cmd.Println(promptui.IconWarn, message)
 			}
 		}
-		cmd.SetContext(ctx)
 
 		// Prompt for config with CLI, apply and exit
 		if niModeCli {
-			_, err := cliInstall(cmd, proxyConf)
-			fatalIfError(cmd, err)
+			_, err = cliInstall(cmd, proxyConf)
 		} else {
-			// Prepare Context and run browser install
-			performBrowserInstall(cmd, ctx, proxyConf)
+			err = browserInstall(cmd, proxyConf)
 		}
+		fatalIfError(cmd, err)
 
-		// TODO - allow time for config to be saved - probably a better way ?
+		// Allow time for config to be written
 		<-time.After(1 * time.Second)
 
 		if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
@@ -248,17 +249,72 @@ ENVIRONMENT
 			cmd.Println("")
 			return nil
 		}
-		// Reset runtime and hardcode new command to run
+
+		// Reset runtime and run start command with a clean context
 		initViperRuntime()
 		bin := os.Args[0]
 		os.Args = []string{bin, "start"}
-		e := DefaultStartCmd.ExecuteContext(ctx)
+		e := DefaultStartCmd.ExecuteContext(originalCtx)
 		if e != nil {
 			panic(e)
 		}
 
 		return nil
 	},
+}
+
+// browserInstall starts the lightweight bootstrap with rest/web install services and caddy
+func browserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) (err error) {
+
+	broker.Register(broker.NewBroker(cruntime.BrokerURL(), broker.WithContext(ctx)))
+
+	ctx = context.WithValue(ctx, "managertype", "standard")
+
+	m, err := manager.NewManager(ctx, cruntime.NsMain, log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager")))
+	if err != nil {
+		return err
+	}
+
+	if err = m.Bootstrap(configureWebYAML); err != nil {
+		return err
+	}
+
+	cmd.Println("")
+	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
+	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
+	cmd.Println("")
+
+	if err := m.ServeAll(); err != nil {
+		return err
+	}
+	<-time.After(2 * time.Second)
+
+	// Open Local Browser
+	openURL := proxyConf.GetDefaultBindURL()
+	if runtime.GOOS == "windows" {
+		// Windows browser cannot find 0.0.0.0 - use localhost instead.
+		openURL = strings.Replace(openURL, "0.0.0.0", "localhost", 1)
+	}
+	if err := open(openURL); err != nil {
+		fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + openURL + "]"))
+	}
+
+	// Listen to InstallSuccessEvent sent to broker
+	done := make(chan bool, 1)
+	unsub, _ := broker.Subscribe(ctx, common.TopicInstallSuccessEvent, func(context.Context, broker.Message) error {
+		fmt.Println("Browser install is finished. Stopping server in 5s...")
+		<-time.After(2 * time.Second)
+		done <- true
+		return nil
+	})
+
+	<-done
+
+	m.StopAll()
+	close(done)
+	_ = unsub()
+
+	return nil
 }
 
 func switchDefaultTls(cmd *cobra.Command, proxyConf *install.ProxyConfig, disableTls bool) (*install.ProxyConfig, error) {
@@ -299,67 +355,6 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 		err = routing.SaveSites(ctx, []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
 	}
 	return proxyConf, msg, err
-}
-
-func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *install.ProxyConfig) {
-	panic("implement me")
-	/*
-		ctx, cancel := context.WithCancel(ctx)
-		defer cancel()
-
-		initLogLevel()
-
-		reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
-		if err != nil {
-			return
-		}
-		cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
-		managerLogger := log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager"))
-		m := manager.NewManager(ctx, reg, "mem:///", "install", managerLogger)
-
-		bkr := broker.NewBroker(cruntime.BrokerURL())
-		ctx = propagator.With(broker.ContextKey, bkr)
-
-		openURL := proxyConf.GetDefaultBindURL()
-		if runtime.GOOS == "windows" {
-			// Windows browser cannot find 0.0.0.0 - use localhost instead.
-			openURL = strings.Replace(openURL, "0.0.0.0", "localhost", 1)
-		}
-
-		cmd.Println("")
-		cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
-		cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
-		cmd.Println("")
-
-		if err := m.Init(ctx); err != nil {
-			panic(err)
-		}
-
-		m.ServeAll(server.WithErrorCallback(func(err error) {
-			panic(err)
-		}))
-
-		<-time.After(2 * time.Second)
-		if err := open(openURL); err != nil {
-			fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + openURL + "]"))
-		}
-
-		done := make(chan bool, 1)
-		unsub, _ := bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(context.Context, broker.Message) error {
-			fmt.Println("Browser install is finished. Stopping server in 5s...")
-			<-time.After(2 * time.Second)
-			done <- true
-			return nil
-		})
-
-		<-done
-		close(done)
-		m.StopAll()
-		_ = unsub()
-
-		return
-
-	*/
 }
 
 /* HELPERS */
