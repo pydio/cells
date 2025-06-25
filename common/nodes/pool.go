@@ -295,10 +295,9 @@ func (p *ClientsPool) LoadDataSources() {
 	sources = config.SourceNamesFiltered(sources)
 
 	for _, source := range sources {
-		if config.Get(p.ctx, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "Disabled").Bool() {
+		if sif, er := config.GetSourceInfoByName(p.ctx, source); er != nil || sif.Disabled {
 			continue
 		}
-
 		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.ResolveConn(p.ctx, common.ServiceDataSyncGRPC_+source))
 		to, ca := context.WithTimeout(p.ctx, 20*time.Second)
 		response, err := endpointClient.GetDataSourceConfig(to, &object.GetDataSourceConfigRequest{})
