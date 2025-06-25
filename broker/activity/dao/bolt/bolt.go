@@ -32,6 +32,7 @@ import (
 	"github.com/PaesslerAG/gval"
 	humanize "github.com/dustin/go-humanize"
 	bolt "go.etcd.io/bbolt"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/broker/activity"
@@ -39,6 +40,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	acproto "github.com/pydio/cells/v5/common/proto/activity"
 	"github.com/pydio/cells/v5/common/storage/boltdb"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
@@ -361,7 +363,9 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType acproto.Owne
 	if refBoxOffset != activity.BoxLastSent && ownerType == acproto.OwnerType_USER && boxName == activity.BoxInbox && len(lastRead) > 0 {
 		// Store last read in dedicated box
 		go func() {
-			_ = dao.storeLastUserInbox(ownerId, activity.BoxLastRead, lastRead)
+			if err := dao.storeLastUserInbox(ownerId, activity.BoxLastRead, lastRead); err != nil {
+				log.Logger(ctx).Error("storeLastUserInbox failed", zap.Error(err))
+			}
 		}()
 	}
 

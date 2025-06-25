@@ -339,7 +339,9 @@ func (m *virtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
 			return nil, e
 		}
-
+		if resolved.Path == "" {
+			log.Logger(ctx).Warn("Could not resolve path for", zap.Any("in", in))
+		}
 	} else {
 		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", jsUser.Name, -1)
 		splitPath = true

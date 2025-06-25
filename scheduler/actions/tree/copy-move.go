@@ -180,7 +180,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	readR, readE := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
-		log.Logger(ctx).Error("Read Source", zap.Error(readE))
+		log.Logger(ctx).Error("Read Source", sourceNode.Zap("source"), zap.Error(readE))
 		return input.WithError(readE), readE
 	}
 	sourceNode = readR.Node

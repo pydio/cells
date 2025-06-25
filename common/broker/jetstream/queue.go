@@ -22,6 +22,8 @@ package jetstream
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"net/url"
 	"time"
@@ -63,7 +65,17 @@ func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQue
 	if streamName == "" {
 		return nil, fmt.Errorf("missing query parameter 'name' for opening queue")
 	}
-	return NewNatsQueue(ctx, u, streamName)
+	if srv := u.Query().Get("serviceName"); srv != "" {
+		streamName = srv + "/" + streamName
+	}
+	if prefix := u.Query().Get("prefix"); prefix != "" {
+		streamName = streamName + "/" + prefix
+	}
+	hashr := sha1.New()
+	hashr.Write([]byte(streamName))
+	sha := hex.EncodeToString(hashr.Sum(nil))
+	log.Logger(ctx).Debug("Open JetStream on " + streamName + " as " + sha)
+	return NewNatsQueue(ctx, u, sha)
 }
 
 type Queue struct {
@@ -90,7 +102,7 @@ func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
 // Consume creates a jetstream Consumer with the current streamName
 func (q *Queue) Consume(process func(context.Context, ...broker.Message)) error {
 	// Create a stream
-	s, er := q.js.CreateStream(q.rootCtx, jetstream.StreamConfig{
+	s, er := q.js.CreateOrUpdateStream(q.rootCtx, jetstream.StreamConfig{
 		Name:     q.streamName,
 		Subjects: []string{q.streamName + ".*"},
 	})

@@ -26,9 +26,9 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v5/common/proto/jobs"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestProducer(t *testing.T) {
@@ -50,7 +50,7 @@ func TestProducer(t *testing.T) {
 		}()
 
 		p := NewEventProducer(context.Background())
-		p.TestChan = testChan
+		p.testChan = testChan
 
 		// Limited Repeat twice (reminder)
 		startTime := time.Now().Format(time.RFC3339)

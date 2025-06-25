@@ -75,9 +75,9 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 
 		if tlsConfig != nil {
 			opts = append(opts, nats.Secure(tlsConfig))
-			//tlsConfig = &tls.Config{
-			//	InsecureSkipVerify: true,
-			//}
+		}
+		if pwd, ok := u.User.Password(); ok {
+			opts = append(opts, nats.UserInfo(u.User.Username(), pwd))
 		}
 
 		c, err := nats.Connect(u.String(), opts...)

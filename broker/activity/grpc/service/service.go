@@ -77,12 +77,13 @@ func init() {
 				counterName := broker.WithCounterName("activity")
 				opts := []broker.SubscribeOption{counterName}
 				idmOpts := []broker.SubscribeOption{counterName}
+				metaOpts := []broker.SubscribeOption{counterName}
 				var mgr manager.Manager
 				if propagator.Get(c, manager.ContextKey, &mgr) {
 					if d, e := mgr.GetQueuePool(common.QueueTypePersistent); e == nil {
 						opts = append(opts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "treeChanges"}))
-						// TODO - USED FOR TESTING QUEUING ON IDM EVENTS
-						//idmOpts = append(idmOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "idmChanges"}))
+						metaOpts = append(idmOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "metaChanges"}))
+						idmOpts = append(idmOpts, broker.WithAsyncQueuePool(d, map[string]interface{}{"name": "idmChanges"}))
 					}
 				}
 
@@ -124,7 +125,7 @@ func init() {
 						return processOneWithTimeout(ctx, msg)
 					}
 					return nil
-				}, counterName); e != nil {
+				}, metaOpts...); e != nil {
 					return e
 				}
 
