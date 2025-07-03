@@ -34,9 +34,7 @@ DESCRIPTION
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags())
-		var er error
-		ctx := cmd.Context()
-		ctx, _, er = initConfig(cmd.Context(), false)
+		ctx, er := initManagerContext(cmd.Context())
 		cmd.SetContext(ctx)
 		return er
 	},

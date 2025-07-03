@@ -30,9 +30,9 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/server"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/proto/update"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
@@ -69,8 +69,9 @@ func init() {
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
 					// Do the initial migration
 					go func() error {
-						cli := update.NewUpdateServiceClient(grpc3.ResolveConn(ctx, common.ServiceUpdateGRPC))
-						resp, err := cli.Migrate(ctx, &update.MigrateRequest{Version: common.Version().String()})
+
+						cli := service2.NewMigrateServiceClient(grpc3.ResolveConn(ctx, common.ServiceInstallGRPC))
+						resp, err := cli.Migrate(ctx, &service2.MigrateRequest{Version: common.Version().String()})
 						if err != nil || !resp.Success {
 							return err
 						}

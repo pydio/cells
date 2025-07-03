@@ -116,6 +116,7 @@ func (cc *clientConn) resolveConn(ctx context.Context) error {
 	propagator.Get(ctx, registry.ContextKey, &reg)
 
 	if reg == nil {
+		debug.PrintStack()
 		return errors.New("no registry found")
 	}
 

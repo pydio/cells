@@ -402,7 +402,11 @@ func (m *model) renderButtons(i registry.Item) {
 
 func (m *model) initConfigView() {
 	if m.cfg == nil {
-		m.ctx, _, _ = initConfig(m.ctx, false)
+		var err error
+		m.ctx, err = initManagerContext(m.ctx)
+		if err != nil {
+			panic(err)
+		}
 		m.cfg = config.Get(m.ctx)
 		m.configsView.SetSelectedFunc(func(node *tview.TreeNode) {
 			node.SetExpanded(!node.IsExpanded())
@@ -549,7 +553,7 @@ DESCRIPTION
 		v.Set(runtime.KeyBootstrapYAML, ctlBootstrap)
 		runtime.SetRuntime(v)
 
-		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		mgr, err := manager.NewManager(ctx, runtime.NsCmd, nil)
 		if err != nil {
 			return err
 		}

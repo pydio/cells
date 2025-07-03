@@ -165,13 +165,10 @@ ENVIRONMENT
 
 		// Start an empty manager
 		originalCtx := cmd.Context()
-		ctx = cruntime.MultiContextManager().RootContext(cmd.Context())
-		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		ctx, err := initManagerContext(originalCtx)
 		if err != nil {
 			return err
 		}
-		_ = mgr.Bootstrap("")
-		ctx = mgr.Context()
 		cmd.SetContext(ctx)
 
 		if err := config.SaveNewFromSample(ctx); err != nil {

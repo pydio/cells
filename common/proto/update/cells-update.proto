@@ -88,19 +88,9 @@ message UpdateResponse {
     repeated Package AvailableBinaries = 2;
 }
 
-message MigrateRequest {
-    string Version = 1;
-}
-
-message MigrateResponse {
-    bool Success = 1;
-}
-
 service UpdateService {
     rpc UpdateRequired(UpdateRequest) returns (UpdateResponse);
     rpc ApplyUpdate(ApplyUpdateRequest) returns (ApplyUpdateResponse);
-
-    rpc Migrate(MigrateRequest) returns (MigrateResponse);
 }
 
 message PublishPackageRequest {
@@ -144,5 +134,4 @@ service UpdateServerService {
     rpc PublishPackage(PublishPackageRequest) returns (PublishPackageResponse);
     rpc ListPackages(ListPackagesRequest) returns (ListPackagesResponse);
     rpc DeletePackage(DeletePackageRequest) returns (DeletePackageResponse);
-
 }

@@ -28,6 +28,7 @@ import (
 
 const (
 	NsMain      = "main"
+	NsCmd       = "cmd"
 	NsDiscovery = "discovery"
 	NsInstall   = "install"
 	NsConnReady = "conn-ready"

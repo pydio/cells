@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion7
 type UpdateServiceClient interface {
 	UpdateRequired(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
 	ApplyUpdate(ctx context.Context, in *ApplyUpdateRequest, opts ...grpc.CallOption) (*ApplyUpdateResponse, error)
-	Migrate(ctx context.Context, in *MigrateRequest, opts ...grpc.CallOption) (*MigrateResponse, error)
 }
 
 type updateServiceClient struct {
@@ -49,22 +48,12 @@ func (c *updateServiceClient) ApplyUpdate(ctx context.Context, in *ApplyUpdateRe
 	return out, nil
 }
 
-func (c *updateServiceClient) Migrate(ctx context.Context, in *MigrateRequest, opts ...grpc.CallOption) (*MigrateResponse, error) {
-	out := new(MigrateResponse)
-	err := c.cc.Invoke(ctx, "/update.UpdateService/Migrate", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UpdateServiceServer is the server API for UpdateService service.
 // All implementations must embed UnimplementedUpdateServiceServer
 // for forward compatibility
 type UpdateServiceServer interface {
 	UpdateRequired(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	ApplyUpdate(context.Context, *ApplyUpdateRequest) (*ApplyUpdateResponse, error)
-	Migrate(context.Context, *MigrateRequest) (*MigrateResponse, error)
 	mustEmbedUnimplementedUpdateServiceServer()
 }
 
@@ -77,9 +66,6 @@ func (UnimplementedUpdateServiceServer) UpdateRequired(context.Context, *UpdateR
 }
 func (UnimplementedUpdateServiceServer) ApplyUpdate(context.Context, *ApplyUpdateRequest) (*ApplyUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApplyUpdate not implemented")
-}
-func (UnimplementedUpdateServiceServer) Migrate(context.Context, *MigrateRequest) (*MigrateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Migrate not implemented")
 }
 func (UnimplementedUpdateServiceServer) mustEmbedUnimplementedUpdateServiceServer() {}
 
@@ -130,24 +116,6 @@ func _UpdateService_ApplyUpdate_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UpdateService_Migrate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MigrateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UpdateServiceServer).Migrate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/update.UpdateService/Migrate",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UpdateServiceServer).Migrate(ctx, req.(*MigrateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // UpdateService_ServiceDesc is the grpc.ServiceDesc for UpdateService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -162,10 +130,6 @@ var UpdateService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ApplyUpdate",
 			Handler:    _UpdateService_ApplyUpdate_Handler,
-		},
-		{
-			MethodName: "Migrate",
-			Handler:    _UpdateService_Migrate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

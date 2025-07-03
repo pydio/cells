@@ -14,6 +14,10 @@ listeners:
     type: tcp
     bind: 0.0.0.0
     port: 8030
+  grpcgate:
+    type: tcp
+    bind: 0.0.0.0
+    port: 0
   http:
     type: tcp
     bind: 0.0.0.0
@@ -41,6 +45,11 @@ servers:
     type: generic
     services:
       - filter: "{{ .Name }} ~= pydio\\.generic\\..*"
+  grpcgate:
+    type: grpc+public
+    listener: grpcgate
+    service:
+      - filter: "{{ .Name }} = pydio\\.gateway\\.grpc"
 
 queues:
   debouncer:

@@ -39,6 +39,7 @@ import (
 	_ "github.com/pydio/cells/v5/discovery/config/grpc/service"
 	_ "github.com/pydio/cells/v5/discovery/config/rest/service"
 	_ "github.com/pydio/cells/v5/discovery/health/rest/service"
+	_ "github.com/pydio/cells/v5/discovery/install/grpc/service"
 	_ "github.com/pydio/cells/v5/discovery/install/rest/service"
 	_ "github.com/pydio/cells/v5/discovery/install/web/service"
 	_ "github.com/pydio/cells/v5/discovery/registry/service"

@@ -25,7 +25,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
-	"github.com/pydio/cells/v5/common/proto/update"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -78,8 +78,8 @@ EXAMPLES
 
 		ctx = m.Context()
 
-		cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdateGRPC))
-		resp, err := cli.Migrate(ctx, &update.MigrateRequest{Version: common.Version().String()})
+		cli := service.NewMigrateServiceClient(grpc.ResolveConn(ctx, common.ServiceInstallGRPC))
+		resp, err := cli.Migrate(ctx, &service.MigrateRequest{Version: common.Version().String()})
 		if err != nil || !resp.Success {
 			return err
 		}

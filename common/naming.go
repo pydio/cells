@@ -102,6 +102,7 @@ const (
 	ServiceJobsGRPC         = ServiceGrpcNamespace_ + ServiceJobs
 	ServiceTasksGRPC        = ServiceGrpcNamespace_ + ServiceTasks
 	ServiceLogGRPC          = ServiceGrpcNamespace_ + ServiceLog
+	ServiceInstallGRPC      = ServiceGrpcNamespace_ + ServiceInstall
 
 	ServiceUserKey   = "user-key"
 	ServiceTree      = "tree"

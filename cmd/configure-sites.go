@@ -83,12 +83,13 @@ EXAMPLES
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags())
-		var er error
-		ctx, _, er = initConfig(cmd.Context(), false)
-		if er != nil {
-			return er
+
+		ctx, err := initManagerContext(cmd.Context())
+		if err != nil {
+			return err
 		}
 		cmd.SetContext(ctx)
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {

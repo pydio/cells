@@ -22,14 +22,11 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -37,16 +34,12 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
-	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/migrations"
-	"github.com/pydio/cells/v5/common/config/revisions"
-	"github.com/pydio/cells/v5/common/crypto/keyring"
 	log2 "github.com/pydio/cells/v5/common/proto/log"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	cw "github.com/pydio/cells/v5/common/telemetry/log/context-wrapper"
 	"github.com/pydio/cells/v5/common/telemetry/otel"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var (
@@ -193,77 +186,17 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig(ctx context.Context, debounceVersions bool) (context.Context, bool, error) {
-
-	if skipCoreInit() {
-		return ctx, false, nil
-	}
-
-	// Keyring store
-	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
+// initManagerContext starts an empty manager with Root context in the "cmd" namespace
+func initManagerContext(ctx context.Context) (context.Context, error) {
+	mgr, err := manager.NewManager(runtime.MultiContextManager().RootContext(ctx), runtime.NsCmd, nil)
 	if err != nil {
-		return ctx, false, fmt.Errorf("could not init keyring store %v", err)
+		return nil, err
 	}
-	// Keyring start and creation of the master password
-	kr := keyring.NewConfigKeyring(keyringStore, keyring.WithAutoCreate(true, func(s string) {
-		fmt.Println(promptui.IconWarn + " [Keyring] " + s)
-	}))
-	password, err := kr.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
-	if err != nil {
-		return ctx, false, fmt.Errorf("could not get master password %v", err)
+	if err = mgr.Bootstrap(""); err != nil {
+		return nil, err
 	}
-	runtime.SetVaultMasterKey(password)
-	ctx = propagator.With(ctx, keyring.KeyringContextKey, kr)
+	return mgr.Context(), nil
 
-	mainConfig, err := config.OpenStore(ctx, runtime.ConfigURL())
-	if err != nil {
-		return ctx, false, err
-	}
-
-	// Init RevisionsStore if config is config.RevisionsProvider
-	if revProvider, ok := mainConfig.(config.RevisionsProvider); ok {
-		var rOpt []config.RevisionsStoreOption
-		if debounceVersions {
-			rOpt = append(rOpt, config.WithDebounce(2*time.Second))
-		}
-		var versionsStore revisions.Store
-		mainConfig, versionsStore = revProvider.AsRevisionsStore(rOpt...)
-		ctx = propagator.With(ctx, config.RevisionsKey, versionsStore)
-	}
-
-	// Wrap config with vaultConfig if set
-	vaultConfig, err := config.OpenStore(ctx, runtime.VaultURL())
-	if err != nil {
-		return ctx, false, err
-	}
-	ctx = propagator.With(ctx, config.VaultKey, vaultConfig)
-	mainConfig = config.NewVault(vaultConfig, mainConfig)
-
-	// Additional Proxy
-	mainConfig = config.Proxy(mainConfig)
-	ctx = context.WithValue(ctx, config.ContextKey, mainConfig)
-
-	var isNew bool
-	if !runtime.IsFork() {
-		if config.Get(ctx, "version").String() == "" && config.Get(ctx, "defaults/database").String() == "" {
-			isNew = true
-			var data interface{}
-			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-				if err := config.Get(ctx).Set(data); err == nil {
-					_ = config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
-				}
-			}
-		}
-
-		// Need to do something for the versions
-		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(ctx), common.Version()); err == nil && save {
-			if err := config.Save(ctx, common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-				return ctx, false, fmt.Errorf("could not save config migrations %v", err)
-			}
-		}
-	}
-
-	return ctx, isNew, nil
 }
 
 func initLogLevel() {

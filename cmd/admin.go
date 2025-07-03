@@ -69,7 +69,7 @@ DESCRIPTION
 
 		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
 
-		mgr, err := manager.NewManager(ctx, "cmd", nil)
+		mgr, err := manager.NewManager(ctx, runtime.NsCmd, nil)
 		if err != nil {
 			return err
 		}

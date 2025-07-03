@@ -42,7 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/install"
-	"github.com/pydio/cells/v5/common/proto/update"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -203,17 +203,10 @@ ENVIRONMENT
 		installConf := &install.InstallConfig{}
 		var proxyConf *install.ProxyConfig
 
-		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
-
-		// Create a manager for the pre-run
-		mgr, err := manager.NewManager(ctx, "cmd", nil)
-		if err != nil {
-			return err
+		ctx, er := initManagerContext(cmd.Context())
+		if er != nil {
+			return er
 		}
-
-		mgr.Bootstrap("")
-
-		ctx = mgr.Context()
 
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
@@ -393,8 +386,11 @@ ENVIRONMENT
 		}
 
 		// Do the initial migration
-		cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdateGRPC))
-		cli.Migrate(m.Context(), &update.MigrateRequest{Version: common.Version().String()})
+		cli := service.NewMigrateServiceClient(grpc.ResolveConn(ctx, common.ServiceInstallGRPC))
+		resp, err := cli.Migrate(m.Context(), &service.MigrateRequest{Version: common.Version().String()})
+		if err != nil || !resp.Success {
+			return err
+		}
 
 		<-ctx.Done()
 

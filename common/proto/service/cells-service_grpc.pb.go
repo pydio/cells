@@ -221,3 +221,89 @@ var LoginModifier_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "cells-service.proto",
 }
+
+// MigrateServiceClient is the client API for MigrateService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type MigrateServiceClient interface {
+	Migrate(ctx context.Context, in *MigrateRequest, opts ...grpc.CallOption) (*MigrateResponse, error)
+}
+
+type migrateServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMigrateServiceClient(cc grpc.ClientConnInterface) MigrateServiceClient {
+	return &migrateServiceClient{cc}
+}
+
+func (c *migrateServiceClient) Migrate(ctx context.Context, in *MigrateRequest, opts ...grpc.CallOption) (*MigrateResponse, error) {
+	out := new(MigrateResponse)
+	err := c.cc.Invoke(ctx, "/service.MigrateService/Migrate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MigrateServiceServer is the server API for MigrateService service.
+// All implementations must embed UnimplementedMigrateServiceServer
+// for forward compatibility
+type MigrateServiceServer interface {
+	Migrate(context.Context, *MigrateRequest) (*MigrateResponse, error)
+	mustEmbedUnimplementedMigrateServiceServer()
+}
+
+// UnimplementedMigrateServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMigrateServiceServer struct {
+}
+
+func (UnimplementedMigrateServiceServer) Migrate(context.Context, *MigrateRequest) (*MigrateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Migrate not implemented")
+}
+func (UnimplementedMigrateServiceServer) mustEmbedUnimplementedMigrateServiceServer() {}
+
+// UnsafeMigrateServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MigrateServiceServer will
+// result in compilation errors.
+type UnsafeMigrateServiceServer interface {
+	mustEmbedUnimplementedMigrateServiceServer()
+}
+
+func RegisterMigrateServiceServer(s grpc.ServiceRegistrar, srv MigrateServiceServer) {
+	s.RegisterService(&MigrateService_ServiceDesc, srv)
+}
+
+func _MigrateService_Migrate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MigrateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MigrateServiceServer).Migrate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.MigrateService/Migrate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MigrateServiceServer).Migrate(ctx, req.(*MigrateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MigrateService_ServiceDesc is the grpc.ServiceDesc for MigrateService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var MigrateService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "service.MigrateService",
+	HandlerType: (*MigrateServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Migrate",
+			Handler:    _MigrateService_Migrate_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "cells-service.proto",
+}

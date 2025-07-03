@@ -111,3 +111,17 @@ message ErrorDetail {
 message ErrorSentinel {
     string Name = 1;
 }
+
+message MigrateRequest {
+    repeated string Services = 1;
+    string Version = 2;
+}
+
+message MigrateResponse {
+    bool Success = 1;
+}
+
+// MigrateService receives MigrateRequest to trigger one or more service migrations
+service MigrateService {
+    rpc Migrate(MigrateRequest) returns (MigrateResponse);
+}

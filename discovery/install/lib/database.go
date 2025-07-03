@@ -225,7 +225,7 @@ storages:
 	localRuntime.Set(runtime.KeyBootstrapYAML, bootstrap)
 	runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
 
-	mgr, err := manager.NewManager(ctx, "install", nil, localRuntime)
+	mgr, err := manager.NewManager(ctx, runtime.NsInstall, nil, localRuntime)
 	if err != nil {
 		return err
 	}
