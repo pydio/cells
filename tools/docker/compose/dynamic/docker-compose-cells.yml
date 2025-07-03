@@ -1,8 +1,7 @@
 services:
   cells:
-    image: local
+    image: pydio/cells:v5-next
     restart: unless-stopped
-    ports: ["8080:8080"]
     environment:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
     volumes: 

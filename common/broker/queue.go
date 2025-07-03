@@ -131,6 +131,10 @@ func (opw *openerPoolWrapper) resolveQP(ctx context.Context, data ...map[string]
 	}
 }
 
+func (opw *openerPoolWrapper) Resolve(ctx context.Context, data ...map[string]interface{}) (string, error) {
+	return "", nil
+}
+
 func (opw *openerPoolWrapper) Get(ctx context.Context, data ...map[string]interface{}) (AsyncQueue, error) {
 	qp, er := opw.resolveQP(ctx, data...)
 	if er != nil {

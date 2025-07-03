@@ -170,8 +170,10 @@ MARIADB AUTH ACTIVÉ
 MARIADB USERNAME
 */}}
 {{- define "cells.database.auth.user" -}}
-{{- if (include "cells.database.auth.enabled" .) -}}
-{{ "MARIADB_ROOT_USERNAME" }}
+{{- if .Values.mariadb.enabled -}}
+{{- include "common.secrets.lookup" (dict "secret" .Values.mariadb.auth.existingSecret "key" "user" "context" . "defaultValue" "root") | b64dec -}}
+{{- else -}}
+{{- include "common.secrets.lookup" (dict "secret" .Values.externalSQLDatabase.auth.existingSecret "key" .Values.externalSQLDatabase.auth.existingSecretUsernameKey "context" . "defaultValue" .Values.externalSQLDatabase.auth.user) | b64dec -}}
 {{- end -}}
 {{- end -}}
 
@@ -179,8 +181,10 @@ MARIADB USERNAME
 MARIADB PASSWORD
 */}}
 {{- define "cells.database.auth.password" -}}
-{{- if (include "cells.database.auth.enabled" .) -}}
-{{ "MARIADB_ROOT_PASSWORD" }}
+{{- if .Values.mariadb.enabled -}}
+{{- include "common.secrets.lookup" (dict "secret" .Values.mariadb.auth.existingSecret "key" "mariadb-root-password" "context" . "defaultValue" .Values.mariadb.auth.rootPassword) | b64dec -}}
+{{- else -}}
+{{- include "common.secrets.lookup" (dict "secret" .Values.externalSQLDatabase.auth.existingSecret "key" .Values.externalSQLDatabase.auth.existingSecretPasswordKey "context" . "defaultValue" .Values.externalSQLDatabase.auth.password) | b64dec -}}
 {{- end -}}
 {{- end -}}
 
@@ -239,10 +243,27 @@ MARIADB URL UTILISATEUR
 {{/*
 MARIADB URL COMPLÈTE
 */}}
-{{- define "cells.mariadbURL" -}}
+{{- define "cells.database.url" -}}
 {{- $path := index . 1 }}
 {{- with index . 0 }}
 {{- printf "%s://%s%s:%s%s%s"
+    (include "cells.database.scheme" .)
+    (include "cells.database.auth.urlUser" .)
+    (include "cells.database.host" .)
+    (include "cells.database.port" .)
+    $path
+    (include "cells.database.tls.params" .)
+}}
+{{- end }}
+{{- end }}
+
+{{/*
+MARIADB URL COMPLÈTE
+*/}}
+{{- define "cells.database.dsn" -}}
+{{- $path := index . 1 }}
+{{- with index . 0 }}
+{{- printf "%s://%stcp(%s:%s)/%s%s"
     (include "cells.database.scheme" .)
     (include "cells.database.auth.urlUser" .)
     (include "cells.database.host" .)

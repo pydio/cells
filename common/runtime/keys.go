@@ -71,10 +71,11 @@ const (
 	KeySiteLetsEncryptAgreeL   = "le_agree"
 	KeySiteLetsEncryptStagingL = "le_staging"
 
-	KeyInstallCli       = "install_cli"
-	KeyInstallYaml      = "install_yaml"
-	KeyInstallJson      = "install_json"
-	KeyInstallExitAfter = "exit_after_install"
+	KeyInstallCli        = "install_cli"
+	KeyInstallYaml       = "install_yaml"
+	KeyInstallJson       = "install_json"
+	KeyInstallExitAfter  = "exit_after_install"
+	KeyInstallMigrations = "migrate"
 
 	KeyInstallCliLegacy  = "cli"
 	KeyInstallYamlLegacy = "yaml"

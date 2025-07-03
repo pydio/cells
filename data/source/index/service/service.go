@@ -26,11 +26,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
+	grpc3 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/proto/update"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
@@ -65,6 +67,16 @@ func init() {
 
 				resolver := source.NewResolver[*object.DataSource](source.DataSourceContextKey, common.ServiceDataIndexGRPC_, source.ListSources)
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
+					// Do the initial migration
+					go func() error {
+						cli := update.NewUpdateServiceClient(grpc3.ResolveConn(ctx, common.ServiceUpdateGRPC))
+						resp, err := cli.Migrate(ctx, &update.MigrateRequest{Version: common.Version().String()})
+						if err != nil || !resp.Success {
+							return err
+						}
+						return nil
+					}()
+
 					return config.GetSourceInfoByName(ctx, s)
 				})
 				shared := grpc2.NewSharedTreeServer(resolver)

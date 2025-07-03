@@ -22,11 +22,15 @@ package storage
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
-type Storage openurl.Resolver[any]
+type Storage interface {
+	openurl.Resolver[any]
+	ReturnType() reflect.Type
+}
 
 type Migrator interface {
 	Migrate(ctx context.Context) error

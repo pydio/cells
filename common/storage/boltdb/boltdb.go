@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 
@@ -124,6 +125,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 
 func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
 	return p.Pool.Get(ctx, data...)
+}
+
+func (p *pool) ReturnType() reflect.Type {
+	return reflect.TypeOf(&db{})
 }
 
 func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {

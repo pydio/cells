@@ -33,21 +33,15 @@ data:
       {{- end }}
 
     {{ if (include "cells.database.enabled" .) }}
-    dbconnectiontype: tcp
-    dbtcphostname: {{ include "cells.database.host" . }}
-    dbtcpport: {{ include "cells.database.port" . }}
-    dbtcpname: {{ include "cells.database.name" . }}
-    {{- if (include "cells.database.auth.enabled" .) }}
-    dbtcpuser: {${{ include "cells.database.auth.user" . }}}
-    dbtcppassword: {${{ include "cells.database.auth.password" . }}}
-    {{- end }}
+    dbconnectiontype: manual
+    dbmanualdsn: {{ include "cells.database.dsn" (list . (include "cells.database.name" .)) }}
     {{ else }}
     dbconnectiontype: manual
     dbmanualdsn: sqlite:///var/cells/pydio.db
     {{ end }}
 
     {{- if (include "cells.nosql.enabled" .) }}
-    documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}
+    documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}?authSource=admin
     usedocumentsdsn: true
     {{- else }}
     usedocumentsdsn: false

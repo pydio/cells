@@ -8,7 +8,7 @@ frontendlogin: admin
 frontendpassword: admin
 dbconnectiontype: manual
 #dbmanualdsn: sqlite:///tmp/pydio/pydio.db?
-dbmanualdsn: mysql://root:P@ssw0rd@tcp(0.0.0.0:3306)/cells?parseTime=true&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}
+dbmanualdsn: mysql://root:P@ssw0rd@tcp(0.0.0.0:3306)/cells?parseTime=true&maxConnections=10&maxIdleConnections=5&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}
 #documentsdsn: mongodb://localhost:27017/cells?prefix={{.Meta.prefix}}
 #usedocumentsdsn: true
 

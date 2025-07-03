@@ -60,6 +60,7 @@ type Provider[T any] interface {
 }
 
 type Resolver[T any] interface {
+	Resolve(ctx context.Context, data ...map[string]interface{}) (string, error)
 	Get(ctx context.Context, data ...map[string]interface{}) (T, error)
 }
 
@@ -164,6 +165,34 @@ func MustMemPool[T any](ctx context.Context, opener MustOpener[T], opt ...PoolOp
 // MemPool opens a pool that differentiate based on memPoolShardExpr
 func MemPool[T any](ctx context.Context, opener Opener[T], opt ...PoolOption[T]) (*Pool[T], error) {
 	return OpenPool(ctx, []string{"mem://" + memPoolShardExpr}, opener, opt...)
+}
+
+func (m *Pool[T]) Resolve(ctx context.Context, resolutionData ...map[string]interface{}) (string, error) {
+	last := len(m.resolvers) - 1
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
+	for i, resolver := range m.resolvers {
+		data := make(map[string]any)
+		for _, d := range resolutionData {
+			for k, v := range d {
+				data[k] = v
+			}
+		}
+
+		// RESOLVE URL
+		realURL, er := resolver.Resolve(ctx, data)
+		if er != nil {
+			if i < last {
+				continue // Try next one provided as fallback
+			}
+
+			return "", er
+		}
+		return realURL, nil
+	}
+
+	return "", errors.New("no resolver found")
 }
 
 func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interface{}) (T, error) {

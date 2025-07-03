@@ -39,8 +39,10 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/install"
+	"github.com/pydio/cells/v5/common/proto/update"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -315,10 +317,6 @@ ENVIRONMENT
 			if err := bootstrap.RegisterTemplate(ctx, strings.TrimPrefix(filepath.Ext(file), "."), string(b)); err != nil {
 				return err
 			}
-			//} else if data := runtime.GetString(runtime.KeyBootstrapYAML); data != "" {
-			//	if err := bootstrap.RegisterTemplate("yaml", data); err != nil {
-			//		return err
-			//	}
 		} else {
 			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
 			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
@@ -360,62 +358,44 @@ ENVIRONMENT
 			return err
 		}
 
-		if err := m.Bootstrap(bootstrap.String()); err != nil {
-			return err
-		}
+		// Retrieve the config store from the new context manager
+		var configStore config.Store
+		propagator.Get(m.Context(), config.ContextKey, &configStore)
 
-		span.End()
+		if configStore == nil {
+			return errors.New("no config store found")
+		}
 
 		// Reading template
 		tmpl := template.New("storages").Delims("{{", "}}")
 		yml, err := tmpl.Parse(storagesYAML)
 		fatalIfError(cmd, err)
 
-		// Iterating through the multi context provider to initiate potential new context
-		span.AddEvent("multi-context init")
-		if err := runtime.MultiContextManager().Iterate(m.Context(), func(ctx context.Context, name string) error {
-
-			// Starting a new manager that will handle the resources linked to this context
-			mcm, err := manager.NewManager(ctx, name, log.Logger(runtime.WithServiceName(ctx, "pydio.server."+name)))
-			if err != nil {
-				return err
-			}
-
-			runtime.MultiContextManager().CurrentContextProvider(ctx).SetRootContext(mcm.Context())
-
-			// Retrieve the config store from the new context manager
-			var configStore config.Store
-			propagator.Get(mcm.Context(), config.ContextKey, &configStore)
-
-			if configStore == nil {
-				return errors.New("no config store found")
-			}
-
-			var b strings.Builder
-			if err := yml.Execute(&b, map[string]any{
-				"storages": configStore.Val("databases").Map(),
-			}); err != nil {
-				return err
-			}
-
-			bootstrap, err := manager.NewBootstrap(mcm.Context())
-			if err != nil {
-				return err
-			}
-
-			if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
-				return err
-			}
-
-			bootstrap.MustReset(ctx, nil)
-
-			return mcm.Bootstrap(bootstrap.String())
+		var b strings.Builder
+		if err := yml.Execute(&b, map[string]any{
+			"storages": configStore.Val("databases").Map(),
 		}); err != nil {
 			return err
 		}
-		span.AddEvent("multi-context init end")
+
+		if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
+			return err
+		}
+
+		span.End()
+
+		bootstrap.MustReset(ctx, nil)
+
+		m.Bootstrap(bootstrap.String())
 
 		if err := m.ServeAll(); err != nil {
+			return err
+		}
+
+		// Do the initial migration
+		cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdateGRPC))
+		resp, err := cli.Migrate(m.Context(), &update.MigrateRequest{Version: common.Version().String()})
+		if err != nil || !resp.Success {
 			return err
 		}
 

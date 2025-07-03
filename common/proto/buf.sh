@@ -45,7 +45,10 @@ if [ -f  "buf.gen.tag.yaml" ]; then
   # Debug mode if required add --debug
   buf generate --template=buf.gen.tag.yaml --output .
 fi
-
+if [ -f  "buf.gen.python.yaml" ]; then
+  # Debug mode if required add --debug
+  buf generate --include-imports --template=buf.gen.python.yaml --output .
+fi
 if [ $1 == "rest" ]
 then
   echo "Generate OpenAPIv2 JSON specification"

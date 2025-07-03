@@ -3,6 +3,39 @@ networks:
     external: false
 
 configs:
+  {{- if .TLS }}
+  cert.pem:
+    content: |
+      {{ .TLS.Cert | indent 6 | trim }}
+  key.pem:
+    content: |
+      {{ .TLS.PrivKey | indent 6 | trim }}
+  {{- end }}
+  nginx.conf:
+    content: |
+      user  nginx;
+      events {
+        worker_connections   1000;
+      }
+      http {
+        server {
+          {{- if .TLS }}
+          listen 443 ssl;
+      
+          http2 on;
+      
+          ssl_certificate /etc/ssl/cert.pem;
+          ssl_certificate_key /etc/ssl/key.pem;
+          {{- else }}
+          listen 8080;
+          {{- end }}
+      
+                        
+          location / {
+            proxy_pass https://cells:8080;
+          }
+        }
+      }
   install-conf.yml:
     content: |
       # This is the minimal configuration to directly start a pre-configured server in sandbox mode.
@@ -14,21 +47,20 @@ configs:
       # WebUI Admin definition
       frontendlogin: admin
       frontendpassword: admin
-      
+    
       {{- if .EnableMysql }}
       dbconnectiontype: manual
       dbmanualdsn: mysql://cells:cells@tcp(mysql:3306)/cells?parseTime=true&prefix={{`{{.Meta.prefix}}`}}&policies={{`{{.Meta.policies}}`}}&singular={{`{{.Meta.singular}}`}}
-      {{- end}}
-      
-      {{- if .EnableMariaDB }}
+      {{- else if .EnableMariaDB }}
       dbconnectiontype: manual
       dbmanualdsn: mysql://cells:cells@tcp(mariadb:3306)/cells?parseTime=true&prefix={{`{{.Meta.prefix}}`}}&policies={{`{{.Meta.policies}}`}}&singular={{`{{.Meta.singular}}`}}
-      {{- end}}
-      
-      {{- if .EnablePostgres }}
+      {{- else if .EnablePostgres }}
       dbconnectiontype: manual
       dbmanualdsn: postgres://postgres:P@ssw0rd@localhost:5432/testdb?sslmode=disable&prefix={{`{{.Meta.prefix}}`}}&policies={{`{{.Meta.policies}}`}}&singular={{`{{.Meta.singular}}`}}
-      {{- end}}
+      {{- else }}
+      dbconnectiontype: manual
+      dbmanualdsn: "sqlite:///tmp/cells.db"
+      {{- end }}
       
       {{- if .EnableMongoDB }}
       documentsdsn: mongodb://mongodb:27017/cells?prefix={{`{{.Meta.prefix}}`}}
@@ -37,12 +69,43 @@ configs:
       
 
 services:
+  ingress:
+    image: nginx:latest
+    configs:
+      - source: nginx.conf
+        target: /etc/nginx/nginx.conf
+      {{- if .TLS }}
+      - source: cert.pem
+        target: /etc/ssl/cert.pem
+      - source: key.pem
+        target: /etc/ssl/key.pem
+      {{- end}}
+    depends_on:
+      cells:
+        condition: service_started
+    ports:
+      {{- if .TLS }}
+      - 8080:443
+      {{- else }}
+      - 8080:8080
+      {{- end }}
+    networks:
+      - cells-v5
+
   cells:
     extends:
       file: ./docker-compose-cells.yml
       service: cells
+    scale: {{ .Replicas }}
+    image: local
     environment:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
+      {{- if .EnableNats }}
+      - CELLS_BROKER=nats://nats:4222
+      {{- end }}
+      {{- if $.EnableETCD }}
+      - CELLS_REGISTRY=etcd://etcd:2379
+      {{- end }}
     configs:
       - source: install-conf.yml
         target: /pydio/config/install.yml
@@ -50,6 +113,7 @@ services:
       - cellsdir:/var/cells
     networks:
       - cells-v5
+    {{- if or .EnableMysql .EnableMariaDB .EnableMongoDB .EnableNats .EnableETCD }}
     depends_on:
       {{- if .EnableMysql }}
       mysql:
@@ -63,7 +127,15 @@ services:
       mongodb:
         condition: service_healthy
       {{- end }}
-
+      {{- if .EnableNats }}
+      nats:
+        condition: service_started
+      {{- end }}
+      {{- if .EnableETCD }}
+      etcd:
+        condition: service_healthy
+      {{- end }}
+    {{- end }}
 
   {{- if .EnableMysql }}
   mysql:
@@ -88,6 +160,24 @@ services:
     extends:
       file: ./docker-compose-mongodb.yml
       service: mongodb
+    networks:
+      - cells-v5
+  {{- end }}
+
+  {{- if .EnableNats }}
+  nats:
+    extends:
+      file: ./docker-compose-nats.yml
+      service: nats
+    networks:
+      - cells-v5
+  {{- end }}
+
+  {{- if .EnableETCD }}
+  etcd:
+    extends:
+      file: ./docker-compose-etcd.yml
+      service: etcd
     networks:
       - cells-v5
   {{- end }}

@@ -37,6 +37,7 @@ func TestWatch(t *testing.T) {
 
 	w := NewWatcher(&mockWatchType{v})
 
+	w.Reset()
 	go w.Flush()
 
 	r, _ := w.Watch()
@@ -53,6 +54,8 @@ func TestWatch(t *testing.T) {
 	d := &struct{ test string }{test: "yo"}
 
 	v.Set("test", d)
+	w.Reset()
+	w.Reset()
 	w.Reset()
 	<-time.After(3 * time.Second)
 

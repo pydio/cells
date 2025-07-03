@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 
-	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
@@ -13,9 +12,9 @@ var defaultContextProvider = &basicContextProvider{id: "default"}
 func init() {
 	runtime.RegisterMultiContextManager(&basicMulti{defaultContextProvider})
 
-	middleware.RegisterModifier(propagator.IncomingContextModifier(func(ctx context.Context) (context.Context, bool, error) {
+	/*middleware.RegisterModifier(propagator.IncomingContextModifier(func(ctx context.Context) (context.Context, bool, error) {
 		return runtime.MultiContextManager().CurrentContextProvider(ctx).Context(ctx), true, nil
-	}))
+	}))*/
 }
 
 type basicContextProvider struct {

@@ -302,6 +302,7 @@ func StorageMigration(opts ...ResolveOption) func(ctx2 context.Context) error {
 	return func(ctx context.Context) error {
 		mig, err := Resolve[storage.Migrator](ctx, opts...)
 		if err != nil {
+			fmt.Println("Got an error resolving as a migrator ", err.Error())
 			return nil
 		}
 		log.Logger(ctx).Info("Running storage migration")

@@ -150,18 +150,15 @@ func InitRoles(ctx context.Context) error {
 		rolesACLs := insert.Acls
 		roleName := insert.Role.Label
 
-		//go func(rolesACLs []*idm.ACL, roleName string) {
 		aclClient := idmc.ACLServiceClient(ctx)
 		for _, acl := range rolesACLs {
 			if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}); err != nil {
 				log.Logger(ctx).Error("Failed inserting ACLs for role "+roleName, zap.Error(err))
 				break
-				//return
 			}
 		}
 
 		log.Logger(ctx).Info("Inserted ACLs for role " + roleName)
-		//}(insert.Acls, insert.Role.Label)
 	}
 
 	return e

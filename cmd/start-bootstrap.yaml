@@ -145,6 +145,8 @@ services: &services
         - type: mongo
           prefix: jobs_
   pydio.grpc.role:
+    after:
+      - pydio.grpc.acl
     storages:
       main:
         - type: sql
@@ -156,6 +158,8 @@ services: &services
         - type: sql
           prefix: idm_
   pydio.grpc.user:
+    after:
+      - pydio.grpc.role
     storages:
       main:
         - type: sql
@@ -209,3 +213,6 @@ services: &services
       main:
         - type: sql
           prefix: data_index_{{ .DataSource }}_
+  pydio.rest.workspace:
+    after:
+      - pydio.grpc.workspace

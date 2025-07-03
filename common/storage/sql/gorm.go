@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -334,6 +335,14 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	return &pool{
 		Pool: p,
 	}, nil
+}
+
+func (p *pool) Resolve(ctx context.Context, data ...map[string]interface{}) (string, error) {
+	return p.Pool.Resolve(ctx, data...)
+}
+
+func (p *pool) ReturnType() reflect.Type {
+	return reflect.TypeOf(&gorm.DB{})
 }
 
 func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {

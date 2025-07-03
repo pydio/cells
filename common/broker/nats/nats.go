@@ -65,8 +65,6 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 		return nil, err
 	}
 
-	fmt.Println(tlsConfig)
-
 	if err := std.Retry(ctx, func() error {
 		u.RawQuery = ""
 		opts := []nats.Option{
@@ -76,6 +74,7 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 		if tlsConfig != nil {
 			opts = append(opts, nats.Secure(tlsConfig))
 		}
+
 		if pwd, ok := u.User.Password(); ok {
 			opts = append(opts, nats.UserInfo(u.User.Username(), pwd))
 		}
@@ -85,6 +84,7 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...", zap.Error(err))
 			return err
 		}
+
 		conn = c
 		return nil
 	}, 10*time.Second, 10*time.Minute); err != nil {

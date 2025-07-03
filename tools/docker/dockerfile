@@ -1,7 +1,8 @@
 FROM golang:alpine AS build-env
 ADD cells-linux /go/src/app/cells
 
-FROM scratch
+FROM alpine
 WORKDIR /app
+ENV PATH="$PATH:/app"
 COPY --from=build-env /go/src/app/cells .
-ENTRYPOINT [ "./cells" ]
+ENTRYPOINT [ "cells", "start" ]

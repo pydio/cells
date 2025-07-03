@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"reflect"
 	"strconv"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -90,6 +91,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 
 func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
 	return p.Pool.Get(ctx, data...)
+}
+
+func (p *pool) ReturnType() reflect.Type {
+	return reflect.TypeOf(&Indexer{})
 }
 
 func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {

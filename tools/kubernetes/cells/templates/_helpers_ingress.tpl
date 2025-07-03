@@ -1,6 +1,6 @@
 {{- define "cells.ingress.enabled" -}}
 {{- if or .Values.ingress.enabled .Values.externalIngress.enabled }}
-{{ true }}
+{{- true -}}
 {{- end -}}
 {{- end -}}
 

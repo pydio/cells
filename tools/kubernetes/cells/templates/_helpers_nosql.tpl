@@ -5,7 +5,7 @@ MONGODB HOST
 {{- if .Values.mongodb.enabled -}}
 {{- "mongodb" -}}
 {{- else if .Values.externalNoSQLDatabase.enabled -}}
-{{- .Values.externalNoSQLDatabase.host }}
+{{- .Values.externalNoSQLDatabase.scheme }}
 {{- end -}}
 {{- end }}
 

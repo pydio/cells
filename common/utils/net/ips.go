@@ -69,6 +69,26 @@ func GetAvailableIPs() (ips []net.IP, e error) {
 	return
 }
 
+func ExtractIPv4(addr net.Addr) string {
+	// Assert to *net.TCPAddr to access IP
+	tcpAddr, ok := addr.(*net.TCPAddr)
+	if !ok {
+		return "Unknown address type"
+	}
+
+	ip := tcpAddr.IP
+
+	if ip.IsUnspecified() {
+		return "0.0.0.0"
+	}
+
+	if ipv4 := ip.To4(); ipv4 != nil {
+		return ipv4.String()
+	}
+
+	return "No IPv4 equivalent"
+}
+
 // GetOutboundIP retrieves the preferred outbound ip of this machine
 // by simply connecting to a well known ip of the internet.
 func GetOutboundIP() (net.IP, error) {

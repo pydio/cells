@@ -387,7 +387,10 @@ func (h *Handler) serviceToRest(r registry.Registry, srv registry.Service, nodes
 			registry.WithAdjacentTargetOptions(registry.WithType(rpb.ItemType_ADDRESS)),
 		)
 		if len(aa) > 0 {
-			h, p, _ := net.SplitHostPort(aa[0].Name())
+			h, p, _ := net.SplitHostPort(aa[0].Metadata()[registry.MetaDescriptionKey])
+
+			// TODO - the description is used by the servers to do something. It shouldn't
+			h = aa[0].Metadata()[registry.MetaDescriptionKey+"2"]
 			port, _ := strconv.Atoi(p)
 			protoSrv.RunningPeers = append(protoSrv.RunningPeers, &ctl.Peer{
 				Id:       node.Name(),

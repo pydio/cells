@@ -239,47 +239,49 @@ storages:
 		return err
 	}
 
-	if strings.HasPrefix(dsn, "sqlite") {
-		dir := path.Dir(dsn[9:])
-		if s, e := os.Stat(dir); e == nil {
-			if !s.IsDir() {
-				return fmt.Errorf("%s is not a directory", dir)
-			}
-		} else if er := os.MkdirAll(dir, 0755); er == nil {
-		} else {
-			return fmt.Errorf("cannot create directory %s: %v", dir, e)
-		}
-	}
-
-	if strings.HasPrefix(dsn, "mysql") {
-		rootconf, _ := mysql.ParseDSN(dsn)
-		dbname := rootconf.DBName
-
-		item, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
-		if err != nil {
-			return err
-		}
-
-		var st storage.Storage
-		item.As(&st)
-
-		db, err := st.Get(ctx)
-		if err != nil {
-			return errors.New("couldn't get root storage")
-		}
-
-		gormDB, ok := db.(*gorm.DB)
-		if !ok {
-			return errors.New("not a gorm DB")
-		}
-
-		if tx := gormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
-			return tx.Error
-		}
-	}
-
 	var st storage.Storage
 	if item.As(&st) {
+		resolvedDSN, err := st.Resolve(ctx)
+
+		if strings.HasPrefix(resolvedDSN, "sqlite") {
+			dir := path.Dir(resolvedDSN[9:])
+			if s, e := os.Stat(dir); e == nil {
+				if !s.IsDir() {
+					return fmt.Errorf("%s is not a directory", dir)
+				}
+			} else if er := os.MkdirAll(dir, 0755); er == nil {
+			} else {
+				return fmt.Errorf("cannot create directory %s: %v", dir, e)
+			}
+		}
+
+		if strings.HasPrefix(dsn, "mysql") {
+			rootconf, _ := mysql.ParseDSN(resolvedDSN)
+			dbname := rootconf.DBName
+
+			rootItem, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
+			if err != nil {
+				return err
+			}
+
+			var rootSt storage.Storage
+			rootItem.As(&rootSt)
+
+			rootDB, err := rootSt.Get(ctx)
+			if err != nil {
+				return errors.New("couldn't get root storage")
+			}
+
+			rootGormDB, ok := rootDB.(*gorm.DB)
+			if !ok {
+				return errors.New("not a gorm DB")
+			}
+
+			if tx := rootGormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
+				return tx.Error
+			}
+		}
+
 		db, err := st.Get(ctx)
 		if err != nil {
 			return err
