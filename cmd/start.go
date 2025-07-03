@@ -394,10 +394,7 @@ ENVIRONMENT
 
 		// Do the initial migration
 		cli := update.NewUpdateServiceClient(grpc.ResolveConn(ctx, common.ServiceUpdateGRPC))
-		resp, err := cli.Migrate(m.Context(), &update.MigrateRequest{Version: common.Version().String()})
-		if err != nil || !resp.Success {
-			return err
-		}
+		cli.Migrate(m.Context(), &update.MigrateRequest{Version: common.Version().String()})
 
 		<-ctx.Done()
 
