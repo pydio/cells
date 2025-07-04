@@ -35,6 +35,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 	yaml "gopkg.in/yaml.v3"
 
 	"github.com/pydio/cells/v5/common"
@@ -387,9 +388,8 @@ ENVIRONMENT
 
 		// Do the initial migration
 		cli := service.NewMigrateServiceClient(grpc.ResolveConn(ctx, common.ServiceInstallGRPC))
-		resp, err := cli.Migrate(m.Context(), &service.MigrateRequest{Version: common.Version().String()})
-		if err != nil || !resp.Success {
-			return err
+		if _, err := cli.Migrate(m.Context(), &service.MigrateRequest{Version: common.Version().String()}); err != nil {
+			log.Logger(m.Context()).Warn("Ignoring migration failure", zap.Error(err))
 		}
 
 		<-ctx.Done()
