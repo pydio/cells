@@ -32,6 +32,7 @@ import (
 	"github.com/ory/hydra/v2/spec"
 	hconfx "github.com/ory/x/configx"
 	"github.com/ory/x/contextx"
+	"github.com/spf13/pflag"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/pydio/cells/v5/common"
@@ -131,6 +132,7 @@ func configToProvider(ctx context.Context, values configx.Values, rootURL string
 	defer span.End()
 
 	val := mapConfigValues(rootURL, values)
+	var modifiers []hconfx.OptionModifier
 
 	// TODO - should be checked for all clients - Site-specific mapping
 	if site != nil {
@@ -140,10 +142,16 @@ func configToProvider(ctx context.Context, values configx.Values, rootURL string
 			out = append(out, varsFromStr(r, sites, site)...)
 		}
 		if len(out) > 0 {
-			_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+			// Deprecated in hydra v2
+			//_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+			log.Logger(ctx).Warn("WARNING, you are running in http mode, thus turning off security checks on the oAuth configuration")
+			pf := pflag.NewFlagSet("local", pflag.ContinueOnError)
+			_ = pf.Set("dev", "true")
+			modifiers = append(modifiers, hconfx.WithFlags(pf))
 		}
 	}
-	return hconfx.New(ctx, spec.ConfigValidationSchema, hconfx.WithValues(val.Map()))
+	modifiers = append(modifiers, hconfx.WithValues(val.Map()))
+	return hconfx.New(ctx, spec.ConfigValidationSchema, modifiers...)
 
 }
 
