@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package share;
+
+option go_package="github.com/pydio/cells/v5/common/proto/share";
+
+import "cells-tree.proto";
+
+message ParseRootsRequest {
+  repeated tree.Node Nodes = 1;
+  bool CreateEmpty = 2;
+  string CreateLabel = 3;
+}
+message ParseRootsResponse {
+  repeated tree.Node Nodes = 1;
+}
+
+service ShareService {
+  rpc ParseRoots(ParseRootsRequest) returns (ParseRootsResponse) {};
+}

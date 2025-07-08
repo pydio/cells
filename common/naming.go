@@ -94,6 +94,7 @@ const (
 	ServiceConfigGRPC       = ServiceGrpcNamespace_ + ServiceConfig
 	ServiceUpdateGRPC       = ServiceGrpcNamespace_ + ServiceUpdate
 	ServiceSearchGRPC       = ServiceGrpcNamespace_ + ServiceSearch
+	ServiceShareGRPC        = ServiceGrpcNamespace_ + ServiceShare
 	ServiceActivityGRPC     = ServiceGrpcNamespace_ + ServiceActivity
 	ServiceChatGRPC         = ServiceGrpcNamespace_ + ServiceChat
 	ServiceMailerGRPC       = ServiceGrpcNamespace_ + ServiceMailer

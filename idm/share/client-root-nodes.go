@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	service "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/proto/share"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/slug"
@@ -112,6 +113,29 @@ func (sc *Client) contextualizeRootToWorkspace(node *tree.Node, workspaceUUID st
 	return false
 }
 
+// ServiceParseRootNodes is similar to ParseRootNodes but it sends a call to a deported service instead of
+// using the local nodes.Client
+func (sc *Client) ServiceParseRootNodes(ctx context.Context, cell *rest.Cell, createEmpty bool) (bool, error) {
+	client := share.NewShareServiceClient(grpc.ResolveConn(ctx, common.ServiceShareGRPC))
+	resp, er := client.ParseRoots(ctx, &share.ParseRootsRequest{
+		CreateEmpty: createEmpty,
+		CreateLabel: cell.Label,
+		Nodes:       cell.RootNodes,
+	})
+	if er != nil {
+		return false, er
+	}
+	parsedRoots := resp.GetNodes()
+	hasReadonly, err := sc.CheckWriteAllowedOnRoots(ctx, parsedRoots, cell.ACLs)
+	if err != nil {
+		return false, err
+	}
+	cell.RootNodes = parsedRoots
+	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", cell.RootNodes), zap.Bool("readonly", hasReadonly))
+	return hasReadonly, nil
+
+}
+
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
 // or just verify that the root nodes are not empty.
 func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmpty bool) (bool, error) {
@@ -169,24 +193,32 @@ func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmp
 	if len(cell.RootNodes) == 0 {
 		return false, errors.WithMessage(errors.InvalidParameters, "Wrong configuration, missing RootNodes in CellRequest")
 	}
+	hasReadonly, err := sc.CheckWriteAllowedOnRoots(ctx, cell.RootNodes, cell.ACLs)
+	if err != nil {
+		return false, err
+	}
+	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", cell.RootNodes), zap.Bool("readonly", hasReadonly))
+	return hasReadonly, nil
 
-	// First check of incoming ACLs
+}
+
+func (sc *Client) CheckWriteAllowedOnRoots(ctx context.Context, roots []*tree.Node, cellAcls map[string]*rest.CellAcl) (bool, error) {
+
 	var hasReadonly bool
-	for _, root := range cell.RootNodes {
+	for _, root := range roots {
 		if root.GetStringMeta(common.MetaFlagReadonly) != "" {
 			hasReadonly = true
 		}
 	}
 	if hasReadonly {
-		for _, a := range cell.GetACLs() {
+		for _, a := range cellAcls {
 			for _, action := range a.GetActions() {
 				if action.Name == permissions.AclWrite.Name {
-					return true, errors.WithMessage(errors.PathReadonly, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
+					return false, errors.WithMessage(errors.PathReadonly, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
 				}
 			}
 		}
 	}
-	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", cell.RootNodes), zap.Bool("readonly", hasReadonly))
 	return hasReadonly, nil
 
 }

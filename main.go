@@ -144,6 +144,7 @@ import (
 	_ "github.com/pydio/cells/v5/idm/policy/rest/service"
 	_ "github.com/pydio/cells/v5/idm/role/grpc/service"
 	_ "github.com/pydio/cells/v5/idm/role/rest/service"
+	_ "github.com/pydio/cells/v5/idm/share/grpc/service"
 	_ "github.com/pydio/cells/v5/idm/share/rest/service"
 	_ "github.com/pydio/cells/v5/idm/user/grpc/service"
 	_ "github.com/pydio/cells/v5/idm/user/rest/service"

@@ -1,0 +1,8 @@
+version: v1
+plugins:
+  - name: go
+    opt: module=github.com/pydio/cells/v5/common/proto/share
+    out: .
+  - name: go-grpc
+    opt: module=github.com/pydio/cells/v5/common/proto/share
+    out: .
