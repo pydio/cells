@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -41,6 +42,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	})
 
 	return &pool{p}, err
+}
+
+func (p *pool) ReturnType() reflect.Type {
+	return reflect.TypeOf(&pool{})
 }
 
 func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
