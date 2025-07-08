@@ -104,7 +104,7 @@ func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, er
 }
 
 func (p *pool) ReturnType() reflect.Type {
-	return reflect.TypeOf(&mongo.Database{})
+	return reflect.TypeOf(&Indexer{})
 }
 
 func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
