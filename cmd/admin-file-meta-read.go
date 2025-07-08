@@ -74,6 +74,7 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 		client := treec.ServiceNodeProviderClient(ctx, common.ServiceMeta)
 
 		response, err := client.ReadNode(cmd.Context(), &tree.ReadNodeRequest{

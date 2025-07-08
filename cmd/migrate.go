@@ -65,7 +65,7 @@ EXAMPLES
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		ctx = propagator.With(ctx, runtime.MultiContextKey, migrateContextName)
+		ctx := propagator.With(cmd.Context(), runtime.MultiContextKey, migrateContextName)
 
 		m, err := manager.NewManager(ctx, runtime.NsMain, log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
 		if err != nil {

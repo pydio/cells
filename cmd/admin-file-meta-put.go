@@ -59,6 +59,7 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 		client := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 
 		_, err := client.UpdateNode(cmd.Context(), &tree.UpdateNodeRequest{

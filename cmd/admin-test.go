@@ -48,7 +48,7 @@ var testCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
-		c := test.NewTesterClient(grpc.ResolveConn(ctx, conformanceTestServiceName))
+		c := test.NewTesterClient(grpc.ResolveConn(cmd.Context(), conformanceTestServiceName))
 		fmt.Println("")
 		if response, e := c.Run(cmd.Context(), &test.RunTestsRequest{}); e != nil {
 			fmt.Println("Error while running tests, did you start the server?", e)

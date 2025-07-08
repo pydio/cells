@@ -81,7 +81,7 @@ EXAMPLES
 			return
 		}
 		syncService := common.ServiceDataSyncGRPC_ + snapshotDsName
-
+		ctx := cmd.Context()
 		cli := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, syncService, longGrpcCallTimeout()))
 		c := propagator.WithUserNameMetadata(cmd.Context(), common.PydioContextUserKey, common.PydioSystemUsername)
 		req := &sync.ResyncRequest{}

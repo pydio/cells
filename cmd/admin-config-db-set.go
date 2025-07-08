@@ -55,7 +55,7 @@ DESCRIPTION
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
-
+		ctx := cmd.Context()
 		m := config.Get(ctx, "databases").Map()
 
 		var ids []string

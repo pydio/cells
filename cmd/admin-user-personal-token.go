@@ -109,6 +109,7 @@ TOKEN SCOPE
 			cmd.Printf("Error while searching for user %s: %v\n", tokUserLogin, e)
 			return
 		}
+		ctx := cmd.Context()
 		cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
 		resp, e := cli.Generate(cmd.Context(), &auth.PatGenerateRequest{
 			Type:               auth.PatType_PERSONAL,

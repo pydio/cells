@@ -153,7 +153,7 @@ func (m *model) resetBroker() {
 	m.brClose = nil
 }
 
-func (m *model) lazyBroker() error {
+func (m *model) lazyBroker(ctx context.Context) error {
 
 	if m.br != nil {
 		return nil
@@ -386,14 +386,14 @@ func (m *model) renderButtons(i registry.Item) {
 	switch util.DetectType(i) {
 	case pb.ItemType_SERVER, pb.ItemType_SERVICE:
 		if i.Metadata()[registry.MetaStatusKey] == string(registry.StatusStopped) {
-			startButton := tview.NewButton("Start").SetSelectedFunc(func() { m.sendCommand("start", i.ID()) })
+			startButton := tview.NewButton("Start").SetSelectedFunc(func() { m.sendCommand(m.ctx, "start", i.ID()) })
 			m.buttonsPanel.AddItem(startButton, 0, 1, false)
 			count++
 		} else {
-			stopButton := tview.NewButton("Stop").SetSelectedFunc(func() { m.sendCommand("stop", i.ID()) })
+			stopButton := tview.NewButton("Stop").SetSelectedFunc(func() { m.sendCommand(m.ctx, "stop", i.ID()) })
 			m.buttonsPanel.AddItem(stopButton, 0, 1, false)
 			m.buttonsPanel.AddItem(tview.NewTextView().SetText(" "), 1, 0, false)
-			restartButton := tview.NewButton("Restart").SetSelectedFunc(func() { m.sendCommand("restart", i.ID()) })
+			restartButton := tview.NewButton("Restart").SetSelectedFunc(func() { m.sendCommand(m.ctx, "restart", i.ID()) })
 			m.buttonsPanel.AddItem(restartButton, 0, 1, false)
 			count++
 		}
@@ -469,9 +469,9 @@ func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.
 	}
 }
 
-func (m *model) sendCommand(cmdName, itemName string) {
+func (m *model) sendCommand(ctx context.Context, cmdName, itemName string) {
 	if m.br == nil {
-		if er := m.lazyBroker(); er != nil {
+		if er := m.lazyBroker(ctx); er != nil {
 			m.title.SetText("Cannot connect to broker! No action performed")
 			return
 		}
@@ -544,7 +544,7 @@ DESCRIPTION
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
+		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
 
 		v := viper.New()
 		v.Set(runtime.KeyConfig, "mem://")

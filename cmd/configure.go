@@ -263,9 +263,9 @@ ENVIRONMENT
 // browserInstall starts the lightweight bootstrap with rest/web install services and caddy
 func browserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) (err error) {
 
-	broker.Register(broker.NewBroker(cruntime.BrokerURL(), broker.WithContext(ctx)))
+	broker.Register(broker.NewBroker(cruntime.BrokerURL(), broker.WithContext(cmd.Context())))
 
-	ctx = context.WithValue(ctx, "managertype", "standard")
+	ctx := context.WithValue(cmd.Context(), "managertype", "standard")
 
 	m, err := manager.NewManager(ctx, cruntime.NsMain, log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager")))
 	if err != nil {
@@ -320,7 +320,7 @@ func switchDefaultTls(cmd *cobra.Command, proxyConf *install.ProxyConfig, disabl
 		noTlsConf := *proxyConf
 		noTlsConf.TLSConfig = nil
 		proxyConf = &noTlsConf
-		return proxyConf, routing.SaveSites(ctx, []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
+		return proxyConf, routing.SaveSites(cmd.Context(), []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
 	}
 	return proxyConf, nil
 }
@@ -349,7 +349,7 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 
 	var err error
 	if msg != "" {
-		err = routing.SaveSites(ctx, []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
+		err = routing.SaveSites(cmd.Context(), []*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
 	}
 	return proxyConf, msg, err
 }

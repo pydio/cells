@@ -74,6 +74,8 @@ EXAMPLE
 
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
+
 		// Load default Translation package
 		T := lang.Bundle().T("en-us")
 

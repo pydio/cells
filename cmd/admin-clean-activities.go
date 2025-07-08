@@ -76,6 +76,7 @@ EXAMPLES
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
 
 		if acUpdated == "" && keepMax == 0 {
 			fmt.Println(pu.IconBad + " Please set at least the --updated or --max flags select activities to purge")

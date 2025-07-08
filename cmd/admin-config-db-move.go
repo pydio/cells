@@ -129,6 +129,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 
 func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flatOptions, from, to string) error {
 
+	ctx := cmd.Context()
 	var err error
 	tmpl, err = template.New("test").Parse(moveYAML)
 	if err != nil {

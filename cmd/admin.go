@@ -67,7 +67,7 @@ DESCRIPTION
 		bindViperFlags(cmd.Flags())
 		cellsViper.Set(runtime.KeyBootstrapYAML, ctlBootstrap)
 
-		ctx = runtime.MultiContextManager().RootContext(cmd.Context())
+		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
 
 		mgr, err := manager.NewManager(ctx, runtime.NsCmd, nil)
 		if err != nil {

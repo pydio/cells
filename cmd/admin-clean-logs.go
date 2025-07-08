@@ -58,6 +58,8 @@ EXAMPLES
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
+
 		if cleanLogsSize == "" {
 			cmd.Println("Please provide a threshold size")
 			cmd.Help()

@@ -72,7 +72,7 @@ EXAMPLES
 			PathPrefix: []string{rethumbDsName},
 			FreeString: "-Meta.is_image:T* Extension:jpg Extension:jpeg  Extension:png Extension:bmp",
 		})
-
+		ctx := cmd.Context()
 		jobClient := jobsc.JobServiceClient(ctx)
 		job := &jobs.Job{
 			ID:             uuid.New(),

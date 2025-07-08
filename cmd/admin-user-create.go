@@ -100,7 +100,7 @@ EXAMPLES
 			Policies:   policies,
 			Attributes: map[string]string{idm.UserAttrProfile: common.PydioProfileStandard},
 		}
-
+		ctx := cmd.Context()
 		userClient := idmc.UserServiceClient(ctx)
 		sQ, _ := anypb.New(&idm.UserSingleQuery{Login: login})
 		st, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{sQ}}})

@@ -88,6 +88,7 @@ EXAMPLES
 			Name: rehashDsName,
 		})
 
+		ctx := cmd.Context()
 		jobClient := jobsc.JobServiceClient(ctx)
 		job := &jobs.Job{
 			ID:             uuid.New(),

@@ -43,7 +43,7 @@ import (
 )
 
 var (
-	ctx          context.Context
+	_ctx         context.Context
 	cancel       context.CancelFunc
 	cellsViper   *viper.Viper
 	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
@@ -121,8 +121,8 @@ func init() {
 func Execute() {
 
 	StartCmd.Long += runtime.DocRegisteredEnvVariables("CELLS_SQL_DEFAULT_CONN", "CELLS_SQL_LONG_CONN", "CELLS_CACHES_HARD_LIMIT", "CELLS_UPDATE_HTTP_PROXY") + "\n\n"
-	ctx, cancel = context.WithCancel(context.Background())
-	if err := RootCmd.ExecuteContext(ctx); err != nil {
+	_ctx, cancel = context.WithCancel(context.Background())
+	if err := RootCmd.ExecuteContext(_ctx); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -253,7 +253,7 @@ func initLogLevel() {
 
 	// Using it once
 	// todo necessary?
-	log.Logger(runtime.AsCoreContext(ctx))
+	log.Logger(runtime.AsCoreContext(_ctx))
 }
 
 func initLogLevelListener(ctx context.Context) {

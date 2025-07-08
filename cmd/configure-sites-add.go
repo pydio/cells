@@ -45,7 +45,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		sites, _ := routing.LoadSites(ctx, true)
+		sites, _ := routing.LoadSites(cmd.Context(), true)
 
 		newSite := &install.ProxyConfig{}
 

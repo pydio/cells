@@ -89,6 +89,7 @@ EXAMPLE
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
 		client := idmc.UserServiceClient(ctx)
 
 		users, err := searchUser(cmd.Context(), client, userPwdLogin)

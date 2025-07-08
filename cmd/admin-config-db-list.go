@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"context"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
@@ -43,7 +44,7 @@ type configDbService struct {
 	serviceName string
 }
 
-func configDatabaseList() (dd []*configDatabase) {
+func configDatabaseList(ctx context.Context) (dd []*configDatabase) {
 
 	m := config.Get(ctx, "databases").Map()
 
@@ -150,7 +151,7 @@ DESCRIPTION
 		table.SetHeader([]string{"Driver", "DSN", "Possible Services"})
 
 		// List all databases value
-		dd := configDatabaseList()
+		dd := configDatabaseList(cmd.Context())
 		for _, d := range dd {
 			var ss []string
 			for _, s := range d.services {

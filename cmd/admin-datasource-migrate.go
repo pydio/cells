@@ -89,7 +89,7 @@ DESCRIPTION
 
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
+		ctx := cmd.Context()
 		if !migrateForce {
 			fmt.Println("")
 			fmt.Println(" **************************************************************************************")
@@ -120,7 +120,7 @@ DESCRIPTION
 		authCtx := context.WithValue(cmd.Context(), common.PydioContextUserKey, common.PydioSystemUsername)
 
 		// Pick datasource to migrate
-		source, _, tgtFmt, srcBucket, tgtBucket, e := migratePickDS()
+		source, _, tgtFmt, srcBucket, tgtBucket, e := migratePickDS(ctx)
 		if e != nil {
 			migrateLogger("[ERROR] "+e.Error(), true)
 			return e
@@ -259,7 +259,7 @@ DESCRIPTION
 	},
 }
 
-func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtBucket string, e error) {
+func migratePickDS(ctx context.Context) (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtBucket string, e error) {
 	dss := config.ListSourcesFromConfig(ctx)
 	var dsName string
 	var opts []string

@@ -69,6 +69,7 @@ EXAMPLE
 
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 		client := treec.NodeProviderClient(ctx)
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())

@@ -71,9 +71,9 @@ EXAMPLES
 		path := args[1]
 		data := args[2]
 
-		config.Set(ctx, data, "services", id, path)
+		config.Set(cmd.Context(), data, "services", id, path)
 
-		if err := config.Save(ctx, "cli", fmt.Sprintf("Set by path %s/%s", id, path)); err == nil {
+		if err := config.Save(cmd.Context(), "cli", fmt.Sprintf("Set by path %s/%s", id, path)); err == nil {
 			cmd.Println(promptui.IconGood + " Config set")
 		} else {
 			log.Fatal(err)

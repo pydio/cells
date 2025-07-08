@@ -81,6 +81,7 @@ EXAMPLES
 			cmd.Println("Use one of both, s3 or index for the sides parameter")
 			return cmd.Help()
 		}
+		ctx := cmd.Context()
 
 		var syncConfig *object.DataSource
 		// TODO

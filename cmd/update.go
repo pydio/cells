@@ -58,7 +58,7 @@ DESCRIPTION
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		configs := config.GetUpdatesConfigs(ctx)
+		configs := config.GetUpdatesConfigs(cmd.Context())
 		binaries, e := update2.LoadUpdates(cmd.Context(), configs, &update.UpdateRequest{})
 		if e != nil {
 			log.Fatal("Cannot retrieve available updates", zap.Error(e))

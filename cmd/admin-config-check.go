@@ -67,7 +67,7 @@ EXAMPLE
 			configCheckURL += "?readOnly=true"
 		}
 		cmd.Println("Checking config at " + configCheckURL)
-		s, e := config.OpenStore(ctx, configCheckURL)
+		s, e := config.OpenStore(cmd.Context(), configCheckURL)
 		if e != nil {
 			cmd.Println(promptui.IconBad + " Cannot open config: " + e.Error())
 			os.Exit(1)

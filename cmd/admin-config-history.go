@@ -152,6 +152,7 @@ DESCRIPTION
 				}
 				index, _, _ := prompt.Run()
 				if index == 0 {
+					ctx := cmd.Context()
 					config.Set(ctx, version.Data)
 					config.Save(ctx, "cli", "Config Restoration to version "+configVersionRestore)
 				}

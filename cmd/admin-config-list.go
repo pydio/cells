@@ -43,7 +43,7 @@ DESCRIPTION
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var m map[string]interface{}
-		if err := config.Get(ctx, "").Scan(&m); err != nil {
+		if err := config.Get(cmd.Context(), "").Scan(&m); err != nil {
 			log.Fatal(err)
 		}
 

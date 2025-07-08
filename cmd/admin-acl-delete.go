@@ -54,6 +54,7 @@ DESCRIPTION
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
 		client := idm.NewACLServiceClient(grpc.ResolveConn(ctx, common.ServiceAclGRPC))
 
 		var aclActions []*idm.ACLAction

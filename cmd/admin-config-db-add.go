@@ -56,7 +56,7 @@ DESCRIPTION
 
 		if dbType == "SQL" {
 
-			if _, err := promptDB(installConfig); err != nil {
+			if _, err := promptDB(cmd.Context(), installConfig); err != nil {
 				return err
 			}
 			cmd.Println("\033[1m## Performing SQL Installation\033[0m")
@@ -68,7 +68,7 @@ DESCRIPTION
 
 		} else {
 
-			if err := promptDocumentsDSN(installConfig); err != nil {
+			if err := promptDocumentsDSN(cmd.Context(), installConfig); err != nil {
 				return err
 			}
 			if strings.HasPrefix(installConfig.DocumentsDSN, "mongodb://") {

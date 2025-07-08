@@ -20,11 +20,15 @@
 
 package cmd
 
-import "github.com/pydio/cells/v5/common/proto/install"
+import (
+	"context"
+
+	"github.com/pydio/cells/v5/common/proto/install"
+)
 
 type CellsCliPromptStep struct {
 	Step   string
-	Prompt func(*install.InstallConfig) error
+	Prompt func(context.Context, *install.InstallConfig) error
 }
 
 func RegisterAdditionalPrompt(step CellsCliPromptStep) {

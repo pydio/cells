@@ -62,6 +62,7 @@ EXAMPLES
 `,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 		client := idmc.UserServiceClient(ctx, longGrpcCallTimeout())
 
 		if userSearchLogin == "*" {

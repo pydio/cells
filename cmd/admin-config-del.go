@@ -61,6 +61,7 @@ EXAMPLE
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
 		id := args[0]
 		path := args[1]
 

@@ -58,6 +58,7 @@ EXAMPLES
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
 		if cleanAclAfter == "" && cleanAclBefore == "" {
 			cmd.Println("Please provide at least one of --after | --before")
 			cmd.Help()

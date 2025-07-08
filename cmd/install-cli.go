@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/url"
@@ -33,6 +34,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/runtime"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -49,22 +51,22 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	cliConfig := lib.GenerateDefaultConfig()
 	cliConfig.ProxyConfig = proxyConfig
 
-	if e := applyAdditionalPrompt("boot", cliConfig); e != nil {
+	if e := applyAdditionalPrompt(cmd.Context(), "boot", cliConfig); e != nil {
 		return nil, e
 	}
 
 	fmt.Println("\n\033[1m## Database Connection\033[0m")
-	adminRequired, e := promptDB(cliConfig)
+	adminRequired, e := promptDB(cmd.Context(), cliConfig)
 	if e != nil {
 		return nil, e
 	}
 
-	if e := applyAdditionalPrompt("post-db", cliConfig); e != nil {
+	if e := applyAdditionalPrompt(cmd.Context(), "post-db", cliConfig); e != nil {
 		return nil, e
 	}
 
 	applyDocumentsDSN := ""
-	if e := promptAdditionalMongoDSN(cliConfig, false); e != nil {
+	if e := promptAdditionalMongoDSN(cmd.Context(), cliConfig, false); e != nil {
 		return nil, e
 	} else if cliConfig.DocumentsDSN != "" {
 		// Copy DSN and apply it later on, or it will trigger configs warning
@@ -84,16 +86,16 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, e
 	}
 
-	if e := applyAdditionalPrompt("post-admin", cliConfig); e != nil {
+	if e := applyAdditionalPrompt(cmd.Context(), "post-admin", cliConfig); e != nil {
 		return nil, e
 	}
 
 	fmt.Println("\n\033[1m## Default storage location\033[0m")
-	if e := promptAdvanced(cliConfig); e != nil {
+	if e := promptAdvanced(cmd.Context(), cliConfig); e != nil {
 		return nil, e
 	}
 
-	if e := applyAdditionalPrompt("post-advanced", cliConfig); e != nil {
+	if e := applyAdditionalPrompt(cmd.Context(), "post-advanced", cliConfig); e != nil {
 		return nil, e
 	}
 
@@ -118,7 +120,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	fmt.Println("\n\033[1m## Software is ready to run!\033[0m")
 
 	fmt.Println(p.Styler(p.FGFaint)("Cells will be accessible through the following URLs:"))
-	ss, _ := routing.LoadSites(ctx)
+	ss, _ := routing.LoadSites(cmd.Context())
 	var urls []string
 	for _, s := range ss {
 		for _, u := range s.GetExternalUrls() {
@@ -142,7 +144,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 
 }
 
-func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
+func promptDB(ctx context.Context, c *install.InstallConfig) (adminRequired bool, err error) {
 
 	connType := p.Select{
 		Label: "Database Connection Type",
@@ -206,7 +208,7 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 	adminRequired = true
 	if res, e := lib.PerformCheck(ctx, "DB", c); e != nil {
 		fmt.Println(p.IconBad + " Cannot connect to database, please review the parameters: " + e.Error())
-		return promptDB(c)
+		return promptDB(ctx, c)
 	} else {
 		var info map[string]interface{}
 		var existConfirm string
@@ -220,9 +222,9 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 		}
 		if existConfirm != "" {
 			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue", IsConfirm: true}
-			if _, e := confirm.Run(); e != nil && e != p.ErrInterrupt {
-				return promptDB(c)
-			} else if e == p.ErrInterrupt {
+			if _, e = confirm.Run(); e != nil && !errors.Is(e, p.ErrInterrupt) {
+				return promptDB(ctx, c)
+			} else if errors.Is(e, p.ErrInterrupt) {
 				return false, e
 			}
 		}
@@ -231,7 +233,7 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 	return
 }
 
-func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
+func promptAdditionalMongoDSN(ctx context.Context, c *install.InstallConfig, loop bool) error {
 
 	if !loop {
 		_, e := (&p.Prompt{
@@ -361,14 +363,14 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 	if _, er := lib.PerformCheck(ctx, "MONGO", c); er != nil {
 		fmt.Println(p.IconBad + " " + er.Error())
 		fmt.Println(p.IconBad + " Cannot connect, please review your parameters!")
-		return promptAdditionalMongoDSN(c, true)
+		return promptAdditionalMongoDSN(ctx, c, true)
 	}
 
 	return nil
 
 }
 
-func promptDocumentsDSN(c *install.InstallConfig) error {
+func promptDocumentsDSN(ctx context.Context, c *install.InstallConfig) error {
 	driverType := p.Select{
 		Label: "Select driver type",
 		Items: []string{"mongodb", "boltdb", "bleve"},
@@ -449,7 +451,7 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 
 }
 
-func promptAdvanced(c *install.InstallConfig) error {
+func promptAdvanced(ctx context.Context, c *install.InstallConfig) error {
 
 	dsType := p.Select{
 		Label: "Your files will be stored on local filesystem under '" + c.DsFolder + "'. Do you want to change this?",
@@ -473,13 +475,13 @@ func promptAdvanced(c *install.InstallConfig) error {
 	} else if i == 2 {
 		// CHECK S3 CONNECTION
 		c.DsType = "S3"
-		buckets, canCreate, err := setupS3Connection(c)
+		buckets, canCreate, err := setupS3Connection(ctx, c)
 		if err != nil {
 			return err
 		}
 		fmt.Println(p.IconGood + fmt.Sprintf(" Successfully connected to S3, listed %d buckets, ability to create: %v", len(buckets), canCreate))
 		// NOW SET UP BUCKETS
-		usedBuckets, created, err := setupS3Buckets(c, buckets, canCreate)
+		usedBuckets, created, err := setupS3Buckets(ctx, c, buckets, canCreate)
 		if err != nil {
 			return err
 		}
@@ -493,7 +495,7 @@ func promptAdvanced(c *install.InstallConfig) error {
 }
 
 /* VARIOUS HELPERS */
-func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bool, e error) {
+func setupS3Connection(ctx context.Context, c *install.InstallConfig) (buckets []string, canCreate bool, e error) {
 
 	srvType := p.Select{
 		Label: "Select S3 storage type",
@@ -558,8 +560,8 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 		fmt.Println(p.IconBad+" Could not connect to S3: ", check.JsonResult)
 		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
 		if _, e := retry.Run(); e == nil {
-			return setupS3Connection(c)
-		} else if e == p.ErrInterrupt {
+			return setupS3Connection(ctx, c)
+		} else if errors.Is(e, p.ErrInterrupt) {
 			return buckets, canCreate, e
 		} else {
 			return buckets, canCreate, e
@@ -567,7 +569,7 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	}
 }
 
-func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate bool) (used []string, created []string, e error) {
+func setupS3Buckets(ctx context.Context, c *install.InstallConfig, knownBuckets []string, canCreate bool) (used []string, created []string, e error) {
 	var pref string
 	prefPrompt := p.Prompt{
 		Label:     "Select a unique prefix for this installation buckets.",
@@ -615,8 +617,8 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		fmt.Printf(p.IconBad+" The following buckets do not exists: %s, and you are not allowed to create them with the current credentials. Please create them first or change the prefix.\n", strings.Join(toCreate, ", "))
 		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
 		if _, e := retry.Run(); e == nil {
-			return setupS3Buckets(c, knownBuckets, canCreate)
-		} else if e == p.ErrInterrupt {
+			return setupS3Buckets(ctx, c, knownBuckets, canCreate)
+		} else if errors.Is(e, p.ErrInterrupt) {
 			return used, []string{}, e
 		} else {
 			return used, []string{}, e
@@ -625,8 +627,8 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		fmt.Printf(p.IconWarn+" The following buckets will be created: %s\n", strings.Join(toCreate, ", "))
 		retry := p.Prompt{Label: "Do you wish to continue or to use a different prefix", IsConfirm: true, Default: "y"}
 		if _, e = retry.Run(); e != nil {
-			return setupS3Buckets(c, knownBuckets, canCreate)
-		} else if e == p.ErrInterrupt {
+			return setupS3Buckets(ctx, c, knownBuckets, canCreate)
+		} else if errors.Is(e, p.ErrInterrupt) {
 			return used, []string{}, e
 		} else {
 			check, er := lib.PerformCheck(ctx, "S3_BUCKETS", c)
@@ -644,10 +646,10 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 	}
 }
 
-func applyAdditionalPrompt(step string, i *install.InstallConfig) error {
+func applyAdditionalPrompt(ctx context.Context, step string, i *install.InstallConfig) error {
 	for _, s := range additionalPrompts {
 		if s.Step == step {
-			return s.Prompt(i)
+			return s.Prompt(ctx, i)
 		}
 	}
 	return nil
