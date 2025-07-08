@@ -272,6 +272,11 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 		}
 		runner := func(t *testing.T) {
 			ctx, err := manager.DSNtoContextDAO(context.Background(), tc.DSN, tc.DAO)
+			if migrator, er := manager.Resolve[storage.Migrator](ctx); er == nil {
+				if err := migrator.Migrate(ctx); err != nil {
+					t.Fatal(err)
+				}
+			}
 			if err != nil {
 				panic(err)
 			}
