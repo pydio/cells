@@ -28,7 +28,7 @@ import (
 )
 
 // TplConfFilterFunc takes a TplConf and modifies it
-type TplConfFilterFunc func(ctx context.Context, in *TplConf) *TplConf
+type TplConfFilterFunc func(ctx context.Context, in *TplConf, publicLinkId string) *TplConf
 
 var (
 	tplConfFilters []TplConfFilterFunc
@@ -40,9 +40,9 @@ func RegisterTplConfFilter(f TplConfFilterFunc) {
 }
 
 // FilterTplConf applies registered filters on TplConf object
-func FilterTplConf(ctx context.Context, i *TplConf) *TplConf {
+func FilterTplConf(ctx context.Context, i *TplConf, publicLinkId string) *TplConf {
 	for _, f := range tplConfFilters {
-		i = f(ctx, i)
+		i = f(ctx, i, publicLinkId)
 	}
 	return i
 }

@@ -117,13 +117,13 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
-	tplConf = FilterTplConf(ctx, tplConf)
-
 	if strings.HasPrefix(r.URL.Path, h.resetPasswordPath) {
 		reset := strings.TrimPrefix(r.URL.Path, h.resetPasswordPath)
 		tplConf.StartParameters["USER_GUI_ACTION"] = "reset-password"
 		tplConf.StartParameters["USER_ACTION_KEY"] = reset
 	}
+
+	tplConf = FilterTplConf(ctx, tplConf, "")
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	for hK, hV := range config.Get(ctx, "frontend", "secureHeaders").StringMap() {

@@ -104,8 +104,6 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
-	tplConf = FilterTplConf(ctx, tplConf)
-
 	statusCode = 200
 	// Load link data
 	linkData, e := h.loadLink(ctx, linkId)
@@ -190,6 +188,8 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	tplConf.StartParameters = startParameters
 	tplConf.LoadingString = GetLoadingString(bootConf.CurrentLanguage)
 	sd = linkData
+
+	tplConf = FilterTplConf(ctx, tplConf, linkId)
 
 	return
 }
