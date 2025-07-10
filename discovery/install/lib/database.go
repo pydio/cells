@@ -23,8 +23,6 @@ package lib
 import (
 	"context"
 	"crypto/sha1"
-	"database/sql"
-	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -34,9 +32,9 @@ import (
 	"github.com/go-sql-driver/mysql"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	sql2 "github.com/pydio/cells/v5/common/storage/sql"
-	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 var (
@@ -110,7 +108,14 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 		return err
 	}
 
-	if e := checkConnection(ctx, dsn); e != nil {
+	DSN, err := sql2.NewStorageDSN(dsn)
+	if err != nil {
+		return err
+	}
+
+	if serverInfos, e := DSN.Check(ctx, true); e != nil {
+		return e
+	} else if e = specificVersionsChecks(ctx, DSN.Driver(), serverInfos); e != nil {
 		return e
 	}
 
@@ -177,102 +182,18 @@ func buildSqliteConnectionString(c *install.InstallConfig, values string) string
 	return "sqlite://" + c.GetDbSocketFile() + "?" + values
 }
 
-func checkConnection(ctx context.Context, dsn string) error {
-
-	DSN, err := sql2.NewStorageDSN(dsn)
-	if err != nil {
-		return err
+func specificVersionsChecks(ctx context.Context, driver string, infos *sql2.ServerInfos) error {
+	if driver != "mysql" {
+		return nil
 	}
-	return DSN.Check(ctx, true)
-}
-
-func getMysqlVersion(db *sql.DB) (string, error) {
-	// Here we check the version of mysql and the default charset
-	var version string
-	err := db.QueryRow("SELECT VERSION()").Scan(&version)
-	switch {
-	case err == sql.ErrNoRows:
-		return "", fmt.Errorf("Could not retrieve your mysql version - Please create the database manually and retry")
-	case err != nil:
-		return "", err
+	version := infos.DbVersion
+	if mysql8022Matched, _ := regexp.MatchString("^8.0.22$", version); mysql8022Matched {
+		return errors.WithMessage(ErrMySQLVersionNotSupported, "version 8.0.22 is not supported")
 	}
-
-	return version, nil
-}
-
-func checkMysqlCompat(version string) error {
-	mysql8022Matched, err := regexp.MatchString("^8.0.22$", version)
-	if err != nil {
-		return fmt.Errorf("Could not determine db version")
+	mysqlMatched, _ := regexp.MatchString("^5.[456].*$", version)
+	mariaMatched, _ := regexp.MatchString("^10.1.*-MariaDB$", version)
+	if (mariaMatched || mysqlMatched) && infos.DbCharset == "utf8mb4" {
+		return errors.WithMessage(ErrMySQLCharsetNotSupported, "This DB version has issues with utf8mb4 charset")
 	}
-
-	if mysql8022Matched {
-		log.Error(ErrMySQLVersionNotSupported.Error())
-		return ErrMySQLVersionNotSupported
-	}
-
 	return nil
-}
-
-func checkMysqlCharset(db *sql.DB, version string) error {
-	// Matches
-	mysqlMatched, err1 := regexp.MatchString("^5.[456].*$", version)
-	mariaMatched, err2 := regexp.MatchString("^10.1.*-MariaDB$", version)
-
-	if err1 != nil || err2 != nil {
-		return fmt.Errorf("Could not determine db version")
-	}
-
-	if mysqlMatched || mariaMatched {
-		var charname, charvalue string
-		err := db.QueryRow("SHOW VARIABLES LIKE 'character_set_database'").Scan(&charname, &charvalue)
-		switch {
-		case err == sql.ErrNoRows:
-			return fmt.Errorf("Could not retrieve your default charset - Please create the database manually and retry")
-		case err != nil:
-			return err
-		default:
-		}
-
-		if charvalue == "utf8mb4" {
-			return ErrMySQLCharsetNotSupported
-		}
-	}
-
-	return nil
-}
-
-func checkCellsInstallExists(dsn string) (install bool, admin bool, e error) {
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return
-	}
-	rows, er := db.Query("SHOW TABLES LIKE 'idm_user_%'")
-	if er != nil {
-		return
-	}
-	defer rows.Close()
-	//var tables []string
-	var table string
-	var iut, iua bool
-	for rows.Next() {
-		if er = rows.Scan(&table); er == nil {
-			switch table {
-			case "idm_user_idx_tree":
-				iut = true
-			case "idm_user_attributes":
-				iua = true
-			}
-		}
-	}
-	if iut && iua {
-		install = true
-		q := "SELECT count(t.name) FROM `idm_user_idx_tree` as t , `idm_user_attributes` as a WHERE (a.name = 'profile' AND a.value = 'admin') AND (t.uuid = a.uuid) LIMIT 1"
-		var count int
-		if er := db.QueryRow(q).Scan(&count); er == nil && count > 0 {
-			admin = true
-		}
-	}
-
-	return
 }

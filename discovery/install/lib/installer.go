@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/proto/object"
+	sql2 "github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -115,18 +116,26 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 			wrapError(e)
 			break
 		}
-		if e := checkConnection(ctx, dsn); e != nil {
+		DSN, err := sql2.NewStorageDSN(dsn)
+		if err != nil {
+			wrapError(err)
+			break
+		}
+		dbInfo, e := DSN.Check(ctx, true)
+		if e != nil {
 			wrapError(e)
 			break
 		}
-		jData := map[string]interface{}{"message": "successfully connected to database"}
-		if installExists, adminExists, err := checkCellsInstallExists(dsn); err == nil {
-			if installExists {
-				jData["tablesFound"] = true
-			}
-			if adminExists {
-				jData["adminFound"] = true
-			}
+		if e = specificVersionsChecks(ctx, DSN.Driver(), dbInfo); e != nil {
+			wrapError(e)
+			break
+		}
+		jData := map[string]interface{}{"message": fmt.Sprintf("successfully connected to server %s", dbInfo.DbVersion)}
+		if dbInfo.TablesFound {
+			jData["tablesFound"] = true
+		}
+		if dbInfo.AdminFound {
+			jData["adminFound"] = true
 		}
 		result.Success = true
 		data, _ := json.Marshal(jData)

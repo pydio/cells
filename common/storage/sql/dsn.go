@@ -49,6 +49,13 @@ var (
 	}
 )
 
+type ServerInfos struct {
+	DbVersion   string
+	DbCharset   string
+	TablesFound bool
+	AdminFound  bool
+}
+
 type StorageDSN interface {
 	// Parse parses standard DSN and extract reserved variables
 	Parse() error
@@ -65,7 +72,7 @@ type StorageDSN interface {
 	// GetReservedVar returns a parsed variable if it is set
 	GetReservedVar(string) string
 	// Check tests the connection and eventually creates the DB if it does not exists
-	Check(ctx context.Context, create bool) error
+	Check(ctx context.Context, create bool) (*ServerInfos, error)
 }
 
 func NewStorageDSN(dsn string) (StorageDSN, error) {
@@ -272,7 +279,7 @@ func (d *cellDsn) GetReservedVar(s string) string {
 	return d.vars[s]
 }
 
-func (d *cellDsn) Check(ctx context.Context, create bool) error {
+func (d *cellDsn) Check(ctx context.Context, create bool) (*ServerInfos, error) {
 	// return nil
 	tmpl, err := template.New("storages").Parse(`
 storages:
@@ -284,7 +291,7 @@ storages:
     uri: {{ .Main }}
 `)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var yamlTpl strings.Builder
@@ -307,7 +314,7 @@ storages:
 			Root: root,
 			Main: d.original,
 		}); err != nil {
-			return err
+			return nil, err
 		}
 	default:
 		if err = tmpl.Execute(&yamlTpl, struct {
@@ -316,7 +323,7 @@ storages:
 		}{
 			Main: d.original,
 		}); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -324,43 +331,43 @@ storages:
 	localRuntime := viper.New()
 	bootstrap, err := manager.NewBootstrap(ctx, localRuntime)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := bootstrap.RegisterTemplate(ctx, "yaml", yamlTpl.String()); err != nil {
-		return err
+		return nil, err
 	}
 	bootstrap.MustReset(ctx, nil)
 	localRuntime.Set(runtime.KeyBootstrapYAML, bootstrap)
 	runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
 	mgr, err := manager.NewManager(ctx, runtime.NsInstall, nil, localRuntime)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := mgr.Bootstrap(bootstrap.String()); err != nil {
-		return err
+		return nil, err
 	}
 	item, err := mgr.Registry().Get("main", registry.WithType(pb.ItemType_STORAGE))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var st storage.Storage
 	if !item.As(&st) {
-		return errors.WithMessage(errors.SqlDAO, "registry item not found")
+		return nil, errors.WithMessage(errors.SqlDAO, "registry item not found")
 	}
 
 	resolved, err := st.Resolve(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	resolvedDSN, err := NewStorageDSN(resolved)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// First try a ping
 	var dbNotFound bool
-	if _, err = st.Get(ctx); err != nil {
+	if db, err := st.Get(ctx); err != nil {
 		switch resolvedDSN.Driver() {
 		case MySQLDriver:
 			if me, ok := err.(*mysql.MySQLError); ok && me.Number == 1049 {
@@ -376,10 +383,23 @@ storages:
 			}
 		}
 		if !dbNotFound {
-			return err
+			return nil, err
 		}
 	} else {
-		return nil
+
+		gdb, ok := db.(*gorm.DB)
+		if !ok {
+			return nil, errors.WithMessage(errors.SqlDAO, "driver is not a gorm DB")
+		}
+		version, charset, er := d.getServerInfo(ctx, gdb)
+		install, admin, er := d.checkCellsInstallExists(ctx, gdb)
+		return &ServerInfos{
+			DbVersion:   version,
+			DbCharset:   charset,
+			TablesFound: install,
+			AdminFound:  admin,
+		}, er
+
 	}
 
 	if create {
@@ -390,17 +410,17 @@ storages:
 			dir := path.Dir(dbPath)
 			if s, e := os.Stat(dir); e == nil {
 				if !s.IsDir() {
-					return fmt.Errorf("%s is not a directory", dir)
+					return nil, fmt.Errorf("%s is not a directory", dir)
 				}
 			} else if er := os.MkdirAll(dir, 0755); er == nil {
 			} else {
-				return fmt.Errorf("cannot create directory %s: %v", dir, e)
+				return nil, fmt.Errorf("cannot create directory %s: %v", dir, e)
 			}
 		case MySQLDriver, PostgreDriver:
 			dbName := strings.Trim(resolvedDSN.DBName(), "/")
 			rootItem, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			var rootSt storage.Storage
@@ -408,20 +428,101 @@ storages:
 
 			rootDB, err := rootSt.Get(ctx)
 			if err != nil {
-				return errors.New("couldn't get root storage")
+				return nil, errors.New("couldn't get root storage")
 			}
 
 			rootGormDB, ok := rootDB.(*gorm.DB)
 			if !ok {
-				return errors.New("not a gorm DB")
+				return nil, errors.New("not a gorm DB")
 			}
 			if tx := rootGormDB.Exec(fmt.Sprintf("create database %s", dbName)); tx.Error != nil {
-				return tx.Error
+				return nil, tx.Error
 			}
 		}
-
+		// Now reconnect to new DB to retrieve info
+		if db, err := st.Get(ctx); err == nil {
+			gdb, ok := db.(*gorm.DB)
+			if !ok {
+				return nil, errors.WithMessage(errors.SqlDAO, "driver is not a gorm DB")
+			}
+			version, charset, er := d.getServerInfo(ctx, gdb)
+			return &ServerInfos{
+				DbVersion: version,
+				DbCharset: charset,
+			}, er
+		} else {
+			return nil, err
+		}
 	}
-	return nil
+	return &ServerInfos{}, err
+}
+
+func (d *cellDsn) checkCellsInstallExists(ctx context.Context, db *gorm.DB) (install bool, admin bool, e error) {
+	// 1) Do both tables exist?
+	hasTree := db.Migrator().HasTable("idm_user_idx_tree")
+	hasAttr := db.Migrator().HasTable("idm_user_attributes")
+	if !hasTree || !hasAttr {
+		return false, false, nil
+	}
+
+	// 2) Mark install = true
+	install = true
+
+	// 3) Count “admin” matches via a join
+	var count int64
+	err := db.
+		Table("idm_user_idx_tree as t").
+		Joins("JOIN idm_user_attributes as a ON t.uuid = a.uuid").
+		Where("a.name = ? AND a.value = ?", "profile", "admin").
+		Count(&count).Error
+	if err != nil {
+		return install, false, err
+	}
+
+	// 4) If count > 0, admin exists
+	admin = count > 0
+	return
+}
+
+// GetServerInfo returns the database server’s version string and character set,
+// for mysql, postgres or sqlite.
+func (d *cellDsn) getServerInfo(ctx context.Context, db *gorm.DB) (version string, charset string, err error) {
+	switch db.Dialector.Name() {
+	case "mysql":
+		// VERSION() exists in MySQL and MariaDB
+		if err = db.Raw("SELECT VERSION()").Scan(&version).Error; err != nil {
+			return
+		}
+		// Per-database character set
+		if err = db.Raw("SELECT @@character_set_database").Scan(&charset).Error; err != nil {
+			return
+		}
+
+	case "postgres":
+		// SHOW server_version gives you a clean semver
+		if err = db.Raw("SHOW server_version").Scan(&version).Error; err != nil {
+			return
+		}
+		// SHOW server_encoding → e.g. UTF8
+		if err = db.Raw("SHOW server_encoding").Scan(&charset).Error; err != nil {
+			return
+		}
+
+	case "sqlite":
+		// SQLite version
+		if err = db.Raw("SELECT sqlite_version()").Scan(&version).Error; err != nil {
+			return
+		}
+		// File encoding (always UTF-8/UTF-16)
+		if err = db.Raw("PRAGMA encoding").Scan(&charset).Error; err != nil {
+			return
+		}
+
+	default:
+		return "", "", fmt.Errorf("unsupported dialect %q", db.Dialector.Name())
+	}
+
+	return
 }
 
 func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
