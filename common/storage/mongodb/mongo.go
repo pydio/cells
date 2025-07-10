@@ -56,6 +56,11 @@ type pool struct {
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 	p, err := openurl.OpenPool(context.Background(), []string{uu}, func(ctx context.Context, dsn string) (*Indexer, error) {
 
+		if strings.Contains(dsn, "srvScheme=true") {
+			dsn = strings.Replace(dsn, "srvScheme=true", "", 1)
+			dsn = strings.Replace(dsn, "mongodb://", "mongodb+srv://", 1)
+		}
+
 		u, err := url.Parse(dsn)
 		if err != nil {
 			return nil, err

@@ -27,23 +27,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
-	"path"
+	"net/url"
 	"regexp"
 	"strings"
-	"text/template"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/install"
-	pb "github.com/pydio/cells/v5/common/proto/registry"
-	"github.com/pydio/cells/v5/common/registry"
-	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/storage"
+	sql2 "github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
@@ -55,36 +47,37 @@ var (
 func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 
 	var err error
+	var conf string
+	connType := c.GetDbConnectionType()
+	values := url.Values{}
+	values.Add("prefix", "{{.Meta.prefix}}")
+	values.Add("policies", "{{.Meta.policies}}")
+	values.Add("singular", "{{.Meta.singular}}")
 
-	var conf *mysql.Config
-
-	switch c.GetDbConnectionType() {
-	case "tcp":
-		conf, err = addDatabaseTCPConnection(c)
-	case "socket":
-		conf, err = addDatabaseSocketConnection(c)
+	switch connType {
+	case "tcp", "mysql_tcp", "pg_tcp":
+		conf = buildTCPConnectionString(c, values, connType == "pg_tcp")
+	case "socket", "mysql_socket", "pg_socket":
+		conf = buildSocketConnectionString(c, values, connType == "pg_socket")
+	case "sqlite":
+		conf = buildSqliteConnectionString(c, values, connType == "sqlite")
 	case "manual":
 		return c.GetDbManualDSN(), nil
 	default:
 		return "", fmt.Errorf("Unknown type")
 	}
 
-	if err != nil {
-		return "", err
-	}
-
-	conf.ParseTime = true
-
-	// Check DB Connection
-	// TODO - HARDCODE SCHEME FOR NOW
-	dsn := "mysql://" + conf.FormatDSN() + "&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}"
-
-	return dsn, nil
+	return conf, err
 
 }
 
 func installDocumentDSN(ctx context.Context, c *install.InstallConfig) error {
 	if c.UseDocumentsDSN && strings.HasPrefix(c.DocumentsDSN, "mongodb://") {
+		if !strings.Contains(c.DocumentsDSN, "?") {
+			c.DocumentsDSN += "?prefix={{.Meta.prefix}}"
+		} else {
+			c.DocumentsDSN += "&prefix={{.Meta.prefix}}"
+		}
 		if err := config.SetDatabase(ctx, "mongodb", "mongodb", c.DocumentsDSN, "documentsDSN"); err != nil {
 			return err
 		}
@@ -135,235 +128,85 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 	return config.Save(ctx, "cli", "Install / Setting Databases")
 }
 
-func addDatabaseTCPConnection(c *install.InstallConfig) (*mysql.Config, error) {
-	conf := mysql.NewConfig()
+func buildTCPConnectionString(c *install.InstallConfig, values url.Values, pg bool) string {
+	if pg {
+		u := &url.URL{}
+		u.Scheme = "postgres"
+		u.Host = fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort())
+		u.Path = c.GetDbTCPName()
+		u.User = url.UserPassword(c.DbTCPUser, c.DbTCPPassword)
+		qv := url.Values{}
+		qv.Set("sslmode", "disable") // disable ssl by default for PG
+		u.RawQuery = qv.Encode()
+		var pureValues string
+		for k, v := range values {
+			pureValues = pureValues + "&" + k + "=" + v[0]
+		}
+		return u.String() + pureValues
+	} else {
+		conf := mysql.NewConfig()
+		conf.User = c.GetDbTCPUser()
+		conf.Passwd = c.GetDbTCPPassword()
+		conf.Net = "tcp"
+		conf.Addr = fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort())
+		conf.DBName = c.GetDbTCPName()
+		conf.ParseTime = true
+		conf.Params = make(map[string]string)
+		for k, v := range values {
+			conf.Params[k] = v[0]
+		}
+		return "mysql://" + conf.FormatDSN()
+	}
 
-	conf.User = c.GetDbTCPUser()
-	conf.Passwd = c.GetDbTCPPassword()
-	conf.Net = "tcp"
-	conf.Addr = fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort())
-	conf.DBName = c.GetDbTCPName()
-
-	return conf, nil
 }
 
-func addDatabaseSocketConnection(c *install.InstallConfig) (*mysql.Config, error) {
-	conf := mysql.NewConfig()
+func buildSocketConnectionString(c *install.InstallConfig, values url.Values, pg bool) string {
+	if pg {
+		// leave empty host and use host=/path/to/file in query
+		u := &url.URL{}
+		u.Scheme = "postgres"
+		qv := url.Values{}
+		qv.Set("host", c.GetDbSocketFile())
+		u.RawQuery = qv.Encode()
+		u.Path = c.GetDbTCPName()
+		u.User = url.UserPassword(c.DbSocketUser, c.DbSocketPassword)
+		var pureValues string
+		for k, v := range values {
+			pureValues = pureValues + "&" + k + "=" + v[0]
+		}
+		return u.String() + pureValues
 
-	conf.User = c.GetDbSocketUser()
-	conf.Passwd = c.GetDbSocketPassword()
-	conf.Net = "unix"
-	conf.Addr = c.GetDbSocketFile()
-	conf.DBName = c.GetDbSocketName()
-
-	return conf, nil
+	} else {
+		conf := mysql.NewConfig()
+		conf.User = c.GetDbSocketUser()
+		conf.Passwd = c.GetDbSocketPassword()
+		conf.Net = "unix"
+		conf.Addr = c.GetDbSocketFile()
+		conf.DBName = c.GetDbSocketName()
+		conf.ParseTime = true
+		conf.Params = make(map[string]string)
+		for k, v := range values {
+			conf.Params[k] = v[0]
+		}
+		return "mysql://" + conf.FormatDSN()
+	}
 }
 
-func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error) {
-	// DSN has already been validated - no need to check the error
-	conf, _ := mysql.ParseDSN(c.GetDbManualDSN())
-
-	return conf, nil
+func buildSqliteConnectionString(c *install.InstallConfig, values url.Values, pg bool) string {
+	var pureValues string
+	for k, v := range values {
+		pureValues = pureValues + k + "=" + v[0] + "&"
+	}
+	return "sqlite://" + c.GetDbSocketFile() + "?" + pureValues
 }
 
 func checkConnection(ctx context.Context, dsn string) error {
-	// return nil
-	tmpl, err := template.New("storages").Parse(`
-storages:
-  {{ with .Root }}
-  root:
-    uri: {{ . }}
-  {{ end }}
-  main:
-    uri: {{ .Main }}
-`)
+
+	DSN, err := sql2.NewStorageDSN(dsn)
 	if err != nil {
 		return err
 	}
-
-	var str strings.Builder
-
-	if strings.HasPrefix(dsn, "mysql") {
-		rootconf, _ := mysql.ParseDSN(dsn)
-		rootconf.DBName = ""
-
-		rootdsn := rootconf.FormatDSN()
-
-		if err := tmpl.Execute(&str, struct {
-			Root string
-			Main string
-		}{
-			Root: rootdsn,
-			Main: dsn,
-		}); err != nil {
-			return err
-		}
-	} else {
-		if err := tmpl.Execute(&str, struct {
-			Main string
-			Root string
-		}{
-			Main: dsn,
-		}); err != nil {
-			return err
-		}
-	}
-
-	localRuntime := viper.New()
-
-	bootstrap, err := manager.NewBootstrap(ctx, localRuntime)
-	if err != nil {
-		return err
-	}
-
-	if err := bootstrap.RegisterTemplate(ctx, "yaml", str.String()); err != nil {
-		return err
-	}
-
-	bootstrap.MustReset(ctx, nil)
-
-	localRuntime.Set(runtime.KeyBootstrapYAML, bootstrap)
-	runtime.GetRuntime().Set(runtime.KeyBootstrapYAML, bootstrap)
-
-	mgr, err := manager.NewManager(ctx, runtime.NsInstall, nil, localRuntime)
-	if err != nil {
-		return err
-	}
-
-	if err := mgr.Bootstrap(bootstrap.String()); err != nil {
-		return err
-	}
-
-	item, err := mgr.Registry().Get("main", registry.WithType(pb.ItemType_STORAGE))
-	if err != nil {
-		return err
-	}
-
-	var st storage.Storage
-	if item.As(&st) {
-		resolvedDSN, err := st.Resolve(ctx)
-
-		if strings.HasPrefix(resolvedDSN, "sqlite") {
-			dir := path.Dir(resolvedDSN[9:])
-			if s, e := os.Stat(dir); e == nil {
-				if !s.IsDir() {
-					return fmt.Errorf("%s is not a directory", dir)
-				}
-			} else if er := os.MkdirAll(dir, 0755); er == nil {
-			} else {
-				return fmt.Errorf("cannot create directory %s: %v", dir, e)
-			}
-		}
-
-		if strings.HasPrefix(dsn, "mysql") {
-			rootconf, _ := mysql.ParseDSN(resolvedDSN)
-			dbname := rootconf.DBName
-
-			rootItem, err := mgr.Registry().Get("root", registry.WithType(pb.ItemType_STORAGE))
-			if err != nil {
-				return err
-			}
-
-			var rootSt storage.Storage
-			rootItem.As(&rootSt)
-
-			rootDB, err := rootSt.Get(ctx)
-			if err != nil {
-				return errors.New("couldn't get root storage")
-			}
-
-			rootGormDB, ok := rootDB.(*gorm.DB)
-			if !ok {
-				return errors.New("not a gorm DB")
-			}
-
-			if tx := rootGormDB.Exec(fmt.Sprintf("create database if not exists %s", dbname)); tx.Error != nil {
-				return tx.Error
-			}
-		}
-
-		db, err := st.Get(ctx)
-		if err != nil {
-			return err
-		}
-
-		gormDB, ok := db.(*gorm.DB)
-		if !ok {
-			return errors.New("not a gorm DB")
-		}
-
-		sqlDB, err := gormDB.DB()
-		if err != nil {
-			return err
-		}
-
-		if err := sqlDB.Ping(); err != nil {
-			return err
-		}
-	}
-
-	//for {
-	//	st, err := ctrl.Open(context.Background(), "mysql://"+dsn)
-	//	if err != nil {
-	//		return err
-	//	} else {
-	/* Open doesn't open a connection. Validate DSN data:
-	c, cf := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cf()
-	if err := db.PingContext(c); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
-		rootconf, _ := mysql.ParseDSN(dsn)
-		dbname := rootconf.DBName
-		rootconf.DBName = ""
-
-		rootdsn := rootconf.FormatDSN()
-
-		if rootdb, rooterr := sql.Open("mysql+tls", rootdsn); rooterr != nil {
-			return rooterr
-		} else {
-			version, err := getMysqlVersion(rootdb)
-			if err != nil {
-				return err
-			}
-
-			if err := checkMysqlCompat(version); err != nil {
-				return err
-			}
-
-			errCharset := checkMysqlCharset(rootdb, version)
-			switch {
-			case errCharset == ErrMySQLCharsetNotSupported:
-				dbname = dbname + " CHARACTER SET utf8 COLLATE utf8_general_ci"
-			case errCharset != nil:
-				return errCharset
-			}
-
-			if _, err = rootdb.Exec(fmt.Sprintf("create database if not exists %s", dbname)); err != nil {
-				return err
-			}
-		}
-	} else if err != nil {
-		return err
-	} else {
-		version, err := getMysqlVersion(db)
-		if err != nil {
-			return err
-		}
-
-		if err := checkMysqlCompat(version); err != nil {
-			return err
-		}
-		if err := checkMysqlCharset(db, version); err != nil {
-			return err
-		}
-
-		break
-	}
-	*/
-	//	}
-	//
-	//	fmt.Println(st)
-	//}
-	return nil
+	return DSN.Check(ctx, true)
 }
 
 func getMysqlVersion(db *sql.DB) (string, error) {

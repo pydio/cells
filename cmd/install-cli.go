@@ -148,10 +148,16 @@ func promptDB(ctx context.Context, c *install.InstallConfig) (adminRequired bool
 
 	connType := p.Select{
 		Label: "Database Connection Type",
-		Items: []string{"TCP", "Socket", "Manual"},
+		Items: []string{
+			"MySQL/MariaDB - TCP",
+			"PostgreSQL    - TCP",
+			"MySQL/MariaDB - Socket",
+			"PostgreSQL    - Socket",
+			"SQLite 	   - File",
+			"Manual DSN",
+		},
 	}
 	dbTcpHost := p.Prompt{Label: "Database Hostname", Validate: notEmpty, Default: c.DbTCPHostname, AllowEdit: true}
-	dbTcpPort := p.Prompt{Label: "Database Port", Validate: validPortNumber, Default: c.DbTCPPort, AllowEdit: true}
 
 	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: c.DbTCPName, AllowEdit: true}
 	dbUser := p.Prompt{Label: "Database User", Validate: notEmpty, Default: c.DbTCPUser, AllowEdit: true}
@@ -161,26 +167,43 @@ func promptDB(ctx context.Context, c *install.InstallConfig) (adminRequired bool
 	dbDSN := p.Prompt{Label: "Manual DSN", Validate: notEmpty}
 
 	uConnIdx, _, er := connType.Run()
-	if er == p.ErrInterrupt {
+	if errors.Is(er, p.ErrInterrupt) {
 		return false, er
 	}
 	var e error
-	if uConnIdx == 2 {
+	if uConnIdx == 5 {
 		c.DbConnectionType = "manual"
 		if c.DbManualDSN, e = dbDSN.Run(); e != nil {
 			return false, e
 		}
+	} else if uConnIdx == 4 {
+		dbSocketFile = p.Prompt{Label: "Path to sqlite DB file", Validate: notEmpty}
+		sf, _ := dbSocketFile.Run()
+		c.DbConnectionType = "sqlite"
+		c.DbSocketFile = sf
 	} else {
-		if uConnIdx == 0 {
-			c.DbConnectionType = "tcp"
+		tcp := uConnIdx == 0 || uConnIdx == 1
+		socket := uConnIdx == 2 || uConnIdx == 3
+		if tcp {
+			if uConnIdx == 0 {
+				c.DbConnectionType = "mysql_tcp"
+			} else {
+				c.DbConnectionType = "pg_tcp"
+				c.DbTCPPort = "5432" // Replace with PG default
+			}
+			dbTcpPort := p.Prompt{Label: "Database Port", Validate: validPortNumber, Default: c.DbTCPPort, AllowEdit: true}
 			if c.DbTCPHostname, e = dbTcpHost.Run(); e != nil {
 				return false, e
 			}
 			if c.DbTCPPort, e = dbTcpPort.Run(); e != nil {
 				return false, e
 			}
-		} else if uConnIdx == 1 {
-			c.DbConnectionType = "socket"
+		} else if socket {
+			if uConnIdx == 2 {
+				c.DbConnectionType = "mysql_socket"
+			} else {
+				c.DbConnectionType = "pg_socket"
+			}
 			if c.DbSocketFile, e = dbSocketFile.Run(); e != nil {
 				return false, e
 			}
@@ -195,7 +218,7 @@ func promptDB(ctx context.Context, c *install.InstallConfig) (adminRequired bool
 		if pass, e = dbPass.Run(); e != nil {
 			return false, e
 		}
-		if uConnIdx == 0 {
+		if tcp {
 			c.DbTCPName = name
 			c.DbTCPUser = user
 			c.DbTCPPassword = pass

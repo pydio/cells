@@ -3,19 +3,14 @@ package sql
 import (
 	"context"
 	"crypto/tls"
-	"database/sql"
 	"fmt"
 	"net/url"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/glebarez/sqlite"
 	mysql2 "github.com/go-sql-driver/mysql"
-	pgx "github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/stdlib"
-	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -24,7 +19,6 @@ import (
 	otel "gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/pydio/cells/v5/common/crypto"
-	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/controller"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -32,7 +26,6 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
-	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	_ "github.com/jackc/pgx/v5"
 )
@@ -145,114 +138,19 @@ func varsToTLSConfig(vars map[string]string) (*tls.Config, error) {
 }
 
 func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
-	p, err := openurl.OpenPool(ctx, []string{uu}, func(ctx context.Context, dsn string) (*gorm.DB, error) {
-		parts := strings.SplitN(dsn, "://", 2)
-		if len(parts) < 2 {
-			return nil, errors.WithMessage(errors.SqlDAO, "wrong format dsn")
-		}
-		scheme := parts[0]
-		expectedVars := map[string]string{
-			"prefix":                   "",
-			"policies":                 "",
-			"singular":                 "",
-			"hookNames":                "",
-			"ssl":                      "",
-			"maxConnections":           "10",
-			"maxIdleConnections":       "5",
-			"connMaxLifetime":          "1m",
-			crypto.KeyCertUUID:         "",
-			crypto.KeyCertCAUUID:       "",
-			crypto.KeyCertKeyUUID:      "",
-			crypto.KeyCertStoreName:    "",
-			crypto.KeyCertInsecureHost: "",
-		}
-		var clean string
-		var er error
-		var conn *sql.DB
-		var tlsConfig *tls.Config
-		switch scheme {
-		case "gorm":
-			gU, _ := url.Parse(dsn)
-			scheme = gU.Query().Get("driver")
-			clean, er = cleanDSN(dsn, expectedVars, "gorm")
-		case MySQLDriver:
-			clean, er = cleanDSN(dsn, expectedVars, "mysql")
-		case SqliteDriver:
-			clean, er = cleanDSN(dsn, expectedVars, "url")
-		case PostgreDriver:
-			clean, er = cleanDSN(dsn, expectedVars, "url")
-		default:
-			return nil, errors.WithMessage(errors.SqlDAO, "unsupported scheme")
-		}
+	p, err := openurl.OpenPool(ctx, []string{uu}, func(ctx context.Context, dsnStr string) (*gorm.DB, error) {
+		dsn, er := NewStorageDSN(dsnStr)
 		if er != nil {
 			return nil, er
 		}
-		if scheme != PostgreDriver {
-			clean = strings.TrimPrefix(clean, scheme+"://")
-		}
 
-		if expectedVars["ssl"] == "true" {
-			tlsConfig, er = varsToTLSConfig(expectedVars)
-			if er != nil {
-				return nil, er
-			}
-		}
-
-		// Open sql connection pool - special case to force PG to use PGX driver, not PQ
-		switch scheme {
-		case PostgreDriver:
-			pgxConfig, err := pgx.ParseConfig(clean)
-			if err != nil {
-				return nil, err
-			}
-			if tlsConfig != nil {
-				pgxConfig.TLSConfig = tlsConfig
-			}
-
-			conn = stdlib.OpenDB(*pgxConfig)
-		case MySQLDriver:
-			if tlsConfig != nil {
-				configID := uuid.New()
-				if err := mysql2.RegisterTLSConfig(configID, &tls.Config{}); err != nil {
-					return nil, err
-				}
-				if !strings.Contains(clean, "?") {
-					clean += "?tls=" + configID
-				} else {
-					clean += "&tls=" + configID
-				}
-			}
-			conn, er = sql.Open(scheme, clean)
-
-			maxIdleConnections, err := strconv.Atoi(expectedVars["maxIdleConnections"])
-			if err != nil {
-				return nil, err
-			}
-
-			maxOpenConnections, err := strconv.Atoi(expectedVars["maxConnections"])
-			if err != nil {
-				return nil, err
-			}
-
-			connMaxLifetime, err := time.ParseDuration(expectedVars["connMaxLifetime"])
-			if err != nil {
-				return nil, err
-			}
-
-			log.Logger(ctx).Info("MySQL Config", zap.Any("maxOpenConns", maxOpenConnections), zap.Any("maxIdleConns", maxIdleConnections), zap.Any("connMaxLifetime", connMaxLifetime))
-			conn.SetMaxIdleConns(maxIdleConnections)
-			conn.SetMaxOpenConns(maxOpenConnections)
-			conn.SetConnMaxLifetime(connMaxLifetime)
-		default:
-			conn, er = sql.Open(scheme, clean)
-
-		}
-		if er != nil {
-			return nil, er
+		conn, err := dsn.OpenDB(ctx)
+		if err != nil {
+			return nil, err
 		}
 
 		var dialect gorm.Dialector
-		switch scheme {
+		switch dsn.Driver() {
 		case MySQLDriver:
 			dialect = &Dialector{
 				Dialector: mysql.New(mysql.Config{
@@ -301,10 +199,10 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			}),
 			NamingStrategy: &customNaming{
 				NamingStrategy: &schema.NamingStrategy{
-					TablePrefix:   expectedVars["prefix"],
-					SingularTable: expectedVars["singular"] == "true",
+					TablePrefix:   dsn.GetReservedVar("prefix"),             //expectedVars["prefix"],
+					SingularTable: dsn.GetReservedVar("singular") == "true", // expectedVars["singular"] == "true",
 				},
-				Policies: expectedVars["policies"],
+				Policies: dsn.GetReservedVar("policies"), // expectedVars["policies"],
 			},
 		})
 
@@ -317,7 +215,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		// This enables tracing and metrics on DB
 		_ = db.Use(otel.NewPlugin())
 
-		if hooks := expectedVars["hookNames"]; hooks != "" {
+		if hooks := dsn.GetReservedVar("hookNames"); hooks != "" {
 			for _, h := range strings.Split(hooks, ",") {
 				if reg, ok := hooksRegister[h]; ok {
 					reg(db)

@@ -9,18 +9,25 @@ option go_package="github.com/pydio/cells/v5/common/proto/install";
 message InstallConfig {
     string internalUrl = 32;
 
+    //
     string dbConnectionType = 1;
+    // TCP Connection
     string dbTCPHostname = 2;
     string dbTCPPort = 3;
     string dbTCPName = 4;
     string dbTCPUser = 5;
     string dbTCPPassword = 6;
+
+    // Unix Socket Connection or SQlite File Path
     string dbSocketFile = 7;
     string dbSocketName = 8;
     string dbSocketUser = 9;
     string dbSocketPassword = 10;
+
+    // Fully qualified DSN instead
     string dbManualDSN = 11;
     bool   dbUseDefaults = 37;
+
     // Additional Documents DSN data
     string DocumentsDSN = 38;
     bool   UseDocumentsDSN = 39;
