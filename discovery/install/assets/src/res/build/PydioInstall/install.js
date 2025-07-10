@@ -916,11 +916,14 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 _reduxForm.Field,
                                 { name: 'dbConnectionType', component: renderSelectField, label: this.t('database.stepLabel') },
-                                _react2.default.createElement(_materialUi.MenuItem, { value: 'tcp', primaryText: this.t('form.dbConnectionType.tcp') }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: 'socket', primaryText: this.t('form.dbConnectionType.socket') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'tcp', primaryText: this.t('form.dbConnectionType.mysql_tcp') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'pg_tcp', primaryText: this.t('form.dbConnectionType.pg_tcp') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'mysql_socket', primaryText: this.t('form.dbConnectionType.mysql_socket') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'pg_socket', primaryText: this.t('form.dbConnectionType.pg_socket') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'sqlite', primaryText: this.t('form.dbConnectionType.sqlite') }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: 'manual', primaryText: this.t('form.dbConnectionType.manual') })
                             ),
-                            dbConnectionType === "tcp" && _react2.default.createElement(
+                            (dbConnectionType === "tcp" || dbConnectionType === "mysql_tcp" || dbConnectionType === "pg_tcp") && _react2.default.createElement(
                                 'div',
                                 { style: flexContainer },
                                 _react2.default.createElement(
@@ -953,7 +956,7 @@ var InstallForm = function (_React$Component) {
                                     )
                                 )
                             ),
-                            dbConnectionType === "socket" && _react2.default.createElement(
+                            (dbConnectionType === "mysql_socket" || dbConnectionType === "pg_socket") && _react2.default.createElement(
                                 'div',
                                 { style: flexContainer },
                                 _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketFile', component: renderTextField, floatingLabel: this.t('form.dbSocketFile.label'), label: this.t('form.dbSocketFile.legend'), defaultValue: '/tmp/mysql.sock' }),
@@ -972,6 +975,11 @@ var InstallForm = function (_React$Component) {
                                         _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketPassword', component: renderTextField, floatingLabel: this.t('form.dbPassword.label'), label: this.t('form.dbPassword.legend') })
                                     )
                                 )
+                            ),
+                            dbConnectionType === "sqlite" && _react2.default.createElement(
+                                'div',
+                                { style: flexContainer },
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketFile', component: renderTextField, floatingLabel: this.t('form.dbSocketFile.label'), label: this.t('form.dbSocketFile.legend') })
                             ),
                             dbConnectionType === "manual" && _react2.default.createElement(
                                 'div',

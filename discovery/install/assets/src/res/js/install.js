@@ -637,12 +637,15 @@ class InstallForm extends React.Component {
                         {(!dbUseDefaultsToggle || !dbConfig.dbUseDefaults) &&
                         <div style={flexContainer}>
                             <Field name="dbConnectionType" component={renderSelectField} label={this.t('database.stepLabel')}>
-                                <MenuItem value="tcp" primaryText={this.t('form.dbConnectionType.tcp')} />
-                                <MenuItem value="socket" primaryText={this.t('form.dbConnectionType.socket')} />
+                                <MenuItem value="tcp" primaryText={this.t('form.dbConnectionType.mysql_tcp')} />
+                                <MenuItem value="pg_tcp" primaryText={this.t('form.dbConnectionType.pg_tcp')} />
+                                <MenuItem value="mysql_socket" primaryText={this.t('form.dbConnectionType.mysql_socket')} />
+                                <MenuItem value="pg_socket" primaryText={this.t('form.dbConnectionType.pg_socket')} />
+                                <MenuItem value="sqlite" primaryText={this.t('form.dbConnectionType.sqlite')} />
                                 <MenuItem value="manual" primaryText={this.t('form.dbConnectionType.manual')} />
                             </Field>
 
-                            {dbConnectionType === "tcp" && (
+                            {(dbConnectionType === "tcp" || dbConnectionType === "mysql_tcp" || dbConnectionType === "pg_tcp") && (
                                 <div style={flexContainer}>
                                     <div style={{display:'flex'}}>
                                         <div style={{flex: 4, marginRight: 2}}><Field name="dbTCPHostname" component={renderTextField} floatingLabel={this.t('form.dbTCPHostname.label')} label={this.t('form.dbTCPHostname.legend')} /></div>
@@ -656,7 +659,7 @@ class InstallForm extends React.Component {
                                 </div>
                             )}
 
-                            {dbConnectionType === "socket" && (
+                            {(dbConnectionType === "mysql_socket" || dbConnectionType === "pg_socket") && (
                                 <div style={flexContainer}>
                                     <Field name="dbSocketFile" component={renderTextField} floatingLabel={this.t('form.dbSocketFile.label')} label={this.t('form.dbSocketFile.legend')} defaultValue="/tmp/mysql.sock" />
                                     <Field name="dbSocketName" component={renderTextField} floatingLabel={this.t('form.dbName.label')} label={this.t('form.dbName.legend')} defaultValue="pydio" />
@@ -664,6 +667,12 @@ class InstallForm extends React.Component {
                                         <div style={{flex: 1, marginRight: 2}}><Field name="dbSocketUser" component={renderTextField} floatingLabel={this.t('form.dbUser.label')} label={this.t('form.dbUser.legend')} /></div>
                                         <div style={{flex: 1, marginLeft: 2}}><Field name="dbSocketPassword" component={renderTextField} floatingLabel={this.t('form.dbPassword.label')} label={this.t('form.dbPassword.legend')} /></div>
                                     </div>
+                                </div>
+                            )}
+
+                            {dbConnectionType === "sqlite" && (
+                                <div style={flexContainer}>
+                                    <Field name="dbSocketFile" component={renderTextField} floatingLabel={this.t('form.dbSocketFile.label')} label={this.t('form.dbSocketFile.legend')} />
                                 </div>
                             )}
 

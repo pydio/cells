@@ -140,11 +140,20 @@
   "form.dbConnectionType.label":{
     "other":"Connection Type"
   },
-  "form.dbConnectionType.tcp":{
-    "other":"TCP"
+  "form.dbConnectionType.mysql_tcp":{
+    "other":"MySQL/MariaDB (TCP)"
   },
-  "form.dbConnectionType.socket":{
-    "other":"Socket"
+  "form.dbConnectionType.mysql_socket":{
+    "other":"MySQL/MariaDB (Socket)"
+  },
+  "form.dbConnectionType.pg_tcp":{
+    "other":"PostGreSQL (TCP)"
+  },
+  "form.dbConnectionType.pg_socket":{
+    "other":"PostGreSQL (Socket)"
+  },
+  "form.dbConnectionType.sqlite":{
+    "other":"SQLite"
   },
   "form.dbConnectionType.manual":{
     "other":"Manual"
@@ -153,7 +162,7 @@
     "other":"Host Name"
   },
   "form.dbTCPHostname.legend":{
-    "other":"Server where mysql is running"
+    "other":"Database server host"
   },
   "form.dbName.label":{
     "other":"Database Name"
@@ -165,7 +174,7 @@
     "other":"Port"
   },
   "form.dbTCPPort.legend":{
-    "other":"Port to connect to mysql"
+    "other":"Database server port"
   },
   "form.dbUser.label":{
     "other":"Database User"
@@ -184,6 +193,12 @@
   },
   "form.dbSocketFile.legend":{
     "other":"Enter the location of the socket file to use to connect"
+  },
+  "form.dbSqliteFile.label":{
+    "other":"File Path"
+  },
+  "form.dbSqliteFile.legend":{
+    "other":"Enter the location of the file to use as database"
   },
   "form.dbManualDSN.label":{
     "other":"DSN"
