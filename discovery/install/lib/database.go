@@ -49,10 +49,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 	var err error
 	var conf string
 	connType := c.GetDbConnectionType()
-	values := url.Values{}
-	values.Add("prefix", "{{.Meta.prefix}}")
-	values.Add("policies", "{{.Meta.policies}}")
-	values.Add("singular", "{{.Meta.singular}}")
+	values := "prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}"
 
 	switch connType {
 	case "tcp", "mysql_tcp", "pg_tcp":
@@ -60,7 +57,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 	case "socket", "mysql_socket", "pg_socket":
 		conf = buildSocketConnectionString(c, values, connType == "pg_socket")
 	case "sqlite":
-		conf = buildSqliteConnectionString(c, values, connType == "sqlite")
+		conf = buildSqliteConnectionString(c, values)
 	case "manual":
 		return c.GetDbManualDSN(), nil
 	default:
@@ -128,7 +125,7 @@ func actionDatabaseAdd(ctx context.Context, c *install.InstallConfig, flags byte
 	return config.Save(ctx, "cli", "Install / Setting Databases")
 }
 
-func buildTCPConnectionString(c *install.InstallConfig, values url.Values, pg bool) string {
+func buildTCPConnectionString(c *install.InstallConfig, values string, pg bool) string {
 	if pg {
 		u := &url.URL{}
 		u.Scheme = "postgres"
@@ -138,11 +135,7 @@ func buildTCPConnectionString(c *install.InstallConfig, values url.Values, pg bo
 		qv := url.Values{}
 		qv.Set("sslmode", "disable") // disable ssl by default for PG
 		u.RawQuery = qv.Encode()
-		var pureValues string
-		for k, v := range values {
-			pureValues = pureValues + "&" + k + "=" + v[0]
-		}
-		return u.String() + pureValues
+		return u.String() + "&" + values
 	} else {
 		conf := mysql.NewConfig()
 		conf.User = c.GetDbTCPUser()
@@ -151,16 +144,12 @@ func buildTCPConnectionString(c *install.InstallConfig, values url.Values, pg bo
 		conf.Addr = fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort())
 		conf.DBName = c.GetDbTCPName()
 		conf.ParseTime = true
-		conf.Params = make(map[string]string)
-		for k, v := range values {
-			conf.Params[k] = v[0]
-		}
-		return "mysql://" + conf.FormatDSN()
+		return "mysql://" + conf.FormatDSN() + "&" + values
 	}
 
 }
 
-func buildSocketConnectionString(c *install.InstallConfig, values url.Values, pg bool) string {
+func buildSocketConnectionString(c *install.InstallConfig, values string, pg bool) string {
 	if pg {
 		// leave empty host and use host=/path/to/file in query
 		u := &url.URL{}
@@ -170,11 +159,7 @@ func buildSocketConnectionString(c *install.InstallConfig, values url.Values, pg
 		u.RawQuery = qv.Encode()
 		u.Path = c.GetDbTCPName()
 		u.User = url.UserPassword(c.DbSocketUser, c.DbSocketPassword)
-		var pureValues string
-		for k, v := range values {
-			pureValues = pureValues + "&" + k + "=" + v[0]
-		}
-		return u.String() + pureValues
+		return u.String() + "&" + values
 
 	} else {
 		conf := mysql.NewConfig()
@@ -184,20 +169,12 @@ func buildSocketConnectionString(c *install.InstallConfig, values url.Values, pg
 		conf.Addr = c.GetDbSocketFile()
 		conf.DBName = c.GetDbSocketName()
 		conf.ParseTime = true
-		conf.Params = make(map[string]string)
-		for k, v := range values {
-			conf.Params[k] = v[0]
-		}
-		return "mysql://" + conf.FormatDSN()
+		return "mysql://" + conf.FormatDSN() + "&" + values
 	}
 }
 
-func buildSqliteConnectionString(c *install.InstallConfig, values url.Values, pg bool) string {
-	var pureValues string
-	for k, v := range values {
-		pureValues = pureValues + k + "=" + v[0] + "&"
-	}
-	return "sqlite://" + c.GetDbSocketFile() + "?" + pureValues
+func buildSqliteConnectionString(c *install.InstallConfig, values string) string {
+	return "sqlite://" + c.GetDbSocketFile() + "?" + values
 }
 
 func checkConnection(ctx context.Context, dsn string) error {
