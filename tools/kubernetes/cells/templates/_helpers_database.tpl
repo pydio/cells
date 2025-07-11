@@ -39,6 +39,12 @@ MARIADB PORT
 {{- end -}}
 {{- end }}
 
+{{- define "cells.database.params" -}}
+{{- range $k, $v := .Values.externalSQLDatabase.params -}}
+{{- printf "%s=%s&" $k $v -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 MARIADB ACTIVATION
 */}}
@@ -144,14 +150,14 @@ NATS TLS CA
 MARIADB TLS PARAMÈTRES
 */}}
 {{- define "cells.database.tls.params" -}}
-{{ if (include "cells.database.tls.enabled" .) }}
-{{ include "cells.urlTLSParams" (dict
+{{- if (include "cells.database.tls.enabled" .) -}}
+{{- include "cells.urlTLSParams" (dict
   "enabled"         (include "cells.database.tls.enabled" .)
   "prefix"          "mariadb"
   "certFilename"    (include "cells.database.tls.client.cert" .)
   "certKeyFilename" (include "cells.database.tls.client.key" .)
   "caFilename"      (include "cells.database.tls.ca.cert" .)
-) }}
+) -}}
 {{- end -}}
 {{- end -}}
 
@@ -246,12 +252,13 @@ MARIADB URL COMPLÈTE
 {{- define "cells.database.url" -}}
 {{- $path := index . 1 }}
 {{- with index . 0 }}
-{{- printf "%s://%s%s:%s%s%s"
+{{- printf "%s://%s%s:%s%s?%s&%s"
     (include "cells.database.scheme" .)
     (include "cells.database.auth.urlUser" .)
     (include "cells.database.host" .)
     (include "cells.database.port" .)
     $path
+    (include "cells.database.params" .)
     (include "cells.database.tls.params" .)
 }}
 {{- end }}
@@ -263,12 +270,13 @@ MARIADB URL COMPLÈTE
 {{- define "cells.database.dsn" -}}
 {{- $path := index . 1 }}
 {{- with index . 0 }}
-{{- printf "%s://%stcp(%s:%s)/%s%s"
+{{- printf "%s://%stcp(%s:%s)/%s?%s&%s"
     (include "cells.database.scheme" .)
     (include "cells.database.auth.urlUser" .)
     (include "cells.database.host" .)
     (include "cells.database.port" .)
     $path
+    (include "cells.database.params" .)
     (include "cells.database.tls.params" .)
 }}
 {{- end }}

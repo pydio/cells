@@ -1,0 +1,13 @@
+mariadb:
+  enabled: true
+  passwordUpdateJob:
+    enabled: false
+vault:
+  enabled: true
+  serviceAccount:
+    create: true
+    createSecret: true
+    name: "cells-vault-serviceaccount"
+    annotations: {
+      "eks.amazonaws.com/role-arn": "arn:aws:iam::${local.aws_account_id}:role/associateRoleForVault"
+    }

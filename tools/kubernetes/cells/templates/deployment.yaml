@@ -129,17 +129,9 @@ spec:
               subPath: tls.crt
               readOnly: false
             {{- end }}
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-              {{- if .Values.service.tlsconfig }}
-              scheme: HTTPS
-              {{- else }}
-              scheme: HTTP
-              {{- end }}
-            initialDelaySeconds: 15
-            periodSeconds: 20
+            {{- if not (empty .Values.extraVolumeMounts) -}}
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- if .Values.sidecars }}
@@ -428,3 +420,65 @@ spec:
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
+---
+{{ if .Values.convertTools.enabled }}
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ include "cells.fullname" . }}-convert-tools
+  labels:
+    {{- include "cells.labels" . | nindent 4 }}
+spec:
+  {{- if gt (.Values.convertTools.replicaCount | int) 1 }}
+  replicas: {{ .Values.convertTools.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.convertTools.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end}}
+      labels:
+        app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{- with .Values.convertTools.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "cells.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.convertTools.podSecurityContext | nindent 8 }}
+      {{- with .Values.convertTools.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.convertTools.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.convertTools.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "cells.name" . }}-convert-tools
+          securityContext:
+            {{- toYaml .Values.convertTools.securityContext | nindent 12 }}
+          {{- if .Values.convertTools.image.local }}
+          image: "{{ .Values.convertTools.image.repository }}"
+          {{- else }}
+          image: "{{ .Values.convertTools.image.repository }}:{{ .Values.convertTools.image.tag }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.convertTools.image.pullPolicy }}
+          ports:
+            - name: converter
+              containerPort: {{ .Values.convertTools.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.convertTools.resources | nindent 12 }}
+{{- end }}

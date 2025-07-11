@@ -1,0 +1,12 @@
+services:
+  etcd:
+    image: bitnami/etcd:latest
+    restart: unless-stopped
+    environment:
+      ALLOW_NONE_AUTHENTICATION: yes
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      start_period: 3s
+      interval: 3s
+      timeout: 5s
+      retries: 5

@@ -25,3 +25,33 @@ spec:
       name: http
   selector:
     {{- include "cells.selectorLabels" . | nindent 4 }}
+---
+{{ if .Values.convertTools.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}-convert-tools
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.convertTools.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.convertTools.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.convertTools.service.annotations .Values.convertTools.commonAnnotations }}
+  annotations:
+    {{- if .Values.convertTools.service.annotations }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $ ) | nindent 4 }}
+      {{- end }}
+      {{- if .Values.convertTools.commonAnnotations }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  selector:
+    app.kubernetes.io/instance: {{ include "cells.name" . }}
+    app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
+  ports:
+    - name: converter
+      protocol: TCP
+      port: {{ .Values.convertTools.service.port }}
+      targetPort: converter
+{{ end }}

@@ -65,7 +65,11 @@ data:
     {{- end }}
 
     customconfigs:
-      {{- toYaml .Values.service.customconfigs | nindent 6 }}
+      {{- toYaml .Values.service.customconfigs | nindent 6 -}}
+
+  {{ if not (empty .Values.extraConfig) }}
+  {{ toYaml .Values.extraConfig | nindent 2 }}
+  {{ end }}
 ---
 {{- if .Values.vault.enabled }}
 apiVersion: v1

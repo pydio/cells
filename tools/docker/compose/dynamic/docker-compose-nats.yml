@@ -1,0 +1,11 @@
+services:
+  nats:
+    image: nats:latest
+    restart: unless-stopped
+    command: -m 8222
+    healthcheck:
+      test: wget http://localhost:8222/healthz -q -S -O -
+      start_period: 3s
+      retries: 3
+      timeout: 3s
+      interval: 14s
