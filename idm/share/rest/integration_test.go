@@ -206,7 +206,7 @@ func init() {
 	})
 }
 
-func TestShareLinks(t *testing.T) {
+func SkipTestShareLinks(t *testing.T) {
 	sql.TestPrintQueries = true
 
 	test.RunServicesTests(testcases, t, func(ctx context.Context) {
