@@ -63,8 +63,7 @@ import (
 )
 
 var (
-	testcases = test.TemplateSQL(NewDAO[*tree.TreeNode])
-	caser     = cases.Title(language.English)
+	caser = cases.Title(language.English)
 )
 
 type testdao DAO
@@ -87,7 +86,8 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) 
 		logger, _ := conf.Build()
 		return logger, nil
 	}, nil)
-	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+	tct := test.TemplateSQL(NewDAO[*tree.TreeNode])
+	test.RunStorageTests(tct, t, func(ctx context.Context) {
 		dao, err := manager.Resolve[DAO](ctx)
 		if err != nil {
 			panic(err)
@@ -98,14 +98,14 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) 
 		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
 		// Run the test
-		scheme := strings.SplitN(testcases[cnt].DSN[0], "://", 2)[0]
+		scheme := strings.SplitN(tct[cnt].DSN[0], "://", 2)[0]
 		label := caser.String(scheme)
 		t.Run(label, f(dao))
 		cnt++
 	})
 	if len(cache) > 0 && cache[0] {
 		cnt = 0
-		test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		test.RunStorageTests(tct, t, func(ctx context.Context) {
 			dao, err := manager.Resolve[DAO](ctx)
 			if err != nil {
 				panic(err)
@@ -119,7 +119,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) 
 			session := uuid.New()
 			dao = NewSessionDAO(session, 10, dao)
 			// Run the test
-			scheme := strings.SplitN(testcases[cnt].DSN[0], "://", 2)[0]
+			scheme := strings.SplitN(tct[cnt].DSN[0], "://", 2)[0]
 			label := caser.String(scheme)
 			t.Run("Session/"+label, f(dao))
 			cnt++
