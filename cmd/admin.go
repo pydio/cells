@@ -90,7 +90,7 @@ DESCRIPTION
 
 func init() {
 	// Registry / Broker Flags
-	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
+	// addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
 	AdminCmd.PersistentFlags().StringVarP(&adminCmdGRPCTimeout, "grpc_client_timeout", "", "60m", "Default timeout for long-running GRPC calls, expressed as a golang duration")
 	RootCmd.AddCommand(AdminCmd)
 }

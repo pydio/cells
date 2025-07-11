@@ -265,7 +265,9 @@ func (m *manager) Bootstrap(bootstrapYAML string) error {
 			return err
 		}
 		for _, item := range items {
-			reg.Register(item)
+			if er := reg.Register(item); er != nil {
+				return er
+			}
 		}
 
 		m.internalRegistry = registry.NewFuncWrapper(m.internalRegistry,
