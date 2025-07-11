@@ -593,7 +593,12 @@ func (dao *gormImpl[T]) GetNodeChildren(ctx context.Context, mPath *tree.MPath, 
 			queryDB = builder.tx
 		}
 		if !sortingSet {
-			queryDB = queryDB.Order("name")
+			// Force name sorting desc
+			nameFilter := &tree.MetaFilter{}
+			nameFilter.AddSort("", tree.MetaSortName, false)
+			builder := &filterBuilder{tx: queryDB}
+			nameFilter.Build(builder)
+			queryDB = builder.tx
 		}
 
 		for {
@@ -1293,6 +1298,8 @@ func (f *filterBuilder) OrderBy(sField string, sDir string) {
 	if sField == tree.MetaSortMPath {
 		helper := f.tx.Dialector.(storagesql.Helper)
 		sField = helper.MPathOrdering(strings.Split(tree.MetaSortMPath, ",")...)
+	} else if sField == tree.MetaSortName && f.tx.Dialector.Name() == "postgres" {
+		sField = "name COLLATE \"C\""
 	}
 	f.tx = f.tx.Order(sField + " " + strings.ToLower(sDir))
 }

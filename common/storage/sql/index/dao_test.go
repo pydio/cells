@@ -28,6 +28,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
+	"reflect"
 	osruntime "runtime"
 	"strconv"
 	"strings"
@@ -894,6 +896,174 @@ func TestSecondArborescence(t *testing.T) {
 
 		}
 	}, true)
+}
+
+func TestOrdering(t *testing.T) {
+	ctx := context.Background()
+
+	testAll(t, func(dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			/*
+				folderName1 := "a1_01_"         // 1
+				folderName2 := "A2_02_"         // 2
+				folderName3 := "a3_03_"         // 3
+				filesName1 := "b1_04_" + ".txt" // 4
+				filesName2 := "B2_05_" + ".txt" // 5
+				filesName3 := "b3_06_" + ".txt" // 6
+				filesName4 := "B4_07_" + ".txt" // 7
+				filesName5 := "a0_08_" + ".txt" // 8
+				filesName6 := "a4_09_" + ".txt" // 9
+				folderName4 := "B0_10_"         // 10
+			*/
+			testTime := true
+			var refs []string
+			arborescence := []string{
+				"/ROOT",
+			}
+
+			Convey("Load tree from file", t, func() {
+
+				readFile, err := os.Open("./testdata/tree-ordering.txt")
+
+				if err != nil {
+					fmt.Println(err)
+				}
+				fileScanner := bufio.NewScanner(readFile)
+				fileScanner.Split(bufio.ScanLines)
+
+				for fileScanner.Scan() {
+					line := fileScanner.Text()
+					arborescence = append(arborescence, "/ROOT/"+line)
+					refs = append(refs, path.Base(line))
+				}
+				refs = refs[1:] // remove first line
+
+				So(len(arborescence), ShouldBeGreaterThan, 2)
+			})
+
+			Convey("Create Nodes", t, func() {
+				size := 36
+				for _, pa := range arborescence {
+					t.Logf("Adding node %s", pa)
+					if testTime {
+						<-time.After(1 * time.Second)
+					}
+					nodeType := tree.NodeType_COLLECTION
+					if strings.HasSuffix(pa, ".txt") {
+						nodeType = tree.NodeType_LEAF
+					}
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Size: int64(size), Type: nodeType})
+					So(err, ShouldBeNil)
+					size--
+				}
+
+				e := dao.Flush(ctx, true)
+				So(e, ShouldBeNil)
+
+			})
+
+			caseSensitiveOrder := []int{2, 10, 5, 7, 8, 1, 3, 9, 4, 6}
+			caseInsensitiveOrder := []int{8, 1, 2, 3, 9, 10, 4, 5, 6, 7}
+			caseSensitiveDescOrder := []int{6, 4, 9, 3, 1, 8, 7, 5, 10, 2}
+			caseInsensitiveDescOrder := []int{7, 6, 5, 4, 10, 9, 3, 2, 1, 8}
+			sameOrder := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+			reverseOrder := []int{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
+			foldersFirstOrder := []int{1, 2, 3, 10, 8, 9, 4, 5, 6, 7}
+			type tCase struct {
+				expected     []int
+				defaultField string
+				sortField    string
+				orderDesc    bool
+			}
+			tCases := []tCase{
+				{
+					expected:     caseSensitiveOrder,
+					defaultField: tree.MetaSortName,
+					sortField:    "",
+					orderDesc:    false,
+				},
+				{
+					expected:     caseSensitiveDescOrder,
+					defaultField: tree.MetaSortName,
+					sortField:    "",
+					orderDesc:    true,
+				},
+				{
+					expected:     caseInsensitiveOrder,
+					defaultField: tree.MetaSortName,
+					sortField:    tree.MetaSortNameCI,
+					orderDesc:    false,
+				},
+				{
+					expected:     caseInsensitiveDescOrder,
+					defaultField: tree.MetaSortName,
+					sortField:    tree.MetaSortNameCI,
+					orderDesc:    true,
+				},
+				{
+					expected:     sameOrder,
+					defaultField: "",
+					sortField:    tree.MetaSortTime,
+					orderDesc:    false,
+				},
+				{
+					expected:     reverseOrder,
+					defaultField: "",
+					sortField:    tree.MetaSortTime,
+					orderDesc:    true,
+				},
+				{
+					expected:     reverseOrder,
+					defaultField: "",
+					sortField:    tree.MetaSortSize,
+					orderDesc:    false,
+				},
+				{
+					expected:     sameOrder,
+					defaultField: "",
+					sortField:    tree.MetaSortSize,
+					orderDesc:    true,
+				},
+				{
+					expected:     foldersFirstOrder,
+					defaultField: tree.MetaSortName,
+					sortField:    tree.MetaSortNatural,
+					orderDesc:    false,
+				},
+			}
+			for _, tc := range tCases {
+				if !testTime && tc.sortField == tree.MetaSortTime {
+					continue
+				}
+				Convey("List Ordered / "+tc.defaultField+"-"+tc.sortField, t, func() {
+					iRoot, er := dao.GetNodeByPath(ctx, "/ROOT/personal")
+					So(er, ShouldBeNil)
+					filter := &tree.MetaFilter{}
+					filter.AddSort(tc.defaultField, tc.sortField, tc.orderDesc)
+					c := dao.GetNodeChildren(ctx, iRoot.GetMPath(), filter)
+					a := make([]string, 0, len(refs))
+					for n := range c {
+						if node, ok := n.(tree.ITreeNode); ok {
+							a = append(a, path.Base(node.GetName()))
+						}
+					}
+
+					So(len(a), ShouldEqual, len(refs))
+					t.Log("Check List Ordered / "+tc.defaultField+"-"+tc.sortField, a, refs)
+					So(reflect.DeepEqual(buildExpected(refs, tc.expected), a), ShouldBeTrue)
+				})
+			}
+
+		}
+	})
+}
+
+func buildExpected(ref []string, positions []int) []string {
+	out := make([]string, len(positions))
+	for i, pos := range positions {
+		out[i] = path.Base(ref[pos-1])
+	}
+	return out
 }
 
 func hashNode(mpath *tree.MPath) string {

@@ -1,0 +1,11 @@
+personal
+personal/a1_01_
+personal/A2_02_
+personal/a3_03_
+personal/b1_04_.txt
+personal/B2_05_.txt
+personal/b3_06_.txt
+personal/B4_07_.txt
+personal/a0_08_.txt
+personal/a4_09_.txt
+personal/B0_10
