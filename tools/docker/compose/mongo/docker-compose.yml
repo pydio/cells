@@ -1,0 +1,8 @@
+include:
+  - ../basic/docker-compose.yml
+
+services:
+  mongo:
+    image: mongo:latest 
+    restart: unless-stopped
+    expose: [27017]
