@@ -10,11 +10,11 @@ connections:
     services:
       - filter: "{{ .Name }} ~= pydio.grpc..*"
 listeners:
-  grpcall:
+  grpc:
     type: tcp
     bind: 0.0.0.0
     port: 8030
-  grpcgate:
+  grpc2:
     type: tcp
     bind: 0.0.0.0
     port: 0
@@ -35,21 +35,21 @@ servers:
     type: http
     listener: http
     services:
-      - filter: "{{ .Name }} ~= pydio\\.web\\.* or {{ .Name }} ~= pydio\\.rest\\.* or {{ .Name }} ~= pydio\\.gateway\\.*"
-  grpcall:
+      - filter: "{{ .Name }} ~= pydio\\.web\\..* or {{ .Name }} ~= pydio\\.rest\\..* or {{ .Name }} ~= pydio\\.gateway\\..*"
+  grpc:
     type: grpc
-    listener: grpcall
+    listener: grpc
     services:
       - filter: "{{ .Name }} ~= pydio\\.grpc\\..*"
   generic:
     type: generic
     services:
       - filter: "{{ .Name }} ~= pydio\\.generic\\..*"
-  grpcgate:
-    type: grpc+public
-    listener: grpcgate
-    service:
-      - filter: "{{ .Name }} = pydio\\.gateway\\.grpc"
+  grpc-external:
+    type: grpc+auth+tls
+    listener: grpc2
+    services:
+      - filter: "{{ .Name }} ~= pydio\\.gateway-grpc\\..*"
 
 queues:
   debouncer:

@@ -21,7 +21,6 @@
 package manager
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"maps"
@@ -29,10 +28,8 @@ import (
 	"net/url"
 	"os"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/bep/debounce"
@@ -844,14 +841,17 @@ func (m *manager) initServers(ctx context.Context, store configx.Values, base st
 			return err
 		}
 
-		var uri string
+		var scheme string
 		if t, ok := vv["type"]; ok {
 			if tt, ok := t.(string); ok {
-				uri = tt + "://"
+				scheme = tt
 			}
 		}
+		if scheme == "" {
+			return fmt.Errorf("missing 'type' key for server declaration")
+		}
 
-		srv, err := server.OpenServer(ctx, uri)
+		srv, err := server.OpenServer(ctx, scheme+"://")
 		if err != nil {
 			return err
 		}
@@ -881,6 +881,7 @@ func (m *manager) initServers(ctx context.Context, store configx.Values, base st
 			if err := registry.NewMetaWrapper(m.Registry(), func(meta map[string]string) {
 				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 				meta[registry.MetaStatusKey] = string(registry.StatusStopped)
+				meta[registry.MetaScheme] = scheme
 
 				if l, ok := vv["listener"]; ok {
 					ls, ok := l.(string)
@@ -1332,8 +1333,6 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 	}
 
 	// Generate the filters the server will use to determine which service to start
-	serviceFilterTemplate := template.New("serviceFilter")
-
 	var targetOpts []registry.Option
 
 	// Retrieving server services information to see which services we need to start
@@ -1345,107 +1344,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 
 		for _, smm := range sm {
 			if filter, ok := smm["filter"]; ok {
-				targetOpts = append(targetOpts, registry.WithFilter(func(item registry.Item) bool {
-					tmpl, err := serviceFilterTemplate.Funcs(map[string]any{
-						"sliceToRegexpFmt": func(s []string) string {
-							return "^(" + strings.Join(s, "|") + ")$"
-						},
-					}).Parse(filter)
-					if err != nil {
-						return false
-					}
-					var buf bytes.Buffer
-					if err := tmpl.Execute(&buf, item); err != nil {
-						return false
-					}
-
-					ors := strings.Split(buf.String(), " or ")
-					for _, or := range ors {
-						f := strings.SplitN(or, " ", 3)
-						var fn func(any, any) (bool, error)
-						switch f[1] {
-						case "=", "==":
-							fn = func(a any, b any) (bool, error) {
-								aa, ok := a.(string)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								bb, ok := b.([]byte)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-								return aa == string(bb), nil
-							}
-						case "in":
-							fn = func(a any, b any) (bool, error) {
-								aa, ok := a.([]string)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								bb, ok := b.(string)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								for _, aaa := range aa {
-									if bb == aaa {
-										return true, nil
-									}
-								}
-
-								return false, nil
-							}
-						case "~=":
-							fn = func(a any, b any) (bool, error) {
-								aa, ok := a.(string)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								bb, ok := b.([]byte)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								return regexp.Match(aa, bb)
-							}
-						case "!~=":
-							fn = func(a any, b any) (bool, error) {
-								aa, ok := a.(string)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								bb, ok := b.([]byte)
-								if !ok {
-									return false, errors.New("wrong format")
-								}
-
-								m, err := regexp.Match(aa, bb)
-								if err != nil {
-									return false, err
-								}
-
-								return !m, nil
-							}
-						}
-
-						if fn != nil {
-							match, err := fn(f[2], []byte(f[0]))
-							if err != nil {
-								return false
-							}
-
-							if match {
-								return true
-							}
-						}
-					}
-
-					return false
-				}))
+				targetOpts = append(targetOpts, registry.WithFilter(makeRegistryFilterFunc(filter)))
 			}
 		}
 
@@ -1463,7 +1362,6 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 			if !svcItem.As(&svc) {
 				continue
 			}
-
 			opts = append(opts, m.serviceServeOptions(svc)...)
 
 			svc.Options().Server = srv

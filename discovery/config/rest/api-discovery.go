@@ -21,7 +21,6 @@
 package rest
 
 import (
-	net2 "net"
 	"net/url"
 	"strings"
 	"time"
@@ -43,15 +42,11 @@ import (
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/object"
-	pbregistry "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/registry"
-	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/net"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/discovery/config/lang"
 	"github.com/pydio/cells/v5/scheduler/actions"
 )
@@ -121,38 +116,40 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		}
 	}
 
-	if urlParsed.Scheme == "http" {
-		if external := runtime.GrpcExternalPort(); external != "" {
-			endpointResponse.Endpoints["grpc"] = external
-		} else {
-			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
-			var grpcPorts []string
-			var reg registry.Registry
-			propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
+	/*
+		// WE DO NOT SUPPORT CLEAR GRPC ANYMORE - IGNORE THAT PART
+			if urlParsed.Scheme == "http" {
+				if external := runtime.GrpcExternalPort(); external != "" {
+					endpointResponse.Endpoints["grpc"] = external
+				} else {
+					// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
+					var grpcPorts []string
+					var reg registry.Registry
+					propagator.Get(req.Request.Context(), registry.ContextKey, &reg)
 
-			if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
-				for _, s := range ss {
-					for _, n := range reg.ListAdjacentItems(
-						registry.WithAdjacentSourceItems([]registry.Item{s}),
-						registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVER)),
-					) {
-						for _, a := range reg.ListAdjacentItems(
-							registry.WithAdjacentSourceItems([]registry.Item{n}),
-							registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
-						) {
-							if _, p, e := net2.SplitHostPort(a.Name()); e == nil {
-								/*strings.ReplaceAll(a.Name(), "[::]:", "")*/
-								grpcPorts = append(grpcPorts, p)
+					if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
+						for _, s := range ss {
+							for _, n := range reg.ListAdjacentItems(
+								registry.WithAdjacentSourceItems([]registry.Item{s}),
+								registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_SERVER)),
+							) {
+								for _, a := range reg.ListAdjacentItems(
+									registry.WithAdjacentSourceItems([]registry.Item{n}),
+									registry.WithAdjacentTargetOptions(registry.WithType(pbregistry.ItemType_ADDRESS)),
+								) {
+									if _, p, e := net2.SplitHostPort(a.Name()); e == nil {
+										grpcPorts = append(grpcPorts, p)
+									}
+								}
 							}
 						}
 					}
+					if len(grpcPorts) > 0 {
+						endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+					}
 				}
 			}
-			if len(grpcPorts) > 0 {
-				endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
-			}
-		}
-	}
+	*/
 
 	return resp.WriteEntity(endpointResponse)
 

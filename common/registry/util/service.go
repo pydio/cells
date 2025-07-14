@@ -22,15 +22,13 @@ package util
 
 import (
 	"errors"
-	"github.com/pydio/cells/v5/common/utils/std"
-	"strings"
 
 	"golang.org/x/exp/maps"
 
-	"github.com/pydio/cells/v5/common"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/utils/merger"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func ToProtoService(s registry.Service) *pb.Service {
@@ -87,16 +85,6 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 
 func (s *service) Tags() []string {
 	return s.S.Tags
-}
-
-func (s *service) ServerScheme() string {
-	if strings.HasPrefix(s.I.Name, common.ServiceGrpcNamespace_) {
-		return "grpc://"
-	} else if strings.HasPrefix(s.I.Name, common.ServiceRestNamespace_) {
-		return "http://"
-	} else {
-		return "generic://"
-	}
 }
 
 func (s *service) As(i interface{}) bool {

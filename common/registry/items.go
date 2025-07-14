@@ -74,8 +74,6 @@ type Service interface {
 
 	Start(oo ...RegisterOption) error
 	Stop(oo ...RegisterOption) error
-
-	ServerScheme() string
 }
 
 // Dao stores a DAO in the registry

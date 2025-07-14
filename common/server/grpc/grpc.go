@@ -27,20 +27,29 @@ import (
 	"net"
 	"net/url"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
+	"time"
 
 	protovalidate "github.com/bufbuild/protovalidate-go"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	metadata2 "google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/xds"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/crypto/providers"
 	"github.com/pydio/cells/v5/common/middleware"
+	"github.com/pydio/cells/v5/common/middleware/keys"
+	"github.com/pydio/cells/v5/common/proto/install"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	server2 "github.com/pydio/cells/v5/common/proto/server"
 	"github.com/pydio/cells/v5/common/registry"
@@ -64,9 +73,18 @@ type Opener struct {
 }
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
-	// TODO : transform url parameters to options?
-	name := u.Query().Get("name")
-	return New(ctx, WithScheme(u.Scheme), WithName(name)), nil
+	opts := []Option{
+		WithScheme(u.Scheme),
+		WithName(u.Query().Get("name")),
+	}
+	schemeParts := strings.Split(u.Scheme, "+")
+	if slices.Contains(schemeParts, "auth") {
+		opts = append(opts, WithAuth())
+	}
+	if slices.Contains(schemeParts, "tls") {
+		opts = append(opts, WithSecure())
+	}
+	return New(ctx, opts...), nil
 }
 
 type IServer interface {
@@ -111,7 +129,6 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	s := &Server{
 		id:   "grpc-" + uuid.New(),
 		name: opts.Name,
-		// meta: make(map[string]string),
 
 		ctx:    ctx,
 		cancel: cancel,
@@ -121,23 +138,6 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	s.lazyGrpc(ctx)
 
 	return server.NewServer(ctx, s)
-}
-
-// NewWithServer can pass preset grpc.Server with custom listen address
-func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen string) server.Server {
-	ctx, cancel := context.WithCancel(ctx)
-	id := "grpc-" + uuid.New()
-	opts := new(Options)
-	opts.Addr = listen
-	return server.NewServer(ctx, &Server{
-		id:     id,
-		name:   name,
-		ctx:    ctx,
-		cancel: cancel,
-		opts:   opts,
-		Server: s,
-		regI:   &serverRegistrar{Server: s, RWMutex: &sync.RWMutex{}},
-	})
 }
 
 func (s *Server) lazyGrpc(rootContext context.Context) IServer {
@@ -150,94 +150,21 @@ func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 
 	var reg registry.Registry
 	propagator.Get(rootContext, registry.ContextKey, &reg)
+	var serverOptions []grpc.ServerOption
 
-	unaryFinalInterceptors := []grpc.UnaryServerInterceptor{
-
-		// this is the final handler - endpoint has been found earlier in the chain
-		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-
-			serviceName := runtime.GetServiceName(ctx)
-			if serviceName != "" && serviceName != "default" {
-				var ep registry.Endpoint
-
-				if propagator.Get(ctx, EndpointKey, &ep) {
-					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
-					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
-					resp := outputs[0].Interface()
-					err := outputs[1].Interface()
-					if err != nil {
-						return nil, err.(error)
-					}
-
-					return resp, nil
-				}
-			}
-
-			return handler(ctx, req)
-		},
-
-		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			if err := protovalidate.Validate(req.(proto.Message)); err != nil {
-				return nil, err
-			}
-			return handler(ctx, req)
-		},
+	if s.opts.JwtAuth {
+		serverOptions = s.prepareAuthenticatedOptions(rootContext)
+	} else {
+		serverOptions = s.prepareInternalOptions(rootContext)
 	}
 
-	streamFinalInterceptors := []grpc.StreamServerInterceptor{
-		//func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		//	v, err := protovalidate.New()
-		//	if err != nil {
-		//		fmt.Println("failed to initialize validator:", err)
-		//	}
-		//
-		//	if err = v.Validate(req.(proto.Message)); err != nil {
-		//		fmt.Println("validation failed:", err)
-		//	} else {
-		//		fmt.Println("validation succeeded")
-		//	}
-		//
-		//	return handler(srv, ss)
-		//},
-
-		// This is the final handler - endpoint has been found earlier in the chain
-		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-			ctx := ss.Context()
-			serviceName := runtime.GetServiceName(ctx)
-			if serviceName != "" && serviceName != "default" {
-				var ep registry.Endpoint
-				if propagator.Get(ctx, EndpointKey, &ep) {
-					return handler(ep.Handler(), ss)
-				}
-			}
-
-			return handler(srv, ss)
-		},
+	if s.opts.Secure {
+		tlsOptions, err := s.prepareTLSOptions(rootContext)
+		if err != nil {
+			panic(err)
+		}
+		serverOptions = append(serverOptions, tlsOptions...)
 	}
-
-	unaryMiddlewares := append(
-		middleware.GrpcUnaryServerInterceptors(rootContext),
-		unaryEndpointInterceptor(rootContext, s),
-		HandlerUnaryInterceptor(&unaryFinalInterceptors),
-	)
-
-	streamMiddlewares := append(
-		middleware.GrpcStreamServerInterceptors(rootContext),
-		streamEndpointInterceptor(rootContext, s),
-		HandlerStreamInterceptor(&streamFinalInterceptors),
-	)
-
-	serverOptions := []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(unaryMiddlewares...),
-		grpc.ChainStreamInterceptor(streamMiddlewares...),
-	}
-
-	// Append stats handlers if there are registered ones
-	serverOptions = append(serverOptions, middleware.GrpcServerStatsHandler(rootContext)...)
-
-	serverOptions = append(serverOptions, xds.ServingModeCallback(func(addr net.Addr, args xds.ServingModeChangeArgs) {
-		fmt.Println("Changed mode ", addr, args)
-	}))
 
 	var gs IServer
 	if s.opts.Scheme == "xds" {
@@ -252,13 +179,11 @@ func (s *Server) lazyGrpc(rootContext context.Context) IServer {
 	}
 
 	wrappedGS := &serverRegistrar{
-		Server:             gs,
-		id:                 s.ID(),
-		name:               s.Name(),
-		reg:                reg,
-		unaryInterceptors:  &unaryFinalInterceptors,
-		streamInterceptors: &streamFinalInterceptors,
-		RWMutex:            &sync.RWMutex{},
+		Server:  gs,
+		id:      s.ID(),
+		name:    s.Name(),
+		reg:     reg,
+		RWMutex: &sync.RWMutex{},
 	}
 
 	channelz.RegisterChannelzServiceToServer(wrappedGS)
@@ -359,6 +284,206 @@ func (s *Server) Clone() interface{} {
 	return clone
 }
 
+func (s *Server) prepareInternalOptions(rootContext context.Context) (serverOptions []grpc.ServerOption) {
+	unaryFinalInterceptors := []grpc.UnaryServerInterceptor{
+
+		// this is the final handler - endpoint has been found earlier in the chain
+		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+
+			serviceName := runtime.GetServiceName(ctx)
+			if serviceName != "" && serviceName != "default" {
+				var ep registry.Endpoint
+
+				if propagator.Get(ctx, EndpointKey, &ep) {
+					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
+					outputs := reflect.ValueOf(ep.Handler()).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
+					resp := outputs[0].Interface()
+					err := outputs[1].Interface()
+					if err != nil {
+						return nil, err.(error)
+					}
+
+					return resp, nil
+				}
+			}
+
+			return handler(ctx, req)
+		},
+
+		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+			if err := protovalidate.Validate(req.(proto.Message)); err != nil {
+				return nil, err
+			}
+			return handler(ctx, req)
+		},
+	}
+
+	streamFinalInterceptors := []grpc.StreamServerInterceptor{
+		//func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		//	v, err := protovalidate.New()
+		//	if err != nil {
+		//		fmt.Println("failed to initialize validator:", err)
+		//	}
+		//
+		//	if err = v.Validate(req.(proto.Message)); err != nil {
+		//		fmt.Println("validation failed:", err)
+		//	} else {
+		//		fmt.Println("validation succeeded")
+		//	}
+		//
+		//	return handler(srv, ss)
+		//},
+
+		// This is the final handler - endpoint has been found earlier in the chain
+		func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+			ctx := ss.Context()
+			serviceName := runtime.GetServiceName(ctx)
+			if serviceName != "" && serviceName != "default" {
+				var ep registry.Endpoint
+				if propagator.Get(ctx, EndpointKey, &ep) {
+					return handler(ep.Handler(), ss)
+				}
+			}
+
+			return handler(srv, ss)
+		},
+	}
+
+	unaryMiddlewares := append(
+		middleware.GrpcUnaryServerInterceptors(rootContext),
+		unaryEndpointInterceptor(rootContext, s),
+		HandlerUnaryInterceptor(&unaryFinalInterceptors),
+	)
+
+	streamMiddlewares := append(
+		middleware.GrpcStreamServerInterceptors(rootContext),
+		streamEndpointInterceptor(rootContext, s),
+		HandlerStreamInterceptor(&streamFinalInterceptors),
+	)
+
+	serverOptions = append(serverOptions,
+		grpc.ChainUnaryInterceptor(unaryMiddlewares...),
+		grpc.ChainStreamInterceptor(streamMiddlewares...),
+	)
+
+	// Append stats handlers if there are registered ones
+	serverOptions = append(serverOptions, middleware.GrpcServerStatsHandler(rootContext)...)
+
+	serverOptions = append(serverOptions, xds.ServingModeCallback(func(addr net.Addr, args xds.ServingModeChangeArgs) {
+		fmt.Println("Changed mode ", addr, args)
+	}))
+
+	return
+}
+
+func (s *Server) prepareAuthenticatedOptions(ctx context.Context) (serverOptions []grpc.ServerOption) {
+	jwtModifier := s.createJwtCtxModifier(ctx)
+	grpcOptions := []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(
+			//propagator.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
+			middleware.MetricsUnaryServerInterceptor(),
+			propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
+			propagator.ContextUnaryServerInterceptor(jwtModifier),
+			propagator.ContextUnaryServerInterceptor(s.grpcMetaCtxModifier),
+		),
+		grpc.ChainStreamInterceptor(
+			//propagator.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
+			middleware.MetricsStreamServerInterceptor(),
+			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
+			propagator.ContextStreamServerInterceptor(jwtModifier),
+			propagator.ContextStreamServerInterceptor(s.grpcMetaCtxModifier),
+		),
+	}
+
+	return grpcOptions
+}
+
+func (s *Server) prepareTLSOptions(ctx context.Context) (serverOptions []grpc.ServerOption, err error) {
+	localConfig := &install.ProxyConfig{
+		Binds:     []string{"0.0.0.0"},
+		TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
+	}
+	tlsConfig, e := providers.LoadTLSServerConfig(localConfig, runtime.CertsStoreURL())
+	if e != nil {
+		return nil, e
+	}
+	serverOptions = append(serverOptions, grpc.Creds(credentials.NewTLS(tlsConfig)))
+	return
+}
+
+// jwtCtxModifier extracts x-pydio-bearer metadata to validate authentication
+func (s *Server) createJwtCtxModifier(runtimeCtx context.Context) propagator.IncomingContextModifier {
+
+	return func(ctx context.Context) (context.Context, bool, error) {
+
+		ctx = propagator.ForkContext(ctx, runtimeCtx)
+		ctx, _, _ = s.grpcMetaCtxModifier(ctx)
+
+		jwtVerifier := auth.DefaultJWTVerifier()
+		meta, ok := metadata2.FromIncomingContext(ctx)
+		if !ok {
+			return ctx, false, nil
+		}
+		bearer := strings.Join(meta.Get("x-pydio-bearer"), "")
+		if bearer == "" {
+			return ctx, false, nil
+		}
+
+		if ct, _, err := jwtVerifier.Verify(ctx, bearer); err != nil {
+			// append metadata to context before sending audit log
+			log.Auditer(ctx).Error("Blocked invalid JWT", log.GetAuditId(common.AuditInvalidJwt))
+			return ctx, false, err
+		} else {
+			log.Logger(ctx).Debug("Got valid Claims from Bearer!")
+			return ct, true, nil
+		}
+
+	}
+
+}
+
+// grpcMetaCtxModifier extracts specific meta from IncomingContext
+func (s *Server) grpcMetaCtxModifier(ctx context.Context) (context.Context, bool, error) {
+
+	meta := map[string]string{}
+	if existing, ok := metadata2.FromIncomingContext(ctx); ok {
+		translate := map[string]string{
+			"user-agent":      keys.HttpMetaUserAgent,
+			"content-type":    keys.HttpMetaContentType,
+			"x-forwarded-for": keys.HttpMetaRemoteAddress,
+			//"x-pydio-span-id": servicecontext.SpanMetadataId,
+		}
+		for k, v := range existing {
+			if k == ":authority" { // Ignore grpc-specific meta
+				continue
+			}
+			if newK, ok := translate[k]; ok {
+				meta[newK] = strings.Join(v, "")
+			} else {
+				meta[k] = strings.Join(v, "")
+			}
+		}
+		// Override with specific header
+		if ua, ok := existing["x-pydio-grpc-user-agent"]; ok {
+			meta[keys.HttpMetaUserAgent] = strings.Join(ua, "")
+		}
+		if authH, ok := existing[":authority"]; ok && len(authH) > 0 {
+			meta[keys.HttpMetaHost] = authH[0]
+		}
+		if authH, ok := existing["x-forwarded-host"]; ok && len(authH) > 0 {
+			meta[keys.HttpMetaHost] = authH[0]
+		}
+	}
+	meta[keys.HttpMetaExtracted] = keys.HttpMetaExtracted
+	layout := "2006-01-02T15:04-0700"
+	t := time.Now()
+	meta[keys.ServerTime] = t.Format(layout)
+	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
+	meta[keys.ClientTime] = t.Format(layout)
+
+	return propagator.NewContext(ctx, meta), true, nil
+}
+
 type Handler struct{}
 
 func (h *Handler) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
@@ -376,10 +501,6 @@ type serverRegistrar struct {
 	id     string
 	name   string
 	reg    registry.Registry
-
-	unaryInterceptors  *[]grpc.UnaryServerInterceptor
-	streamInterceptors *[]grpc.StreamServerInterceptor
-
 	*sync.RWMutex
 }
 
@@ -391,11 +512,6 @@ func (r *serverRegistrar) GetServiceInfo() map[string]grpc.ServiceInfo {
 		registry.WithAdjacentSourceOptions(registry.WithName("grpc"), registry.WithType(pb.ItemType_SERVER)),
 		registry.WithAdjacentTargetOptions(registry.WithType(pb.ItemType_ENDPOINT)),
 	)
-
-	//endpoints, err := r.reg.List(registry.WithType(pb.ItemType_ENDPOINT))
-	//if err != nil {
-	//	return r.Server.GetServiceInfo()
-	//}
 
 	info := map[string]grpc.ServiceInfo{}
 	for _, endpoint := range endpoints {
@@ -453,9 +569,11 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 		endpoint := util.CreateEndpoint(path, impl, map[string]string{})
 
 		if r.reg != nil {
-			r.reg.Register(endpoint,
+			if e := r.reg.Register(endpoint,
 				registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"}),
-			)
+			); e != nil {
+				fmt.Println("[WARN] Could not register endpoint " + path + ": " + e.Error())
+			}
 		}
 	}
 
@@ -474,11 +592,13 @@ func (r *serverRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interface
 			continue
 		}
 
-		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.StreamName, impl, map[string]string{})
+		endpoint := util.CreateEndpoint(path, impl, map[string]string{})
 
 		if r.reg != nil {
-			r.reg.Register(endpoint,
-				registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"}))
+			if e := r.reg.Register(endpoint,
+				registry.WithEdgeTo(r.id, "server", map[string]string{"serverType": "grpc"})); e != nil {
+				fmt.Println("[WARN] Could not register endpoint " + path + ": " + e.Error())
+			}
 		}
 	}
 }

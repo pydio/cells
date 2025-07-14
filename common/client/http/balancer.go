@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/url"
+	"slices"
 	"strings"
 
 	"google.golang.org/grpc/attributes"
@@ -110,8 +111,8 @@ func (b *balancer) Build(reg registry.Registry) error {
 			addr := item.Metadata()[registry.MetaDescriptionKey]
 			usedAddr[addr] = struct{}{}
 			scheme := "http://"
-			// TODO - do that in a better way
-			if srv.Name() == "grpcs" {
+			srvScheme := srv.Metadata()[registry.MetaScheme]
+			if slices.Contains(strings.Split(srvScheme, "+"), "tls") {
 				scheme = "https://"
 			}
 			u, err := url.Parse(scheme + strings.Replace(addr, "[::]", "", -1))

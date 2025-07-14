@@ -81,7 +81,6 @@ type Service interface {
 	Start(oo ...registry.RegisterOption) error
 	Stop(oo ...registry.RegisterOption) error
 	OnServe(oo ...registry.RegisterOption) error
-	ServerScheme() string
 	Server() server.Server
 	Is(status registry.Status) bool
 	As(i interface{}) bool
@@ -419,27 +418,6 @@ func (s *service) Version() string {
 
 func (s *service) Tags() []string {
 	return s.Opts.Tags
-}
-
-// ServerScheme returns current server URL type
-func (s *service) ServerScheme() string {
-	if s.Opts.Fork && !runtime.IsFork() {
-		return "fork://?start=" + s.Opts.Name
-	} else if s.Opts.customScheme != "" {
-		return s.Opts.customScheme
-	}
-	switch s.Opts.serverType {
-	case server.TypeGeneric:
-		return "generic://"
-	case server.TypeGrpc:
-		return "grpc://"
-	case server.TypeHttpPure:
-		return "http://"
-	case server.TypeHttp:
-		return runtime.HttpServerType() + "://"
-	default:
-		return ""
-	}
 }
 
 func (s *service) MarshalJSON() ([]byte, error) {

@@ -34,4 +34,5 @@ const (
 	MetaDescriptionKey        = "description"
 	MetaUniqueKey             = "unique"
 	MetaTimestampKey          = "timestamp"
+	MetaScheme                = "scheme"
 )

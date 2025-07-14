@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/client"
 	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/middleware"
@@ -23,6 +24,7 @@ import (
 	"github.com/pydio/cells/v5/common/server/caddy/maintenance"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var grpcTransport = &http.Transport{
@@ -54,13 +56,13 @@ type cachedProxy struct {
 }
 
 type resolver struct {
-	c       grpc.ClientConnInterface
-	r       registry.Registry
-	coreCtx context.Context
-	rr      routing.RouteRegistrar
-	s       Mux
-	b       Balancer
-	//rc           client.ResolverCallback
+	c            grpc.ClientConnInterface
+	r            registry.Registry
+	coreCtx      context.Context
+	rr           routing.RouteRegistrar
+	s            Mux
+	b            Balancer
+	rc           client.ResolverCallback
 	monitorOAuth grpc2.HealthMonitor
 	monitorUser  grpc2.HealthMonitor
 	userReady    bool
@@ -76,7 +78,13 @@ func (m *resolver) Init(ctx context.Context, serverID string, rr routing.RouteRe
 	m.coreCtx = runtime.WithServiceName(runtime.AsCoreContext(ctx), "pydio.web.mux")
 	m.c = conn
 	m.rr = rr
+
+	// Create balancer and listen to registry changes to build proxies on-demand
 	m.b = bal
+	var reg registry.Registry
+	propagator.Get(ctx, registry.ContextKey, &reg)
+	rc, _ := client.NewResolverCallback(reg)
+	rc.Add(m.b.Build)
 
 	// todo
 	/*

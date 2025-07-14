@@ -66,11 +66,10 @@ type ServiceOptions struct {
 	// Port      string
 	TLSConfig *tls.Config
 
-	customScheme string
-	Server       server.Server `json:"-"`
-	serverType   server.Type
-	serverStart  func(context.Context) error
-	serverStop   func(context.Context) error
+	Server      server.Server `json:"-"`
+	serverType  server.Type
+	serverStart func(context.Context) error
+	serverStop  func(context.Context) error
 
 	// Starting options
 	ForceRegister bool `json:"-"`
@@ -183,12 +182,6 @@ func WithTLSConfig(c *tls.Config) ServiceOption {
 func WithServer(s server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Server = s
-	}
-}
-
-func WithServerScheme(scheme string) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.customScheme = scheme
 	}
 }
 

@@ -28,10 +28,9 @@ type TreeHandler struct {
 	tree.UnimplementedNodeReceiverStreamServer
 	tree.UnimplementedNodeProviderStreamerServer
 
-	runtimeCtx context.Context
-	router     nodes.Handler
-	rOnce      sync.Once
-	name       string
+	router nodes.Handler
+	rOnce  sync.Once
+	name   string
 }
 
 func (t *TreeHandler) Name() string {

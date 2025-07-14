@@ -112,9 +112,9 @@ import (
 	_ "github.com/pydio/cells/v5/common/utils/cache/redis"
 
 	// Gateways
-	//_ "github.com/pydio/cells/v5/gateway/grpc"
 	_ "github.com/pydio/cells/v5/gateway/data"
 	_ "github.com/pydio/cells/v5/gateway/dav"
+	_ "github.com/pydio/cells/v5/gateway/grpc"
 	_ "github.com/pydio/cells/v5/gateway/metrics"
 	_ "github.com/pydio/cells/v5/gateway/restv2/service"
 	_ "github.com/pydio/cells/v5/gateway/websocket/service"

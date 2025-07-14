@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2025. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,53 +18,39 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package grpc
+package manager
 
-import "net"
+import (
+	"testing"
 
-type Option func(*Options)
+	. "github.com/smartystreets/goconvey/convey"
+)
 
-type Options struct {
-	Scheme   string
-	Name     string
-	Addr     string
-	JwtAuth  bool
-	Secure   bool
-	Listener net.Listener
+type stubItem struct {
+	name string
 }
 
-func WithScheme(scheme string) Option {
-	return func(o *Options) {
-		o.Scheme = scheme
-	}
+func (s *stubItem) Name() string {
+	return s.name
 }
 
-func WithAuth() Option {
-	return func(o *Options) {
-		o.JwtAuth = true
-	}
+func (s *stubItem) ID() string {
+	return s.name
 }
 
-func WithSecure() Option {
-	return func(o *Options) {
-		o.Secure = true
-	}
+func (s *stubItem) Metadata() map[string]string {
+	return make(map[string]string)
 }
 
-func WithName(name string) Option {
-	return func(o *Options) {
-		o.Name = name
-	}
+func (s *stubItem) As(i interface{}) bool {
+	return false
 }
 
-func WithAddr(addr string) Option {
-	return func(o *Options) {
-		o.Addr = addr
-	}
-}
-
-func WithListener(lis net.Listener) Option {
-	return func(o *Options) {
-		o.Listener = lis
-	}
+func TestServicesFilters(t *testing.T) {
+	Convey("Testing ServicesFilters", t, func() {
+		filter := "{{ .Name }} ~= pydio\\.gateway\\..*"
+		tFunc := makeRegistryFilterFunc(filter)
+		So(tFunc(&stubItem{name: "pydio.gateway.dav"}), ShouldBeTrue)
+		So(tFunc(&stubItem{name: "pydio.gateway-grpc.secure"}), ShouldBeFalse)
+	})
 }

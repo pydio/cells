@@ -194,11 +194,11 @@ ENVIRONMENT
 		initLogLevel()
 		handleSignals(args)
 
-		cmd.Println("")
-		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
-		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")
-		cmd.Println("Make sure to prepare access and credentials to a MySQL 5.6+ (or MariaDB equivalent) server.")
-		cmd.Println("Pick your installation mode when you are ready.")
+		cv := common.MakeCellsVersion()
+		cmd.Println("\033[1mStarting " + cv.PackageLabel + "\033[0m ")
+		cmd.Println("Version:\t" + cv.Version + " (" + cv.GitCommit + ") built on " + cv.BuildTime)
+		cmd.Println("Go Build:\t" + cv.GoVersion + " (" + cv.Arch + ")")
+		cmd.Println("Working Dir: \t" + runtime.ApplicationWorkingDir())
 		cmd.Println("")
 
 		installConf := &install.InstallConfig{}
