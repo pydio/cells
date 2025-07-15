@@ -51,7 +51,7 @@
     "other": "Schreibzugriff auf FrontendService mit Ausnahme globaler Binärdateien"
   },
   "PolicyGroup.LoggedUsers.Rule7": {
-    "other": "Default REST accesses API V2 for a logged user"
+    "other": "Standard API v2 REST Zugriffe für einen angemeldeten Benutzer"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect-Vorgänge"

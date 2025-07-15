@@ -1,23 +1,23 @@
 {
   "enable_kb": {
-    "other": "Convert to Page"
+    "other": "Zu Seite konvertieren"
   },
   "disable_kb": {
-    "other": "Convert to Folder"
+    "other": "Zu Ordner konvertieren"
   },
   "mime-page": {
-    "other": "Page"
+    "other": "Seite"
   },
   "mkpage": {
-    "other": "New Page"
+    "other": "Neue Seite"
   },
   "mkpage.legend": {
-    "other": "Create a new sub-page"
+    "other": "Neue Unterseite erstellen"
   },
   "mkpage.placeholder": {
-    "other": "Page Name"
+    "other": "Seitenname"
   },
   "copy_ref": {
-    "other": "Copy Reference"
+    "other": "Referenz kopieren"
   }
 }
