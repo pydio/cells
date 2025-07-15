@@ -234,7 +234,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 	}
 
 	if session.Error != nil && session.Error.IsError() {
-		return nil, fmt.Errorf(session.Error.Name)
+		return nil, session.Error.ToRFCError()
 	}
 
 	if session.RequestedAt.Add(reg.Config().ConsentRequestMaxAge(ctx)).Before(time.Now()) {
