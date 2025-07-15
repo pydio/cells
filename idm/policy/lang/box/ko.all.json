@@ -50,6 +50,9 @@
   "PolicyGroup.LoggedUsers.Rule6": {
     "other": "전역 바이너리 업로드를 제외한 프론트엔드 서비스에 대한 쓰기 액세스"
   },
+  "PolicyGroup.LoggedUsers.Rule7": {
+    "other": "Default REST accesses API V2 for a logged user"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect 작업"
   },

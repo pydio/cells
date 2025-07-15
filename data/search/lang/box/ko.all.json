@@ -6,16 +6,16 @@
     "other": "True로 설정되있는 경우, 인덱서는 ContentRef 메타데이터를 찾고 이 참조에서 내용을 읽은 후, 검색을 위해 인덱싱할 것 입니다."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "컨텐츠 참조 메타데이터"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "원본 문서의 텍스트 표현을 포함하는 내부 파일을 가리키는 메타데이터의 이름입니다. 이러한 내부 콘텐츠는 사용된 텍스트 추출 도구(예: Tika)에 따라 일반 텍스트 또는 gzip 인코딩될 수 있습니다. 검색 엔진은 일반적으로 이 콘텐츠를 인덱싱하여 전체 텍스트 검색을 가능하게 합니다. 데이터 유출을 방지하려면 메타데이터 이름 앞에 'pydio:'를 접두사로 붙이세요."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "일반 텍스트 확장 프로그램"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "직접 색인할 수 있는 일반 텍스트 내용을 담고 있는 파일의 확장자 목록(쉼표로 구분된 목록) 입니다."
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "파일 이름 분석"

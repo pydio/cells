@@ -222,7 +222,7 @@
     "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "主題"
   },
   "Theme used for display": {
     "other": "Theme used for display"

@@ -1,90 +1,90 @@
 {
   "Mail.Main.Copyright": {
-    "other": "Pydio 领先的文件共享平台"
+    "other": "由 Pydio 提供的檔案共享平台"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "{ACTION}-如果该按钮不起作用，请将以下URL复制并粘贴到浏览器中。"
+    "other": "如果 {ACTION} 按鈕失效，請複製下方 URL 到瀏覽器。"
   },
   "Mail.Main.Greeting": {
-    "other": "你好"
+    "other": "哈囉"
   },
   "Mail.Main.Signature": {
-    "other": "谢谢"
+    "other": "順頌時祺"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "{{.Configs.Title}} 重置密码"
+    "other": "{{.Configs.Title}} 的密碼重置請求"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "{{.Configs.Title}} 我们已收到您帐户的密码重置请求。"
+    "other": "我們已收到您 {{.Configs.Title}} 帳號的密碼重置請求。"
   },
   "Mail.ResetPassword.Outros": {
-    "other": "如果您没有提出此请求，请忽略此信息。如果您反复看到此类电子邮件，则可能是安全问题，应警告管理员。"
+    "other": "若您沒有提出此請求，請忽略此訊息。若您反覆看到此類郵件，可能是安全問題，請通知管理員。"
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "重置密码"
+    "other": "重置密碼"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "点击重置密码"
+    "other": "點擊重置密碼"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "{{.Configs.Title}} 密码已重设"
+    "other": "{{.Configs.Title}} 密碼已重設"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "在密码重置请求之后，您{{.Configs.Title}}的密码已成功重置。"
+    "other": "根據您的重設密碼要求，您的 {{.Configs.Title}} 密碼已成功重設。"
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "如果您未触发此操作，请立即警告您的管理员，因为这可能是安全问题。"
+    "other": "如果您沒有觸發此操作，請立即通知您的管理員，因為這可能是安全問題。"
   },
   "Mail.Digest.Subject": {
     "other": "{{.Configs.Title}} 通知"
   },
   "Mail.Digest.Intros": {
-    "other": "以下是您在{{.Configs.Title}}中收到的所有通知的摘要"
+    "other": "以下是您在 {{.Configs.Title}} 中收到的所有通知的摘要"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} 给您发了一条消息！"
+    "other": "{{.TplData.From}} 傳送了一則訊息給您！"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}}使用{{.Configs.Title}}应用程序向您发送了一条消息：{{.TplData.Message}}"
+    "other": "{{.TplData.From}} 使用 {{.Configs.Title}} 傳了一則訊息給您：{{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "欢迎来到 {{.Configs.Title}}"
+    "other": "歡迎來到 {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "您的帐户已在{{.Configs.Title}} 中创建。您的登录名是 {{.TplData.Login}}{{if .TplData.Password}} ，密码是{{.TplData.Password}} です。您可以在首次登录{{end}}时更改此设置。"
+    "other": "已在 {{.Configs.Title}} 上為您建立了一個帳戶。 \n 您的登入名稱是 {{.TplData.Login}}{{if .TplData.Password}}，您的密碼是 {{.TplData.Password}}。您可以在首次登入時更改它{{end}}。"
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "点击登录"
+    "other": "點擊登入"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "{{.Configs.Title}} 登录到"
+    "other": "登入至 {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} 您的团队使用文件共享平台来促进文档的协同工作。欢迎加入我们！"
+    "other": "{{.Configs.Title}} 您的團隊已在使用檔案共享平台高效協作辦公。我們非常歡迎您的加入！"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}}邀请您加入 {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} 邀請您加入協作 {{.Configs.Title}}"
   },
   "Mail.Invite.Intros": {
-    "other": "{{.Configs.Title}}在{{.TplData.Inviter}} 中创建了您的帐户。登录名是{{.TplData.Login}}{{if .TplData.Password}}，密码是{{.TplData.Password}}。您可以在首次登录{{end}}时进行更改。"
+    "other": "{{.TplData.Inviter}} 在 {{.Configs.Title}} 中建立了您的帳號。登入名：{{.TplData.Login}}{{if .TplData.Password}}，密碼：{{.TplData.Password}}。您可以在首次登入 {{end}} 時更改。"
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "点击登录"
+    "other": "點擊登入"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "{{.Configs.Title}}登录"
+    "other": "登入至 {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}}团队使用{{.TplData.Inviter}}文件共享平台来有效地协作处理文档。很高兴与您在一起！"
+    "other": "{{.TplData.Inviter}} 團隊使用 {{.Configs.Title}} 檔案共享平台高效協作辦公。邀請您一同加入！"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} 文件共享平台 {{.TplData.Cell}} 将您添加到"
+    "other": "{{.TplData.Inviter}} 將您加入 {{.TplData.Cell}} 協作體"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} 已將你加入 {{.TplData.Cell}} 中的 {{.Configs.Title}}! 你可以開始分享檔案和文件夾並高效率地進行協作."
+    "other": "{{.TplData.Inviter}} 已將您加入 {{.TplData.Cell}} 中的 {{.Configs.Title}} 協作體！您可以開始分享檔案和資料夾並高效進行協作。"
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "點擊開啟"
+    "other": "點擊開啟協作體"
   },
   "Mail.Cell.LinkLabel": {
     "other": "開啟 {{.TplData.Cell}}"
@@ -135,19 +135,19 @@
     "other": "{{.Configs.Title}} 檔案分享平台已被團隊使用並高效率地進行文件協作."
   },
   "Mail.Config.Title": {
-    "other": "发件人"
+    "other": "寄件者"
   },
   "Mail.Config.From.Label": {
-    "other": "默认邮件接收地址"
+    "other": "預設寄件者電子郵件地址"
   },
   "Mail.Config.From.Description": {
-    "other": "当您使用默认地址发送邮件，You should use a proper support email instead of no-reply email."
+    "other": "發送電子郵件時用作預設位址。您應該使用洽當的電子郵件而不是使用無回覆信箱。"
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Outlook 客戶端修復（停用 CSS 內嵌）"
   },
   "Mail.Config.Queue.Label": {
-    "other": "队列文件"
+    "other": "佇列類型"
   },
   "Mail.Config.Queue.Description": {
     "other": "用於存儲待發郵件的持久層"
@@ -156,114 +156,114 @@
     "other": "單文件數據庫(Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "写入内存"
+    "other": "記憶體內"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "郵件引擎"
+    "other": "電子郵件引擎"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "用於實際發送電子郵件的引擎"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "已停用（不啟用電子郵件）"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op（啟用電子郵件但不發送任何內容）"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "將電子郵件寫入檔案以進行調試"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "用於撰寫電子郵件的目標資料夾"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP服务器"
+    "other": "SMTP伺服器"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "本地服务器"
+    "other": "伺服器主機"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "SMTP 伺服器的 Host，例如smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "服务器端口"
+    "other": "伺服器連接埠"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "SMTP服务器端口：e.g. 587 (non-secure) 或者465 (TLS)"
+    "other": "SMTP伺服器通訊埠：e.g. 587 (non-secure) 或者465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "联系用户"
+    "other": "使用者名稱"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "SMTP服务器用户名错误"
+    "other": "連接到 SMTP 伺服器所需的帳號"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "连接密码"
+    "other": "使用者密碼"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "SMTP服务器密码错误"
+    "other": "連接到 SMTP 伺服器所需的密碼"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "連線安全性"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "用於保護連線的協定。不支援清除協定，如果需要，請使用自訂 Sendmail。"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "自簽憑證"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "如果您的 SMTP 伺服器憑證是自簽憑證，請停用憑證驗證"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "撥號器本機名稱"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "預設情況下，SMTP 撥號程式會在 EHLO 命令中傳送“localhost”，使用此欄位設定自訂本機名稱"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "SendGrid 服務"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api密码"
+    "other": "Api密鑰"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "用於連線 SendGrid 服務的 Api Key"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "发送邮件"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "警告：預設可執行檔路徑是 /usr/bin/sendmail。如果您需要更改它，請確保在 pydio.json 設定檔中設定「defaults > sendmail」鍵。"
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "可執行檔路徑"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "伺服器上 sendmail 可執行檔的完整路徑"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "其他路徑（在 pydio.json 設定檔中手動設定）"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "預設寄件者顯示名稱"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "發送電子郵件時預設使用的顯示名稱。"
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "寄件者/寄件者地址和名稱"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "設定要使用的寄件者地址/名稱。如果未設定使用者電子郵件地址，則在所有情況下都將使用預設的寄件者地址和名稱。"
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "透過使用者發送郵件"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "代表使用者發送郵件"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "一律從預設寄件者地址/名稱發送"
   }
 }

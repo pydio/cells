@@ -42,7 +42,7 @@
     "other": "Benutzer, die über keine Administratorrechte verfügen, dürfen anhand dieser Vorlage einen Workspace erstellen."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Erlaubt den Benutzern bei der Freigabe von Ordnern einen anderen Benutzer auszuwählen"
+    "other": "Benutzer dürfen beim Freigeben von Elementen andere Benutzer auswählen."
   },
   "Allow to group admins": {
     "other": "Den Gruppen-Admins erlauben"

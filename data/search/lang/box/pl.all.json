@@ -1,32 +1,32 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "Indeksuj Zawartość"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "Jeśli ustawione na \"true\", indeksator będzie szukał metadanych ContentRef, odczytywał zawartość z tego odwołania i indeksował ją do wyszukiwania."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "Metadane Odwołania do Zawartości"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "Nazwa metadanych wskazujących na wewnętrzny plik zawierający tekstową reprezentację oryginalnego dokumentu. Taka wewnętrzna zawartość może być w formacie zwykłego tekstu lub zakodowana przy użyciu gzip, w zależności od użytego narzędzia do ekstrakcji tekstu (np. Tika). Wyszukiwarka zazwyczaj indeksuje tę zawartość, aby umożliwić pełnotekstowe wyszukiwanie. Upewnij się, że poprzedzasz nazwę metadanych prefiksem 'pydio:', aby zapobiec wyciekowi danych."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "Rozszerzenia Pliku Zwykłego Tekstu"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "Lista rozszerzeń dla plików zawierających bezpośrednio indeksowalną zawartość w formacie zwykłego tekstu (oddzielone przecinkami)."
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "Analizator Nazwy Pliku"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "Analizator używany do nazw plików"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "Analizator Zawartości"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "Analizator używany do zawartości"
   }
 }

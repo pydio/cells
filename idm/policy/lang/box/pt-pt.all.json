@@ -50,6 +50,9 @@
   "PolicyGroup.LoggedUsers.Rule6": {
     "other": "Acesso de escrita ao FrontendService exceto cargas de binários globais"
   },
+  "PolicyGroup.LoggedUsers.Rule7": {
+    "other": "Default REST accesses API V2 for a logged user"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "Operações OpenIdConnect"
   },

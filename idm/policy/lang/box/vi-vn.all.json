@@ -50,6 +50,9 @@
   "PolicyGroup.LoggedUsers.Rule6": {
     "other": "Cấp quyền ghi vào FrontendService ngoại trừ tải lên nhị phân toàn cầu"
   },
+  "PolicyGroup.LoggedUsers.Rule7": {
+    "other": "Default REST accesses API V2 for a logged user"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"
   },

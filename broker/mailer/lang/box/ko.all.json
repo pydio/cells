@@ -45,7 +45,7 @@
     "other": "{{.TplData.From}}님이 메시지를 보냈습니다!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}}님이 {{.Configs.Title}} 앱을 통해 메시지를 보냄: {{.TplData.Message}}"
+    "other": "{{.TplData.From}}이 애플리케이션 {{.Configs.Title}}에서 메시지를 보냈습니다: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
     "other": "{{.Configs.Title}}에 오신걸 환영합니다"
@@ -144,7 +144,7 @@
     "other": "이메일을 보낼때 기본값으로 사용할 주소입니다. 수신 불가 이메일 대신 제대로 된 지원 이메일을 사용하세요."
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Outlook 클라이언트 수정(CSS 인라인 비활성화)"
   },
   "Mail.Config.Queue.Label": {
     "other": "대기열 유형"
@@ -204,10 +204,10 @@
     "other": "STMP 서버에 연결하려면 비밀번호가 필요합니다"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "연결 보안"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "연결 보안에 사용되는 프로토콜입니다. Clear는 지원되지 않으며, 필요한 경우 대신 사용자 지정 Sendmail을 사용하세요."
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "자체 서명 인증서"
