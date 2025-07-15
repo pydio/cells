@@ -35,9 +35,12 @@ type dsContextKey struct{}
 
 type objContextKey struct{}
 
+type firstRunContextKey struct{}
+
 var (
 	DataSourceContextKey    = dsContextKey{}
 	ObjectServiceContextKey = objContextKey{}
+	FirstRunContextKey      = firstRunContextKey{}
 
 	escIdx  = strings.ReplaceAll(common.ServiceDataIndexGRPC_, ".", "\\.")
 	escObj  = strings.ReplaceAll(common.ServiceDataObjectsGRPC_, ".", "\\.")
@@ -223,7 +226,7 @@ func (r *Resolver[T]) HeatCacheAndWatch(ctx context.Context, watchOpts ...watch.
 	for _, s := range r.sourcesProvider(ctx) {
 		ctx = runtime.WithServiceName(ctx, r.servicePrefix+s)
 		ctx = propagator.With(ctx, r.contextKey, s)
-		t, er := r.loader(ctx, s)
+		t, er := r.loader(WithFirstRun(ctx), s)
 		if er != nil {
 			errs = append(errs, er)
 			continue
@@ -293,4 +296,13 @@ func (r *Resolver[T]) WatchConfig(ctx context.Context, opts ...watch.WatchOption
 			}
 		}
 	}
+}
+
+func IsFirstRunContext(ctx context.Context) bool {
+	var v bool
+	return propagator.Get[bool](ctx, FirstRunContextKey, &v)
+}
+
+func WithFirstRun(ctx context.Context) context.Context {
+	return propagator.With(ctx, FirstRunContextKey, true)
 }

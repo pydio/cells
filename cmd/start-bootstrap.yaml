@@ -69,6 +69,8 @@ caches:
 #------------------------------------
 services: &services
   pydio.grpc.oauth:
+    after:
+      - pydio.grpc.jobs
     storages:
       main:
         - type: sql
@@ -105,6 +107,8 @@ services: &services
         - type: sql
           prefix: enc_
   pydio.grpc.activity:
+    after:
+      - pydio.grpc.jobs
     storages:
       main:
         - type: bolt
@@ -112,6 +116,9 @@ services: &services
         - type: mongo
           prefix: activities_
   pydio.grpc.versions:
+    after:
+      - pydio.grpc.docstore
+      - pydio.grpc.jobs
     storages:
       main:
         - type: bolt
@@ -119,6 +126,8 @@ services: &services
         - type: mongo
           prefix: versions_
   pydio.grpc.mailer:
+    after:
+      - pydio.grpc.jobs
     storages:
       main:
         - type: bolt
@@ -225,3 +234,4 @@ services: &services
   pydio.rest.workspace:
     after:
       - pydio.grpc.workspace
+      - pydio.grpc.acl
