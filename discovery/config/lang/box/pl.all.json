@@ -1,87 +1,87 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "Maksymalnie 30 dni"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Usuń wersje po 30 dniach"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Zachowaj wszystkie"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Zachowaj wszystkie wersje na zawsze"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Regularne Przycinanie"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Regularnie przycinaj wersje w różnych odstępach czasu"
   },
   "aclAction.Name": {
-    "other": "Name"
+    "other": "Nazwa"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "Wartość"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Akcje"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Identyfikatory węzłów"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "Nie"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Identyfikatory Ról"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Identyfikatory Obszarów Roboczych"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "nie"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Wyszukaj według ciągu błędu (wyrażenie regularne)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Czy Sukces"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Treść Json zawiera klucz..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Wyszukaj w treści Json (wyrażenie regularne)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Rozmiar treści Json jest większy niż"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Rozmiar treści Json jest mniejszy niż"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "Nie"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "Wyszukaj w treści ciągu znaków (wyrażenie regularne)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "Rozmiar treści ciągu znaków jest większy niż"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "Rozmiar treści ciągu znaków jest mniejszy niż"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "Czas zadania większy niż"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "Czas zadania mniejszy niż"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Warunek Dowolny"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "Ścieżka JSON"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -90,55 +90,55 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "Równa się"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "równa się"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "Pasuje"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "pasuje"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "wzorzec"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Prawda"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "WarunekCIDR"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "Podmiot równa się"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "Zasób zawiera"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "Ciąg znaków równa się"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "Ciąg znaków pasuje"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "Pary ciągów znaków równe"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "Ciąg znaków nie pasuje"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "Okres dat"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "Godziny pracy"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "Data po"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Dopasowywanie wzorca Glob"
   },
   "contextMetaCondition.BooleanCondition": {
     "other": "Boolean Value"

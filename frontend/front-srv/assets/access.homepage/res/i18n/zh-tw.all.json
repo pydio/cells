@@ -1,33 +1,33 @@
 {
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "以下是您可以存取的工作區的清單。它們可以是個人的或與其他使用者共用/由其他使用者共用。"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "歡迎， %s！ "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "預設使用此工作區"
   },
   "42": {
-    "other": "Enter"
+    "other": "進入"
   },
   "43": {
-    "other": "My Profile"
+    "other": "我的資訊"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "我全部的個人資料"
   },
   "44": {
-    "other": "My Account"
+    "other": "我的帳號"
   },
   "45": {
-    "other": "Personal data"
+    "other": "個人資料"
   },
   "46": {
     "other": "Address Book"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "你建立的使用者及團隊"
   },
   "48": {
     "other": "My Users"
@@ -36,7 +36,7 @@
     "other": "External users that you created"
   },
   "50": {
-    "other": "My Teams"
+    "other": "我的團隊"
   },
   "51": {
     "other": "Teams of users, used as shortcuts when sharing"
@@ -45,7 +45,7 @@
     "other": "Are you sure you want to delete this team? This will not remove any users."
   },
   "53": {
-    "other": "Getting Started"
+    "other": "馬上開始"
   },
   "54": {
     "other": "Get started with APPLICATION_TITLE by following How-to videos"
@@ -63,19 +63,19 @@
     "other": "Android"
   },
   "59": {
-    "other": "iPhone/iPad"
+    "other": "絕對路徑"
   },
   "60": {
-    "other": "Mac OS"
+    "other": "MacOS"
   },
   "61": {
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[操作教學] 什麼是工作區？</h2>\n            這部影片將說明在 APPLICATION_TITLE 中，工作區是什麼：\n            <ul>\n                <li>為什麼工作區在 APPLICATION_TITLE 中如此關鍵？</li>\n                <li>從技術面來看，工作區到底是什麼？</li>\n                <li>它們如何幫助您組織並管理資料？</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[教學] 上傳檔案至 APPLICATION_TITLE</h2>\n            開始使用 APPLICATION_TITLE 並了解如何上傳檔案\n            <ul>\n                <li>將檔案拖移至 APPLICATION_TITLE</li>\n                <li>建立一個新資料夾</li>\n                <li>重命名檔案和資料夾</li>\n                <li>將檔案下載到您的電腦</li>\n            </ul>\n            "
   },
   "64": {
     "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
@@ -102,7 +102,7 @@
     "other": "Native application for Android Devices"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "伺服器 QRCode"
   },
   "73": {
     "other": "Easily connect your mobile applications"
@@ -117,10 +117,10 @@
     "other": "Access the %1 through the top-right menu"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "管理儀錶板"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "選擇目標工作區"
   },
   "79": {
     "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
@@ -144,7 +144,7 @@
     "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Play video"
+    "other": "播放影片"
   },
   "87": {
     "other": "My Recent Activity"
@@ -165,13 +165,13 @@
     "other": "Applications Download"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "快速上傳"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "影片導覽"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "歡迎頁"
   },
   "title": {
     "other": "Home"
@@ -183,16 +183,16 @@
     "other": "Filter Results..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "類型"
   },
   "search.facet.extension": {
     "other": "Extension"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "大小"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "已編輯"
   },
   "search.facet.found": {
     "other": "Found in"
@@ -216,7 +216,7 @@
     "other": "Smallest First"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "檔案"
   },
   "facet.label.folder": {
     "other": "文件夹"
@@ -225,10 +225,10 @@
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB 至 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB 至 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
@@ -237,30 +237,30 @@
     "other": "Moments ago"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "今天"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "過去 7 天"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "過去 30 天"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "30 天以前"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "內容"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "檔名"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "書籤"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "工作區"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "協作體"
   }
 }

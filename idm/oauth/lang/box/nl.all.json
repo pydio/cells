@@ -1,6 +1,6 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "Prune revoked tokens and expired reset password keys"
+    "other": "Ingetrokken tokens en verlopen reset wachtwoordsleutels verschoond"
   },
   "Auth.PruneJob.Revoked": {
     "one": "Deleted {{.Count}} expired revoked token",

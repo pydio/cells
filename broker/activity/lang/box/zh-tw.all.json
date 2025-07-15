@@ -3,40 +3,40 @@
     "other": "{{.Actor}} 訪問權限"
   },
   "AccessedObject": {
-    "other": "{{.Object}}訪問"
+    "other": "{{.Object}} 已被存取"
   },
   "AccessedObjectBy": {
     "other": "{{.Object}} 已被 {{.Actor}} 存取"
   },
   "Cell": {
-    "other": "單元"
+    "other": "協作體"
   },
   "CreatedBy": {
-    "other": "{{.Actor}} 建立"
+    "other": "由 {{.Actor}} 建立"
   },
   "CreatedObject": {
-    "other": "{{.Object}} 創建"
+    "other": "{{.Object}} 已創建"
   },
   "CreatedObjectBy": {
     "other": "{{.Object}} 由 {{.Actor}} 建立"
   },
   "DeletedBy": {
-    "other": "{{.Actor}} 删除"
+    "other": "由 {{.Actor}} 刪除"
   },
   "DeletedObject": {
-    "other": "{{.Object}}已删除"
+    "other": "{{.Object}} 已刪除"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} 由 {{.Actor}} 删除"
+    "other": "{{.Object}} 已被 {{.Actor}} 刪除"
   },
   "SharedWs": {
-    "other": "{{.Object}}共享"
+    "other": "在 {{.Object}} 共享"
   },
   "SharedWsWithYou": {
     "other": "{{.Actor}}由{{.Object}}與你共享"
   },
   "DigestTitle": {
-    "other": "這是你的Pydio每日摘要"
+    "other": "這是你的 Pydio 每日摘要"
   },
   "Document": {
     "other": "文件"
@@ -45,43 +45,43 @@
     "other": "資料夾"
   },
   "ModifiedBy": {
-    "other": "{{.Actor}} 修改"
+    "other": "{{.Actor}} 已編輯"
   },
   "ModifiedObject": {
-    "other": "{{.Object}} 修改"
+    "other": "{{.Object}} 已被編輯"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} 由 {{.Actor}} 修改"
+    "other": "{{.Actor}} 編輯了 {{.Object}}"
   },
   "MetaModifiedBy": {
-    "other": "{{.Actor}}編輯了詮釋資料"
+    "other": "{{.Actor}} 編輯了屬性資料"
   },
   "MetaModifiedObject": {
-    "other": "{{.Object}}修改了属性"
+    "other": "{{.Object}} 的屬性已編輯"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}}由 {{.Object}}修改了属性"
+    "other": "{{.Actor}} 編輯了 {{.Object}} 的屬性"
   },
   "CommentedBy": {
-    "other": "{{.Actor}}发表了评论"
+    "other": "由 {{.Actor}} 評論"
   },
   "CommentedObject": {
-    "other": "{{.Object}}发表了评论"
+    "other": "{{.Object}} 已被評論"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}}你 {{.Object}}发表了评论"
+    "other": "{{.Actor}} 對 {{.Object}} 發佈了新評論"
   },
   "MovedBy": {
-    "other": "{{.Actor}} 移动"
+    "other": "由 {{.Actor}} 移動"
   },
   "MovedObject": {
-    "other": "{{.Object}} 移动"
+    "other": "{{.Object}} 已移動"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} 由 {{.Actor}} 移动"
+    "other": "{{.Object}} 由 {{.Actor}} 移動"
   },
   "Workspace": {
-    "other": "工作空间"
+    "other": "工作區"
   },
   "DateFormat": {
     "other": "2006-01-02 15:04"

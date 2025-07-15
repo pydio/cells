@@ -45,10 +45,10 @@
     "other": "更新使用者定義的 metadata"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "對所有 FrontendService 的讀取權限"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "對 FrontendService 的寫入權限（全域二進位檔案上傳除外）"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect 操作"

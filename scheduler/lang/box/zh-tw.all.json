@@ -24,13 +24,13 @@
     "other": "已變更服務自動歸檔"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "刪除時清理或轉移使用者資料"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "24小時後清理孤立文件"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "10 天後清理過期的 ACL"
   },
   "Jobs.User.Compress": {
     "other": "正在壓縮所選的項目..."
@@ -63,7 +63,7 @@
     "other": "在背景中移動到垃圾回收桶..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "同步資料來源 {{.DsName}} 然後重新雜湊新文件"
   },
   "Jobs.User.Wget": {
     "other": "在背景中下載檔案..."

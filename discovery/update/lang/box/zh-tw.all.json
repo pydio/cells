@@ -1,72 +1,72 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "更新設定"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "更新伺服器"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "更新伺服器的 HTTP URL"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "公鑰"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "官方公鑰，用於驗證二進位檔案的簽名。"
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "更新頻道"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "用於請求更新的通道。如不確定，請選擇 Stable。"
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "穩定"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "開發（請自行承擔風險）"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "代理："
+    "other": "代理"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "若需連外，請填寫代理伺服器 Host"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "代理用戶名"
+    "other": "代理使用者名稱"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "用於代理伺服器身份驗證的使用者"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "代理服务器密碼 "
+    "other": "代理密碼"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "代理服务器密码"
+    "other": "用於代理伺服器身份驗證的密碼"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "停用更新檢查"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "如果您的伺服器無法連接外部網路，請勿嘗試連線至更新網站。"
   },
   "Update.Process.Start": {
-    "other": "Upgrading Binary"
+    "other": "正在升級二進位檔案"
   },
   "Update.Process.Progress": {
-    "other": "Downloading Binary {progress}%..."
+    "other": "正在下載二進位檔案 {progress}%..."
   },
   "Update.Process.Verify": {
-    "other": "Download Finished, now verifying package..."
+    "other": "下載完成，正在驗證套件..."
   },
   "Update.Process.Finished": {
-    "other": "Binary package has been successfully verified, you can now restart the service."
+    "other": "二進位檔案驗證成功，您現在可以重新啟動服務。"
   },
   "Update.SetCapDetected.Warning": {
-    "other": "WARNING: you are using a reserved port on one of your binding URL. This requires a root capability to start web service."
+    "other": "警告：您的綁定 URL 使用了保留連接埠，啟動 Web 服務需要 root 權限。"
   },
   "Update.SetCapDetected.Hint": {
-    "other": "If you are not using systemd with the 'AmbientCapabilities=CAP_NET_BIND_SERVICE' parameter, you must execute the following command to authorize the new binary to use this port *before* restarting your instance:"
+    "other": "如果未使用 systemd 並設定 'AmbientCapabilities=CAP_NET_BIND_SERVICE' 參數，請在重新啟動實例之前執行以下命令，以授權新二進位檔案使用此連接埠："
   },
   "Update.SetCapDetected.Command": {
     "other": "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>"
