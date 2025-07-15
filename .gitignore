@@ -1,6 +1,7 @@
 /cells-*
 /main
 /cells
+/cells.exe
 /local-*.yaml
 
 CHANGELOG.html
