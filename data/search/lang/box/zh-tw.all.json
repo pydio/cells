@@ -1,32 +1,32 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "索引內容"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "如果設定為 true，索引器將尋找 ContentRef 元數據，從此引用中讀取內容並對其進行索引以進行搜尋。"
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "內容參考屬性"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "指向包含原始文件文字表示形式的內部文件的屬性的名稱。此類內部內容可能是純文字或 gzip 編碼，具體取決於所使用的文字擷取工具（例如 Tika）。搜尋引擎通常會索引該內容以啟用全文搜尋。確保在屬性名稱前面加上“pydio:”前綴，以防止資料外洩。"
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "純文字擴展套件"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "包含可直接索引的純文字內容的檔案的副檔名清單（逗號分隔清單）。"
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "檔名分析器"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "用於分析檔案名稱的分析器"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "內容分析器"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "用於分析內容的分析器"
   }
 }

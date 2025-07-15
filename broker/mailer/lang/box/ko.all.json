@@ -45,7 +45,7 @@
     "other": "{{.TplData.From}}님이 메시지를 보냈습니다!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}}님이 {{.Configs.Title}} 앱을 통해 메시지를 보냄: {{.TplData.Message}}"
+    "other": "{{.TplData.From}}이 애플리케이션 {{.Configs.Title}}에서 메시지를 보냈습니다: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
     "other": "{{.Configs.Title}}에 오신걸 환영합니다"

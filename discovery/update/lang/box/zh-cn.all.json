@@ -51,16 +51,16 @@
     "other": "如果您的服务器无法访问外部网络，请不要尝试联系更新站点。"
   },
   "Update.Process.Start": {
-    "other": "Upgrading Binary"
+    "other": "升级二进制文件"
   },
   "Update.Process.Progress": {
-    "other": "Downloading Binary {progress}%..."
+    "other": "升级二进制文件进度 {progress}%..."
   },
   "Update.Process.Verify": {
-    "other": "Download Finished, now verifying package..."
+    "other": "下载完成，正在验证..."
   },
   "Update.Process.Finished": {
-    "other": "Binary package has been successfully verified, you can now restart the service."
+    "other": "二进制软件包验证成功，你现在可以重启服务。"
   },
   "Update.SetCapDetected.Warning": {
     "other": "WARNING: you are using a reserved port on one of your binding URL. This requires a root capability to start web service."
