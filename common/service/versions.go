@@ -81,9 +81,8 @@ func DefaultConfigMigration(serviceName string, data interface{}) *Migration {
 }
 
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
-func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
+func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) (bool, error) {
 
-	var err error
 	tID := runtime.MultiContextManager().Current(ctx)
 	refName := opts.Name
 	if opts.MigrateIterator.ContextKey != nil {
@@ -100,36 +99,37 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) error {
 	}
 	opts.migrateOnceL.Unlock()
 	if !run {
-		return nil
+		return false, nil
 	}
 
 	prefix := []string{"versions", refName}
 
 	var store config.Store
 	if !propagator.Get(ctx, config.ContextKey, &store) {
-		return fmt.Errorf("could not find config for %s during updateServiceVersion", refName)
+		return false, fmt.Errorf("could not find config for %s during updateServiceVersion", refName)
 	}
 
 	newVersion, _ := version.NewVersion(opts.Version)
 	lastVersion, e := lastKnownVersion(ctx, store, refName, prefix...)
 	if e != nil {
-		err = fmt.Errorf("cannot update service version for %s (%v)", refName, e)
-		return err
+		return false, fmt.Errorf("cannot update service version for %s (%v)", refName, e)
 	}
 
 	if len(opts.Migrations) > 0 {
 		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
+		if err != nil {
+			return false, fmt.Errorf("cannot update service version for %s (%v)", refName, err)
+		}
 		if writeVersion != nil {
 			if e := updateVersion(ctx, store, refName, writeVersion, prefix...); e != nil {
 				log.Logger(ctx).Error("could not write version file", zap.Error(e))
+				return false, fmt.Errorf("cannot write version to file: %v", err)
+			} else {
+				return true, nil
 			}
 		}
-		if err != nil {
-			err = fmt.Errorf("cannot update service version for %s (%v)", refName, err)
-			return err
-		}
 	}
-	return err
+	return false, nil
 }
 
 // legacyVersionFile points to the old workingdir/services/serviceName/version

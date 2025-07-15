@@ -22,9 +22,16 @@ package filesystem
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"time"
+	"unsafe"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 func CanonicalPath(path string) (string, error) {

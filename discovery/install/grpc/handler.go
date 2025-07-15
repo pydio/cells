@@ -32,7 +32,13 @@ func (h *Handler) Migrate(ctx context.Context, request *service2.MigrateRequest)
 		return nil, fmt.Errorf("migrate: manager not found")
 	}
 
-	svcItems, err := mcm.Registry().List(registry.WithType(pb.ItemType_SERVICE))
+	listOptions := []registry.Option{registry.WithType(pb.ItemType_SERVICE)}
+	if len(request.Services) > 0 {
+		for _, sName := range request.Services {
+			listOptions = append(listOptions, registry.WithName(sName))
+		}
+	}
+	svcItems, err := mcm.Registry().List(listOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,15 +131,22 @@ func (h *Handler) Migrate(ctx context.Context, request *service2.MigrateRequest)
 				for _, key := range s.Options().MigrateIterator.Lister(ctx) {
 					ctx := propagator.With(ctx, s.Options().MigrateIterator.ContextKey, key)
 					ctx = propagator.With(ctx, service.ContextKey, s)
-					errs = append(errs, service.UpdateServiceVersion(ctx, s.Options()))
+					applied, uErr := service.UpdateServiceVersion(ctx, s.Options())
+					errs = append(errs, uErr)
+					if applied {
+						log.Logger(ctx).Info("Updated service " + s.Name())
+					}
 				}
 				if outE := multierr.Combine(errs...); outE != nil {
 					log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
 				}
 			} else {
 				ctx := propagator.With(ctx, service.ContextKey, s)
-				if err := service.UpdateServiceVersion(ctx, s.Options()); err != nil {
+				if ok, err := service.UpdateServiceVersion(ctx, s.Options()); err != nil {
+					log.Logger(ctx).Info("Error while updating service version for "+s.Name(), zap.Error(err))
 					return nil, err
+				} else if ok {
+					log.Logger(ctx).Info("Updated service " + s.Name())
 				}
 			}
 		}

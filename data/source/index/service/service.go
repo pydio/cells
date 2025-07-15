@@ -22,15 +22,17 @@ package service
 
 import (
 	"context"
+	grpc3 "github.com/pydio/cells/v5/common/client/grpc"
+	service2 "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"go.uber.org/zap"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
-	grpc3 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/server"
-	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -67,17 +69,21 @@ func init() {
 
 				resolver := source.NewResolver[*object.DataSource](source.DataSourceContextKey, common.ServiceDataIndexGRPC_, source.ListSources)
 				resolver.SetLoader(func(ctx context.Context, s string) (*object.DataSource, error) {
-					// Do the initial migration
-					go func() error {
-
-						cli := service2.NewMigrateServiceClient(grpc3.ResolveConn(ctx, common.ServiceInstallGRPC))
-						resp, err := cli.Migrate(ctx, &service2.MigrateRequest{Version: common.Version().String()})
-						if err != nil || !resp.Success {
-							return err
-						}
-						return nil
-					}()
-
+					if !source.IsFirstRunContext(ctx) {
+						// This is required to launch service migration
+						// when datasource is created at runtime
+						log.Logger(ctx).Info("Running migration for DS " + s)
+						go func() {
+							cli := service2.NewMigrateServiceClient(grpc3.ResolveConn(ctx, common.ServiceInstallGRPC))
+							resp, err := cli.Migrate(ctx, &service2.MigrateRequest{
+								Services: []string{common.ServiceDataIndexGRPC},
+								Version:  common.Version().String(),
+							})
+							if err != nil || !resp.Success {
+								log.Logger(ctx).Warn("Migration failed for DS "+s, zap.Error(err))
+							}
+						}()
+					}
 					return config.GetSourceInfoByName(ctx, s)
 				})
 				shared := grpc2.NewSharedTreeServer(resolver)

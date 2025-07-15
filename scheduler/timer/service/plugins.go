@@ -24,6 +24,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v5/common/telemetry/log"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 
@@ -66,7 +68,11 @@ func init() {
 							return nil
 						}
 						tp := timer.NewEventProducer(ct)
-						go tp.Start()
+						go func() {
+							if er := tp.Start(); er != nil {
+								log.Logger(ct).Warn("Failed to start timer producer", zap.Error(er))
+							}
+						}()
 						producers[id] = tp
 						return nil
 					}, func(_ context.Context, id string) error {
@@ -87,9 +93,13 @@ func init() {
 								return producer.Handle(ct, msg)
 							} else {
 								producers[cID] = timer.NewEventProducer(ct)
-								go producers[cID].Start()
+								go func() {
+									if er := producers[cID].Start(); er != nil {
+										log.Logger(ctx).Warn("Error while starting event producer", zap.Error(er))
+									}
+								}()
 							}
-							return fmt.Errorf("cannot find timer.Producer for corresponding context")
+							return nil
 						} else {
 							return fmt.Errorf("cannot find info in broker event context")
 						}
