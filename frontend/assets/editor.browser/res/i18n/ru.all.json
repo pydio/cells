@@ -9,18 +9,18 @@
     "other": "Открытие файла в окне просмотра, подождите, это окно автоматически закроется."
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "URL новой закладки"
   },
   "5": {
-    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+    "other": "Кроме того, вы можете <a>создать новую закладку по адресу</a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "Введите URL, начинающийся с http/https"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "URL закладки"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "Введите название для этой закладки"
   }
 }

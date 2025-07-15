@@ -59,7 +59,7 @@
     "other": "특정 파일 1개 버전의 누적 크기"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "한 파일의 모든 버전에서 사용하는 크기를 제한함. 제한에 도달한 경우 가장 오래된 버전이 삭제됨. 제한없이 사용시 -1 사용"
+    "other": "이 사이즈의 상한을 설정합니다. 만약 상한에 도달한 경우, 가장 오래된 버전부터 삭제됩니다. -1을 지정하면, 무제한을 의미합니다."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
     "other": "~보다 큰 파일 무시"

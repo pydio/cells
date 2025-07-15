@@ -21,10 +21,10 @@
     "other": "到一个或多个根节点的绝对路径"
   },
   "#Items per page": {
-    "other": "#每页条目数"
+    "other": "＃每页项目"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "分页模式中，每页显示多少项。"
+    "other": "进入分页模式后，每页显示的项目数。"
   },
   "Delete Permanently": {
     "other": "永久删除"

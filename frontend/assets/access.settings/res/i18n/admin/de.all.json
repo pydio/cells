@@ -1116,7 +1116,7 @@
     "other": "REST-Ressourcen"
   },
   "react.1": {
-    "other": "Zurück"
+    "other": "Übergeordneter Ordner"
   },
   "react.10": {
     "other": "Vererbt"
@@ -1134,7 +1134,7 @@
     "other": "Baumstruktur anzeigen"
   },
   "react.2": {
-    "other": "Massenoperationen"
+    "other": "Massenänderungen"
   },
   "react.3": {
     "other": "Suchergebnisse für '%s'"

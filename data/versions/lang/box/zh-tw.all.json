@@ -1,103 +1,103 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "自動化版本備份：透過事件觸發資料複製"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "已在版本儲存區內建立版本 {{.Uuid}} "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "已為 {{.Uuid}} 建立版本屬性"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "已清理 {{.Count}} 個版本",
+    "other": "已清理 {{.Count}} 個版本"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "正在清理已刪除節點的版本檔案"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "已成功移除 {{.Count}} 個版本",
+    "other": "已成功移除 {{.Count}} 個版本。"
   },
   "Config.GroupPolicy.Title": {
     "other": "策略"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "名称："
+    "other": "名稱"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "策略名称"
+    "other": "策略名稱"
   },
   "Config.GroupPolicy.Description.Label": {
     "other": "說明"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "策略内容描述"
+    "other": "策略描述"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
     "other": "儲存"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "用於儲存版本的儲存空間"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "儲存桶"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "此儲存空間內使用的儲存桶"
   },
   "Config.GroupSizes.Title": {
     "other": "大小限制："
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "此儲存桶內所有保留版本的總大小"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "限制總佔用空間。若達上限，將刪除最舊版本。設定為 -1 則無限制"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "單一檔案所有版本的累計大小"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "限制單一檔案所有版本的總佔用空間。若達上限，將刪除最舊版本。設定為 -1 則無限制"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "忽略大小超過...的檔案"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "不對超過此大小限制的檔案進行版本控制。設定為 -1 則無限制"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "保留期間"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "每個保留期間內要保留的版本數量"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "保留期間開始時間"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "計算保留期間的起始點。0 代表最後一次設定版本的時間，可使用另一個保留期間來設定限制"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "最大保留版本數量"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "此保留期間內最多可保留的版本數量。設定為 -1 則保留所有版本，設定為 0 則刪除所有版本。"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Name": {
-    "other": "After original file deletion"
+    "other": "原始檔案刪除後"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Description": {
-    "other": "Number of versions to keep after original file deletion."
+    "other": "原始檔案刪除後要保留的版本數量。"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
-    "other": "Backup all existing versions"
+    "other": "備份所有現存版本"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
-    "other": "Backup most recent version only"
+    "other": "僅備份最新版本"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "刪除所有現存版本"
   }
 }

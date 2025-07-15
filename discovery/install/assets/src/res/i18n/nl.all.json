@@ -134,11 +134,20 @@
   "form.dbConnectionType.label": {
     "other": "Verbindingstype"
   },
-  "form.dbConnectionType.tcp": {
-    "other": "TCP"
+  "form.dbConnectionType.mysql_tcp": {
+    "other": "MySQL/MariaDB (TCP)"
   },
-  "form.dbConnectionType.socket": {
-    "other": "Socket"
+  "form.dbConnectionType.mysql_socket": {
+    "other": "MySQL/MariaDB (Socket)"
+  },
+  "form.dbConnectionType.pg_tcp": {
+    "other": "PostGreSQL (TCP)"
+  },
+  "form.dbConnectionType.pg_socket": {
+    "other": "PostGreSQL (Socket)"
+  },
+  "form.dbConnectionType.sqlite": {
+    "other": "SQLite"
   },
   "form.dbConnectionType.manual": {
     "other": "Manueel"
@@ -178,6 +187,12 @@
   },
   "form.dbSocketFile.legend": {
     "other": "Voer de locatie in van het socket-bestand dat gebruikt wordt om te verbinden"
+  },
+  "form.dbSqliteFile.label": {
+    "other": "File Path"
+  },
+  "form.dbSqliteFile.legend": {
+    "other": "Enter the location of the file to use as database"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"

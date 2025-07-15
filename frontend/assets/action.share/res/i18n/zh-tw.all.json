@@ -507,13 +507,13 @@
     "other": "%s personal invitation(s) sent"
   },
   "246": {
-    "other": "Open cell"
+    "other": "打開協作體"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "編輯協作體"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "刪除協作體"
   },
   "249": {
     "other": "Contents"
@@ -522,7 +522,7 @@
     "other": "No limit"
   },
   "250": {
-    "other": "Cells"
+    "other": "協作體"
   },
   "251": {
     "other": "Link"
@@ -534,13 +534,13 @@
     "other": "Visibility"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "已在協作體中共享"
   },
   "254b": {
     "other": "With users or groups"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "在 %d 個協作體中共享"
   },
   "254d": {
     "other": "Shared in '%s'"
@@ -555,10 +555,10 @@
     "other": "Created on %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "編輯協作體使用者"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "從此協作體移除"
   },
   "26": {
     "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."

@@ -1,21 +1,21 @@
 {
   "PolicyGroup.Create": {
-    "other": "Create Policy"
+    "other": "創建新策略"
   },
   "PolicyGroup.Filter": {
-    "other": "Filter Templates..."
+    "other": "篩選模板……"
   },
   "PolicyGroup.Create.Manual": {
-    "other": "Manual Creation"
+    "other": "手動建立"
   },
   "PolicyGroup.Create.Templates": {
-    "other": "Templates"
+    "other": "模板"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "Complex ACL Policy"
+    "other": "複雜 ACL 策略"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "動態管理 ACLs 複雜政策的範例"
+    "other": "動態管理 ACLs 複雜策略的範例"
   },
   "PolicyGroup.ACLSample1.Rule1": {
     "other": "預設准許讀取/寫入"
@@ -27,7 +27,7 @@
     "other": "在請求非來自本地端時過濾掉副檔名為 PNG 的檔案"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "Limited Period"
+    "other": "期限"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
     "other": "為工作區啟用一段時間內的存取"
@@ -36,7 +36,7 @@
     "other": "ACL 規則範例, 只准許在 2018 年的 2 月和 3 月存取"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "Scheduled Expiration"
+    "other": "預定到期時間"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
     "other": "在特定時間後不可存取工作區"
@@ -48,7 +48,7 @@
     "other": "在 2018-02-28 之後禁止讀取/寫入"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "Business Hours"
+    "other": "工作時數"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "在特定日期中的限定的時間內啟用存取工作區"
@@ -57,7 +57,7 @@
     "other": "工作時間規則範例, 准許讀取/寫入"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "Filter IP Address"
+    "other": "篩選 IP 位址"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
     "other": "區域網路之外的 IP 禁止存取"

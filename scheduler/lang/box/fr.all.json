@@ -29,6 +29,9 @@
   "Jobs.Default.CleanOrphanFiles": {
     "other": "Nettoyer les fichiers orphelins après 24h"
   },
+  "Jobs.Default.CleanExpiredACLs": {
+    "other": "Supprimer les ACL expirées après 10 jours"
+  },
   "Jobs.User.Compress": {
     "other": "Compression de la selection..."
   },

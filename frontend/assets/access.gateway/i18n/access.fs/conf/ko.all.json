@@ -21,10 +21,10 @@
     "other": "하나 이상의 루트 노드에 대한 절대 경로"
   },
   "#Items per page": {
-    "other": "페이지 당 항목 수"
+    "other": "페이지당 #항목수"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "페이지 번호 모드가 되면 페이지당 표시할 항목 수입니다."
+    "other": "Once in pagination mode, number of items to display per page."
   },
   "Delete Permanently": {
     "other": "영구적으로 삭제"
