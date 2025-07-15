@@ -189,10 +189,10 @@
     "other": "Entrez l'emplacement du fichier de socket à utiliser pour se connecter"
   },
   "form.dbSqliteFile.label": {
-    "other": "File Path"
+    "other": "Chemin"
   },
   "form.dbSqliteFile.legend": {
-    "other": "Enter the location of the file to use as database"
+    "other": "Emplacement du fichier source pour la base de données"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"

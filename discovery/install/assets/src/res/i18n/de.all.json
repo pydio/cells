@@ -156,7 +156,7 @@
     "other": "Hostname"
   },
   "form.dbTCPHostname.legend": {
-    "other": "auf dem MySQL läuft"
+    "other": "Datenbankserver Host"
   },
   "form.dbName.label": {
     "other": "Name der Datenbank"
@@ -168,7 +168,7 @@
     "other": "Port"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port zum Verbinden mit MySQL"
+    "other": "Datenbank-Server-Port"
   },
   "form.dbUser.label": {
     "other": "Datenbank-User"
@@ -189,10 +189,10 @@
     "other": "Geben Sie den Speicherort der Socket-Datei ein, über die eine Verbindung hergestellt werden soll"
   },
   "form.dbSqliteFile.label": {
-    "other": "File Path"
+    "other": "Dateipfad"
   },
   "form.dbSqliteFile.legend": {
-    "other": "Enter the location of the file to use as database"
+    "other": "Geben Sie den Speicherort der zu verwendenden Datei ein"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
