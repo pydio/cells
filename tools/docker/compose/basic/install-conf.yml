@@ -8,10 +8,10 @@
 frontendlogin: admin
 frontendpassword: admin
 
-# DB connection
-dbconnectiontype: tcp
-dbtcphostname: mysql
-dbtcpport: 3306
-dbtcpname: cells
-dbtcpuser: pydio
-dbtcppassword: ChangeMe!
+## DB connection
+dbconnectiontype: manual
+# MySql & MariaDb
+#dbmanualdsn: mysql://pydio:ChangeMe@tcp(sqldb:3306)/cells?parseTime=true&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}
+# PG SQL
+dbmanualdsn: "postgres://pydio:ChangeMe@sqldb:5432/cells?sslmode=disable&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}"
+

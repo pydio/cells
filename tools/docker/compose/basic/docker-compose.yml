@@ -1,7 +1,7 @@
 services:
 
   cells:
-    image: pydio/cells:latest
+    image: pydio/cells:v5-sandbox
     restart: unless-stopped
     ports: ["8080:8080"]
     environment:
@@ -9,19 +9,35 @@ services:
     volumes: 
       - cellsdir:/var/cells
       - ./install-conf.yml:/pydio/config/install.yml:ro
+    depends_on:
+      - sqldb
 
-  mysql:
-    image: mysql:8
+  ## Choose one of the DB below (or none for SQLite)
+
+  # PG SQL
+  sqldb:
+    image: postgres:16.4
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ChangeMe!
-      MYSQL_DATABASE: cells
-      MYSQL_USER: pydio
-      MYSQL_PASSWORD: ChangeMe!
+    expose: [5432]
     volumes:
-      - mysqldir:/var/lib/mysql
-    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+      - sqldir:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: pydio
+      POSTGRES_PASSWORD: ChangeMe
+      POSTGRES_DB: cells
+
+#  sqldb:
+#    image: mysql:8
+#    restart: unless-stopped
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ChangeMe
+#      MYSQL_DATABASE: cells
+#      MYSQL_USER: pydio
+#      MYSQL_PASSWORD: ChangeMe
+#    volumes:
+#      - sqldir:/var/lib/mysql
+#    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
 
 volumes:
   cellsdir: {}
-  mysqldir: {}
+  sqldir: {}
