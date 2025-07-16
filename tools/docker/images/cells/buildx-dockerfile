@@ -16,6 +16,7 @@ RUN chmod +x /opt/pydio/cells
 
 FROM alpine
 ARG version
+ARG TARGETARCH
 
 ENV CELLS_WORKING_DIR=/var/cells
 WORKDIR $CELLS_WORKING_DIR
@@ -23,7 +24,7 @@ COPY --from=certs /opt/pydio/cells /opt/pydio/bin/cells
 ENV PATH="$PATH:/opt/pydio/bin"
 
 RUN echo "Pydio Cells Home Docker Image" > /opt/pydio/package.info \
-    && echo "  A ready-to-go Docker image based on Alpine ${arch} to configure and launch Cells in no time." >> /opt/pydio/package.info \
+    && echo "  A ready-to-go Docker image based on Alpine ${TARGETARCH} to configure and launch Cells in no time." >> /opt/pydio/package.info \
     && echo "  Generated on $(date) with docker build script from version ${version:-dev}" >> /opt/pydio/package.info
 
 ENTRYPOINT [ "cells", "start" ]
