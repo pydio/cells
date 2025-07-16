@@ -22,7 +22,6 @@ package mailer
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
@@ -74,12 +73,12 @@ func (d *Sendmail) Send(ctx context.Context, email *mailer.Mail) error {
 	var rxEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 	for _, user := range email.To {
 		if len(user.Address) > 254 || !rxEmail.MatchString(user.Address) {
-			return fmt.Errorf("string does not seems a valid email address")
+			return errors.New("string does not seems a valid email address")
 		}
 		toStr += user.Address + ", "
 	}
 	if toStr == "" {
-		return fmt.Errorf("cannot send mail without any recipient")
+		return errors.New("cannot send mail without any recipient")
 	}
 	toStr = "\"" + toStr + "\""
 

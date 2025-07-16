@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"reflect"
 
 	"go.uber.org/multierr"
@@ -29,7 +28,7 @@ func (h *Handler) Migrate(ctx context.Context, request *service2.MigrateRequest)
 
 	var mcm manager.Manager
 	if ok := propagator.Get(ctx, manager.ContextKey, &mcm); !ok {
-		return nil, fmt.Errorf("migrate: manager not found")
+		return nil, errors.New("migrate: manager not found")
 	}
 
 	listOptions := []registry.Option{registry.WithType(pb.ItemType_SERVICE)}

@@ -51,10 +51,10 @@ EXAMPLES
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if storageURL == "" {
-			return fmt.Errorf("please provide a snapshot URL")
+			return errors.New("please provide a snapshot URL")
 		}
 		if lookupGlob == "" && lookupUuid == "" {
-			return fmt.Errorf("please provide a filename or a glob matcher like * or an uuid")
+			return errors.New("please provide a filename or a glob matcher like * or an uuid")
 		}
 		if lookupI {
 			lookupGlob = strings.ToLower(lookupGlob)

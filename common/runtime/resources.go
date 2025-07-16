@@ -22,11 +22,12 @@ package runtime
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 var (
@@ -52,16 +53,16 @@ func MatchDependencies(ctx context.Context, rr map[string]string) error {
 		switch k {
 		case NodeMetaHostName:
 			if v != GetHostname() {
-				return fmt.Errorf("hostname does not match " + v)
+				return errors.New("hostname does not match " + v)
 			}
 		case NodeMetaPID:
 			if v != strconv.Itoa(os.Getpid()) {
-				return fmt.Errorf("PID does not match " + v)
+				return errors.New("PID does not match " + v)
 			}
 		case "capacity":
 			for _, ca := range strings.Split(v, "|") {
 				if !HasCapacity(ca) {
-					return fmt.Errorf("Capacity " + ca + " not supported by current process")
+					return errors.New("Capacity " + ca + " not supported by current process")
 				}
 			}
 		default:

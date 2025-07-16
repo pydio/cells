@@ -22,8 +22,9 @@ package std
 
 import (
 	"context"
-	"fmt"
 	"time"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 // Retry function
@@ -58,7 +59,7 @@ func Retry(ctx context.Context, f func() error, seconds ...time.Duration) error 
 		case <-ctx.Done():
 			return nil
 		case <-timeout.C:
-			return fmt.Errorf("timeout")
+			return errors.New("timeout")
 		}
 	}
 }

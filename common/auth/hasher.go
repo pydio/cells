@@ -27,13 +27,14 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/pbkdf2"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type PydioPW struct {
@@ -58,7 +59,7 @@ func (p PydioPW) pbkdf2CreateHash(password []byte, salt []byte, iter, totalSize 
 		key := pbkdf2.Key(password, salt, iter, totalSize, sha1.New)
 		return key, nil
 	}
-	return nil, fmt.Errorf("Hash algorithm not supported")
+	return nil, errors.New("Hash algorithm not supported")
 }
 
 func (p PydioPW) checkPasswordMD5(password string, storePassword string) bool {
@@ -75,7 +76,7 @@ func (p PydioPW) checkPasswordDBKDF2(password string, storePassword []byte, salt
 	if bytes.Equal(pwd, storePassword) {
 		return true, nil
 	}
-	return false, fmt.Errorf("Password does not match")
+	return false, errors.New("Password does not match")
 }
 
 func (p PydioPW) CheckDBKDF2PydioPwd(password string, hashedPw string, legacySalt ...bool) (bool, error) {
@@ -107,7 +108,7 @@ func (p PydioPW) CheckDBKDF2PydioPwd(password string, hashedPw string, legacySal
 		size := len(storePw)
 		return p.checkPasswordDBKDF2(password, storePw, salt, iter, size, algo)
 	}
-	return false, fmt.Errorf("Password format invalid")
+	return false, errors.New("Password format invalid")
 }
 
 func (p PydioPW) CreateHash(password string) (base64Pw string) {

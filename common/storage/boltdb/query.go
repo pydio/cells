@@ -28,6 +28,8 @@ import (
 	"github.com/PaesslerAG/jsonpath"
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search/query"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 // BleveQueryToJSONPath transforms a Blevesearch query string to a JSONPath query
@@ -60,7 +62,7 @@ func BleveQueryToJSONPath(queryString string, rootSelector string, insensitive b
 	// Define a custom function for calculating length
 	lengthFunc := gval.Function("length", func(arguments ...interface{}) (interface{}, error) {
 		if len(arguments) != 1 {
-			return nil, fmt.Errorf("length function expects exactly one argument")
+			return nil, errors.New("length function expects exactly one argument")
 		}
 		switch v := arguments[0].(type) {
 		case []interface{}:
@@ -68,7 +70,7 @@ func BleveQueryToJSONPath(queryString string, rootSelector string, insensitive b
 		case string:
 			return len(v), nil
 		default:
-			return nil, fmt.Errorf("unsupported type for length function")
+			return nil, errors.New("unsupported type for length function")
 		}
 	})
 

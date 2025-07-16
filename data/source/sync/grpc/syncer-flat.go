@@ -22,11 +22,11 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/index"
@@ -42,7 +42,7 @@ func (s *Syncer) FlatScanEmpty(ctx context.Context, syncStatus chan model.Status
 	stats := &flatSyncStater{source: "storage", target: "index"}
 	source, ok := s.S3client.(model.PathSyncSource)
 	if !ok {
-		return nil, fmt.Errorf("cannot convert client to PathSyncSource")
+		return nil, errors.New("cannot convert client to PathSyncSource")
 	}
 	session := &tree.IndexationSession{Uuid: uuid.New()}
 	s.IndexClientSession.OpenSession(ctx, &tree.OpenSessionRequest{Session: session})
@@ -77,10 +77,10 @@ func (s *Syncer) FlatScanEmpty(ctx context.Context, syncStatus chan model.Status
 func (s *Syncer) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSource, mode string, snapName string, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
 
 	if mode != "read" && mode != "write" && mode != "delete" {
-		return nil, fmt.Errorf("please use one of read, write or delete for snapshoting mode")
+		return nil, errors.New("please use one of read, write or delete for snapshoting mode")
 	}
 	if snapName == "" {
-		return nil, fmt.Errorf("please provide the snapshot name to use")
+		return nil, errors.New("please provide the snapshot name to use")
 	}
 
 	if mode == "delete" {

@@ -22,7 +22,6 @@ package restv2
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -154,7 +153,7 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 			for _, j := range jj {
 				a, t, e := h.backgroundActionForJob(ctx, actionName, j.GetID())
 				if e != nil || t == "" || a.Status != input.GetAwaitStatus() {
-					return fmt.Errorf("not ready")
+					return errors.New("not ready")
 				}
 				tasks = append(tasks, a)
 			}

@@ -22,7 +22,6 @@ package goque
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"path/filepath"
 	"sync"
@@ -153,7 +152,7 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 	//}
 	streamName := u.Query().Get("name")
 	if streamName == "" {
-		return nil, fmt.Errorf("please provide a stream name")
+		return nil, errors.New("please provide a stream name")
 	}
 	queueName := "fifo-" + streamName
 	prefix := u.Query().Get("prefix")

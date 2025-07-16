@@ -1,13 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/hanwen/go-fuse/v2/fs"
-	fs2 "github.com/pydio/cells-fuse/fs"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v5/common/errors"
+
+	fs2 "github.com/pydio/cells-fuse/fs"
 )
 
 var (
@@ -29,10 +31,10 @@ EXAMPLES
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if storageURL == "" {
-			return fmt.Errorf("please provide a snapshot URL")
+			return errors.New("please provide a snapshot URL")
 		}
 		if mountPoint == "" {
-			return fmt.Errorf("please provide a mount directory")
+			return errors.New("please provide a mount directory")
 		}
 		if mountPoint == "." {
 			log.Fatalf("warning you are trying to mount on current folder")

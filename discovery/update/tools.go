@@ -213,7 +213,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 			targetPath = filepath.Join(os.TempDir(), "pydio-update")
 		}
 		if p.BinaryChecksum == "" || p.BinarySignature == "" {
-			errorChan <- fmt.Errorf("Missing checksum and signature infos")
+			errorChan <- errors.New("Missing checksum and signature infos")
 			return
 		}
 		checksum, e := base64.StdEncoding.DecodeString(p.BinaryChecksum)
@@ -229,12 +229,12 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 
 		pKey := conf.Val("#/defaults/update/publicKey").Default(conf.Val("publicKey").String()).String()
 		if pKey == "" {
-			errorChan <- fmt.Errorf("cannot find public key to verify binary integrity")
+			errorChan <- errors.New("cannot find public key to verify binary integrity")
 			return
 		}
 		block, _ := pem.Decode([]byte(pKey))
 		if block == nil {
-			errorChan <- fmt.Errorf("cannot decode public key")
+			errorChan <- errors.New("cannot decode public key")
 			return
 		}
 		var pubKey rsa.PublicKey

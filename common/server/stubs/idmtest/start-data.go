@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/proto/rest"
@@ -113,7 +114,7 @@ func RegisterIdmMocksWithData(ctx context.Context, testData *TestData) error {
 
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
-		return fmt.Errorf("cannot find registry in context")
+		return errors.New("cannot find registry in context")
 	}
 	ii, _ := reg.List(registry.WithType(pb.ItemType_SERVICE))
 	for _, item := range ii {

@@ -12,6 +12,7 @@ import (
 	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 )
 
@@ -254,7 +255,7 @@ func (c *HiddenFoldersWrapper) readEmptyMetaAsContent(ctx context.Context, bucke
 		rc := strings.NewReader(strings.Join(id, ""))
 		return &srcloser{Reader: rc}, minioInfoToModelsInfo(oi), nil
 	}
-	return nil, models.ObjectInfo{}, fmt.Errorf("no attached id found")
+	return nil, models.ObjectInfo{}, errors.New("no attached id found")
 }
 
 func (c *HiddenFoldersWrapper) getHiddenObjectInfo(ctx context.Context, bucket, object, emptyKey string, st minio.StatObjectOptions) (models.ObjectInfo, error) {

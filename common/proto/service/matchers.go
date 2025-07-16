@@ -21,10 +21,10 @@
 package service
 
 import (
-	"fmt"
-
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 // Matcher interface provides a way to filter idm objects with standard XXXSingleQueries.
@@ -56,7 +56,7 @@ func (mm *MultiMatcher) Parse(q *Query, parser MatcherParser) error {
 			}
 			mm.matchers = append(mm.matchers, subM)
 		} else {
-			return fmt.Errorf("could not parse service.Query to MultiMatcher")
+			return errors.New("could not parse service.Query to MultiMatcher")
 		}
 	}
 	return nil

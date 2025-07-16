@@ -194,7 +194,7 @@ ENVIRONMENT
 			// we only non-interactively configured the proxy, launching browser install, make sure default bind is set here
 			niModeBrowser = true
 			if len(installConf.GetProxyConfig().Binds) == 0 {
-				fatalIfError(cmd, fmt.Errorf("no bind was found in default site, non interactive install probably has a wrong format"))
+				fatalIfError(cmd, errors.New("no bind was found in default site, non interactive install probably has a wrong format"))
 			}
 		}
 

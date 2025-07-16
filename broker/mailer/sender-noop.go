@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -69,7 +70,7 @@ func (n *NoOpSender) Send(ctx context.Context, email *mailer.Mail) error {
 		}
 	}
 	if len(to) == 0 {
-		return fmt.Errorf("fake email : missing To address(es)")
+		return errors.New("fake email : missing To address(es)")
 	}
 
 	gom, er := NewGomailMessage(email)
@@ -91,6 +92,6 @@ func (n *NoOpSender) Check(ctx context.Context) error {
 	if n.valid {
 		return nil
 	} else {
-		return fmt.Errorf("no mailer configured")
+		return errors.New("no mailer configured")
 	}
 }

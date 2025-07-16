@@ -164,5 +164,5 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 			Name:    emailOrAddress,
 		}, nil
 	}
-	return nil, fmt.Errorf("could not find any address for the passed uuid")
+	return nil, errors.New("could not find any address for the passed uuid")
 }

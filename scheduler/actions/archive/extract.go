@@ -143,7 +143,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if format == "" || format == detectFormat {
 		format = strings.ToLower(strings.TrimLeft(ext, "."))
 		if format != zipFormat && format != tarFormat && format != tarGzFormat {
-			e := fmt.Errorf("Could not extract format from file extension (" + ext + ")")
+			e := fmt.Errorf("could not extract format from file extension %s", ext)
 			return input.WithError(e), e
 		}
 	}

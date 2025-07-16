@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 )
 
@@ -54,14 +55,14 @@ EXAMPLE
 	),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userPwdLogin == "" {
-			return fmt.Errorf("Missing arguments")
+			return errors.New("Missing arguments")
 		}
 		if userPwd == "" {
 			p := promptui.Prompt{
 				Label: "Provide a new password",
 				Validate: func(s string) error {
 					if s == "" {
-						return fmt.Errorf("cannot use empty password")
+						return errors.New("cannot use empty password")
 					}
 					return nil
 				},
@@ -75,7 +76,7 @@ EXAMPLE
 				Label: "Please confirm password",
 				Validate: func(s string) error {
 					if s != "" && s != firstPwd {
-						return fmt.Errorf("password does not match")
+						return errors.New("password does not match")
 					}
 					return nil
 				},

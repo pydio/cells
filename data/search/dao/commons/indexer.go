@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/meta"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -82,7 +83,7 @@ func (s *Server) Close(ctx context.Context) error {
 
 func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool) error {
 	if n.GetUuid() == "" {
-		return fmt.Errorf("missing uuid")
+		return errors.New("missing uuid")
 	}
 
 	forceCore := false

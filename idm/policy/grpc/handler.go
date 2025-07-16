@@ -125,7 +125,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			} else if !errors.Is(err, ladon.ErrRequestDenied) && !errors.Is(err, context.Canceled) {
 				if strings.Contains(err.Error(), "connection refused") {
 					log.Logger(ctx).Error("Connection to DB error", zap.String("error", err.Error()))
-					err = fmt.Errorf("DAO error received")
+					err = errors.New("DAO error received")
 				}
 				checkError = err
 				can()

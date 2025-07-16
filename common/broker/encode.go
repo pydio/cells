@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
@@ -157,7 +158,7 @@ func splitWithLengthPrefix(data []byte) ([][]byte, error) {
 			continue
 		}
 		if int(length) > buf.Len() {
-			return nil, fmt.Errorf("not enough data left for split")
+			return nil, errors.New("not enough data left for split")
 		}
 		split := make([]byte, length)
 		buf.Read(split) // Read the data

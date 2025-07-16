@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/commons/treec"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -99,7 +100,7 @@ DESCRIPTION
 			fmt.Println("")
 			p := &promptui.Prompt{Label: "Are you sure that sync services are NOT running", IsConfirm: true, Default: "N"}
 			if _, e := p.Run(); e != nil {
-				return fmt.Errorf("user aborted")
+				return errors.New("user aborted")
 			}
 		}
 
@@ -137,7 +138,7 @@ DESCRIPTION
 				registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_SERVER)),
 			)) > 0 {
 				migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
-				return fmt.Errorf("sync is running")
+				return errors.New("sync is running")
 			}
 		}
 
@@ -185,7 +186,7 @@ DESCRIPTION
 			}
 			p := promptui.Prompt{Label: "Are you sure you want to continue", IsConfirm: true, Default: "N"}
 			if _, e := p.Run(); e != nil {
-				return fmt.Errorf("operation aborted")
+				return errors.New("operation aborted")
 			}
 		}
 

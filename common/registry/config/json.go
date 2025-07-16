@@ -27,6 +27,7 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 
+	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
@@ -97,7 +98,7 @@ func (j *jsonItemMapReader) Unmarshal(data []byte, out interface{}) error {
 		return nil
 	}
 
-	return fmt.Errorf("should not be here in unmarshal")
+	return errors.New("should not be here in unmarshal")
 }
 
 type jsonItemMapWriter struct{}
@@ -198,7 +199,7 @@ func (j *jsonItemReader) Unmarshal(data []byte, out interface{}) error {
 		return nil
 	}
 
-	return fmt.Errorf("should not be here in unmarshal")
+	return errors.New("should not be here in unmarshal")
 }
 
 type jsonItemWriter struct{}

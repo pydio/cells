@@ -9,6 +9,7 @@ package registry
 import (
 	context "context"
 	fmt "fmt"
+	"github.com/pydio/cells/v5/common/errors"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
@@ -71,7 +72,7 @@ func (s *RegistryStub) Invoke(ctx context.Context, method string, args interface
 			e = er
 		}
 	default:
-		e = fmt.Errorf(method + " not implemented")
+		e = errors.New(method + " not implemented")
 	}
 	return e
 }
@@ -103,7 +104,7 @@ func (s *RegistryStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, met
 		go s.RegistryServer.NewLocker(st)
 		return st, nil
 	}
-	return nil, fmt.Errorf(method + "  not implemented")
+	return nil, errors.New(method + "  not implemented")
 }
 
 type RegistryStub_SessionStreamer struct {

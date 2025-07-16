@@ -32,6 +32,7 @@ import (
 	mailer2 "github.com/pydio/cells/v5/broker/mailer"
 	"github.com/pydio/cells/v5/broker/mailer/dao/bolt"
 	"github.com/pydio/cells/v5/broker/mailer/dao/mongo"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
@@ -107,12 +108,12 @@ func testQueue(ctx context.Context, t *testing.T, queue mailer2.Queue) {
 	err = queue.Push(ctx, email2)
 	So(err, ShouldBeNil)
 	e = queue.Consume(ctx, func(email *mailer.Mail) error {
-		return fmt.Errorf("Failed Sending Email - Should Update Retry")
+		return errors.New("Failed Sending Email - Should Update Retry")
 	})
 	So(e, ShouldNotBeNil)
 
 	e = queue.Consume(ctx, func(email *mailer.Mail) error {
-		return fmt.Errorf("Failed Sending Email - Should Update Retry _ 2")
+		return errors.New("Failed Sending Email - Should Update Retry _ 2")
 	})
 	So(e, ShouldNotBeNil)
 

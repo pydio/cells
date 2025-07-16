@@ -22,8 +22,8 @@ package merger
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/model"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -98,7 +98,7 @@ func (o *patchOperation) UnmarshalJSON(bytes []byte) error {
 		o.InternalStatus = mo.InternalStatus
 		o.Processed = mo.Processed
 		if mo.ProcessingErrorString != "" {
-			o.processingError = fmt.Errorf(mo.ProcessingErrorString)
+			o.processingError = errors.New(mo.ProcessingErrorString)
 		}
 	}
 	return nil

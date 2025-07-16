@@ -28,6 +28,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/pydio/cells/v5/common/config/revisions"
+	"github.com/pydio/cells/v5/common/errors"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 )
@@ -62,7 +63,7 @@ func (r *revs) unmarshallVersion(id int64, data []byte) (*revisions.Version, err
 	}
 	rev, ok := raw["revision"]
 	if !ok {
-		return nil, fmt.Errorf("cannot find 'revision' key in data")
+		return nil, errors.New("cannot find 'revision' key in data")
 	}
 
 	rm, _ := json.Marshal(rev)
@@ -121,7 +122,7 @@ func (r *revs) Retrieve(id uint64) (*revisions.Version, error) {
 	for _, kv := range resp.Kvs {
 		return r.unmarshallVersion(kv.Version, kv.Value)
 	}
-	return nil, fmt.Errorf("version not found")
+	return nil, errors.New("version not found")
 
 }
 

@@ -1,9 +1,8 @@
 package keyring
 
 import (
-	"fmt"
-
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type configProvider struct {
@@ -13,7 +12,7 @@ type configProvider struct {
 var (
 	// ErrNotFound is the expected error if the secret isn't found in the
 	// keyring.
-	ErrNotFound = fmt.Errorf("secret not found in keyring")
+	ErrNotFound = errors.New("secret not found in keyring")
 )
 
 // Set stores user and pass in the keyring under the defined service

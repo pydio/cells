@@ -22,11 +22,11 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -123,7 +123,7 @@ func (f *FlatSnapshot) GetEndpointInfo() model.EndpointInfo {
 func loadSnapshot(ctx context.Context, client model.Endpoint, storageKey, fsPath string) error {
 	reader, ok := client.(model.DataSyncSource)
 	if !ok {
-		return fmt.Errorf("client must implement DataSyncSource")
+		return errors.New("client must implement DataSyncSource")
 	}
 	tgt, e := os.OpenFile(fsPath, os.O_CREATE|os.O_WRONLY, 0755)
 	if e != nil {
@@ -143,7 +143,7 @@ func writeSnapshot(client model.Endpoint, fsPath, storageKey string) error {
 
 	target, ok := client.(model.DataSyncTarget)
 	if !ok {
-		return fmt.Errorf("client must implement DataSyncTarget")
+		return errors.New("client must implement DataSyncTarget")
 	}
 	stat, e := os.Stat(fsPath)
 	if e != nil {
@@ -178,7 +178,7 @@ func writeSnapshot(client model.Endpoint, fsPath, storageKey string) error {
 func deleteSnapshot(client model.Endpoint, storageKey string) error {
 	target, ok := client.(model.DataSyncTarget)
 	if !ok {
-		return fmt.Errorf("client must implement DataSyncTarget")
+		return errors.New("client must implement DataSyncTarget")
 	}
 	return target.DeleteNode(context.Background(), storageKey)
 }

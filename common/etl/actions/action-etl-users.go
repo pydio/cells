@@ -22,12 +22,12 @@ package actions
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/etl"
 	"github.com/pydio/cells/v5/common/etl/models"
 	"github.com/pydio/cells/v5/common/forms"
@@ -171,7 +171,7 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 
 		cellAdmin, ok := c.params["cellAdmin"]
 		if !ok {
-			er := fmt.Errorf("missing 'cellAdmin' parameter")
+			er := errors.New("missing 'cellAdmin' parameter")
 			return input.WithError(er), er
 		}
 

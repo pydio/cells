@@ -23,7 +23,6 @@ package put
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"path"
 	"strconv"
@@ -177,7 +176,7 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			data, _ := io.ReadAll(test)
 			log.Logger(ctx).Error("Cannot override the content of .pydio as it already has the ID " + string(data))
 			test.Close()
-			return models.ObjectInfo{}, fmt.Errorf("do not override folder uuid")
+			return models.ObjectInfo{}, errors.New("do not override folder uuid")
 		}
 		return m.Next.PutObject(ctx, node, reader, requestData)
 	}
@@ -307,7 +306,7 @@ func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		},
 	})
 	if err != nil {
-		return models.MultipartObjectPart{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
+		return models.MultipartObjectPart{}, errors.New("cannot find initial multipart node, this is not normal")
 	}
 
 	if partNumberMarker == 1 && requestData.ContentTypeUnknown() {
@@ -328,7 +327,7 @@ func (m *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uplo
 		},
 	})
 	if err != nil {
-		return models.ObjectInfo{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
+		return models.ObjectInfo{}, errors.New("cannot find initial multipart node, this is not normal")
 	}
 	target.Uuid = resp.GetNode().GetUuid()
 	target.Size = resp.GetNode().GetSize()

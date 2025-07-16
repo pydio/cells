@@ -25,7 +25,6 @@ package snapshot
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -128,7 +127,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 		s.db.Update(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
-				return fmt.Errorf("cannot find root bucket")
+				return errors.New("cannot find root bucket")
 			}
 			for _, node := range s.sortByKey(creates) {
 				b.Put([]byte(node.GetPath()), s.marshal(node))
@@ -177,7 +176,7 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 	e := s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
-			return fmt.Errorf("cannot find root bucket")
+			return errors.New("cannot find root bucket")
 		}
 		s.createsSessionLock.Lock()
 		for _, node := range s.sortByKey(s.createsSession) {
@@ -200,7 +199,7 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 		return s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
-				return fmt.Errorf("cannot find root bucket")
+				return errors.New("cannot find root bucket")
 			}
 			s.createsSessionLock.Lock()
 			defer s.createsSessionLock.Unlock()
@@ -227,7 +226,7 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 		er := s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
-				return fmt.Errorf("cannot find root bucket")
+				return errors.New("cannot find root bucket")
 			}
 			// Create parents if necessary
 			dir := strings.Trim(path.Dir(node.GetPath()), "/")
@@ -257,7 +256,7 @@ func (s *BoltSnapshot) DeleteNode(ctx context.Context, path string) (err error) 
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
-			return fmt.Errorf("cannot find root bucket")
+			return errors.New("cannot find root bucket")
 		}
 		if d := b.Get([]byte(path)); d != nil {
 			b.Delete([]byte(path))
@@ -280,7 +279,7 @@ func (s *BoltSnapshot) MoveNode(ctx context.Context, oldPath string, newPath str
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
-			return fmt.Errorf("cannot find root bucket")
+			return errors.New("cannot find root bucket")
 		}
 		var moves [][]byte
 		if d := b.Get([]byte(oldPath)); d != nil {
@@ -456,7 +455,7 @@ func (s *BoltSnapshot) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, r
 }
 
 func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
-	return nil, fmt.Errorf("not.implemented")
+	return nil, errors.New("not.implemented")
 }
 
 func (s *BoltSnapshot) marshal(node tree.N) []byte {

@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 )
 
@@ -72,7 +73,7 @@ EXAMPLE
 	),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userProfileLogin == "" {
-			return fmt.Errorf("Please provide a valid username (login)")
+			return errors.New("Please provide a valid username (login)")
 		}
 
 		if userTargetProfile != "" {

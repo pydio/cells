@@ -17,7 +17,6 @@ package grpcpubsub
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/url"
 	"strings"
 	"sync"
@@ -345,7 +344,7 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 	}
 
 	if cli == nil {
-		return nil, fmt.Errorf("please pass a shared subscriber in the subscription options")
+		return nil, errors.New("please pass a shared subscriber in the subscription options")
 	}
 
 	req := &pb.SubscribeRequest{

@@ -22,7 +22,6 @@ package mc
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -34,6 +33,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/s3utils"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -91,7 +91,7 @@ func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, c
 	} else if signatureVersion == "v2" {
 		creds = credentials.NewStaticV2(accessKey, secretKey, "")
 	} else {
-		return nil, fmt.Errorf("unsupported signature version, please provide 'v2' or 'v4'")
+		return nil, errors.New("unsupported signature version, please provide 'v2' or 'v4'")
 	}
 
 	options := &minio.Options{

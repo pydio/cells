@@ -22,8 +22,8 @@ package auth
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 )
@@ -37,7 +37,7 @@ type LockVerifier struct{}
 
 func (l LockVerifier) Verify(ctx context.Context, user *idm.User) error {
 	if permissions.IsUserLocked(user) {
-		return fmt.Errorf("user is locked")
+		return errors.New("user is locked")
 	}
 	return nil
 }

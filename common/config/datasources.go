@@ -82,7 +82,7 @@ func GetSourceInfoByName(ctx context.Context, dsName string) (*object.DataSource
 	c := Get(ctx, standard.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName))
 	if e := c.Scan(&conf); e == nil {
 		if conf == nil {
-			return nil, fmt.Errorf("cannot load source by name " + dsName)
+			return nil, errors.New("cannot load source by name " + dsName)
 		}
 		return conf, nil
 	} else {

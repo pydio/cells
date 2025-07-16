@@ -22,7 +22,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
@@ -73,7 +72,7 @@ func checkOIDCPolicies(ctx context.Context, user *idm.User) error {
 	}
 
 	if !allow {
-		return fmt.Errorf("access denied by oidc policy denies access")
+		return errors.New("access denied by oidc policy denies access")
 	}
 
 	return nil

@@ -21,10 +21,10 @@
 package sql
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/idm/oauth"
 )
@@ -49,7 +49,7 @@ func (m *MemDAO) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 	if t, o := m.tokens[accessToken]; o {
 		return t, nil
 	} else {
-		return nil, fmt.Errorf("not.found")
+		return nil, errors.New("not.found")
 	}
 }
 

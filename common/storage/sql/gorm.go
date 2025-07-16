@@ -19,6 +19,7 @@ import (
 	otel "gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/controller"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -91,7 +92,7 @@ func cleanDSN(dsn string, vars map[string]string, parserType string) (string, er
 		query := u.Query()
 		driver := query.Get("driver")
 		if driver == "" {
-			return "", fmt.Errorf("please provide a driver parameter for gorm scheme")
+			return "", errors.New("please provide a driver parameter for gorm scheme")
 		}
 		query.Del("driver")
 		// Replace scheme

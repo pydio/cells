@@ -26,6 +26,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
@@ -189,7 +190,7 @@ func (p *ProcessingStatus) UnmarshalJSON(data []byte) error {
 			p.s = s.(string)
 		}
 		if ie, ok := m["IsError"]; ok && ie.(bool) {
-			p.e = fmt.Errorf(p.s)
+			p.e = errors.New(p.s)
 		}
 		if u, ok := m["EndpointURI"]; ok {
 			p.uri = u.(string)

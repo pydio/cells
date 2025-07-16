@@ -177,13 +177,13 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		case ".tar.gz":
 			format = tarGzFormat
 		default:
-			e := fmt.Errorf("could not detect archive format from file name " + base)
-			return input.WithError(e), e
+			er := fmt.Errorf("could not detect archive format from file name %s", base)
+			return input.WithError(er), er
 		}
 	}
 	// Final check for format
 	if format != zipFormat && format != tarFormat && format != tarGzFormat {
-		er := fmt.Errorf("unsupported archive format")
+		er := fmt.Errorf("unsupported archive format %s", format)
 		return input.WithError(er), er
 	}
 	// Remove extension

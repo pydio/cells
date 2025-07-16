@@ -27,6 +27,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 )
 
@@ -62,7 +63,7 @@ func (c *Client) ListBuckets(ctx context.Context) (bb []models.BucketInfo, e err
 
 func (c *Client) MakeBucket(ctx context.Context, bucketName string, location string) (err error) {
 	if _, ok := c.Buckets[bucketName]; ok {
-		return fmt.Errorf("bucket already exists")
+		return errors.New("bucket already exists")
 	}
 	c.Buckets[bucketName] = map[string]mockObject{}
 	return nil
@@ -77,7 +78,7 @@ func (c *Client) RemoveBucket(ctx context.Context, bucketName string) error {
 }
 
 func (c *Client) BucketNotifications(ctx context.Context, bucketName string, prefix string, events []string) (<-chan interface{}, error) {
-	return nil, fmt.Errorf("not implemented")
+	return nil, errors.New("not implemented")
 }
 
 func (c *Client) BucketTags(ctx context.Context, bucketName string) (map[string]string, error) {
@@ -96,7 +97,7 @@ func (c *Client) GetObject(ctx context.Context, bucketName, objectName string, o
 	if object, ok := bucket[objectName]; ok {
 		return newReadCloser(object.contents), models.ObjectInfo{Size: int64(len(object.contents))}, nil
 	} else {
-		return nil, models.ObjectInfo{}, fmt.Errorf("object not found")
+		return nil, models.ObjectInfo{}, errors.New("object not found")
 	}
 }
 
@@ -108,7 +109,7 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 	if object, ok := bucket[objectName]; ok {
 		return object.ObjectInfo, nil
 	} else {
-		return models.ObjectInfo{}, fmt.Errorf("object not found")
+		return models.ObjectInfo{}, errors.New("object not found")
 	}
 }
 
@@ -144,7 +145,7 @@ func (c *Client) RemoveObject(ctx context.Context, bucketName, objectName string
 		return fmt.Errorf("bucket not found %s", bucketName)
 	}
 	if _, ok := bucket[objectName]; !ok {
-		return fmt.Errorf("object not found")
+		return errors.New("object not found")
 	}
 	delete(bucket, objectName)
 	return nil
@@ -167,41 +168,41 @@ func (c *Client) ListObjects(ctx context.Context, bucketName, prefix, marker, de
 }
 
 func (c *Client) NewMultipartUpload(ctx context.Context, bucket, object string, opts models.PutMeta) (uploadID string, err error) {
-	return "", fmt.Errorf("not.implemented")
+	return "", errors.New("not.implemented")
 }
 
 func (c *Client) ListMultipartUploads(ctx context.Context, bucket, prefix, keyMarker, uploadIDMarker, delimiter string, maxUploads int) (result models.ListMultipartUploadsResult, err error) {
-	return result, fmt.Errorf("not.implemented")
+	return result, errors.New("not.implemented")
 }
 
 func (c *Client) ListObjectParts(ctx context.Context, bucketName, objectName, uploadID string, partNumberMarker, maxParts int) (models.ListObjectPartsResult, error) {
-	return models.ListObjectPartsResult{}, fmt.Errorf("not.implemented")
+	return models.ListObjectPartsResult{}, errors.New("not.implemented")
 }
 
 func (c *Client) CompleteMultipartUpload(ctx context.Context, bucket, object, uploadID string, parts []models.MultipartObjectPart) (string, error) {
-	return "", fmt.Errorf("not.implemented")
+	return "", errors.New("not.implemented")
 }
 
 func (c *Client) PutObjectPart(ctx context.Context, bucket, object, uploadID string, partID int, data io.Reader, size int64, md5Base64, sha256Hex string) (models.MultipartObjectPart, error) {
-	return models.MultipartObjectPart{}, fmt.Errorf("not.implemented")
+	return models.MultipartObjectPart{}, errors.New("not.implemented")
 }
 
 func (c *Client) AbortMultipartUpload(ctx context.Context, bucket, object, uploadID string) error {
-	return fmt.Errorf("not.implemented")
+	return errors.New("not.implemented")
 }
 
 func (c *Client) CopyObject(ctx context.Context, sourceBucket, sourceObject, destBucket, destObject string, srcMeta, metadata map[string]string, progress io.Reader) (models.ObjectInfo, error) {
 	srcBucket, ok := c.Buckets[sourceBucket]
 	if !ok {
-		return models.ObjectInfo{}, fmt.Errorf("src bucket not found")
+		return models.ObjectInfo{}, errors.New("src bucket not found")
 	}
 	srcObjBytes, ok2 := srcBucket[sourceObject]
 	if !ok2 {
-		return models.ObjectInfo{}, fmt.Errorf("src object not found")
+		return models.ObjectInfo{}, errors.New("src object not found")
 	}
 	dstBucket, ok3 := c.Buckets[destBucket]
 	if !ok3 {
-		return models.ObjectInfo{}, fmt.Errorf("dest bucket not found")
+		return models.ObjectInfo{}, errors.New("dest bucket not found")
 	}
 	cc := make([]byte, len(srcObjBytes.contents))
 	copy(cc, srcObjBytes.contents)
@@ -214,7 +215,7 @@ func (c *Client) CopyObjectMultipartThreshold() int64 {
 }
 
 func (c *Client) CopyObjectMultipart(ctx context.Context, srcObject models.ObjectInfo, srcBucket, srcPath, destBucket, destPath string, meta map[string]string, progress io.Reader) error {
-	return fmt.Errorf("not.implemented")
+	return errors.New("not.implemented")
 }
 
 type mockReadCloser struct {

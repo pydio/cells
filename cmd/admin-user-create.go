@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path"
 
@@ -31,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/service"
@@ -69,7 +69,7 @@ EXAMPLES
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userCreateLogin == "" {
-			return fmt.Errorf("Provide at least a user login")
+			return errors.New("Provide at least a user login")
 		}
 
 		return nil

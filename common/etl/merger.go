@@ -30,6 +30,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/etl/models"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -442,7 +443,7 @@ func (m *Merger) Create(ctx context.Context, obj interface{}) error {
 		return m.Target.PutShare(ctx, v)
 	}
 
-	return fmt.Errorf("Type not creatable")
+	return errors.New("Type not creatable")
 }
 
 func (m *Merger) Update(ctx context.Context, obj interface{}) error {
@@ -451,7 +452,7 @@ func (m *Merger) Update(ctx context.Context, obj interface{}) error {
 		return m.Target.PutACL(ctx, v)
 	}
 
-	return fmt.Errorf("Type not updateable")
+	return errors.New("Type not updateable")
 }
 
 func (m *Merger) Delete(ctx context.Context, obj interface{}) error {
@@ -460,7 +461,7 @@ func (m *Merger) Delete(ctx context.Context, obj interface{}) error {
 		return m.Target.DeleteACL(ctx, v)
 	}
 
-	return fmt.Errorf("Type not deletable")
+	return errors.New("Type not deletable")
 }
 
 func (m *Merger) Save(ctx context.Context, diff merger.Diff, progress chan MergeOperation) {

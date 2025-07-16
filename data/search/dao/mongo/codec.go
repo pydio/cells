@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/meta"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/storage/indexer"
@@ -111,7 +112,7 @@ func (m *Codex) Marshal(input interface{}) (interface{}, error) {
 func (m *Codex) Unmarshal(indexed interface{}) (interface{}, error) {
 	cursor, ok := indexed.(*mongo.Cursor)
 	if !ok {
-		return nil, fmt.Errorf("Codex.Unmarshal: not a mongo cursor")
+		return nil, errors.New("Codex.Unmarshal: not a mongo cursor")
 	}
 	result := &tree.IndexableNode{}
 	if e := cursor.Decode(result); e == nil {

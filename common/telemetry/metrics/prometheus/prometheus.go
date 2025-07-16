@@ -31,6 +31,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	otelprom "go.opentelemetry.io/otel/exporters/prometheus"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
@@ -77,7 +78,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (metrics.ReaderProvide
 			password, _ = u.User.Password()
 		}
 		if login == "" || password == "" {
-			return nil, fmt.Errorf("please set a username/password in ENV using CELLS_METRICS_BASIC_AUTH or in URL")
+			return nil, errors.New("please set a username/password in ENV using CELLS_METRICS_BASIC_AUTH or in URL")
 		}
 		return &httpProvider{
 			Reader:   promExporter,

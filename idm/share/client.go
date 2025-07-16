@@ -571,7 +571,7 @@ func (sc *Client) DeleteCell(ctx context.Context, id string, ownerUUID string) e
 		}
 	}
 	if ownerUUID == "" {
-		return fmt.Errorf("cannot find original owner UUID")
+		return errors.New("cannot find original owner UUID")
 	}
 
 	log.Logger(ctx).Debug("Delete share room", zap.Any("workspaceId", id))

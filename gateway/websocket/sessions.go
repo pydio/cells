@@ -23,7 +23,6 @@ package websocket
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/olahol/melody"
 	"go.uber.org/zap"
@@ -32,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
 	"github.com/pydio/cells/v5/common/permissions"
@@ -125,11 +125,11 @@ func ClearSession(session *melody.Session) {
 func prepareRemoteContext(parent context.Context, session *melody.Session) (context.Context, error) {
 	claims, o1 := session.Get(SessionClaimsKey)
 	if !o1 {
-		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
+		return nil, errors.New("unexpected error: websocket session has no claims")
 	}
 	cc, o2 := claims.(claim.Claims)
 	if !o2 {
-		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
+		return nil, errors.New("unexpected error: websocket session has no claims")
 	}
 	metaCtx := claim.ToContext(parent, cc)
 	metaCtx = runtime.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)

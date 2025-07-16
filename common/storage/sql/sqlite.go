@@ -32,6 +32,7 @@ import (
 	sqlite "github.com/glebarez/go-sqlite"
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 
 	_ "github.com/glebarez/sqlite"
@@ -69,7 +70,7 @@ func init() {
 		input, ok := args[0].(string)
 		if !ok {
 			// If the argument isn't a string, return an empty string or handle the error accordingly
-			return "", fmt.Errorf("invalid argument type, string expected")
+			return "", errors.New("invalid argument type, string expected")
 		}
 		hash := sha1.New()                            // Create a new SHA1 hash instance
 		hash.Write([]byte(input))                     // Compute SHA1 hash
@@ -82,7 +83,7 @@ func init() {
 		delimiter, ok2 := args[1].(string)
 		count, ok3 := args[2].(int64)
 		if !ok1 || !ok2 || !ok3 {
-			return "", fmt.Errorf("invalid argument types")
+			return "", errors.New("invalid argument types")
 		}
 
 		// Call the substringIndex function

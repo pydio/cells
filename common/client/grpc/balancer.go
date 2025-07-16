@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"strings"
 	"sync"
@@ -114,7 +113,7 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 		serviceName = strings.Join(md.Get(common.CtxTargetServiceName), "")
 	}
 	if serviceName == "" {
-		return balancer.PickResult{}, fmt.Errorf("cannot find targetName in context")
+		return balancer.PickResult{}, errors.New("cannot find targetName in context")
 	}
 	pc, ok := p.pConns[serviceName]
 	if !ok {

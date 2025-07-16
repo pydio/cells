@@ -22,7 +22,6 @@ package websocket
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -35,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/proto/chat"
@@ -100,7 +100,7 @@ func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEv
 		buff, _ = protojson.Marshal(wsMessage)
 
 	} else {
-		return fmt.Errorf("Event should provide at least a Msg or a Room")
+		return errors.New("Event should provide at least a Msg or a Room")
 	}
 
 	return c.Websocket.BroadcastFilter(buff, func(session *melody.Session) bool {
@@ -445,7 +445,7 @@ func (c *ChatHandler) findOrCreateRoom(ctx context.Context, room *chat.ChatRoom,
 		return nil, e1
 	}
 	if resp.Room == nil {
-		return nil, fmt.Errorf("nil room in response, this is not normal")
+		return nil, errors.New("nil room in response, this is not normal")
 	}
 	return resp.Room, nil
 

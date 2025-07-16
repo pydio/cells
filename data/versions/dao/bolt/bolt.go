@@ -23,7 +23,6 @@ package bolt
 import (
 	"context"
 	"encoding/binary"
-	"fmt"
 	"slices"
 
 	"go.etcd.io/bbolt"
@@ -308,5 +307,5 @@ func (b *BoltStore) unmarshalRevision(bb []byte) (r *tree.ContentRevision, e err
 			Location:    cLog.Location,
 		}, nil
 	}
-	return nil, fmt.Errorf("invalid format (tree.ContentRevision or tree.ChangeLog expected)")
+	return nil, errors.New("invalid format (tree.ContentRevision or tree.ChangeLog expected)")
 }

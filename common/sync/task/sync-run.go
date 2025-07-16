@@ -150,7 +150,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 					n, er := ep.LoadNode(ctx, op.GetRefPath())
 					if er == nil || n != nil {
 						// This is not normal - this node should not exist
-						return fmt.Errorf("detected delete of existing node " + op.GetRefPath())
+						return errors.New("detected delete of existing node " + op.GetRefPath())
 					}
 				}
 			}

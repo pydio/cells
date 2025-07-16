@@ -22,7 +22,6 @@ package nodes
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path"
@@ -244,7 +243,7 @@ func (h *HandlerMock) MultipartListObjectParts(ctx context.Context, target *tree
 }
 
 func (h *HandlerMock) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...grpc.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
-	return nil, fmt.Errorf("not.implemented")
+	return nil, errors.New("not.implemented")
 }
 
 func (h *HandlerMock) ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilterFunc) error {

@@ -22,13 +22,13 @@ package prometheus
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 	"time"
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -157,7 +157,7 @@ func (g *metricsServer) watchTargets(ctx context.Context, serviceName, filePath 
 	*/
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
-		return fmt.Errorf("cannot find registry in context")
+		return errors.New("cannot find registry in context")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

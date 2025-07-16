@@ -22,10 +22,10 @@ package mock
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -453,7 +453,7 @@ type Receiver struct {
 
 func (r *Receiver) Next() (interface{}, error) {
 	<-r.stop
-	return nil, fmt.Errorf("watcher closed")
+	return nil, errors.New("watcher closed")
 }
 
 func (r *Receiver) Stop() {

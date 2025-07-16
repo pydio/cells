@@ -23,7 +23,6 @@ package mailer
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -49,7 +48,7 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 
 	gm.User = conf.Val("user").String()
 	if gm.User == "" {
-		return fmt.Errorf("cannot configure mailer: missing compulsory user name")
+		return errors.New("cannot configure mailer: missing compulsory user name")
 	}
 
 	gm.Password = conf.Val("clearPass").Default("NOT_SET").String()
@@ -58,17 +57,17 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 	}
 
 	if gm.Password == "NOT_SET" {
-		return fmt.Errorf("cannot configure mailer: missing compulsory password")
+		return errors.New("cannot configure mailer: missing compulsory password")
 	}
 
 	gm.Host = conf.Val("host").String()
 	if gm.Host == "" {
-		return fmt.Errorf("cannot configure mailer: missing compulsory host address")
+		return errors.New("cannot configure mailer: missing compulsory host address")
 	}
 
 	gm.Port = conf.Val("port").Int()
 	if gm.Port == 0 {
-		return fmt.Errorf("cannot configure mailer: missing compulsory port")
+		return errors.New("cannot configure mailer: missing compulsory port")
 	}
 
 	if loc := conf.Val("localName").Default("").String(); loc != "" {

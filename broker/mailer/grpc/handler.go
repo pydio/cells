@@ -185,7 +185,7 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 	c := func(em *proto.Mail) error {
 		if em == nil {
 			log.Logger(ctx).Error("ConsumeQueue: trying to send empty email")
-			return fmt.Errorf("cannot send empty email")
+			return errors.New("cannot send empty email")
 		}
 		counter++
 		return sender.Send(ctx, em)

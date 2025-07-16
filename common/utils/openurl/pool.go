@@ -250,7 +250,7 @@ func (m *Pool[T]) Get(ctx context.Context, resolutionData ...map[string]interfac
 	}
 
 	var res T
-	return res, fmt.Errorf("cannot resolve")
+	return res, errors.New("cannot resolve")
 }
 
 func (m *Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interface{}) (bool, error) {
@@ -285,7 +285,7 @@ func (m *Pool[T]) Del(ctx context.Context, resolutionData ...map[string]interfac
 
 		return false, nil
 	}
-	return false, fmt.Errorf("cannot resolve")
+	return false, errors.New("cannot resolve")
 }
 
 // Close closes all underlying resources

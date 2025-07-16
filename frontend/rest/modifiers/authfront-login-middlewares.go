@@ -97,7 +97,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 				log.GetAuditId(common.AuditLoginPolicyDenial),
 				zap.String(common.KeyUserUuid, user.Uuid),
 			)
-			log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(fmt.Errorf("blocked login")))
+			log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(errors.New("blocked login")))
 			return errors.WithAPICode(errors.UserLocked, errors.ApiUserLocked, "login", user.Login)
 		}
 

@@ -26,9 +26,9 @@ package activity
 
 import (
 	"context"
-	"fmt"
 	"time"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/activity"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
@@ -107,7 +107,7 @@ func QueryFieldsTransformer(s string) (string, error) {
 	case "objectName":
 		return "object.name", nil
 	}
-	return s, fmt.Errorf("unrecognized field name for query")
+	return s, errors.New("unrecognized field name for query")
 }
 
 func Migrate(ctx, fromCtx, toCtx context.Context, dryRun bool, status chan service.MigratorStatus) (map[string]int, error) {

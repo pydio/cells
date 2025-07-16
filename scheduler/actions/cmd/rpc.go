@@ -187,11 +187,11 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 
 	}
 	if methodDescriptor == nil {
-		er := fmt.Errorf("cannot find corresponding service/method for " + methodName)
+		er := fmt.Errorf("cannot find corresponding service/method for %s", methodName)
 		return input.WithError(er), er
 	}
 	if methodDescriptor.IsStreamingClient() {
-		er := fmt.Errorf("StreamingClient is not supported in this action")
+		er := fmt.Errorf("StreamingClient is not supported in this action %s", c.GetName())
 		return input.WithError(er), er
 	}
 

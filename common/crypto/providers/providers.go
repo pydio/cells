@@ -22,8 +22,8 @@ package providers
 
 import (
 	"crypto/tls"
-	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 )
 
@@ -34,7 +34,7 @@ type CertProvider interface {
 func LoadCertificates(config *install.ProxyConfig, storageURL string) (certFile string, certKey string, err error) {
 
 	if !config.HasTLS() {
-		return "", "", fmt.Errorf("no TLS config found")
+		return "", "", errors.New("no TLS config found")
 	}
 
 	if config.GetSelfSigned() != nil {
@@ -49,7 +49,7 @@ func LoadCertificates(config *install.ProxyConfig, storageURL string) (certFile 
 
 func LoadTLSServerConfig(config *install.ProxyConfig, storageURL string) (*tls.Config, error) {
 	if !config.HasTLS() {
-		return nil, fmt.Errorf("no TLS config found")
+		return nil, errors.New("no TLS config found")
 	}
 	c, k, e := LoadCertificates(config, storageURL)
 	if e != nil {

@@ -549,7 +549,7 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 		query := u.Query()
 		driver := query.Get("driver")
 		if driver == "" {
-			return "", fmt.Errorf("please provide a driver parameter for gorm scheme")
+			return "", errors.New("please provide a driver parameter for gorm scheme")
 		}
 		query.Del("driver")
 		// Replace scheme

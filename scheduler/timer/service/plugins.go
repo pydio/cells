@@ -24,17 +24,19 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v5/common/telemetry/log"
-	"go.uber.org/zap"
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/server/generic"
 	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/scheduler/timer"
 )
 
@@ -101,7 +103,7 @@ func init() {
 							}
 							return nil
 						} else {
-							return fmt.Errorf("cannot find info in broker event context")
+							return errors.New("cannot find info in broker event context")
 						}
 					}
 					return nil

@@ -21,11 +21,11 @@
 package idm
 
 import (
-	"fmt"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/service"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/std"
@@ -125,7 +125,7 @@ func (m *WorkspaceSingleQuery) matches(ws *Workspace) bool {
 func (m *WorkspaceSingleQuery) ParseLastUpdated() (lt bool, d time.Duration, e error) {
 	firstChar := m.LastUpdated[0:1]
 	if firstChar != "<" && firstChar != ">" {
-		e = fmt.Errorf("please start with < or > character")
+		e = errors.New("please start with < or > character")
 		return
 	}
 	lt = firstChar == ">" // Duration bigger than => date lower than
@@ -235,7 +235,7 @@ func (m *UserSingleQuery) matches(user *User) bool {
 func (m *UserSingleQuery) ParseLastConnected() (lt bool, d time.Duration, e error) {
 	firstChar := m.ConnectedSince[0:1]
 	if firstChar != "<" && firstChar != ">" {
-		e = fmt.Errorf("please start with < or > character")
+		e = errors.New("please start with < or > character")
 		return
 	}
 	lt = firstChar == ">"

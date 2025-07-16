@@ -390,7 +390,7 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 
 // ComputeChecksum is not implemented
 func (c *Abstract) ComputeChecksum(ctx context.Context, node tree.N) error {
-	return fmt.Errorf("not.implemented")
+	return errors.New("not.implemented")
 }
 
 // CreateNode is used for creating folders only

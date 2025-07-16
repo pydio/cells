@@ -268,7 +268,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		if statErrors > 0 {
 			// There are some missing children, this copy/move operation will fail - interrupt now
 			publishError(sourceDs, sourceNode.Path)
-			return fmt.Errorf("errors found while copy/move node, stopping")
+			return errors.New("errors found while copy/move node, stopping")
 		}
 
 		if len(children) > 0 {
@@ -593,7 +593,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 				}
 			}
 			if Is403(moveErr) {
-				moveErr = fmt.Errorf("some original objects are not allowed to be deleted") // replace by a non-403 to trigger error
+				moveErr = errors.New("some original objects are not allowed to be deleted") // replace by a non-403 to trigger error
 			} else {
 				publishError(sourceDs, childNode.Path)
 			}

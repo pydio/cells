@@ -25,7 +25,6 @@ import (
 	"archive/zip"
 	"compress/gzip"
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path"
@@ -274,7 +273,7 @@ func (a *Reader) ExtractAllZip(ctx context.Context, archiveNode *tree.Node, targ
 			uncompressed += int64(file.UncompressedSize64)
 			if uncompressed/archiveSize > maxRatio {
 				log.Auditer(ctx).Error("Decompression of archive " + archiveNode.GetPath() + " was interrupted because compression ratio seems too high. It could be a zip bomb. You can set the defaults/archiveMaxRatio value to override default threshold (100).")
-				return fmt.Errorf("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
+				return errors.New("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
 			}
 
 			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &models.PutRequestData{Size: int64(file.UncompressedSize64)})
@@ -518,7 +517,7 @@ func (a *Reader) ExtractAllTar(ctx context.Context, gzipFormat bool, archiveNode
 			uncompressed += file.Size
 			if uncompressed/archiveSize > maxRatio {
 				log.Auditer(ctx).Error("Decompression of archive " + archiveNode.GetPath() + " was interrupted because compression ratio seems too high. It could be a tar bomb. You can set the defaults/archiveMaxRatio value to override default threshold (100).")
-				return fmt.Errorf("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
+				return errors.New("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
 			}
 			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &models.PutRequestData{Size: file.Size})
 			if nodes.Is403(err) {

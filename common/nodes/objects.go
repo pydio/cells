@@ -22,9 +22,9 @@ package nodes
 
 import (
 	"context"
-	"fmt"
 	"io"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/nodes/objects/mock"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -81,7 +81,7 @@ func NewStorageClient(cfg configx.Values) (StorageClient, error) {
 	if provider, ok := storageClientsRegistry[name]; ok {
 		return provider(cfg)
 	} else {
-		return nil, fmt.Errorf("unknown storage client type " + name + ", did you forget to register provider?")
+		return nil, errors.New("unknown storage client type " + name + ", did you forget to register provider?")
 	}
 }
 

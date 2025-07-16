@@ -257,7 +257,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 		_, _ = w.Write([]byte("Unauthorized.\n"))
 		return nil
 	} else {
-		return fmt.Errorf("[auth] " + e.Error())
+		return errors.New("[auth] " + e.Error())
 	}
 
 	log.Logger(ctx).Debug("After Auth", zap.Duration("time", time.Since(t)))
@@ -292,7 +292,7 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 	topRouter := dav.RouterWithOptionalPrefix(h.runtimeContext)
 	davPath, innerPrefix, er := h.davFindPath(r, topRouter, ws, inputPath)
 	if er != nil {
-		return fmt.Errorf("[404] cannot find dav path")
+		return errors.New("[404] cannot find dav path")
 	}
 
 	davPrefix := path.Join(common.DefaultRoutePublic, linkId, GetPublicBaseDavSegment(ctx))
@@ -350,11 +350,11 @@ func (h *PublicHandler) davAuthenticate(r *http.Request, linkData *docstore.Shar
 		userName := linkData.PresetLogin
 		_, p, o := r.BasicAuth()
 		if !o {
-			return nil, fmt.Errorf("missing password information"), true
+			return nil, errors.New("missing password information"), true
 		}
 		djv := auth.DefaultJWTVerifier()
 		if _, err := djv.PasswordCredentialsToken(ctx, userName, p); err != nil {
-			return nil, fmt.Errorf("invalid password"), true
+			return nil, errors.New("invalid password"), true
 		}
 		aa, user, er := permissions.AccessListFromUser(ctx, userName, false)
 		if er != nil {
@@ -364,7 +364,7 @@ func (h *PublicHandler) davAuthenticate(r *http.Request, linkData *docstore.Shar
 		ctx = acl.WithPresetACL(ctx, aa)
 		r = r.WithContext(ctx)
 	} else {
-		return nil, fmt.Errorf("unsupported auth method, should be one of prelog or preset"), false
+		return nil, errors.New("unsupported auth method, should be one of prelog or preset"), false
 	}
 	return r, nil, false
 }

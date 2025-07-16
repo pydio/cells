@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	grpccli "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/encryption"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -108,7 +109,7 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 			}
 			return
 		} else if resp.MinioConfig == nil {
-			cErr = fmt.Errorf("empty config")
+			cErr = errors.New("empty config")
 			if serviceCallback != nil {
 				serviceCallback("object", false, "Object not ready: "+cErr.Error())
 			} else {
@@ -182,9 +183,9 @@ func CheckSubServices(ctx context.Context, syncConfig *object.DataSource, cb ...
 	if cErr != nil {
 		cErr = fmt.Errorf("objects not reachable: %v", cErr)
 	} else if minioConfig == nil || oc == nil {
-		cErr = fmt.Errorf("objects not reachable")
+		cErr = errors.New("objects not reachable")
 	} else if !indexOK {
-		cErr = fmt.Errorf("index not reachable")
+		cErr = errors.New("index not reachable")
 	}
 
 	return
@@ -203,7 +204,7 @@ func InitEndpoints(ctx context.Context, syncConfig *object.DataSource, clientRea
 
 	var source model.PathSyncSource
 	if syncConfig.Watch {
-		return nil, nil, nil, fmt.Errorf("datasource watch is not implemented yet")
+		return nil, nil, nil, errors.New("datasource watch is not implemented yet")
 	}
 	options := model.EndpointOptions{}
 	bucketTags, o1 := syncConfig.StorageConfiguration[object.StorageKeyBucketsTags]

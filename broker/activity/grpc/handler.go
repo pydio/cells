@@ -21,7 +21,6 @@
 package grpc
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -65,7 +64,7 @@ func (h *Handler) PostActivity(stream proto.ActivityService_PostActivityServer) 
 		case "outbox":
 			boxName = activity.BoxOutbox
 		default:
-			return fmt.Errorf("unrecognized box name")
+			return errors.New("unrecognized box name")
 		}
 		if e := dao.PostActivity(ctx, request.OwnerType, request.OwnerId, boxName, request.Activity, true); e != nil {
 			return e
@@ -177,7 +176,7 @@ func (h *Handler) SearchSubscriptions(request *proto.SearchSubscriptionsRequest,
 	var userId string
 	var objectType = proto.OwnerType_NODE
 	if len(request.ObjectIds) == 0 {
-		return fmt.Errorf("please provide one or more object id")
+		return errors.New("please provide one or more object id")
 	}
 	if len(request.UserIds) > 0 {
 		userId = request.UserIds[0]
@@ -225,7 +224,7 @@ func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLa
 	} else if request.BoxName == "lastsent" {
 		boxName = activity.BoxLastSent
 	} else {
-		return nil, fmt.Errorf("invalid box name")
+		return nil, errors.New("invalid box name")
 	}
 
 	if err := dao.StoreLastUserInbox(ctx, request.UserId, boxName, request.ActivityId); err == nil {

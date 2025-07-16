@@ -438,7 +438,7 @@ func (apiStore *ApiStore) PutShare(ctx context.Context, s *models.SyncShare) err
 }
 
 func (apiStore *ApiStore) CrossLoadShare(ctx context.Context, syncShare *models.SyncShare, target models.ReadableStore, params map[string]interface{}) error {
-	return fmt.Errorf("not implemented")
+	return errors.New("not implemented")
 }
 
 func (apiStore *ApiStore) GetUserInfo(ctx context.Context, userName string, params map[string]interface{}) (u *idm.User, aclCtxt context.Context, e error) {
@@ -480,7 +480,7 @@ func (apiStore *ApiStore) GetGroupInfo(ctx context.Context, groupPath string, pa
 		return resp.User, nil
 	}
 	log.Logger(ctx).Debug("Corresponding group not found " + groupPath)
-	return nil, fmt.Errorf("not found")
+	return nil, errors.New("not found")
 
 }
 

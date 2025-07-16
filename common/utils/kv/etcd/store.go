@@ -234,7 +234,7 @@ func (m *Store) Set(data interface{}) error {
 }
 
 func (m *Store) Del() error {
-	return fmt.Errorf("not implemented")
+	return errors.New("not implemented")
 }
 
 func (m *Store) save(ctx context.Context) {

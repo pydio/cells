@@ -848,7 +848,7 @@ func (m *manager) initServers(ctx context.Context, store configx.Values, base st
 			}
 		}
 		if scheme == "" {
-			return fmt.Errorf("missing 'type' key for server declaration")
+			return errors.New("missing 'type' key for server declaration")
 		}
 
 		srv, err := server.OpenServer(ctx, scheme+"://")

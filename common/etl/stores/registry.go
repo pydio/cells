@@ -22,8 +22,8 @@ package stores
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/etl/models"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 )
@@ -76,7 +76,7 @@ func LoadReadableStore(name string, options *Options) (models.ReadableStore, err
 			return readableStore, nil
 		}
 	}
-	return nil, fmt.Errorf("cannot find readable store " + name)
+	return nil, errors.New("cannot find readable store " + name)
 }
 
 // LoadWritableStore finds a writable store by its name
@@ -90,5 +90,5 @@ func LoadWritableStore(name string, options *Options) (models.WritableStore, err
 			return writableStore, nil
 		}
 	}
-	return nil, fmt.Errorf("cannot find writeable store " + name)
+	return nil, errors.New("cannot find writeable store " + name)
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 )
 
@@ -51,7 +52,7 @@ EXAMPLE
 `, os.Args[0]),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userUnlockLogin == "" {
-			return fmt.Errorf("Missing arguments")
+			return errors.New("Missing arguments")
 		}
 		return nil
 	},

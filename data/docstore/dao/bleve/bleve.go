@@ -22,7 +22,6 @@ package bleve
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
@@ -149,7 +148,7 @@ func (s *BleveServer) Reset() error {
 
 func (s *BleveServer) CountDocuments(ctx context.Context, storeID string, query *proto.DocumentQuery) (int, error) {
 	if query == nil || query.MetaQuery == "" {
-		return 0, fmt.Errorf("Provide a query for count")
+		return 0, errors.New("Provide a query for count")
 	}
 	docIds, _, err := s.search(ctx, storeID, query, true)
 	if err != nil {

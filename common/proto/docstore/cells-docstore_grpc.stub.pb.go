@@ -9,6 +9,7 @@ package docstore
 import (
 	context "context"
 	fmt "fmt"
+	"github.com/pydio/cells/v5/common/errors"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	time "time"
@@ -56,7 +57,7 @@ func (s *DocStoreStub) Invoke(ctx context.Context, method string, args interface
 			e = er
 		}
 	default:
-		e = fmt.Errorf(method + " not implemented")
+		e = errors.New(method + " not implemented")
 	}
 	return e
 }
@@ -77,7 +78,7 @@ func (s *DocStoreStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, met
 		})
 		return st, nil
 	}
-	return nil, fmt.Errorf(method + "  not implemented")
+	return nil, errors.New(method + "  not implemented")
 }
 
 type DocStoreStub_ListDocumentsStreamer struct {
