@@ -1,0 +1,103 @@
+{
+  "Job.Version.Title": {
+    "other": "Event Based Job for replicating data for versioning"
+  },
+  "Job.Version.StatusFile": {
+    "other": "Created version {{.Uuid}} inside version bucket "
+  },
+  "Job.Version.StatusMeta": {
+    "other": "Created version metadata for {{.Uuid}}"
+  },
+  "Job.Version.StatusPrune": {
+    "one": "Pruned {{.Count}} version",
+    "other": "Pruned {{.Count}} versions"
+  },
+  "Job.Pruning.Title": {
+    "other": "Cleaning versions files for deleted nodes"
+  },
+  "Job.Pruning.StatusDone": {
+    "one": "Successfully removed {{.Count}} version",
+    "other": "Successfully removed {{.Count}} versions."
+  },
+  "Config.GroupPolicy.Title": {
+    "other": "Policy"
+  },
+  "Config.GroupPolicy.Name.Label": {
+    "other": "Name"
+  },
+  "Config.GroupPolicy.Name.Description": {
+    "other": "Policy Name"
+  },
+  "Config.GroupPolicy.Description.Label": {
+    "other": "Description"
+  },
+  "Config.GroupPolicy.Description.Description": {
+    "other": "Policy description"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Label": {
+    "other": "Store"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Description": {
+    "other": "DataSource used to store versions"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
+    "other": "Bucket"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
+    "other": "Bucket used inside this datasource"
+  },
+  "Config.GroupSizes.Title": {
+    "other": "Size Limits"
+  },
+  "Config.GroupSizes.MaxTotalSize.Label": {
+    "other": "Global size of all versions kept in this bucket"
+  },
+  "Config.GroupSizes.MaxTotalSize.Description": {
+    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Label": {
+    "other": "Cumulated sizes for versions of one given file"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Description": {
+    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
+    "other": "Ignore files greater than..."
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
+    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+  },
+  "Config.GroupRetention.Title": {
+    "other": "Retention Periods"
+  },
+  "Config.GroupRetention.Description": {
+    "other": "Number of versions to keep per period"
+  },
+  "Config.GroupRetention.IntervalStart.Name": {
+    "other": "Period Start"
+  },
+  "Config.GroupRetention.IntervalStart.Description": {
+    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+  },
+  "Config.GroupRetention.MaxNumber.Name": {
+    "other": "Maximum Number of Versions"
+  },
+  "Config.GroupRetention.MaxNumber.Description": {
+    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "After original file deletion"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Number of versions to keep after original file deletion."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Backup all existing versions"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Backup most recent version only"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Delete all existing versions"
+  }
+}
