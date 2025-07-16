@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/update"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -85,7 +86,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		}
 	}
 	if apply == nil {
-		return nil, fmt.Errorf("cannot find the requested version")
+		return nil, errors.New("cannot find the requested version")
 	}
 
 	log.Logger(ctx).Info("Updating binary now", zap.String("PackageName", apply.PackageName), zap.String("Version", apply.Version), zap.String("URL", apply.BinaryURL))

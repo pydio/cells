@@ -21,8 +21,7 @@
 package util
 
 import (
-	"fmt"
-
+	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -57,7 +56,7 @@ func (s *chanStatusWatcher) Next() (registry.Item, error) {
 			}
 			return ToGeneric(gen, &pb.Generic{Type: pb.ItemType_STATS}), nil
 		case <-s.exit:
-			return nil, fmt.Errorf("watcher stopped")
+			return nil, errors.New("watcher stopped")
 		}
 	}
 }

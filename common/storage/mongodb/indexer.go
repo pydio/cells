@@ -29,6 +29,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -66,7 +67,7 @@ func (i *Indexer) SetCollection(c string) {
 
 func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	if i.collection == "" {
-		return fmt.Errorf("indexer must provide a collection name")
+		return errors.New("indexer must provide a collection name")
 	}
 
 	if i.codec != nil {
@@ -104,7 +105,7 @@ func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 		indexId = p.IndexID()
 	}
 	if indexId == "" {
-		return fmt.Errorf("data must be a string or an IndexIDProvider")
+		return errors.New("data must be a string or an IndexIDProvider")
 	}
 	conn := i.Collection(i.collection)
 	_, er := conn.DeleteOne(ctx, bson.M{i.collectionModel.IDName: indexId})
@@ -118,7 +119,7 @@ func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, err
 	}
 	filters, ok := request.([]bson.E)
 	if !ok {
-		return 0, fmt.Errorf("cannot cast filter")
+		return 0, errors.New("cannot cast filter")
 	}
 	filter := bson.D{}
 	filter = append(filter, filters...)
@@ -171,7 +172,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	if request != nil {
 		filters, ok := request.([]bson.E)
 		if !ok {
-			return nil, fmt.Errorf("cannot cast filter")
+			return nil, errors.New("cannot cast filter")
 		}
 		filter := bson.D{}
 		filter = append(filter, filters...)
@@ -231,7 +232,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 }
 
 func (i *Indexer) Resync(ctx context.Context, logger func(string)) error {
-	return fmt.Errorf("resync is not implemented on the mongo indexer")
+	return errors.New("resync is not implemented on the mongo indexer")
 }
 
 type CollStats struct {
@@ -248,7 +249,7 @@ func (i *Indexer) collectionStats(ctx context.Context) (*CollStats, error) {
 	}
 	exp := &CollStats{}
 	if e := res.Decode(exp); e != nil {
-		return nil, fmt.Errorf("cannot read collection statistics to truncate based on size")
+		return nil, errors.New("cannot read collection statistics to truncate based on size")
 	}
 	return exp, nil
 }
@@ -263,7 +264,7 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 
 	if max > 0 {
 		if i.collectionModel.TruncateSorterDesc == "" {
-			return fmt.Errorf("collection model must declare a TruncateSorterDesc field to support this operation")
+			return errors.New("collection model must declare a TruncateSorterDesc field to support this operation")
 		}
 		exp, er := i.collectionStats(ctx)
 		if er != nil {
@@ -275,7 +276,7 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 			return nil
 		}
 		if exp.AvgObjSize == 0 {
-			return fmt.Errorf("cannot read record average size to truncate based on size")
+			return errors.New("cannot read record average size to truncate based on size")
 		}
 
 		targetCount := int64(float64(max) / float64(exp.AvgObjSize))
@@ -293,11 +294,11 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 		cur.Next(ctx)
 		var record map[string]interface{}
 		if er := cur.Decode(&record); er != nil {
-			return fmt.Errorf("cannot decode first referecence record")
+			return errors.New("cannot decode first referecence record")
 		}
 		ref, ok := record[i.collectionModel.TruncateSorterDesc]
 		if !ok {
-			return fmt.Errorf("cannot locate correct record for deletion")
+			return errors.New("cannot locate correct record for deletion")
 		}
 
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Will truncate table based on the following condition %s<%v", i.collectionModel.TruncateSorterDesc, ref))
@@ -363,7 +364,7 @@ func (i *Indexer) NewBatch(ctx context.Context, opts ...indexer.BatchOption) (in
 				indexId = p.IndexID()
 			}
 			if indexId == "" {
-				return fmt.Errorf("data must be a string or an IndexIDProvider")
+				return errors.New("data must be a string or an IndexIDProvider")
 			}
 			deletes = append(deletes, indexId)
 

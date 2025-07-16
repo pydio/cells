@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/pydio/cells/v5/common/errors"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/net"
 )
@@ -214,11 +215,11 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				if d, o := v.(string); o {
 					m.Binds = append(m.Binds, d)
 				} else {
-					return fmt.Errorf("unexpected type for Binds item (expected string)")
+					return errors.New("unexpected type for Binds item (expected string)")
 				}
 			}
 		} else {
-			return fmt.Errorf("unexpected type for Binds (expected array)")
+			return errors.New("unexpected type for Binds (expected array)")
 		}
 	}
 	if u, o := data[getKey("Routing")]; o {
@@ -230,11 +231,11 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				if er := json.Unmarshal(mm, rule); er == nil {
 					m.Routing = append(m.Routing, rule)
 				} else {
-					return fmt.Errorf("unexpected type for Routes item (expected Route type)")
+					return errors.New("unexpected type for Routes item (expected Route type)")
 				}
 			}
 		} else {
-			return fmt.Errorf("unexpected type for Routes (expected array)")
+			return errors.New("unexpected type for Routes (expected array)")
 		}
 	}
 	if u, o := data[getKey("HeaderMods")]; o {
@@ -246,25 +247,25 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				if er := json.Unmarshal(mm, rule); er == nil {
 					m.HeaderMods = append(m.HeaderMods, rule)
 				} else {
-					return fmt.Errorf("unexpected type for HeaderMods item (expected HeaderMod type)")
+					return errors.New("unexpected type for HeaderMods item (expected HeaderMod type)")
 				}
 			}
 		} else {
-			return fmt.Errorf("unexpected type for HeaderMods (expected array)")
+			return errors.New("unexpected type for HeaderMods (expected array)")
 		}
 	}
 	if u, o := data[getKey("SSLRedirect")]; o {
 		if b, o := u.(bool); o {
 			m.SSLRedirect = b
 		} else {
-			return fmt.Errorf("unexpected type for SSLRedirect (expected bool)")
+			return errors.New("unexpected type for SSLRedirect (expected bool)")
 		}
 	}
 	if u, o := data[getKey("ReverseProxyURL")]; o {
 		if b, o := u.(string); o {
 			m.ReverseProxyURL = b
 		} else {
-			return fmt.Errorf("unexpected type for ReverseProxyURL (expected string)")
+			return errors.New("unexpected type for ReverseProxyURL (expected string)")
 		}
 	}
 	if t, o := data[getKey("TLSConfig")]; o {
@@ -274,13 +275,13 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				uu := mapInterface2mapString(u)
 				r, e := json.Marshal(uu)
 				if e != nil {
-					return fmt.Errorf("cannot remarsh data")
+					return errors.New("cannot remarsh data")
 				}
 				selfSigned := TLSSelfSigned{}
 				if e := json.Unmarshal(r, &selfSigned); e == nil {
 					m.TLSConfig = &ProxyConfig_SelfSigned{SelfSigned: &selfSigned}
 				} else {
-					return fmt.Errorf("unexpected type for SelfSigned (expected TLSSelfSigned)")
+					return errors.New("unexpected type for SelfSigned (expected TLSSelfSigned)")
 				}
 			} else if u, o := tls[getKey("LetsEncrypt")]; o {
 				uu := mapInterface2mapString(u)
@@ -289,7 +290,7 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				if e := json.Unmarshal(r, &le); e == nil {
 					m.TLSConfig = &ProxyConfig_LetsEncrypt{LetsEncrypt: le}
 				} else {
-					return fmt.Errorf("unexpected type for SelfSigned (expected TLSSelfSigned)")
+					return errors.New("unexpected type for SelfSigned (expected TLSSelfSigned)")
 				}
 			} else if u, o := tls[getKey("Certificate")]; o {
 				uu := mapInterface2mapString(u)
@@ -298,7 +299,7 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				if e := json.Unmarshal(r, &cert); e == nil {
 					m.TLSConfig = &ProxyConfig_Certificate{Certificate: cert}
 				} else {
-					return fmt.Errorf("unexpected type for SelfSigned (expected TLSSelfSigned)")
+					return errors.New("unexpected type for SelfSigned (expected TLSSelfSigned)")
 				}
 			}
 		}
@@ -308,7 +309,7 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 		if b, o := u.(bool); o {
 			m.Maintenance = b
 		} else {
-			return fmt.Errorf("unexpected type for Maintenance (expected bool)")
+			return errors.New("unexpected type for Maintenance (expected bool)")
 		}
 	}
 	if u, o := data[getKey("MaintenanceConditions")]; o {
@@ -317,11 +318,11 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 				if d, o := v.(string); o {
 					m.MaintenanceConditions = append(m.MaintenanceConditions, d)
 				} else {
-					return fmt.Errorf("unexpected type for MaintenanceConditions item (expected string)")
+					return errors.New("unexpected type for MaintenanceConditions item (expected string)")
 				}
 			}
 		} else {
-			return fmt.Errorf("unexpected type for MaintenanceConditions (expected array)")
+			return errors.New("unexpected type for MaintenanceConditions (expected array)")
 		}
 	}
 

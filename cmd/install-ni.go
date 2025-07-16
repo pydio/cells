@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/discovery/install/lib"
@@ -103,7 +104,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	} else if niLeEmailContact != "" {
 
 		if !niLeAcceptEula {
-			return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
+			return nil, errors.New("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
 		}
 
 		tlsConf := &install.ProxyConfig_LetsEncrypt{
@@ -183,7 +184,7 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 			}
 			cPath := strings.Split(k, "/")
 			if e := config.Set(ctx, val, cPath...); e != nil {
-				return nil, fmt.Errorf("could not set value for config key " + k)
+				return nil, errors.New("could not set value for config key " + k)
 			}
 		}
 		if e := config.Save(ctx, common.PydioSystemUsername, "Setting custom configs from installation file"); e != nil {
@@ -219,7 +220,7 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 		}
 		if i == nbRetry-1 {
 			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection configuration.")
-			return nil, fmt.Errorf("No DB. Aborting...")
+			return nil, errors.New("No DB. Aborting...")
 		}
 		fmt.Println("... Cannot connect to database, wait before retry")
 		<-time.After(10 * time.Second)
@@ -272,7 +273,7 @@ func unmarshallConf() (*NiInstallConfig, error) {
 	}
 
 	if confFromFile.ProxyConfig != nil && len(confFromFile.ProxyConfigs) > 0 {
-		return nil, fmt.Errorf("Use one of proxyConfig or proxyConfigs keys, but not both")
+		return nil, errors.New("Use one of proxyConfig or proxyConfigs keys, but not both")
 	}
 
 	if confFromFile.ProxyConfig != nil {

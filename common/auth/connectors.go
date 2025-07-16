@@ -22,11 +22,11 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
@@ -72,7 +72,7 @@ func ScanConnectors(ctx context.Context, values configx.Values) ([]ConnectorConf
 func OpenConnector(ctx context.Context, id, name, connectorType string, data proto.Message) (ConnectorConfig, error) {
 	openerFunc, ok := connectorTypes[connectorType]
 	if !ok {
-		return nil, fmt.Errorf("could not retrieve opener func")
+		return nil, errors.New("could not retrieve opener func")
 	}
 
 	opener, err := openerFunc(data)

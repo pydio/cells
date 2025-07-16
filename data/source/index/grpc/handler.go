@@ -429,7 +429,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				var ok bool
 				receivedErr, ok = obj.(error)
 				if !ok {
-					receivedErr = fmt.Errorf("unknown error")
+					receivedErr = errors.New("unknown error")
 				}
 				break
 			}
@@ -608,7 +608,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 			if !ok {
 				treeErr, ok = obj.(error)
 				if !ok {
-					treeErr = fmt.Errorf("unknown error")
+					treeErr = errors.New("unknown error")
 				}
 				break
 			}

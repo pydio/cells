@@ -22,10 +22,11 @@ package stubs
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type MuxService struct {
@@ -41,24 +42,24 @@ func (m *MuxService) Register(serviceName string, conn grpc.ClientConnInterface)
 
 func (m *MuxService) Invoke(ctx context.Context, method string, args interface{}, reply interface{}, opts ...grpc.CallOption) error {
 	if m.servers == nil {
-		return fmt.Errorf("mux service not has no registers")
+		return errors.New("mux service not has no registers")
 	}
 	srvName := strings.Split(strings.TrimLeft(method, "/"), "/")[0]
 	if conn, ok := m.servers[srvName]; ok {
 		return conn.Invoke(ctx, method, args, reply, opts...)
 	} else {
-		return fmt.Errorf("cannot find associated service for " + srvName)
+		return errors.New("cannot find associated service for " + srvName)
 	}
 }
 
 func (m *MuxService) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 	if m.servers == nil {
-		return nil, fmt.Errorf("mux service not has no registers")
+		return nil, errors.New("mux service not has no registers")
 	}
 	srvName := strings.Split(strings.TrimLeft(method, "/"), "/")[0]
 	if conn, ok := m.servers[srvName]; ok {
 		return conn.NewStream(ctx, desc, method, opts...)
 	} else {
-		return nil, fmt.Errorf("cannot find associated service for " + srvName)
+		return nil, errors.New("cannot find associated service for " + srvName)
 	}
 }

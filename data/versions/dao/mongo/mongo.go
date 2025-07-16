@@ -231,5 +231,5 @@ func (m *MongoStore) decodeRevision(d Decoder) (*tree.ContentRevision, error) {
 			Location:    cLog.Location,
 		}, nil
 	}
-	return nil, fmt.Errorf("invalid format (tree.ContentRevision or tree.ChangeLog expected)")
+	return nil, errors.New("invalid format (tree.ContentRevision or tree.ChangeLog expected)")
 }

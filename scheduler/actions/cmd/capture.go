@@ -163,7 +163,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	dd := input.GetDataSources()
 	if len(dd) == 0 {
-		er := fmt.Errorf("action expects at list one item in Input.DataSources")
+		er := errors.New("action expects at list one item in Input.DataSources")
 		return input.WithError(er), er
 	}
 	dsName := dd[0].Name

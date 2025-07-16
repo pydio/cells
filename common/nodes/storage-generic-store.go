@@ -22,10 +22,10 @@ package nodes
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
@@ -48,9 +48,9 @@ func GetGenericStoreClientConfig(ctx context.Context, storeNamespace string) (da
 	dataSource = c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
 	bucket = c.Val("bucket").String()
 	if dataSource == "" {
-		e = fmt.Errorf("cannot find datasource for generic store config " + configKey)
+		e = errors.New("cannot find datasource for generic store config " + configKey)
 	} else if bucket == "" {
-		e = fmt.Errorf("cannot find bucket for generic store config " + configKey)
+		e = errors.New("cannot find bucket for generic store config " + configKey)
 	}
 	return
 }

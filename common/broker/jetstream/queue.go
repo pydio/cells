@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
 	"net/url"
 	"time"
 
@@ -35,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/crypto"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/controller"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -63,7 +63,7 @@ type streamOpener struct{}
 func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	streamName := u.Query().Get("name")
 	if streamName == "" {
-		return nil, fmt.Errorf("missing query parameter 'name' for opening queue")
+		return nil, errors.New("missing query parameter 'name' for opening queue")
 	}
 	if srv := u.Query().Get("serviceName"); srv != "" {
 		streamName = srv + "/" + streamName

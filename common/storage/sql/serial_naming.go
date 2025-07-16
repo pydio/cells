@@ -8,6 +8,8 @@ import (
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"gorm.io/gorm/schema"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 // EnumSerial is a gorm serializer to store proto.Enum as string instead of integer
@@ -41,7 +43,7 @@ func (e EnumSerial) Value(ctx context.Context, field *schema.Field, dst reflect.
 	if f, ok := fieldValue.(fmt.Stringer); ok {
 		return []byte(f.String()), nil
 	}
-	return fieldValue, fmt.Errorf("value does not implement .String() method")
+	return fieldValue, errors.New("value does not implement .String() method")
 }
 
 // BoolInt is a gorm serializer to store booleans as integers

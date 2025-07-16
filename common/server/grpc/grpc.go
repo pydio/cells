@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/crypto/providers"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/install"
@@ -207,7 +208,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 
 	listener := opts.Listener
 	if listener == nil {
-		return nil, fmt.Errorf("should have a listener")
+		return nil, errors.New("should have a listener")
 	}
 
 	var externalAddr string

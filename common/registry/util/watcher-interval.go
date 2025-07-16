@@ -21,9 +21,9 @@
 package util
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -58,7 +58,7 @@ func (s *statusWatcher) Next() (registry.Item, error) {
 
 			return item, nil
 		case <-s.exit:
-			return nil, fmt.Errorf("watcher stopped")
+			return nil, errors.New("watcher stopped")
 		}
 	}
 }
@@ -104,7 +104,7 @@ func (s *statsWatcher) Next() (registry.Item, error) {
 			}
 			return ToGeneric(gen, &pb.Generic{Type: pb.ItemType_STATS}), nil
 		case <-s.exit:
-			return nil, fmt.Errorf("watcher stopped")
+			return nil, errors.New("watcher stopped")
 		}
 	}
 }

@@ -23,8 +23,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,6 +40,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -226,7 +225,7 @@ ENVIRONMENT
 			// make sure default bind is set here
 			proxyConf = installConf.GetProxyConfig()
 			if len(proxyConf.Binds) == 0 {
-				fatalIfError(cmd, fmt.Errorf("no bind was found in default site, non interactive install probably has a wrong format"))
+				fatalIfError(cmd, errors.New("no bind was found in default site, non interactive install probably has a wrong format"))
 			}
 
 			if niExitAfterInstall {

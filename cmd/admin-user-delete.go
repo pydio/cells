@@ -26,6 +26,8 @@ import (
 
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 var userLogin string
@@ -49,7 +51,7 @@ EXAMPLE
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(userLogin) == 0 {
-			return fmt.Errorf("missing argument: please provide a user id")
+			return errors.New("missing argument: please provide a user id")
 			// return errors.BadRequest(common.SERVICE_USER, "missing argument: please provide a user id")
 		}
 		return nil

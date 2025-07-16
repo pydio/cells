@@ -265,7 +265,7 @@ func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {
 	// Then we get the service from the context
 	var svc service.Service
 	if !propagator.Get(ctx, service.ContextKey, &svc) {
-		return fmt.Errorf("resolve cannot find service &svc in context")
+		return errors.New("resolve cannot find service &svc in context")
 	}
 
 	//ss := reg.ListAdjacentItems(

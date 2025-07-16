@@ -208,7 +208,7 @@ func (t *TreeNode) PrintTree() string {
 	if len(ops) > 0 {
 		op = "\t\t ** " + strings.Join(ops, "|")
 	}
-	s := fmt.Sprintf(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op + "\n")
+	s := fmt.Sprint(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op + "\n")
 	for _, c := range t.SortedChildren() {
 		s += c.PrintTree()
 	}

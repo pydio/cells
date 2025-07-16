@@ -185,7 +185,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	displayMemStat(ctx, "START RESIZE")
 	// Open the test image.
 	if !node.HasSource() {
-		return nil, fmt.Errorf("node does not have enough metadata for Resize (missing Source data)")
+		return nil, errors.New("node does not have enough metadata for Resize (missing Source data)")
 	}
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Getting object content", zap.String("Path", node.Path), zap.Int64("Size", node.Size))

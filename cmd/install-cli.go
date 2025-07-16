@@ -424,7 +424,7 @@ func promptDocumentsDSN(ctx context.Context, c *install.InstallConfig) error {
 		}
 		c.DocumentsDSN = driver + "://" + fpath
 	default:
-		return fmt.Errorf("unsupported driver type")
+		return errors.New("unsupported driver type")
 	}
 	return nil
 }
@@ -433,14 +433,14 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 
 	login := p.Prompt{Label: "Admin Login (leave empty if you want to use existing admin)", Default: "", Validate: func(s string) error {
 		if s != "" && strings.ToLower(s) != s {
-			return fmt.Errorf("Use lowercase characters only for login")
+			return errors.New("Use lowercase characters only for login")
 		}
 		return nil
 	}}
 	pwd := p.Prompt{Label: "Admin Password", Mask: '*'}
 	pwd2 := p.Prompt{Label: "Confirm Password", Mask: '*', Validate: func(s string) error {
 		if c.FrontendPassword != s {
-			return fmt.Errorf("Passwords differ! Change confirmation or hit Ctrl+C to change first value.")
+			return errors.New("Passwords differ! Change confirmation or hit Ctrl+C to change first value.")
 		}
 		return nil
 	}}
@@ -680,14 +680,14 @@ func applyAdditionalPrompt(ctx context.Context, step string, i *install.InstallC
 
 func validateMailFormat(input string) error {
 	if !emailRegexp.MatchString(input) {
-		return fmt.Errorf("Please enter a valid e-mail address!")
+		return errors.New("Please enter a valid e-mail address!")
 	}
 	return nil
 }
 
 func notEmpty(input string) error {
 	if len(input) == 0 {
-		return fmt.Errorf("Field cannot be empty!")
+		return errors.New("Field cannot be empty!")
 	}
 	return nil
 }
@@ -698,7 +698,7 @@ func validHostPort(input string) error {
 	}
 	parts := strings.Split(input, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
+		return errors.New("Please use an [IP|DOMAIN]:[PORT] string")
 	}
 	if e := validPortNumber(parts[1]); e != nil {
 		return e
@@ -714,7 +714,7 @@ func validScheme(input string) error {
 
 	u, err := url.Parse(input)
 	if err != nil {
-		return fmt.Errorf("could not parse URL")
+		return errors.New("could not parse URL")
 	}
 
 	if len(u.Scheme) > 0 && len(u.Host) > 0 {
@@ -724,13 +724,13 @@ func validScheme(input string) error {
 		return fmt.Errorf("scheme %s is not supported (only http/https are supported)", u.Scheme)
 	}
 
-	return fmt.Errorf("Please use a [SCHEME]://[IP|DOMAIN] string")
+	return errors.New("Please use a [SCHEME]://[IP|DOMAIN] string")
 }
 
 func validPortNumber(input string) error {
 	port, e := strconv.ParseInt(input, 10, 64)
 	if e == nil && port == 0 {
-		return fmt.Errorf("Please use a non empty port!")
+		return errors.New("Please use a non empty port!")
 	}
 	return e
 }

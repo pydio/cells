@@ -26,10 +26,12 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/model"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -568,7 +570,7 @@ func TestMisc(t *testing.T) {
 			Node:            &tree.Node{Uuid: "u1", Path: "folder"},
 			patch:           patch,
 			Dir:             OperationDirRight,
-			processingError: fmt.Errorf("fake.error"),
+			processingError: errors.New("fake.error"),
 		})
 
 		// Test enqueue is properly ignored
@@ -597,7 +599,7 @@ func TestMisc(t *testing.T) {
 		So(parsed, ShouldContainKey, "Stats")
 		So(parsed, ShouldContainKey, "Root")
 
-		patch.SetError(fmt.Errorf("fake.patch.error"))
+		patch.SetError(errors.New("fake.patch.error"))
 		e, o = patch.HasErrors()
 		So(o, ShouldBeTrue)
 		So(e, ShouldHaveLength, 1)

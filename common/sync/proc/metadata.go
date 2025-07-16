@@ -22,9 +22,9 @@ package proc
 
 import (
 	"context"
-	"fmt"
 	"path"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
@@ -35,7 +35,7 @@ func (pr *Processor) processMetadata(canceler context.Context, operation merger.
 	if mr, ok := operation.Target().(model.MetadataReceiver); ok {
 		opNode := operation.GetNode()
 		if opNode == nil {
-			return fmt.Errorf("cannot find operation node for operating on metadata")
+			return errors.New("cannot find operation node for operating on metadata")
 		}
 		protoNode := &tree.Node{}
 		var parentUuid, parentPath string
@@ -44,7 +44,7 @@ func (pr *Processor) processMetadata(canceler context.Context, operation merger.
 			parentPath = protoNode.GetStringMeta(merger.MetaNodeParentPathMeta)
 		}
 		if parentUuid == "" {
-			return fmt.Errorf("cannot find parent Uuid for operating on Metadata")
+			return errors.New("cannot find parent Uuid for operating on Metadata")
 		}
 		switch operation.Type() {
 		case merger.OpCreateMeta:

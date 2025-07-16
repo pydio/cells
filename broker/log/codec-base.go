@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -58,7 +59,7 @@ func (b *BaseCodec) Marshal(input interface{}) (interface{}, error) {
 	case *log.LogMessage:
 		return &IndexableLog{LogMessage: v}, nil
 	default:
-		return nil, fmt.Errorf("unrecognized type")
+		return nil, errors.New("unrecognized type")
 	}
 	return msg, nil
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/pydio/cells/v5/common/client"
 	grpc2 "github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/proto/rest"
@@ -124,7 +125,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		proxyTarget, e := m.b.PickService(common.ServiceGatewayGrpc)
 		if e != nil {
 			http.NotFound(w, r)
-			return false, fmt.Errorf("cannot find grpc gateway")
+			return false, errors.New("cannot find grpc gateway")
 		}
 		proxy := m.getProxy(proxyTarget)
 		// We assume that internally, the GRPCs service is serving self-signed

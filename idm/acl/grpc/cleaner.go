@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	service "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -82,7 +83,7 @@ func NewNodesCleaner(ctx context.Context, h *Handler) *NodesCleaner {
 func (c *NodesCleaner) getQueue(ctx context.Context) (broker.AsyncQueue, func() (bool, error), error) {
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-		return nil, nil, fmt.Errorf("no manager in context")
+		return nil, nil, errors.New("no manager in context")
 	}
 	data := map[string]interface{}{
 		"debounce": "750ms",

@@ -39,6 +39,7 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/math"
 	"github.com/pydio/cells/v5/common/utils/std"
@@ -571,7 +572,7 @@ func (m *Query) ParseDurationDate(ref ...time.Time) error {
 
 	firstChar := m.DurationDate[0:1]
 	if firstChar != "<" && firstChar != ">" {
-		return fmt.Errorf("DurationDate must start with < or > character")
+		return errors.New("DurationDate must start with < or > character")
 	}
 	ds := strings.TrimSpace(m.DurationDate[1:])
 	var d time.Duration

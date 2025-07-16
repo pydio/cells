@@ -22,13 +22,13 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/log"
 	log2 "github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -38,11 +38,11 @@ type opener struct{}
 
 func (o *opener) OpenSync(ctx context.Context, u *url.URL) (log2.WriteSyncerCloser, error) {
 	if log2.ReadyLogSyncerContext == nil {
-		return nil, fmt.Errorf("logSyncerContext not ready yet")
+		return nil, errors.New("logSyncerContext not ready yet")
 	}
 	serviceName := u.Query().Get("service")
 	if serviceName == "" {
-		return nil, fmt.Errorf("logger service:// must provide a ?service query parameter")
+		return nil, errors.New("logger service:// must provide a ?service query parameter")
 	}
 	sCtx := propagator.ForkContext(log2.ReadyLogSyncerContext, ctx)
 	return NewLogSyncer(sCtx, serviceName), nil

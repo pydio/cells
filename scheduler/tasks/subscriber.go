@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/chat"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -88,7 +89,7 @@ func (s *Subscriber) getAsyncQueue(ctx context.Context, topic string) (q broker.
 	}
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-		return nil, fmt.Errorf("[susbscriber.getAsyncQueue] cannot find manager in context")
+		return nil, errors.New("[susbscriber.getAsyncQueue] cannot find manager in context")
 	}
 	consumer := func(q broker.AsyncQueue) (broker.AsyncQueue, error) {
 		return q, q.Consume(func(ctx context.Context, message ...broker.Message) {

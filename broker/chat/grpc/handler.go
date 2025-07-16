@@ -170,7 +170,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 					return
 				}
 				if msg.Author != m.Author {
-					err = fmt.Errorf("cannot edit message from a different user")
+					err = errors.New("cannot edit message from a different user")
 					return
 				}
 				matches = true
@@ -190,7 +190,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 				return
 			})
 			if err == nil && newMessage == nil {
-				err = fmt.Errorf("cannot find message")
+				err = errors.New("cannot find message")
 			}
 		} else {
 			newMessage, err = dao.PostMessage(ctx, m)

@@ -216,7 +216,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 
 	if dsName == "" {
 		log.Logger(context.Background()).Error("Entered GetDataSourceInfo with an empty dsName", zap.Stack("stack"))
-		return LoadedSource{}, fmt.Errorf("empty dsName")
+		return LoadedSource{}, errors.New("empty dsName")
 	}
 
 	if dsName == "default" {
@@ -263,7 +263,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 
 	} else {
 
-		e := fmt.Errorf("Could not find DataSource " + dsName)
+		e := errors.New("Could not find DataSource " + dsName)
 		var keys []string
 		p.RLock()
 		for k := range p.sources {

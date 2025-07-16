@@ -182,7 +182,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		if maxSize, e := strconv.ParseInt(strSize, 10, 64); e == nil {
 			er = repo.Truncate(ctx, maxSize, l)
 		} else {
-			er = fmt.Errorf("wrong format for truncate (use bytesize)")
+			er = errors.New("wrong format for truncate (use bytesize)")
 		}
 		closeTask(ctx, er)
 		return &sync.ResyncResponse{}, er

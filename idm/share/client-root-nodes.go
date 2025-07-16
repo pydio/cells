@@ -317,7 +317,7 @@ func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerUser *idm.
 		return er
 	}
 	if !strings.HasPrefix(resp.Node.GetPath(), parentNode.GetPath()) {
-		return fmt.Errorf("resolved root node is not a cells template path child, this is not normal")
+		return errors.New("resolved root node is not a cells template path child, this is not normal")
 	}
 
 	log.Logger(ctx).Info("Cell Deletion implies removing custom node", resp.Node.Zap())

@@ -28,6 +28,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
@@ -73,10 +74,10 @@ func (s *TreeServer) Search(request *tree.SearchRequest, stream tree.Searcher_Se
 	ctx := stream.Context()
 	q := request.GetQuery()
 	if q == nil {
-		return fmt.Errorf("request.Query should not be nil")
+		return errors.New("request.Query should not be nil")
 	}
 	if q.Content != "" {
-		return fmt.Errorf("this service does not support request.Query.Content")
+		return errors.New("this service does not support request.Query.Content")
 	}
 
 	listReq := &tree.ListNodesRequest{

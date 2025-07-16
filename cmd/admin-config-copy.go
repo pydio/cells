@@ -22,12 +22,11 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
-	"github.com/manifoldco/promptui"
 	"math"
 	"os"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v5/common"
@@ -79,12 +78,12 @@ EXAMPLE
 			if revProvider, ok := from.(config.RevisionsProvider); ok {
 				from, versionsFrom = revProvider.AsRevisionsStore()
 			} else {
-				return fmt.Errorf("source config is not a RevisionsProvider")
+				return errors.New("source config is not a RevisionsProvider")
 			}
 			if revProvider, ok := to.(config.RevisionsProvider); ok {
 				to, _ = revProvider.AsRevisionsStore()
 			} else {
-				return fmt.Errorf("target config is not a RevisionsProvider")
+				return errors.New("target config is not a RevisionsProvider")
 			}
 			vv, er := versionsFrom.List(0, math.MaxUint64)
 			if er != nil {

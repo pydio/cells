@@ -2,7 +2,6 @@ package viper
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -15,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/watch"
@@ -178,7 +178,7 @@ func (m *viperStore) Default(d any) configx.Values {
 }
 
 func (m *viperStore) Del() error {
-	return fmt.Errorf("not implemented")
+	return errors.New("not implemented")
 }
 
 func (f *viperStore) As(out any) bool { return false }

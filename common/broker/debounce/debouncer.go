@@ -22,7 +22,6 @@ package debounce
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -32,6 +31,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common/broker"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/controller"
 	"github.com/pydio/cells/v5/common/runtime/manager"
@@ -52,7 +52,7 @@ func (t *protoWithContext) Unmarshal(ctx context.Context, target proto.Message) 
 
 	// If they're not of the same type, return an error
 	if originalValue.Type() != targetValue.Type() {
-		return ctx, fmt.Errorf("t.Original and target are not of the same type")
+		return ctx, errors.New("t.Original and target are not of the same type")
 	}
 
 	// Copy the fields from t.Original to target
@@ -168,7 +168,7 @@ func (b *debounce) Start() {
 // Push sends a message to the queue
 func (b *debounce) Push(ctx context.Context, msg proto.Message) error {
 	if b.closed {
-		return fmt.Errorf("channel is already closed")
+		return errors.New("channel is already closed")
 	}
 	b.Events <- &protoWithContext{Original: msg, Ctx: ctx}
 	return nil
@@ -176,7 +176,7 @@ func (b *debounce) Push(ctx context.Context, msg proto.Message) error {
 
 func (b *debounce) PushRaw(_ context.Context, message broker.Message) error {
 	if b.closed {
-		return fmt.Errorf("channel is already closed")
+		return errors.New("channel is already closed")
 	}
 	b.Events <- message
 	return nil

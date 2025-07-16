@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v5/common/client"
 	clienthttp "github.com/pydio/cells/v5/common/client/http"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/server/caddy"
@@ -47,7 +48,7 @@ type Opener struct {
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
 	if u.Host == "" {
-		return nil, fmt.Errorf("empty host for proxy caddy-api")
+		return nil, errors.New("empty host for proxy caddy-api")
 	}
 	if u.Scheme == "caddy-api+tls" {
 		return New(ctx, "https://"+u.Host)

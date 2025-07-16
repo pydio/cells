@@ -33,6 +33,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -291,7 +292,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 
 	default:
 		result.Success = false
-		wrappedError = fmt.Errorf("unsupported check type " + name)
+		wrappedError = errors.New("unsupported check type " + name)
 		data, _ := json.Marshal(map[string]string{"error": "unsupported check type " + name})
 		result.JsonResult = string(data)
 

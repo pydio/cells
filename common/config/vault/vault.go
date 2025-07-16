@@ -30,6 +30,7 @@ import (
 	vault "github.com/hashicorp/vault/api"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -50,7 +51,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) 
 	storePath := strings.TrimLeft(u.Path, "/")
 	key := u.Query().Get("key")
 	if key == "" {
-		return nil, fmt.Errorf("please provide a keyname for storing data inside this config")
+		return nil, errors.New("please provide a keyname for storing data inside this config")
 	}
 	rootToken := u.Query().Get("rootToken")
 	if rootToken != "" {
@@ -165,7 +166,7 @@ func (s *store) Default(def any) configx.Values {
 }
 
 func (s *store) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
-	return nil, fmt.Errorf("vault.watch is not implemented")
+	return nil, errors.New("vault.watch is not implemented")
 }
 
 func (s *store) As(out any) bool { return false }

@@ -2,10 +2,10 @@ package sql
 
 import (
 	"context"
-	"fmt"
 
 	"gorm.io/gorm"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 )
 
@@ -46,7 +46,7 @@ func (a *Abstract) Session(ctx context.Context) *gorm.DB {
 
 func (a *Abstract) Migrate(ctx context.Context) error {
 	if a.migrateModels == nil {
-		return fmt.Errorf("no models factoring given, implement your own Migrate")
+		return errors.New("no models factoring given, implement your own Migrate")
 	}
 	return a.Session(ctx).AutoMigrate(a.migrateModels()...)
 }

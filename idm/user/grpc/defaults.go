@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"os"
 	"strings"
 
@@ -34,7 +33,7 @@ func InitDefaults(ctx context.Context) error {
 
 	var cfg config.Store
 	if !propagator.Get(ctx, config.ContextKey, &cfg) {
-		return fmt.Errorf("no config")
+		return errors.New("no config")
 	}
 
 	if os.Getenv(EnvPydioAdminUserLogin) != "" && os.Getenv(EnvPydioAdminUserPassword) != "" {

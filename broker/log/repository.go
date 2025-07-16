@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/log"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	log2 "github.com/pydio/cells/v5/common/telemetry/log"
@@ -83,7 +84,7 @@ func (s *IndexRepository) DeleteLogs(ctx context.Context, query string) (int64, 
 
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
 func (s *IndexRepository) AggregatedLogs(_ context.Context, _ string, _ string, _ int32) (chan log.TimeRangeResponse, error) {
-	return nil, fmt.Errorf("unimplemented method")
+	return nil, errors.New("unimplemented method")
 }
 
 func (s *IndexRepository) Resync(ctx context.Context, logger log2.ZapLogger) error {

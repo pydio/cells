@@ -22,10 +22,11 @@ package openurl
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"path"
 	"sync"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 type StringTemplate interface {
@@ -96,7 +97,7 @@ func URLTemplate(rawURL string) (Template, error) {
 	if o, ok := tplRegister[scheme]; ok {
 		return o(rawURL)
 	} else {
-		return nil, fmt.Errorf("cannot find corresponding URL Template")
+		return nil, errors.New("cannot find corresponding URL Template")
 	}
 }
 
@@ -152,7 +153,7 @@ func getScheme(rawURL string) (scheme, path string, err error) {
 			}
 		case c == ':':
 			if i == 0 {
-				return "", "", fmt.Errorf("missing protocol scheme")
+				return "", "", errors.New("missing protocol scheme")
 			}
 			return rawURL[:i], rawURL[i+1:], nil
 		default:

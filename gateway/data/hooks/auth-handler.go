@@ -2,7 +2,6 @@ package hooks
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/runtime"
@@ -135,11 +135,11 @@ func (a *pydioAuthHandler) extractToken(ctx context.Context, r *http.Request) (t
 
 	if bearer := r.Header.Get("X-Pydio-Bearer"); bearer != "" {
 
-		return "", fmt.Errorf("X-Pydio-Bearer authentication method is deprecated")
+		return "", errors.New("X-Pydio-Bearer authentication method is deprecated")
 
 	} else if jwt := rq.Get("pydio_jwt"); len(jwt) > 0 {
 
-		return "", fmt.Errorf("pydio_jwt authentication method is deprecated")
+		return "", errors.New("pydio_jwt authentication method is deprecated")
 
 	}
 
@@ -147,7 +147,7 @@ func (a *pydioAuthHandler) extractToken(ctx context.Context, r *http.Request) (t
 	token, s3Err = cmd.ExposedExtractKeyFromSignature(r)
 
 	if s3Err != cmd.ErrNone {
-		return "", fmt.Errorf(s3Err.String())
+		return "", errors.New(s3Err.String())
 	}
 
 	return

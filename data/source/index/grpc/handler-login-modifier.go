@@ -24,12 +24,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/service"
 )
 
 func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (resp *service.ModifyLoginResponse, err error) {
 	if req.Options == nil {
-		return nil, fmt.Errorf("please provide name and uuid options")
+		return nil, errors.New("please provide name and uuid options")
 	}
 	resp = &service.ModifyLoginResponse{}
 	opts := req.Options

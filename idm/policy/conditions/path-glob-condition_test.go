@@ -71,4 +71,3 @@ func TestPathGlobCondition(t *testing.T) {
 		So(c.Fulfills("a/b/c/1222/dae", nil), ShouldBeFalse)
 	})
 }
-

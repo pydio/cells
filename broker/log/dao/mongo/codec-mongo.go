@@ -21,7 +21,6 @@
 package mongo
 
 import (
-	"fmt"
 	"strings"
 
 	query2 "github.com/blevesearch/bleve/v2/search/query"
@@ -30,6 +29,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v5/broker/log"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
 	"github.com/pydio/cells/v5/common/utils/configx"
 )
@@ -53,7 +53,7 @@ type MongoCodec struct {
 func (m *MongoCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 	cursor, ok := indexed.(*mongo.Cursor)
 	if !ok {
-		return nil, fmt.Errorf("not a cursor")
+		return nil, errors.New("not a cursor")
 	}
 	ilog := &log.IndexableLog{}
 	if er := cursor.Decode(ilog); er != nil {
@@ -65,7 +65,7 @@ func (m *MongoCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 func (m *MongoCodec) BuildQuery(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, interface{}, error) {
 	qString, ok := query.(string)
 	if !ok {
-		return nil, nil, fmt.Errorf("BuildQuery expects a string")
+		return nil, nil, errors.New("BuildQuery expects a string")
 	}
 	ff, e := mongodb.BleveQueryToMongoFilters(qString, true, func(s string, _ query2.Query, _ bool) (string, []bson.E, bool) {
 		return strings.ToLower(s), nil, false

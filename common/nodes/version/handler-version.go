@@ -22,7 +22,6 @@ package version
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"time"
 
@@ -488,7 +487,7 @@ func (v *Handler) cacheProto(c cache.Cache, k string, m proto.Message) error {
 func (v *Handler) protoFromCache(c cache.Cache, k string, m proto.Message) error {
 	var bb []byte
 	if !c.Get(k, &bb) {
-		return fmt.Errorf("cache entry not found")
+		return errors.New("cache entry not found")
 	}
 	return proto.Unmarshal(bb, m)
 }

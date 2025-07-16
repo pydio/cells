@@ -2,10 +2,10 @@ package tree
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -72,7 +72,7 @@ func (d *datasourceAttributeAction) Init(job *jobs.Job, action *jobs.Action) err
 		}
 	}
 	if d.attName == "" {
-		return fmt.Errorf("missing mandatory parameters dsName or attName")
+		return errors.New("missing mandatory parameters dsName or attName")
 	}
 	return nil
 }
@@ -81,13 +81,13 @@ func (d *datasourceAttributeAction) Run(ctx context.Context, channels *actions.R
 	attName := jobs.EvaluateFieldStr(ctx, input, d.attName)
 	attValue := jobs.EvaluateFieldStr(ctx, input, d.attValue)
 	if attName == "" {
-		er := fmt.Errorf("missing mandatory parameters dsName or attName")
+		er := errors.New("missing mandatory parameters dsName or attName")
 		return input.WithError(er), er
 	}
 
 	dss := input.GetDataSources()
 	if len(dss) == 0 {
-		er := fmt.Errorf("cannot find datasource")
+		er := errors.New("cannot find datasource")
 		return input.WithError(er), er
 	}
 	ds := dss[0]

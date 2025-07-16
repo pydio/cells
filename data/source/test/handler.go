@@ -37,6 +37,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/models"
@@ -72,7 +73,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest) (*test.Run
 	var dsConf *object.DataSource
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + "cellsdata"
 	if e := config.Get(ctx, "services", srvName).Scan(&dsConf); e != nil {
-		return nil, fmt.Errorf("cannot read config for " + srvName)
+		return nil, errors.New("cannot read config for " + srvName)
 	}
 	dsConf.ApiKey = "mycustomapikey"
 	dsConf.ApiSecret = "mycustomapisecret"
@@ -133,11 +134,11 @@ func (h *Handler) TestAuthorization(ctx context.Context, oc nodes.StorageClient,
 
 	_, e = oc.PutObject(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), models.PutMeta{})
 	if e != nil {
-		return result, fmt.Errorf("PutObject error (with X-Pydio-User Header): " + e.Error())
+		return result, errors.New("PutObject error (with X-Pydio-User Header): " + e.Error())
 	}
 	e = oc.RemoveObject(authCtx, dsConf.ObjectsBucket, key)
 	if e != nil {
-		return result, fmt.Errorf("PutObject with X-Pydio-User header passed but RemoteObjectWithContext failed")
+		return result, errors.New("PutObject with X-Pydio-User header passed but RemoteObjectWithContext failed")
 	}
 	result.Log("PutObject with X-Pydio-User header passed")
 
@@ -166,7 +167,7 @@ func (h *Handler) TestEtags(ctx context.Context, oc nodes.StorageClient, req *te
 			return result, e
 		} else {
 			defer os.Remove(filePath)
-			fmt.Fprintf(f, fileContent)
+			fmt.Fprint(f, fileContent)
 			f.Close()
 			result.Log("Created random data directly on local FS in " + filePath)
 		}
@@ -295,7 +296,7 @@ func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *t
 	fmt.Println("Finished listening, checking event info: ", receivedInfo)
 	result.Log("Finished listening, checking event info: ", receivedInfo)
 	if receivedInfo.Records == nil || len(receivedInfo.Records) == 0 {
-		return result, fmt.Errorf("NotificationInfo is empty")
+		return result, errors.New("NotificationInfo is empty")
 	}
 	metaFound := false
 	for _, r := range receivedInfo.Records {
@@ -312,7 +313,7 @@ func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *t
 	if metaFound {
 		result.Log("Received correct event with initial metadata")
 	} else {
-		return result, fmt.Errorf("Could not find initial metadata in received events")
+		return result, errors.New("Could not find initial metadata in received events")
 	}
 
 	return result, nil

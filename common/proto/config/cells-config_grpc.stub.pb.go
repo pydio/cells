@@ -9,6 +9,7 @@ package config
 import (
 	context "context"
 	fmt "fmt"
+	"github.com/pydio/cells/v5/common/errors"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
@@ -57,7 +58,7 @@ func (s *ConfigStub) Invoke(ctx context.Context, method string, args interface{}
 			e = er
 		}
 	default:
-		e = fmt.Errorf(method + " not implemented")
+		e = errors.New(method + " not implemented")
 	}
 	return e
 }
@@ -84,7 +85,7 @@ func (s *ConfigStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, metho
 		go s.ConfigServer.NewLocker(st)
 		return st, nil
 	}
-	return nil, fmt.Errorf(method + "  not implemented")
+	return nil, errors.New(method + "  not implemented")
 }
 
 type ConfigStub_WatchStreamer struct {

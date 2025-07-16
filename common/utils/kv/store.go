@@ -79,7 +79,7 @@ func (m Store) Default(d any) configx.Values {
 }
 
 func (m Store) Del() error {
-	return fmt.Errorf("not implemented")
+	return errors.New("not implemented")
 }
 
 func (m Store) As(out any) bool { return false }

@@ -59,7 +59,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 	case "manual":
 		return c.GetDbManualDSN(), nil
 	default:
-		return "", fmt.Errorf("Unknown type")
+		return "", errors.New("Unknown type")
 	}
 
 	return conf, err

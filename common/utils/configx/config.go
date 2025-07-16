@@ -252,7 +252,7 @@ func (c storer) Del() error {
 	case []any:
 		kk, err := strconv.Atoi(c.k[len(c.k)-1])
 		if err != nil {
-			return fmt.Errorf("wrong key for slice")
+			return errors.New("wrong key for slice")
 		}
 
 		vv = append(vv[:kk], vv[kk+1:]...)

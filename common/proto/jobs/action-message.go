@@ -21,7 +21,6 @@
 package jobs
 
 import (
-	"fmt"
 	"slices"
 	"time"
 
@@ -30,6 +29,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -116,7 +116,7 @@ func (a *ActionMessage) ScanVar(name string, output interface{}) error {
 		}
 	}
 	if !found {
-		return fmt.Errorf("var not found")
+		return errors.New("var not found")
 	}
 	if mess, ok := output.(proto.Message); ok {
 		if er := protojson.Unmarshal([]byte(data), mess); er != nil {
@@ -281,7 +281,7 @@ func (a *ActionMessage) WithIgnore() *ActionMessage {
 // EventFromAny loads and unmarshal event from an anypb value
 func (a *ActionMessage) EventFromAny() (interface{}, error) {
 	if a.Event == nil {
-		return nil, fmt.Errorf("event not set")
+		return nil, errors.New("event not set")
 	}
 	var event interface{}
 	triggerEvent := &JobTriggerEvent{}
@@ -294,7 +294,7 @@ func (a *ActionMessage) EventFromAny() (interface{}, error) {
 	} else if e := anypb.UnmarshalTo(a.Event, idmEvent, proto.UnmarshalOptions{}); e == nil {
 		event = idmEvent
 	} else {
-		return nil, fmt.Errorf("cannot unmarshal event to triggerEvent, nodeEvent or idmEvent")
+		return nil, errors.New("cannot unmarshal event to triggerEvent, nodeEvent or idmEvent")
 	}
 	return event, nil
 }

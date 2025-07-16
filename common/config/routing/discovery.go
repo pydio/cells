@@ -26,6 +26,7 @@ import (
 	"net/url"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -93,7 +94,7 @@ func SiteToContext(ctx context.Context, site *install.ProxyConfig) (context.Cont
 		break
 	}
 	if first == nil {
-		return ctx, fmt.Errorf("could not find at least one URL for site, this is unexpected")
+		return ctx, errors.New("could not find at least one URL for site, this is unexpected")
 	}
 	return propagator.WithAdditionalMetadata(ctx, map[string]string{
 		common.XPydioSiteHash: site.Hash(),
@@ -176,7 +177,7 @@ func RouteIngressURIContextErr(ctx context.Context, routeID string) (string, err
 	}
 	crtSite, _, ok := SiteFromContext(ctx, ss)
 	if !ok {
-		return "", fmt.Errorf("cannot find site from context")
+		return "", errors.New("cannot find site from context")
 	}
 	if rule := crtSite.FindRouteRule(routeID); rule.Accept() {
 		return rule.IngressURI(route.GetURI()), nil

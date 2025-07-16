@@ -22,11 +22,11 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	sync3 "sync"
 	"time"
 
+	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/protobuf/proto"
@@ -275,7 +275,7 @@ func (h *Handler) TriggerResync(c context.Context, req *sync.ResyncRequest) (*sy
 		resp.Success = true
 		return resp, nil
 	} else {
-		return nil, fmt.Errorf("empty result")
+		return nil, errors.New("empty result")
 	}
 }
 
@@ -314,11 +314,11 @@ func (h *Handler) CleanResourcesBeforeDelete(ctx context.Context, _ *object.Clea
 	sh.StMux.Unlock()
 
 	var mm []string
-	var ee []string
+	var ee []error
 
 	if dao, er := manager.Resolve[sync2.DAO](ctx); er == nil {
 		if m, e := dao.CleanResourcesOnDeletion(ctx); e != nil {
-			ee = append(ee, e.Error())
+			ee = append(ee, e)
 		} else {
 			mm = append(mm, m)
 		}
@@ -331,13 +331,13 @@ func (h *Handler) CleanResourcesBeforeDelete(ctx context.Context, _ *object.Clea
 	if _, err := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
 		JobID: "resync-ds-" + dsName,
 	}); err != nil {
-		ee = append(ee, err.Error())
+		ee = append(ee, err)
 	} else {
 		mm = append(mm, "Removed associated job for datasource")
 	}
-	if len(ee) > 0 {
+	if me := multierr.Combine(ee...); me != nil {
 		response.Success = false
-		return nil, fmt.Errorf(strings.Join(ee, ", "))
+		return nil, me
 	} else if len(mm) > 0 {
 		response.Success = true
 		response.Message = strings.Join(mm, ", ")

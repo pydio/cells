@@ -24,10 +24,9 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
 
+	"github.com/pydio/cells/v5/common/errors"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
@@ -60,7 +59,7 @@ func UserMetasFromPhpData(serializedData []byte) (metas []*PhpUserMeta, outErr e
 		if ms, ok := m.(map[string]interface{}); ok {
 			metas, outErr = Map2LocalMeta(ms)
 		} else {
-			outErr = fmt.Errorf("cannot cast phpValue")
+			outErr = errors.New("cannot cast phpValue")
 		}
 	} else {
 		outErr = err

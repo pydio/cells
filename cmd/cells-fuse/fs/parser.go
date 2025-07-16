@@ -22,7 +22,6 @@ package fs
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log"
 	"net/url"
@@ -35,6 +34,7 @@ import (
 	"github.com/hanwen/go-fuse/v2/fs"
 	"go.etcd.io/bbolt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -134,7 +134,7 @@ func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket 
 		}
 
 	default:
-		e = fmt.Errorf("unrecognized scheme")
+		e = errors.New("unrecognized scheme")
 		return
 	}
 
@@ -161,7 +161,7 @@ func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket 
 	e = db.View(func(tx *bbolt.Tx) error {
 		bk := tx.Bucket([]byte("snapshot"))
 		if bk == nil {
-			return fmt.Errorf("cannot find bucket in snapshot")
+			return errors.New("cannot find bucket in snapshot")
 		}
 		totalKeys = bk.Stats().KeyN
 		return nil

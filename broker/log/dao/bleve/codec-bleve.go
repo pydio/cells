@@ -21,7 +21,6 @@
 package bleve
 
 import (
-	"fmt"
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
@@ -31,6 +30,7 @@ import (
 
 	log2 "github.com/pydio/cells/v5/broker/log"
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/log"
 	bleve2 "github.com/pydio/cells/v5/common/storage/bleve"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -52,7 +52,7 @@ type BleveCodec struct {
 func (b *BleveCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 	data, ok := indexed.(*search.DocumentMatch)
 	if !ok {
-		return nil, fmt.Errorf("unexpected format for unmarshalling")
+		return nil, errors.New("unexpected format for unmarshalling")
 	}
 	currMsg := &log.LogMessage{}
 	b.unmarshallLogMsgFromFields(data.Fields, currMsg)
@@ -62,7 +62,7 @@ func (b *BleveCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 func (b *BleveCodec) BuildQuery(qu interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, interface{}, error) {
 	queryString, ok := qu.(string)
 	if !ok {
-		return nil, nil, fmt.Errorf("unsupported query format")
+		return nil, nil, errors.New("unsupported query format")
 	}
 	var q query.Query
 	if queryString == "" {

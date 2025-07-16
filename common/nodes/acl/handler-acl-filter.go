@@ -22,7 +22,6 @@ package acl
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"google.golang.org/grpc"
@@ -390,7 +389,7 @@ func (a *FilterHandler) recheckParents(c context.Context, originalError error, n
 
 	val := c.Value(ctxUserAccessListKey{})
 	if val == nil {
-		return fmt.Errorf("cannot find accessList in context for checking permissions")
+		return errors.New("cannot find accessList in context for checking permissions")
 	}
 	accessList := val.(*permissions.AccessList)
 

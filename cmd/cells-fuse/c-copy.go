@@ -2,14 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/dustin/go-humanize"
-	"github.com/manifoldco/promptui"
-	fs2 "github.com/pydio/cells-fuse/fs"
-	"github.com/pydio/cells/v5/common/nodes/models"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"path/filepath"
+
+	humanize "github.com/dustin/go-humanize"
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/nodes/models"
+
+	fs2 "github.com/pydio/cells-fuse/fs"
 )
 
 var (
@@ -35,17 +39,17 @@ EXAMPLES
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if storageURL == "" {
-			return fmt.Errorf("please provide a snapshot URL")
+			return errors.New("please provide a snapshot URL")
 		}
 		if copyFrom == "" || copyTo == "" {
-			return fmt.Errorf("please provide 'from' and 'to' parameters")
+			return errors.New("please provide 'from' and 'to' parameters")
 		}
 		target, er := filepath.Abs(copyTo)
 		if er != nil {
-			return fmt.Errorf("cannot resolve target path")
+			return errors.New("cannot resolve target path")
 		}
 		if _, er := os.Stat(target); er == nil {
-			return fmt.Errorf("a file exists at target location, please use a different one")
+			return errors.New("a file exists at target location, please use a different one")
 		}
 
 		sc, folderOrBucket, snap, _, er := fs2.ParseStorageURL(storageURL)

@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
 )
@@ -67,7 +68,7 @@ func loadTLSCredentials() (credentials.TransportCredentials, error) {
 
 	certPool := x509.NewCertPool()
 	if !certPool.AppendCertsFromPEM(pemServerCA) {
-		return nil, fmt.Errorf("failed to add server CA's certificate")
+		return nil, errors.New("failed to add server CA's certificate")
 	}
 
 	// Create the credentials and return it

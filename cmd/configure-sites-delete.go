@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 )
 
@@ -53,7 +54,7 @@ DESCRIPTION
 		fatalIfError(cmd, e)
 		err := fmt.Errorf("Please provide an index between 0 and %d", len(sites)-1)
 		if len(sites) == 1 {
-			err = fmt.Errorf("Please confirm you wish to delete this site by providing index 0 as argument")
+			err = errors.New("Please confirm you wish to delete this site by providing index 0 as argument")
 		}
 		if len(args) == 0 {
 			fatalIfError(cmd, err)

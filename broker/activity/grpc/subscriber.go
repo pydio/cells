@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"strings"
 	"sync"
@@ -79,7 +78,7 @@ func NewEventsSubscriber(ctx context.Context, handlerName string) *MicroEventsSu
 func (e *MicroEventsSubscriber) getQueue(ctx context.Context) (broker.AsyncQueue, func() (bool, error), error) {
 	var mgr manager.Manager
 	if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-		return nil, nil, fmt.Errorf("no manager in context")
+		return nil, nil, errors.New("no manager in context")
 	}
 	data := map[string]interface{}{
 		"debounce": "2s",

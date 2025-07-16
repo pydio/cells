@@ -35,6 +35,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -202,7 +203,7 @@ func findNodeFromRequest(r *http.Request) (*tree.Node, error) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
 	if uuid == "" {
-		return nil, fmt.Errorf("Cannot find uuid in parameters")
+		return nil, errors.New("Cannot find uuid in parameters")
 	}
 
 	// Now go through all the authorization mechanisms

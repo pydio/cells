@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
@@ -286,7 +287,7 @@ func (i *Streamer) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) 
 			case err = <-i.readErrors:
 				return
 			case <-time.After(10 * time.Second):
-				err = fmt.Errorf("read node stream timeout after 10s")
+				err = errors.New("read node stream timeout after 10s")
 				return
 			}
 		}
@@ -319,7 +320,7 @@ func (i *Streamer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReque
 			case err = <-i.delErrors:
 				return
 			case <-time.After(10 * time.Second):
-				err = fmt.Errorf("delete node stream timeout after 10s")
+				err = errors.New("delete node stream timeout after 10s")
 				return
 			}
 		}
@@ -352,7 +353,7 @@ func (i *Streamer) CreateNode(ctx context.Context, request *tree.CreateNodeReque
 			case err = <-i.createErrors:
 				return
 			case <-time.After(10 * time.Second):
-				err = fmt.Errorf("create node stream timeout after 10s")
+				err = errors.New("create node stream timeout after 10s")
 				return
 			}
 		}
@@ -385,7 +386,7 @@ func (i *Streamer) UpdateNode(ctx context.Context, request *tree.UpdateNodeReque
 			case err = <-i.updateErrors:
 				return
 			case <-time.After(10 * time.Second):
-				err = fmt.Errorf("update node stream timeout after 10s")
+				err = errors.New("update node stream timeout after 10s")
 				return
 			}
 		}

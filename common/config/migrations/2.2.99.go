@@ -22,7 +22,6 @@ package migrations
 
 import (
 	"context"
-	"fmt"
 	"path"
 
 	version "github.com/hashicorp/go-version"
@@ -30,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -54,7 +54,7 @@ func updateVersionsStore(conf configx.Values) error {
 	crtSources := config.ListSourcesFromConfig(ctx)
 	dsObject, ok := crtSources[dsName]
 	if !ok {
-		return fmt.Errorf("cannot find versions-store datasource")
+		return errors.New("cannot find versions-store datasource")
 	}
 	var newDsName = "versions"
 	if _, exists := config.ListSourcesFromConfig(ctx)[newDsName]; exists {
@@ -103,7 +103,7 @@ func updateThumbsStore(conf configx.Values) error {
 	crtSources := config.ListSourcesFromConfig(ctx)
 	dsObject, ok := crtSources[dsName]
 	if !ok {
-		return fmt.Errorf("cannot find thumbs_store datasource")
+		return errors.New("cannot find thumbs_store datasource")
 	}
 	var newDsName = "thumbnails"
 	if _, exists := config.ListSourcesFromConfig(ctx)[newDsName]; exists {

@@ -30,6 +30,8 @@ import (
 	"github.com/caddyserver/certmagic"
 
 	"github.com/pydio/caddyvault"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 func init() {
@@ -46,14 +48,14 @@ func (v *vaultProvider) OpenURL(ctx context.Context, u *url.URL) (certmagic.Stor
 	if os.Getenv("VAULT_TOKEN") == "" {
 		t := u.Query().Get("rootToken")
 		if t == "" {
-			return nil, fmt.Errorf("cannot load vault authentication token, make sure to set VAULT_TOKEN env")
+			return nil, errors.New("cannot load vault authentication token, make sure to set VAULT_TOKEN env")
 		}
 		fmt.Println("Using rootToken from query string, this should not be used in production, use VAULT_TOKEN env var instead")
 		vs.Token = t
 	}
 	storePath := strings.Trim(u.Path, "/")
 	if storePath == "" {
-		return nil, fmt.Errorf("missing path on vault URL")
+		return nil, errors.New("missing path on vault URL")
 	}
 	vs.Prefix = storePath
 	if u.Scheme == "vault" {

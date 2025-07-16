@@ -27,6 +27,7 @@ import (
 	sendgrid "github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
@@ -42,7 +43,7 @@ func (s *SendGrid) Configure(ctx context.Context, config configx.Values) error {
 	s.ApiKey = config.Val("apiKey").String()
 
 	if s.ApiKey == "" {
-		return fmt.Errorf("cannot send mail via sendgrid without a valid API key")
+		return errors.New("cannot send mail via sendgrid without a valid API key")
 	}
 
 	log.Logger(ctx).Debug("SendGrid Configured")

@@ -165,7 +165,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		ctxLogin := claim.UserNameFromContext(ctx)
 		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
 			if req.User.Password == req.User.OldPassword {
-				return nil, fmt.Errorf("new password is the same as the old password, please use a different one")
+				return nil, errors.New("new password is the same as the old password, please use a different one")
 			}
 			var locks, newLocks []string
 			_ = json.Unmarshal([]byte(l), &locks)

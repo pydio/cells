@@ -22,7 +22,6 @@ package abstract
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"strings"
 	"time"
@@ -215,7 +214,7 @@ func (m *virtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		} else {
 			if AdminClientProvider == nil {
 				log.Logger(ctx).Error("Oops, virtualNodesManager AdminClient is empty ! ")
-				return nil, fmt.Errorf("cancel create")
+				return nil, errors.New("cancel create")
 			}
 			resolved = createResp.GetNode()
 			isFlat := false
@@ -324,7 +323,7 @@ func (m *virtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 				}
 				if dsVal == nil || dsName == "" {
 					log.Logger(ctx).Warn("Unknown datasource name while resolving template path", zap.Int("knownSources", len(datasourceKeys)), zap.String("template", resolutionString))
-					return nil, fmt.Errorf("cannot resolve datasource in template path, may be referring to an unavailable datasource")
+					return nil, errors.New("cannot resolve datasource in template path, may be referring to an unavailable datasource")
 				}
 
 				dsPath := out["DataSourcePath"].(string)

@@ -32,6 +32,7 @@ import (
 
 	bigcache "github.com/allegro/bigcache/v3"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/metrics"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -124,13 +125,13 @@ func (b *bigCache) GetBytes(key string) (value []byte, ok bool) {
 func (b *bigCache) Set(key string, value interface{}) error {
 	data, ok := value.([]byte)
 	if !ok {
-		return fmt.Errorf("not a byte value")
+		return errors.New("not a byte value")
 	}
 	return b.BigCache.Set(key, data)
 }
 
 func (b *bigCache) SetWithExpiry(key string, value interface{}, duration time.Duration) error {
-	return fmt.Errorf("not implemented")
+	return errors.New("not implemented")
 }
 
 func (b *bigCache) Delete(key string) error {

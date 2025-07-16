@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/etl"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -82,10 +83,10 @@ func (c *SyncSharesAction) Init(job *jobs.Job, action *jobs.Action) error {
 		return err
 	}
 	if mappingJson, ok := action.Parameters["mapping"]; !ok {
-		return fmt.Errorf("task sync user must take a mapping parameter")
+		return errors.New("task sync user must take a mapping parameter")
 	} else {
 		if e := json.Unmarshal([]byte(mappingJson), &c.mapping); e != nil {
-			return fmt.Errorf("task sync cannot parse json parameter: " + e.Error())
+			return errors.New("task sync cannot parse json parameter: " + e.Error())
 		}
 	}
 	if sType, ok := action.Parameters["shareType"]; ok {

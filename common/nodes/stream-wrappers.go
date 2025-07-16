@@ -23,13 +23,13 @@ package nodes
 import (
 	"context"
 	"encoding/binary"
-	"fmt"
 	"io"
 	"sync/atomic"
 
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
@@ -112,7 +112,7 @@ func (l *wrappingStreamer) Send(in interface{}) error {
 	case error:
 		msg.Error = v.Error()
 	default:
-		return fmt.Errorf("unknown format")
+		return errors.New("unknown format")
 	}
 
 	if out, err := proto.Marshal(msg); err != nil {
@@ -165,7 +165,7 @@ func (l *wrappingStreamer) Recv() (*tree.WrappingStreamerResponse, error) {
 	}
 
 	if resp.Error != "" {
-		return nil, fmt.Errorf(resp.Error)
+		return nil, errors.New(resp.Error)
 	}
 
 	return resp, nil

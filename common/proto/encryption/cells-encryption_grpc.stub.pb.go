@@ -9,6 +9,7 @@ package encryption
 import (
 	context "context"
 	fmt "fmt"
+	"github.com/pydio/cells/v5/common/errors"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
@@ -77,7 +78,7 @@ func (s *UserKeyStoreStub) Invoke(ctx context.Context, method string, args inter
 			e = er
 		}
 	default:
-		e = fmt.Errorf(method + " not implemented")
+		e = errors.New(method + " not implemented")
 	}
 	return e
 }
@@ -85,7 +86,7 @@ func (s *UserKeyStoreStub) NewStream(ctx context.Context, desc *grpc.StreamDesc,
 	fmt.Println("Serving", method)
 	switch method {
 	}
-	return nil, fmt.Errorf(method + "  not implemented")
+	return nil, errors.New(method + "  not implemented")
 }
 
 type NodeKeyManagerStub struct {
@@ -139,7 +140,7 @@ func (s *NodeKeyManagerStub) Invoke(ctx context.Context, method string, args int
 			e = er
 		}
 	default:
-		e = fmt.Errorf(method + " not implemented")
+		e = errors.New(method + " not implemented")
 	}
 	return e
 }
@@ -152,7 +153,7 @@ func (s *NodeKeyManagerStub) NewStream(ctx context.Context, desc *grpc.StreamDes
 		go s.NodeKeyManagerServer.SetNodeInfo(st)
 		return st, nil
 	}
-	return nil, fmt.Errorf(method + "  not implemented")
+	return nil, errors.New(method + "  not implemented")
 }
 
 type NodeKeyManagerStub_SetNodeInfoStreamer struct {

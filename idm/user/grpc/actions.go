@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -10,6 +9,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -94,7 +94,7 @@ func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableC
 	}
 
 	if singleQ.Login == "" && singleQ.GroupPath == "" {
-		return input.AsRunError(fmt.Errorf("params must provide either login or groupPath"))
+		return input.AsRunError(errors.New("params must provide either login or groupPath"))
 	}
 
 	q, _ := anypb.New(singleQ)

@@ -106,7 +106,7 @@ func (o *ObjectHandler) getConfig(ctx context.Context) (*object.MinioConfig, err
 func (o *ObjectHandler) StartMinioServer(ctx context.Context, conf *object.MinioConfig, minioServiceName string) error {
 
 	if conf.StorageType == object.StorageType_GCS {
-		return fmt.Errorf("GCS Gateway is not supported anymore, use Google Storage S3 API instead")
+		return errors.New("GCS Gateway is not supported anymore, use Google Storage S3 API instead")
 	} else if conf.StorageType != object.StorageType_LOCAL {
 		// Ignore
 		return nil

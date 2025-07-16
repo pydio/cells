@@ -150,7 +150,7 @@ func (diff *TreeDiff) Compute(ctx context.Context, root string, lock chan bool, 
 				fmt.Println("==> left stats :", lStat)
 				fmt.Println("==> left tree :")
 				lTree.PrintTree()
-				return fmt.Errorf("unexpected error : endpoints stat and collected children discrepancy")
+				return errors.New("unexpected error : endpoints stat and collected children discrepancy")
 			}
 		}
 		if rStat, o := rootStats[diff.right.GetEndpointInfo().URI]; o && rStat.IsKnown() {
@@ -159,7 +159,7 @@ func (diff *TreeDiff) Compute(ctx context.Context, root string, lock chan bool, 
 				fmt.Println("==> right stats :", rStat)
 				fmt.Println("==> right tree :")
 				rTree.PrintTree()
-				return fmt.Errorf("unexpected error : endpoints stat and collected children discrepancy")
+				return errors.New("unexpected error : endpoints stat and collected children discrepancy")
 			}
 		}
 	}

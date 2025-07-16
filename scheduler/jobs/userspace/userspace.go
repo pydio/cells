@@ -93,7 +93,7 @@ func DeleteNodesTask(ctx context.Context, router nodes.Client, selectedPaths []s
 			}
 			for _, rootID := range bi.RootUUIDs {
 				if rootID == node.Uuid {
-					return fmt.Errorf("please do not modify directly the root of a workspace")
+					return errors.New("please do not modify directly the root of a workspace")
 				}
 			}
 			attributes := bi.LoadAttributes()
@@ -263,7 +263,7 @@ func CompressTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 	userName := claims.Name
 	permError := errors.WithMessage(errors.StatusForbidden, "Some files or folder are not allowed to be read or downloaded, you cannot build this archive")
 	if format != "zip" && format != "tar" && format != "tar.gz" {
-		return nil, fmt.Errorf("unsupported format, please use one of zip, tar or tar.gz")
+		return nil, errors.New("unsupported format, please use one of zip, tar or tar.gz")
 	}
 	initialPaths := append([]string{}, selectedPaths...)
 	initialTarget := targetNodePath
@@ -661,7 +661,7 @@ func SyncDatasourceTask(ctx context.Context, dsName string, languages ...string)
 func WgetTask(ctx context.Context, router nodes.Client, parentPath string, urls []string, languages ...string) ([]*jobs.Job, error) {
 
 	if !config.Get(ctx, config.FrontendPluginPath("uploader.http", config.KeyFrontPluginEnabled)...).Bool() {
-		return nil, fmt.Errorf("you are not allowed to use this feature")
+		return nil, errors.New("you are not allowed to use this feature")
 	}
 	T := lang.Bundle().T(languages...)
 	taskLabel := T("Jobs.User.Wget")
@@ -859,10 +859,10 @@ func RestoreTask(ctx context.Context, router nodes.Client, paths []string, langu
 			currentFullPath := filtered.Path
 			originalFullPath := r.GetNode().GetStringMeta(common.MetaNamespaceRecycleRestore)
 			if originalFullPath == "" {
-				return fmt.Errorf("cannot find restore location for selected node")
+				return errors.New("cannot find restore location for selected node")
 			}
 			if _, already := restoreTargets[originalFullPath]; already {
-				return fmt.Errorf("trying to restore to nodes on the same location")
+				return errors.New("trying to restore to nodes on the same location")
 			}
 			restoreTargets[originalFullPath] = struct{}{}
 			if r.GetNode().IsLeaf() {
@@ -1079,7 +1079,7 @@ func MkDirsOrFiles(ctx context.Context, router nodes.Client, nodes []*tree.Node,
 			}
 			if len(folderChecks) > 0 {
 				log.Logger(ctx).Debug("Checking that all folders were created", zap.Any("remaining", folderChecks))
-				return fmt.Errorf("not all folders detected, retry")
+				return errors.New("not all folders detected, retry")
 			}
 			return nil
 		}, 3*time.Second, 50*time.Second)

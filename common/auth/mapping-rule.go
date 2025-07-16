@@ -93,6 +93,7 @@ func (m MappingRule) RemoveLdapEscape(strs []string) []string {
 // member: uid=user02,dc=com,dc=fr
 // member: uid=user03,dc=com,dc=fr
 // return an array like:
+//
 //	user01
 //	user02
 //	user03

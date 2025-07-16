@@ -280,7 +280,7 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 		indexer.WithInsertCallback(func(in any) error {
 			task, ok := in.(*proto.Task)
 			if !ok {
-				return fmt.Errorf("wrong format")
+				return errors.New("wrong format")
 			}
 
 			if _, o := buffer[task.JobID]; !o {

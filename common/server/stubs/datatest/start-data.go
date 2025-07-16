@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/registry"
@@ -41,7 +42,7 @@ func RegisterDataServices(ctx context.Context, nodes ...*tree.Node) error {
 	fmt.Println("In here")
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
-		return fmt.Errorf("cannot find registry in context")
+		return errors.New("cannot find registry in context")
 	}
 	ii, _ := reg.List(registry.WithType(pb.ItemType_SERVICE))
 	var treeSvc service.Service

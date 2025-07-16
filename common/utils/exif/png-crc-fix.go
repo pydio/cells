@@ -9,9 +9,12 @@ import (
 	"hash/crc32"
 	"io"
 	"os"
+
+	"github.com/pydio/cells/v5/common/errors"
 )
 
 const chunkStartOffset = 8
+
 const endChunk = "IEND"
 
 type pngChunk struct {
@@ -79,7 +82,7 @@ func readPNGChunks(reader io.ReadSeeker) []pngChunk {
 		return &chunk, nil
 
 	read_error:
-		return nil, fmt.Errorf("Read error")
+		return nil, errors.New("Read error")
 	}
 
 	chunk, err := readChunk()

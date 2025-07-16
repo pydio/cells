@@ -25,7 +25,6 @@ package index
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -222,7 +221,7 @@ func (i *Client) FinishSession(ctx context.Context, sessionUuid string) error {
 
 func (i *Client) LockBranch(ctx context.Context, node tree.N, sessionUUID string, expireAfter time.Duration) error {
 	if node.GetUuid() == "" {
-		return fmt.Errorf("missing uuid for creating lock session ACL")
+		return errors.New("missing uuid for creating lock session ACL")
 	}
 	locker := permissions.NewLockSession(node.GetUuid(), sessionUUID, expireAfter)
 	return locker.Lock(ctx)

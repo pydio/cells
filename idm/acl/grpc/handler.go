@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/pydio/cells/v5/common"
@@ -124,7 +123,7 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest) (*id
 
 	period := acl.ReadExpirationPeriod(req)
 	if req.Query == nil && period == nil {
-		return nil, fmt.Errorf("please provide at least one of (query|period)")
+		return nil, errors.New("please provide at least one of (query|period)")
 	}
 
 	response := &idm.DeleteACLResponse{}

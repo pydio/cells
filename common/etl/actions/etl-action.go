@@ -22,9 +22,9 @@ package actions
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/etl"
 	"github.com/pydio/cells/v5/common/etl/stores"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -50,7 +50,7 @@ func (c *etlAction) ParseStores(params map[string]string) error {
 	} else if t, o2 := params["type"]; o2 {
 		c.leftType = t
 	} else {
-		return fmt.Errorf("task sync user must take a left or type parameter")
+		return errors.New("task sync user must take a left or type parameter")
 	}
 	if r, o := params["right"]; o {
 		c.rightType = r

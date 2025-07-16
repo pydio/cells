@@ -7,6 +7,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -97,7 +98,7 @@ func (c *CleanExpiredACLAction) Run(ctx context.Context, channels *actions.Runna
 	}
 
 	if req.ExpiredAfter == 0 && req.ExpiredBefore == 0 {
-		e := fmt.Errorf("please provide at least one parameter")
+		e := errors.New("please provide at least one parameter")
 		return input.WithError(e), e
 	}
 

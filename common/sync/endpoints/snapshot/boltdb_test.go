@@ -54,7 +54,7 @@ func basicDiff(l, r model.PathSyncSource) error {
 		return nil
 	}, "/", true)
 	if len(right) != len(left) {
-		return fmt.Errorf("lengths differ")
+		return errors.New("lengths differ")
 	}
 	sort.Strings(leftPaths)
 	for i, p := range leftPaths {

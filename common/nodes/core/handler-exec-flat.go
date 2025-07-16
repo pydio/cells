@@ -264,7 +264,7 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, re
 	} else if node.Uuid != "" {
 		updateNode = node
 	} else {
-		return fmt.Errorf("missing uuid info to postCreate node")
+		return errors.New("missing uuid info to postCreate node")
 	}
 	if object != nil {
 		updateNode.MTime = object.LastModified.Unix()

@@ -22,17 +22,17 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
 var (
-	ErrTaskInterrupted = fmt.Errorf("interrupted")
+	ErrTaskInterrupted = errors.New("interrupted")
 	fakeActionName     = "actions.test.fake"
 )
 

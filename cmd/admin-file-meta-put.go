@@ -21,13 +21,13 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
@@ -53,7 +53,7 @@ EXAMPLE
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if metaPutUUID == "" || metaPutKey == "" {
-			return fmt.Errorf("Missing arguments")
+			return errors.New("Missing arguments")
 		}
 
 		return nil
