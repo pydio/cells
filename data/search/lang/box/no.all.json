@@ -1,21 +1,21 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "Indeksinnhold"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "Hvis satt til sann, vil indekserer se etter ContentRef metadata, lese innholdet fra denne referansen og indeksere den for søk."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "Innholdsreferanse Metadata"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "Navn på metadata som peker til den interne filen, og som inneholder en skrevet representasjon av det opprinnelige dokumentet. Slikt internt innhold kan være ren tekst eller gzip-kodet, avhengig av tekstutpakkingsverktøyet som brukes (eks. Tika). Søkemotoren indekserer vanligvis dette innholdet for å aktivere fulltekstsøk. Pass på at du prefikser metadatanavnet med 'pydio:' for å unngå lekkasje av data."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "Ren Tekst Utvidelser"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "Liste over filendelser som inneholder direkte indekserbart tekstinnhold (kommaseparert liste)."
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "File Name Analyzer"
