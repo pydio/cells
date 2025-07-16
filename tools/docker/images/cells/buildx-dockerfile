@@ -11,7 +11,7 @@ ARG arch=$TARGETARCH
 
 WORKDIR /opt/pydio
 RUN wget "https://download.pydio.com/pub/cells/release/${version}/linux-${arch}/cells"
-RUN chmod +x /pydio/cells
+RUN chmod +x /opt/pydio/cells
 
 FROM alpine
 ARG version
