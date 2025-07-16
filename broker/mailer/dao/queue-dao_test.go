@@ -24,7 +24,6 @@ package dao
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"google.golang.org/protobuf/proto"
