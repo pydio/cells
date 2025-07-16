@@ -23,6 +23,6 @@ ENV PATH="$PATH:/opt/pydio/bin"
 
 RUN echo "Pydio Cells Home Docker Image" > /opt/pydio/package.info \
     && echo "  A ready-to-go Docker image based on Alpine ${arch} to configure and launch Cells in no time." >> /opt/pydio/package.info \
-    && echo "  Generated on $(date) with docker build script from version ${version:-dev}"" >> /opt/pydio/package.info
+    && echo "  Generated on $(date) with docker build script from version ${version:-dev}" >> /opt/pydio/package.info
 
 ENTRYPOINT [ "cells", "start" ]
