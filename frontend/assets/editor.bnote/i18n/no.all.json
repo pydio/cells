@@ -1,0 +1,23 @@
+{
+  "enable_kb": {
+    "other": "Convert to Page"
+  },
+  "disable_kb": {
+    "other": "Convert to Folder"
+  },
+  "mime-page": {
+    "other": "Side"
+  },
+  "mkpage": {
+    "other": "New Page"
+  },
+  "mkpage.legend": {
+    "other": "Create a new sub-page"
+  },
+  "mkpage.placeholder": {
+    "other": "Page Name"
+  },
+  "copy_ref": {
+    "other": "Copy Reference"
+  }
+}
