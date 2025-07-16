@@ -12,10 +12,10 @@
     "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "Ren Tekst Utvidelser"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "Liste over filendelser som inneholder direkte indekserbart tekstinnhold (kommaseparert liste)."
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "File Name Analyzer"
