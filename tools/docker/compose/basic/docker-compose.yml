@@ -1,27 +1,62 @@
 services:
 
   cells:
-    image: pydio/cells:latest
+    # TODO rather use latest or v5 images when they are released
+    image: pydio/cells:unstable-v5-dev
     restart: unless-stopped
     ports: ["8080:8080"]
     environment:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
     volumes: 
       - cellsdir:/var/cells
-      - ./install-conf.yml:/pydio/config/install.yml:ro
+      - ./install-conf.yml:/pydio/config/install.yml
+    depends_on:
+      - sqldb
 
-  mysql:
-    image: mysql:8
+## Choose one DB Server among Postgre SQL, MySQL, Maria DB or SQLite 
+## and uncomment the corresponding service below (or none for SQLite).
+## Also adapt the install conf yaml file to use correct db URL.
+
+  # PG SQL
+  sqldb:
+    image: postgres:16.4
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ChangeMe!
-      MYSQL_DATABASE: cells
-      MYSQL_USER: pydio
-      MYSQL_PASSWORD: ChangeMe!
+    expose: [5432]
     volumes:
-      - mysqldir:/var/lib/mysql
-    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+      - sqldir:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: pydio
+      POSTGRES_PASSWORD: ChangeMe
+      POSTGRES_DB: cells
+
+  # MySQL
+#  sqldb:
+#    image: mysql:8
+#    restart: unless-stopped
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ChangeMe
+#      MYSQL_DATABASE: cells
+#      MYSQL_USER: pydio
+#      MYSQL_PASSWORD: ChangeMe
+#    volumes:
+#      - sqldir:/var/lib/mysql
+#    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+
+  # MariaDB
+#  sqldb:
+#    image: mariadb:11
+#    restart: unless-stopped
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=ChangeMe
+#      - MYSQL_DATABASE=cells
+#      - MYSQL_USER=pydio
+#      - MYSQL_PASSWORD=ChangeMe
+#    volumes:
+#      - sqldir:/var/lib/mysql
+     
+  # SQLite => no service needed, comment out all other services
+
 
 volumes:
   cellsdir: {}
-  mysqldir: {}
+  sqldir: {}

@@ -9,3 +9,6 @@ On your workstation, simply:
 - Accept the self-signed certificate
 - Log in with admin / admin
 - Start to explore
+
+For convenience, we also left as comments a sample pattern to use one of the 4 supported DB server type.  
+See [docker-compose.yml](./docker-compose.yml) file.
