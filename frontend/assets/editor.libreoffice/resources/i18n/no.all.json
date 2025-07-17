@@ -1,0 +1,59 @@
+{
+  "1": {
+    "other": "Libre Office Documents"
+  },
+  "10": {
+    "other": "Create an empty document"
+  },
+  "11": {
+    "other": "Document Format"
+  },
+  "12": {
+    "other": "You can also <a>create an empty document</a>"
+  },
+  "13": {
+    "other": "Untitled Document"
+  },
+  "14": {
+    "other": "The document was created, you can now edit it"
+  },
+  "15": {
+    "other": "Unknown document format"
+  },
+  "2": {
+    "other": "Libre Office External browser window"
+  },
+  "ext.doc": {
+    "other": "Microsoft Word 97/2000/XP/2003"
+  },
+  "ext.docx": {
+    "other": "Microsoft Word 2007/2010/2013 XML"
+  },
+  "ext.odg": {
+    "other": "ODF Drawing"
+  },
+  "ext.odp": {
+    "other": "ODF Presentation"
+  },
+  "ext.ods": {
+    "other": "ODF Spreadsheet"
+  },
+  "ext.odt": {
+    "other": "ODF Text Document"
+  },
+  "ext.ppt": {
+    "other": "Microsoft PowerPoint 97/2000/XP/2003"
+  },
+  "ext.pptx": {
+    "other": "Microsoft PowerPoint 2007/2010/2013 XML"
+  },
+  "ext.rtf": {
+    "other": "Rich Text"
+  },
+  "ext.xls": {
+    "other": "Microsoft Excel 97/2000/XP/2003"
+  },
+  "ext.xlsx": {
+    "other": "Microsoft Excel 2007/2010/2013 XML"
+  }
+}
