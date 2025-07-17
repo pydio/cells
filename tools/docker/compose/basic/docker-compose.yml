@@ -1,7 +1,8 @@
 services:
 
   cells:
-    image: pydio/cells:v5-sandbox
+    # TODO rather use latest or v5 images when they are released
+    image: pydio/cells:unstable-v5-dev
     restart: unless-stopped
     ports: ["8080:8080"]
     environment:
