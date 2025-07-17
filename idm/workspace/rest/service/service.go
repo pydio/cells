@@ -40,7 +40,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up:            rest.FirstRun,
+					Up:            rest.InstallLayout,
 				},
 			}),
 			service.WithWeb(func(c context.Context) service.WebHandler {

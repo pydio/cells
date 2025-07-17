@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -211,11 +210,8 @@ ENVIRONMENT
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
 
-			var data interface{}
-			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-				if err := config.Set(ctx, data); err == nil {
-					config.Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
-				}
+			if err := config.SaveNewFromSample(ctx); err != nil {
+				return err
 			}
 
 			installConf, err = nonInteractiveInstall(ctx)
