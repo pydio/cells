@@ -1,0 +1,14 @@
+# This script builds a custom Docker image from the latest version
+# and customise the user that runs the cells app
+# Use --build-arg login=<your login> and --build-arg uid=<your uid> to overide defaults
+
+FROM pydio/cells:latest AS cells
+ARG login=pydio
+ARG uid=1001
+
+RUN adduser -H -D -u $uid $login \
+  && RUN chown -R $uid:$uid /var/cells /opt/pydio
+USER $login
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["cells", "start"]
