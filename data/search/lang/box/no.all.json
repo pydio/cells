@@ -18,15 +18,15 @@
     "other": "Liste over filendelser som inneholder direkte indekserbart tekstinnhold (kommaseparert liste)."
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "Filnavn analyserer"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "Analyserer brukt på filnavn"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "Innholdsanalyserer"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "Analyserer brukt på innhold"
   }
 }
