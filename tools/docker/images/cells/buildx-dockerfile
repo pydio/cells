@@ -20,6 +20,7 @@ ARG TARGETARCH
 
 ENV CELLS_WORKING_DIR=/var/cells
 WORKDIR $CELLS_WORKING_DIR
+COPY docker-entrypoint.sh /opt/pydio/bin/docker-entrypoint.sh
 COPY --from=certs /opt/pydio/cells /opt/pydio/bin/cells
 ENV PATH="$PATH:/opt/pydio/bin"
 
