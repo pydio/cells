@@ -1,103 +1,103 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Hendelsesbasert jobb for replikering av data til versjonering"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Opprettet versjon {{.Uuid}} innenfor versjon bucket "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Opprettet versjonsmetadata for {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Trimmet {{.Count}} versjon",
+    "other": "Trimmet {{.Count}} versjoner"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Rydder versjoner for slettede noder"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "Vellykket fjerning av {{.Count}} versjon",
+    "other": "Vellykket fjerning av {{.Count}} versjoner."
   },
   "Config.GroupPolicy.Title": {
     "other": "Policy"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Navn"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Policynavn"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Beskrivelse"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Beskrivelse av Policy"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "Butikk"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "Datakilde brukt for å lagre versjoner"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "Bøtte"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Bøtte brukt i denne datakilden"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Grenser for størrelse"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Global størrelse på alle versjoner beholdt i denne bøtten"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Begrens den totale størrelsen. Hvis grensen er nådd, vil eldste versjon slettes. Bruk -1 for ingen grense"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Kumulativ størrelse for versjonene av en gitt fil"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Begrens størrelsen brukt av alle versjonene av en fil. Hvis grensen er nådd, vil eldste versjon bli slettet. Bruk -1 for ingen grense"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Ignorer filer større enn..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "IKKE versjoner filer med størrelse større enn denne grensen. Bruk -1 for ingen grense"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "Oppbevaringsperiode"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "Antall versjoner som skal beholdes per periode"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "Start periode"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "Startpunkt brukt for beregningsperiode. 0 er tidspunktet for den siste versjonen, bruk en annen periode for å sette en begrensning"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "Maksimalt antall versjoner"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "Maksimalt antall versjoner å beholde denne perioden. Bruk -1 for å beholde alle versjoner, 0 for å slette alle."
   },
   "Config.GroupRetention.NodeDeletedStrategy.Name": {
-    "other": "After original file deletion"
+    "other": "Etter sletting av orginalfilen"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Description": {
-    "other": "Number of versions to keep after original file deletion."
+    "other": "Antallet versjoner som skal beholdes etter sletting av originalfilen."
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
-    "other": "Backup all existing versions"
+    "other": "Sikkerhetskopier alle eksisterende versjoner"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
-    "other": "Backup most recent version only"
+    "other": "Sikkerhetskopier kun den nyeste versjonen"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "Slett alle eksisterende versjoner"
   }
 }
