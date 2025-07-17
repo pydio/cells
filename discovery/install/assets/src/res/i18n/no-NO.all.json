@@ -45,28 +45,28 @@
     "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
   },
   "admin.adminFound": {
-    "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
+    "other": "En administrativ bruker ble allerede funnet i DB. Sjekk om du ønsker å opprette en ny."
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "Avanserte innstillinger"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "Avanserte innstillinger (valgfritt)"
   },
   "advanced.legend": {
-    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+    "other": "Pydio Cells tjenester vil bli distribuert på denne maskinen. Du kan gjennomgå noen avanserte innstillinger nedenfor for å finjustere konfigurasjonen."
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "Vis avanserte innstillinger"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "En standard datakilde for å lagre brukernes personlige data og cells data blir laget ved oppstart. Du kan opprette andre datakilder senere."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Konfigurer en MongoDB tilkobling"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Dette er bedre for skalerbarhet, og kreves for clustret installasjon. Hvis du ikke har en Mongo DB klar, kan dette legges til senere."
   },
   "advanced.mongo.host": {
     "other": "Server host"
@@ -75,64 +75,64 @@
     "other": "Server port"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Databasenavn"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Brukernavn"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Passord"
   },
   "advanced.mongo.authSource": {
     "other": "Auth DB"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Test tilkoblingen"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "Enterprise lisens"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Pydio Cells Enterprise lisens"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "Lisensfil oppdaget."
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "Dette installasjonen er gyldig for %count brukere til %expiration."
   },
   "license.failed": {
-    "other": "Error while trying to verify this license key. Please contact the support."
+    "other": "Feil under forsøk på å verifisere denne lisensnøkkelen. Vennligst kontakt brukerstøtten."
   },
   "license.required": {
-    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+    "other": "En gyldig lisensnøkkel er påkrevd for å kunne kjøre Enterprise Distribution. For å få en 30 dager lang prøveperiode eller et salgstilbud, vennligst kontakt"
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "Lisens streng"
   },
   "license.fieldLegend": {
-    "other": "Please copy/paste the license key provided to you."
+    "other": "Kopier og lim inn lisensnøkkelen delt med deg."
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "Bruk installasjon"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Vennligst være tålmodig mens Pydio Cells blir installert..."
   },
   "apply.success": {
-    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+    "other": "Installasjonen var vellykket, og tjenestene starter nå, siden vil bli lastet inn på nytt når tjenestene har startet."
   },
   "apply.success.restarted": {
-    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+    "other": "Installasjonen var vellykket, og tjenestene har nå startet. Vennligst oppdater siden nå (den blir automatisk oppdatert om %1s)"
   },
   "apply.error": {
-    "other": "There was an error while performing installation! Please check your configuration."
+    "other": "Det oppstod en feil under utføring av installasjonen! Vennligst sjekk din konfigurasjon."
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "Feilmelding: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "Tilkoblingstype"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -141,58 +141,58 @@
     "other": "Socket"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manual"
+    "other": "Manuell"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Vertsnavn"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "Server hvor mysql kjører"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "Databasenavn"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "Database som skal brukes (vil bli opprettet om den ikke eksisterer)"
   },
   "form.dbTCPPort.label": {
     "other": "Port"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "Port for tilkobling til mysql"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "Databasebruker"
   },
   "form.dbUser.legend": {
-    "other": "Leave blank if not required"
+    "other": "La være blank om ikke nødvendig"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "Databasepassord"
   },
   "form.dbPassword.legend": {
-    "other": "Leave blank if not required"
+    "other": "La være blank om ikke nødvendig"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "Angi plasseringen av socket filen du vil bruke til å koble til"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "Bruk Golang-stil DSN for å beskrive databasetilkobling"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "Applikasjonstittel"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "Hovedtittel til installasjonen"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "Standardspråk"
   },
   "form.frontendLogin.label": {
     "other": "Admin user login *"
