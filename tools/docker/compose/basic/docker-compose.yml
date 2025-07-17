@@ -8,11 +8,13 @@ services:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
     volumes: 
       - cellsdir:/var/cells
-      - ./install-conf.yml:/pydio/config/install.yml:ro
+      - ./install-conf.yml:/pydio/config/install.yml
     depends_on:
       - sqldb
 
-  ## Choose one of the DB below (or none for SQLite)
+## Choose one DB Server among Postgre SQL, MySQL, Maria DB or SQLite 
+## and uncomment the corresponding service below (or none for SQLite).
+## Also adapt the install conf yaml file to use correct db URL.
 
   # PG SQL
   sqldb:
@@ -26,6 +28,7 @@ services:
       POSTGRES_PASSWORD: ChangeMe
       POSTGRES_DB: cells
 
+  # MySQL
 #  sqldb:
 #    image: mysql:8
 #    restart: unless-stopped
@@ -37,6 +40,21 @@ services:
 #    volumes:
 #      - sqldir:/var/lib/mysql
 #    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+
+  # MariaDB
+#  sqldb:
+#    image: mariadb:11
+#    restart: unless-stopped
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=ChangeMe
+#      - MYSQL_DATABASE=cells
+#      - MYSQL_USER=pydio
+#      - MYSQL_PASSWORD=ChangeMe
+#    volumes:
+#      - sqldir:/var/lib/mysql
+     
+  # SQLite => no service needed, comment out all other services
+
 
 volumes:
   cellsdir: {}

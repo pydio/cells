@@ -2,6 +2,9 @@
 # Simply run 'docker compose up -d', you can log in with admin/admin at https://localhost:8080
 # After accepting the self-signed certificate
 
+# You can choose on of the 4 supported DB server by un-commenting the corresponding line below 
+# and modifying the docker-compose.yml file accordingly.
+
 # Adapt to your convenience and refer to the documentation to explore further possibilities.
 
 # WebUI Admin definition
@@ -10,8 +13,10 @@ frontendpassword: admin
 
 ## DB connection
 dbconnectiontype: manual
-# MySql & MariaDb
-#dbmanualdsn: mysql://pydio:ChangeMe@tcp(sqldb:3306)/cells?parseTime=true&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}
 # PG SQL
 dbmanualdsn: "postgres://pydio:ChangeMe@sqldb:5432/cells?sslmode=disable&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}"
+# MySql & MariaDb
+# dbmanualdsn: mysql://pydio:ChangeMe@tcp(sqldb:3306)/cells?parseTime=true&prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}
+# SQLite (directly in the Cells docker image, you just need then a single service)
+# dbmanualdsn: "sqlite:///var/cells/pydio.db?prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}"
 
