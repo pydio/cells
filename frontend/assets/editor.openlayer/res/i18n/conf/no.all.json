@@ -1,0 +1,8 @@
+{
+  "Geolocation feature to either display a WMS layer or simply place an exif-localized photo. Requires OpenLayers": {
+    "other": "Geolocation feature to either display a WMS layer or simply place an exif-localized photo. Requires OpenLayers"
+  },
+  "Map viewer": {
+    "other": "Map viewer"
+  }
+}
