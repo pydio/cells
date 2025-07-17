@@ -456,6 +456,7 @@ class Store extends Observable{
             // DO SOMETHING?
         }) ;
 
+        return session;
     }
 
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null, targetRepositoryId = null){
@@ -562,6 +563,7 @@ class Store extends Observable{
             }) ;
         }
 
+        return session;
     }
 
     recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
