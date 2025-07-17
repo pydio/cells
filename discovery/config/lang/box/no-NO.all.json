@@ -1,18 +1,18 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "Maks 30 dager"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Slett versjoner etter 30 dager"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Behold alle"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Behold alle versjoner for alltid"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Normal trimming"
   },
   "Prune versions regularly at various intervals": {
     "other": "Prune versions regularly at various intervals"
@@ -165,154 +165,154 @@
     "other": "Request Port"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "Forespørselsmetode"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "Forespørsel URI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "Servertid"
   },
   "contextMetaField.UserAgent": {
-    "other": "User Agent"
+    "other": "Brukeragent"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "Betingelse"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "Feltnavn"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "Har AutoApply"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "Er Grupperolle"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "Er Team"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "Er Brukergruppe"
   },
   "roleSingleQuery.Label": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "ikke"
   },
   "treeQuery.Content": {
-    "other": "Content"
+    "other": "Innhold"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "Endringsdato (bruk sammenligning)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "Filtype"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "Filnavn"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Filnavn eller innhold"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "Bleve-aktig søkestreng"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "Geolokasjonsspørring"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "Endret før"
   },
   "treeQuery.MaxSize": {
-    "other": "MaxSize"
+    "other": "MaksStørrelse"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "Endret siden"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "Størrelse større enn"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "Stidybde"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "Prefiks for sti"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Absolutte stier"
   },
   "treeQuery.Type": {
     "other": "Type"
   },
   "treeQuery.Type.COLLECTION": {
-    "other": "Folder"
+    "other": "Mappe"
   },
   "treeQuery.Type.LEAF": {
-    "other": "File"
+    "other": "Fil"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "Alle"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "Node UUIDer"
   },
   "treeQuery.ETag": {
     "other": "ETag"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "Har en verdi"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Attributtnavn"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Attributtverdi"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "Tilkoblet siden"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Fullstendig sti"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "Gruppesti"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "Har Profil"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "Har Rolle"
   },
   "userSingleQuery.Login": {
-    "other": "Login"
+    "other": "Innlogging"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "Objekttype"
   },
   "userSingleQuery.NodeType.GROUP": {
-    "other": "Group"
+    "other": "Gruppe"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "Alle"
   },
   "userSingleQuery.NodeType.USER": {
-    "other": "User"
+    "other": "Bruker"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "userSingleQuery.Password": {
-    "other": "Password"
+    "other": "Passord"
   },
   "userSingleQuery.Recursive": {
     "other": "Recursive"
@@ -465,9 +465,9 @@
     "other": "Run Parameter Value"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "Manual Trigger"
+    "other": "Manuell Utløser"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "Hendelser"
   }
 }
