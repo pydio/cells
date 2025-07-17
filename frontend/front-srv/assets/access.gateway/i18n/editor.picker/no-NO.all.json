@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Choose other..."
+  },
+  "2": {
+    "other": "Choose another editor"
+  },
+  "3": {
+    "other": "Select another editor to open this file"
+  },
+  "4": {
+    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+  },
+  "5": {
+    "other": "Clear associations"
+  },
+  "drop.cell.picker": {
+    "other": "Pick action for %s..."
+  },
+  "drop.cell.share.legend": {
+    "other": "Add new item to this cell"
+  },
+  "drop.cell.copymove.legend": {
+    "other": "Inside %s"
+  },
+  "drop.cell.file.share": {
+    "other": "Share file"
+  },
+  "drop.cell.folder.share": {
+    "other": "Share folder"
+  },
+  "drop.cell.file.move": {
+    "other": "Move file"
+  },
+  "drop.cell.folder.move": {
+    "other": "Move folder"
+  },
+  "drop.cell.file.copy": {
+    "other": "Copy file"
+  },
+  "drop.cell.folder.copy": {
+    "other": "Copy folder"
+  },
+  "download.as.pdf": {
+    "other": "Download as PDF"
+  }
+}
