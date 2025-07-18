@@ -3,7 +3,7 @@
     "other": "Livekit Server"
   },
   "Enable audio/video conferencing with Livekit Server": {
-    "other": "Enable audio/video conferencing with Livekit Server"
+    "other": "Audio-/Videokonferenzen mit Livekit Server aktivieren"
   },
   "Websocket URL": {
     "other": "Websocket URL"
@@ -12,15 +12,15 @@
     "other": "Livekit Websocket URL"
   },
   "API Key": {
-    "other": "API Key"
+    "other": "API-Schlüssel"
   },
   "Livekit server API Key": {
-    "other": "Livekit server API Key"
+    "other": "Livekit Server API-Schlüssel"
   },
   "API Secret": {
     "other": "API Secret"
   },
   "Livekit server API Secret": {
-    "other": "Livekit server API Secret"
+    "other": "Livekit Server API Secret"
   }
 }
