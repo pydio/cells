@@ -1,287 +1,287 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "利用規約"
   },
   "welcome.title": {
-    "other": "Welcome to Pydio Cells Installation Wizard"
+    "other": "Pydio Cellsインストールウィザードへようこそ"
   },
   "welcome.legend": {
-    "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
+    "other": "サーバーにすべてのサービスをインストールします。実行する前に、以下のライセンス条件に同意してください。"
   },
   "welcome.agreed": {
-    "other": "I agree with the terms"
+    "other": "利用規約に同意する"
   },
   "database.stepLabel": {
-    "other": "Database Connection"
+    "other": "データベース接続"
   },
   "database.title": {
-    "other": "Database Configuration"
+    "other": "データベース設定"
   },
   "database.legend": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
+    "other": "Pydioでは、各種設定の保存とデータの検索のため、少なくとも1つのSQLストレージが必要です。MySQL/MariaDBサーバーへの接続設定を実施してください。"
   },
   "database.legend.bold": {
-    "other": "Please make sure that your database is running MySQL version 5.6 or higher"
+    "other": "MySQLのバージョンが5.6以上であることを確認してください。"
   },
   "database.installDetected": {
-    "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
+    "other": "データベースにセットアップされたCellsがあります。このまま続行するか確認してください。 "
   },
   "database.installDetected.retry": {
-    "other": "retry with new value"
+    "other": "新しい値で再試行する"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "デフォルトのデータベースが既に設定されています。接続を検証するには、次へ進んでください。"
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "別のデータベースを設定する"
   },
   "admin.stepLabel": {
-    "other": "Admin User"
+    "other": "管理者ユーザー"
   },
   "admin.title": {
-    "other": "Admin user and frontend defaults"
+    "other": "管理者ユーザーとフロントエンドのデフォルト設定"
   },
   "admin.legend": {
-    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+    "other": "管理者ユーザーの認証情報を提供します。インストール済みのプログラムにデプロイする場合は、フィールドを空のままにします。"
   },
   "admin.adminFound": {
-    "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
+    "other": "管理者ユーザーはすでに登録されています。新しいユーザーを作成しますか？"
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "詳細設定"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "詳細設定 (オプション)"
   },
   "advanced.legend": {
-    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+    "other": "Pydio Cells サービスがデプロイされます。設定を変更する場合、以下の詳細設定を確認してください。"
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "詳細設定を表示"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "ユーザーの個人データとcellsを保存するデータソースは、スタートアップ時に作成されます。後で、他のデータソースを作成することも可能です。"
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "MongoDB 接続設定"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "これは拡張性に優れていて、クラスタの展開に必要です。Mongo DBをまだ用意していない場合は、後で実行することもできます。"
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "サーバー ホスト名"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "サーバー ポート"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "データベース名"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "ユーザー名"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "パスワード"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "認証"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "接続テスト"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "エンタープライズライセンス"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Pydio Cells エンタープライズライセンス"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "ライセンスファイルの検出に成功しました。"
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "このプログラムは%expiration中%countのユーザーまで登録可能です"
   },
   "license.failed": {
-    "other": "Error while trying to verify this license key. Please contact the support."
+    "other": "ライセンスキーの検証中にエラーが発生しました。サポートに連絡してください。"
   },
   "license.required": {
-    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+    "other": "エンタープライズディストリビューションの実行には、ライセンスキーが必要です。30日間のトライアルライセンス、またはお見積もりが必要な場合は、お問い合わせください"
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "ライセンス文字列"
   },
   "license.fieldLegend": {
-    "other": "Please copy/paste the license key provided to you."
+    "other": "ライセンスキーをコピー/ペーストしてください。"
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "プログラムを適用"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Pydio Cellsをインストール中です。しばらくお待ちください..."
   },
   "apply.success": {
-    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+    "other": "インストールが成功しました。サービスを開始しております。サービス開始後に、このページを再読み込みします。"
   },
   "apply.success.restarted": {
-    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+    "other": "インストールが成功し、サービスが開始されました。今すぐページを再読み込みしてください（ %1sに自動で再読み込みされます）"
   },
   "apply.error": {
-    "other": "There was an error while performing installation! Please check your configuration."
+    "other": "インストール中にエラーが発生しました！設定を確認してください。"
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "エラーが発生しました: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "接続タイプ"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
   },
   "form.dbConnectionType.socket": {
-    "other": "Socket"
+    "other": "ソケット"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manual"
+    "other": "手動"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "ホスト名"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "mysqlサーバー"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "データベース名"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "使用するデータベース（存在しない場合は作成されます）"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "ポート"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "mysqlに接続するポート"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "データベースのユーザー"
   },
   "form.dbUser.legend": {
-    "other": "Leave blank if not required"
+    "other": "不要な場合は空白にしてください"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "データベースのパスワード"
   },
   "form.dbPassword.legend": {
-    "other": "Leave blank if not required"
+    "other": "不要な場合は空白にしてください"
   },
   "form.dbSocketFile.label": {
-    "other": "Socket"
+    "other": "ソケット"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "接続に使用するソケットファイルの場所を入力してください"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "Golang-style DSNを使用してデータベースに接続します"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "アプリケーションのタイトル"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "プログラムのメインタイトル"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "既定の言語"
   },
   "form.frontendLogin.label": {
-    "other": "Admin user login *"
+    "other": "管理者ユーザーのログイン *"
   },
   "form.frontendLogin.legend": {
-    "other": "Identifier used to log in"
+    "other": "ログインに使用するID"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "管理者のパスワード *"
   },
   "form.frontendPassword.legend": {
-    "other": "Password used to log in"
+    "other": "ログインに使用するパスワード"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirm password"
+    "other": "パスワードの確認"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirm password twice"
+    "other": "パスワードの確認"
   },
   "form.dsFolder.label": {
-    "other": "Path of the default datasource"
+    "other": "データソースのデフォルトパス"
   },
   "form.dsFolder.legend": {
-    "other": "Use an absolute path on the server"
+    "other": "絶対パスを使用する"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "ストレージタイプ"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "ローカル FS (このサーバーにすべてのデータを保存する)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / S3 互換(S3 バケット内に格納)"
   },
   "form.dsS3Custom.label": {
     "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "空白の場合Amazonになります"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "S3 カスタムリージョン"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "空白の場合デフォルトの値になります(us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 APIキー"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "S3に接続するキー"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 APIシークレット"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "シークレットキー"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "S3に接続して、バケットを設定する"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Buckets prefix"
+    "other": "バケットのプリフィクス"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "6つのデフォルトバケットを作成するためのユニークなプリフィックスです。"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "以下のバケットは既に存在しています"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "以下のバケットが作成されます"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "以下のバケットが見つかりません"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "バケットの作成は許可されていません。手動で作成できるか確認してください。"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "次へ"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "戻る"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "今すぐインストールする"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "再読み込み"
   }
 }
