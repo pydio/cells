@@ -12,25 +12,25 @@
     "other": "Enter"
   },
   "43": {
-    "other": "Min profil"
+    "other": "My Profile"
   },
   "43t": {
     "other": "All my personal data"
   },
   "44": {
-    "other": "Mitt konto"
+    "other": "My Account"
   },
   "45": {
     "other": "Personal data"
   },
   "46": {
-    "other": "Adressbok"
+    "other": "Address Book"
   },
   "47": {
     "other": "Users and teams that you created"
   },
   "48": {
-    "other": "Mina användare"
+    "other": "My Users"
   },
   "49": {
     "other": "External users that you created"
@@ -177,7 +177,7 @@
     "other": "Home"
   },
   "search.result.location": {
-    "other": "Mapp"
+    "other": "Folder"
   },
   "search.facets.title": {
     "other": "Filter Results..."
@@ -189,7 +189,7 @@
     "other": "Extension"
   },
   "search.facet.size": {
-    "other": "Storlek"
+    "other": "Size"
   },
   "search.facet.modified": {
     "other": "Modified"
@@ -219,7 +219,7 @@
     "other": "File"
   },
   "facet.label.folder": {
-    "other": "Mapp"
+    "other": "Folder"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
@@ -240,13 +240,13 @@
     "other": "Today"
   },
   "facet.label.date.last.7": {
-    "other": "Senaste 7 dagarna"
+    "other": "Last 7 days"
   },
   "facet.label.date.last.30": {
-    "other": "Senaste 30 dagarna"
+    "other": "Last 30 days"
   },
   "facet.label.date.older.30": {
-    "other": "Äldre än 30 dagar"
+    "other": "Older than 30 days"
   },
   "facet.label.found.contents": {
     "other": "Contents"
