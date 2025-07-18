@@ -657,1285 +657,1285 @@
     "other": "创建到此文件的公共链接"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "链接到期时间 (天数) 和密码(如果无需密码则留空)。"
   },
   "295": {
-    "other": "Expiration"
+    "other": "过期时间"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "复制下面的 URL"
   },
   "297": {
-    "other": "New User"
+    "other": "新用户"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "创建新用户"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "3": {
-    "other": "Type"
+    "other": "类型"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "为目录起一个名称，然后点击 &quot;创建&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "创建新工作区"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "编辑配置"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "复制为文本"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "将所选文本复制为Tab分隔的文本"
   },
   "304": {
-    "other": "Back"
+    "other": "后退"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "返回主页"
   },
   "305b": {
     "other": "My Workspaces"
   },
   "306": {
-    "other": "Too many items"
+    "other": "项目数量太多"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "填写可选字段"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "生成链接"
   },
   "309": {
-    "other": "Generate"
+    "other": "生成"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "您必须选择一个文件"
   },
   "310": {
-    "other": "Options"
+    "other": "选项"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "添加文件时自动上传"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "上传选项"
   },
   "313": {
-    "other": "Compress..."
+    "other": "压缩..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "压缩所选文件到zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "压缩所选文件到"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "查看/编辑"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "源编辑器"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "CodePress 源代码查看器"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML 编辑器"
   },
   "32": {
-    "other": "Explore"
+    "other": "浏览"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "HTML WYSIWYG 编辑器"
   },
   "321": {
-    "other": "Select"
+    "other": "选择"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "选择当前文件"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "通过电子邮件发送此网址"
   },
   "324": {
-    "other": "No editor available"
+    "other": "没有可用的编辑器"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "最适合的"
   },
   "326": {
-    "other": "No Fit"
+    "other": "没有适合的"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "文档阅读器"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "在线查看 pdf、svg、tif 等"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "上传文件时发生错误！"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "正在渲染页面请稍候..."
   },
   "331": {
-    "other": "Page"
+    "other": "页"
   },
   "332": {
-    "other": "of"
+    "other": "的"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "像素图像编辑器"
   },
   "334": {
-    "other": "more"
+    "other": "更多"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "请输入一个页码，介于 1 和 "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "对不起，您不能拖放文件夹，只能拖放文件！"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "自动开始上传"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "上传完成后关闭面板"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "已存在的文件"
   },
   "34": {
-    "other": "The file"
+    "other": "文件"
   },
   "340": {
-    "other": "Alert"
+    "other": "警告"
   },
   "341": {
-    "other": "File Info"
+    "other": "文件信息"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "文件夹信息"
   },
   "343": {
-    "other": "Image Info"
+    "other": "图像信息"
   },
   "344": {
-    "other": "Search on"
+    "other": "搜索"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "无法检索版本信息"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "您的版本是最新的"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "有新版本 (%s) 可用！访问 %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "共享了一个新的工作区。"
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "警告，缺失参数"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "已成功创建到目录"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "这个名字已被不属于您的其他用户使用，请选择另一个名字。"
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "您不得向公众分享元素。"
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "已存在具有相同名称的工作区，请选择另一个名称。"
   },
   "353": {
-    "other": "Target User"
+    "other": "目标用户"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "创建一个新用户或从列表中选择一个现有用户。"
   },
   "355": {
-    "other": "User Name"
+    "other": "用户名称"
   },
   "356": {
-    "other": "User Pass"
+    "other": "用户通过"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "目标仓库"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "选择共享工作区的名称。"
   },
   "359": {
-    "other": "Label"
+    "other": "标签"
   },
   "36": {
-    "other": "It's size is"
+    "other": "大小是"
   },
   "360": {
-    "other": "Rights"
+    "other": "权限"
   },
   "361": {
-    "other": "Read"
+    "other": "读"
   },
   "362": {
-    "other": "Write"
+    "other": "写入"
   },
   "363": {
-    "other": "Shared"
+    "other": "共享"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "您无权执行此操作"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "您不允许一次上传超过 %s 个文件。"
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "该用户没有任何活动工作区。"
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "您无权上传此类型的文件。请在以下扩展中选择： "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "所选已成功从存档 %s 提取到文件夹 %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "快捷方式"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "您必须写一个有效的名称"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE 公共下载"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "此下载需要密码"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "当前工作区"
   },
   "373": {
-    "other": "Destination"
+    "other": "目标"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "您不能跨工作区复制文件夹"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "我们检测到您自超过 __IDLE__处于非活动状态。为了您的数据安全，您将在 __LOGOUT__ 中登出"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "你还在吗？"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "点击任意位置以继续您的会话"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "警告，密码为空或太短！"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "不安全的单词！"
   },
   "38": {
-    "other": "The directory"
+    "other": "目录"
   },
   "380": {
-    "other": "Too short"
+    "other": "太短"
   },
   "381": {
-    "other": "Very weak"
+    "other": "很弱"
   },
   "382": {
-    "other": "Weak"
+    "other": "弱"
   },
   "383": {
-    "other": "Medium"
+    "other": "中等"
   },
   "384": {
-    "other": "Strong"
+    "other": "强"
   },
   "385": {
-    "other": "Very strong"
+    "other": "很强"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "请仅使用小写字符进行登录"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "请使用字母数字字符或有效的电子邮件作为登录名"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "您已登录失败3次。\\n为了您的安全，请填写图像中出现的代码。"
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "请阅读下面的代码："
   },
   "39": {
-    "other": "has been created in"
+    "other": "已创建于"
   },
   "390": {
-    "other": "Code"
+    "other": "代码"
   },
   "391": {
-    "other": "No Repository"
+    "other": "没有仓库"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "警告，APPLICATION_TITLE 版本已更改(现在为 %s)，请清除您的浏览器缓存并刷新页面以确保所有功能都已正常！"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "警告，名称长度必须小于 %s，此文件的名称将被截断！"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "对不起，当前无法使用当前的身份验证方式共享文件夹(用户无法编辑)。尽管如此，仍然可以共享文件。"
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "您拖入的项目似乎是一个文件夹，文件夹无法上传到服务器！您确定要上传吗？"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "认证方法"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "已下载数据块"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "按块下载选中的文件"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "输入您要下载的件数，然后单击按钮并单击每个文件进行下载。"
   },
   "4": {
-    "other": "Modified"
+    "other": "已修改"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "此目录已经存在(名称不区分大小写)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "块数："
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "您可以在计算机上下载并安装以下软件以将这些片段连接起来： "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "已重命名为"
   },
   "411": {
-    "other": "Open"
+    "other": "打开"
   },
   "412": {
-    "other": "Upload only"
+    "other": "仅上传"
   },
   "413": {
-    "other": "Shared by"
+    "other": "共享自"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "使用箭头导航并+/- 改变大小"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "切换左窗格可见性"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "左侧面板"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "创建一个单元格..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "创建一个单元格"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "正在加载模板..."
   },
   "42": {
-    "other": "to"
+    "other": "到"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "请从列表中选择一个模板"
   },
   "421": {
-    "other": "New %s"
+    "other": "新%s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "请填写必填参数。用鼠标在字段标题悬停以获得更多信息。"
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "删除工作区"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "您确定要删除此工作区吗？操作是不可逆的。"
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "现在工作区已创建，它已添加到您的工作区列表中，如果要删除它，请确保切换到另一个工作区，然后单击工作区名称旁边的红叉。"
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "创建工作区时出错"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "删除工作区时出错"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "工作区已成功删除"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "这就是工作区在列表中的显示方式。"
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "已存在(名称不区分大小写)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "公共文件"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "示例模板"
   },
   "432": {
-    "other": "My Files"
+    "other": "我的文件"
   },
   "433": {
-    "other": "ready"
+    "other": "准备好"
   },
   "434": {
-    "other": "sending"
+    "other": "正在发送"
   },
   "435": {
-    "other": "done"
+    "other": "完成"
   },
   "436": {
-    "other": "error"
+    "other": "错误"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "欧，你的安全令牌似乎过期了！请%s在您的浏览器中点击刷新或F5！"
   },
   "438": {
-    "other": "reload the page"
+    "other": "重新加载页面"
   },
   "439": {
-    "other": "Main Options"
+    "other": "主选项"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "已删除"
   },
   "440": {
-    "other": "Yes"
+    "other": "是"
   },
   "441": {
-    "other": "No"
+    "other": "否"
   },
   "442": {
-    "other": "My Account"
+    "other": "我的帐户"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "更新您的个人信息"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "请更新您的密码，否则您将无法登录。"
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "您现在将退出，请使用新密码重新登录，谢谢！"
   },
   "446": {
-    "other": "Presentation"
+    "other": "演示"
   },
   "447": {
-    "other": "My group"
+    "other": "我的组"
   },
   "448": {
-    "other": "create user"
+    "other": "创建用户"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "正在创建 %s，选择一个密码"
   },
   "45": {
-    "other": "directory"
+    "other": "目录"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "排序方式..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "将缩略图排序为 ..."
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "缩略图大小"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "设置缩略图大小"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "选择您计算机上的文件"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "456": {
-    "other": "More"
+    "other": "更多"
   },
   "457": {
-    "other": "update"
+    "other": "更新"
   },
   "458": {
-    "other": "remove"
+    "other": "删除"
   },
   "459": {
-    "other": "Top folder"
+    "other": "顶部文件夹"
   },
   "46": {
-    "other": "file"
+    "other": "文件"
   },
   "460": {
-    "other": "List"
+    "other": "列表"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "切换到列表视图"
   },
   "462": {
-    "other": "Preview"
+    "other": "预览"
   },
   "463": {
-    "other": "Download all"
+    "other": "全部下载"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "一次下载所有工作区内容（zip压缩）"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "显示替代 URLs(分开挂载工作区)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "加载中..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "所有共享元素"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "469": {
-    "other": "Cells"
+    "other": "单元格"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "您真的要删除"
   },
   "470": {
-    "other": "Created %date"
+    "other": "创建日期%d"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "由%user 于%date 创建"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "由%user分享"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "由%user于%date分享"
   },
   "474": {
-    "other": "No description available"
+    "other": "无可用描述"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "所有用户之间共享的文件"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "您的个人工作区"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "选择一个文件或文件夹以在此处查看其详细信息"
   },
   "478": {
-    "other": "No results found"
+    "other": "未找到结果"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "忘记您的密码？"
   },
   "48": {
-    "other": "Ok"
+    "other": "确定"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "浏览当前工作区的所有文件夹。"
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "您所有共享的文件和文件夹"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "快速访问您加标签的项目"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "您无权创建更多用户！"
   },
   "484": {
-    "other": "Create user"
+    "other": "创建用户"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "创建共享用户"
   },
   "486": {
-    "other": "Advanced"
+    "other": "高级"
   },
   "487": {
-    "other": "Basic"
+    "other": "基本"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "高级筛选"
   },
   "489": {
-    "other": "Metadata"
+    "other": "元数据"
   },
   "49": {
-    "other": "Cancel"
+    "other": "取消"
   },
   "490": {
-    "other": "Date range"
+    "other": "日期范围"
   },
   "491": {
-    "other": "After"
+    "other": "之后"
   },
   "492": {
-    "other": "until"
+    "other": "直到"
   },
   "493": {
-    "other": "Today"
+    "other": "今天"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "昨天"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "明天"
   },
   "495": {
-    "other": "Last week"
+    "other": "上周"
   },
   "496": {
-    "other": "Last month"
+    "other": "上个月"
   },
   "497": {
-    "other": "Last year"
+    "other": "去年"
   },
   "498": {
-    "other": "Document Property"
+    "other": "文件属性"
   },
   "499": {
-    "other": "File"
+    "other": "文件"
   },
   "5": {
-    "other": "Actions"
+    "other": "操作"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe 文件"
   },
   "500": {
-    "other": "Extension"
+    "other": "扩展"
   },
   "501": {
-    "other": "or"
+    "other": "或"
   },
   "502": {
-    "other": "Folders only"
+    "other": "仅文件夹"
   },
   "503": {
-    "other": "Size"
+    "other": "大小"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "到"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "应用程序参数(用户，工作区，配置)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "欢迎来到 %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "我刚刚在 %s上为您创建了一个帐户。要连接，请单击以下链接 %link 并使用这些凭据： <br><br> 登录名：%user <br><br> 密码：%pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "另存为团队"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "文本编辑器"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "请输入团队标签"
   },
   "511": {
-    "other": "My %s"
+    "other": "我的 %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "桌面全屏"
   },
   "513": {
-    "other": "show"
+    "other": "显示"
   },
   "514": {
-    "other": "hide"
+    "other": "隐藏"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "没有书签 - 将文件或文件夹拖放到此处快速访问。"
   },
   "516": {
-    "other": "expand"
+    "other": "扩展"
   },
   "517": {
-    "other": "collapse"
+    "other": "折叠"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "或者，您可以 <a class='create_file_alt_link'>创建一个新的空文件</a>。"
   },
   "519": {
-    "other": "Update user"
+    "other": "更新用户"
   },
   "52": {
-    "other": "Editing file"
+    "other": "编辑文件"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "更新用户数据和密码"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "用户更新成功"
   },
   "522": {
-    "other": "User ID"
+    "other": "用户 ID"
   },
   "523": {
-    "other": "Password"
+    "other": "密码"
   },
   "524": {
-    "other": "Update Password"
+    "other": "更新密码"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "显示原始图片"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "低分辨率版本"
   },
   "527": {
-    "other": "Shared with"
+    "other": "共享给"
   },
   "528": {
-    "other": "Internal users"
+    "other": "内部用户"
   },
   "53": {
-    "other": "Save"
+    "other": "保存"
   },
   "530": {
-    "other": "External users"
+    "other": "外部用户"
   },
   "531": {
-    "other": "Users"
+    "other": "用户"
   },
   "532": {
-    "other": "Groups"
+    "other": "组"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "用于登录的标识符，请使用字母数字或电子邮件小写字符。"
   },
   "534": {
-    "other": "Password used to login"
+    "other": "用于登录的密码"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "通过电子邮件发送密码"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "向新用户发送欢迎邮件，包括密码"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "文件过大！最大授权大小为 %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "上传错误：服务器上没有找到文件！"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "上传错误：文件不完整"
   },
   "54": {
-    "other": "Cancel"
+    "other": "取消"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "上传错误：找不到临时目录"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "上传错误：无法写入临时目录"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "上传错误：PHP扩展停止了上传过程。"
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "结果限制为 %s 。"
   },
   "544": {
-    "other": "Show more"
+    "other": "显示更多"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "远程共享"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "此项目已由 %%OWNER%% 从远程位置与您共享。您想要继续吗？"
   },
   "547": {
-    "other": "Accept"
+    "other": "接受"
   },
   "548": {
-    "other": "Decline"
+    "other": "拒绝"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "您之前已经接受了 %%OWNER%% 从远程位置分享给您的此项目。您想要现在拒绝它吗？"
   },
   "55": {
-    "other": "has been modified"
+    "other": "已修改"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "拒绝这个共享"
   },
   "551": {
-    "other": "Reject"
+    "other": "拒绝"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "请提供密码。"
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "密码无效，请再试一次。 \\n 请确保您的大写键未被按下！"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "回收站中的 %s 个结果"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "后台启动任务 %s"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "需要凭据"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "请提供进入工作区的密码。"
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "此工作区的身份验证失败。"
   },
   "56": {
-    "other": "BMP picture"
+    "other": "BMP 图片"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "需要身份验证"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "我们将把您重定向到提供商的认证页面。如果没有自动重定向，请按 OK 重试..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "此文件夹为空！"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "这个工作区是空的！"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "回收站是空的。"
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "通过选择或直接从桌面拖动来开始添加文件或文件夹"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "您不可以在这里添加文件"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "浏览回收站"
   },
   "568": {
-    "other": "Teams"
+    "other": "团队"
   },
   "569": {
-    "other": "New Team"
+    "other": "新团队"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "PNG 图片"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "删除团队"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "尚未创建团队"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "创建您自己的团队，以便在多个用户之间轻松分享数据"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "没有可用的团队"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "您无权创建团队，但一些授权用户可以与您分享团队"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "创建和编辑团队"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "让用户创建和编辑自己的团队"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "添加用户到团队"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "从团队中移除"
   },
   "575": {
-    "other": "Team Members"
+    "other": "团队成员"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s 个成员"
   },
   "577": {
-    "other": "No members"
+    "other": "无成员"
   },
   "578": {
-    "other": "Team Label"
+    "other": "团队标签"
   },
   "579": {
-    "other": "Create Team"
+    "other": "创建团队"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS 文件"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "编辑团队标签"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "用户属于 %s 团队"
   },
   "582": {
-    "other": "Delete User"
+    "other": "删除用户"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "搜索目录"
   },
   "584": {
-    "other": "Directory"
+    "other": "目录"
   },
   "585": {
-    "other": "No External Users"
+    "other": "没有外部用户"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "创建您自己的用户，并从您的工作区中共享文件或文件夹。"
   },
   "587": {
-    "other": "No results"
+    "other": "没有结果"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "开始在搜索表单中输入内容以查找目录中的用户"
   },
   "589": {
-    "other": "External user"
+    "other": "外部用户"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 文件"
   },
   "590": {
-    "other": "Internal user"
+    "other": "内部用户"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "为团队选择一个名字，您将能够在创建后添加用户。"
   },
   "592": {
-    "other": "Address Book"
+    "other": "地址簿"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "共享用户"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "信任的服务器"
   },
   "595": {
-    "other": "Search user..."
+    "other": "搜索用户..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "服务器 '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "全部"
   },
   "598": {
-    "other": "Send a message"
+    "other": "发送消息"
   },
   "599": {
-    "other": "Add a user"
+    "other": "添加用户"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "所有结果"
   },
   "6": {
-    "other": "Rename"
+    "other": "重命名"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR 文件"
   },
   "600": {
-    "other": "Edit user"
+    "other": "编辑用户"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "1 个共享单元"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 个共享单元格"
   },
   "603": {
-    "other": "Team"
+    "other": "团队"
   },
   "604": {
-    "other": "Remote User"
+    "other": "远程用户"
   },
   "605": {
-    "other": "More search options"
+    "other": "更多搜索选项"
   },
   "606": {
-    "other": "Less search options"
+    "other": "较少的搜索选项"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "您最近的活动 - 输入以搜索所有工作区中的文件"
   },
   "608": {
-    "other": "Current folder"
+    "other": "当前文件夹"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "整个工作区"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ 文件"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "所有工作区"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "开始输入搜索内容"
   },
   "612": {
-    "other": "Custom range"
+    "other": "自定义范围"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "大于..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "小于..."
   },
   "615": {
-    "other": "Execute"
+    "other": "执行"
   },
   "616": {
-    "other": "Mask"
+    "other": "隐藏"
   },
   "617": {
-    "other": "Enter"
+    "other": "进入"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "切换语言..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "搜索仅限于当前文件夹及其子文件夹"
   },
   "62": {
-    "other": "Root directory"
+    "other": "根目录"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "搜索限于当前工作区"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "此字段不能为空"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "堆栈错误"
   },
   "623": {
-    "other": "Copy"
+    "other": "复制"
   },
   "624": {
-    "other": "Copied!"
+    "other": "已复制！"
   },
   "625": {
-    "other": "Letter"
+    "other": "字母"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "与我共享的文件"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "来自远程服务器的共享"
   },
   "628": {
-    "other": "Revert"
+    "other": "还原"
   },
   "629": {
-    "other": "No records yet"
+    "other": "还没有记录"
   },
   "63": {
-    "other": "Log out"
+    "other": "登出"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "与我共享的文件夹"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "这个单元格是空的！"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "尚无单元格"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "单元格是与其他人共享以协作处理文档的空间"
   },
   "634": {
-    "other": "You"
+    "other": "您"
   },
   "634b": {
-    "other": "Your group"
+    "other": "您的组"
   },
   "634c": {
-    "other": "All users"
+    "other": "所有用户"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "聊天室"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "开始输入并按 Enter 键"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "还没有消息，开始输入内容与此单元格的用户聊天！"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "单元格包含多个根文件夹或文件，您不能直接在此处上传数据。"
   },
   "639": {
-    "other": "In this cell"
+    "other": "在这个单元格中"
   },
   "64": {
-    "other": "XLS File"
+    "other": "XLS 文件"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "使用 %s 创建一个单元格"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "从当前单元格中删除"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "添加到当前单元格"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "您现在与 %s 共享一个单元格"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "无法创建单元格： %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Word文件"
   },
   "66": {
-    "other": "Copy"
+    "other": "复制"
   },
   "67": {
-    "other": "Selected file"
+    "other": "选定的文件"
   },
   "68": {
-    "other": "Paste in"
+    "other": "粘贴到"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "或者选择另一个目录"
   },
   "7": {
-    "other": "Delete"
+    "other": "删除"
   },
   "70": {
-    "other": "Move"
+    "other": "移动"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "此文件已经存在(名称不区分大小写)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "根路径不正确。请在conf/conf.php 文件中检查"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "已复制到目录"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "已移动到目录"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "文件 users.txt 不在 prive 目录中"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "此文件已被删除"
   },
   "77": {
-    "other": "Send"
+    "other": "发送"
   },
   "78": {
-    "other": "Pass"
+    "other": "通过"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF 文件"
   },
   "8": {
-    "other": "Directory"
+    "other": "目录"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV 文件"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI 文件"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG 文件"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG 文件"
   },
   "84": {
-    "other": "Help"
+    "other": "帮助"
   },
   "85": {
-    "other": "Refresh"
+    "other": "刷新"
   },
   "86": {
-    "other": "Close"
+    "other": "关闭"
   },
   "87": {
-    "other": "Search"
+    "other": "搜索​​​​"
   },
   "88": {
-    "other": "Download"
+    "other": "下载"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "无法打开文件"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Midi 文件"
   },
   "90": {
-    "other": "Print"
+    "other": "打印"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "FLASH 文件"
   },
   "92": {
-    "other": "Language"
+    "other": "语言"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "要选择您的语言，您的浏览器必须接受曲奇。"
   },
   "94": {
-    "other": "Login"
+    "other": "登录"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "选择您的语言："
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "请在树中选择目标文件夹： "
   },
   "97": {
-    "other": "Upload File"
+    "other": "上传文件"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "点击此框上的任意位置来关闭它。"
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "无法写入。可能存在权限问题，请与管理员联系。"
   },
   "about_access_key": {
     "other": "A"
@@ -1962,19 +1962,19 @@
     "other": "en_US"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "在日期"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s 天前"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "在 %s 天内"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "时间"
   },
   "date_relative_time_format": {
     "other": "H:i"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "英语"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,145 +2034,145 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "定义工作区如何访问其后端(文件存储或其他任何文件) 以及主要布局和动作的插件。"
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "面向各个方面的功能插件"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "用户数据如何存储在后端"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "收集身份凭证的方法(网络表格、api 密钥等)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "用于加载框架的唯一插件"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "设置应用程序使用的缓存服务器的唯一插件"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "如何在后端存储配置数据"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "数据加密插件"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "适用于各种哑剧类型的观众或编辑者"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "存储数据事件的实现(仅限 SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "主网络接口、主题和扩展"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "帮助管理任务的工具"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "索引数据和提供快速搜索选项的工具"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "将应用程序日志发送到各种频道"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "让应用程序发送电子邮件的工具"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "搜索引擎选项"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "要添加到工作区的额外功能"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "用于存储元数据以及文件和文件夹的各种实现"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "简单 PUB/SUB 服务器的实现"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "先进的安全功能"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "缩短公共链接的网络服务连接"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "基于各种技术的上传控件，如HTML、Javascript、Java 和其他"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "工作区驱动程序"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "动作插件"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "身份验证后端"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "身份验证前端"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "加载器"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "缓存服务器"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "配置存储"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "加密工具"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "编辑"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "事件订阅存储"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "图形用户界面"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "助手"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "正在索引"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "日志"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "发送者"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "搜索引擎"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "工作区元数据"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "元数据存储"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "即时通讯"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "安全"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "URL 短链"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "上传者"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "父文件夹"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "批量操作"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2196,312 +2196,312 @@
     "other": "U"
   },
   "view_access_key": {
-    "other": "V"
+    "other": "Ⅴ"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "公开访问"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "正在后台移动文件..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "正在后台移动文件夹..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "正在后台复制所选文件..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "文件已锁定"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "文件夹已锁定"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "当前正在监控此文件"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "当前正在监控此文件夹"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "共享文件，点击编辑"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "共享文件夹，点击编辑"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "文件已添加到书签"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "文件夹已添加到书签"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "将此元素添加为书签"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "删除此书签"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "混合值，点击为全部添加书签"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "保存书签状态"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "里面"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "空文件"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "无标题文档"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "不要在文件名中使用 / ！"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "您必须提供名称！"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "警告，该名称似乎以空白字符开头或结尾(可能是拼写错误？)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "请使用不同的值来重命名!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "正在将 %1 重命名为 %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "过滤单元"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "过滤工作区"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "可见性"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "查看"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "编辑"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "用户"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "您的团队"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "更改可见性"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "保存更改"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "还原更改"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "出现错误"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "选择用户..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "将可见设置为..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "此高级功能允许您决定您在地址簿中创建的用户是否可以被其他用户看到或编辑。 默认情况下，您创建的用户只有您能看到。"
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "未知的"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "选择组"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "多重选择"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "确认"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "您即将删除"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "下次不要警告我"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "每页条目数"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "的"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "请只使用图像 (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "重置"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "您想要删除当前图像吗？"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "请使用小于5MB 的图像"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "开始输入内容来搜索文件和文件夹"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "搜索中......"
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "搜索..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "搜索： "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "搜索..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "共享"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "无状态"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "公共链接"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "在单元格中共享"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "公共链接或单元格"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "格式"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "仅文件"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "高级过滤器"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "找到 %1 个结果"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "显示 %1，加载更多..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "保存"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "保存查询"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "清除"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "全部清除"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "删除"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "删除此保存的查询？"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "输入标签"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "名称/内容"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "已保存的搜索"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "上次搜索"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "高级建议"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "您指的是"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "包含'%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "过滤:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "点击修改"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "删除"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "包括预览？"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "内嵌插入"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "较早文章"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "编辑信息"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "保存更改"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "还原更改"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "删除消息"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "删除消息?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "该操作无法撤销"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "正在加载文档……"
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "正在打开文档..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "前往文档"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "找不到文档，它可能已被删除。"
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "点击打开%s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "打开文档在..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "额度使用情况"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "永久删除"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "警告！你不能撤消此操作。"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "转到文件夹"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "最近位置"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "顶部文件夹"
   }
 }
