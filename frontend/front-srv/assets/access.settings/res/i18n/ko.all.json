@@ -9,16 +9,16 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "이름"
+    "other": "Name"
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "설명"
+    "other": "Description"
   },
   "104": {
-    "other": "활성화"
+    "other": "Enabled"
   },
   "105": {
     "other": "Automatic checks"
@@ -45,7 +45,7 @@
     "other": "Backend"
   },
   "112": {
-    "other": "모든 사용자에 <b>기본적으로 이 역할을 적용</b>"
+    "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
     "other": "Role status was successfully modified"
@@ -87,7 +87,7 @@
     "other": "Source"
   },
   "125": {
-    "other": "별칭"
+    "other": "Alias"
   },
   "126": {
     "other": "Are you sure that you want to delete the selected element(s)?"
@@ -141,7 +141,7 @@
     "other": "Define profiles that can be applied at once to whole bunch of users."
   },
   "141": {
-    "other": "응용 프로그램 상태를 모니터링하는 관리자 작업입니다."
+    "other": "Administrator tasks to monitor the application state."
   },
   "142": {
     "other": "Monitor all activities happening on the server"
@@ -156,7 +156,7 @@
     "other": "Generated documentations for developers"
   },
   "146": {
-    "other": "동작 API"
+    "other": "Actions API"
   },
   "147": {
     "other": "List all actions contributed by all plugins and visualize their input parameters"
@@ -192,7 +192,7 @@
     "other": "Standard"
   },
   "157": {
-    "other": "관리자"
+    "other": "Administrator"
   },
   "158": {
     "other": "Shared"
@@ -225,13 +225,13 @@
     "other": "Successfully unlocked user (%s)"
   },
   "168": {
-    "other": "%1 사용자가 그룹 %2 로 이동되었습니다."
+    "other": "%1 users were moved to group %2"
   },
   "169": {
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "날짜"
+    "other": "Date"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -249,7 +249,7 @@
     "other": "Identity Management"
   },
   "175": {
-    "other": "데이터 관리"
+    "other": "Data Management"
   },
   "176": {
     "other": "Security Policies"
@@ -291,7 +291,7 @@
     "other": "Modify Password"
   },
   "27": {
-    "other": "관리자 권한"
+    "other": "Admin Right"
   },
   "28": {
     "other": "User has admin rights?"
@@ -309,7 +309,7 @@
     "other": "Write"
   },
   "32": {
-    "other": "접근 드라이버"
+    "other": "Access Driver"
   },
   "33": {
     "other": "Loading..."
@@ -417,7 +417,7 @@
     "other": "Rights Summary"
   },
   "63": {
-    "other": "전체"
+    "other": "All"
   },
   "64": {
     "other": "Changed right for role "
@@ -462,13 +462,13 @@
     "other": "Role Id"
   },
   "77": {
-    "other": "접근 제어"
+    "other": "Access Control"
   },
   "78": {
     "other": "Personal data"
   },
   "79": {
-    "other": "작업 공간"
+    "other": "Workspace"
   },
   "8": {
     "other": "Workspace Label"
@@ -516,7 +516,7 @@
     "other": "Create a new template"
   },
   "93": {
-    "other": "편집"
+    "other": "Edit"
   },
   "94": {
     "other": "Batch Edit"
@@ -531,7 +531,7 @@
     "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "메인 설정"
+    "other": "Main Settings"
   },
   "99": {
     "other": "Feature plugins"
