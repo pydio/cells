@@ -29,6 +29,8 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v5/common/config"
+	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/service"
@@ -219,6 +221,22 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 
 	if err := mgr.ServeAll(server.WithBlockUntilServe()); err != nil {
 		return nil, err
+	}
+
+	// Migrate all services now
+	ss, _ := mgr.Registry().List(registry.WithType(pb.ItemType_SERVICE))
+	for _, s := range ss {
+		var svc service.Service
+		if s.As(&svc) {
+			if len(svc.Options().Migrations) > 0 {
+				upCtx := propagator.With(ctx, service.ContextKey, s)
+				if ok, er := service.UpdateServiceVersion(upCtx, svc.Options()); er != nil {
+					return nil, er
+				} else if ok {
+					fmt.Println("Updated service version", svc.Name())
+				}
+			}
+		}
 	}
 
 	return ctx, nil
