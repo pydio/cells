@@ -1350,7 +1350,7 @@
     "other": "作成"
   },
   "virtual.create.error": {
-    "other": "データソースと異なる必要があります"
+    "other": "Must differ from datasources"
   },
   "virtual.label": {
     "other": "ラベル"
