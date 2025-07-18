@@ -1,138 +1,138 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "Condiciones de Uso"
   },
   "welcome.title": {
-    "other": "Welcome to Pydio Cells Installation Wizard"
+    "other": "Bienvenido al Asistente de Anstalación de Pydio Cells"
   },
   "welcome.legend": {
-    "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
+    "other": "Este proceso instalará todos los servicios en el servidor actual. Por favor, acepte abajo las condiciones de la licencia antes de empezar"
   },
   "welcome.agreed": {
-    "other": "I agree with the terms"
+    "other": "Acepto las condiciones"
   },
   "database.stepLabel": {
-    "other": "Database Connection"
+    "other": "Conexión a la Base de Datos"
   },
   "database.title": {
-    "other": "Database Configuration"
+    "other": "Configuración de la Base de Datos"
   },
   "database.legend": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
+    "other": "Pydio requiere al menos un almacenamiento SQL para la configuración y la indexación de datos. Configure aquí la conexión a su servidor MySQL/MariaDB."
   },
   "database.legend.bold": {
-    "other": "Please make sure that your database is running MySQL version 5.6 or higher"
+    "other": "Por favor, asegúrese de que su base de datos está ejecutando MySQL versión 5.6 o superior"
   },
   "database.installDetected": {
-    "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
+    "other": "Parece que ya hay una versión de Cells configurada en esta base de datos. Por favor, confirme para continuar o "
   },
   "database.installDetected.retry": {
-    "other": "retry with new value"
+    "other": "reintentar con nuevo valor"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "Una base de datos por defecto está ya configurada, simplemente haga click en \"siguiente\" para validar la conexión."
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "Configurar otra base de datos."
   },
   "admin.stepLabel": {
-    "other": "Admin User"
+    "other": "Administrador"
   },
   "admin.title": {
-    "other": "Admin user and frontend defaults"
+    "other": "Configuración de Administrador y frontend por defecto"
   },
   "admin.legend": {
-    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+    "other": "Proporcione credenciales para usuario administrador. Deje los campos vacíos si está instalando la aplicación sobre una ya existente."
   },
   "admin.adminFound": {
-    "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
+    "other": "Ya existe un usuario administrador en la Base de Datos. Compruebe si desea crear uno nuevo."
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "Configuración avanzada"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "Configuración Avanzada (opcional)"
   },
   "advanced.legend": {
-    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+    "other": "Los servicios de Pydio Cells se implementarán en esta máquina. Abajo puede revisar algunos parámetros avanzados para ajustar la configuración."
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "Mostrar Configuración Avanzada"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "Al comenzar se crea un datasource por defecto para almacenar los datos personales de los usuarios y datos de Cells. Puede crear otros datasources más adelante."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configurar una conexión a MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Esto es mejor para la escalabilidad, y es necesario para el despliegue de clústeres. Si no tiene un servidor MongoDB listo, esto puede hacerse más tarde."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Host del servidor"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Puerto del servidor"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Nombre de la Base de Datos"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Usuario"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Contraseña"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "BD Auth"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Probar conexión"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "Licencia Enterprise"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Licencia Enterprise de Pydio Cells"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "El archivo de licencia fue eliminado con éxito."
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "Esta instalación es válida para usuarios %count hasta su %expiration."
   },
   "license.failed": {
-    "other": "Error while trying to verify this license key. Please contact the support."
+    "other": "Error al intentar verificar esta clave de licencia. Por favor, póngase en contacto con el servicio de soporte."
   },
   "license.required": {
-    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+    "other": "Se requiere una clave de licencia válida para ejecutar la Distribución Enterprise. Para obtener una licencia de prueba de 30 días o un presupuesto, póngase en contacto con nosotros"
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "Cadena de Licencia"
   },
   "license.fieldLegend": {
-    "other": "Please copy/paste the license key provided to you."
+    "other": "Por favor, copie/pegue la clave de licencia que se le ha proporcionado."
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "Ejecutar la Instalación"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Por favor, tenga paciencia mientras se instala Pydio Cells…"
   },
   "apply.success": {
-    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+    "other": "La instalación se ha realizado correctamente y los servicios se están iniciando. Este instalador volverá a cargar la página cuando se inicien los servicios."
   },
   "apply.success.restarted": {
-    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+    "other": "La instalación se ha realizado correctamente y los servicios se han iniciado, por favor, recargue la página ahora (se volverá a cargar automáticamente en %1s)"
   },
   "apply.error": {
-    "other": "There was an error while performing installation! Please check your configuration."
+    "other": "¡Ha habido un error mientras se realizaba la instalación! Por favor, compruebe la configuración."
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "El error ha sido: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "Tipo de Conexión"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -144,144 +144,144 @@
     "other": "Manual"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Hostname"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "Servidor en el que se está ejecutando mySQL"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "Nombre de la Base de Datos"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "Base de Datos a usar (se creará si no existe)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "Puerto"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "Puerto para conectar a mySQL"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "Usuario de Base de Datos"
   },
   "form.dbUser.legend": {
-    "other": "Leave blank if not required"
+    "other": "Dejar en blanco si no se requiere"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "Contraseña de la Base de Datos"
   },
   "form.dbPassword.legend": {
-    "other": "Leave blank if not required"
+    "other": "Dejar en blanco si no se requiere"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "Introduzca la ubicación del archivo socket que se utilizará para conectar"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "Use DSN con formato Golang para describir la conexión a la base de datos"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "Título de la Aplicación"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "Título principal de la instalación"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "Idioma por Defecto"
   },
   "form.frontendLogin.label": {
-    "other": "Admin user login *"
+    "other": "Login de Administrador *"
   },
   "form.frontendLogin.legend": {
-    "other": "Identifier used to log in"
+    "other": "Identificador usado para iniciar sesión"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "Contraseña de Administrador *"
   },
   "form.frontendPassword.legend": {
-    "other": "Password used to log in"
+    "other": "Contraseña usada para iniciar sesión"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirm password"
+    "other": "Confirmar contraseña"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirm password twice"
+    "other": "Confirmar contraseña dos veces"
   },
   "form.dsFolder.label": {
-    "other": "Path of the default datasource"
+    "other": "Ruta de la base de datos predeterminada"
   },
   "form.dsFolder.legend": {
-    "other": "Use an absolute path on the server"
+    "other": "Usar una ruta absoluta en el servidor"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "Tipo de Almacenamiento"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "FS local (almacenar todos los datos en este servidor)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / Compatible S3 (se almacena en buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, añadir ?minio=true si Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "Dejar vacío para Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "Región personalizada S3"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "Dejar vacío por defecto (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "Clave Api S3"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "Clave para conectar a S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "Clave Secreta Api S3"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "Clave Secreta"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "Conectar a S3 para definir buckets"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Buckets prefix"
+    "other": "Prefijo de los buckets"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "Un prefijo único para crear los 6 buckets por defecto"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "Los siguientes buckets ya existen"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "Se crearán los siguientes buckets"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "No se encontraron los siguientes buckets"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "No está autorizado a crear buckets, ¡asegúrese de crearlos manualmente!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "Siguiente"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "Atrás"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Instalar ahora"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "Recargar"
   }
 }
