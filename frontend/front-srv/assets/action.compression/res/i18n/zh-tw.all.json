@@ -24,19 +24,19 @@
     "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
   },
   "17": {
-    "other": "無法壓縮空資料夾。"
+    "other": "You can't compress empty folders."
   },
   "2": {
     "other": "Compress Selection"
   },
   "3": {
-    "other": "格式"
+    "other": "Format"
   },
   "4": {
-    "other": "壓縮檔名稱"
+    "other": "Archive's name"
   },
   "5": {
-    "other": "壓縮中..."
+    "other": "Starting compression..."
   },
   "6": {
     "other": "Adding files in the archive... %s "
@@ -45,9 +45,9 @@
     "other": "During compression in %s ..."
   },
   "8": {
-    "other": "壓縮成功！！"
+    "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "解壓縮"
+    "other": "Extract"
   }
 }
