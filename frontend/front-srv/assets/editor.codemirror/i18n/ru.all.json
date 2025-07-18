@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Редактора кода"
+    "other": "Source Editor"
   },
   "10": {
-    "other": "Размер отступа"
+    "other": "Indent size"
   },
   "2": {
-    "other": "Подсветка синтаксиса CodeMirror"
+    "other": "CodeMirror Syntax Highlighter"
   },
   "3": {
-    "other": "Перевод строк"
+    "other": "Wrapping"
   },
   "3b": {
-    "other": "Вкл/Выкл перевод строк"
+    "other": "Toggle lines wrapping"
   },
   "4": {
-    "other": "Нумерация"
+    "other": "Numbers"
   },
   "5": {
-    "other": "Вкл/Выкл номера строк"
+    "other": "Toggle lines numbers"
   },
   "6": {
-    "other": "Перейти к строке"
+    "other": "Jump to line"
   },
   "7": {
-    "other": "Отмена"
+    "other": "Undo"
   },
   "8": {
-    "other": "Вернуть"
+    "other": "Redo"
   },
   "9": {
-    "other": "Поиск текста"
+    "other": "Text Search"
   }
 }
