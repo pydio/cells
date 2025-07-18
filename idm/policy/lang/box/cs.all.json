@@ -1,6 +1,6 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Veřejný přístup"
   },
   "PolicyGroup.PublicAccess.Description": {
     "other": "Public access to discovery endpoints"
@@ -27,7 +27,7 @@
     "other": "Anonymous access to install endpoints (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Zaznamenané přístupy uživatelů a správců"
   },
   "PolicyGroup.LoggedUsers.Description": {
     "other": "Decide how standard users/shared users/admin users can access the rest APIs"
