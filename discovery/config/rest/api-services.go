@@ -398,7 +398,7 @@ func (h *Handler) serviceToRest(r registry.Registry, srv registry.Service, nodes
 				Address:  h,
 				Metadata: node.Metadata(),
 			})
-		} else if node.ID() == "generic" {
+		} else if strings.HasPrefix(node.ID(), "generic-") {
 			isGeneric = true
 		}
 	}
