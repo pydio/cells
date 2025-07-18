@@ -1,341 +1,341 @@
 {
   "title": {
-    "other": "Data Import"
+    "other": "数据导入"
   },
   "legend": {
-    "other": "Import tool from Pydio 8"
+    "other": "Pydio 8 导入工具"
   },
   "next": {
-    "other": "Next"
+    "other": "下一步"
   },
   "back": {
-    "other": "Back"
+    "other": "返回"
   },
   "step.categories.choose": {
-    "other": "Choose features to import"
+    "other": "选择要导入的功能"
   },
   "step.categories.choose.legend": {
-    "other": "Use checkboxes below to select the data you want to import. If required, the wizard will lead you through specific configuration for each feature and you will validate your choices before launching proper importation job. To have best control over the import process, you may select only one step and run the import tools many times."
+    "other": "使用下面的复选框选择要导入的数据。 如果需要，向导将引导您完成每个功能的特定配置，并在启动正确的导入作业之前验证您的选择。 为了最好地控制导入过程，您可以仅选择一个步骤并多次运行导入工具。"
   },
   "step.categories.summary": {
-    "other": "Validation"
+    "other": "验证"
   },
   "step.categories.summary.legend": {
-    "other": "Here is a summary of the configuration. Please review it before launching importation in background."
+    "other": "这是配置摘要。 在后台启动导入之前，请对其进行检查。"
   },
   "step.categories.summary.empty": {
-    "other": "No specific configuration"
+    "other": "没有特定的配置"
   },
   "step.categories.summary.launch": {
-    "other": "Launch Import Now"
+    "other": "立即启动导入"
   },
   "step.connection": {
-    "other": "Pydio 8 Connection"
+    "other": "Pydio 8 连接"
   },
   "step.connection.legend": {
-    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
+    "other": "使用您创建的专用用户，使用下面的表单连接到 Pydio 8 服务器。"
   },
   "step.connection.fail": {
-    "other": "Cannot connect to %s"
+    "other": "无法连接到%s"
   },
   "step.connection.missing": {
-    "other": "Please fill all required fields"
+    "other": "请填写所有必填字段"
   },
   "step.connection.success": {
-    "other": "Successful connection to the API"
+    "other": "API连接成功"
   },
   "step.connection.field.url": {
-    "other": "Server URL"
+    "other": "服务器 URL"
   },
   "step.connection.field.skipssl": {
-    "other": "Skip SSL verification (self-signed)"
+    "other": "跳过SSL验证（自签名）"
   },
   "step.connection.field.login": {
-    "other": "Administrator login"
+    "other": "管理员登录"
   },
   "step.connection.field.pwd": {
-    "other": "Admin password"
+    "other": "管理员密码"
   },
   "step.connection.button.connect": {
-    "other": "Connect"
+    "other": "连接"
   },
   "step.meta.title": {
-    "other": "Import Metadata"
+    "other": "导入元数据"
   },
   "step.meta.legend": {
-    "other": "Map metadata to Cells internal features. Global metadata (watches and bookmarks) will be read from the API and files metadata will be directly converted from the .ajxp_meta files inside datasources."
+    "other": "将元数据映射到单元格内部功能。全局元数据(监控或书签)将从API读取，文件元数据将从数据源内的.ajxp_meta文件直接转换。"
   },
   "step.meta.feature.watches": {
-    "other": "Watches set by user on files and folders"
+    "other": "用户在文件和文件夹中设置的观察"
   },
   "step.meta.feature.bookmark": {
-    "other": "User bookmarks"
+    "other": "用户书签"
   },
   "step.meta.feature.files": {
-    "other": "Files and folders metadata: use mapping below to create Cells metadata namespaces"
+    "other": "文件和文件夹元数据：使用下面的映射创建单元格元数据命名空间"
   },
   "step.meta.from": {
-    "other": "Metadata from Workspaces"
+    "other": "来自工作区的元数据"
   },
   "step.meta.to": {
-    "other": "Cells Namespaces (click to edit)"
+    "other": "单元格名称空间(单击可编辑)"
   },
   "step.meta.map.ws": {
-    "other": "Workspace %s"
+    "other": "工作区 %s"
   },
   "step.meta.map.values": {
-    "other": " (Values %s)"
+    "other": " (值 %s)"
   },
   "step.disclaimer.title": {
-    "other": "Disclaimer"
+    "other": "免责声明"
   },
   "step.disclaimer": {
-    "other": "Given the number of features provided by Pydio 8, each installation is unique and the tool cannot handle all possible combinations. It is best suited for importing data from a typical Pydio 8 installation including users, workspaces (fs and s3 only), access rights and shares."
+    "other": "鉴于Pydio 8提供的功能数量，每次安装都是独特的，并且该工具无法处理所有可能的组合。 它最适合从典型的Pydio 8安装中导入数据，包括用户，工作区(仅fs和s3)，访问权限和共享。"
   },
   "step.disclaimer.ed": {
-    "other": "We strongly recommend you to contact our support (via your pydio.com account) and schedule an appointment to be walked through the migration by a Pydio Expert"
+    "other": "我们强烈建议您联系我们的支持人员(通过您的pydio.com帐户)，并安排一个由Pydio专家指导迁移的预约"
   },
   "step.disclaimer.home": {
-    "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
+    "other": "我们不想让您孤立无援，Pydio团队提供一次性付款服务，以帮助您在开源版本上执行此迁移。 如果您希望获得Pydio专家的帮助，请联系我们的销售服务。"
   },
   "step.disclaimer.support": {
-    "other": "Contact Support"
+    "other": "联系支持"
   },
   "step.disclaimer.quote": {
-    "other": "Ask for a quote"
+    "other": "询问报价"
   },
   "step.disclaimer.start": {
-    "other": "Start Migration"
+    "other": "开始迁移"
   },
   "step.prereq.title": {
-    "other": "Pre-requisites"
+    "other": "先决条件"
   },
   "step.prereq.welcome": {
-    "other": "Starting Pydio 8 import tool. This wizard will guide you through the steps required to feed Pydio Cells with data from an existing Pydio 8 server."
+    "other": "启动 Pydio 8 导入工具。 本向导将引导您通过若干步骤从已有的 Pydio 8 服务器获取数据填充到 Pydio Cells中。"
   },
   "step.prereq.step1": {
-    "other": "1. Prepare Pydio 8"
+    "other": "1. 准备Pydio 8"
   },
   "step.prereq.step2": {
-    "other": "2. Prepare Cells and Data"
+    "other": "2. 准备单元格和数据"
   },
   "step.prereq.step3": {
-    "other": "3. Prepare DataSources"
+    "other": "3. 准备数据源"
   },
   "step.prereq.check": {
-    "other": "Please carefully read the pre-requisites described below and perform the necessary steps before starting the migration."
+    "other": "在开始迁移之前，请仔细阅读下文所述的先决条件并执行必要的步骤。"
   },
   "step.prereq.check.copy": {
-    "other": "Copy all Pydio 8 data (files and folders accessed by users) in a different location on the server. For testing purpose, you can eventually recreate the full arborescence with fake files (e.g 1byte files)."
+    "other": "将所有Pydio 8数据（用户访问的文件和文件夹）复制到服务器上的其他位置。 为了进行测试，您最终可以使用假文件（例如1字节文件）重新创建完整的树状结构。"
   },
   "step.prereq.check.install": {
-    "other": "Install the dedicated migration plugin on the Pydio 8 server. Unzip and drop the folder inside the plugins/ folder of your Pydio 8 server and clear the plugins cache. Download it from here "
+    "other": "在 Pydio 8 服务器上安装专用迁移插件。 解压并将文件夹放入你的 Pydio 8 服务器的插件/文件夹中并清除插件缓存。从这里下载它 "
   },
   "step.prereq.check.admincell": {
-    "other": "Create a dedicated Cells user with administrative privileges (e.g. cells_importer). Users import will try to synchronize Pydio 8 users to Cells user, only this specific login will be left untouched."
+    "other": "创建具有管理权限的专用用户 (例如cells_importter)。 用户导入时将尝试将 Pydio 8 用户同步到Cells用户，只有此特定登录不会被触及。"
   },
   "step.prereq.check.adminpydio": {
-    "other": "Create a dedicated Pydio 8 user with administrative privileges, with another login (e.g. import). Some import tasks will automatically set read/write permissions for this import users on all workspaces."
+    "other": "创建一个具有管理权限的专用 Pydio 8 用户，并使用另一个登录名(例如导入)。 某些导入任务将自动为此导入用户在所有工作区上设置读/写权限。"
   },
   "step.prereq.ds.create": {
-    "other": "Create datasources pointing to the new data and wait for the indexation to be complete."
+    "other": "创建指向新数据的数据源并等待索引完成。"
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "For \"per-user\" workspaces (like My Files), use the existing location of Cells \"personal\" template path, or prepare new template paths for the new location."
+    "other": "对于\"每个用户\"的工作区(如我的文件)，使用单元格“个人”模板路径的现有位置，或为新位置准备新的模板路径。"
   },
   "step.prereq.ds.tpl.home": {
-    "other": "For \"per-user\" workspaces (like My Files), make sure to place the data under the existing location of the Cells \"personal\" Template Path."
+    "other": "对于“按用户”工作区(如“我的文件”)，请确保将数据放置在单元格“个人”模板路径的现有位置下。"
   },
   "step.prereq.ds.done": {
-    "other": "Once datasources are properly indexed, you can start the migration process. The wizard will help you map your Pydio 8 workspaces to new workspaces."
+    "other": "一旦数据源正确索引，您可以开始迁移过程。向导将帮助您映射您的 Pydio 8 工作区到新的工作区。"
   },
   "step.prereq.start": {
-    "other": "All set! Let's start"
+    "other": "全部设置好了！让我们开始吧"
   },
   "step.shares.feature.links": {
-    "other": "Public Links"
+    "other": "公共链接"
   },
   "step.shares.feature.cells": {
-    "other": "Shared Folders"
+    "other": "共享文件夹"
   },
   "step.shares.title": {
-    "other": "Import Shares"
+    "other": "导入共享"
   },
   "step.shares.alert": {
-    "other": "Please pick at least one share type!"
+    "other": "请选择至少一个共享类型！"
   },
   "step.shares.legend": {
-    "other": "Import Pydio 8 public links and shared folders into Cells. Public links will be created with the same identifier and properties (password, expiration, etc...). Folders shared as workspaces in Pydio 8 will be mapped to new Cells."
+    "other": "将Pydio 8公共链接和共享文件夹导入单元格。将使用相同的标识符和属性(密码、过期等) 创建公共链接。在Pydio 8中共享为工作区的文件夹将映射到新的单元格。"
   },
   "step.shares.legend.warning": {
-    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
+    "other": "请注意，共享导入是单向同步：多次执行此步骤将创建重复项。 如果您计划多次执行迁移，则应首先为有限数量的测试用户导入共享。"
   },
   "step.shares.restrict.type": {
-    "other": "1. Restrict the type of shares to be imported (select at least one):"
+    "other": "1. 限制要导入的共享类型 (至少选择一个)："
   },
   "step.shares.restrict.user": {
-    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
+    "other": "2. 为测试目的，您可以限制导入到一个或多个特定用户 (用逗号分隔)"
   },
   "step.shares.restrict.user.login": {
-    "other": "Owner login"
+    "other": "所有者登录"
   },
   "step.ws.title": {
-    "other": "Import Workspaces"
+    "other": "导入工作区"
   },
   "step.ws.loading": {
-    "other": "(loading...)"
+    "other": "(加载中...)"
   },
   "step.ws.legend": {
-    "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
+    "other": "从Pydio 8导入工作区是一个多步骤过程："
   },
   "step.ws.step1": {
-    "other": "1. Manually migrate the existing data from the current server to the new one (this may be unnecessary if you are running Pydio and Cells on the same server)."
+    "other": "1. 手动将现有数据从当前服务器迁移到新服务器(如果您在同一服务器上运行 Pydio 和 Cells 的话就没有必要)。"
   },
   "step.ws.step2": {
-    "other": "2. Create Cells datasources pointing to the new storage locations on the server."
+    "other": "2. 创建指向服务器上新存储位置的Cells数据源。"
   },
   "step.ws.step3": {
-    "other": "3. Wait for all datasources to be properly indexed."
+    "other": "3. 等待所有数据源正确索引。"
   },
   "step.ws.step4": {
-    "other": "4. Map old workspaces to new workspaces by using the tool below"
+    "other": "4. 使用下面的工具将旧的工作区映射到新的工作区"
   },
   "step.mapper.already": {
-    "other": "Workspaces already mapped (same UUID)"
+    "other": "工作区已映射(相同的 UUID)"
   },
   "step.mapper.wsnumber": {
-    "other": "Mapping %s workspaces from server to new Cells workspaces"
+    "other": "将%s工作区从服务器映射到新的单元格工作区"
   },
   "step.mapper.loading": {
-    "other": "Loading workspaces from server..."
+    "other": "从服务器加载工作区..."
   },
   "step.mapper.loading.error": {
-    "other": "Error while loading workspaces from server: %s. Make sure to have CORS enabled on your Pydio8 installation."
+    "other": "从服务器加载工作区时出错：%s。 确保在 Pydio8 安装上启用 CORS。"
   },
   "step.mapper.p8.title": {
-    "other": "Pydio 8 Workspaces"
+    "other": "Pydio 8 工作区"
   },
   "step.mapper.p8.ds.show": {
-    "other": "Show datasources"
+    "other": "显示数据源"
   },
   "step.mapper.p8.tpl.show": {
-    "other": "Show template paths"
+    "other": "显示模板路径"
   },
   "step.mapper.cells.title": {
-    "other": "Cells Datasources"
+    "other": "Cells数据源"
   },
   "step.mapper.createds": {
-    "other": "Create Datasource"
+    "other": "创建数据源"
   },
   "step.mapper.tpath.title": {
-    "other": "Cells Template Paths"
+    "other": "Cells模版路径"
   },
   "step.mapper.tpath.create": {
-    "other": "Create Template Path"
+    "other": "创建模板路径"
   },
   "step.mapper.nodes.title": {
-    "other": "Cells Nodes"
+    "other": "Cells节点"
   },
   "step.mapper.notplpath.primary": {
-    "other": "None"
+    "other": "无"
   },
   "step.mapper.notplpath.secondary": {
-    "other": "No template path required"
+    "other": "不需要模板路径"
   },
   "step.mapper.next10": {
-    "other": "Next "
+    "other": "下一个 "
   },
   "step.mapper.prev10": {
-    "other": "Previous "
+    "other": "上一个 "
   },
   "step.mapper.invalid": {
-    "other": "Invalid mapping - Please select a datasource or a workspace"
+    "other": "无效映射 - 请选择一个数据源或工作区"
   },
   "dash.feature.configs": {
-    "other": "AD/LDAP Configuration"
+    "other": "AD/LDAP 配置"
   },
   "dash.feature.configs.legend": {
-    "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."
+    "other": "此步骤无需配置。AD/LDAP配置将导入到 Pydio Cells 外部目录。"
   },
   "dash.feature.users": {
-    "other": "Users, Groups and Roles"
+    "other": "用户、组和角色"
   },
   "dash.feature.users.legend": {
-    "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
+    "other": "此步骤没有特定的配置。用户将与远程服务器同步。 尽可能导入它们的哈希密码 (没有密码存储或传输清除) 这样用户可以在新服务器上使用相同的标识符登录。"
   },
   "dash.feature.workspaces": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "dash.feature.acls": {
-    "other": "Workspaces ACLs"
+    "other": "工作区 ACL"
   },
   "dash.feature.acls.legend": {
-    "other": "There is no specific configuration for this step. Access list will be loaded from server and applied to workspaces."
+    "other": "此步骤没有特定配置。访问列表将从服务器加载并应用到工作区。"
   },
   "dash.feature.meta": {
-    "other": "Files Metadata"
+    "other": "文件元数据"
   },
   "dash.feature.shares": {
-    "other": "Shares"
+    "other": "共享"
   },
   "dash.job.new": {
-    "other": "New import job"
+    "other": "新的导入作业"
   },
   "dash.importing": {
-    "other": "Importing Data"
+    "other": "导入数据中"
   },
   "logs.legend": {
-    "other": "Log recorded during task %s"
+    "other": "任务 %s中记录的日志"
   },
   "action.createws.success": {
-    "other": "[Workspaces] Created workspace %s"
+    "other": "[工作区] 创建工作区 %s"
   },
   "action.createws.fail.": {
-    "other": "[Workspaces] Error while creating workspace %1 : %s"
+    "other": "[工作区] 创建工作区时出错 %1 : %s"
   },
   "action.createws.summary": {
-    "other": "The following uuid => uuid mapping will be applied:"
+    "other": "以下uuid => uuid 映射将被应用："
   },
   "action.createws.head.pydio": {
     "other": "Pydio"
   },
   "action.createws.head.cells": {
-    "other": "Cells"
+    "other": "单元格"
   },
   "action.createws.head.status": {
-    "other": "Status"
+    "other": "状态"
   },
   "action.createws.notexists": {
-    "other": "Create/Update"
+    "other": "创建/更新"
   },
   "action.createws.exists": {
-    "other": "Already Exists"
+    "other": "已经存在"
   },
   "action.share.linksonly": {
-    "other": "Only Public Links will be imported."
+    "other": "只有公共链接将被导入。"
   },
   "action.share.cellsonly": {
-    "other": "Only shared folders will be imported."
+    "other": "只有共享文件夹将被导入。"
   },
   "action.share.all": {
-    "other": "All shares will be imported (links and shared folders)."
+    "other": "所有分享将被导入(链接和共享文件夹)。"
   },
   "action.share.user": {
-    "other": "Only shares owned by %s will be imported."
+    "other": "只导入 %s 拥有的分享。"
   },
   "action.meta.summary": {
-    "other": "The following metadata will be imported: "
+    "other": "以下元数据将被导入： "
   },
   "action.meta.files": {
-    "other": "For files metadata, the following mapping will be used: "
+    "other": "对于文件元数据，将使用以下映射： "
   },
   "action.meta.success": {
-    "other": "Metadata namespaces created"
+    "other": "已创建元数据命名空间"
   },
   "action.meta.fail": {
-    "other": "Error while creating metadata namespace : %s"
+    "other": "创建元数据命名空间时发生错误： %s"
   },
   "logs.empty": {
-    "other": "No activity found"
+    "other": "未找到活动"
   }
 }
