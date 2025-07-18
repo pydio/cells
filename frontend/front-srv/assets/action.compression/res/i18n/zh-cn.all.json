@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "压缩"
+    "other": "Compress"
   },
   "10": {
-    "other": "解压选中的档案"
+    "other": "Extract selected archives"
   },
   "11": {
-    "other": "提取文件的路径 "
+    "other": "Path of the extracted files "
   },
   "12": {
-    "other": "正在开始提取..."
+    "other": "Starting extraction..."
   },
   "13": {
-    "other": "正在提取文件... %s "
+    "other": "Extracting files ... %s "
   },
   "14": {
-    "other": "在文件夹“%s”中提取已成功完成。"
+    "other": "Extraction finished successfullly in the folder '%s'."
   },
   "15": {
-    "other": "所选文件既不是 TAR，也不是 TAR.GZ 或 TAR.BZ2 存档。"
+    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
   },
   "16": {
-    "other": "您只能压缩为 TAR、TAR.GZ 或 TAR.BZ2。"
+    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
   },
   "17": {
-    "other": "您不能压缩空文件夹。"
+    "other": "You can't compress empty folders."
   },
   "2": {
-    "other": "压缩选项"
+    "other": "Compress Selection"
   },
   "3": {
-    "other": "格式"
+    "other": "Format"
   },
   "4": {
-    "other": "档案名称"
+    "other": "Archive's name"
   },
   "5": {
-    "other": "开始压缩..."
+    "other": "Starting compression..."
   },
   "6": {
-    "other": "正在档案中添加文件... %s "
+    "other": "Adding files in the archive... %s "
   },
   "7": {
-    "other": "在 %s 的压缩期间..."
+    "other": "During compression in %s ..."
   },
   "8": {
-    "other": "您的档案成功完成压缩！"
+    "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "提取"
+    "other": "Extract"
   }
 }
