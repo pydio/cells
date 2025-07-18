@@ -1,27 +1,27 @@
 {
   "1": {
-    "other": "Documentos Libre Office"
+    "other": "Libre Office Documents"
   },
   "10": {
-    "other": "Crea un documento vacío"
+    "other": "Create an empty document"
   },
   "11": {
-    "other": "Formato de Documento"
+    "other": "Document Format"
   },
   "12": {
-    "other": "También puede <a>crear un documento vacío</a>"
+    "other": "You can also <a>create an empty document</a>"
   },
   "13": {
-    "other": "Documento sin título"
+    "other": "Untitled Document"
   },
   "14": {
-    "other": "Se ha creado el documento, ahora puede editarlo"
+    "other": "The document was created, you can now edit it"
   },
   "15": {
-    "other": "Formato de documento desconocido"
+    "other": "Unknown document format"
   },
   "2": {
-    "other": "Ventana de navegador externa para Libre Office"
+    "other": "Libre Office External browser window"
   },
   "ext.doc": {
     "other": "Microsoft Word 97/2000/XP/2003"
@@ -30,16 +30,16 @@
     "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "Dibujo ODF"
+    "other": "ODF Drawing"
   },
   "ext.odp": {
-    "other": "Presentación ODF"
+    "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "Hoja de Cálculo ODF"
+    "other": "ODF Spreadsheet"
   },
   "ext.odt": {
-    "other": "Documento de texto ODF"
+    "other": "ODF Text Document"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"
@@ -48,7 +48,7 @@
     "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "Texto Enriquecido"
+    "other": "Rich Text"
   },
   "ext.xls": {
     "other": "Microsoft Excel 97/2000/XP/2003"
