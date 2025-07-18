@@ -441,82 +441,82 @@
     "other": "Náhledy"
   },
   "229": {
-    "other": "Switch to thumbnails view"
+    "other": "Přepnout na zobrazení s náhledy"
   },
   "23": {
-    "other": "File"
+    "other": "Soubor"
   },
   "230": {
-    "other": "Play"
+    "other": "Přehrát"
   },
   "231": {
-    "other": "Play Slideshow"
+    "other": "Spustit prezentaci"
   },
   "232": {
-    "other": "Stop"
+    "other": "Zastavit"
   },
   "233": {
-    "other": "Stop Slideshow"
+    "other": "Zastavit prezentaci"
   },
   "234": {
-    "other": "View selected images"
+    "other": "Zobrazit vybrané obrázky"
   },
   "235": {
-    "other": "Fullscreen"
+    "other": "Na celou obrazovku"
   },
   "236": {
-    "other": "Restore"
+    "other": "Obnovit"
   },
   "237": {
-    "other": "Old password"
+    "other": "Původní heslo"
   },
   "238": {
-    "other": "Passwords differ!"
+    "other": "Zadání hesla se liší!"
   },
   "239": {
-    "other": "Please fill you current password"
+    "other": "Zadejte své stávající heslo"
   },
   "24": {
-    "other": "Parent directory"
+    "other": "Nadřazená složka"
   },
   "240": {
-    "other": "Wrong password!"
+    "other": "Nesprávné heslo!"
   },
   "241": {
-    "other": "Your preferences have been saved successfully!"
+    "other": "Vaše předvolby byly úspěšně uloženy!"
   },
   "242": {
     "other": "Svn Log"
   },
   "243": {
-    "other": "Revision"
+    "other": "Revize"
   },
   "244": {
-    "other": "Author"
+    "other": "Autor"
   },
   "245": {
-    "other": "Date"
+    "other": "Datum"
   },
   "246": {
-    "other": "Message"
+    "other": "Zpráva"
   },
   "247": {
-    "other": "Extract"
+    "other": "Rozbalit"
   },
   "248": {
     "other": "Extract selection from zip to..."
   },
   "249": {
-    "other": "Users"
+    "other": "Uživatelé"
   },
   "25": {
     "other": "Upload one or more files (max. %s in the directory : "
   },
   "250": {
-    "other": "Workspaces"
+    "other": "Pracovní prostory"
   },
   "251": {
-    "other": "Logs"
+    "other": "Záznamy událostí"
   },
   "252": {
     "other": "The total file size limit has been reached."
@@ -525,28 +525,28 @@
     "other": "There has been an HTTP Error:"
   },
   "254": {
-    "other": "There has been an IO Error:"
+    "other": "Došlo k chybě vstupu/výstupu:"
   },
   "255": {
-    "other": "These has been a Security Error:"
+    "other": "Došlo k chybě v zabezpečení:"
   },
   "256": {
     "other": "Uploaded"
   },
   "257": {
-    "other": "Remove"
+    "other": "Odebrat"
   },
   "258": {
-    "other": "File count :"
+    "other": "Počet souborů:"
   },
   "259": {
-    "other": "Total size :"
+    "other": "Celková velikost:"
   },
   "26": {
-    "other": "Create a new directory in : "
+    "other": "Vytvořit novou složku v: "
   },
   "260": {
-    "other": "bytes"
+    "other": "bajtů"
   },
   "261": {
     "other": "Remember Me"
@@ -555,10 +555,10 @@
     "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
   },
   "263": {
-    "other": "Overwrite"
+    "other": "Přepsat"
   },
   "264": {
-    "other": "Skip"
+    "other": "Přeskočit"
   },
   "265": {
     "other": "Files"
@@ -567,19 +567,19 @@
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Vytvořit"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "Vytvořit novou tabulku"
   },
   "269": {
-    "other": "Structure"
+    "other": "Struktura"
   },
   "27": {
-    "other": "Upload"
+    "other": "Nahrát"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "Upravit strukturu tabulky"
   },
   "271": {
     "other": "Drop"
@@ -669,31 +669,31 @@
     "other": "New User"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Vytvořit nového uživatele"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Pracovní prostory"
   },
   "3": {
-    "other": "Type"
+    "other": "Typ"
   },
   "30": {
     "other": "Write a name for the directory then click on &quot;Create&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Vytvořit nový pracovní prostor"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Upravit nastavení"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Zkopírovat jako text"
   },
   "303": {
     "other": "Copy selection as tab-separated text."
   },
   "304": {
-    "other": "Back"
+    "other": "Zpět"
   },
   "305": {
     "other": "Back to Homepage"
@@ -702,19 +702,19 @@
     "other": "My Workspaces"
   },
   "306": {
-    "other": "Too many items"
+    "other": "Příliš mnoho položek"
   },
   "307": {
     "other": "Fill optional fields"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Vytvořit odkaz"
   },
   "309": {
-    "other": "Generate"
+    "other": "Vytvořit"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Je třeba vybrat soubor"
   },
   "310": {
     "other": "Options"
@@ -726,16 +726,16 @@
     "other": "Uploader Options"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Zkomprimovat…"
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Komprimovat výběr do zip…"
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Zkomprimovat výběr do"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Zobrazit/upravit"
   },
   "317": {
     "other": "Source Editor"
@@ -744,25 +744,25 @@
     "other": "CodePress source code viewer"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML editor"
   },
   "32": {
-    "other": "Explore"
+    "other": "Prozkoumat"
   },
   "320": {
     "other": "WYSIWYG editor for HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Vybrat"
   },
   "322": {
     "other": "Select the current file"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Poslat tuto URL e-mailem"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Není k dispozici žádný editor"
   },
   "325": {
     "other": "Fit Best"
@@ -774,28 +774,28 @@
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Prohlížeč dokumentů"
   },
   "329": {
     "other": "View pdf,svg, tif and more online"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Chyba při nahrávání souboru!"
   },
   "330": {
     "other": "Please wait while the pages are being rendered..."
   },
   "331": {
-    "other": "Page"
+    "other": "Stránka"
   },
   "332": {
-    "other": "of"
+    "other": "z"
   },
   "333": {
     "other": "Pixlr image editor"
   },
   "334": {
-    "other": "more"
+    "other": "další"
   },
   "335": {
     "other": "Please enter a page number between 1 and "
@@ -810,31 +810,31 @@
     "other": "Close panel after upload is finished"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Existující soubory"
   },
   "34": {
-    "other": "The file"
+    "other": "Soubor"
   },
   "340": {
-    "other": "Alert"
+    "other": "Výstraha"
   },
   "341": {
-    "other": "File Info"
+    "other": "Informace o souboru"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Informace o složce"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Informace o obrázku"
   },
   "344": {
     "other": "Search on"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Nepodařilo se získat žádné informace o verzi"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Používáte nejnovější verzi"
   },
   "347": {
     "other": "A new version (%s) is available! Visit %s"
@@ -858,49 +858,49 @@
     "other": "A workspace with the same name already exists, please choose another name."
   },
   "353": {
-    "other": "Target User"
+    "other": "Cílový uživatel"
   },
   "354": {
     "other": "Create a new user or choose one of your existing ones from the list."
   },
   "355": {
-    "other": "User Name"
+    "other": "Uživatelské jméno"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Heslo uživatele"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Cílový repozitář"
   },
   "358": {
     "other": "Choose a name for the shared workspace."
   },
   "359": {
-    "other": "Label"
+    "other": "Štítek"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Jeho velikost je"
   },
   "360": {
-    "other": "Rights"
+    "other": "Oprávnění"
   },
   "361": {
-    "other": "Read"
+    "other": "Číst"
   },
   "362": {
-    "other": "Write"
+    "other": "Zapisovat"
   },
   "363": {
     "other": "Shared"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Nemáte oprávnění k provedení této operace"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Nejste oprávněni nahrát více než %s souborů najednou."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Tento uživatel nemá žádný aktivní pracovní prostor."
   },
   "367": {
     "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
@@ -909,22 +909,22 @@
     "other": "Selection successfully extracted from archive %s to folder %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Zkratka"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Je třeba napsat platný název"
   },
   "370": {
     "other": "APPLICATION_TITLE Public Download"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Pro toto stahování je vyžadováno heslo"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Stávající pracovní prostor"
   },
   "373": {
-    "other": "Destination"
+    "other": "Cíl"
   },
   "374": {
     "other": "You cannot copy folders across workspaces"
@@ -933,7 +933,7 @@
     "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Jste pořád zde?"
   },
   "376": {
     "other": "Click anywhere to resume your session"
@@ -945,10 +945,10 @@
     "other": "Unsafe word!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Složka"
   },
   "380": {
-    "other": "Too short"
+    "other": "Příliš krátké"
   },
   "381": {
     "other": "Very weak"
@@ -981,7 +981,7 @@
     "other": "has been created in"
   },
   "390": {
-    "other": "Code"
+    "other": "Kód"
   },
   "391": {
     "other": "No Repository"
@@ -1011,13 +1011,13 @@
     "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
   },
   "4": {
-    "other": "Modified"
+    "other": "Změněno"
   },
   "40": {
     "other": "This directory already exists (names are case insensitive)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Počet částí:"
   },
   "401": {
     "other": "You can download and install the following software to join the pieces once on your computer : "
@@ -1026,13 +1026,13 @@
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "bylo přejmenováno na"
   },
   "411": {
-    "other": "Open"
+    "other": "Otevřít"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Pouze nahrát"
   },
   "413": {
     "other": "Shared by"
@@ -1041,34 +1041,34 @@
     "other": "Use arrows to navigate and +/- to change zoom"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Zobraz/nezobraz. levé podokno"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Levé podokno"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Vytvořit buňku…"
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Vytvořit buňku"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Načítání šablon…"
   },
   "42": {
-    "other": "to"
+    "other": "do"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "Vyberte šablonu ze seznamu"
   },
   "421": {
-    "other": "New %s"
+    "other": "Nové %s"
   },
   "422": {
     "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Odstranit pracovní prostor"
   },
   "424": {
     "other": "Are you sure you want to delete this workspace? The operation is irreversible."
@@ -1092,49 +1092,49 @@
     "other": "already exists  (names are case insensitive)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "Společné soubory"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "Vzorová šablona"
   },
   "432": {
-    "other": "My Files"
+    "other": "Mé soubory"
   },
   "433": {
-    "other": "ready"
+    "other": "připraveno"
   },
   "434": {
     "other": "sending"
   },
   "435": {
-    "other": "done"
+    "other": "hotovo"
   },
   "436": {
-    "other": "error"
+    "other": "chyba"
   },
   "437": {
     "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "znovu načíst stránku"
   },
   "439": {
     "other": "Main Options"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "bylo smazáno"
   },
   "440": {
-    "other": "Yes"
+    "other": "Ano"
   },
   "441": {
-    "other": "No"
+    "other": "Ne"
   },
   "442": {
-    "other": "My Account"
+    "other": "Můj účet"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Zaktualizovat vaše osobní údaje"
   },
   "444": {
     "other": "Please update your password, you will not be able to log in otherwise."
@@ -1143,73 +1143,73 @@
     "other": "You will now be logged out, please log back using your new password, thank you!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Prezentace"
   },
   "447": {
-    "other": "My group"
+    "other": "Moje skupina"
   },
   "448": {
-    "other": "create user"
+    "other": "vytvořit uživatele"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "Vytváření %s –určete si heslo"
   },
   "45": {
-    "other": "directory"
+    "other": "složka"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Seřadit podle…"
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "Řadit náhledy podle…"
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "Velikost náhledů"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "Nastavit velikost náhledů"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Vyberte soubory na svém počítači"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "Pracovní prostory"
   },
   "456": {
-    "other": "More"
+    "other": "Další"
   },
   "457": {
-    "other": "update"
+    "other": "aktualizovat"
   },
   "458": {
-    "other": "remove"
+    "other": "odebrat"
   },
   "459": {
     "other": "Top folder"
   },
   "46": {
-    "other": "file"
+    "other": "soubor"
   },
   "460": {
-    "other": "List"
+    "other": "Seznam"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Přepnout na zobrazení v seznamu"
   },
   "462": {
-    "other": "Preview"
+    "other": "Náhled"
   },
   "463": {
-    "other": "Download all"
+    "other": "Stáhnout vše"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Stáhnout si veškerý obsah pracovního prostoru najednou (v zip archivu)"
   },
   "465": {
     "other": "Show alternative URLs (mount workspaces separately)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Načítání…"
   },
   "467": {
     "other": "All Shared Elements"
@@ -1248,10 +1248,10 @@
     "other": "Select a file or folder to see its details here"
   },
   "478": {
-    "other": "No results found"
+    "other": "Nenalezeny žádné výsledky"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Zapomněli jste heslo?"
   },
   "48": {
     "other": "Ok"
@@ -1269,19 +1269,19 @@
     "other": "You are not authorized to create more users!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Vytvořit uživatele"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Vytvořit sdíleného uživatele"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Pokročilé"
   },
   "487": {
-    "other": "Basic"
+    "other": "Základní"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Pokročilý filtr"
   },
   "489": {
     "other": "Metadata"
@@ -1293,52 +1293,52 @@
     "other": "Date range"
   },
   "491": {
-    "other": "After"
+    "other": "Po"
   },
   "492": {
     "other": "until"
   },
   "493": {
-    "other": "Today"
+    "other": "Dnes"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Včera"
   },
   "494t": {
     "other": "Tomorrow"
   },
   "495": {
-    "other": "Last week"
+    "other": "Minulý týden"
   },
   "496": {
-    "other": "Last month"
+    "other": "Minulý měsíc"
   },
   "497": {
-    "other": "Last year"
+    "other": "Minulý rok"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Vlastnost dokumentu"
   },
   "499": {
-    "other": "File"
+    "other": "Soubor"
   },
   "5": {
-    "other": "Actions"
+    "other": "Akce"
   },
   "50": {
     "other": "Exe file"
   },
   "500": {
-    "other": "Extension"
+    "other": "Přípona"
   },
   "501": {
     "other": "or"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Pouze složky"
   },
   "503": {
-    "other": "Size"
+    "other": "Velikost"
   },
   "504": {
     "other": "1k,1M,1G"
@@ -1350,88 +1350,88 @@
     "other": "Application parameters (users, workspaces, configurations)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Vítejte v %s"
   },
   "508": {
     "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Uložit jako tým"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Textový editor"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Zadejte popisek kolektivu"
   },
   "511": {
-    "other": "My %s"
+    "other": "Mé %s"
   },
   "512": {
     "other": "Desktop Full Screen"
   },
   "513": {
-    "other": "show"
+    "other": "zobrazit"
   },
   "514": {
-    "other": "hide"
+    "other": "skrýt"
   },
   "515": {
     "other": "No bookmarks - Drop files or folders here for quick access."
   },
   "516": {
-    "other": "expand"
+    "other": "rozbalit"
   },
   "517": {
-    "other": "collapse"
+    "other": "sbalit"
   },
   "518": {
     "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Aktualizovat uživatele"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Upravování souboru"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Aktualizovat informace o uživateli a heslo"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Uživatel byl úspěšně zaktualizován"
   },
   "522": {
-    "other": "User ID"
+    "other": "Identif. uživatele"
   },
   "523": {
-    "other": "Password"
+    "other": "Heslo"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Aktualizovat heslo"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Zobrazit původní obrázek"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Varianta s nízkým rozlišením"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Komu nasdíleno"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Interní uživatelé"
   },
   "53": {
-    "other": "Save"
+    "other": "Uložit"
   },
   "530": {
-    "other": "External users"
+    "other": "Externí uživatelé"
   },
   "531": {
-    "other": "Users"
+    "other": "Uživatelé"
   },
   "532": {
-    "other": "Groups"
+    "other": "Skupiny"
   },
   "533": {
     "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
@@ -1455,7 +1455,7 @@
     "other": "Upload error: file is partial"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Storno"
   },
   "540": {
     "other": "Upload error: cannot find the temporary directory"
@@ -1467,22 +1467,22 @@
     "other": "Upload error: a PHP extension stopped the upload process."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Počet výsledků omezen na %s."
   },
   "544": {
     "other": "Show more"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Vzdálené sdílení"
   },
   "546": {
     "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Přijmout"
   },
   "548": {
-    "other": "Decline"
+    "other": "Odmítnout"
   },
   "549": {
     "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
@@ -1518,7 +1518,7 @@
     "other": "Authentication failed for this workspace."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "BMP obrázek"
   },
   "560": {
     "other": "Authentication required"
@@ -1545,16 +1545,16 @@
     "other": "Browse Recycle Bin"
   },
   "568": {
-    "other": "Teams"
+    "other": "Týmy"
   },
   "569": {
-    "other": "New Team"
+    "other": "Nový tým"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "PNG obrázek"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Smazat tým"
   },
   "571": {
     "other": "No teams created yet"
@@ -1563,40 +1563,40 @@
     "other": "Create your own teams in order to easily share data between multiple users"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Nejsou k dispozici žádné týmy"
   },
   "572.readonly": {
     "other": "You are not allowed to create teams, but some authorized users may share teams with you"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Vytváření a úprava týmů"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "Umožnit uživatelům vytvářet a upravovat své vlastní týmy"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Přidat uživatele do týmu"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Odebrat z týmu"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Členové týmu"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s členů"
   },
   "577": {
-    "other": "No members"
+    "other": "Žádní členové"
   },
   "578": {
     "other": "Team Label"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Vytvořit tým"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS soubor"
   },
   "580": {
     "other": "Edit team label"
@@ -1605,7 +1605,7 @@
     "other": "User belongs to %s team(s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Smazat uživatele"
   },
   "583": {
     "other": "Search Directory"
@@ -1620,58 +1620,58 @@
     "other": "Create your own users and share files or folders from your workspaces with them."
   },
   "587": {
-    "other": "No results"
+    "other": "Žádné výsledky"
   },
   "588": {
     "other": "Start typing in the search form to find users in the directory"
   },
   "589": {
-    "other": "External user"
+    "other": "Externí uživatel"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 soubor"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Interní uživatel"
   },
   "591": {
     "other": "Choose a name for the team, and you will be able to add users to it after creation."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Adresář kontaktů"
   },
   "593": {
     "other": "Shared Users"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Důvěryhodné servery"
   },
   "595": {
     "other": "Search user..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Server „%s“"
   },
   "597": {
-    "other": "all"
+    "other": "vše"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Poslat zprávu"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Přidat uživatele"
   },
   "599-a": {
     "other": "All Results"
   },
   "6": {
-    "other": "Rename"
+    "other": "Přejmenovat"
   },
   "60": {
     "other": "RAR File"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Upravit uživatele"
   },
   "601": {
     "other": "One shared cell"
@@ -1680,10 +1680,10 @@
     "other": "%1 shared cells"
   },
   "603": {
-    "other": "Team"
+    "other": "Kolektiv"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Vzdálený uživatel"
   },
   "605": {
     "other": "More search options"
@@ -1695,85 +1695,85 @@
     "other": "Your recent activity - Type in to search files inside all workspaces"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Stávající složka"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Celý pracovní prostor"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ soubor"
   },
   "610": {
     "other": "All workspaces"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Psaním vyhledáte"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Uživatelsky určený rozsah"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Větší než…"
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Menší než…"
   },
   "615": {
-    "other": "Execute"
+    "other": "Vykonat"
   },
   "616": {
-    "other": "Mask"
+    "other": "Maska"
   },
   "617": {
-    "other": "Enter"
+    "other": "Vložit"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Přepnout jazyk…"
   },
   "619": {
     "other": "Search limited to current folder and its children"
   },
   "62": {
-    "other": "Root directory"
+    "other": "Kořenová složka"
   },
   "620": {
     "other": "Search limited to current workspace"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Tuto kolonku je třeba vyplnit"
   },
   "622": {
     "other": "Error Stack"
   },
   "623": {
-    "other": "Copy"
+    "other": "Zkopírovat"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Zkopírováno!"
   },
   "625": {
     "other": "Letter"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Soubory, které mi někdo nasdílel"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Sdílení ze vzdálených serverů"
   },
   "628": {
-    "other": "Revert"
+    "other": "Vzít zpět"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Zatím žádné záznamy"
   },
   "63": {
-    "other": "Log out"
+    "other": "Odhlásit se"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Složky, které mi někdo nasdílel"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Tato složka je prázdná!"
   },
   "632": {
     "other": "No cells yet"
@@ -1782,19 +1782,19 @@
     "other": "Cells are spaces shared with others to collaborate on documents"
   },
   "634": {
-    "other": "You"
+    "other": "Vy"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Vaše skupina"
   },
   "634c": {
-    "other": "All users"
+    "other": "Všichni uživatelé"
   },
   "635": {
     "other": "Chat Room"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Začněte psát a stiskněte Enter"
   },
   "637": {
     "other": "No messages yet, start typing to chat with users of this cell!"
@@ -1806,10 +1806,10 @@
     "other": "In this cell"
   },
   "64": {
-    "other": "XLS File"
+    "other": "XLS soubor"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Vytvořit buňku s %s"
   },
   "641": {
     "other": "Remove from current cell"
@@ -1827,109 +1827,109 @@
     "other": "Word File"
   },
   "66": {
-    "other": "Copy"
+    "other": "Zkopírovat"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Označený soubor"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Vložit do"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "Nebo vyberte jinou složku"
   },
   "7": {
-    "other": "Delete"
+    "other": "Smazat"
   },
   "70": {
-    "other": "Move"
+    "other": "Přesunout"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "Takto nazvaný soubor už existuje (nejsou rozlišována velká a malá písmena)"
   },
   "72": {
     "other": "The root path is not correct. Check it in the conf/conf.php file"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "bylo zkopírováno do složky"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "bylo přesunuto do složky"
   },
   "75": {
     "other": "The file users.txt is not in the directory prive"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Soubor byl odebrán"
   },
   "77": {
-    "other": "Send"
+    "other": "Odeslat"
   },
   "78": {
     "other": "Pass"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF soubor"
   },
   "8": {
-    "other": "Directory"
+    "other": "Složka"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV soubor"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI soubor"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG soubor"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG soubor"
   },
   "84": {
-    "other": "Help"
+    "other": "Nápověda"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Načíst znovu"
   },
   "86": {
-    "other": "Close"
+    "other": "Zavřít"
   },
   "87": {
-    "other": "Search"
+    "other": "Hledat"
   },
   "88": {
-    "other": "Download"
+    "other": "Sthánout"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Soubor se nedaří otevřít"
   },
   "9": {
-    "other": "Midi File"
+    "other": "MIDI soubor"
   },
   "90": {
-    "other": "Print"
+    "other": "Tisk"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "FLASH soubor"
   },
   "92": {
-    "other": "Language"
+    "other": "Jazyk"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Aby bylo možné vybrat jazyk, je třeba, aby vámi využívaný prohlížeč přijímal cookies."
   },
   "94": {
     "other": "Login"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Vyberte svůj jazyk:"
   },
   "96": {
     "other": "Please select the destination folder in the tree : "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Nahrát soubor"
   },
   "98": {
     "other": "Click anywhere on this box to close it."
@@ -1968,10 +1968,10 @@
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "před %s dny"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "za %s dní"
   },
   "date_relative_time": {
     "other": "TIME"
@@ -2055,7 +2055,7 @@
     "other": "How configuration data are stored in the backend"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Zásuvné moduly pro šifrování dat"
   },
   "plugtype.desc.editor": {
     "other": "Viewers or editors for wide range of mime types"
@@ -2091,7 +2091,7 @@
     "other": "Implementations of a simple PUB/SUB server"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Pokročilé funkce zabezpečení"
   },
   "plugtype.desc.shorten": {
     "other": "Webservices bridges for shortening public links"
@@ -2103,7 +2103,7 @@
     "other": "Workspaces Drivers"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "Zásuvné moduly pro akce"
   },
   "plugtype.title.auth": {
     "other": "Authentication Backends"
@@ -2115,28 +2115,28 @@
     "other": "Loader"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Server mezipaměti"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Úložiště nastavení"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Šifrovací nástroje"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Editory"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Úložiště kanálů událostí"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Grafické uživatelské rozhraní"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Pomocné"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "Vytváření rejstřík"
   },
   "plugtype.title.log": {
     "other": "Loggers"
@@ -2145,22 +2145,22 @@
     "other": "Mailers"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Vyhledávač"
   },
   "plugtype.title.meta": {
     "other": "Workspace Meta Aspects"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Úložiště metadat"
   },
   "plugtype.title.mq": {
     "other": "Instant Messaging"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Zabezpečení"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Zkracování URL"
   },
   "plugtype.title.uploader": {
     "other": "Uploaders"
@@ -2169,10 +2169,10 @@
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "nadřazená složka"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "hromadné akce"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2199,22 +2199,22 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Veřejný přístup"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Přesouvání souboru na pozadí…"
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Přesouvání složky na pozadí…"
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Kopírování výběru na pozadí…"
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Soubor je uzamčen"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Složka je uzamčena"
   },
   "overlay.watch.file": {
     "other": "Currently watching this file"
@@ -2223,34 +2223,34 @@
     "other": "Currently watching this folder"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Sdílený soubor, upravíte kliknutím"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Sdílená složka, upravíte kliknutím"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Pro soubor je vytvořena záložka"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Pro složku je vytvořena záložka"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Vytvořit záložku pro tento prvek"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Odebrat tuto záložku"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Smíšené hodnoty, kliknutím vytvoříte záložku pro vše"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Ukládání stavu záložky"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Uvnitř"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Prázdný soubor"
   },
   "mkfile.untitled.document": {
     "other": "Untitled Document"
@@ -2274,34 +2274,34 @@
     "other": "Filter Cells"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Filtrovat pracovní prostory"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Viditelnost"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Zobrazit"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Upravit"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Uživatelé"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Vaše týmy"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Změnit viditelnost"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Uložit změny"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Vrátit změny"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Došlo k chybě"
   },
   "visibility.panel.pickuser": {
     "other": "Pick a user..."
@@ -2313,7 +2313,7 @@
     "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Neznámé"
   },
   "addressbook.pick.group": {
     "other": "Select group"
@@ -2322,19 +2322,19 @@
     "other": "Multiple Selection"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Potvrdit"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Chystáte se smazat"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Příště nevarovat"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Řádků na stránku"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "z"
   },
   "form.input-image.fileTypes": {
     "other": "Please use only images (jpeg,png,bmp,webp)"
@@ -2343,7 +2343,7 @@
     "other": "Reset"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Chcete stávající obrázek odstranit?"
   },
   "form.input-image.avatarMax": {
     "other": "Please use images smaller than 5MB"
@@ -2352,13 +2352,13 @@
     "other": "Start typing to search for files and folders"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Vyhledávání…"
   },
   "searchengine.main.placeholder": {
     "other": "Search..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Hledat: "
   },
   "searchengine.scope.title": {
     "other": "Search In..."
@@ -2385,16 +2385,16 @@
     "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Rozšířené filtry"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "Nalezeno %1 výsledků"
   },
   "searchengine.results.withMore": {
     "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Uložit"
   },
   "searchengine.query.action.save-new": {
     "other": "Save Query"
@@ -2406,16 +2406,16 @@
     "other": "Clear All"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Smazat"
   },
   "searchengine.query.action.delete-confirm": {
     "other": "Delete this saved query?"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Zadejte popisek"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Název/obsah"
   },
   "searchengine.complete.group.saved": {
     "other": "Saved Searches"
@@ -2448,7 +2448,7 @@
     "other": "Insert inline"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Starší položky"
   },
   "chat.msg.edit": {
     "other": "Edit Message"
@@ -2487,19 +2487,19 @@
     "other": "Open document in..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Využití kvóty"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Smazat trvale"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "Varování, tuto operaci nelze vrátit zpět!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Přejít do složky"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Nedávná umístění"
   },
   "action.copymove.root": {
     "other": "Top Folder"
