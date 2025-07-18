@@ -2313,30 +2313,30 @@
     "other": "Sitios detectados actualmente"
   },
   "sites.configs.command": {
-    "other": "Utilice el comando './cells config sites' para editar sitios."
+    "other": "Use './cells config sites' command to edit sites."
   },
   "sites.column.bind": {
-    "other": "Enlazar"
+    "other": "Bind"
   },
   "sites.column.tls": {
     "other": "TLS"
   },
   "sites.column.external": {
-    "other": "Proxy Inverso"
+    "other": "Reverse Proxy"
   },
   "sites.configs.tls.letsencrypt": {
-    "other": "Encriptemos"
+    "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Auto-firmado"
+    "other": "Self Signed"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificado"
+    "other": "Certificate"
   },
   "sites.configs.tls.notls": {
-    "other": "Sin TLS"
+    "other": "No TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "No hay TLS detrás del proxy"
+    "other": "No TLS behind proxy"
   }
 }
