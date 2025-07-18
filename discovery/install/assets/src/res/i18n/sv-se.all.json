@@ -48,7 +48,7 @@
     "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
   },
   "advanced.stepLabel": {
-    "other": "Avancerade inställningar"
+    "other": "Advanced Settings"
   },
   "advanced.title": {
     "other": "Advanced Settings (optional)"
@@ -75,13 +75,13 @@
     "other": "Server port"
   },
   "advanced.mongo.db": {
-    "other": "Databasnamn"
+    "other": "Database Name"
   },
   "advanced.mongo.username": {
-    "other": "Användarnamn"
+    "other": "Username"
   },
   "advanced.mongo.password": {
-    "other": "Lösenord"
+    "other": "Password"
   },
   "advanced.mongo.authSource": {
     "other": "Auth DB"
@@ -132,7 +132,7 @@
     "other": "Error was: "
   },
   "form.dbConnectionType.label": {
-    "other": "Anslutningstyp"
+    "other": "Connection Type"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -150,7 +150,7 @@
     "other": "Server where mysql is running"
   },
   "form.dbName.label": {
-    "other": "Databasnamn"
+    "other": "Database Name"
   },
   "form.dbName.legend": {
     "other": "Database to use (will be created if it does not exist)"
@@ -207,7 +207,7 @@
     "other": "Password used to log in"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Bekräfta lösenord"
+    "other": "Confirm password"
   },
   "form.frontendRepeatPassword.legend": {
     "other": "Confirm password twice"
@@ -273,13 +273,13 @@
     "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Nästa"
+    "other": "Next"
   },
   "stepper.button.back": {
-    "other": "Tillbaka"
+    "other": "Back"
   },
   "stepper.button.last": {
-    "other": "Installera nu"
+    "other": "Install Now"
   },
   "stepper.button.reload": {
     "other": "Reload"
