@@ -510,16 +510,16 @@
     "other": "Mở Cells"
   },
   "247": {
-    "other": "Thay đổi cell"
+    "other": "Edit cell"
   },
   "248": {
-    "other": "Xóa cell"
+    "other": "Delete cell"
   },
   "249": {
-    "other": "Nội Dung"
+    "other": "Contents"
   },
   "25": {
-    "other": "Không giới hạn"
+    "other": "No limit"
   },
   "250": {
     "other": "Cells"
@@ -528,79 +528,79 @@
     "other": "Link"
   },
   "252": {
-    "other": "Truy cập"
+    "other": "Access"
   },
   "253": {
-    "other": "Chia quyền"
+    "other": "Visibility"
   },
   "254": {
-    "other": "Các dữ liệu chia sẻ trong cells"
+    "other": "Shared in cells"
   },
   "254b": {
-    "other": "Với một người hoặc một nhóm"
+    "other": "With users or groups"
   },
   "254c": {
-    "other": "Đã chia sẻ trong %d cells"
+    "other": "Shared in %d cells"
   },
   "254d": {
-    "other": "Được chia sẻ trong '%s'"
+    "other": "Shared in '%s'"
   },
   "255": {
-    "other": "Bạn có chắc muốn xóa cells và các liên kết được tạo ra trong nó?"
+    "other": "Are you sure you want to delete all cells and links on this item?"
   },
   "256": {
-    "other": "Chia sẻ cho %s"
+    "other": "Shares for %s"
   },
   "257": {
-    "other": "Đã tạo: %s"
+    "other": "Created on %s"
   },
   "258": {
-    "other": "Thêm bớt users cho cell"
+    "other": "Edit cell users"
   },
   "259": {
-    "other": "Xóa khỏi cell này"
+    "other": "Remove from this cell"
   },
   "26": {
-    "other": "Lựa chọn các users và groups rồi phân quyền cho họ. Nếu chỉ có quyền đọc thì workspace chỉ dùng để upload lên."
+    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
   },
   "260": {
-    "other": "Thư mục được chia sẻ trong các cells sau. Bạn có thể thêm users hoặc tạo mới một cell khác."
+    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
   },
   "261": {
-    "other": "Chọn users hoặc groups rồi phân quyền truy cập vào cell này"
+    "other": "Pick users or groups who will have access to this cell"
   },
   "262": {
-    "other": "Tạo mới một cell trên thư mục này rồi chia sẻ với người khác"
+    "other": "Share this folder with other users by creating a new cell"
   },
   "263": {
-    "other": "Thêm vào Cell..."
+    "other": "Add to Cell..."
   },
   "264": {
-    "other": "+ Tạo mới Cell"
+    "other": "+ New Cell"
   },
   "265": {
-    "other": "Tên liên kết"
+    "other": "Link Label"
   },
   "266": {
-    "other": "Mô tả cho liên kết"
+    "other": "Link Description"
   },
   "267": {
-    "other": "Tên Cell"
+    "other": "Cell Label"
   },
   "268": {
-    "other": "Mô tả cho Cell"
+    "other": "Cell Description"
   },
   "269": {
-    "other": "Bạn đang tạo mới một cells và chia sẻ với %USERS. Vui lòng chỉ cho cells này một thư mục có sẵn hoặc để Pydio tự tạo một thư mục rỗng cho cells này!"
+    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
   },
   "27": {
-    "other": "Chia sẻ tệp"
+    "other": "Share file"
   },
   "270": {
-    "other": "tài khoản người dùng"
+    "other": "users"
   },
   "271": {
-    "other": "nhóm"
+    "other": "groups"
   },
   "272": {
     "other": "teams"
@@ -609,58 +609,58 @@
     "other": "nobody"
   },
   "274": {
-    "other": " và "
+    "other": " and "
   },
   "275": {
-    "other": "Tạo mới cells cho nhóm làm việc. Bắt đầu bằng việc xác định dữ liệu cho cell."
+    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
   },
   "276": {
-    "other": "Tên của cell"
+    "other": "Title of your cell"
   },
   "277": {
-    "other": "Thêm vào mô tả"
+    "other": "Optionally add a description"
   },
   "278": {
-    "other": "Lựa chọn ai sẽ được chia sẻ"
+    "other": "Choose who you will share data with"
   },
   "279": {
-    "other": "Tạo mới cell ngay bây giờ!"
+    "other": "Create cell now!"
   },
   "28": {
-    "other": "Chia sẻ thư mục"
+    "other": "Share folder"
   },
   "280": {
-    "other": "Cell có sẵn thư mục riêng"
+    "other": "Cell has its own folder"
   },
   "281": {
-    "other": "Cell sẽ được tạo trên một thư mục mới"
+    "other": "Cell will be created in a new folder"
   },
   "282": {
-    "other": "Thêm thư mục có sãn vào cell..."
+    "other": "Add an existing folder..."
   },
   "283": {
-    "other": "Chọn một file hay thư mục trên cây thư mục..."
+    "other": "Select a node in the tree..."
   },
   "284": {
-    "other": "Xuất hiện trên cells %s"
+    "other": "Visible in %s cells"
   },
   "29": {
     "other": "WebLink"
   },
   "3": {
-    "other": "Sai mật khẩu"
+    "other": "Wrong password"
   },
   "30": {
-    "other": "Chia sẻ với..."
+    "other": "Share with..."
   },
   "31": {
-    "other": "Đọc"
+    "other": "Read"
   },
   "32": {
-    "other": "Ghi"
+    "other": "Write"
   },
   "33": {
-    "other": "Theo dõi"
+    "other": "Watch"
   },
   "34": {
     "other": "Select or Create Users"
@@ -669,262 +669,262 @@
     "other": "Select Users"
   },
   "35": {
-    "other": "Nhãn"
+    "other": "Label"
   },
   "36": {
-    "other": "Đặt nhãn và mô tả ngắn"
+    "other": "Set a label and a short description"
   },
   "37": {
-    "other": "Xác nhận"
+    "other": "Confirm"
   },
   "38": {
-    "other": "Xem nội dung thư mục này"
+    "other": "Watch this folder content"
   },
   "39": {
-    "other": "Xem hoạt động của tệp này"
+    "other": "Watch this file activity"
   },
   "4": {
-    "other": "Nhập mật khẩu được yêu cầu và nhấn vào hình ảnh để tại xuống <b>%s</b> vào ổ cứng của bạn"
+    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
   },
   "40": {
-    "other": "Thư mời"
+    "other": "Invitations"
   },
   "41": {
-    "other": "Gửi lời mời qua email cho những người dùng mà bạn đã chia sẻ mục này."
+    "other": "Send invitations by email to the users you have shared this item with."
   },
   "42": {
-    "other": "Người dùng %s đang chia sẻ tệp với bạn"
+    "other": "A user of %s is sharing a file with you"
   },
   "43": {
-    "other": "Người dùng %s đang chia sẻ thư mục với bạn"
+    "other": "A user of %s is sharing a folder with you"
   },
   "44": {
-    "other": "%s Chia sẻ"
+    "other": "%s Share"
   },
   "45": {
-    "other": "Gửi thư mời"
+    "other": "Send Invitation"
   },
   "46": {
-    "other": "Mở workspace %s1 ngay trong %s2"
+    "other": "Open workspace %s1 directly in %s2"
   },
   "46_file": {
-    "other": "Mở tệp %s1"
+    "other": "Open file %s1"
   },
   "46_mini": {
     "other": "Open mini %s1"
   },
   "47": {
-    "other": "Đã cập nhật thành công trạng thái theo dõi"
+    "other": "Successfully updated watch status"
   },
   "48": {
-    "other": "Bạn không được phép truy cập vào dữ liệu này"
+    "other": "You are not allowed to access this data"
   },
   "49": {
-    "other": "tạo người dùng"
+    "other": "create user"
   },
   "5": {
-    "other": "mật khẩu"
+    "other": "password"
   },
   "50": {
-    "other": "Đã chia sẻ"
+    "other": "Shared"
   },
   "51": {
-    "other": "Đã tải xuống"
+    "other": "Downloaded"
   },
   "52": {
-    "other": "Cấu hình"
+    "other": "Configuration"
   },
   "53": {
-    "other": "trống"
+    "other": "none"
   },
   "54": {
-    "other": "Đã chia sẻ với"
+    "other": "Shared with"
   },
   "55": {
-    "other": "Đã chia sẻ..."
+    "other": "Shared..."
   },
   "56": {
-    "other": "Cấu hình chia sẻ..."
+    "other": "Configure sharing..."
   },
   "57": {
-    "other": "lần"
+    "other": "times"
   },
   "58": {
-    "other": "Vui lòng chọn ít nhất một phân quyền!"
+    "other": "Please check at least one permission!"
   },
   "59": {
-    "other": "Trang Tải xuống"
+    "other": "Download Page"
   },
   "6": {
-    "other": "Ngừng chia sẻ"
+    "other": "Stop Sharing"
   },
   "60": {
-    "other": "Liên kết tải xuống trực tiếp"
+    "other": "Direct Download Link"
   },
   "61": {
-    "other": "Mã nhúng HTML"
+    "other": "HTML Embed Code"
   },
   "62": {
-    "other": "Địa chỉ Minisite"
+    "other": "Minisite Adress"
   },
   "63": {
-    "other": "Không gian làm việc mới"
+    "other": "New workspace"
   },
   "64": {
-    "other": "Đối với cả người dùng bên trong và bên ngoài, thư mục sẽ xuất hiện dưới dạng không gian làm việc mới trong danh sách không gian làm việc của mục tiêu người dùng."
+    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
   },
   "65": {
-    "other": "Minisite công khai(không yêu cầu xác thực)"
+    "other": "Public Minisite (no authentication required)"
   },
   "66": {
-    "other": "Đối với người dùng bên ngoài, thư mục sẽ xuất hiện tại một địa chỉ công khai mới dưới dạng danh sách tệp đơn giản."
+    "other": "For external users, the folder will appear at a new public adress as a simple file list."
   },
   "67": {
-    "other": "Minisite riêng tư(yêu cầu người dùng xác thực)"
+    "other": "Private Minisite (users authentication required)"
   },
   "68": {
-    "other": "Đối với người dùng bên trong hoặc bên ngoài, thư mục sẽ xuất hiện tại một địa chỉ mới dưới dạng danh sách tệp đơn giản, nhưng yêu cầu xác thực người dùng"
+    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
   },
   "69": {
-    "other": "Cấu hình Minisite"
+    "other": "Configure Minisite"
   },
   "69r": {
-    "other": "Tham số liên kết"
+    "other": "Link Parameters"
   },
   "7": {
-    "other": "Việc dừng chia sẻ sẽ không xóa tệp. Nếu bạn muốn thay đổi các thông số, hãy chia sẻ lại tệp."
+    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
   },
   "70": {
-    "other": "Sử dụng các hộp kiểm để cấp quyền cho thư mục này cho công khai. Nếu bạn chỉ chọn 'Tải lên', thư mục này sẽ là một hộp thư đến trống trong đó mọi người có thể thả tệp."
+    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
   },
   "70r": {
-    "other": "Quyền được cấp cho người dùng truy cập liên kết này"
+    "other": "Permissions granted to the users accessing this link"
   },
   "71": {
-    "other": "Quyền truy cập"
+    "other": "Permissions"
   },
   "72": {
-    "other": "Xem trước"
+    "other": "Preview"
   },
   "73": {
-    "other": "Tải về"
+    "other": "Download"
   },
   "74": {
-    "other": "Đăng tải tập tin"
+    "other": "Upload files"
   },
   "74b": {
-    "other": "Chỉnh sửa"
+    "other": "Edit"
   },
   "75": {
-    "other": "Vui lòng sử dụng một số dương cho việc giới hạn tải xuống và hết hạn."
+    "other": "Please use a positive number for both Expiration and Download limit fields."
   },
   "76": {
-    "other": "Vui lòng kích hoạt Cookies để truy cập ứng dụng này"
+    "other": "Please enable Cookies to access this application"
   },
   "77": {
-    "other": "Vui lòng kích hoạt JavaScript để truy cập ứng dụng này"
+    "other": "Please enable JavaScript to access this application"
   },
   "78": {
-    "other": "Cảnh báo, bạn chỉ nên sử dụng ký tự chữ và số tiêu chuẩn cho tên người dùng. Giá trị nhận dạng '%CURRENT%' sẽ được thay thế bằng '%NEW%'"
+    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
   },
   "79": {
-    "other": "lời mời"
+    "other": "invite"
   },
   "8": {
-    "other": "Tệp được chia sẻ"
+    "other": "File is shared"
   },
   "80": {
-    "other": "Gửi liên kết qua email đến một số người dùng hoặc địa chỉ được lựa chọn"
+    "other": "Send link by email to a selection of users or addresses"
   },
   "80b": {
-    "other": "Mời qua email những người dùng đã chọn ghé thăm không gian làm việc này"
+    "other": "Invite by email the selected users to visit this workspace"
   },
   "81": {
-    "other": "ngừng theo dõi"
+    "other": "stop watching"
   },
   "82": {
-    "other": "theo dõi"
+    "other": "watch"
   },
   "83": {
-    "other": "Chuyển đổi trạng thái xem để nhận thông báo hoặc không nhận thông báo khi tệp được tại xuống"
+    "other": "Toggle watch status to receive or not notifications when file is downloaded"
   },
   "83b": {
-    "other": "Chuyển đổi trạng thái xem để nhận thông báo hoặc không nhận thông báo khi không gian làm việc được hỏi ý kiến"
+    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
   },
   "84": {
-    "other": "mật khẩu"
+    "other": "password"
   },
   "85": {
-    "other": "Mật khẩu bảo vệ được đặt trên liên kết này"
+    "other": "A protection password is set on this link"
   },
   "86": {
-    "other": "hết hạn"
+    "other": "expire"
   },
   "87": {
-    "other": "Liên kết này sẽ tự động hết hạn vào..."
+    "other": "This link will automatically expire on..."
   },
   "88": {
-    "other": "tải xuống"
+    "other": "downloads"
   },
   "89": {
-    "other": "Số lượt tại xuống / tải xuống được phép. Nhấn để đặt lại bộ đếm tải xuống."
+    "other": "Number of downloads / authorized downloads. Click to reset download counter."
   },
   "9": {
-    "other": "Sử dụng nút này để ngừng chia sẻ thư mục này"
+    "other": "Use this button to stop sharing this folder"
   },
   "90": {
-    "other": "Liên kết URL"
+    "other": "Link URL"
   },
   "91": {
-    "other": "Thẻ (Nhập để lưu)"
+    "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "Tạo liên kết"
+    "other": "Create link"
   },
   "93": {
-    "other": "Liên kết hiện có"
+    "other": "Existing links"
   },
   "94": {
-    "other": "Mã QR"
+    "other": "QR Code"
   },
   "95": {
-    "other": "Mã QR"
+    "other": "QR code"
   },
   "96": {
-    "other": "ngừng chia sẻ"
+    "other": "stop sharing"
   },
   "97": {
-    "other": "Tạm dừng chia sẻ thư mục này với những người dùng khác"
+    "other": "Stop sharing this folder with other users"
   },
   "98": {
-    "other": "Các chia sẻ của tôi"
+    "other": "My Shares"
   },
   "99": {
-    "other": "Tất các các yếu tố được chia sẻ"
+    "other": "All shared elements"
   },
   "cells.create.advanced": {
-    "other": "Thêm người dùng/dữ liệu"
+    "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "hoặc"
+    "other": "or"
   },
   "cells.create.title.fill.folders": {
-    "other": "Chia sẻ (các) thư mục hiện tại"
+    "other": "Share existing folder(s)"
   },
   "cells.remove.node": {
-    "other": "Xóa khỏi cells này"
+    "other": "Remove from this cell"
   },
   "cell.visibility.advanced": {
-    "other": "Tính năng nâng cao này cho phép bạn quyết định ai có thể chỉnh sửa thuộc tính của Cell (quyền thêm/xóa người dùng và thêm/xóa thư mục gốc của Cell). Để đơn gian quản lý các truy cập vào dữ liệu, vui lòng sử dụng tab 'Chia sẻ với'."
+    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
   },
   "cell.add.existing-or-new": {
-    "other": "Thêm vào hoặc tạo mới một Cell"
+    "other": "Add to existing or new Cell"
   },
   "cell.add.existing": {
-    "other": "Thêm vào Cell đã có"
+    "other": "Add to existing Cell"
   },
   "cell.add.new": {
-    "other": "Tạo mới một Cell"
+    "other": "Create a new Cell"
   },
   "cell.participant.single": {
     "other": "One participant"
@@ -945,46 +945,46 @@
     "other": "%d folders"
   },
   "link.visibility.title": {
-    "other": "[Nâng cao] Đồng sở hữu Cell này"
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
-    "other": "Tính năng nâng cao này cho phép bạn quyết định xem liên kết này có hiển thị với những người dùng khác khi họ xem tệp này hay không và liệu họ có thể chỉnh sửa các thuộc tính của nó hay không. Theo mặc định, các liên kết mà bạn tạo chỉ hiện thị với bạn. Bạn có thể chuyển quyền sở hữu liên kết bằng cách cho phép người dùng khác chỉnh sửa nó."
+    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
   },
   "dialog.close.confirm.unsaved": {
-    "other": "Có những thay đổi chưa được lưu, bạn có chắc chắn muốn đóng không?"
+    "other": "There are unsaved changes, are you sure you want to close?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Bạn có chắc chắn là muốn xóa liên kết này?"
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
-    "other": "Bộ lọc nhanh..."
+    "other": "Quick filter..."
   },
   "composite.deleteAll": {
-    "other": "Tắt toàn bộ các chia sẻ"
+    "other": "Disable all shares"
   },
   "link.active": {
-    "other": "kích hoạt"
+    "other": "active"
   },
   "link.disable": {
-    "other": "Tắt chia sẻ"
+    "other": "Disable Link"
   },
   "link.floatingLabel": {
-    "other": "Copy và gửi chia sẻ này"
+    "other": "Copy and send this link for direct access"
   },
   "link.secure.title": {
-    "other": "Hạn chế truy cập"
+    "other": "Access Restrictions"
   },
   "link.secure.expires": {
-    "other": "hết hạn"
+    "other": "expires"
   },
   "link.secure.expired": {
-    "other": "đã hết hạn"
+    "other": "expired"
   },
   "link.secure.hasPassword": {
-    "other": "cần mật khẩu để mở khoá"
+    "other": "password required"
   },
   "link.secure.maxdownloads": {
-    "other": "Đã tải xuống %d lần"
+    "other": "%d downloads only"
   },
   "minisite.toggle.theme": {
     "other": "Toggle Dark/Light Theme"
