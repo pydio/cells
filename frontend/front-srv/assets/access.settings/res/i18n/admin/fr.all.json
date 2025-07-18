@@ -1116,7 +1116,7 @@
     "other": "API REST"
   },
   "react.1": {
-    "other": "répertoire parent"
+    "other": "Répertoire parent"
   },
   "react.10": {
     "other": "Propager les permissions"
@@ -1134,7 +1134,7 @@
     "other": "Montrer l'arbre résultant (visible)"
   },
   "react.2": {
-    "other": "sélectionner"
+    "other": "Actions groupées"
   },
   "react.3": {
     "other": "Résultat de recherche pour '%s'"
