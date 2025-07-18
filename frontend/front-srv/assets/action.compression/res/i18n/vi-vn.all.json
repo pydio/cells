@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "Nén"
+    "other": "Compress"
   },
   "10": {
-    "other": "Giải nén file được chọn"
+    "other": "Extract selected archives"
   },
   "11": {
-    "other": "Đường dẫn tới dữ liệu được giải nén "
+    "other": "Path of the extracted files "
   },
   "12": {
-    "other": "Đang bắt đầu quá trình giải nén..."
+    "other": "Starting extraction..."
   },
   "13": {
-    "other": "Đã giản nén được %s "
+    "other": "Extracting files ... %s "
   },
   "14": {
-    "other": "Giản nén hoàn thành trong thư mục '%s'."
+    "other": "Extraction finished successfullly in the folder '%s'."
   },
   "15": {
-    "other": "Lựa chọn định dạng nén tar, tar.gz hoặc tar.bz2."
+    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
   },
   "16": {
-    "other": "Bạn chỉ có thể dùng các định sạng sau: tar, tar.gz hoặc tar.bz2."
+    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
   },
   "17": {
-    "other": "Bạn không thể nén một thư mục rỗng."
+    "other": "You can't compress empty folders."
   },
   "2": {
-    "other": "Nén mục được chọn"
+    "other": "Compress Selection"
   },
   "3": {
-    "other": "Định dạng"
+    "other": "Format"
   },
   "4": {
-    "other": "Tên file nén"
+    "other": "Archive's name"
   },
   "5": {
-    "other": "Bắt đầu quá trình nén..."
+    "other": "Starting compression..."
   },
   "6": {
-    "other": "Đang nén file...%s "
+    "other": "Adding files in the archive... %s "
   },
   "7": {
-    "other": "Quá trình nén đã được %s ..."
+    "other": "During compression in %s ..."
   },
   "8": {
-    "other": "File nén của bạn đã hoàn thành !!"
+    "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "Giải nén"
+    "other": "Extract"
   }
 }
