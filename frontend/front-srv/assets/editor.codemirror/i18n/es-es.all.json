@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Source Editor"
+    "other": "Editor de Código"
   },
   "10": {
-    "other": "Indent size"
+    "other": "Sangría"
   },
   "2": {
-    "other": "CodeMirror Syntax Highlighter"
+    "other": "Resaltar Sintáxis con CodeMirror"
   },
   "3": {
     "other": "Wrapping"
   },
   "3b": {
-    "other": "Toggle lines wrapping"
+    "other": "Usar/no usar wrapping de línea"
   },
   "4": {
-    "other": "Numbers"
+    "other": "Números"
   },
   "5": {
-    "other": "Toggle lines numbers"
+    "other": "Mostrar/Ocultar números de línea"
   },
   "6": {
-    "other": "Jump to line"
+    "other": "Salta a Línea"
   },
   "7": {
-    "other": "Undo"
+    "other": "Deshacer"
   },
   "8": {
-    "other": "Redo"
+    "other": "Rehacer"
   },
   "9": {
-    "other": "Text Search"
+    "other": "Búsqueda de texto"
   }
 }
