@@ -12,19 +12,19 @@
     "other": "Enter"
   },
   "43": {
-    "other": "My Profile"
+    "other": "내 프로필"
   },
   "43t": {
     "other": "All my personal data"
   },
   "44": {
-    "other": "My Account"
+    "other": "내 계정"
   },
   "45": {
     "other": "Personal data"
   },
   "46": {
-    "other": "Address Book"
+    "other": "주소록"
   },
   "47": {
     "other": "Users and teams that you created"
@@ -57,22 +57,22 @@
     "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "APPLICATION_TITLE 다운로드..."
   },
   "58": {
-    "other": "Android"
+    "other": "안드로이드"
   },
   "59": {
-    "other": "iPhone/iPad"
+    "other": "아이폰/아이패드"
   },
   "60": {
-    "other": "Mac OS"
+    "other": "맥OS"
   },
   "61": {
-    "other": "Windows"
+    "other": "윈도우즈"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "워크 스페이스가 무엇인가요 ? \n이 영상은 APPLICATION_TITLE에서 작업 공간이 무엇인지를 설명합니다. \n"
   },
   "63": {
     "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
@@ -117,7 +117,7 @@
     "other": "Access the %1 through the top-right menu"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "관리 대시보드"
   },
   "78": {
     "other": "Pick a target workspace"
@@ -177,7 +177,7 @@
     "other": "Home"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "폴더"
   },
   "search.facets.title": {
     "other": "Filter Results..."
@@ -198,7 +198,7 @@
     "other": "Found in"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "메타데이터"
   },
   "search.sorter.relevant.desc": {
     "other": "Most Relevant First"
@@ -216,19 +216,19 @@
     "other": "Smallest First"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "파일"
   },
   "facet.label.folder": {
-    "other": "Folder"
+    "other": "폴더"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB 에서 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB 에서 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
@@ -249,13 +249,13 @@
     "other": "Older than 30 days"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "내용"
   },
   "facet.label.found.basename": {
     "other": "File name"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "즐겨찾기"
   },
   "reco.workspace": {
     "other": "Workspace"
