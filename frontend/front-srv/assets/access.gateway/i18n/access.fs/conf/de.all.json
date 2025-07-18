@@ -21,10 +21,10 @@
     "other": "Absoluter Pfad zu einem oder mehreren Wurzelknoten"
   },
   "#Items per page": {
-    "other": "#Objekte pro Seite"
+    "other": "Einträge pro Seite"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Einmal im Paginierungsmodus, Anzahl der Elemente, die pro Seite angezeigt werden sollen."
+    "other": "Wenn der Ordner mehrseitig angezeigt wird kann hier angegeben werden, wie viele Elemente sich auf einer Seite befinden."
   },
   "Delete Permanently": {
     "other": "Endgültig löschen"
