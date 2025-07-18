@@ -6,10 +6,10 @@
     "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Next"
+    "other": "Próximo"
   },
   "back": {
-    "other": "Back"
+    "other": "Voltar"
   },
   "step.categories.choose": {
     "other": "Choose features to import"
@@ -153,10 +153,10 @@
     "other": "All set! Let's start"
   },
   "step.shares.feature.links": {
-    "other": "Public Links"
+    "other": "Links Públicos"
   },
   "step.shares.feature.cells": {
-    "other": "Shared Folders"
+    "other": "Pastas compartilhadas"
   },
   "step.shares.title": {
     "other": "Import Shares"
@@ -264,7 +264,7 @@
     "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
   },
   "dash.feature.workspaces": {
-    "other": "Workspaces"
+    "other": "Áreas de Trabalho"
   },
   "dash.feature.acls": {
     "other": "Workspaces ACLs"
@@ -300,7 +300,7 @@
     "other": "Pydio"
   },
   "action.createws.head.cells": {
-    "other": "Cells"
+    "other": "Células"
   },
   "action.createws.head.status": {
     "other": "Status"
