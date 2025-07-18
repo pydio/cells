@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "이미지 썸네일 및 Exif 데이터 추출"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "삭제된 파일의 썸네일 캐시 삭제"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "외부 디렉토리 동기화"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "스케줄러 태스크 비우기"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "오래 실행되는 태스크 가짜로 생성 (테스트용)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "무작위 사용자 생성 (테스트용)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "예시 RPC 태스크 생성 (테스트용)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "바뀐 서비스에 대한 자동 아카이브"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "삭제된 사용자 데이터를 완전삭제하거나 전송"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "24시간후 분리된 파일을 완전 삭제"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "만료된 ACL을 10일 후에 삭제"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "선택 항목 압축 중..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "압축 해제 중..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "선택 항목을 백그라운드에서 삭제 중..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "백그라운드에서 폴더 복사 중..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "백그라운드에서 폴더 이동 중..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "백그라운드에서 파일 복사 중..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "백그라운드에서 파일 이동 중..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "선택 항목을 백그라운드에서 복사 중..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "선택 항목을 백그라운드에서 이동 중..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "백그라운드에서 휴지통으로 이동 중..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "데이터 소스 {{.DsName}}를 동기화하세요. 이후 새로운 파일을 다시 hash합니다."
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "백그라운드에서 다운로드 중..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "%s 삭제중"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "%s 복사중"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "%s 이동중"
   }
 }
