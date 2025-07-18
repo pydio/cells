@@ -1,549 +1,549 @@
 {
   "1": {
-    "other": "Dati della configurazione"
+    "other": "Configuration Data"
   },
   "10": {
-    "other": "Sorgenti dei meta"
+    "other": "Meta Sources"
   },
   "100": {
-    "other": "Opzioni comuni '%s' dei plugin"
+    "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Nome"
+    "other": "Name"
   },
   "102": {
-    "other": "Identificatore"
+    "other": "Identifier"
   },
   "103": {
-    "other": "Descrizione"
+    "other": "Description"
   },
   "104": {
-    "other": "Abilitato"
+    "other": "Enabled"
   },
   "105": {
-    "other": "Controlli automatici"
+    "other": "Automatic checks"
   },
   "106": {
-    "other": "Identificatore Univoco"
+    "other": "Unique Identifier"
   },
   "107": {
-    "other": "Configurazioni dei plugin"
+    "other": "Plugin Configurations"
   },
   "108": {
-    "other": "Documentazione"
+    "other": "Documentation"
   },
   "109": {
-    "other": "Parametri dell'applicazione"
+    "other": "Application Parameters"
   },
   "11": {
-    "other": "Aggiungi un sorgente"
+    "other": "Add a source"
   },
   "110": {
-    "other": "Workspace & Utenti"
+    "other": "Workspaces & Users"
   },
   "111": {
     "other": "Backend"
   },
   "112": {
-    "other": "<b>Applica questo ruolo di default</b> a tutti i nuovi utenti."
+    "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
-    "other": "Status del ruolo aggiornato correttamente"
+    "other": "Role status was successfully modified"
   },
   "114": {
-    "other": "Si applica a"
+    "other": "Applies to"
   },
   "115": {
-    "other": "Schema"
+    "other": "Scheme"
   },
   "116": {
-    "other": "Modello di etichetta"
+    "other": "Template Label"
   },
   "117": {
-    "other": "Modello di driver"
+    "other": "Template Driver"
   },
   "118": {
-    "other": "Nuovo Gruppo"
+    "other": "New group"
   },
   "119": {
-    "other": "Imposta gruppo di utenti"
+    "other": "Set user group"
   },
   "12": {
     "other": "Meta Plugin"
   },
   "120": {
-    "other": "Passa alla versione Pro"
+    "other": "Go Pro"
   },
   "121": {
-    "other": "Ottieni supporto professionale per la tua installazione"
+    "other": "Get professional support for your install"
   },
   "122": {
-    "other": "Tutte le impostazioni"
+    "other": "All Settings"
   },
   "123": {
-    "other": "Altri plugin"
+    "other": "Other plugins"
   },
   "124": {
-    "other": "Sorgente"
+    "other": "Source"
   },
   "125": {
     "other": "Alias"
   },
   "126": {
-    "other": "Sei sicuro di voler eliminare gli elementi selezionati?"
+    "other": "Are you sure that you want to delete the selected element(s)?"
   },
   "127": {
-    "other": "ATTENZIONE: non utilizzare caratteri speciali. L'utente verrebbe creato con la login '%s'"
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
   },
   "128": {
-    "other": "Gruppo cancellato correttamente"
+    "other": "Successfully deleted group"
   },
   "129": {
-    "other": "Aggiorna la cache dei plugin"
+    "other": "Refresh plugins cache"
   },
   "13": {
-    "other": "Sicuro di voler cancellare questo sorgente?"
+    "other": "Are you sure you want to delete this source?"
   },
   "130": {
-    "other": "Elimina la cache dei plugin. Può essere necessario per visualizzare i nuovi plugin nella lista."
+    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
   },
   "131": {
-    "other": "I file della cache dei plugin sono stati cancellati con successo!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
-    "other": "Cache pulita, ma sei in modalità SKIP_CACHE (si veda 'bootstrap_context.php')."
+    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
   },
   "133": {
-    "other": "Parametri core dell'applicazione"
+    "other": "Core application parameters"
   },
   "134": {
-    "other": "Abilita/Disabilita i plugin addizionali orientati alle funzionalità, verifica il loro corretto funzionamento, imposta dei parametri globali per i plugin."
+    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
   },
   "135": {
-    "other": "Abilita/Disabilita i plugin core (auth, conf, mail, ecc), e verifica che funzionino correttamente. La configurazione di questi plugin viene generalmente fatta nella sezione 'Opzioni Principali'"
+    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
   },
   "136": {
-    "other": "Configurazione globale del core dell'applicazione e di ogni plugin. Abilita/Disabilita i plugin"
+    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
   },
   "137": {
-    "other": "Amministrazione quotidiana dell'applicazione: chi accede a cosa, crea i ruoli, ecc."
+    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
   },
   "138": {
-    "other": "Creazione e cancellazione dei workspace, e aggiunta di funzionalità utilizzando i sorgenti dei meta."
+    "other": "Create and delete workspaces, add features to them using meta sources."
   },
   "139": {
-    "other": "Gestione utenti e gruppi"
+    "other": "Manage users and groups"
   },
   "14": {
-    "other": "Vero"
+    "other": "True"
   },
   "140": {
-    "other": "Definizione dei profili che possono essere applicati in una sola operazione a un intero insieme di utenti."
+    "other": "Define profiles that can be applied at once to whole bunch of users."
   },
   "141": {
-    "other": "Attività dell'amministratore per il monitoraggio dello stato dell'applicazione."
+    "other": "Administrator tasks to monitor the application state."
   },
   "142": {
-    "other": "Monitoraggio di tutte le attività svolte sul server"
+    "other": "Monitor all activities happening on the server"
   },
   "143": {
-    "other": "Lettura della diagnostica di avvio"
+    "other": "Read the start-up diagnostic"
   },
   "144": {
-    "other": "Risorse per sviluppatori"
+    "other": "Developer Resources"
   },
   "145": {
-    "other": "Documentazione generata per gli sviluppatori"
+    "other": "Generated documentations for developers"
   },
   "146": {
-    "other": "API delle Azioni"
+    "other": "Actions API"
   },
   "147": {
-    "other": "Lista di tutte le azioni rese possibili da tutti i plugin e visualizzazione dei loro parametri di input"
+    "other": "List all actions contributed by all plugins and visualize their input parameters"
   },
   "148": {
-    "other": "Definizione degli agganci"
+    "other": "Hooks Definitions"
   },
   "149": {
-    "other": "Lista di tutti gli agganci innescati dall'applicazione, la loro documentazione, dove sono innescati e quale plugin è in ascolto."
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
   },
   "15": {
-    "other": "Falso"
+    "other": "False"
   },
   "150": {
-    "other": "Seleziona un repository"
+    "other": "Select a repository"
   },
   "151": {
-    "other": "Gruppo root"
+    "other": "Root Group"
   },
   "152": {
-    "other": "Ruolo nel Gruppo Root"
+    "other": "Root Group Role"
   },
   "153": {
-    "other": "Si applica all'intera gerarchia di utenti"
+    "other": "Applies to the whole hierarchy of users"
   },
   "154": {
-    "other": "Modelli di Repository"
+    "other": "Repository Templates"
   },
   "155": {
-    "other": "Driver di accesso"
+    "other": "Access Drivers"
   },
   "156": {
     "other": "Standard"
   },
   "157": {
-    "other": "Amministratore"
+    "other": "Administrator"
   },
   "158": {
-    "other": "Condiviso"
+    "other": "Shared"
   },
   "159": {
-    "other": "Ospite"
+    "other": "Guest"
   },
   "160": {
-    "other": "Il gruppo è stato creato con successo"
+    "other": "Group was successfully created"
   },
   "161": {
-    "other": "Stai cercando di spostarti all'interno di un gruppo, e perderai i tuoi diritti di super-amministratore. Effettua il login con un altro utente se vuoi farlo veramente. Operazione terminata."
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
   },
   "162": {
-    "other": "Non sei autorizzato ad aggiornare l'utente %s"
+    "other": "You are not authorized to update user %s"
   },
   "163": {
-    "other": "Ruoli riordinati per utente %s"
+    "other": "Roles reordered for user %s"
   },
   "164": {
-    "other": "Ruoli aggiornati con successo"
+    "other": "Successfully updated roles"
   },
   "165": {
-    "other": "Preferenze utente salvate con successo"
+    "other": "Successfully saved user preferences"
   },
   "166": {
-    "other": "Blocco (%1) impostato correttamente per l'utente (%2)"
+    "other": "Successfully set lock (%1) on user (%2)"
   },
   "167": {
-    "other": "Utente (%s) sbloccato con successo"
+    "other": "Successfully unlocked user (%s)"
   },
   "168": {
-    "other": "%1 utenti sono stati spostati nel gruppo %2"
+    "other": "%1 users were moved to group %2"
   },
   "169": {
-    "other": "Nessun utente è stato spostato, ci deve essere stato un errore!"
+    "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Data"
+    "other": "Date"
   },
   "170": {
-    "other": "Abilitare %1 (%2)"
+    "other": "Enable %1 (%2)"
   },
   "171": {
-    "other": "Importazione degli utenti (solo Enterprise Distribution)"
+    "other": "Import Users (Enterprise only)"
   },
   "172": {
-    "other": "Servizi"
+    "other": "Services"
   },
   "173": {
-    "other": "Servizi di backend Pydio e loro stato in esecuzione"
+    "other": "Pydio Backend Services and their running status"
   },
   "174": {
-    "other": "Gestione delle identità"
+    "other": "Identity Management"
   },
   "175": {
-    "other": "Gestione dei dati"
+    "other": "Data Management"
   },
   "176": {
-    "other": "Criteri di sicurezza"
+    "other": "Security Policies"
   },
   "177": {
-    "other": "Criteri di sicurezza"
+    "other": "Security Policies"
   },
   "18": {
     "other": "I.P."
   },
   "19": {
-    "other": "Livello"
+    "other": "Level"
   },
   "2": {
-    "other": "Persone"
+    "other": "People"
   },
   "20": {
-    "other": "Utente"
+    "other": "User"
   },
   "21": {
-    "other": "Azione"
+    "other": "Action"
   },
   "22": {
-    "other": "Parametri"
+    "other": "Params"
   },
   "22a": {
-    "other": "Maggiori informazioni"
+    "other": "More info"
   },
   "23": {
-    "other": "Nome del test"
+    "other": "Test Name"
   },
   "24": {
-    "other": "Dati di test"
+    "other": "Test Data"
   },
   "25": {
-    "other": "Accesso ai Workspace"
+    "other": "Workspaces Access"
   },
   "26": {
-    "other": "Modifica Password"
+    "other": "Modify Password"
   },
   "27": {
-    "other": "Privilegi di amministratore"
+    "other": "Admin Right"
   },
   "28": {
-    "other": "L'utente ha i privilegi di amministratore?"
+    "other": "User has admin rights?"
   },
   "29": {
-    "other": "Lettura"
+    "other": "Read"
   },
   "2b": {
-    "other": "Gestione dei dati"
+    "other": "Data Management"
   },
   "3": {
-    "other": "Workspace"
+    "other": "Workspaces"
   },
   "30": {
-    "other": "Scrittura"
+    "other": "Write"
   },
   "32": {
-    "other": "Driver di Accesso"
+    "other": "Access Driver"
   },
   "33": {
-    "other": "Caricamento..."
+    "other": "Loading..."
   },
   "34": {
-    "other": "Sicuro di voler cancellare questo utente? Questa operazione non è reversibile!"
+    "other": "Are you sure you want to delete this user? This operation is not reversible!"
   },
   "35": {
-    "other": "Sicuro di voler cancellare questo workspace? Questa operazione non è reversibile!"
+    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
   },
   "36": {
-    "other": "Mancano alcuni campi obbligatori!"
+    "other": "Mandatory fields are missing!"
   },
   "37": {
-    "other": "Attenzione, password e conferma sono diverse!"
+    "other": "Warning, password and confirmation differ!"
   },
   "38": {
-    "other": "Si prega di compilare il campo login!"
+    "other": "Please fill the login field!"
   },
   "39": {
-    "other": "Si prega di compilare entrambi i campi password!"
+    "other": "Please fill both password fields!"
   },
   "3b": {
     "other": "Storage"
   },
   "3c": {
-    "other": "Percorso dei modelli"
+    "other": "Template Paths"
   },
   "4": {
-    "other": "Log"
+    "other": "Logs"
   },
   "40": {
-    "other": "Spunta l'opzione per confermare!"
+    "other": "Please check the box to confirm!"
   },
   "41": {
-    "other": "Nodi dei DataSource"
+    "other": "Datasource Nodes"
   },
   "42": {
-    "other": "Si prega di scegliere un driver!"
+    "other": "Please choose a driver!"
   },
   "43": {
-    "other": "L'utente esiste già! Scegli un altro nome"
+    "other": "User already exists, please choose another login!"
   },
   "44": {
-    "other": "Utente creato con successo"
+    "other": "User created successfully"
   },
   "45": {
-    "other": "Privilegi di Amministratore modificati per l'utente "
+    "other": "Changed admin right for user "
   },
   "46": {
-    "other": "Privilegi modificati per l'utente "
+    "other": "Changed right for user "
   },
   "47": {
-    "other": "Dati salvati per l'utente "
+    "other": "Saved data for user "
   },
   "48": {
-    "other": "Password modificata con successo per l'utente "
+    "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "Impossibile aggiornare la password"
+    "other": "Cannot update password"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "ERRORE: un workspace con lo stesso nome esiste già"
+    "other": "Error: a workspace with the same name already exists"
   },
   "51": {
-    "other": "Impossibile scrivere nella directory 'conf'"
+    "other": "The conf directory is not writeable"
   },
   "52": {
-    "other": "Workspace creato con successo! Ora puoi aggiungere alcuni 'Sorgenti dei Metadati' per arricchire i dati, aggiungere l'indicizzazione automatica, ecc"
+    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
   },
   "53": {
-    "other": "Errore durante la modifica del workspace"
+    "other": "Error while trying to edit workspace"
   },
   "54": {
-    "other": "Workspace modificato con successo"
+    "other": "Successfully edited workspace"
   },
   "55": {
-    "other": "Attenzione: puoi aggiungere una sola istanza di ciascun Meta Plugin."
+    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
   },
   "56": {
-    "other": "Sorgente meta aggiunta con successo"
+    "other": "Successfully added meta source"
   },
   "57": {
-    "other": "Sorgente meta rimossa con successo"
+    "other": "Successfully deleted meta source"
   },
   "58": {
-    "other": "Sorgente meta modificata con successo"
+    "other": "Successfully edited meta source"
   },
   "59": {
-    "other": "Workspace rimosso con successo"
+    "other": "Successfully deleted workspace"
   },
   "6": {
-    "other": "Nome Utente"
+    "other": "User Name"
   },
   "60": {
-    "other": "Utente cancellato correttamente"
+    "other": "User successfully erased"
   },
   "61": {
-    "other": "Argomenti errati!"
+    "other": "Wrong arguments!"
   },
   "62": {
-    "other": "Sommario Privilegi"
+    "other": "Rights Summary"
   },
   "63": {
-    "other": "Tutti"
+    "other": "All"
   },
   "64": {
-    "other": "Privilegi aggiornati per il ruolo "
+    "other": "Changed right for role "
   },
   "65": {
-    "other": "Il ruolo esiste già. Scegliere un altro nome!"
+    "other": "Role already exists, choose another name!"
   },
   "66": {
-    "other": "Ruolo creato correttamente"
+    "other": "Role successfully created"
   },
   "67": {
-    "other": "Impossibile trovare il ruolo "
+    "other": "Cannot find role "
   },
   "68": {
-    "other": "Ruolo cancellato correttamente"
+    "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Ruoli"
+    "other": "Roles"
   },
   "7": {
-    "other": "Amministratore"
+    "other": "Is Admin"
   },
   "70": {
-    "other": "Ruoli Utente"
+    "other": "User Roles"
   },
   "71": {
-    "other": "Ruoli disponibili"
+    "other": "Available Roles"
   },
   "72": {
-    "other": "Puoi usare il Drag'n'drop per assegnare i ruoli agli utenti"
+    "other": "Drag'n'drop roles to assign them to the user"
   },
   "73": {
-    "other": "Ruolo assegnato all'utente "
+    "other": "Role added to user "
   },
   "74": {
-    "other": "Ruolo rimosso dall'utente "
+    "other": "Role deleted from user "
   },
   "75": {
-    "other": "Nuovo Ruolo"
+    "other": "New Role"
   },
   "76": {
-    "other": "Id Ruolo"
+    "other": "Role Id"
   },
   "77": {
-    "other": "Controllo dell'accesso"
+    "other": "Access Control"
   },
   "78": {
-    "other": "Dati personali"
+    "other": "Personal data"
   },
   "79": {
     "other": "Workspace"
   },
   "8": {
-    "other": "Etichetta del Workspace"
+    "other": "Workspace Label"
   },
   "80": {
-    "other": "Ottimizzare l'accesso per questo utente (fare clic sull'etichetta del workspace per farne il workspace predefinito quando l'utente effettua l'accesso)"
+    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
   },
   "81": {
-    "other": "Dati specifici del workspace"
+    "other": "Specific workspaces data"
   },
   "82": {
-    "other": "Modifica batch degli utenti"
+    "other": "Batch-edit users"
   },
   "83": {
-    "other": "Puoi usare il Drag'n'drop per assegnare i ruoli agli utenti selezionali (gli utenti condivisi verranno ignorati)"
+    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Ruoli degli utenti"
+    "other": "Users Roles"
   },
   "85": {
-    "other": "Filtro Manuale delle Azioni"
+    "other": "Manual actions filtering"
   },
   "86": {
-    "other": "lista di azioni, separate da virgola, disabilitate per questo ruolo, indipendentemente dai diritti di accesso."
+    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
   },
   "87": {
-    "other": "Azioni aggiornate con successo per questo ruolo"
+    "other": "Successfully updated actions for this role"
   },
   "88": {
-    "other": "Questo workspace è specificato nel file di configurazione, e non è possibile modificare i sorgenti meta attraverso la GUI."
+    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
   },
   "89": {
-    "other": "Dati specifici dell'utente"
+    "other": "User specific data"
   },
   "9": {
-    "other": "Tipo di accesso"
+    "other": "Access Type"
   },
   "90": {
-    "other": "Nuovo Workspace"
+    "other": "New Workspace"
   },
   "91": {
-    "other": "Nuovo Modello"
+    "other": "New Template"
   },
   "92": {
-    "other": "Crea un nuovo modello"
+    "other": "Create a new template"
   },
   "93": {
-    "other": "Modifica"
+    "other": "Edit"
   },
   "94": {
-    "other": "Modifica batch"
+    "other": "Batch Edit"
   },
   "95": {
-    "other": "Scegli un'etichetta e un driver per accedere ai dati (verifica tutte le sezioni per i campi obbligatori, per maggiori informazioni è possibile visualizzare i suggerimenti puntando con il mouse sopra il nome del campo)."
+    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
   },
   "96": {
-    "other": "Una volta selezionati etichetta e driver, abilita i campi che devono essere precompilati spuntando le relative caselle nel modello. Gli altri campi vengono lasciati all'utente. Puoi anche abilitare alcuni campi e lasciarli vuoti, se vuoi nasconderli all'utente."
+    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
   },
   "97": {
-    "other": "Opzioni dei plugin aggiornate con successo"
+    "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "Impostazioni Principali"
+    "other": "Main Settings"
   },
   "99": {
-    "other": "Plugin delle funzionalità"
+    "other": "Feature plugins"
   },
   "topbar.title": {
-    "other": "Console di Cells"
+    "other": "Cells Console"
   },
   "topbar.button.advanced": {
-    "other": "Mostra/Nascondi i parametri avanzati"
+    "other": "Show/hide advanced parameters"
   },
   "topbar.button.about": {
-    "other": "Ulteriori informazioni su Pydio Cells"
+    "other": "Learn more about Pydio Cells"
   },
   "group_access": {
     "other": "g"
