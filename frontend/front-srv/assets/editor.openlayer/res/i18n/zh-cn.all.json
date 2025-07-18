@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "OpenLayers Map"
+    "other": "OpenLayers 地图"
   },
   "10": {
-    "other": "Clear"
+    "other": "清除"
   },
   "2": {
-    "other": "Filter"
+    "other": "过滤"
   },
   "3": {
-    "other": "Position"
+    "other": "位置"
   },
   "4": {
-    "other": "Layers"
+    "other": "图层"
   },
   "5": {
-    "other": "Antialias"
+    "other": "抗锯齿"
   },
   "6": {
-    "other": "Format"
+    "other": "格式"
   },
   "7": {
-    "other": "Styles"
+    "other": "样式"
   },
   "8": {
-    "other": "Filter"
+    "other": "过滤"
   },
   "9": {
-    "other": "Search"
+    "other": "搜索​​​​"
   }
 }
