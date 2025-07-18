@@ -42,7 +42,7 @@
     "other": "Permitir a usuarios no-administradores crear un workspace desde esta plantilla."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Permitir a los usuarios escoger un usuario existente cuando se comparte una carpeta."
+    "other": "Permitir a los usuarios elegir un usuario existente al compartir una carpeta"
   },
   "Allow to group admins": {
     "other": "Permitir a los administradores del grupo"
