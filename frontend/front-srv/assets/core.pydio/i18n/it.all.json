@@ -486,214 +486,214 @@
     "other": "Le tue impostazioni sono state salvate con successo."
   },
   "242": {
-    "other": "Registro SVN"
+    "other": "Svn Log"
   },
   "243": {
-    "other": "Revisione"
+    "other": "Revision"
   },
   "244": {
-    "other": "Autore"
+    "other": "Author"
   },
   "245": {
-    "other": "Data"
+    "other": "Date"
   },
   "246": {
-    "other": "Messaggio"
+    "other": "Message"
   },
   "247": {
-    "other": "Estrai"
+    "other": "Extract"
   },
   "248": {
-    "other": "Estrai la selezione da ZIP a..."
+    "other": "Extract selection from zip to..."
   },
   "249": {
-    "other": "Utenti"
+    "other": "Users"
   },
   "25": {
-    "other": "Carica uno o più file (max. %s nella cartella : "
+    "other": "Upload one or more files (max. %s in the directory : "
   },
   "250": {
-    "other": "Workspace"
+    "other": "Workspaces"
   },
   "251": {
-    "other": "Log"
+    "other": "Logs"
   },
   "252": {
-    "other": "È stato raggiunto il limite massimo delle dimensioni del file."
+    "other": "The total file size limit has been reached."
   },
   "253": {
-    "other": "Si è verificato un errore HTTP:"
+    "other": "There has been an HTTP Error:"
   },
   "254": {
-    "other": "C'è stato un errore di IO:"
+    "other": "There has been an IO Error:"
   },
   "255": {
-    "other": "C'è stato un errore di sicurezza:"
+    "other": "These has been a Security Error:"
   },
   "256": {
-    "other": "Caricato"
+    "other": "Uploaded"
   },
   "257": {
-    "other": "Rimuovere"
+    "other": "Remove"
   },
   "258": {
-    "other": "Numero dei file:"
+    "other": "File count :"
   },
   "259": {
-    "other": "Dimensioni totali:"
+    "other": "Total size :"
   },
   "26": {
-    "other": "Crea una nuova cartella in: "
+    "other": "Create a new directory in : "
   },
   "260": {
-    "other": "byte"
+    "other": "bytes"
   },
   "261": {
-    "other": "Ricordami"
+    "other": "Remember Me"
   },
   "262": {
-    "other": "Uno o più file sembrano già esistere\\n nella cartella di destinazione.\\nCosa vuoi fare?"
+    "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
   },
   "263": {
-    "other": "Sovrascrivi"
+    "other": "Overwrite"
   },
   "264": {
-    "other": "Salta"
+    "other": "Skip"
   },
   "265": {
-    "other": "File"
+    "other": "Files"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Crea"
+    "other": "Create"
   },
   "268": {
-    "other": "Crea una nuova tabella"
+    "other": "Create a new table"
   },
   "269": {
-    "other": "Struttura"
+    "other": "Structure"
   },
   "27": {
-    "other": "Carica"
+    "other": "Upload"
   },
   "270": {
-    "other": "Modifica la struttura della tabella"
+    "other": "Edit table structure"
   },
   "271": {
-    "other": "Lascia"
+    "other": "Drop"
   },
   "272": {
-    "other": "Elimina tabella aperta"
+    "other": "Drop open table"
   },
   "273": {
-    "other": "Inserisci"
+    "other": "Insert"
   },
   "274": {
-    "other": "Inserisci un nuovo record"
+    "other": "Insert a new record"
   },
   "275": {
-    "other": "Sei sicuro di voler eliminare le tabelle selezionate?"
+    "other": "Are you sure you want to drop the selected table(s)?"
   },
   "276": {
-    "other": "Modifica la riga selezionata"
+    "other": "Edit selected record"
   },
   "277": {
-    "other": "Cancella record selezionato(i)"
+    "other": "Delete selected records"
   },
   "278": {
-    "other": "Sei sicuro di voler eliminare i record selezionati?"
+    "other": "Are you sure you want to delete the selected record(s)?"
   },
   "279": {
-    "other": "Tabelle"
+    "other": "Tables"
   },
   "28": {
-    "other": "Crea un nuovo file in in: "
+    "other": "Create a new file in : "
   },
   "280": {
-    "other": "Record"
+    "other": "Records"
   },
   "281": {
-    "other": "Limite di upload"
+    "other": "Upload Limits"
   },
   "282": {
-    "other": "Dimensione per file"
+    "other": "Size per File"
   },
   "283": {
-    "other": "Dimensione totale"
+    "other": "Total Size"
   },
   "284": {
-    "other": "Numero dei file"
+    "other": "Files Number"
   },
   "285": {
-    "other": "Impossibile trovare l'utente, riprova per favore.\\n Assicurati che il blocco maiuscole non sia inserito!"
+    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
   },
   "286": {
-    "other": "Il tuo utente non è allineato con la versione corrente, si prega di usare la procedura di aggiornamento."
+    "other": "Your user is out of date with the current version, please use the upgrade procedure."
   },
   "287": {
-    "other": "Permessi dei file"
+    "other": "File Permissions"
   },
   "288": {
-    "other": "Utente"
+    "other": "User"
   },
   "289": {
-    "other": "Gruppo"
+    "other": "Group"
   },
   "29": {
-    "other": "Crea"
+    "other": "Create"
   },
   "290": {
-    "other": "Tutti"
+    "other": "All"
   },
   "291": {
-    "other": "Applicare in modo ricorsivo?"
+    "other": "Apply recursively?"
   },
   "292": {
-    "other": "Collegamento pubblico"
+    "other": "Share"
   },
   "293": {
-    "other": "Crea un collegamento pubblico a questo file"
+    "other": "Create a public link to this file"
   },
   "294": {
-    "other": "Scadenza del link (in giorni) e password (lascia vuoto se non c'è la password)."
+    "other": "Link time expiration (in days) and password (leave empty if no password)."
   },
   "295": {
-    "other": "Scadenza"
+    "other": "Expiration"
   },
   "296": {
-    "other": "Copia l'URL qui sotto:"
+    "other": "Copy the URL below:"
   },
   "297": {
-    "other": "Nuovo utente"
+    "other": "New User"
   },
   "298": {
-    "other": "Crea un nuovo utente"
+    "other": "Create a new user"
   },
   "299": {
-    "other": "Workspace"
+    "other": "Workspaces"
   },
   "3": {
-    "other": "Tipo"
+    "other": "Type"
   },
   "30": {
-    "other": "Scrivi un nome per la cartella e poi clicca su 'Crea'"
+    "other": "Write a name for the directory then click on &quot;Create&quot;"
   },
   "300": {
-    "other": "Crea un nuovo workspace"
+    "other": "Create a new workspace"
   },
   "301": {
-    "other": "Modifica configurazione"
+    "other": "Edit configuration"
   },
   "302": {
-    "other": "Copia come testo"
+    "other": "Copy as Text"
   },
   "303": {
-    "other": "Copia la selezione come testo separato da tabulatori."
+    "other": "Copy selection as tab-separated text."
   },
   "304": {
-    "other": "Indietro"
+    "other": "Back"
   },
   "305": {
     "other": "Back to Homepage"
@@ -702,1246 +702,1246 @@
     "other": "My Workspaces"
   },
   "306": {
-    "other": "Troppi elementi"
+    "other": "Too many items"
   },
   "307": {
-    "other": "Riempi campi opzionali"
+    "other": "Fill optional fields"
   },
   "308": {
-    "other": "Genera collegamento"
+    "other": "Generate Link"
   },
   "309": {
-    "other": "Genera"
+    "other": "Generate"
   },
   "31": {
-    "other": "Devi selezionare un file"
+    "other": "You must select a file"
   },
   "310": {
-    "other": "Opzioni"
+    "other": "Options"
   },
   "311": {
-    "other": "Carica automaticamente quando un file viene aggiunto"
+    "other": "Upload automatically when a file is added"
   },
   "312": {
-    "other": "Opzioni di caricamento"
+    "other": "Uploader Options"
   },
   "313": {
-    "other": "Comprimi..."
+    "other": "Compress..."
   },
   "314": {
-    "other": "Comprimi la selezione in uno zip..."
+    "other": "Compress selection to zip..."
   },
   "315": {
-    "other": "Comprimi la selezione in"
+    "other": "Compress selection to"
   },
   "316": {
-    "other": "Visualizza/Modifica"
+    "other": "View/Edit"
   },
   "317": {
-    "other": "Editor dei Sorgenti"
+    "other": "Source Editor"
   },
   "318": {
-    "other": "Vedi codice sorgente CodePress"
+    "other": "CodePress source code viewer"
   },
   "319": {
-    "other": "Editor HTML"
+    "other": "HTML Editor"
   },
   "32": {
-    "other": "Esplora"
+    "other": "Explore"
   },
   "320": {
-    "other": "Editor WYSIWYG per HTML"
+    "other": "WYSIWYG editor for HTML"
   },
   "321": {
-    "other": "Seleziona"
+    "other": "Select"
   },
   "322": {
-    "other": "Seleziona il file corrente"
+    "other": "Select the current file"
   },
   "323": {
-    "other": "Invia per e-mail questo URL"
+    "other": "E-mail this URL"
   },
   "324": {
-    "other": "Nessun editor disponibile"
+    "other": "No editor available"
   },
   "325": {
-    "other": "Adatta al meglio"
+    "other": "Fit Best"
   },
   "326": {
-    "other": "Non adattare"
+    "other": "No Fit"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Lettore documenti"
+    "other": "Document Reader"
   },
   "329": {
-    "other": "Visualizza pdf, svg, tif e altro online"
+    "other": "View pdf,svg, tif and more online"
   },
   "33": {
-    "other": "Errore nel caricamento del file !"
+    "other": "Error uploading file !"
   },
   "330": {
-    "other": "Attendi per favore mentre le pagine vengono create..."
+    "other": "Please wait while the pages are being rendered..."
   },
   "331": {
-    "other": "Pagina"
+    "other": "Page"
   },
   "332": {
-    "other": "di"
+    "other": "of"
   },
   "333": {
-    "other": "Editor immagine Pixlr"
+    "other": "Pixlr image editor"
   },
   "334": {
-    "other": "altro"
+    "other": "more"
   },
   "335": {
-    "other": "Per favore inserisci un numero di pagina compreso tra 1 e "
+    "other": "Please enter a page number between 1 and "
   },
   "336": {
-    "other": "Non è possibile trascinare le cartelle, è possibile trascinare solo i files!"
+    "other": "Sorry you cannot drop folders, drop only files!"
   },
   "337": {
-    "other": "Avvia il caricamento automatico"
+    "other": "Start uploading automatically"
   },
   "338": {
-    "other": "Chiusura automatica dopo il caricamento"
+    "other": "Close panel after upload is finished"
   },
   "339": {
-    "other": "File esistenti"
+    "other": "Existing Files"
   },
   "34": {
-    "other": "Il file"
+    "other": "The file"
   },
   "340": {
-    "other": "Allarme"
+    "other": "Alert"
   },
   "341": {
-    "other": "Info sul file"
+    "other": "File Info"
   },
   "342": {
-    "other": "Info sulla cartella"
+    "other": "Folder Info"
   },
   "343": {
-    "other": "Info sull'immagine"
+    "other": "Image Info"
   },
   "344": {
-    "other": "Cerca in"
+    "other": "Search on"
   },
   "345": {
-    "other": "Non è stato possibile recuperare informazioni sulla versione"
+    "other": "No version information could be retrieved"
   },
   "346": {
-    "other": "La tua versione è aggiornata"
+    "other": "Your version is up to date"
   },
   "347": {
-    "other": "Una nuova versione (%s) è disponibile! Visita %s"
+    "other": "A new version (%s) is available! Visit %s"
   },
   "348": {
-    "other": "Un nuovo workspace è stato condiviso."
+    "other": "A new workspace has been shared."
   },
   "349": {
-    "other": "Attenzione, mancano argomenti"
+    "other": "Warning, missing arguments"
   },
   "35": {
-    "other": "è stato creato con successo nella cartella"
+    "other": "has been successfully created in the directory"
   },
   "350": {
-    "other": "Con questo nome esiste già un utente che non ti appartiene, si prega di scegliere un altro nome."
+    "other": "A user that does not belong to you already exists with this name, please choose another name."
   },
   "351": {
-    "other": "Non sei autorizzato a condividere elementi in pubblico."
+    "other": "You are not allowed to share elements to the public."
   },
   "352": {
-    "other": "Un workspace con lo stesso nome esiste già, per favore scegli un altro nome."
+    "other": "A workspace with the same name already exists, please choose another name."
   },
   "353": {
-    "other": "Utente destinatario"
+    "other": "Target User"
   },
   "354": {
-    "other": "Crea un nuovo utente o scegli uno di quelli esistenti dalla lista."
+    "other": "Create a new user or choose one of your existing ones from the list."
   },
   "355": {
-    "other": "Nome Utente"
+    "other": "User Name"
   },
   "356": {
-    "other": "Password"
+    "other": "User Pass"
   },
   "357": {
-    "other": "Repository di destinazione"
+    "other": "Target Repository"
   },
   "358": {
-    "other": "Scegli un nome per il workspace condiviso."
+    "other": "Choose a name for the shared workspace."
   },
   "359": {
-    "other": "Etichetta"
+    "other": "Label"
   },
   "36": {
-    "other": "La sua dimensione è"
+    "other": "It's size is"
   },
   "360": {
-    "other": "Privilegi"
+    "other": "Rights"
   },
   "361": {
-    "other": "Lettura"
+    "other": "Read"
   },
   "362": {
-    "other": "Scrittura"
+    "other": "Write"
   },
   "363": {
-    "other": "Condiviso"
+    "other": "Shared"
   },
   "364": {
-    "other": "Non hai i privilegi necessari per completare l'operazione"
+    "other": "You do not have the rights to perform this operation"
   },
   "365": {
-    "other": "Non hai il permesso di caricare più di %s file in una volta."
+    "other": "You are not allowed to upload more than %s files at once."
   },
   "366": {
-    "other": "Questo utente non ha nessun repository attivo."
+    "other": "This user does not have any active workspace."
   },
   "367": {
-    "other": "Non sei autorizzato a caricare questo tipo di file. Sei pregato di scegliere tra le seguenti estensioni : "
+    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
   },
   "368": {
-    "other": "Selezione estratta con successo dall'archivio %s alla cartella %s"
+    "other": "Selection successfully extracted from archive %s to folder %s"
   },
   "369": {
-    "other": "Scorciatoia"
+    "other": "Shortcut"
   },
   "37": {
-    "other": "Devi inserire un nome valido"
+    "other": "You must write a valid name"
   },
   "370": {
-    "other": "APPLICATION_TITLE download pubblico"
+    "other": "APPLICATION_TITLE Public Download"
   },
   "371": {
-    "other": "Per questo download è richiesta una password"
+    "other": "A password is required for this download"
   },
   "372": {
-    "other": "Workspace corrente"
+    "other": "Current Workspace"
   },
   "373": {
-    "other": "Destinazione"
+    "other": "Destination"
   },
   "374": {
-    "other": "Non è possibile copiare le cartelle tra workspace"
+    "other": "You cannot copy folders across workspaces"
   },
   "375": {
-    "other": "Abbiamo rilevato che sei stato inattivo per più di __IDLE__. Per la sicurezza dei tuoi dati sarai disconnesso in __LOGOUT__"
+    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
   },
   "375t": {
-    "other": "Sei ancora qui?"
+    "other": "Are you still there?"
   },
   "376": {
-    "other": "Clicca in qualsiasi punto per riprendere la sessione"
+    "other": "Click anywhere to resume your session"
   },
   "378": {
-    "other": "Attenzione il campo password è vuoto o la password è troppo corta!"
+    "other": "Warning, password is empty or too short!"
   },
   "379": {
-    "other": "Parola non sicura!"
+    "other": "Unsafe word!"
   },
   "38": {
-    "other": "La cartella"
+    "other": "The directory"
   },
   "380": {
-    "other": "Troppo corta"
+    "other": "Too short"
   },
   "381": {
-    "other": "Molto debole"
+    "other": "Very weak"
   },
   "382": {
-    "other": "Debole"
+    "other": "Weak"
   },
   "383": {
-    "other": "Media"
+    "other": "Medium"
   },
   "384": {
-    "other": "Forte"
+    "other": "Strong"
   },
   "385": {
-    "other": "Molto forte"
+    "other": "Very strong"
   },
   "validation.login.lowercase": {
-    "other": "Utilizza solo caratteri minuscoli per il login"
+    "other": "Please use only lowercase characters for logins"
   },
   "validation.login.format": {
-    "other": "Utilizza caratteri alfanumerici o un indirizzo email valido per il login"
+    "other": "Please use alphanumeric characters or valid emails for logins"
   },
   "386": {
-    "other": "Hai fallito il login per 3 volte.\\nPer sicurezza, sei pregato di inserire il codice che appare nell'immagine."
+    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
   },
   "389": {
-    "other": "Per favore leggi il codice qui sotto :"
+    "other": "Please read the code below :"
   },
   "39": {
-    "other": "è stata creata in"
+    "other": "has been created in"
   },
   "390": {
-    "other": "Codice"
+    "other": "Code"
   },
   "391": {
-    "other": "Nessun Repository"
+    "other": "No Repository"
   },
   "392": {
-    "other": "Attenzione, la versione di APPLICATION_TITLE è cambiata (ora %s), per favore pulisci la cache del tuo browser e aggiorna la pagina per essere sicuro che tutto funzioni correttamente!"
+    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
   },
   "393": {
-    "other": "Attenzione, la lunghezza dei nomi deve essere inferiore a %s, il nome del file verrà troncato!"
+    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
   },
   "394": {
-    "other": "Per il momento la condivisione della cartella non è possibile con l'attuale driver di autorizzazione (gli utenti non sono modificabili). La condivisione dei file è comunque ancora possibile."
+    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
   },
   "395": {
-    "other": "L'elemento rilasciato sembra essere una cartella e le cartelle non possono essere caricate sul server! Sei sicuro di voler effettuare l'upload?"
+    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
   },
   "396": {
-    "other": "Metodo autorizzazione"
+    "other": "Auth. Method"
   },
   "397": {
-    "other": "Scaricamento a pezzi"
+    "other": "Download chunked"
   },
   "398": {
-    "other": "Scaricare il file selezionato a segmenti"
+    "other": "Download selected file by pieces"
   },
   "399": {
-    "other": "Immettere il numero di segmenti da scaricare, quindi fare clic sul pulsante e su ciascun file per scaricarlo."
+    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
   },
   "4": {
-    "other": "Modificato"
+    "other": "Modified"
   },
   "40": {
-    "other": "Questa cartella esiste già (i nomi sono case insensitive)"
+    "other": "This directory already exists (names are case insensitive)"
   },
   "400": {
-    "other": "Numero di segmenti:"
+    "other": "Number of pieces :"
   },
   "401": {
-    "other": "È possibile scaricare e installare il software che segue per assemblare i segmenti una volta sul computer: "
+    "other": "You can download and install the following software to join the pieces once on your computer : "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "è stata rinominata in"
+    "other": "has been renamed to"
   },
   "411": {
-    "other": "Apri"
+    "other": "Open"
   },
   "412": {
-    "other": "Solo upload"
+    "other": "Upload only"
   },
   "413": {
-    "other": "Condiviso da"
+    "other": "Shared by"
   },
   "414": {
-    "other": "Usa le frecce per navigare e +/- per variare lo zoom"
+    "other": "Use arrows to navigate and +/- to change zoom"
   },
   "415": {
-    "other": "Nascondi/visualizza pannello di sinistra"
+    "other": "Toggle left pane visibility"
   },
   "416": {
-    "other": "Pannello Sx"
+    "other": "Left Pane"
   },
   "417": {
-    "other": "Crea una cella..."
+    "other": "Create a cell..."
   },
   "418": {
-    "other": "Crea una cella"
+    "other": "Create a cell"
   },
   "419": {
-    "other": "Caricamento modelli..."
+    "other": "Loading templates..."
   },
   "42": {
-    "other": "a"
+    "other": "to"
   },
   "420": {
-    "other": "Scegli un modello dall'elenco"
+    "other": "Please pick a template from the list"
   },
   "421": {
-    "other": "Nuovo %s"
+    "other": "New %s"
   },
   "422": {
-    "other": "Per favore, compila i parametri richiesti. Passa sopra i titoli dei campi con il mouse per avere maggiori informazioni."
+    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
   },
   "423": {
-    "other": "Cancella workspace"
+    "other": "Delete workspace"
   },
   "424": {
-    "other": "Sei sicuro di voler cancellare questo workspace? L'operazione è irreversibile."
+    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
   },
   "425": {
-    "other": "Il workspace è stato creato ed aggiunto al tuo elenco dei workspace, se vuoi rimuoverlo, prima passa ad un altro workspace, poi clicca sulla croce rossa vicino al nome del workspace."
+    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
   },
   "426": {
-    "other": "C'è stato un errore nella creazione del workspace"
+    "other": "There was an error while creating the workspace"
   },
   "427": {
-    "other": "C'è stato un errore nella cancellazione del workspace"
+    "other": "There was an error while deleting the workspace"
   },
   "428": {
-    "other": "Il workspace è stato cancellato con successo"
+    "other": "The workspace was successfully deleted"
   },
   "429": {
-    "other": "Questo è come apparirà il workspace nel tuo elenco."
+    "other": "This is how the workspace will appear in your list."
   },
   "43": {
-    "other": "esiste già (i nomi sono case insensitive)"
+    "other": "already exists  (names are case insensitive)"
   },
   "430": {
-    "other": "File comuni"
+    "other": "Common Files"
   },
   "431": {
-    "other": "Modello di esempio"
+    "other": "Sample Template"
   },
   "432": {
-    "other": "I miei file"
+    "other": "My Files"
   },
   "433": {
-    "other": "pronto"
+    "other": "ready"
   },
   "434": {
-    "other": "invio in corso"
+    "other": "sending"
   },
   "435": {
-    "other": "fatto"
+    "other": "done"
   },
   "436": {
-    "other": "errore"
+    "other": "error"
   },
   "437": {
-    "other": "Ooops, sembra che il tuo token di sicurezza sia scaduto! Per favore %s premendo aggiorna o F5 nel tuo browser!"
+    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
   },
   "438": {
-    "other": "ricarica la pagina"
+    "other": "reload the page"
   },
   "439": {
-    "other": "Opzioni Principali"
+    "other": "Main Options"
   },
   "44": {
-    "other": "è stata cancellata"
+    "other": "has been deleted"
   },
   "440": {
-    "other": "Si"
+    "other": "Yes"
   },
   "441": {
     "other": "No"
   },
   "442": {
-    "other": "Mio Account"
+    "other": "My Account"
   },
   "443": {
-    "other": "Aggiorna le tue informazioni personali"
+    "other": "Update your personal information"
   },
   "444": {
-    "other": "Per favore aggiorna la password, altrimenti non sarai in grado di autenticarti."
+    "other": "Please update your password, you will not be able to log in otherwise."
   },
   "445": {
-    "other": "Adesso verrai disconnesso, ti preghiamo di riautenticarti con la tua nuova password, grazie!"
+    "other": "You will now be logged out, please log back using your new password, thank you!"
   },
   "446": {
-    "other": "Presentazione"
+    "other": "Presentation"
   },
   "447": {
-    "other": "Il mio gruppo"
+    "other": "My group"
   },
   "448": {
-    "other": "crea utente"
+    "other": "create user"
   },
   "449": {
-    "other": "Creando %s, scegli una password"
+    "other": "Creating %s, choose a password"
   },
   "45": {
-    "other": "cartella"
+    "other": "directory"
   },
   "450": {
-    "other": "Ordina per ..."
+    "other": "Sort by ..."
   },
   "451": {
-    "other": "Ordina miniature per ..."
+    "other": "Sort thumbnails by ..."
   },
   "452": {
-    "other": "Dimensioni delle miniature"
+    "other": "Thumbs size"
   },
   "453": {
-    "other": "Imposta le dimensioni delle miniature"
+    "other": "Set thumbnails size"
   },
   "454": {
-    "other": "Scegli i file sul tuo computer"
+    "other": "Select files on your computer"
   },
   "455": {
-    "other": "Miei Workspace"
+    "other": "Workspaces"
   },
   "456": {
-    "other": "Altro"
+    "other": "More"
   },
   "457": {
-    "other": "aggiorna"
+    "other": "update"
   },
   "458": {
-    "other": "rimuovi"
+    "other": "remove"
   },
   "459": {
-    "other": "Cartella principale"
+    "other": "Top folder"
   },
   "46": {
     "other": "file"
   },
   "460": {
-    "other": "Lista"
+    "other": "List"
   },
   "461": {
-    "other": "Passa alla vista elenco"
+    "other": "Switch to list view"
   },
   "462": {
-    "other": "Anteprima"
+    "other": "Preview"
   },
   "463": {
-    "other": "Scarica tutto"
+    "other": "Download all"
   },
   "464": {
-    "other": "Scarica in una volta tutto il contenuto del workspace (compresso)"
+    "other": "Download all workspace content at once (zipped)"
   },
   "465": {
-    "other": "Mostra URL alternativi (monta separatamente i workspace)"
+    "other": "Show alternative URLs (mount workspaces separately)"
   },
   "466": {
-    "other": "Caricamento..."
+    "other": "Loading..."
   },
   "467": {
-    "other": "Tutti gli elementi condivisi"
+    "other": "All Shared Elements"
   },
   "468": {
-    "other": "Workspace"
+    "other": "Workspaces"
   },
   "469": {
-    "other": "Celle"
+    "other": "Cells"
   },
   "47": {
-    "other": "Vuoi davvero cancellare il"
+    "other": "Do you really want to delete the"
   },
   "470": {
-    "other": "Creato %date"
+    "other": "Created %date"
   },
   "471": {
-    "other": "Creato da %user %date"
+    "other": "Created by %user %date"
   },
   "472": {
-    "other": "Condiviso da %user"
+    "other": "Shared by %user"
   },
   "473": {
-    "other": "Condiviso da %user %date"
+    "other": "Shared by %user %date"
   },
   "474": {
-    "other": "Nessuna descrizione disponibile"
+    "other": "No description available"
   },
   "475": {
-    "other": "File condivisi con tutti gli utenti"
+    "other": "Files shared amongst all users"
   },
   "476": {
-    "other": "Il tuo workspace personale"
+    "other": "Your personal workspace"
   },
   "477": {
-    "other": "Seleziona un file o una cartella per visualizzarne i dettagli qui"
+    "other": "Select a file or folder to see its details here"
   },
   "478": {
-    "other": "Nessun risultato"
+    "other": "No results found"
   },
   "479": {
-    "other": "Password dimenticata?"
+    "other": "Forgot your password?"
   },
   "48": {
     "other": "Ok"
   },
   "480": {
-    "other": "Naviga nelle directory del workspace corrente."
+    "other": "Browse all folders of the current workspace."
   },
   "481": {
-    "other": "Tutti i tuoi file e le tue cartelle condivise"
+    "other": "All your shared files and folders"
   },
   "482": {
-    "other": "Accesso rapido ai preferiti"
+    "other": "Quick access to your bookmarked items"
   },
   "483": {
-    "other": "Non sei autorizzato a creare nuovi utenti!"
+    "other": "You are not authorized to create more users!"
   },
   "484": {
-    "other": "Crea utente"
+    "other": "Create user"
   },
   "485": {
-    "other": "Crea utente condiviso"
+    "other": "Create a shared user"
   },
   "486": {
-    "other": "Avanzate"
+    "other": "Advanced"
   },
   "487": {
-    "other": "Base"
+    "other": "Basic"
   },
   "488": {
-    "other": "Filtro Avanzato"
+    "other": "Advanced Filter"
   },
   "489": {
-    "other": "Metadati"
+    "other": "Metadata"
   },
   "49": {
     "other": "Cancel"
   },
   "490": {
-    "other": "Intervallo di date"
+    "other": "Date range"
   },
   "491": {
-    "other": "Dopo"
+    "other": "After"
   },
   "492": {
-    "other": "fino a"
+    "other": "until"
   },
   "493": {
-    "other": "Oggi"
+    "other": "Today"
   },
   "494": {
-    "other": "Ieri"
+    "other": "Yesterday"
   },
   "494t": {
-    "other": "Domani"
+    "other": "Tomorrow"
   },
   "495": {
-    "other": "Settimana scorsa"
+    "other": "Last week"
   },
   "496": {
-    "other": "Mese scorso"
+    "other": "Last month"
   },
   "497": {
-    "other": "Anno scorso"
+    "other": "Last year"
   },
   "498": {
-    "other": "Proprietà del documento"
+    "other": "Document Property"
   },
   "499": {
     "other": "File"
   },
   "5": {
-    "other": "Azioni"
+    "other": "Actions"
   },
   "50": {
-    "other": "File Exe"
+    "other": "Exe file"
   },
   "500": {
-    "other": "Estensione"
+    "other": "Extension"
   },
   "501": {
-    "other": "o"
+    "other": "or"
   },
   "502": {
-    "other": "Solo cartelle"
+    "other": "Folders only"
   },
   "503": {
-    "other": "Dimensione"
+    "other": "Size"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "a"
+    "other": "to"
   },
   "506": {
-    "other": "Parametri applicazione (utenti, workspace, configurazioni)"
+    "other": "Application parameters (users, workspaces, configurations)"
   },
   "507": {
-    "other": "Benvenuto su %s"
+    "other": "Welcome on %s"
   },
   "508": {
-    "other": "Ho appena creato un account per te su %s. Per collegarti, clicca sul seguente link %link e usa queste credenziali:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
   },
   "509": {
-    "other": "Salva come team"
+    "other": "Save as a team"
   },
   "51": {
-    "other": "Editor di testo"
+    "other": "Text Editor"
   },
   "510": {
-    "other": "Inserisci un nome per il team"
+    "other": "Please enter a team label"
   },
   "511": {
-    "other": "Il mio %s"
+    "other": "My %s"
   },
   "512": {
-    "other": "Schermo Intero"
+    "other": "Desktop Full Screen"
   },
   "513": {
-    "other": "mostra"
+    "other": "show"
   },
   "514": {
-    "other": "nascondi"
+    "other": "hide"
   },
   "515": {
-    "other": "Nessun segnalibro - Trascina file o cartelle qui per l'accesso rapido."
+    "other": "No bookmarks - Drop files or folders here for quick access."
   },
   "516": {
-    "other": "espandi"
+    "other": "expand"
   },
   "517": {
-    "other": "raggruppa"
+    "other": "collapse"
   },
   "518": {
-    "other": "In alternativa, puoi <a class='create_file_alt_link'>Creare un file vuoto</a>."
+    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
   },
   "519": {
-    "other": "Aggiorna utente"
+    "other": "Update user"
   },
   "52": {
-    "other": "Modifica il file"
+    "other": "Editing file"
   },
   "520": {
-    "other": "Aggiorna i dati dell'utente e la password"
+    "other": "Update user data and password"
   },
   "521": {
-    "other": "Utente aggiornato correttamente"
+    "other": "User was update successfully"
   },
   "522": {
-    "other": "ID Utente"
+    "other": "User ID"
   },
   "523": {
     "other": "Password"
   },
   "524": {
-    "other": "Aggiorna Password"
+    "other": "Update Password"
   },
   "525": {
-    "other": "Mostra immagine originale"
+    "other": "Show original picture"
   },
   "526": {
-    "other": "Versione a bassa risoluzione"
+    "other": "Low-resolution version"
   },
   "527": {
-    "other": "Condiviso con"
+    "other": "Shared with"
   },
   "528": {
-    "other": "Utenti Interni"
+    "other": "Internal users"
   },
   "53": {
-    "other": "Salva"
+    "other": "Save"
   },
   "530": {
-    "other": "Utenti Esterni"
+    "other": "External users"
   },
   "531": {
-    "other": "Utenti"
+    "other": "Users"
   },
   "532": {
-    "other": "Gruppi"
+    "other": "Groups"
   },
   "533": {
-    "other": "Identificatore usato per il login, si prega di usare caratteri alfanumerici o minuscoli per email."
+    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
   },
   "534": {
-    "other": "Password utilizzata per il login"
+    "other": "Password used to login"
   },
   "535": {
-    "other": "Invia la password per email"
+    "other": "Send password by email"
   },
   "536": {
-    "other": "Invia una email di benvenuto con la password al nuovo utente"
+    "other": "Send a welcome email including the password to the new user"
   },
   "537": {
-    "other": "Il file è troppo grande! La dimensione massima autorizzata è %i"
+    "other": "File is too large! Maximum authorized size is %i"
   },
   "538": {
-    "other": "Errore di caricamento: nessun file trovato sul server!"
+    "other": "Upload error: no file found on server!"
   },
   "539": {
-    "other": "Errore di caricamento: il file è parziale"
+    "other": "Upload error: file is partial"
   },
   "54": {
-    "other": "Annulla"
+    "other": "Cancel"
   },
   "540": {
-    "other": "Errore di caricamento: impossibile trovare la cartella temporanea"
+    "other": "Upload error: cannot find the temporary directory"
   },
   "541": {
-    "other": "Errore di caricamento: impossibile scrivere nella cartella temporanea"
+    "other": "Upload error: cannot write into the temporary directory"
   },
   "542": {
-    "other": "Errore di caricamento: un'estensione PHP ha interrotto il processo di upload."
+    "other": "Upload error: a PHP extension stopped the upload process."
   },
   "543": {
-    "other": "Risultati limitati a %s."
+    "other": "Results limited to %s."
   },
   "544": {
-    "other": "Mostra altro"
+    "other": "Show more"
   },
   "545": {
-    "other": "Condivisione Remota"
+    "other": "Remote Share"
   },
   "546": {
-    "other": "Questo elemento è stato condiviso con te da %%OWNER%% da una postazione remota. Vuoi continuare?"
+    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
   },
   "547": {
-    "other": "Accetta"
+    "other": "Accept"
   },
   "548": {
-    "other": "Rifiuta"
+    "other": "Decline"
   },
   "549": {
-    "other": "Hai già accettato questo elemento che è stato condiviso con te da %%OWNER%% da una postazione remota. Adesso vuoi respingerlo?"
+    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
   },
   "55": {
-    "other": "è stato modificato"
+    "other": "has been modified"
   },
   "550": {
-    "other": "Rifiuta questa condivisione"
+    "other": "Reject this share"
   },
   "551": {
-    "other": "Rifiuta"
+    "other": "Reject"
   },
   "552": {
-    "other": "Si prega di fornire una password."
+    "other": "Please provide password."
   },
   "553": {
-    "other": "Password non valida, riprova. \\n Assicurati che il blocco maiuscole non sia attivo!"
+    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
   },
   "554": {
-    "other": "%s risultato(i) nel Cestino"
+    "other": "%s result(s) in Recycle Bin"
   },
   "556": {
-    "other": "Avvio del task %s in background"
+    "other": "Launching task %s in background"
   },
   "557": {
-    "other": "Credenziali necessarie"
+    "other": "Credentials required"
   },
   "558": {
-    "other": "Si prega di fornire una password per entrare in questo workspace."
+    "other": "Please provide a password to enter this workspace."
   },
   "559": {
-    "other": "Autenticazione fallita per questo workspace."
+    "other": "Authentication failed for this workspace."
   },
   "56": {
-    "other": "Immagine BMP"
+    "other": "BMP picture"
   },
   "560": {
-    "other": "Autenticazione necessaria"
+    "other": "Authentication required"
   },
   "561": {
-    "other": "Ti reindirizzeremo alla pagina di autenticazione del provider. Se non sei reindirizzato automaticamente, premi OK per riprovare..."
+    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
   },
   "562": {
-    "other": "Questa cartella è vuota"
+    "other": "This folder is empty!"
   },
   "563": {
-    "other": "Questo workspace è vuoto!"
+    "other": "This workspace is empty!"
   },
   "564": {
-    "other": "Il cestino è vuoto."
+    "other": "Recycle Bin is empty."
   },
   "565": {
-    "other": "Iniziando ad aggiungere file o cartelle selezionandoli o trascinandoli direttamente dal tuo desktop"
+    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
   },
   "566": {
-    "other": "Non sei autorizzato ad aggiungere file qui"
+    "other": "You are not allowed to add files here"
   },
   "567": {
-    "other": "Sfoglia il Cestino"
+    "other": "Browse Recycle Bin"
   },
   "568": {
-    "other": "Team"
+    "other": "Teams"
   },
   "569": {
-    "other": "Nuovo Team"
+    "other": "New Team"
   },
   "57": {
-    "other": "Immagine PNG"
+    "other": "PNG picture"
   },
   "570": {
-    "other": "Elimina Team"
+    "other": "Delete Team"
   },
   "571": {
-    "other": "Nessun team è stao ancora creato"
+    "other": "No teams created yet"
   },
   "572": {
-    "other": "Crea i tuoi team per condividere facilmente i dati tra più utenti"
+    "other": "Create your own teams in order to easily share data between multiple users"
   },
   "571.readonly": {
-    "other": "Nessun team disponibile"
+    "other": "No teams available"
   },
   "572.readonly": {
-    "other": "Non sei autorizzato a creare team, ma alcuni utenti autorizzati possono condividere team con te"
+    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
   },
   "571.create_team_action": {
-    "other": "Crea e modifica i Team"
+    "other": "Create and edit Teams"
   },
   "571.create_team_legend": {
-    "other": "Consenti agli utenti di creare e modificare i propri team"
+    "other": "Let users create and edit their own teams"
   },
   "573": {
-    "other": "Aggiungi utente al team"
+    "other": "Add user to team"
   },
   "574": {
-    "other": "Rimuovi dal team"
+    "other": "Remove from team"
   },
   "575": {
-    "other": "Membri del team"
+    "other": "Team Members"
   },
   "576": {
-    "other": "%s membri"
+    "other": "%s members"
   },
   "577": {
-    "other": "Nessun membro"
+    "other": "No members"
   },
   "578": {
-    "other": "Etichetta del Team"
+    "other": "Team Label"
   },
   "579": {
-    "other": "Crea un Team"
+    "other": "Create Team"
   },
   "58": {
-    "other": "File CSS"
+    "other": "CSS File"
   },
   "580": {
-    "other": "Modifica etichetta del team"
+    "other": "Edit team label"
   },
   "581": {
-    "other": "L'utente appartiene a %s team(i)"
+    "other": "User belongs to %s team(s)"
   },
   "582": {
-    "other": "Rimuovi Utente"
+    "other": "Delete User"
   },
   "583": {
-    "other": "Cerca nella directory"
+    "other": "Search Directory"
   },
   "584": {
     "other": "Directory"
   },
   "585": {
-    "other": "Nessun utente esterno"
+    "other": "No External Users"
   },
   "586": {
-    "other": "Crea i tuoi utenti e condividi file o cartelle dai tuoi workspace con loro."
+    "other": "Create your own users and share files or folders from your workspaces with them."
   },
   "587": {
-    "other": "Nessun risultato"
+    "other": "No results"
   },
   "588": {
-    "other": "Inizia a digitare nel modulo di ricerca per trovare gli utenti nella cartella"
+    "other": "Start typing in the search form to find users in the directory"
   },
   "589": {
-    "other": "Utente esterno"
+    "other": "External user"
   },
   "59": {
-    "other": "File MP3"
+    "other": "MP3 File"
   },
   "590": {
-    "other": "Utente interno"
+    "other": "Internal user"
   },
   "591": {
-    "other": "Scegli un nome per il team, e potrai aggiungere utenti dopo la sua creazione."
+    "other": "Choose a name for the team, and you will be able to add users to it after creation."
   },
   "592": {
-    "other": "Rubrica"
+    "other": "Address Book"
   },
   "593": {
-    "other": "Utenti condivisi"
+    "other": "Shared Users"
   },
   "594": {
-    "other": "Trusted Server"
+    "other": "Trusted Servers"
   },
   "595": {
-    "other": "Cerca utente..."
+    "other": "Search user..."
   },
   "596": {
     "other": "Server '%s'"
   },
   "597": {
-    "other": "tutti"
+    "other": "all"
   },
   "598": {
-    "other": "Invia un messaggio"
+    "other": "Send a message"
   },
   "599": {
-    "other": "Aggiungi un utente"
+    "other": "Add a user"
   },
   "599-a": {
-    "other": "Tutti i risultati"
+    "other": "All Results"
   },
   "6": {
-    "other": "Rinomina"
+    "other": "Rename"
   },
   "60": {
-    "other": "File RAR"
+    "other": "RAR File"
   },
   "600": {
-    "other": "Modifica utente"
+    "other": "Edit user"
   },
   "601": {
-    "other": "Una cella condivisa"
+    "other": "One shared cell"
   },
   "602": {
-    "other": "%1 celle condivise"
+    "other": "%1 shared cells"
   },
   "603": {
     "other": "Team"
   },
   "604": {
-    "other": "Utente remoto"
+    "other": "Remote User"
   },
   "605": {
-    "other": "Ulteriori opzioni di ricerca"
+    "other": "More search options"
   },
   "606": {
-    "other": "Meno opzioni di ricerca"
+    "other": "Less search options"
   },
   "607": {
-    "other": "La tua attività recente - Digita per cercare i file all'interno di tutti i workspace"
+    "other": "Your recent activity - Type in to search files inside all workspaces"
   },
   "608": {
-    "other": "Cartella corrente"
+    "other": "Current folder"
   },
   "609": {
-    "other": "Intero workspace"
+    "other": "Whole workspace"
   },
   "61": {
-    "other": "File GZ"
+    "other": "GZ File"
   },
   "610": {
-    "other": "Tutte le aree di lavoro"
+    "other": "All workspaces"
   },
   "611": {
-    "other": "Inizia a digitare per cercare"
+    "other": "Start typing to search"
   },
   "612": {
-    "other": "Intervallo personalizzato"
+    "other": "Custom range"
   },
   "613": {
-    "other": "Maggiore di..."
+    "other": "Greater than..."
   },
   "614": {
-    "other": "Più piccolo di"
+    "other": "Smaller than..."
   },
   "615": {
-    "other": "Esegui"
+    "other": "Execute"
   },
   "616": {
-    "other": "Maschera"
+    "other": "Mask"
   },
   "617": {
-    "other": "Invio"
+    "other": "Enter"
   },
   "618": {
-    "other": "Cambia lingua"
+    "other": "Switch language..."
   },
   "619": {
-    "other": "Ricerca limitata alla cartella corrente e ai suoi figli"
+    "other": "Search limited to current folder and its children"
   },
   "62": {
-    "other": "Cartella radice"
+    "other": "Root directory"
   },
   "620": {
-    "other": "Ricerca limitata al workspace corrente"
+    "other": "Search limited to current workspace"
   },
   "621": {
-    "other": "Questo campo non può rimanere vuoto"
+    "other": "This field cannot be empty"
   },
   "622": {
-    "other": "Stack errori"
+    "other": "Error Stack"
   },
   "623": {
-    "other": "Copia"
+    "other": "Copy"
   },
   "624": {
-    "other": "Copiato!"
+    "other": "Copied!"
   },
   "625": {
-    "other": "Lettera"
+    "other": "Letter"
   },
   "626": {
-    "other": "File condivisi con me"
+    "other": "Files Shared with me"
   },
   "627": {
-    "other": "Condivisioni dai server remoti"
+    "other": "Shares from remote servers"
   },
   "628": {
-    "other": "Ripristina"
+    "other": "Revert"
   },
   "629": {
-    "other": "Ancora nessun record"
+    "other": "No records yet"
   },
   "63": {
-    "other": "Logout"
+    "other": "Log out"
   },
   "630": {
-    "other": "Cartelle condivise con me"
+    "other": "Folders shared with me"
   },
   "631": {
-    "other": "Questa cella è vuota!"
+    "other": "This cell is empty!"
   },
   "632": {
-    "other": "Ancora nessuna cella"
+    "other": "No cells yet"
   },
   "633": {
-    "other": "Le celle sono spazi condivisi con altri per collaborare sui documenti"
+    "other": "Cells are spaces shared with others to collaborate on documents"
   },
   "634": {
-    "other": "Tu"
+    "other": "You"
   },
   "634b": {
-    "other": "Il tuo gruppo"
+    "other": "Your group"
   },
   "634c": {
-    "other": "Tutti gli utenti"
+    "other": "All users"
   },
   "635": {
-    "other": "Chat room"
+    "other": "Chat Room"
   },
   "636": {
-    "other": "Inizia a digitare e premi Invio"
+    "other": "Start typing and hit Enter"
   },
   "637": {
-    "other": "Ancora nessun messaggio, inizia a digitare per chattare con gli utenti di questa cella!"
+    "other": "No messages yet, start typing to chat with users of this cell!"
   },
   "638": {
-    "other": "La cella contiene più cartelle o file root, non è possibile caricare i dati direttamente qui."
+    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
   },
   "639": {
-    "other": "In questa cella"
+    "other": "In this cell"
   },
   "64": {
-    "other": "File XLS"
+    "other": "XLS File"
   },
   "640": {
-    "other": "Crea una cella con %s"
+    "other": "Create a cell with %s"
   },
   "641": {
-    "other": "Rimuovi dalla cella corrente"
+    "other": "Remove from current cell"
   },
   "642": {
-    "other": "Aggiungi alla cella corrente"
+    "other": "Add to current cell"
   },
   "643": {
-    "other": "Ora condividi una cella con %s"
+    "other": "You now share a cell with %s"
   },
   "644": {
-    "other": "Impossibile creare la cella: %s"
+    "other": "Could not create cell: %s"
   },
   "65": {
-    "other": "File Word"
+    "other": "Word File"
   },
   "66": {
-    "other": "Copia"
+    "other": "Copy"
   },
   "67": {
-    "other": "File selezionato"
+    "other": "Selected file"
   },
   "68": {
-    "other": "Incolla"
+    "other": "Paste in"
   },
   "69": {
-    "other": "O scegli un'altra cartella"
+    "other": "Or select another directory"
   },
   "7": {
-    "other": "Elimina"
+    "other": "Delete"
   },
   "70": {
-    "other": "Sposta"
+    "other": "Move"
   },
   "71": {
-    "other": "Questo file esiste già (i nomi sono case insensitive)"
+    "other": "This file already exists (names are case insensitive)"
   },
   "72": {
-    "other": "La cartella radice non è corretta. Controllala nel file conf/conf.php"
+    "other": "The root path is not correct. Check it in the conf/conf.php file"
   },
   "73": {
-    "other": "è stato copiato nella cartella"
+    "other": "has been copied into the directory"
   },
   "74": {
-    "other": "è stato spostato nella cartella"
+    "other": "has been moved into the directory"
   },
   "75": {
-    "other": "Il file users.txt non è nella cartella privata."
+    "other": "The file users.txt is not in the directory prive"
   },
   "76": {
-    "other": "Questo file è stato cancellato"
+    "other": "This file has been removed"
   },
   "77": {
-    "other": "Invia"
+    "other": "Send"
   },
   "78": {
-    "other": "Passa"
+    "other": "Pass"
   },
   "79": {
-    "other": "File PDF"
+    "other": "PDF File"
   },
   "8": {
-    "other": "Cartella"
+    "other": "Directory"
   },
   "80": {
-    "other": "File MOV"
+    "other": "MOV File"
   },
   "81": {
-    "other": "File AVI"
+    "other": "AVI File"
   },
   "82": {
-    "other": "File MPG"
+    "other": "MPG File"
   },
   "83": {
-    "other": "File MPEG"
+    "other": "MPEG File"
   },
   "84": {
-    "other": "Aiuto"
+    "other": "Help"
   },
   "85": {
-    "other": "Aggiorna"
+    "other": "Refresh"
   },
   "86": {
-    "other": "Chiudi"
+    "other": "Close"
   },
   "87": {
-    "other": "Cerca"
+    "other": "Search"
   },
   "88": {
-    "other": "Scarica"
+    "other": "Download"
   },
   "89": {
-    "other": "Impossibile aprire il file"
+    "other": "Unable to open file"
   },
   "9": {
-    "other": "File MIDI"
+    "other": "Midi File"
   },
   "90": {
-    "other": "Stampa"
+    "other": "Print"
   },
   "91": {
-    "other": "File FLASH"
+    "other": "FLASH File"
   },
   "92": {
-    "other": "Lingua"
+    "other": "Language"
   },
   "93": {
-    "other": "Per scegliere la tua lingua, il tuo browser deve accettare i cookie."
+    "other": "To choose your language, your browser must accept cookies."
   },
   "94": {
     "other": "Login"
   },
   "95": {
-    "other": "Seleziona la tua lingua"
+    "other": "Select your language :"
   },
   "96": {
-    "other": "Scegli la cartella di destinazione nell'albero: "
+    "other": "Please select the destination folder in the tree : "
   },
   "97": {
-    "other": "Carica il file"
+    "other": "Upload File"
   },
   "98": {
-    "other": "Clicca in qualsiasi punto di questo riquadro per chiuderlo."
+    "other": "Click anywhere on this box to close it."
   },
   "99": {
-    "other": "Non è scrivibile. Potrebbero esserci problemi di permessi... Contatta il tuo amministratore."
+    "other": "is not writeable. There might be a permission problem, please check with your administrator."
   },
   "about_access_key": {
-    "other": "z"
+    "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "g"
+    "other": "B"
   },
   "byte_unit_symbol": {
     "other": "B"
@@ -1950,34 +1950,34 @@
     "other": "C"
   },
   "create_repo_accesskey": {
-    "other": "r"
+    "other": "R"
   },
   "create_user_accesskey": {
-    "other": "u"
+    "other": "U"
   },
   "date_format": {
-    "other": "A/m/g H:m"
+    "other": "Y/m/d H:i"
   },
   "date_intl_locale": {
-    "other": "it-IT"
+    "other": "en_US"
   },
   "date_relative_date": {
-    "other": "il DATE"
+    "other": "on DATE"
   },
   "date_relative_date_format": {
-    "other": "d F Y"
+    "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s giorni fa"
+    "other": "%s days ago"
   },
   "date_relative_days_ahead": {
-    "other": "fra %s giorni"
+    "other": "in %s days"
   },
   "date_relative_time": {
     "other": "TIME"
   },
   "date_relative_time_format": {
-    "other": "H:m"
+    "other": "H:i"
   },
   "date_relative_today": {
     "other": "[Today at] LT"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "Italiano"
+    "other": "English"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,145 +2034,145 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugin che definiscono come un workspace potrà accedere al suo backend (un archivio di file o qualsiasi altro) e ai principali layout e azioni."
+    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
   },
   "plugtype.desc.action": {
-    "other": "Plugin orientato alle funzionalità per gestire diversi aspetti"
+    "other": "Feature oriented plugins for various aspects"
   },
   "plugtype.desc.auth": {
-    "other": "Come i dati degli utenti sono memorizzati nel backend"
+    "other": "How users data are stored in the backend"
   },
   "plugtype.desc.authfront": {
-    "other": "Metodi di raccolta delle credenziali di identificazione (modulo web, chiave api, ecc)"
+    "other": "Methods for gathering identification credentials (web form, api key, etc)"
   },
   "plugtype.desc.boot": {
-    "other": "Plugin unico, per il caricamento del framework."
+    "other": "Unique plugin for loading the framework"
   },
   "plugtype.desc.cache": {
-    "other": "Plugin unico per impostare il server della cache utilizzato dall'applicazione"
+    "other": "Unique plugin to set up the cache server used by the application"
   },
   "plugtype.desc.conf": {
-    "other": "Come i dati di configurazione sono memorizzati nel backend"
+    "other": "How configuration data are stored in the backend"
   },
   "plugtype.desc.cypher": {
-    "other": "Plugin per la crittografia dei dati"
+    "other": "Data encryption plugins"
   },
   "plugtype.desc.editor": {
-    "other": "Visualizzatori o editor per una vasta gamma di tipi MIME"
+    "other": "Viewers or editors for wide range of mime types"
   },
   "plugtype.desc.feed": {
-    "other": "Implementazioni per la memorizzazione degli eventi (al momento, solo SQL)"
+    "other": "Implementations for storing data events (only SQL yet)"
   },
   "plugtype.desc.gui": {
-    "other": "Interfaccia web principale, temi ed estensioni"
+    "other": "Main web interface, themes and extensions"
   },
   "plugtype.desc.helper": {
-    "other": "Strumenti di aiuto per attività amministrative"
+    "other": "Helpers tools for administrative tasks"
   },
   "plugtype.desc.index": {
-    "other": "Stumenti per l'indicizzazione dei dati e per l'acceso rapido durante le ricerche"
+    "other": "Tools for indexing data and providing quick search option"
   },
   "plugtype.desc.log": {
-    "other": "Invia i log dell'applicazione ai vari canali"
+    "other": "Send application logs to various channels"
   },
   "plugtype.desc.mailer": {
-    "other": "Strumenti per consentire all'applicazione di inviare email"
+    "other": "Tools for letting the application send emails"
   },
   "plugtype.desc.search-engine": {
-    "other": "Opzioni del motore di ricerca"
+    "other": "Search Engine options"
   },
   "plugtype.desc.meta": {
-    "other": "Caratteristiche addizionali che saranno aggiunte ai workspace"
+    "other": "Additional features to be added to the workspaces"
   },
   "plugtype.desc.metastore": {
-    "other": "Varie implementazioni di memorizzazione per i metadati, insieme a file e cartelle"
+    "other": "Various implementations for storing metadata along with files and folders"
   },
   "plugtype.desc.mq": {
-    "other": "Implementazione di un semplice server PUB/SUB"
+    "other": "Implementations of a simple PUB/SUB server"
   },
   "plugtype.desc.sec": {
-    "other": "Funzioni di sicurezza avanzate"
+    "other": "Advanced Security Features"
   },
   "plugtype.desc.shorten": {
-    "other": "Collegamenti ai servizi Web per lo shortening dei link pubblici"
+    "other": "Webservices bridges for shortening public links"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders basati su diverse tecnologie come HTML, Javascript, Java e altri"
+    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
   },
   "plugtype.title.access": {
-    "other": "Drivers dei workspace"
+    "other": "Workspaces Drivers"
   },
   "plugtype.title.action": {
-    "other": "Plugin Azioni"
+    "other": "Action plugins"
   },
   "plugtype.title.auth": {
-    "other": "Backend di Autenticazione"
+    "other": "Authentication Backends"
   },
   "plugtype.title.authfront": {
-    "other": "Frontend di Autenticazione"
+    "other": "Authentication Frontends"
   },
   "plugtype.title.boot": {
     "other": "Loader"
   },
   "plugtype.title.cache": {
-    "other": "Server della cache"
+    "other": "Cache server"
   },
   "plugtype.title.conf": {
-    "other": "Memorizzazione Configurazione"
+    "other": "Configuration Storage"
   },
   "plugtype.title.cypher": {
-    "other": "Strumenti di crittografia"
+    "other": "Encryption Tools"
   },
   "plugtype.title.editor": {
-    "other": "Editor"
+    "other": "Editors"
   },
   "plugtype.title.feed": {
-    "other": "Archiviazione Feed Eventi"
+    "other": "Events Feed Storage"
   },
   "plugtype.title.gui": {
-    "other": "Interfaccia Grafica Utente"
+    "other": "Graphical User Interface"
   },
   "plugtype.title.helper": {
     "other": "Helper"
   },
   "plugtype.title.index": {
-    "other": "Indicizzazione"
+    "other": "Indexing"
   },
   "plugtype.title.log": {
-    "other": "Logger"
+    "other": "Loggers"
   },
   "plugtype.title.mailer": {
-    "other": "Mailer"
+    "other": "Mailers"
   },
   "plugtype.title.search-engine": {
-    "other": "Motore di ricerca"
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
-    "other": "Meta Aspetti del Workspace"
+    "other": "Workspace Meta Aspects"
   },
   "plugtype.title.metastore": {
-    "other": "Memorizzazione Metadata"
+    "other": "Metadata Storage"
   },
   "plugtype.title.mq": {
-    "other": "Messaggistica Istantanea"
+    "other": "Instant Messaging"
   },
   "plugtype.title.sec": {
-    "other": "Sicurezza"
+    "other": "Security"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortener"
+    "other": "URL Shortening"
   },
   "plugtype.title.uploader": {
-    "other": "Uploader"
+    "other": "Uploaders"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "Cartella superiore"
+    "other": "parent folder"
   },
   "react.2": {
-    "other": "Operazioni bulk"
+    "other": "bulk actions"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2199,169 +2199,169 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Accesso pubblico"
+    "other": "Public access"
   },
   "background.move.file": {
-    "other": "Spostamento dei file in background ..."
+    "other": "Moving file in background ..."
   },
   "background.move.folder": {
-    "other": "Spostamento della cartella in background ..."
+    "other": "Moving folder in background ..."
   },
   "background.copy.selection": {
-    "other": "Copia della selezione in background ..."
+    "other": "Copying selection in background ..."
   },
   "overlay.lock.file": {
-    "other": "Il file è bloccato"
+    "other": "File is locked"
   },
   "overlay.lock.folder": {
-    "other": "La cartella è bloccata"
+    "other": "Folder is locked"
   },
   "overlay.watch.file": {
-    "other": "Tengo sotto controllo il file"
+    "other": "Currently watching this file"
   },
   "overlay.watch.folder": {
-    "other": "Tengo sotto controllo la cartella"
+    "other": "Currently watching this folder"
   },
   "overlay.shared.file": {
-    "other": "File condiviso, clicca per modificare"
+    "other": "Shared file, click to edit"
   },
   "overlay.shared.folder": {
-    "other": "Cartella condivisa, clicca per modificare"
+    "other": "Shared folder, click to edit"
   },
   "overlay.bookmark.file": {
-    "other": "Il file è stato aggiunto ai preferiti"
+    "other": "File is bookmarked"
   },
   "overlay.bookmark.folder": {
-    "other": "La cartella è stata aggiunta ai preferiti"
+    "other": "Folder is bookmarked"
   },
   "bookmark.button.tip.add": {
-    "other": "Aggiungi questo link ai preferiti"
+    "other": "Bookmark this element"
   },
   "bookmark.button.tip.remove": {
-    "other": "Rimuovi questo bookmark"
+    "other": "Remove this bookmark"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Valori misti, fare clic per aggiungerli tutti ai bookmark"
+    "other": "Mixed values, click to bookmark all"
   },
   "bookmark.button.tip.saving": {
-    "other": "Salvataggio dello stato dei bookmark"
+    "other": "Saving bookmark status"
   },
   "bookmark.secondary.inside": {
-    "other": "All'interno"
+    "other": "Inside"
   },
   "mkfile.empty.template.label": {
-    "other": "File vuoto"
+    "other": "Empty File"
   },
   "mkfile.untitled.document": {
-    "other": "Documento senza titolo"
+    "other": "Untitled Document"
   },
   "filename.forbidden.slash": {
-    "other": "Non utilizzare / nei nomi dei file!"
+    "other": "Do not use / in file names!"
   },
   "filename.forbidden.empty": {
-    "other": "È necessario fornire un nome!"
+    "other": "You must provide a name!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Attenzione, sembra che il nome inizi o finisca con un carattere vuoto (forse un battitura?)"
+    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Si prega di utilizzare un valore diverso per rinominare!"
+    "other": "Please use a different value for renaming!"
   },
   "rename.processing": {
-    "other": "Rinominando %1 in %2"
+    "other": "Renaming %1 to %2"
   },
   "cells.quick-filter": {
-    "other": "Filtra celle"
+    "other": "Filter Cells"
   },
   "ws.quick-filter": {
-    "other": "Filtra Workspace"
+    "other": "Filter Workspaces"
   },
   "visibility.panel.title": {
-    "other": "Visibilità"
+    "other": "Visibility"
   },
   "visibility.panel.right-read": {
-    "other": "Visualizza"
+    "other": "View"
   },
   "visibility.panel.right-edit": {
-    "other": "Modifica"
+    "other": "Edit"
   },
   "visibility.panel.list.users": {
-    "other": "Utenti"
+    "other": "Users"
   },
   "visibility.panel.list.teams": {
-    "other": "I tuoi Team"
+    "other": "Your Teams"
   },
   "visibility.panel.edit": {
-    "other": "Modifica visibilità"
+    "other": "Change visibility"
   },
   "visibility.panel.save": {
-    "other": "Salva modifiche"
+    "other": "Save changes"
   },
   "visibility.panel.revert": {
-    "other": "Annulla modifiche"
+    "other": "Revert changes"
   },
   "visibility.panel.error": {
-    "other": "Si è verificato un errore"
+    "other": "An error occured"
   },
   "visibility.panel.pickuser": {
-    "other": "Scegli un utente..."
+    "other": "Pick a user..."
   },
   "visibility.panel.setvisible": {
-    "other": "Imposta la visibilità a..."
+    "other": "Set visible to..."
   },
   "visibility.users.advanced": {
-    "other": "Questa funzionalità avanzata permette di decidere se gli utenti creati nella tua rubrica possono essere visti e/o modificati da altri utenti. Di default, i tuoi utenti sono visibili solo a te."
+    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
   },
   "user.unknown": {
-    "other": "Sconosciuto/a"
+    "other": "Unknown"
   },
   "addressbook.pick.group": {
-    "other": "Seleziona gruppo"
+    "other": "Select group"
   },
   "addressbook.pick.multiple": {
-    "other": "Selezione multipla"
+    "other": "Multiple Selection"
   },
   "confirm.dialog.title": {
-    "other": "Conferma"
+    "other": "Confirm"
   },
   "confirm.dialog.destructive": {
-    "other": "Stai per eliminare"
+    "other": "You are about to delete"
   },
   "confirm.dialog.skipNext": {
-    "other": "Non avvisarmi la prossima volta"
+    "other": "Do not warn me next time"
   },
   "material.paginator.rows": {
-    "other": "Righe per pagina"
+    "other": "Rows per page"
   },
   "material.paginator.of": {
-    "other": "di"
+    "other": "of"
   },
   "form.input-image.fileTypes": {
-    "other": "Utilizzare solo immagini (jpeg,png,bmp,webp)"
+    "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Ripristina"
+    "other": "Reset"
   },
   "form.input-image.clearConfirm": {
-    "other": "Vuoi rimuovere l'immagine corrente?"
+    "other": "Do you want to remove current image?"
   },
   "form.input-image.avatarMax": {
-    "other": "Per favore usa immagini più piccole di 5MB"
+    "other": "Please use images smaller than 5MB"
   },
   "searchengine.start": {
-    "other": "Inizia a digitare per cercare file e cartelle"
+    "other": "Start typing to search for files and folders"
   },
   "searchengine.searching": {
-    "other": "Ricerca in corso..."
+    "other": "Searching..."
   },
   "searchengine.main.placeholder": {
-    "other": "Ricerca..."
+    "other": "Search..."
   },
   "searchengine.topbar.title": {
-    "other": "Ricerca: "
+    "other": "Search: "
   },
   "searchengine.scope.title": {
-    "other": "Cerca in..."
+    "other": "Search In..."
   },
   "searchengine.share.title": {
     "other": "Shared"
@@ -2385,37 +2385,37 @@
     "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Filtri Avanzati"
+    "other": "Advanced Filters"
   },
   "searchengine.results.foundN": {
-    "other": "%1 risultati trovati"
+    "other": "%1 results found"
   },
   "searchengine.results.withMore": {
-    "other": "Mostro %1, carica altri..."
+    "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
-    "other": "Salva"
+    "other": "Save"
   },
   "searchengine.query.action.save-new": {
     "other": "Save Query"
   },
   "searchengine.query.action.clear": {
-    "other": "Svuota la coda"
+    "other": "Clear"
   },
   "searchengine.query.action.clear-all": {
     "other": "Clear All"
   },
   "searchengine.query.action.delete": {
-    "other": "Elimina"
+    "other": "Delete"
   },
   "searchengine.query.action.delete-confirm": {
     "other": "Delete this saved query?"
   },
   "searchengine.query.save-label": {
-    "other": "Inserisci un'etichetta"
+    "other": "Enter a label"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Nome/Contenuto"
+    "other": "Name/Content"
   },
   "searchengine.complete.group.saved": {
     "other": "Saved Searches"
@@ -2448,7 +2448,7 @@
     "other": "Insert inline"
   },
   "chat.load-older": {
-    "other": "Voci più vecchie"
+    "other": "Older entries"
   },
   "chat.msg.edit": {
     "other": "Edit Message"
@@ -2487,16 +2487,16 @@
     "other": "Open document in..."
   },
   "workspace.quota-usage": {
-    "other": "Utilizzo della Quota"
+    "other": "Quota Usage"
   },
   "action.delete.permanently": {
-    "other": "Elimina definitivamente"
+    "other": "Delete permanently"
   },
   "action.delete.permanently.warning": {
-    "other": "attenzione, non puoi annullare questa operazione!"
+    "other": "warning, you cannot undo this operation!"
   },
   "action.goto.label": {
-    "other": "Vai alla Cartella"
+    "other": "Go To Folder"
   },
   "action.copymove.recent": {
     "other": "Recent Locations"
