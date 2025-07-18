@@ -39,25 +39,25 @@
     "other": "Các nhóm bạn tham gia"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Tên các nhóm được sử dụng khi bạn chia sẻ"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Bạn có thực sự muốn xóa nhóm này? Việc này sẽ không thể phục hồi sau khi xóa."
   },
   "53": {
-    "other": "Getting Started"
+    "other": "Bắt đầu làm quen"
   },
   "54": {
-    "other": "Get started with APPLICATION_TITLE by following How-to videos"
+    "other": "Bắt đầu làm quen với APPLICATION_TITLE trên các videos hướng dẫn"
   },
   "55": {
-    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
+    "other": "Các tính năng mới trong APPLICATION_TITLE? <a>Xem các videos hướng dẫn</a>!"
   },
   "56": {
-    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
+    "other": "Làm quen với APPLICATION_TITLE? Xin giới thiệu một số videos hướng dẫn dành cho bạn!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "Tải APPLICATION_TITLE cho..."
   },
   "58": {
     "other": "Android"
@@ -72,130 +72,130 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Một workspace là gì?</h2>\n            Video này sẽ giải thích cho bạn một Workspaces ra sao trong APPLICATION_TITLE\n            <ul>\n                <li>Tại sao Workspaces là trung tâm của APPLICATION_TITLE?</li>\n                <li>Workspaces dưới cái nhìn của dân kỹ thuật?</li>\n                <li>Workspaces sẽ giúp bạn thế nào trong việc quản lý dữ liệu?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Upload dữ liệu lên APPLICATION_TITLE</h2>\n            Làm quen với APPLICATION_TITLE và học cách upload dữ liệu\n            <ul>\n                <li>Kéo và thả file vào APPLICATION_TITLE</li>\n                <li>Tạo mới một thư mục</li>\n                <li>Đổi tên file hay thư mục</li>\n                <li>Download dữ liệu về máy</li>\n            </ul>            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Tìm kiếm và quản lý files</h2>\n            Đoạn phim này sẽ hướng dẫn bạn quản lý dữ liệu nhanh gọn và dễ dàng trong APPLICATION_TITLE\n            <ul>\n                <li>Thanh tìm kiếm trên các workspace</li>\n                <li>Cách thức hiển thị, Các tổ hợp phím tắt</li>\n                <li>Sắp xếp Files</li>\n                <li>Meta Data, Các đánh dấu</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "Tìm hiểu thêm trên APPLICATION_TITLE channel!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>[How-to] Sử dụng APPLICATION_TITLE trên các thiết bị iOS</h2>\n                            Đoạn phim này hướng dẫn cách sử dụng APPLICATION_TITLE (có trên App Store). Cách thức tương tự như trên Android.\n<ul><li>Thiết lập kết nối tới server</li>\n<li>Duyệt danh sách các files</li>\n<li>Lưu file trên máy và tương tác với các phần mềm bên thứ ba</li>\n<li>Bảo vệ app với mã PIN</li>\n<li>Sử dụng đánh dấu và tìm kiếm</li></ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "Nếu bạn không phải là %s, %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Tải app Sync Client cho Windows"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Tải app Sync Client cho Mac OSX"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "Cách sử dụng app trên thiết bị iOS"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "Cách sử dụng app trên thiết bị Android"
   },
   "72": {
     "other": "Server QRCode"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "Dễ dàng kết nối với các ứng dụng di động"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "Quyeets mã QRCode này để cấu hình nhanh ứng dụng di động"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "Tìm kiếm trên tất cả các file..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "Truy cập %1 qua menu trên góc trái"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "bảng điều khiển cho admin"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "Chọn workspace đích"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Chia sẻ file và thư mục</h2>\n            Sau đây sẽ hướng dẫn bạn cách chia sẻ file, thư mục với các thành viên nội bộ hoặc bên ngoài tổ chức của bạn\n            <ul>\n                <li>Tạo chia sẻ với người ngoài tổ chức</li>\n                <li>Chia sẻ với nhóm nội bộ</li>\n                <li>Chia sẻ thư mục giống như một workspace</li>\n                <li>Chọn layout cho thư mục chia sẻ</li>\n                <li>Tạo một thư mục cho việc gửi file ẩn danh</li>\n                <li>Quản lý user và  phân quyền</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing : tăng cường bảo mật</h2>\n            Đoạn phim này sẽ giới thiệu các thiết lập để giúp bạn tăng cường tính bảo mật của các chia sẻ\n            <ul>\n                <li>Bảo mật với password</li>\n                <li>Định ngày hết hạn</li>\n                <li>Giới hạn số lần downloads</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] Thay đổi đường dẫn tới dữ liệu chia sẻ</h2>\n            Các bước để làm đường dẫn dễ sử dụng hơn so với mặc định.\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Phân quyền cho liên kết chia sẻ</h2>\n            Đoạn phim này sẽ giúp bạn cách quản lý quyền truy cập vào các chia sẻ\n            <ul>\n                <li>Xem trước</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] Ngôn ngữ</h2>\n            APPLICATION_TITLE có sẵn 28 ngôn ngữ. Đoạn phim này sẽ giới thiệu cách bạn thay đổi ngôn ngữ trong APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Thông báo khi dữ liệu chia sẻ được sử dụng</h2>\n            Cách tức thiết lập thông báo trên dữ liệu chia sẻ khi có yêu cầu truy cập, sửa, xóa.\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Trình soạn thảo theo nhóm Collabora</h2>\n            Đoạn phim này sẽ giới thiệu cách thức làm việc với tài liệu office trên collabora. Lời cảm ơn dành cho bộ soạn thảo Collabora online\n            <ul>\n                <li>Làm việc với các loại docs, presentations, spreadsheets</li>\n                <li>Soạn thảo theo thời gian thực</li>\n                <li>Tạo mới tài liệu ngay trên trình duyệt</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Play video"
+    "other": "Bắt đầu chạy video"
   },
   "87": {
-    "other": "My Recent Activity"
+    "other": "Những hoạt động gần đây"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "Kéo và thả file vào đây"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "Chọn file để upload"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "Chọn workspace đích"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "Giữ lại files của bạn trên máy với Desktop Sync Client"
   },
   "92": {
     "other": "Applications Download"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Upload nhanh"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Video Hướng dẫn"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "Trang chào mừng"
   },
   "title": {
     "other": "Home"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "Thư mục"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Kết quả lọc..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "Kiểu"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "Phần mở rộng"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "Kích thước"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "Đã sửa đổi"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Đã tìm thấy"
   },
   "search.facet.metadata": {
     "other": "Metadata"
@@ -216,10 +216,10 @@
     "other": "Smallest First"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "Tệp tin"
   },
   "facet.label.folder": {
-    "other": "Folder"
+    "other": "Thư mục"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
@@ -234,25 +234,25 @@
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Vừa nãy"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "Hôm nay"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "7 ngày trước"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "30 ngày trước"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Cũ hơn 30 ngày"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "Nội Dung"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Tên tệp"
   },
   "reco.bookmark": {
     "other": "Bookmark"
