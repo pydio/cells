@@ -1,27 +1,27 @@
 {
   "1": {
-    "other": "Libre Office Dokumenti"
+    "other": "Libre Office Documents"
   },
   "10": {
-    "other": "Izveidot jaunu dokumentu"
+    "other": "Create an empty document"
   },
   "11": {
-    "other": "Dokumenta formāts"
+    "other": "Document Format"
   },
   "12": {
-    "other": "Jūs varat <a>izveidot jaunu dokumentu</a>"
+    "other": "You can also <a>create an empty document</a>"
   },
   "13": {
-    "other": "Dokuments bez nosaukuma"
+    "other": "Untitled Document"
   },
   "14": {
-    "other": "Dokuments ir izveidots, Jūs varat sākt to labot"
+    "other": "The document was created, you can now edit it"
   },
   "15": {
-    "other": "Nezināms dokumenta formāts"
+    "other": "Unknown document format"
   },
   "2": {
-    "other": "Libre Office Ārējā pārlūka logs"
+    "other": "Libre Office External browser window"
   },
   "ext.doc": {
     "other": "Microsoft Word 97/2000/XP/2003"
@@ -30,16 +30,16 @@
     "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "ODF Zīmējums"
+    "other": "ODF Drawing"
   },
   "ext.odp": {
-    "other": "ODF Prezentācija"
+    "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "ODF datu tabula / izklājlapa"
+    "other": "ODF Spreadsheet"
   },
   "ext.odt": {
-    "other": "ODF Teksta dokuments"
+    "other": "ODF Text Document"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"
@@ -48,7 +48,7 @@
     "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "Formatēts teksts"
+    "other": "Rich Text"
   },
   "ext.xls": {
     "other": "Microsoft Excel 97/2000/XP/2003"
