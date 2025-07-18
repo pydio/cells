@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Extrahieren von Vorschaubildern und Exif-Daten"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Thumbnail-Cache für gelöschte Dateien entfernen"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Externe Verzeichnisse synchronisieren"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Aktuelle Aufträgen und Aufgaben im Taskmanager bereinigen"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Simuliere lang laufenden Job (zu Testzwecken)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Erstellung zufälliger Benutzer (zu Testzwecken)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Muster RPC-Job (zu Testzwecken)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Automatische Archivierung des Änderungsdienstes"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Benutzerdaten beim Löschen bereinigen oder übertragen"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Löschen von verwaisten Dateien nach 24 Stunden"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Löschen abgelaufener ACLs nach 10 Tagen"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Auswahl wird komprimiert..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Archiv wird entpackt..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Auswahl wird im Hintergrund gelöscht..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Ordner wird im Hintergrund kopiert..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Ordner wird im Hintergrund verschoben..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Datei wird im Hintergrund kopiert..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Datei wird im Hintergrund verschoben..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Auswahl wird im Hintergrund kopiert..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Auswahl wird im Hintergrund verschoben..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Wird im Hintergrund in den Papierkorb verschoben..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Datenquelle {{.DsName}} synchronisieren und dann neue Dateien neu hashen"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Datei wird im Hintergrund heruntergeladen..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Lösche %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Kopie von %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "%s wird verschoben"
   }
 }
