@@ -1,42 +1,42 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Publisk piekļuve"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Publiska piekļuve atklāšanas galapunktiem"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "Anonīma piekļuve atklāšanai (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Anonīma piekļuve lai mainītu paroli galapunktos (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Anonīma piekļuve lai ielādētu lapas priekšpuses sstatusu (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Anonīma piekļuve lai iniciētu lapas priekšpuses sesiju (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Instalācijas galapunkti (pirmreizēja palaišana)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Instalācijas galapunktiem nepieciešmaa publiska piekļuve pirmreizējā palaišanā"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Anonīmās piekļuves instalācijas galapunktiem (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Pieslēgušos lietotāju un Admin lietotāju piekļuves"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "Izlemiet kā standarta lietotāji/koplietotie lietotāji/admin lietotāji var piekļūt rest API"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Pilnās REST piekļuves Admin profilam"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Noklusētās REST piekļuves lietotājiem kuri ir pieslēgušies"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
     "other": "List and search user-defined metadata"
@@ -51,12 +51,12 @@
     "other": "Write-access to FrontendService except global binaries uploads"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "OpenIdConnect Darbības"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Ieslēgt/Izslēgt autentifikācijas OpenID Connect Serverī"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Noklusētās piekļuves pieslēgšanās darbībai visiem lietotājiem"
   }
 }
