@@ -45,505 +45,505 @@
     "other": "Логи & другое"
   },
   "112": {
-    "other": "<b>Присвоить эту роль по умолчанию</b> всем новым пользователям."
+    "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
-    "other": "Статус роли изменён"
+    "other": "Role status was successfully modified"
   },
   "114": {
-    "other": "Применить к"
+    "other": "Applies to"
   },
   "115": {
-    "other": "Схема"
+    "other": "Scheme"
   },
   "116": {
-    "other": "Метка шаблона"
+    "other": "Template Label"
   },
   "117": {
-    "other": "Драйвер шаблона"
+    "other": "Template Driver"
   },
   "118": {
-    "other": "Новая группа"
+    "other": "New group"
   },
   "119": {
-    "other": "Установить группу пользователя"
+    "other": "Set user group"
   },
   "12": {
-    "other": "Мета плагин"
+    "other": "Meta Plugin"
   },
   "120": {
-    "other": "Купить Pro"
+    "other": "Go Pro"
   },
   "121": {
-    "other": "Получить платную поддержку"
+    "other": "Get professional support for your install"
   },
   "122": {
-    "other": "Все настройки"
+    "other": "All Settings"
   },
   "123": {
-    "other": "Другие плагины"
+    "other": "Other plugins"
   },
   "124": {
-    "other": "Источник"
+    "other": "Source"
   },
   "125": {
-    "other": "Псевдоним"
+    "other": "Alias"
   },
   "126": {
-    "other": "Уверены, что хотите удалить выделенный(е) элемент(ы)?"
+    "other": "Are you sure that you want to delete the selected element(s)?"
   },
   "127": {
-    "other": "Пожалуйста не используйте специальные символы, пользователь будет создан с логином '%s'"
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
   },
   "128": {
-    "other": "Группа успешно удалена"
+    "other": "Successfully deleted group"
   },
   "129": {
-    "other": "Обновить кэш плагинов"
+    "other": "Refresh plugins cache"
   },
   "13": {
-    "other": "Уверены, что хотите удалить этот источник?"
+    "other": "Are you sure you want to delete this source?"
   },
   "130": {
-    "other": "Очистка кэша плагинов, может потребоваться для того, чтобы увидеть появление новых плагинов в списке."
+    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
   },
   "131": {
-    "other": "Файлы кэша плагинов были успешно удалены!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
-    "other": "Кэш очищен, но в настоящее время он работает в режиме SKIP_CACHE (см. bootstrap_context.php)."
+    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
   },
   "133": {
-    "other": "Основные параметры приложения"
+    "other": "Core application parameters"
   },
   "134": {
-    "other": "Включить/отключить дополнительные функциональные плагины, проверить правильно ли они работают, настройка глобальных параметров плагинов."
+    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
   },
   "135": {
-    "other": "Включить/выключить плагины ядра (аутентификация, настройки, почта и т. д.), проверить правильно ли они работают. Настройка этих плагинов обычно выполняется через Главные параметры"
+    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
   },
   "136": {
-    "other": "Глобальные настройки приложений и каждого плагина. Включение/отключение плагинов"
+    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
   },
   "137": {
-    "other": "Ежедневное администрирование приложения : кто обращается к чему, создавать роли и т. д."
+    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
   },
   "138": {
-    "other": "Создавайте и удаляйте рабочие области, добавляйте к ним функции с помощью метаданных."
+    "other": "Create and delete workspaces, add features to them using meta sources."
   },
   "139": {
-    "other": "Управление пользователями и группами"
+    "other": "Manage users and groups"
   },
   "14": {
-    "other": "Да"
+    "other": "True"
   },
   "140": {
-    "other": "Определить профили, которые могут быть применены сразу ко всей группе пользователей."
+    "other": "Define profiles that can be applied at once to whole bunch of users."
   },
   "141": {
-    "other": "Администрирование для отслеживания состояния приложения."
+    "other": "Administrator tasks to monitor the application state."
   },
   "142": {
-    "other": "Отслеживать все события, происходящие на сервере"
+    "other": "Monitor all activities happening on the server"
   },
   "143": {
-    "other": "Прочитать начальную диагностику"
+    "other": "Read the start-up diagnostic"
   },
   "144": {
-    "other": "Ресурсы для разработчиков"
+    "other": "Developer Resources"
   },
   "145": {
-    "other": "Документация для разработчиков"
+    "other": "Generated documentations for developers"
   },
   "146": {
-    "other": "API действий"
+    "other": "Actions API"
   },
   "147": {
-    "other": "Список всех действий, внесенных всеми плагинами и визуализации их входных параметров"
+    "other": "List all actions contributed by all plugins and visualize their input parameters"
   },
   "148": {
-    "other": "Определения хуков"
+    "other": "Hooks Definitions"
   },
   "149": {
-    "other": "Список хуков в приложении, их документации, где срабатывают и какие плагины их слушают."
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
   },
   "15": {
-    "other": "Нет"
+    "other": "False"
   },
   "150": {
-    "other": "Выберите репозиторий"
+    "other": "Select a repository"
   },
   "151": {
-    "other": "Корневая группа"
+    "other": "Root Group"
   },
   "152": {
-    "other": "Роли корневой группы"
+    "other": "Root Group Role"
   },
   "153": {
-    "other": "Применяется ко всей иерархии пользователей"
+    "other": "Applies to the whole hierarchy of users"
   },
   "154": {
-    "other": "Шаблоны репозитория"
+    "other": "Repository Templates"
   },
   "155": {
-    "other": "Управление доступом"
+    "other": "Access Drivers"
   },
   "156": {
-    "other": "Обычный"
+    "other": "Standard"
   },
   "157": {
-    "other": "Администратор"
+    "other": "Administrator"
   },
   "158": {
-    "other": "Общий доступ"
+    "other": "Shared"
   },
   "159": {
-    "other": "Гость"
+    "other": "Guest"
   },
   "160": {
-    "other": "Группа успешно создана"
+    "other": "Group was successfully created"
   },
   "161": {
-    "other": "Вы пытаетесь переместиться в группу, и вы потеряете супер-административные права. Пожалуйста, войдите как другой пользователь, если вы действительно хотите это сделать. Отменено."
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
   },
   "162": {
-    "other": "Вы не авторизованы для обновления пользователя %s"
+    "other": "You are not authorized to update user %s"
   },
   "163": {
-    "other": "Роли упорядочены для пользователя %s"
+    "other": "Roles reordered for user %s"
   },
   "164": {
-    "other": "Успешно обновлены роли"
+    "other": "Successfully updated roles"
   },
   "165": {
-    "other": "Настройки пользователя успешно сохранены"
+    "other": "Successfully saved user preferences"
   },
   "166": {
-    "other": "Блокировка (%1) пользователя (%2) успешно установлена"
+    "other": "Successfully set lock (%1) on user (%2)"
   },
   "167": {
-    "other": "Успешно разблокирован пользователь (%s)"
+    "other": "Successfully unlocked user (%s)"
   },
   "168": {
-    "other": "%1 пользователи перемещены в группу %2"
+    "other": "%1 users were moved to group %2"
   },
   "169": {
-    "other": "Пользователи не были перемещены, что то пошло не так!"
+    "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Дата"
+    "other": "Date"
   },
   "170": {
-    "other": "Включить %1 (%2)"
+    "other": "Enable %1 (%2)"
   },
   "171": {
-    "other": "Импорт пользователей (только для Enterprise)"
+    "other": "Import Users (Enterprise only)"
   },
   "172": {
-    "other": "Службы"
+    "other": "Services"
   },
   "173": {
-    "other": "Pydio Backend Services и их статус"
+    "other": "Pydio Backend Services and their running status"
   },
   "174": {
-    "other": "Управление идентификацией"
+    "other": "Identity Management"
   },
   "175": {
-    "other": "Управление данными"
+    "other": "Data Management"
   },
   "176": {
-    "other": "Политики безопасности"
+    "other": "Security Policies"
   },
   "177": {
-    "other": "Политики безопасности"
+    "other": "Security Policies"
   },
   "18": {
     "other": "I.P."
   },
   "19": {
-    "other": "Уровень"
+    "other": "Level"
   },
   "2": {
-    "other": "Пользователи & Группы"
+    "other": "People"
   },
   "20": {
-    "other": "Пользователь"
+    "other": "User"
   },
   "21": {
-    "other": "Действие"
+    "other": "Action"
   },
   "22": {
-    "other": "Параметры"
+    "other": "Params"
   },
   "22a": {
-    "other": "Параметры"
+    "other": "More info"
   },
   "23": {
-    "other": "Имя теста"
+    "other": "Test Name"
   },
   "24": {
-    "other": "Данные теста"
+    "other": "Test Data"
   },
   "25": {
-    "other": "Доступ к рабочему пространству"
+    "other": "Workspaces Access"
   },
   "26": {
-    "other": "Изменить пароль"
+    "other": "Modify Password"
   },
   "27": {
-    "other": "Админские права"
+    "other": "Admin Right"
   },
   "28": {
-    "other": "Пользователь имеет админские права?"
+    "other": "User has admin rights?"
   },
   "29": {
-    "other": "Чтение"
+    "other": "Read"
   },
   "2b": {
-    "other": "Управление данными"
+    "other": "Data Management"
   },
   "3": {
-    "other": "Рабочие пространства"
+    "other": "Workspaces"
   },
   "30": {
-    "other": "Запись"
+    "other": "Write"
   },
   "32": {
-    "other": "Управление доступом"
+    "other": "Access Driver"
   },
   "33": {
-    "other": "Загрузка..."
+    "other": "Loading..."
   },
   "34": {
-    "other": "Уверены, что хотите удалить пользователя? Эту операцию не отменить!"
+    "other": "Are you sure you want to delete this user? This operation is not reversible!"
   },
   "35": {
-    "other": "Уверены, что хотите удалить рабочее пространство? Эту операцию не отменить!"
+    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
   },
   "36": {
-    "other": "Отсутствуют обязательные поля!"
+    "other": "Mandatory fields are missing!"
   },
   "37": {
-    "other": "Внимание, пароль и его повтор отличаются!"
+    "other": "Warning, password and confirmation differ!"
   },
   "38": {
-    "other": "Пожалуйста, заполните поле логина!"
+    "other": "Please fill the login field!"
   },
   "39": {
-    "other": "Пожалуйста, заполните оба поля пароля!"
+    "other": "Please fill both password fields!"
   },
   "3b": {
-    "other": "DataSources"
+    "other": "Storage"
   },
   "3c": {
-    "other": "Пути шаблонов"
+    "other": "Template Paths"
   },
   "4": {
-    "other": "Логи"
+    "other": "Logs"
   },
   "40": {
-    "other": "Установите флажок для подтверждения!"
+    "other": "Please check the box to confirm!"
   },
   "41": {
-    "other": "Опции драйвера"
+    "other": "Datasource Nodes"
   },
   "42": {
-    "other": "Выберите драйвер!"
+    "other": "Please choose a driver!"
   },
   "43": {
-    "other": "Пользователь существует, выберите другой логин!"
+    "other": "User already exists, please choose another login!"
   },
   "44": {
-    "other": "Пользователь успешно создан"
+    "other": "User created successfully"
   },
   "45": {
-    "other": "Изменены админские права для пользователя "
+    "other": "Changed admin right for user "
   },
   "46": {
-    "other": "Изменены права для пользователя "
+    "other": "Changed right for user "
   },
   "47": {
-    "other": "Сохранены права для пользователя "
+    "other": "Saved data for user "
   },
   "48": {
-    "other": "Изменён пароль для пользователя "
+    "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "Ошибка обновления пароля"
+    "other": "Cannot update password"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "Ошибка: рабочее пространство с таким именем уже существует"
+    "other": "Error: a workspace with the same name already exists"
   },
   "51": {
-    "other": "Каталог с конфигурацией недоступен по записи"
+    "other": "The conf directory is not writeable"
   },
   "52": {
-    "other": "Рабочее пространство создано! Теперь можно добавлять 'Источники метаданных' для дополнительных функций, индексации и т. д."
+    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
   },
   "53": {
-    "other": "Ошибка при попытке редактирования рабочего пространства"
+    "other": "Error while trying to edit workspace"
   },
   "54": {
-    "other": "Рабочее пространство изменено"
+    "other": "Successfully edited workspace"
   },
   "55": {
-    "other": "Внимание, на данный момент, вы можете добавить только один экземпляр каждого мета плагина."
+    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
   },
   "56": {
-    "other": "Источник мета данных добавлен"
+    "other": "Successfully added meta source"
   },
   "57": {
-    "other": "Источник мета данных удалён"
+    "other": "Successfully deleted meta source"
   },
   "58": {
-    "other": "Источник мета данных изменён"
+    "other": "Successfully edited meta source"
   },
   "59": {
-    "other": "Рабочее пространство удалено"
+    "other": "Successfully deleted workspace"
   },
   "6": {
-    "other": "Имя пользователя"
+    "other": "User Name"
   },
   "60": {
-    "other": "Пользователь успешно очищен (стёрт)"
+    "other": "User successfully erased"
   },
   "61": {
-    "other": "Ошибка в аргументах!"
+    "other": "Wrong arguments!"
   },
   "62": {
-    "other": "Права, основное"
+    "other": "Rights Summary"
   },
   "63": {
-    "other": "Все"
+    "other": "All"
   },
   "64": {
-    "other": "Изменены права для роли "
+    "other": "Changed right for role "
   },
   "65": {
-    "other": "Роль существует, выберите другое имя!"
+    "other": "Role already exists, choose another name!"
   },
   "66": {
-    "other": "Роль создана"
+    "other": "Role successfully created"
   },
   "67": {
-    "other": "Не найдена роль "
+    "other": "Cannot find role "
   },
   "68": {
-    "other": "Роль удалена"
+    "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Роли"
+    "other": "Roles"
   },
   "7": {
-    "other": "Админ?"
+    "other": "Is Admin"
   },
   "70": {
-    "other": "Роли пользователя"
+    "other": "User Roles"
   },
   "71": {
-    "other": "Доступные роли"
+    "other": "Available Roles"
   },
   "72": {
-    "other": "Перетащите роли для присвоения их пользователю"
+    "other": "Drag'n'drop roles to assign them to the user"
   },
   "73": {
-    "other": "Роль добавлена пользователю "
+    "other": "Role added to user "
   },
   "74": {
-    "other": "Роль удалена от пользователя "
+    "other": "Role deleted from user "
   },
   "75": {
-    "other": "Новая роль"
+    "other": "New Role"
   },
   "76": {
-    "other": "Идент. роли"
+    "other": "Role Id"
   },
   "77": {
-    "other": "Контроль доступа"
+    "other": "Access Control"
   },
   "78": {
-    "other": "Персональная информация"
+    "other": "Personal data"
   },
   "79": {
-    "other": "Рабочее пространство"
+    "other": "Workspace"
   },
   "8": {
-    "other": "Название рабочего пространства"
+    "other": "Workspace Label"
   },
   "80": {
-    "other": "Тонкая настройка (Нажмите на рабочее пространство, если хотите, чтобы пользователь попадал в него после логина)"
+    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
   },
   "81": {
-    "other": "Специфичные данные для рабочего пространства"
+    "other": "Specific workspaces data"
   },
   "82": {
-    "other": "Редактирование пользователей скриптом"
+    "other": "Batch-edit users"
   },
   "83": {
-    "other": "Перетащите роли для присвоения их всем выделенным пользователям (общие пользователи будут пропущены)"
+    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Роли пользователей"
+    "other": "Users Roles"
   },
   "85": {
-    "other": "Фильтр действий"
+    "other": "Manual actions filtering"
   },
   "86": {
-    "other": "Список действий, разделённых запятыми, которые будут выключены для этой роли. Независимо от прав доступа."
+    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
   },
   "87": {
-    "other": "Действия для роли обновлены"
+    "other": "Successfully updated actions for this role"
   },
   "88": {
-    "other": "Это рабочее пространство определено в конфиг файле, мета источники нельзя редактировать через GUI."
+    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
   },
   "89": {
-    "other": "Специфичные данные пользователя"
+    "other": "User specific data"
   },
   "9": {
-    "other": "Тип доступа"
+    "other": "Access Type"
   },
   "90": {
-    "other": "Новое рабочее пространство"
+    "other": "New Workspace"
   },
   "91": {
-    "other": "Новый шаблон"
+    "other": "New Template"
   },
   "92": {
-    "other": "Создать новый шаблон"
+    "other": "Create a new template"
   },
   "93": {
-    "other": "Редактировать"
+    "other": "Edit"
   },
   "94": {
-    "other": "Редактировать скриптом"
+    "other": "Batch Edit"
   },
   "95": {
-    "other": "Выберите метку и драйвер для доступа к данным (проверьте все секции и обязательные поля. При наведении мышкой на название появится подсказка)."
+    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
   },
   "96": {
-    "other": "После выбора метки и драйвера включите поля (флажками), которые вы хотите заполнить заранее в шаблоне. Остальные поля будут на усмотрение пользователя. Если хотите скрыть поля от пользователя, включите их и оставьте пустыми."
+    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
   },
   "97": {
-    "other": "Опции плагина обновлены"
+    "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "Основные параметры"
+    "other": "Main Settings"
   },
   "99": {
-    "other": "Функциональные плагины"
+    "other": "Feature plugins"
   },
   "topbar.title": {
-    "other": "Консоль Cells"
+    "other": "Cells Console"
   },
   "topbar.button.advanced": {
-    "other": "Показать/скрыть дополнительные параметры"
+    "other": "Show/hide advanced parameters"
   },
   "topbar.button.about": {
-    "other": "Узнайте больше о Pydio Cells"
+    "other": "Learn more about Pydio Cells"
   },
   "group_access": {
     "other": "g"
@@ -555,9 +555,9 @@
     "other": "o"
   },
   "uploaders-chunk-size-warn-multiple": {
-    "other": "Размер части должен быть кратен 10MB!"
+    "other": "Part size must be a multiple of 10MB!"
   },
   "uploaders-chunk-size-warn-too-small": {
-    "other": "Размер части должен быть не менее 10 МБ!"
+    "other": "Part size must be at least 10MB!"
   }
 }
