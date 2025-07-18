@@ -189,7 +189,7 @@
     "other": "Introduzca la ubicación del archivo socket que se utilizará para conectar"
   },
   "form.dbSqliteFile.label": {
-    "other": "File Path"
+    "other": "Ruta de archivo"
   },
   "form.dbSqliteFile.legend": {
     "other": "Enter the location of the file to use as database"
