@@ -1,27 +1,27 @@
 {
   "1": {
-    "other": "Tài liệu Libre Office"
+    "other": "Libre Office Documents"
   },
   "10": {
-    "other": "Tạo một tài liệu trống"
+    "other": "Create an empty document"
   },
   "11": {
-    "other": "Định dạng tài liệu"
+    "other": "Document Format"
   },
   "12": {
-    "other": "Bạn cũng có thể <a> tạo ra một tài liệu trống </a>"
+    "other": "You can also <a>create an empty document</a>"
   },
   "13": {
-    "other": "Tài liệu không có tiêu đề"
+    "other": "Untitled Document"
   },
   "14": {
-    "other": "Tài liệu đã được tạo, bây giờ bạn có thể chỉnh sửa nó"
+    "other": "The document was created, you can now edit it"
   },
   "15": {
-    "other": "Định dạng tài liệu không xác định"
+    "other": "Unknown document format"
   },
   "2": {
-    "other": "Cửa sổ trình duyệt bên ngoài cho Libre Office"
+    "other": "Libre Office External browser window"
   },
   "ext.doc": {
     "other": "Microsoft Word 97/2000/XP/2003"
@@ -30,16 +30,16 @@
     "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "Bản vẽ ODF"
+    "other": "ODF Drawing"
   },
   "ext.odp": {
-    "other": "Trình chiếu ODF"
+    "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "Bảng tính ODF"
+    "other": "ODF Spreadsheet"
   },
   "ext.odt": {
-    "other": "Tài liệu văn bản ODF"
+    "other": "ODF Text Document"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"
@@ -48,12 +48,12 @@
     "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "Văn bản phong phú"
+    "other": "Rich Text"
   },
   "ext.xls": {
     "other": "Microsoft Excel 97/2000/XP/2003"
   },
   "ext.xlsx": {
-    "other": "Microsoft Excel 97/2000/XP/2003"
+    "other": "Microsoft Excel 2007/2010/2013 XML"
   }
 }
