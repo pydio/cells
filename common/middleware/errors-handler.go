@@ -52,6 +52,7 @@ var (
 		errors.WorkspaceNotFound,
 		errors.DocStoreDocNotFound,
 		errors.UserNotFound,
+		errors.LogDAOResolver,
 	}
 	commonWarns = []error{
 		errors.NodeIndexConflict,

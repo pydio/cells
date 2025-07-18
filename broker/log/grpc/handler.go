@@ -68,7 +68,7 @@ func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 	ctx := stream.Context()
 	repo, err := manager.Resolve[log.MessageRepository](ctx, h.ResolveOptions...)
 	if err != nil {
-		return err
+		return errors.Tag(err, errors.LogDAOResolver)
 	}
 	batch, err := repo.NewBatch(ctx, indexer.WithErrorHandler(func(err error) {
 		log2.Logger(ctx).Error("error while processing logs", zap.Error(err))
@@ -113,9 +113,11 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 	}
 
 	for rr := range r {
-		stream.Send(&proto.ListLogResponse{
+		if er := stream.Send(&proto.ListLogResponse{
 			LogMessage: rr.LogMessage,
-		})
+		}); er != nil {
+			return er
+		}
 	}
 	return nil
 }
