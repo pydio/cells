@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "Arhivēt"
+    "other": "Compress"
   },
   "10": {
-    "other": "Atpakot izvēlētos arhīvus"
+    "other": "Extract selected archives"
   },
   "11": {
-    "other": "Ceļš uz atarhivētajiem failiem "
+    "other": "Path of the extracted files "
   },
   "12": {
-    "other": "Sāk atarhivēšanu..."
+    "other": "Starting extraction..."
   },
   "13": {
-    "other": "Atarhivē failus ... %s "
+    "other": "Extracting files ... %s "
   },
   "14": {
-    "other": "Atarhivēšana veiksmīgi pabeigta direktorijā '%s'."
+    "other": "Extraction finished successfullly in the folder '%s'."
   },
   "15": {
-    "other": "Izvēlētais fails nav ne TAR, TAR.GZ, ne TAR.BZ2 arhīvs."
+    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
   },
   "16": {
-    "other": "Var kompresēt tikai TAR, TAR.GZ vai TAR.BZ2 formātos."
+    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
   },
   "17": {
-    "other": "Nevar kompresēt tukšas direktorijas."
+    "other": "You can't compress empty folders."
   },
   "2": {
-    "other": "Arhivēt atlasītos"
+    "other": "Compress Selection"
   },
   "3": {
-    "other": "Formāts"
+    "other": "Format"
   },
   "4": {
-    "other": "Arhīva nosaukums"
+    "other": "Archive's name"
   },
   "5": {
-    "other": "Sāk arhivēšanu..."
+    "other": "Starting compression..."
   },
   "6": {
-    "other": "Pievieno failus arhīvam... %s "
+    "other": "Adding files in the archive... %s "
   },
   "7": {
-    "other": "Kompresējot %s ..."
+    "other": "During compression in %s ..."
   },
   "8": {
-    "other": "Arhivēšana veiksmīgi pabeigta !!"
+    "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "Atarhivēt"
+    "other": "Extract"
   }
 }
