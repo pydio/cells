@@ -9,13 +9,13 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Naam"
+    "other": "Name"
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "Beschrijving"
+    "other": "Description"
   },
   "104": {
     "other": "Enabled"
@@ -465,10 +465,10 @@
     "other": "Access Control"
   },
   "78": {
-    "other": "Persoonlijke gegevens"
+    "other": "Personal data"
   },
   "79": {
-    "other": "Werkruimte"
+    "other": "Workspace"
   },
   "8": {
     "other": "Workspace Label"
