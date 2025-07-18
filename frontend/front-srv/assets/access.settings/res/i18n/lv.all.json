@@ -180,370 +180,370 @@
     "other": "Root grupas loma"
   },
   "153": {
-    "other": "Applies to the whole hierarchy of users"
+    "other": "Tiek pielietots visiem hierarhijas lietotājiem"
   },
   "154": {
-    "other": "Repository Templates"
+    "other": "Repozitoriju šabloni"
   },
   "155": {
-    "other": "Access Drivers"
+    "other": "Piekļuves dzinis"
   },
   "156": {
-    "other": "Standard"
+    "other": "Standarta"
   },
   "157": {
-    "other": "Administrator"
+    "other": "Administrators"
   },
   "158": {
-    "other": "Shared"
+    "other": "Koplietots"
   },
   "159": {
-    "other": "Guest"
+    "other": "Viesis"
   },
   "160": {
-    "other": "Group was successfully created"
+    "other": "Grupa tika veiksmīgi izveidota"
   },
   "161": {
-    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+    "other": "Jūs cenšaties sevi pārvietot uz grupu un Jums tiks noņemtas Super-Administratora tiesības. Pieslēdzaties kā cits lietotājs ja vēlaties to darīt. Atceļu darbību."
   },
   "162": {
-    "other": "You are not authorized to update user %s"
+    "other": "Jums nav tiesību atjaunot lietotāju %s"
   },
   "163": {
-    "other": "Roles reordered for user %s"
+    "other": "Lietotājam %s ir pārkārtotas lomas"
   },
   "164": {
-    "other": "Successfully updated roles"
+    "other": "Lomas veiksmīgi atjauninātas"
   },
   "165": {
-    "other": "Successfully saved user preferences"
+    "other": "Lietotāja iestatījumi veiksmīgi saglabāti"
   },
   "166": {
-    "other": "Successfully set lock (%1) on user (%2)"
+    "other": "Veiksmīga bloķēšana (%1) lietotājam (%2)"
   },
   "167": {
-    "other": "Successfully unlocked user (%s)"
+    "other": "Lietotājs (%s) veiksmīgi atbloķēts"
   },
   "168": {
-    "other": "%1 users were moved to group %2"
+    "other": "%1 lietotāji pārvietoti uz grupu %2"
   },
   "169": {
-    "other": "No users were moved, there must have been something wrong!"
+    "other": "Neviens lietotājs netika pārvietots, iespējams ir notikusi kļūda!"
   },
   "17": {
-    "other": "Date"
+    "other": "Datums"
   },
   "170": {
-    "other": "Enable %1 (%2)"
+    "other": "Ieslēgt %1 (%2)"
   },
   "171": {
-    "other": "Import Users (Enterprise only)"
+    "other": "Importēt lietotājus (tikai Enterprise versijā)"
   },
   "172": {
-    "other": "Services"
+    "other": "Servisi"
   },
   "173": {
-    "other": "Pydio Backend Services and their running status"
+    "other": "Pydio Administrācijas paneļa servisi un to statuss"
   },
   "174": {
-    "other": "Identity Management"
+    "other": "Identitāšu pārvaldība"
   },
   "175": {
-    "other": "Data Management"
+    "other": "Datu pārvaldība"
   },
   "176": {
-    "other": "Security Policies"
+    "other": "Drošības noteikumi"
   },
   "177": {
-    "other": "Security Policies"
+    "other": "Drošības noteikumi"
   },
   "18": {
     "other": "I.P."
   },
   "19": {
-    "other": "Level"
+    "other": "Līmenis"
   },
   "2": {
-    "other": "People"
+    "other": "Personas"
   },
   "20": {
-    "other": "User"
+    "other": "Lietotājs"
   },
   "21": {
-    "other": "Action"
+    "other": "Darbība"
   },
   "22": {
-    "other": "Params"
+    "other": "Parametri"
   },
   "22a": {
-    "other": "More info"
+    "other": "Papildu informācija"
   },
   "23": {
-    "other": "Test Name"
+    "other": "Testa nosaukums"
   },
   "24": {
-    "other": "Test Data"
+    "other": "Testa dati"
   },
   "25": {
-    "other": "Workspaces Access"
+    "other": "Darbvirsmu piekļuve"
   },
   "26": {
-    "other": "Modify Password"
+    "other": "Mainīt paroli"
   },
   "27": {
-    "other": "Admin Right"
+    "other": "Aministratora tiesības"
   },
   "28": {
-    "other": "User has admin rights?"
+    "other": "Lietotājam ir administratora piekļuve?"
   },
   "29": {
-    "other": "Read"
+    "other": "Lasīt"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Datu pārvaldība"
   },
   "3": {
-    "other": "Workspaces"
+    "other": "Darbvirsmas"
   },
   "30": {
-    "other": "Write"
+    "other": "Rakstīt"
   },
   "32": {
-    "other": "Access Driver"
+    "other": "Piekļuves dzinis"
   },
   "33": {
-    "other": "Loading..."
+    "other": "Ielādē..."
   },
   "34": {
-    "other": "Are you sure you want to delete this user? This operation is not reversible!"
+    "other": "Vai vēlaties dzēst šo lietotāju? Darbība ir neatgriezeniska!"
   },
   "35": {
-    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
+    "other": "Vai vēlaties dzēst šo lietotāju? Darbība ir neatgriezeniska!"
   },
   "36": {
-    "other": "Mandatory fields are missing!"
+    "other": "Trūkst obligātie lauki!"
   },
   "37": {
-    "other": "Warning, password and confirmation differ!"
+    "other": "Uzmanību, paroles nesakrīt!"
   },
   "38": {
-    "other": "Please fill the login field!"
+    "other": "Aizpildiet pieslēgšanās logu!"
   },
   "39": {
-    "other": "Please fill both password fields!"
+    "other": "Aizpildiet abus paroles laukus!"
   },
   "3b": {
-    "other": "Storage"
+    "other": "Uzglabāšana"
   },
   "3c": {
-    "other": "Template Paths"
+    "other": "Šablonu ceļi"
   },
   "4": {
-    "other": "Logs"
+    "other": "Notikumu žurnāls"
   },
   "40": {
-    "other": "Please check the box to confirm!"
+    "other": "Atzīmējiet lauku lai apstiprinātu!"
   },
   "41": {
-    "other": "Datasource Nodes"
+    "other": "Datu avotu punkti"
   },
   "42": {
-    "other": "Please choose a driver!"
+    "other": "Izvēlieties dzinēju!"
   },
   "43": {
-    "other": "User already exists, please choose another login!"
+    "other": "Lietotājs jau eksistē, izvēlieties citu lietotājvārdu!"
   },
   "44": {
-    "other": "User created successfully"
+    "other": "Lietotājs veiksmīgi izveidots"
   },
   "45": {
-    "other": "Changed admin right for user "
+    "other": "Lietotājam mainītas administratora tiesības "
   },
   "46": {
-    "other": "Changed right for user "
+    "other": "Lietotāja tiesības mainītas "
   },
   "47": {
-    "other": "Saved data for user "
+    "other": "Lietotāja dati saglabāti "
   },
   "48": {
-    "other": "Password changed successfully for user "
+    "other": "Veiksmīgi namainīta parole priekš lietotāja "
   },
   "49": {
-    "other": "Cannot update password"
+    "other": "Nevar nomainīt paroli"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "Error: a workspace with the same name already exists"
+    "other": "Kļūda: darbvirsma ar tādu pašu nosaukumu jau eksistē"
   },
   "51": {
-    "other": "The conf directory is not writeable"
+    "other": "Conf direktorija nav ierakstāma"
   },
   "52": {
-    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
+    "other": "Darbvirsma veiksmīgi izveidota! Jūs tagad varat pievienot 'Meta datu avotus' lai papildinātu datus, pievienotu automātisko indeksāciju, u.t.t."
   },
   "53": {
-    "other": "Error while trying to edit workspace"
+    "other": "Kļūda labojot darbvirsmu"
   },
   "54": {
-    "other": "Successfully edited workspace"
+    "other": "Darbvirsam labota veiksmīgi"
   },
   "55": {
-    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
+    "other": "Uzmanību, šobrīd Jūs varat pievienot tikai vienu meta datu spraudni."
   },
   "56": {
-    "other": "Successfully added meta source"
+    "other": "Meta avots veiksmīgi pievienots"
   },
   "57": {
-    "other": "Successfully deleted meta source"
+    "other": "Meta avots veiksmīgi nodzēsts"
   },
   "58": {
-    "other": "Successfully edited meta source"
+    "other": "Meta avots veiksmīgi labots"
   },
   "59": {
-    "other": "Successfully deleted workspace"
+    "other": "Darbvirsma veiksmīgi nodzēsta"
   },
   "6": {
-    "other": "User Name"
+    "other": "Lietotājvārds"
   },
   "60": {
-    "other": "User successfully erased"
+    "other": "Lietotājs tika veiksmīgi izdzēsts"
   },
   "61": {
-    "other": "Wrong arguments!"
+    "other": "Nepareizi argumenti!"
   },
   "62": {
-    "other": "Rights Summary"
+    "other": "Tiesību kopsavilkums"
   },
   "63": {
-    "other": "All"
+    "other": "Visi"
   },
   "64": {
-    "other": "Changed right for role "
+    "other": "Lomas atļaujas mainītas "
   },
   "65": {
-    "other": "Role already exists, choose another name!"
+    "other": "Loma jau eksistē, izvēlieties citu nosaukumu!"
   },
   "66": {
-    "other": "Role successfully created"
+    "other": "Loma veiksmīgi izveidota"
   },
   "67": {
-    "other": "Cannot find role "
+    "other": "Nevar atrast lomu "
   },
   "68": {
-    "other": "Successfully deleted role"
+    "other": "Loma veiksmīgi nodzēsta"
   },
   "69": {
-    "other": "Roles"
+    "other": "Lomas"
   },
   "7": {
-    "other": "Is Admin"
+    "other": "Ir administrators"
   },
   "70": {
-    "other": "User Roles"
+    "other": "Lietotāja lomas"
   },
   "71": {
-    "other": "Available Roles"
+    "other": "Pieejamās lomas"
   },
   "72": {
-    "other": "Drag'n'drop roles to assign them to the user"
+    "other": "Ievelciet lomas lai tās piešķirtu lietotājam"
   },
   "73": {
-    "other": "Role added to user "
+    "other": "Loma lietotājam pievienota "
   },
   "74": {
-    "other": "Role deleted from user "
+    "other": "Loma lietotājam noņemta "
   },
   "75": {
-    "other": "New Role"
+    "other": "Jauna loma"
   },
   "76": {
-    "other": "Role Id"
+    "other": "Lomas Id"
   },
   "77": {
-    "other": "Access Control"
+    "other": "Piekļuves Kontrole"
   },
   "78": {
-    "other": "Personal data"
+    "other": "Personīgie dati"
   },
   "79": {
-    "other": "Workspace"
+    "other": "Darbvirsma"
   },
   "8": {
-    "other": "Workspace Label"
+    "other": "Darbvirsmas nosaukums"
   },
   "80": {
-    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
+    "other": "Paplašināti pielāgojumi šim lietotājam (Spiediet uz darbvirsmas nosaukuma ja vēlaties toe iestatīt kā noklusēto kad lietotājs pieslēdzas)"
   },
   "81": {
-    "other": "Specific workspaces data"
+    "other": "Specifiski darbvirsmas dati"
   },
   "82": {
-    "other": "Batch-edit users"
+    "other": "Labot vairākus lietotājus reizē"
   },
   "83": {
-    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
+    "other": "Ievelciet lomas lai apstiprinātu tās visiem izvēlētajiem lietotājiem (koplietotie lietotāji tiks ignorēti)"
   },
   "84": {
-    "other": "Users Roles"
+    "other": "Lietotāju lomas"
   },
   "85": {
-    "other": "Manual actions filtering"
+    "other": "Manuālā darbību filtrēšana"
   },
   "86": {
-    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
+    "other": "ar komatu atdalītu darbību saraksts kuras tiks atslēgtas šai lomai neatkarīgi no piekļuves tiesībām."
   },
   "87": {
-    "other": "Successfully updated actions for this role"
+    "other": "Veiksmīgi atjaunotas darbības šai lomai"
   },
   "88": {
-    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
+    "other": "Ši darbvirsma ir definēta config failā, Jūs nevarat labot tās meta avotus caur lietotāja interfeisu."
   },
   "89": {
-    "other": "User specific data"
+    "other": "Lietotāju specifiski dati"
   },
   "9": {
-    "other": "Access Type"
+    "other": "Piekļuves veids"
   },
   "90": {
-    "other": "New Workspace"
+    "other": "Jauna Darbvirsma"
   },
   "91": {
-    "other": "New Template"
+    "other": "Jauns šablons"
   },
   "92": {
-    "other": "Create a new template"
+    "other": "Izveidot jaunu šablonu"
   },
   "93": {
-    "other": "Edit"
+    "other": "Labot"
   },
   "94": {
-    "other": "Batch Edit"
+    "other": "Vairāku labošana"
   },
   "95": {
-    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
+    "other": "Izvēlieties nosaukumu uz dzinēju lai piekļūtu datiem (pārbaudiet visus obligātos laukus, uzbrauciet ar peli uz opcijas nosaukuma lai iegūtu vairāk informācijas)."
   },
   "96": {
-    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
+    "other": "Kad izvēlēts nosaukums un dzinējs, ieslēdziet laukus kurus vēlaties aizpildīt šablonā automātiski. Pārējie lauki tiks atstāti labošanai priekš lietotāja. Jūs varat ieslēgt atsevišķus laukus un atstāt tos tukšus, ja vēlaties tos slēpt no lietotāja."
   },
   "97": {
-    "other": "Plugin options successfully updated"
+    "other": "Spraudņa opcijas veiksmīgi ayjaunotas"
   },
   "98": {
     "other": "Main Settings"
   },
   "99": {
-    "other": "Feature plugins"
+    "other": "Iespēju spraudņi"
   },
   "topbar.title": {
-    "other": "Cells Console"
+    "other": "Šūnu konsole"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Rādīt/sl\\ept paplašinātus parametrus"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Vairāk par Pydio Šūnām"
   },
   "group_access": {
     "other": "g"
