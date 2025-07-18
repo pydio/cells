@@ -21,10 +21,10 @@
     "other": "1つ以上のルートノードへの絶対パス"
   },
   "#Items per page": {
-    "other": "#items ページあたりの表示件数"
+    "other": "#ページあたりのアイテム数"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "ページネーションモード時の、1ページごとの表示件数"
+    "other": "ページネーションモードにすると、ページごとに表示されます。"
   },
   "Delete Permanently": {
     "other": "完全に削除"
