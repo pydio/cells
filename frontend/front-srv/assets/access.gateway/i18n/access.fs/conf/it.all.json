@@ -21,10 +21,10 @@
     "other": "Percorso assoluto a uno o più nodi root"
   },
   "#Items per page": {
-    "other": "#oggetti per pagina"
+    "other": "#Elementi per pagina"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Una volta in modalità di paginazione, numero di elementi da visualizzare per pagina."
+    "other": "Una volta in modalità paginazione, indica il numero di elementi da mostrare per ciascuna pagina."
   },
   "Delete Permanently": {
     "other": "Elimina definitivamente"
