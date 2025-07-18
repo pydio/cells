@@ -68,6 +68,7 @@ var (
 		"ko":    "로드 중 ...",
 		"lv":    "Ielādē...",
 		"nl":    "Bezig met laden...",
+		"no":    "Laster...",
 		"pl":    "Ładowanie...",
 		"pt-br": "Carregando...",
 		"pt-pt": "Carregando...",
@@ -88,6 +89,7 @@ var (
 		"hu":    "Magyar", // Hungarian
 		"ko":    "한국어",    // Korean
 		"nl":    "Nederlands",
+		"no":    "Norsk",
 		"pl":    "Polski",
 		"pt-pt": "Português",
 		"sk":    "Slovensky",
