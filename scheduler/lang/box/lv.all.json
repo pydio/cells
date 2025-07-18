@@ -1,27 +1,27 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Izvilkt attēla priekšskatu un Exif datus"
+    "other": "Extract image thumbnails and Exif data"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Iztīrīt nodzēsto attēlu kešu"
+    "other": "Clear thumbnails cache for deleted files"
   },
   "Jobs.Default.Directories": {
-    "other": "Sinhronizēt ārējās direktorijas"
+    "other": "Synchronize external directories"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Notīrīt darbus un uzdevumus plānotājā"
+    "other": "Clean jobs and tasks in scheduler"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Simulē ilgu darbību (testēšanai)"
+    "other": "Fake a long running job (for testing purpose)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Brīvi izvēlētu lietotāju izveidošana (testēšanai)"
+    "other": "Creation of random users (for testing purpose)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "RPC darbības paraugs (testēšanai)"
+    "other": "Sample RPC job (for testing purpose)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automātisks izmaiņu arhivēšanas serviss"
+    "other": "Automatic archiving of changes service"
   },
   "Jobs.Default.CleanUserData": {
     "other": "Clean or transfer user data on deletion"
@@ -33,46 +33,46 @@
     "other": "Clean expired ACLs after 10 days"
   },
   "Jobs.User.Compress": {
-    "other": "Kompresē atlasītos datus..."
+    "other": "Compressing Selection..."
   },
   "Jobs.User.Extract": {
-    "other": "Atpako arhīvu..."
+    "other": "Extracting archive..."
   },
   "Jobs.User.Delete": {
-    "other": "Dzēša atlasītos datus..."
+    "other": "Deleting selection in background..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Kopē direktoriju..."
+    "other": "Copying folder in background..."
   },
   "Jobs.User.DirMove": {
-    "other": "Pārvieto direktoriju..."
+    "other": "Moving folder in background..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Kopē failu..."
+    "other": "Copying file in background..."
   },
   "Jobs.User.FileMove": {
-    "other": "Pārvieto failu..."
+    "other": "Moving file in background..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Kopē atlasītos datus..."
+    "other": "Copying selection in background..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Pārvieto atlasītos datus..."
+    "other": "Moving selection in background..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Pārvieto uz miskasti..."
+    "other": "Moving to recycle bin in background..."
   },
   "Jobs.User.ResyncDS": {
     "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
-    "other": "Lejupielādē failu fonā..."
+    "other": "Downloading file in background..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Dzēš %s"
+    "other": "Deleting %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Kopē %s"
+    "other": "Copying %s"
   },
   "Jobs.User.MovingItem": {
     "other": "Moving %s"
