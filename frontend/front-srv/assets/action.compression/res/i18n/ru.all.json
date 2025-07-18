@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "Compress"
+    "other": "Архивировать"
   },
   "10": {
-    "other": "Extract selected archives"
+    "other": "Извлечь выбранные архивы"
   },
   "11": {
-    "other": "Path of the extracted files "
+    "other": "Путь для разархивации "
   },
   "12": {
-    "other": "Starting extraction..."
+    "other": "Старт разархивации..."
   },
   "13": {
-    "other": "Extracting files ... %s "
+    "other": "Разархивирование файлов... %s "
   },
   "14": {
-    "other": "Extraction finished successfullly in the folder '%s'."
+    "other": "Разархивировано успешно в папку '%s'."
   },
   "15": {
-    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
+    "other": "Выбранный файл не является TAR, TAR.GZ или TAR.BZ2."
   },
   "16": {
-    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
+    "other": "Вы можете архивировать только в TAR, TAR.GZ или TAR.BZ2."
   },
   "17": {
-    "other": "You can't compress empty folders."
+    "other": "Нельзя сжимать пустые папки."
   },
   "2": {
-    "other": "Compress Selection"
+    "other": "Заархивировать выделенное"
   },
   "3": {
-    "other": "Format"
+    "other": "Формат"
   },
   "4": {
-    "other": "Archive's name"
+    "other": "Имя архива"
   },
   "5": {
-    "other": "Starting compression..."
+    "other": "Запуск сжатия..."
   },
   "6": {
-    "other": "Adding files in the archive... %s "
+    "other": "Добавление файлов в архив... %s "
   },
   "7": {
-    "other": "During compression in %s ..."
+    "other": "Время архивации %s..."
   },
   "8": {
-    "other": "Your archive finished successfully !!"
+    "other": "Ваш архив успешно обработан!!"
   },
   "9": {
-    "other": "Extract"
+    "other": "Извлечь"
   }
 }
