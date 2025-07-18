@@ -48,19 +48,19 @@
     "other": "Notifiche"
   },
   "5": {
-    "other": "Tutti gli Eventi"
+    "other": "All Events"
   },
   "6": {
-    "other": "Vai a ..."
+    "other": "Go to ..."
   },
   "7": {
-    "other": "Abbandona"
+    "other": "Dismiss"
   },
   "8": {
-    "other": "Nessun avviso"
+    "other": "No alerts"
   },
   "9": {
-    "other": "Attività sul Workspace"
+    "other": "Workspace Activity"
   },
   "tasks.subheader": {
     "other": "Running Tasks"
