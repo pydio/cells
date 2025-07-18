@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Notificaciones"
+    "other": "Notifications"
   },
   "10": {
-    "other": "Actividad de la carpeta"
+    "other": "Folder Activity"
   },
   "11": {
-    "other": "Actividad del archivo"
+    "other": "File Activity"
   },
   "11b": {
-    "other": "Actividad"
+    "other": "Activity"
   },
   "12": {
-    "other": "Dependiendo de su navegador, se le pedirá un permiso específico. Para desactivar, cambiar las preferencias del navegador y excepciones. Si ya ha activado esta función, probablemente no pasará nada."
+    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
   },
   "13": {
-    "other": "Su navegador parece no soportar de momento las notificaciones de escritorio."
+    "other": "Your browser does not seem to support Desktop Notifications yet."
   },
   "14": {
-    "other": "Sin alertas"
+    "other": "No alerts"
   },
   "15": {
-    "other": "Las notificaciones de archivos apareceran aquí"
+    "other": "Notifications about files that you monitor will appear here"
   },
   "16": {
-    "other": "Dentro"
+    "other": "Inside"
   },
   "17": {
-    "other": "Cargando actividades..."
+    "other": "Loading activities..."
   },
   "18": {
-    "other": "Ninguna actividad reciente"
+    "other": "No recent activity"
   },
   "19": {
-    "other": "Más"
+    "other": "More"
   },
   "2": {
-    "other": "Sistema de notificaciones"
+    "other": "Notifications feed"
   },
   "20": {
-    "other": "Cargando notificaciones..."
+    "other": "Loading feed..."
   },
   "3": {
-    "other": "Alertas"
+    "other": "Alerts"
   },
   "4": {
-    "other": "Notificaciones"
+    "other": "Notifications"
   },
   "5": {
-    "other": "Todos los eventos"
+    "other": "All Events"
   },
   "6": {
-    "other": "Ir a ..."
+    "other": "Go to ..."
   },
   "7": {
-    "other": "Omitir"
+    "other": "Dismiss"
   },
   "8": {
-    "other": "No hay alertas"
+    "other": "No alerts"
   },
   "9": {
-    "other": "Actividad del workspace"
+    "other": "Workspace Activity"
   },
   "tasks.subheader": {
-    "other": "Tareas en Ejecución"
+    "other": "Running Tasks"
   }
 }
