@@ -54,85 +54,85 @@
     "other": "進階設定（可選）"
   },
   "advanced.legend": {
-    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+    "other": "Pydio Cells 服務將部署在此機器上。您可以查看下方進階設定來微調您的配置。"
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "顯示進階設定"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "系統啟動時，將自動建立一個預設資料空間來源來存放使用者個人資料與協作體資料。您也可以稍後再建立其他資料來源。"
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "設定 MongoDB 連線"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "這有助於提升系統的擴充性，在進行叢集部署時必不可少。如果您還沒有可用的 MongoDB，可以先略過，之後再進行設定。"
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "伺服器 host"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "伺服器連接埠"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "資料庫名稱"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "使用者名稱"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "密碼"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "身份驗證資料庫"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "測試連線"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "企業授權"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Pydio Cells 企業授權"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "已成功偵測到授權檔案。"
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "本安裝版本適用於 %count 位使用者，效期至 %expiration。"
   },
   "license.failed": {
-    "other": "Error while trying to verify this license key. Please contact the support."
+    "other": "驗證此授權金鑰時發生錯誤，請聯繫技術支援。"
   },
   "license.required": {
-    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+    "other": "若要執行企業版本，必須具有有效的授權金鑰。若需要 30 天試用版授權或想取得報價，請聯絡我們"
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "授權字串"
   },
   "license.fieldLegend": {
-    "other": "Please copy/paste the license key provided to you."
+    "other": "請複製並貼上提供給您的授權金鑰。"
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "套用安裝"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "請耐心等待 Pydio Cells 完成安裝..."
   },
   "apply.success": {
-    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+    "other": "安裝成功，服務正在啟動。當服務啟動後，安裝程式將重新載入頁面。"
   },
   "apply.success.restarted": {
-    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+    "other": "安裝成功，服務已啟動，請立即重新載入頁面 (將在 %1s 秒內自動重新載入)"
   },
   "apply.error": {
-    "other": "There was an error while performing installation! Please check your configuration."
+    "other": "安裝過程中發生錯誤！請檢查您的設定。"
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "錯誤： "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "連線類型"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -141,147 +141,147 @@
     "other": "Socket"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manual"
+    "other": "手動"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Host 名稱"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "運行 mysql 的伺服器"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "資料庫名稱"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "要使用的資料庫 (如果不存在會自動建立)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "連接埠"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "mysql 連接埠"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "資料庫使用者"
   },
   "form.dbUser.legend": {
-    "other": "Leave blank if not required"
+    "other": "如果不需要，請留白"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "資料庫密碼"
   },
   "form.dbPassword.legend": {
-    "other": "Leave blank if not required"
+    "other": "如果不需要，請留白"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "輸入要連接的 socket 檔案位置"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "使用 Golang 風格的 DSN 來描述資料庫連線"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "應用程式標題"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "安裝主標題"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "預設語言"
   },
   "form.frontendLogin.label": {
-    "other": "Admin user login *"
+    "other": "管理員帳號登入*"
   },
   "form.frontendLogin.legend": {
-    "other": "Identifier used to log in"
+    "other": "用於登入的識別碼"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "管理員密碼*"
   },
   "form.frontendPassword.legend": {
-    "other": "Password used to log in"
+    "other": "登入密碼"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirm password"
+    "other": "確認密碼"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirm password twice"
+    "other": "二次確認密碼"
   },
   "form.dsFolder.label": {
-    "other": "Path of the default datasource"
+    "other": "預設資料來源的路徑"
   },
   "form.dsFolder.legend": {
-    "other": "Use an absolute path on the server"
+    "other": "在伺服器上使用絕對路徑"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "儲存類型"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "本機檔案系統 (所有資料都存在此伺服器上)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / S3相容 (儲存於 S3 儲存桶)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL，若使用 Minio，請在後方加上 ?minio=true。"
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "使用 Amazon 時請留白"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "自訂 S3 區域"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "預設留空 (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 API 金鑰"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "連接 S3 的金鑰"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 API 密鑰"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "密鑰"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "連接到 S3 並定義存儲桶"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Buckets prefix"
+    "other": "儲存桶前綴"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "用於建立6個預設儲存桶的前綴"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "以下儲存桶已經存在"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "以下儲存桶將被建立"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "找不到以下儲存桶"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "你無權建立儲存桶，請務必手動建立！"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "下一步"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "上一步"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "立即安裝"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "重新讀取"
   }
 }
