@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "Удалите отозванные токены и просроченные ключи пароля сброса"
+    "other": "Prune revoked tokens and expired reset password keys"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "Удален {{.Count}} токен с истекшим сроком",
-    "other": "Удалены {{.Count}} токены с истекшим сроком"
+    "one": "Deleted {{.Count}} expired revoked token",
+    "other": "Deleted {{.Count}} expired revoked tokens"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "Удален токен пароля сброса {{.DeletionCount}}, срок действия которого истек",
-    "other": "Удалены токены пароля сброса {{.DeletionCount}}, срок действия которых истек"
+    "one": "Deleted {{.DeletionCount}} expired reset password token",
+    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Не удается найти адрес электронной почты"
+    "other": "Cannot find corresponding email address"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "Вам отправлено электронное письмо с дальнейшими инструкциями"
+    "other": "An email has been sent to you with further instructions"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Произошла ошибка. Пожалуйста, перезапустите процесс сброса пароля"
+    "other": "Oops, something wrong happened - Please relaunch reset password process"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Срок действия токена истек, пожалуйста, повторите процедуру сброса пароля!"
+    "other": "Token is expired, please follow again the reset password process!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Токен не соответствует этому идентификатору пользователя!"
+    "other": "Token does not correspond to this user identifier!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Учётная запись не найдена!"
+    "other": "Cannot find corresponding user!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "Произошла ошибка при попытке установить новый пароль!"
+    "other": "There was an error while trying to set new password!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Ваш пароль был успешно изменен, теперь вы можете вернуться на страницу входа!"
+    "other": "Your password has successfully been reset, you can now return to the login page!"
   }
 }
