@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Извлечь эскизы изображений и данные Exif"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Очистить кэш эскизов для удаленных файлов"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Синхронизировать внешние каталоги"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Очистить задания и задачи в планировщике"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Сымитировать долгую работу (для тестирования)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Создание случайных пользователей (для целей тестирования)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Пример работы RPC (для тестирования)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Автоматическое архивирование службы изменений"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Очистить или передать данные пользователя при удалении"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Очистите осиротевшие файлы через 24 часа"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Очистить просроченные ACL после 10 дней"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Сжатие выделенного..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Извлечение архива..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Удаление выделения в фоновом режиме..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Копирование папки в фоновом режиме..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Копирование папки в фоновом режиме..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Копирование файла в фоновом режиме..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Перемещение файла в фоновом режиме..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Копирование выделенного в фоновом режиме..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Перемещение выделения в фоновом режиме..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Перемещение в корзину в фоновом режиме..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Синхронизировать источник данных {{.DsName}} и перехешировать новые файлы"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Загрузка файла в фоновом режиме..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Удаление %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Копирование %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "Перемещение %s"
   }
 }
