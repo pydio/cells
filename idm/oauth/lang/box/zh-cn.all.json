@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "清理失效的令牌和过期的重置密码密钥"
+    "other": "Prune revoked tokens and expired reset password keys"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "已删除 {{.Count}} 个过期的失效令牌",
-    "other": "已删除 {{.Count}} 个过期的失效令牌"
+    "one": "Deleted {{.Count}} expired revoked token",
+    "other": "Deleted {{.Count}} expired revoked tokens"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "已删除 {{.DeletionCount}} 个过期的重置密码令牌",
-    "other": "已删除 {{.DeletionCount}} 个过期的重置密码令牌"
+    "one": "Deleted {{.DeletionCount}} expired reset password token",
+    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "找不到相应的电子邮件地址"
+    "other": "Cannot find corresponding email address"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "一封电子邮件已经发送给您，并附有进一步的说明"
+    "other": "An email has been sent to you with further instructions"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "哎呀，发生了一些错误 - 请重新启动重置密码流程"
+    "other": "Oops, something wrong happened - Please relaunch reset password process"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "令牌已过期，请再走一遍重置密码流程！"
+    "other": "Token is expired, please follow again the reset password process!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "令牌与此用户标识符不对应！"
+    "other": "Token does not correspond to this user identifier!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "找不到对应的用户！"
+    "other": "Cannot find corresponding user!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "尝试设置新密码时发生错误！"
+    "other": "There was an error while trying to set new password!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "您的密码已成功重置，您现在可以返回登录页面！"
+    "other": "Your password has successfully been reset, you can now return to the login page!"
   }
 }
