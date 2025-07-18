@@ -546,121 +546,121 @@
     "other": "Shared in '%s'"
   },
   "255": {
-    "other": "Vai vēlaties nodzēst visas šūnas un saites šim objektam?"
+    "other": "Are you sure you want to delete all cells and links on this item?"
   },
   "256": {
-    "other": "%s koplietošana"
+    "other": "Shares for %s"
   },
   "257": {
-    "other": "Izveidots %s"
+    "other": "Created on %s"
   },
   "258": {
-    "other": "Labot šūnas lietotājus"
+    "other": "Edit cell users"
   },
   "259": {
-    "other": "Noņemt no šīs šūnas"
+    "other": "Remove from this cell"
   },
   "26": {
-    "other": "Izvēlieties lietotājus vai grupas un iestatiet piekļuves tiesības. Tikai 'Rakstīt' izveidos direktoriju tikai augšupielādei."
+    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
   },
   "260": {
-    "other": "Direktorija ir koplietota sekojošās šūnās. Jūs varat labot lietotājus vai izveidot jaunu šūnu."
+    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
   },
   "261": {
-    "other": "Atlasiet lietotājus kuriem būs piekļuve šai šūnai"
+    "other": "Pick users or groups who will have access to this cell"
   },
   "262": {
-    "other": "Koplietot šo direktoriju ar vitiem lietotājiem veidojot jaunu šūnu"
+    "other": "Share this folder with other users by creating a new cell"
   },
   "263": {
-    "other": "Pievienot šūnai..."
+    "other": "Add to Cell..."
   },
   "264": {
-    "other": "+ Jauna šūna"
+    "other": "+ New Cell"
   },
   "265": {
-    "other": "Saites nosaukums"
+    "other": "Link Label"
   },
   "266": {
-    "other": "Saites apraksts"
+    "other": "Link Description"
   },
   "267": {
-    "other": "Šūnas nosaukums"
+    "other": "Cell Label"
   },
   "268": {
-    "other": "Šūnas apraksts"
+    "other": "Cell Description"
   },
   "269": {
-    "other": "Jūs izveidosiet šūnu kura tiks koplietota ar %USERS. Izvēlieties direktorijas kuras vēlaties koplietot vai ļaujiet Pydio izveidot tukšu direktoriju!"
+    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
   },
   "27": {
-    "other": "Koplietot failu"
+    "other": "Share file"
   },
   "270": {
-    "other": "lietotāji"
+    "other": "users"
   },
   "271": {
-    "other": "grupas"
+    "other": "groups"
   },
   "272": {
-    "other": "komandas"
+    "other": "teams"
   },
   "273": {
-    "other": "neviens"
+    "other": "nobody"
   },
   "274": {
-    "other": " un "
+    "other": " and "
   },
   "275": {
-    "other": "Veidojiet šūnas lai sadarbotos ar citiem lietotājiem. Vispirms aprakstiet objektus šajā šūnā."
+    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
   },
   "276": {
-    "other": "Šūnas nosaukums"
+    "other": "Title of your cell"
   },
   "277": {
-    "other": "Pievienot aprakstu"
+    "other": "Optionally add a description"
   },
   "278": {
-    "other": "Izvēlaties ar ko koplietosiet datus"
+    "other": "Choose who you will share data with"
   },
   "279": {
-    "other": "Izveidot šūnu!"
+    "other": "Create cell now!"
   },
   "28": {
-    "other": "Koplietot direktoriju"
+    "other": "Share folder"
   },
   "280": {
-    "other": "Šunai ir pašai sava direktorija"
+    "other": "Cell has its own folder"
   },
   "281": {
-    "other": "Šūna tiks izveidota jaunā direktorijā"
+    "other": "Cell will be created in a new folder"
   },
   "282": {
-    "other": "Piuevienot esošu direktoriju..."
+    "other": "Add an existing folder..."
   },
   "283": {
-    "other": "Izvēlieties atrašanās vietu struktūrā..."
+    "other": "Select a node in the tree..."
   },
   "284": {
-    "other": "Redzams %s šūnās"
+    "other": "Visible in %s cells"
   },
   "29": {
-    "other": "Saites"
+    "other": "WebLink"
   },
   "3": {
-    "other": "Nepareiza parole"
+    "other": "Wrong password"
   },
   "30": {
-    "other": "Koplietot ar..."
+    "other": "Share with..."
   },
   "31": {
-    "other": "Lasīt"
+    "other": "Read"
   },
   "32": {
-    "other": "Rakstīt"
+    "other": "Write"
   },
   "33": {
-    "other": "Skatīties"
+    "other": "Watch"
   },
   "34": {
     "other": "Select or Create Users"
@@ -669,253 +669,253 @@
     "other": "Select Users"
   },
   "35": {
-    "other": "Nosaukums"
+    "other": "Label"
   },
   "36": {
-    "other": "Iestatiet nosaukumu un īsu aprakstu"
+    "other": "Set a label and a short description"
   },
   "37": {
-    "other": "Apstiprināt"
+    "other": "Confirm"
   },
   "38": {
-    "other": "Skatīt direktorijas saturu"
+    "other": "Watch this folder content"
   },
   "39": {
-    "other": "Skatīt šī faila aktivitāti"
+    "other": "Watch this file activity"
   },
   "4": {
-    "other": "Ievadiet paroli un nospiediet uz attēla lai lejupielādētu <b>%s</b>"
+    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
   },
   "40": {
-    "other": "Ielūgumi"
+    "other": "Invitations"
   },
   "41": {
-    "other": "Nosūtītielūgumus par koplietotajiem failiem e-pastā."
+    "other": "Send invitations by email to the users you have shared this item with."
   },
   "42": {
-    "other": "%s lietotājs koplietoja ar Jums failu"
+    "other": "A user of %s is sharing a file with you"
   },
   "43": {
-    "other": "%s lietotājs koplietoja ar Jums direktoriju"
+    "other": "A user of %s is sharing a folder with you"
   },
   "44": {
-    "other": "%s koplietošana"
+    "other": "%s Share"
   },
   "45": {
-    "other": "Nosūtīt ielūgumu"
+    "other": "Send Invitation"
   },
   "46": {
-    "other": "Atvērt darbvirsmu %s1 pa tiešo iekš %s2"
+    "other": "Open workspace %s1 directly in %s2"
   },
   "46_file": {
-    "other": "Atvērt failu %s1"
+    "other": "Open file %s1"
   },
   "46_mini": {
-    "other": "Atvērt mini %s1"
+    "other": "Open mini %s1"
   },
   "47": {
-    "other": "Monitorēšanas statuss veiksmīgi atjaunots"
+    "other": "Successfully updated watch status"
   },
   "48": {
-    "other": "Jums nav tiesību piekļūt šiem datiem"
+    "other": "You are not allowed to access this data"
   },
   "49": {
-    "other": "izveidot lietotāju"
+    "other": "create user"
   },
   "5": {
-    "other": "parole"
+    "other": "password"
   },
   "50": {
-    "other": "Koplietots"
+    "other": "Shared"
   },
   "51": {
-    "other": "Lejuplādēts"
+    "other": "Downloaded"
   },
   "52": {
-    "other": "Konfigurācija"
+    "other": "Configuration"
   },
   "53": {
-    "other": "neviens"
+    "other": "none"
   },
   "54": {
-    "other": "Koplietots ar"
+    "other": "Shared with"
   },
   "55": {
-    "other": "Koplietots..."
+    "other": "Shared..."
   },
   "56": {
-    "other": "Konfigurēt koplietošanu..."
+    "other": "Configure sharing..."
   },
   "57": {
-    "other": "reizes"
+    "other": "times"
   },
   "58": {
-    "other": "Izvēlieties vismaz vienu atļauju!"
+    "other": "Please check at least one permission!"
   },
   "59": {
-    "other": "Lejuplādes lapa"
+    "other": "Download Page"
   },
   "6": {
-    "other": "Pārtraukt koplietošanu"
+    "other": "Stop Sharing"
   },
   "60": {
-    "other": "Tiešā lejupielādes saite"
+    "other": "Direct Download Link"
   },
   "61": {
-    "other": "HTML iekļauts kods"
+    "other": "HTML Embed Code"
   },
   "62": {
-    "other": "Minilapas adrese"
+    "other": "Minisite Adress"
   },
   "63": {
-    "other": "Jauna Darbvirsma"
+    "other": "New workspace"
   },
   "64": {
-    "other": "Priekš iekšējiem un ārējiem lietotājiem direktorija tiks attēlota kā jauna darbvirsma lietotāja darbvirsmu sarakstā."
+    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
   },
   "65": {
-    "other": "Publiskā minilapa (autentifikācija nav nepieciešama)"
+    "other": "Public Minisite (no authentication required)"
   },
   "66": {
-    "other": "Ārējiem lietotājiem direktorija tiks attēlota kā vienkāršots failu saraksts jaunā publiskā adresē."
+    "other": "For external users, the folder will appear at a new public adress as a simple file list."
   },
   "67": {
-    "other": "Privātā minilapa (nepieciešama autentifikācija)"
+    "other": "Private Minisite (users authentication required)"
   },
   "68": {
-    "other": "Priekš iekšējiem un ārējiem lietotājiem direktorija tiks attēlota kā vienkāršots failu saraksts jaunā adresē, bet bez autentifikācijas"
+    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
   },
   "69": {
-    "other": "Konfigurēt minilapu"
+    "other": "Configure Minisite"
   },
   "69r": {
-    "other": "Saites parametri"
+    "other": "Link Parameters"
   },
   "7": {
-    "other": "Koplietošanas pārtraukšana nenodzēsīs failu. Ja vēlaties mainīt parametrus, koplietojiet failu no jauna."
+    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
   },
   "70": {
-    "other": "Piešķiriet šai direktorijai atļaujas preikš publiskās piekļuves. Ja atzīmēsiet tikai 'Augšupielāde' šī direktorija būs tukša un lietotāji tajā varēs augšupielādēt failus."
+    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
   },
   "70r": {
-    "other": "Lietotājiem piešķirtās tiesības lai piekļūtu šim failam"
+    "other": "Permissions granted to the users accessing this link"
   },
   "71": {
-    "other": "Atļaujas"
+    "other": "Permissions"
   },
   "72": {
-    "other": "Priekšskats"
+    "other": "Preview"
   },
   "73": {
-    "other": "Lejuplādēt"
+    "other": "Download"
   },
   "74": {
-    "other": "Augšupielādēt failus"
+    "other": "Upload files"
   },
   "74b": {
-    "other": "Labot"
+    "other": "Edit"
   },
   "75": {
-    "other": "Darbības laika un Lejupielādes skaita limitam lietojiet pozitīvas vērtības."
+    "other": "Please use a positive number for both Expiration and Download limit fields."
   },
   "76": {
-    "other": "Ieslēdziet sīkdatnes (cookies) lai piekļūtu šai aplikācijai"
+    "other": "Please enable Cookies to access this application"
   },
   "77": {
-    "other": "Ieslēdziet JavaScript lai piekļūtu šai aplikācijai"
+    "other": "Please enable JavaScript to access this application"
   },
   "78": {
-    "other": "Uzmanību, lietotājiem var lietot tikai standarta simbolus. '%CURRENT%' tiks aizvietots ar '%NEW%'"
+    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
   },
   "79": {
-    "other": "ielūgt"
+    "other": "invite"
   },
   "8": {
-    "other": "Fails ir koplietots"
+    "other": "File is shared"
   },
   "80": {
-    "other": "Nosūtīt saiti e-pastā šiem lietotājiem vai adresēm"
+    "other": "Send link by email to a selection of users or addresses"
   },
   "80b": {
-    "other": "Ielūdziet ar e-pasta palīdzību lietotājus apmeklēt šo darbvirsmu"
+    "other": "Invite by email the selected users to visit this workspace"
   },
   "81": {
-    "other": "pārtraukt monitorēšanu"
+    "other": "stop watching"
   },
   "82": {
-    "other": "skatīt"
+    "other": "watch"
   },
   "83": {
-    "other": "Pārslēgt monitorēšanas statusu lai saņemtu/nesaņemtu paziņojumus vai fails ir lejupielādēts"
+    "other": "Toggle watch status to receive or not notifications when file is downloaded"
   },
   "83b": {
-    "other": "Pārslēgt monitorēšanas statusu lai saņemtu/nesaņemtu paziņojumus vai darbvirsmā ir darbība"
+    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
   },
   "84": {
-    "other": "parole"
+    "other": "password"
   },
   "85": {
-    "other": "Saitei ir parole"
+    "other": "A protection password is set on this link"
   },
   "86": {
-    "other": "beidzas"
+    "other": "expire"
   },
   "87": {
-    "other": "Saites automātiksi beigsies..."
+    "other": "This link will automatically expire on..."
   },
   "88": {
-    "other": "lejupielādes"
+    "other": "downloads"
   },
   "89": {
-    "other": "Neautorizēto/autorizēto lejupielāžu skaits. Nospiediet lai notīrītu skaitītāju."
+    "other": "Number of downloads / authorized downloads. Click to reset download counter."
   },
   "9": {
-    "other": "Nospiediet šo pogu lai pārstātu koplietošanu"
+    "other": "Use this button to stop sharing this folder"
   },
   "90": {
-    "other": "Saite"
+    "other": "Link URL"
   },
   "91": {
-    "other": "Tagi (Ievades taustiņš lai saglabātu)"
+    "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "Izveidot saiti"
+    "other": "Create link"
   },
   "93": {
-    "other": "Esošās saites"
+    "other": "Existing links"
   },
   "94": {
-    "other": "QR kods"
+    "other": "QR Code"
   },
   "95": {
-    "other": "QR kods"
+    "other": "QR code"
   },
   "96": {
-    "other": "pārtraukt koplietošanu"
+    "other": "stop sharing"
   },
   "97": {
-    "other": "Pārtraukt failu koplietošanu ar citiem lietotājiem"
+    "other": "Stop sharing this folder with other users"
   },
   "98": {
-    "other": "Manas koplietošanas"
+    "other": "My Shares"
   },
   "99": {
-    "other": "Visi koplietotie lementi"
+    "other": "All shared elements"
   },
   "cells.create.advanced": {
-    "other": "Pievienot lietotājus/datus"
+    "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "vai"
+    "other": "or"
   },
   "cells.create.title.fill.folders": {
-    "other": "Koplietot eksistējošās direktorijas"
+    "other": "Share existing folder(s)"
   },
   "cells.remove.node": {
     "other": "Remove from this cell"
   },
   "cell.visibility.advanced": {
-    "other": "Šī opcija ļauj izvēlēties kurš var labot šīs Šūnas opcijas (tiesības pievienot/dzēst lietotājus un pievienot/dzēst direktorijas šūnas pamatā). Priek; s vienkāršotas piekļuves datiem lietojiet 'Koplietot ar' tabu."
+    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
   },
   "cell.add.existing-or-new": {
     "other": "Add to existing or new Cell"
@@ -948,10 +948,10 @@
     "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
-    "other": "Šī paplašinātā funkcija ļauj izvēlēties vai saite ir redzama citiem lietotājiem kad tier skatās failu un vai tie var labot tās opcijas. Pēc noklusējuma izveidotās saites ir redzamas tikai Jums. Jūs varat pārcelt saites piederību to ļaujot labot citiem."
+    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
   },
   "dialog.close.confirm.unsaved": {
-    "other": "Nav saglabātas visas izmaiņas, vai vēlaties aizvērt?"
+    "other": "There are unsaved changes, are you sure you want to close?"
   },
   "dialog.link.confirm.remove": {
     "other": "Are you sure that you want to disable this link?"
