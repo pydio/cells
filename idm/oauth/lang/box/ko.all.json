@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "해지된 토큰 및 만료된 재설정 암호 키 제거"
+    "other": "Prune revoked tokens and expired reset password keys"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "{{.Count}}의 만료된 토큰 삭제됨",
-    "other": "{{.Count}}의 만료된 토큰들 삭제됨"
+    "one": "Deleted {{.Count}} expired revoked token",
+    "other": "Deleted {{.Count}} expired revoked tokens"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "{{.DeletionCount}}의 만료된 재설정 암호 토큰 삭제됨",
-    "other": "{{.DeletionCount}}의 만료된 비밀번호 초기화 토큰들 삭제됨"
+    "one": "Deleted {{.DeletionCount}} expired reset password token",
+    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "해당하는 이메일 주소를 찾을 수 없음"
+    "other": "Cannot find corresponding email address"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "추가 지침이 포함된 이메일이 발송됨"
+    "other": "An email has been sent to you with further instructions"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "오류가 발생했습니다. 암호 재설정 과정을 다시 시작하십시오."
+    "other": "Oops, something wrong happened - Please relaunch reset password process"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "토큰이 만료됨. 다시 암호 재설정 과정을 시작하십시오"
+    "other": "Token is expired, please follow again the reset password process!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "토큰이 이 사용자 Id와 일치하지 않음"
+    "other": "Token does not correspond to this user identifier!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "해당하는 사용자를 찾을 수 없음"
+    "other": "Cannot find corresponding user!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "새 암호를 설정하는 동안 오류가 발생함"
+    "other": "There was an error while trying to set new password!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "암호가 성공적으로 재설정됨. 이제 로그인 페이지로 돌아갈 수 있음"
+    "other": "Your password has successfully been reset, you can now return to the login page!"
   }
 }
