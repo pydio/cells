@@ -18,7 +18,7 @@
     "other": "Creation of random users (for testing purpose)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "RPC úloha pro ukázku (pro testovací účely)"
+    "other": "Sample RPC job (for testing purpose)"
   },
   "Jobs.Default.ArchiveJobs": {
     "other": "Automatic archiving of changes service"
@@ -33,10 +33,10 @@
     "other": "Clean expired ACLs after 10 days"
   },
   "Jobs.User.Compress": {
-    "other": "Komprimování vybraného…"
+    "other": "Compressing Selection..."
   },
   "Jobs.User.Extract": {
-    "other": "Rozbalování archivu…"
+    "other": "Extracting archive..."
   },
   "Jobs.User.Delete": {
     "other": "Deleting selection in background..."
@@ -45,22 +45,22 @@
     "other": "Copying folder in background..."
   },
   "Jobs.User.DirMove": {
-    "other": "Přesouvání složky na pozadí…"
+    "other": "Moving folder in background..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Kopírování souboru na pozadí…"
+    "other": "Copying file in background..."
   },
   "Jobs.User.FileMove": {
-    "other": "Přesouvání souboru na pozadí…"
+    "other": "Moving file in background..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Kopírování výběru na pozadí…"
+    "other": "Copying selection in background..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Kopírování výběru na pozadí…"
+    "other": "Moving selection in background..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Přesouvání do koše na pozadí…"
+    "other": "Moving to recycle bin in background..."
   },
   "Jobs.User.ResyncDS": {
     "other": "Sync datasource {{.DsName}} then rehash new files"
@@ -69,12 +69,12 @@
     "other": "Downloading file in background..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Mazání %s"
+    "other": "Deleting %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Kopírování %s"
+    "other": "Copying %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Přesouvání %s"
+    "other": "Moving %s"
   }
 }
