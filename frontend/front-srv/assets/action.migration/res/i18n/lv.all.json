@@ -6,10 +6,10 @@
     "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Nākamā"
+    "other": "Next"
   },
   "back": {
-    "other": "Atpakaļ"
+    "other": "Back"
   },
   "step.categories.choose": {
     "other": "Choose features to import"
@@ -45,7 +45,7 @@
     "other": "Successful connection to the API"
   },
   "step.connection.field.url": {
-    "other": "Servera URL"
+    "other": "Server URL"
   },
   "step.connection.field.skipssl": {
     "other": "Skip SSL verification (self-signed)"
@@ -81,7 +81,7 @@
     "other": "Cells Namespaces (click to edit)"
   },
   "step.meta.map.ws": {
-    "other": "Darbvirsma %s"
+    "other": "Workspace %s"
   },
   "step.meta.map.values": {
     "other": " (Values %s)"
@@ -153,10 +153,10 @@
     "other": "All set! Let's start"
   },
   "step.shares.feature.links": {
-    "other": "Publiskās saites"
+    "other": "Public Links"
   },
   "step.shares.feature.cells": {
-    "other": "Koplietotās direktorijas"
+    "other": "Shared Folders"
   },
   "step.shares.title": {
     "other": "Import Shares"
@@ -237,7 +237,7 @@
     "other": "Cells Nodes"
   },
   "step.mapper.notplpath.primary": {
-    "other": "Neviens"
+    "other": "None"
   },
   "step.mapper.notplpath.secondary": {
     "other": "No template path required"
@@ -264,7 +264,7 @@
     "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
   },
   "dash.feature.workspaces": {
-    "other": "Darbvirsmas"
+    "other": "Workspaces"
   },
   "dash.feature.acls": {
     "other": "Workspaces ACLs"
@@ -276,7 +276,7 @@
     "other": "Files Metadata"
   },
   "dash.feature.shares": {
-    "other": "Koplietojumi"
+    "other": "Shares"
   },
   "dash.job.new": {
     "other": "New import job"
@@ -300,10 +300,10 @@
     "other": "Pydio"
   },
   "action.createws.head.cells": {
-    "other": "Šūnas"
+    "other": "Cells"
   },
   "action.createws.head.status": {
-    "other": "Statuss"
+    "other": "Status"
   },
   "action.createws.notexists": {
     "other": "Create/Update"
