@@ -87,52 +87,52 @@
     "other": "BD de autenticação"
   },
   "advanced.mongo.validate": {
-    "other": "Teste de conexão"
+    "other": "Test connection"
   },
   "license.stepLabel": {
-    "other": "Licença Enterprise"
+    "other": "Enterprise License"
   },
   "license.title": {
-    "other": "Licença do Pydio Cells Enterprise"
+    "other": "Pydio Cells Enterprise License"
   },
   "license.success": {
-    "other": "Arquivo de licença detectado com sucesso."
+    "other": "License file was successfully detected."
   },
   "license.details": {
-    "other": "Esta instalação é válida para %count usuários até %expiration."
+    "other": "This installation is valid for %count users until %expiration."
   },
   "license.failed": {
-    "other": "Erro ao tentar verificar esta chave de licença. Entre em contato com o suporte."
+    "other": "Error while trying to verify this license key. Please contact the support."
   },
   "license.required": {
-    "other": "Uma chave de licença válida é necessária para executar a Distribuição Empresarial. Para obter uma licença de teste de 30 dias ou uma cotação de vendas, entre em contato"
+    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
   },
   "license.fieldLabel": {
-    "other": "String da Licença"
+    "other": "License String"
   },
   "license.fieldLegend": {
-    "other": "Por favor, copie/cole a chave da licença fornecida."
+    "other": "Please copy/paste the license key provided to you."
   },
   "apply.stepLabel": {
-    "other": "Aplicar instalação"
+    "other": "Apply Installation"
   },
   "apply.title": {
-    "other": "Por favor, seja paciente enquanto as células do Pydio estão sendo instaladas..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
-    "other": "A instalação foi bem sucedida e os serviços estão iniciando, este instalador recarregará a página quando os serviços forem iniciados."
+    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
   },
   "apply.success.restarted": {
-    "other": "A instalação foi bem sucedida e os serviços foram iniciados, por favor recarregue a página agora (ela será recarregada automaticamente em %1s)"
+    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
   },
   "apply.error": {
-    "other": "Ocorreu um erro durante a execução da instalação! Por favor, verifique sua configuração."
+    "other": "There was an error while performing installation! Please check your configuration."
   },
   "apply.error.detail": {
-    "other": "O erro foi: "
+    "other": "Error was: "
   },
   "form.dbConnectionType.label": {
-    "other": "Tipo de Conexão"
+    "other": "Connection Type"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -144,144 +144,144 @@
     "other": "Manual"
   },
   "form.dbTCPHostname.label": {
-    "other": "Nome do Host"
+    "other": "Host Name"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Servidor onde o mysql está sendo executado"
+    "other": "Server where mysql is running"
   },
   "form.dbName.label": {
-    "other": "Nome da Base de Dados"
+    "other": "Database Name"
   },
   "form.dbName.legend": {
-    "other": "Banco de dados a usar (será criado se não existir)"
+    "other": "Database to use (will be created if it does not exist)"
   },
   "form.dbTCPPort.label": {
-    "other": "Porta"
+    "other": "Port"
   },
   "form.dbTCPPort.legend": {
-    "other": "Porta para conexão ao mysql"
+    "other": "Port to connect to mysql"
   },
   "form.dbUser.label": {
-    "other": "Usuário do Banco"
+    "other": "Database User"
   },
   "form.dbUser.legend": {
-    "other": "Deixe em branco se não necessário"
+    "other": "Leave blank if not required"
   },
   "form.dbPassword.label": {
-    "other": "Senha do Banco"
+    "other": "Database Password"
   },
   "form.dbPassword.legend": {
-    "other": "Deixe em branco se não necessário"
+    "other": "Leave blank if not required"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Introduzir a localização do arquivo de socket a ser usado para conectar"
+    "other": "Enter the location of the socket file to use to connect"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Utilize o estilo Golang DSN para descrever a conexão com o banco de dados"
+    "other": "Use Golang-style DSN to describe the database connection"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Título da Aplicação"
+    "other": "Application Title"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Título principal da sua instalação"
+    "other": "Main title of your installation"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Idioma padrão"
+    "other": "Default Language"
   },
   "form.frontendLogin.label": {
-    "other": "Login do administrador *"
+    "other": "Admin user login *"
   },
   "form.frontendLogin.legend": {
-    "other": "Identificador utilizado para login"
+    "other": "Identifier used to log in"
   },
   "form.frontendPassword.label": {
-    "other": "Senha do administrador *"
+    "other": "Admin password *"
   },
   "form.frontendPassword.legend": {
-    "other": "Senha usada para o login"
+    "other": "Password used to log in"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirmar senha"
+    "other": "Confirm password"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirme a senha duas vezes"
+    "other": "Confirm password twice"
   },
   "form.dsFolder.label": {
-    "other": "Caminho da fonte de dados padrão"
+    "other": "Path of the default datasource"
   },
   "form.dsFolder.legend": {
-    "other": "Use um caminho absoluto no servidor"
+    "other": "Use an absolute path on the server"
   },
   "form.dsType.Label": {
-    "other": "Tipo de armazenamento"
+    "other": "Storage Type"
   },
   "form.dsType.FS": {
-    "other": "FS local (armazenar todos os dados neste servidor)"
+    "other": "Local FS (store all data on this server)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / compatível com S3 (loja dentro de buckets S3)"
+    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
   },
   "form.dsS3Custom.label": {
     "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Deixe em branco para Amazon"
+    "other": "Leave empty for Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "Região personalizada S3"
+    "other": "S3 Custom region"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Deixe em branco para padrão (us-east-1)"
+    "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "Chave Api S3"
+    "other": "S3 Api Key"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Tecla para se conectar ao S3"
+    "other": "Key to connect to S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "Segredo da Api S3"
+    "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Chave Secreta"
+    "other": "Secret Key"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Conectar ao S3 para definir os buckets"
+    "other": "Connect to S3 to define buckets"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Prefixo do Buckets"
+    "other": "Buckets prefix"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "Um prefixo único para a criação dos buckets 6 padrão"
+    "other": "A unique prefix for creating the 6 default buckets"
   },
   "form.bucketList.found": {
-    "other": "Os seguintes bucket(s) já existem"
+    "other": "Following bucket(s) already exist"
   },
   "form.bucketList.toCreate": {
-    "other": "Os seguintes bucket(s) serão criados"
+    "other": "Following bucket(s) will be created"
   },
   "form.bucketList.notFound": {
-    "other": "Os seguintes buckets não foram encontrados"
+    "other": "Following buckets were not found"
   },
   "form.bucketList.warnCreate": {
-    "other": "Você não tem permissão para criar buckets, certifique-se de criá-los manualmente!"
+    "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Próximo"
+    "other": "Next"
   },
   "stepper.button.back": {
-    "other": "Voltar"
+    "other": "Back"
   },
   "stepper.button.last": {
-    "other": "Instalar Agora"
+    "other": "Install Now"
   },
   "stepper.button.reload": {
-    "other": "Recarregar"
+    "other": "Reload"
   }
 }
