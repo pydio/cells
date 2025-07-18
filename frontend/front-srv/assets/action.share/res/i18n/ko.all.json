@@ -393,7 +393,7 @@
     "other": "pending"
   },
   "212": {
-    "other": "수락됨"
+    "other": "accepted"
   },
   "213": {
     "other": "rejected"
@@ -411,7 +411,7 @@
     "other": "Local Users"
   },
   "218": {
-    "other": "통지"
+    "other": "Notification"
   },
   "219": {
     "other": "Error while loading share. Error was (%s)."
@@ -513,10 +513,10 @@
     "other": "Edit cell"
   },
   "248": {
-    "other": "셀 삭제"
+    "other": "Delete cell"
   },
   "249": {
-    "other": "내용"
+    "other": "Contents"
   },
   "25": {
     "other": "No limit"
@@ -528,7 +528,7 @@
     "other": "Link"
   },
   "252": {
-    "other": "접근"
+    "other": "Access"
   },
   "253": {
     "other": "Visibility"
@@ -576,7 +576,7 @@
     "other": "Add to Cell..."
   },
   "264": {
-    "other": "+ 새로운 셀"
+    "other": "+ New Cell"
   },
   "265": {
     "other": "Link Label"
@@ -609,7 +609,7 @@
     "other": "nobody"
   },
   "274": {
-    "other": " 그리고 "
+    "other": " and "
   },
   "275": {
     "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
@@ -675,7 +675,7 @@
     "other": "Set a label and a short description"
   },
   "37": {
-    "other": "확인"
+    "other": "Confirm"
   },
   "38": {
     "other": "Watch this folder content"
@@ -699,7 +699,7 @@
     "other": "A user of %s is sharing a folder with you"
   },
   "44": {
-    "other": "%s 공유"
+    "other": "%s Share"
   },
   "45": {
     "other": "Send Invitation"
@@ -720,7 +720,7 @@
     "other": "You are not allowed to access this data"
   },
   "49": {
-    "other": "사용자 생성"
+    "other": "create user"
   },
   "5": {
     "other": "password"
@@ -765,7 +765,7 @@
     "other": "HTML Embed Code"
   },
   "62": {
-    "other": "미니 사이트 주소"
+    "other": "Minisite Adress"
   },
   "63": {
     "other": "New workspace"
@@ -807,13 +807,13 @@
     "other": "Preview"
   },
   "73": {
-    "other": "다운로드"
+    "other": "Download"
   },
   "74": {
     "other": "Upload files"
   },
   "74b": {
-    "other": "편집"
+    "other": "Edit"
   },
   "75": {
     "other": "Please use a positive number for both Expiration and Download limit fields."
@@ -882,7 +882,7 @@
     "other": "Create link"
   },
   "93": {
-    "other": "존재하는 링크"
+    "other": "Existing links"
   },
   "94": {
     "other": "QR Code"
@@ -984,7 +984,7 @@
     "other": "password required"
   },
   "link.secure.maxdownloads": {
-    "other": "%d 만 다운로드"
+    "other": "%d downloads only"
   },
   "minisite.toggle.theme": {
     "other": "Toggle Dark/Light Theme"
