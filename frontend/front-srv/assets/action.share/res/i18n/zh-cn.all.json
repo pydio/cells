@@ -474,519 +474,519 @@
     "other": "它已被添加到您的 %s 工作区。"
   },
   "235": {
-    "other": "Generate unique links to identify users"
+    "other": "生成唯一的链接来识别用户"
   },
   "236": {
-    "other": "Restrict access only to identified users"
+    "other": "仅限制已识别用户的访问"
   },
   "237": {
-    "other": "Use a random key instead of email in link"
+    "other": "在链接中使用随机密钥代替电子邮件"
   },
   "238": {
-    "other": "Share Types"
+    "other": "共享类型"
   },
   "24": {
-    "other": "Set expiration limits or define a password to access this share."
+    "other": "设置有效期或设置密码以访问此共享。"
   },
   "240": {
-    "other": "Group by..."
+    "other": "通过... 分组..."
   },
   "241": {
-    "other": "Shares List"
+    "other": "共享列表"
   },
   "242": {
-    "other": "Load More Results"
+    "other": "加载更多结果"
   },
   "243": {
-    "other": "Public Links"
+    "other": "公共链接"
   },
   "244": {
-    "other": "Shared Folders"
+    "other": "共享文件夹"
   },
   "245": {
-    "other": "%s personal invitation(s) sent"
+    "other": "%s 个人邀请已发送"
   },
   "246": {
-    "other": "Open cell"
+    "other": "打开单元格"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "编辑单元格"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "删除单元格"
   },
   "249": {
-    "other": "Contents"
+    "other": "目录"
   },
   "25": {
-    "other": "No limit"
+    "other": "没有限制"
   },
   "250": {
-    "other": "Cells"
+    "other": "单元格"
   },
   "251": {
-    "other": "Link"
+    "other": "链接"
   },
   "252": {
-    "other": "Access"
+    "other": "访问权限"
   },
   "253": {
-    "other": "Visibility"
+    "other": "可见性"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "在单元格中共享"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "与用户或组"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "在 %d 单元格中共享"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "在'%s'中共享"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "您确定要删除此项目上的所有单元格和链接吗？"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "给 %s 的共享"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "创建于 %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "编辑单元格的用户"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "从此单元格中删除"
   },
   "26": {
-    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
+    "other": "选择用户或组并设置他们的访问权限。'只写' 只能创建一个只允许上传的工作区。"
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "文件夹共享在以下单元格中。您可以编辑用户或创建一个新单元格。"
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "选择可以访问此单元格的用户或组"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "通过创建新单元格与其他用户共享此文件夹"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "添加到单元格..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ 新单元格"
   },
   "265": {
-    "other": "Link Label"
+    "other": "链接标签"
   },
   "266": {
-    "other": "Link Description"
+    "other": "链接描述"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "单元格标签"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "单元格描述"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "您将创建一个与 %USERS 共享的单元格。 选择一些您想要分享的文件夹，或者让Pydio为您创建一个空文件夹！"
   },
   "27": {
-    "other": "Share file"
+    "other": "共享文件"
   },
   "270": {
-    "other": "users"
+    "other": "用户"
   },
   "271": {
-    "other": "groups"
+    "other": "组"
   },
   "272": {
-    "other": "teams"
+    "other": "团队"
   },
   "273": {
-    "other": "nobody"
+    "other": "没有人"
   },
   "274": {
-    "other": " and "
+    "other": " 和 "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "创建与其他用户合作的单元格。首先请描述该单元格的对象。"
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "您的单元格的标题"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "可以选择添加描述"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "选择与谁共享数据"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "立即创建单元格！"
   },
   "28": {
-    "other": "Share folder"
+    "other": "共享文件"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "单元格有自己的文件夹"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "单元格将在新文件夹中创建"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "添加一个现有的文件夹..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "在树中选择一个节点..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "在 %s 单元格中可见"
   },
   "29": {
-    "other": "WebLink"
+    "other": "Web链接"
   },
   "3": {
-    "other": "Wrong password"
+    "other": "密码错误"
   },
   "30": {
-    "other": "Share with..."
+    "other": "分享给..."
   },
   "31": {
-    "other": "Read"
+    "other": "读"
   },
   "32": {
-    "other": "Write"
+    "other": "写入"
   },
   "33": {
-    "other": "Watch"
+    "other": "监视"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "选择或创建用户"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "选择用户"
   },
   "35": {
-    "other": "Label"
+    "other": "标签"
   },
   "36": {
-    "other": "Set a label and a short description"
+    "other": "设置标签和简短描述"
   },
   "37": {
-    "other": "Confirm"
+    "other": "确认"
   },
   "38": {
-    "other": "Watch this folder content"
+    "other": "监控此文件夹内容"
   },
   "39": {
-    "other": "Watch this file activity"
+    "other": "监控此文件活动"
   },
   "4": {
-    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
+    "other": "输入所需的密码，然后点击图片下载 <b>%s</b> 到您的硬盘"
   },
   "40": {
-    "other": "Invitations"
+    "other": "邀请"
   },
   "41": {
-    "other": "Send invitations by email to the users you have shared this item with."
+    "other": "通过电子邮件向您与之共享此项目的用户发送邀请。"
   },
   "42": {
-    "other": "A user of %s is sharing a file with you"
+    "other": "%s 的用户正在与您分享一个文件"
   },
   "43": {
-    "other": "A user of %s is sharing a folder with you"
+    "other": "%s 的用户正在与您分享一个文件夹"
   },
   "44": {
-    "other": "%s Share"
+    "other": "%s 分享"
   },
   "45": {
-    "other": "Send Invitation"
+    "other": "发送邀请"
   },
   "46": {
-    "other": "Open workspace %s1 directly in %s2"
+    "other": "直接在 %s2 中打开工作区 %s1"
   },
   "46_file": {
-    "other": "Open file %s1"
+    "other": "打开文件 %s1"
   },
   "46_mini": {
-    "other": "Open mini %s1"
+    "other": "打开迷你 %s1"
   },
   "47": {
-    "other": "Successfully updated watch status"
+    "other": "成功更新监控状态"
   },
   "48": {
-    "other": "You are not allowed to access this data"
+    "other": "您无权访问此数据"
   },
   "49": {
-    "other": "create user"
+    "other": "创建用户"
   },
   "5": {
-    "other": "password"
+    "other": "密码"
   },
   "50": {
-    "other": "Shared"
+    "other": "共享"
   },
   "51": {
-    "other": "Downloaded"
+    "other": "已下载"
   },
   "52": {
-    "other": "Configuration"
+    "other": "配置"
   },
   "53": {
-    "other": "none"
+    "other": "无"
   },
   "54": {
-    "other": "Shared with"
+    "other": "共享于"
   },
   "55": {
-    "other": "Shared..."
+    "other": "共享..."
   },
   "56": {
-    "other": "Configure sharing..."
+    "other": "配置共享..."
   },
   "57": {
-    "other": "times"
+    "other": "次数"
   },
   "58": {
-    "other": "Please check at least one permission!"
+    "other": "请勾选至少一个权限！"
   },
   "59": {
-    "other": "Download Page"
+    "other": "下载页面"
   },
   "6": {
-    "other": "Stop Sharing"
+    "other": "停止共享"
   },
   "60": {
-    "other": "Direct Download Link"
+    "other": "直接下载链接"
   },
   "61": {
-    "other": "HTML Embed Code"
+    "other": "HTML 嵌入代码"
   },
   "62": {
-    "other": "Minisite Adress"
+    "other": "迷你站点地址"
   },
   "63": {
-    "other": "New workspace"
+    "other": "新工作区"
   },
   "64": {
-    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
+    "other": "对于内部和外部用户来说，文件夹将作为一个新工作区出现在目标用户工作区列表中。"
   },
   "65": {
-    "other": "Public Minisite (no authentication required)"
+    "other": "公共迷你站点(无需认证)"
   },
   "66": {
-    "other": "For external users, the folder will appear at a new public adress as a simple file list."
+    "other": "对于外部用户，文件夹将出现在一个新的公共地址中，作为一个简单的文件列表。"
   },
   "67": {
-    "other": "Private Minisite (users authentication required)"
+    "other": "私有迷你站点(需要用户身份验证)"
   },
   "68": {
-    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
+    "other": "对于内部或外部用户，文件夹将出现在一个新的地址中，作为一个简单的文件列表，但需要用户认证"
   },
   "69": {
-    "other": "Configure Minisite"
+    "other": "配置迷你站点"
   },
   "69r": {
-    "other": "Link Parameters"
+    "other": "链接参数"
   },
   "7": {
-    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
+    "other": "停止共享不会删除文件。如果您想要更改参数，重新共享文件。"
   },
   "70": {
-    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
+    "other": "勾选复选框配置公开访问此文件夹的权限。 如果只选中'上传'，此文件夹将是一个空的收件箱，人们可以在其中拖入文件。"
   },
   "70r": {
-    "other": "Permissions granted to the users accessing this link"
+    "other": "授予访问此链接的用户权限"
   },
   "71": {
-    "other": "Permissions"
+    "other": "权限"
   },
   "72": {
-    "other": "Preview"
+    "other": "预览"
   },
   "73": {
-    "other": "Download"
+    "other": "下载"
   },
   "74": {
-    "other": "Upload files"
+    "other": "上传文件"
   },
   "74b": {
-    "other": "Edit"
+    "other": "编辑"
   },
   "75": {
-    "other": "Please use a positive number for both Expiration and Download limit fields."
+    "other": "请为过期和下载限制字段输入一个正数。"
   },
   "76": {
-    "other": "Please enable Cookies to access this application"
+    "other": "请启用曲奇以访问此应用程序"
   },
   "77": {
-    "other": "Please enable JavaScript to access this application"
+    "other": "请启用 JavaScript 以访问此应用程序"
   },
   "78": {
-    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
+    "other": "警告，您只能在用户名中使用标准的字母数字字符。标识符 '%CURRENT%'将被'%NEW% ' 替换"
   },
   "79": {
-    "other": "invite"
+    "other": "邀请"
   },
   "8": {
-    "other": "File is shared"
+    "other": "文件已共享"
   },
   "80": {
-    "other": "Send link by email to a selection of users or addresses"
+    "other": "通过电子邮件发送链接到选定的用户或地址"
   },
   "80b": {
-    "other": "Invite by email the selected users to visit this workspace"
+    "other": "通过电子邮件邀请选定的用户访问此工作区"
   },
   "81": {
-    "other": "stop watching"
+    "other": "停止监控"
   },
   "82": {
-    "other": "watch"
+    "other": "监控"
   },
   "83": {
-    "other": "Toggle watch status to receive or not notifications when file is downloaded"
+    "other": "下载文件时切换手表状态以接收或不接收通知"
   },
   "83b": {
-    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
+    "other": "切换手表状态以在咨询工作区时接收或不接收通知"
   },
   "84": {
-    "other": "password"
+    "other": "密码"
   },
   "85": {
-    "other": "A protection password is set on this link"
+    "other": "此链接已设置保护密码"
   },
   "86": {
-    "other": "expire"
+    "other": "过期"
   },
   "87": {
-    "other": "This link will automatically expire on..."
+    "other": "此链接将自动过期..."
   },
   "88": {
-    "other": "downloads"
+    "other": "下载"
   },
   "89": {
-    "other": "Number of downloads / authorized downloads. Click to reset download counter."
+    "other": "下载次数/授权下载次数。点击重置下载计数。"
   },
   "9": {
-    "other": "Use this button to stop sharing this folder"
+    "other": "使用此按钮停止共享此文件夹"
   },
   "90": {
-    "other": "Link URL"
+    "other": "链接 URL"
   },
   "91": {
-    "other": "Tags (Enter to save)"
+    "other": "标签 (回车保存)"
   },
   "92": {
-    "other": "Create link"
+    "other": "创建链接"
   },
   "93": {
-    "other": "Existing links"
+    "other": "现有链接"
   },
   "94": {
-    "other": "QR Code"
+    "other": "二维码"
   },
   "95": {
-    "other": "QR code"
+    "other": "二维码"
   },
   "96": {
-    "other": "stop sharing"
+    "other": "停止共享"
   },
   "97": {
-    "other": "Stop sharing this folder with other users"
+    "other": "停止与其他用户共享此文件夹"
   },
   "98": {
-    "other": "My Shares"
+    "other": "我的共享"
   },
   "99": {
-    "other": "All shared elements"
+    "other": "所有共享元素"
   },
   "cells.create.advanced": {
-    "other": "Add users/data"
+    "other": "添加用户/数据"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "或"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "共享现有文件夹(s)"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "从此单元格中删除"
   },
   "cell.visibility.advanced": {
-    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+    "other": "此高级功能允许您决定谁可以编辑此单元的属性 (有权添加/移除用户，添加/移除单元根目录下的文件夹)。 如果只需管理数据的实际访问权限，请使用\"共享\"选项卡。"
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "添加到现有或新单元格"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "添加到现有单元格"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "创建新单元格"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "一名参加者"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d参加者"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "另一名参与者"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d 其他参与者"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "一个文件夹"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d文件夹"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[高级] 可见性"
   },
   "link.visibility.advanced": {
-    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
+    "other": "此高级功能允许您决定在其他用户看到此文件时是否对他们可见， 以及他们是否可以编辑其属性。 默认情况下，您创建的链接只对您可见。您可以通过让其他用户编辑链接来转让链接所有权。"
   },
   "dialog.close.confirm.unsaved": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "有未保存的更改，您确定要关闭吗？"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "您确定要禁用此链接吗？"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "快速过滤"
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "禁用所有共享"
   },
   "link.active": {
-    "other": "active"
+    "other": "已激活"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "禁用链接"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "复制并发送此链接以直接访问"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "访问限制"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "过期"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "已过期"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "密码是必填的"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "仅下载 %d"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "切换暗淡/亮主题"
   }
 }
