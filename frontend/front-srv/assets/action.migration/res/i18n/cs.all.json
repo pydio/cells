@@ -1,33 +1,33 @@
 {
   "title": {
-    "other": "Import dat"
+    "other": "Data Import"
   },
   "legend": {
-    "other": "Nástroj pro import z Pydio 8"
+    "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Další"
+    "other": "Next"
   },
   "back": {
-    "other": "Zpět"
+    "other": "Back"
   },
   "step.categories.choose": {
-    "other": "Zvolte funkce, které importovat"
+    "other": "Choose features to import"
   },
   "step.categories.choose.legend": {
     "other": "Use checkboxes below to select the data you want to import. If required, the wizard will lead you through specific configuration for each feature and you will validate your choices before launching proper importation job. To have best control over the import process, you may select only one step and run the import tools many times."
   },
   "step.categories.summary": {
-    "other": "Ověření"
+    "other": "Validation"
   },
   "step.categories.summary.legend": {
     "other": "Here is a summary of the configuration. Please review it before launching importation in background."
   },
   "step.categories.summary.empty": {
-    "other": "Žádné konkrétní nastavení"
+    "other": "No specific configuration"
   },
   "step.categories.summary.launch": {
-    "other": "Spustit import nyní"
+    "other": "Launch Import Now"
   },
   "step.connection": {
     "other": "Pydio 8 Connection"
@@ -36,31 +36,31 @@
     "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
   },
   "step.connection.fail": {
-    "other": "Nedaří se připojit k %s"
+    "other": "Cannot connect to %s"
   },
   "step.connection.missing": {
-    "other": "Vyplňte veškeré nutné kolonky"
+    "other": "Please fill all required fields"
   },
   "step.connection.success": {
     "other": "Successful connection to the API"
   },
   "step.connection.field.url": {
-    "other": "URL adresa serveru"
+    "other": "Server URL"
   },
   "step.connection.field.skipssl": {
     "other": "Skip SSL verification (self-signed)"
   },
   "step.connection.field.login": {
-    "other": "Přihlášení správce"
+    "other": "Administrator login"
   },
   "step.connection.field.pwd": {
-    "other": "Heslo správce"
+    "other": "Admin password"
   },
   "step.connection.button.connect": {
-    "other": "Připojit"
+    "other": "Connect"
   },
   "step.meta.title": {
-    "other": "Naimportovat metadata"
+    "other": "Import Metadata"
   },
   "step.meta.legend": {
     "other": "Map metadata to Cells internal features. Global metadata (watches and bookmarks) will be read from the API and files metadata will be directly converted from the .ajxp_meta files inside datasources."
@@ -75,19 +75,19 @@
     "other": "Files and folders metadata: use mapping below to create Cells metadata namespaces"
   },
   "step.meta.from": {
-    "other": "Metadata z pracovních prostorů"
+    "other": "Metadata from Workspaces"
   },
   "step.meta.to": {
     "other": "Cells Namespaces (click to edit)"
   },
   "step.meta.map.ws": {
-    "other": "Pracovní prostor %s"
+    "other": "Workspace %s"
   },
   "step.meta.map.values": {
-    "other": " (Hodnoty %s)"
+    "other": " (Values %s)"
   },
   "step.disclaimer.title": {
-    "other": "Odmítnutí odpovědnosti"
+    "other": "Disclaimer"
   },
   "step.disclaimer": {
     "other": "Given the number of features provided by Pydio 8, each installation is unique and the tool cannot handle all possible combinations. It is best suited for importing data from a typical Pydio 8 installation including users, workspaces (fs and s3 only), access rights and shares."
@@ -99,10 +99,10 @@
     "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
   },
   "step.disclaimer.support": {
-    "other": "Obrátit se na podporu"
+    "other": "Contact Support"
   },
   "step.disclaimer.quote": {
-    "other": "Poptat cenovou nabídku"
+    "other": "Ask for a quote"
   },
   "step.disclaimer.start": {
     "other": "Start Migration"
@@ -153,7 +153,7 @@
     "other": "All set! Let's start"
   },
   "step.shares.feature.links": {
-    "other": "Veřejné odkazy"
+    "other": "Public Links"
   },
   "step.shares.feature.cells": {
     "other": "Shared Folders"
@@ -183,7 +183,7 @@
     "other": "Import Workspaces"
   },
   "step.ws.loading": {
-    "other": "(načítání…)"
+    "other": "(loading...)"
   },
   "step.ws.legend": {
     "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
@@ -216,10 +216,10 @@
     "other": "Pydio 8 Workspaces"
   },
   "step.mapper.p8.ds.show": {
-    "other": "Zobrazit datové zdroje"
+    "other": "Show datasources"
   },
   "step.mapper.p8.tpl.show": {
-    "other": "Zobrazit popisy umístění šablon"
+    "other": "Show template paths"
   },
   "step.mapper.cells.title": {
     "other": "Cells Datasources"
@@ -240,31 +240,31 @@
     "other": "None"
   },
   "step.mapper.notplpath.secondary": {
-    "other": "Není třeba žádného popisu umístění šablony"
+    "other": "No template path required"
   },
   "step.mapper.next10": {
-    "other": "Další "
+    "other": "Next "
   },
   "step.mapper.prev10": {
-    "other": "Předchozí "
+    "other": "Previous "
   },
   "step.mapper.invalid": {
-    "other": "Neplatné mapování – vyberte datový zdroj nebo prostor"
+    "other": "Invalid mapping - Please select a datasource or a workspace"
   },
   "dash.feature.configs": {
-    "other": "Nastavení pro AD/LDAP"
+    "other": "AD/LDAP Configuration"
   },
   "dash.feature.configs.legend": {
     "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."
   },
   "dash.feature.users": {
-    "other": "Uživatelé, skupiny a role"
+    "other": "Users, Groups and Roles"
   },
   "dash.feature.users.legend": {
     "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
   },
   "dash.feature.workspaces": {
-    "other": "Pracovní prostory"
+    "other": "Workspaces"
   },
   "dash.feature.acls": {
     "other": "Workspaces ACLs"
@@ -273,13 +273,13 @@
     "other": "There is no specific configuration for this step. Access list will be loaded from server and applied to workspaces."
   },
   "dash.feature.meta": {
-    "other": "Metadat souborů"
+    "other": "Files Metadata"
   },
   "dash.feature.shares": {
-    "other": "Sdílení"
+    "other": "Shares"
   },
   "dash.job.new": {
-    "other": "Nová importní úloha"
+    "other": "New import job"
   },
   "dash.importing": {
     "other": "Importing Data"
@@ -303,13 +303,13 @@
     "other": "Cells"
   },
   "action.createws.head.status": {
-    "other": "Stav"
+    "other": "Status"
   },
   "action.createws.notexists": {
-    "other": "Vytvořit/aktualizovat"
+    "other": "Create/Update"
   },
   "action.createws.exists": {
-    "other": "Už existuje"
+    "other": "Already Exists"
   },
   "action.share.linksonly": {
     "other": "Only Public Links will be imported."
