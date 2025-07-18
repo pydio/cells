@@ -1,11 +1,11 @@
 {
   "open-addressbook": {
-    "other": "連絡先"
+    "other": "Address Book"
   },
   "desc": {
-    "other": "アカウントの設定、アドレス帳、共有要素などを管理します。"
+    "other": "Manage my account preferences, my address book, shared elements, etc."
   },
   "title": {
-    "other": "マイアカウント"
+    "other": "My Account"
   }
 }
