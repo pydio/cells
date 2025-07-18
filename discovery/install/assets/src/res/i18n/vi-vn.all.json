@@ -72,67 +72,67 @@
     "other": "Địa chỉ máy chủ"
   },
   "advanced.mongo.port": {
-    "other": "Cổng"
+    "other": "Server port"
   },
   "advanced.mongo.db": {
-    "other": "Tên database"
+    "other": "Database Name"
   },
   "advanced.mongo.username": {
-    "other": "Tên đăng nhập"
+    "other": "Username"
   },
   "advanced.mongo.password": {
-    "other": "Mật khẩu"
+    "other": "Password"
   },
   "advanced.mongo.authSource": {
     "other": "Auth DB"
   },
   "advanced.mongo.validate": {
-    "other": "Kiểm tra kết nối"
+    "other": "Test connection"
   },
   "license.stepLabel": {
-    "other": "Giấy phép doanh nghiệp"
+    "other": "Enterprise License"
   },
   "license.title": {
-    "other": "Giấy phép doanh nghiệp của Pydio Cells"
+    "other": "Pydio Cells Enterprise License"
   },
   "license.success": {
-    "other": "Giấy phép đăng ký đã được tìm thấy."
+    "other": "License file was successfully detected."
   },
   "license.details": {
-    "other": "Cài đặt này hợp lệ cho %count người dùng cho đến khi %expiration."
+    "other": "This installation is valid for %count users until %expiration."
   },
   "license.failed": {
-    "other": "Gặp lỗi khi cố gắng xác minh mã bản quyền này. Vui lòng liên hệ với bộ phận hỗ trợ để được giúp đỡ."
+    "other": "Error while trying to verify this license key. Please contact the support."
   },
   "license.required": {
-    "other": "Cần có mã cấp phép để chạy được Enterprise Distribution. Dùng thử trong 30 ngày hoặc vui lòng liên lạc để mua thêm"
+    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
   },
   "license.fieldLabel": {
-    "other": "Chuỗi giấy phép"
+    "other": "License String"
   },
   "license.fieldLegend": {
-    "other": "Vui lòng sao chép và dán mã bản quyền mà bạn đã được cung cấp."
+    "other": "Please copy/paste the license key provided to you."
   },
   "apply.stepLabel": {
-    "other": "Áp dụng cài đặt"
+    "other": "Apply Installation"
   },
   "apply.title": {
-    "other": "Xin vui lòng chờ khi Pydio Cells đang thực hiện việc cài đặt..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
-    "other": "Cài đặt thành công, các dịch vụ đang khởi động, quá trình này sẽ tải lại các trang khi các dịch vụ được khởi động."
+    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
   },
   "apply.success.restarted": {
-    "other": "Cài đặt thành công, các dịch vụ đã được khởi động, vui lòng tải lại trang (trang sẽ tự động tải lại trong %1s)"
+    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
   },
   "apply.error": {
-    "other": "Có lỗi trong khi thực hiện cài đặt! Vui lòng kiểm tra cấu hình của bạn."
+    "other": "There was an error while performing installation! Please check your configuration."
   },
   "apply.error.detail": {
-    "other": "Lỗi: "
+    "other": "Error was: "
   },
   "form.dbConnectionType.label": {
-    "other": "Kiểu kết nối"
+    "other": "Connection Type"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -141,88 +141,88 @@
     "other": "Socket"
   },
   "form.dbConnectionType.manual": {
-    "other": "Thủ công"
+    "other": "Manual"
   },
   "form.dbTCPHostname.label": {
-    "other": "Tên Host"
+    "other": "Host Name"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Nơi máy chủ mysql đang chạy"
+    "other": "Server where mysql is running"
   },
   "form.dbName.label": {
-    "other": "Tên database"
+    "other": "Database Name"
   },
   "form.dbName.legend": {
-    "other": "Database to use (sẽ được tạo nếu nó không tồn tại)"
+    "other": "Database to use (will be created if it does not exist)"
   },
   "form.dbTCPPort.label": {
-    "other": "Cổng"
+    "other": "Port"
   },
   "form.dbTCPPort.legend": {
-    "other": "Cổng kết nối đến mysql"
+    "other": "Port to connect to mysql"
   },
   "form.dbUser.label": {
     "other": "Database User"
   },
   "form.dbUser.legend": {
-    "other": "Bỏ trống nếu thấy không cần thiết"
+    "other": "Leave blank if not required"
   },
   "form.dbPassword.label": {
-    "other": "Mật khẩu Database"
+    "other": "Database Password"
   },
   "form.dbPassword.legend": {
-    "other": "Bỏ trống nếu thấy không cần thiết"
+    "other": "Leave blank if not required"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Nhập vị trí của tệp socket để kết nối"
+    "other": "Enter the location of the socket file to use to connect"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Sử dụng DSN kiểu Golang để mô tả kết nối database"
+    "other": "Use Golang-style DSN to describe the database connection"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Tên Ứng Dụng"
+    "other": "Application Title"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Cài đặt tiêu đề chính của bạn"
+    "other": "Main title of your installation"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Ngôn ngữ mặc định"
+    "other": "Default Language"
   },
   "form.frontendLogin.label": {
-    "other": "Đăng nhập Admin user *"
+    "other": "Admin user login *"
   },
   "form.frontendLogin.legend": {
-    "other": "Mã định danh được sử dụng để đăng nhập"
+    "other": "Identifier used to log in"
   },
   "form.frontendPassword.label": {
-    "other": "Mật khẩu Admin"
+    "other": "Admin password *"
   },
   "form.frontendPassword.legend": {
-    "other": "Mật khẩu được sử dụng để đăng nhập"
+    "other": "Password used to log in"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Xác nhận mật khẩu"
+    "other": "Confirm password"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Xác nhận mật khẩu hai lần"
+    "other": "Confirm password twice"
   },
   "form.dsFolder.label": {
-    "other": "Đường dẫn mặc định của datasource"
+    "other": "Path of the default datasource"
   },
   "form.dsFolder.legend": {
-    "other": "Sử dụng đường dẫn tuyệt đối trên máy chủ"
+    "other": "Use an absolute path on the server"
   },
   "form.dsType.Label": {
     "other": "Storage Type"
   },
   "form.dsType.FS": {
-    "other": "Local FS (lưu trữ tất cả dữ liệu trên máy chủ này)"
+    "other": "Local FS (store all data on this server)"
   },
   "form.dsType.S3": {
     "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
@@ -231,7 +231,7 @@
     "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Để trống nếu bạn dùng Amazon S3"
+    "other": "Leave empty for Amazon"
   },
   "form.dsS3CustomRegion.label": {
     "other": "S3 Custom region"
@@ -243,45 +243,45 @@
     "other": "S3 Api Key"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key để kết nối với S3"
+    "other": "Key to connect to S3"
   },
   "form.dsS3ApiSecret.label": {
     "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Khóa Bí mật"
+    "other": "Secret Key"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Kết nối tới S3 để xác định buckets"
+    "other": "Connect to S3 to define buckets"
   },
   "form.s3BucketsPrefix.label": {
     "other": "Buckets prefix"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "Một tiền tố duy nhất để tạo 6 buckets mặc định"
+    "other": "A unique prefix for creating the 6 default buckets"
   },
   "form.bucketList.found": {
-    "other": "Bucket(s) đã tồn tại"
+    "other": "Following bucket(s) already exist"
   },
   "form.bucketList.toCreate": {
-    "other": "Bucket(s) sẽ được tạo"
+    "other": "Following bucket(s) will be created"
   },
   "form.bucketList.notFound": {
-    "other": "Không tìm thấy buckets"
+    "other": "Following buckets were not found"
   },
   "form.bucketList.warnCreate": {
-    "other": "Bạn không được phép tạo buckets, hãy tạo chúng theo cách thủ công!"
+    "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Tiếp theo"
+    "other": "Next"
   },
   "stepper.button.back": {
-    "other": "Quay lại"
+    "other": "Back"
   },
   "stepper.button.last": {
-    "other": "Cài đặt ngay"
+    "other": "Install Now"
   },
   "stepper.button.reload": {
-    "other": "Tải lại"
+    "other": "Reload"
   }
 }
