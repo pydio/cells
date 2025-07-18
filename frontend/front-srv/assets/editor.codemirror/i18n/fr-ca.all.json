@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Editeur de source"
+    "other": "Source Editor"
   },
   "10": {
-    "other": "Taille d'indentation"
+    "other": "Indent size"
   },
   "2": {
-    "other": "Coloration syntaxique CodeMirror"
+    "other": "CodeMirror Syntax Highlighter"
   },
   "3": {
-    "other": "Retour ligne"
+    "other": "Wrapping"
   },
   "3b": {
-    "other": "Retour à la ligne automatique"
+    "other": "Toggle lines wrapping"
   },
   "4": {
-    "other": "Numéro ligne"
+    "other": "Numbers"
   },
   "5": {
-    "other": "Numéros de ligne"
+    "other": "Toggle lines numbers"
   },
   "6": {
-    "other": "Aller à la ligne"
+    "other": "Jump to line"
   },
   "7": {
-    "other": "Annuler"
+    "other": "Undo"
   },
   "8": {
-    "other": "Répéter"
+    "other": "Redo"
   },
   "9": {
-    "other": "Recherche de texte"
+    "other": "Text Search"
   }
 }
