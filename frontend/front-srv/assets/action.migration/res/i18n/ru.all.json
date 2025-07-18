@@ -1,300 +1,300 @@
 {
   "title": {
-    "other": "Импорт данных"
+    "other": "Data Import"
   },
   "legend": {
-    "other": "Инструмент импорта из Pydio 8"
+    "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Далее"
+    "other": "Next"
   },
   "back": {
-    "other": "Назад"
+    "other": "Back"
   },
   "step.categories.choose": {
-    "other": "Выберите данные для импорта"
+    "other": "Choose features to import"
   },
   "step.categories.choose.legend": {
-    "other": "Используйте флажки ниже, чтобы выбрать данные, которые вы хотите импортировать. При необходимости мастер проведет вас через определенную конфигурацию для каждой функции, и вы проверите ваш выбор перед запуском правильного задания импорта. Чтобы лучше контролировать процесс импорта, вы можете выбрать только один шаг и запустить инструменты импорта много раз."
+    "other": "Use checkboxes below to select the data you want to import. If required, the wizard will lead you through specific configuration for each feature and you will validate your choices before launching proper importation job. To have best control over the import process, you may select only one step and run the import tools many times."
   },
   "step.categories.summary": {
-    "other": "Проверка"
+    "other": "Validation"
   },
   "step.categories.summary.legend": {
-    "other": "Вот краткое изложение конфигурации. Пожалуйста, просмотрите его перед запуском импорта в фоновом режиме."
+    "other": "Here is a summary of the configuration. Please review it before launching importation in background."
   },
   "step.categories.summary.empty": {
-    "other": "Нет конкретной конфигурации"
+    "other": "No specific configuration"
   },
   "step.categories.summary.launch": {
-    "other": "Запустить импорт сейчас"
+    "other": "Launch Import Now"
   },
   "step.connection": {
-    "other": "Pydio 8 подключено"
+    "other": "Pydio 8 Connection"
   },
   "step.connection.legend": {
-    "other": "Используйте форму ниже, чтобы подключиться к серверу Pydio 8, используя выделенного пользователя, которого вы создали."
+    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
   },
   "step.connection.fail": {
-    "other": "Не удается подключиться к %s"
+    "other": "Cannot connect to %s"
   },
   "step.connection.missing": {
-    "other": "Пожалуйста, заполните все обязательные поля"
+    "other": "Please fill all required fields"
   },
   "step.connection.success": {
-    "other": "Успешное подключение к API"
+    "other": "Successful connection to the API"
   },
   "step.connection.field.url": {
-    "other": "URL сервера"
+    "other": "Server URL"
   },
   "step.connection.field.skipssl": {
-    "other": "Пропустить проверку SSL (самоподписанный)"
+    "other": "Skip SSL verification (self-signed)"
   },
   "step.connection.field.login": {
-    "other": "Логин администратора"
+    "other": "Administrator login"
   },
   "step.connection.field.pwd": {
-    "other": "Пароль администратора"
+    "other": "Admin password"
   },
   "step.connection.button.connect": {
-    "other": "Подключение"
+    "other": "Connect"
   },
   "step.meta.title": {
-    "other": "Импорт метаданных"
+    "other": "Import Metadata"
   },
   "step.meta.legend": {
-    "other": "Сопоставить метаданные с внутренними элементами Cells. Глобальные метаданные (часы и закладки) будут считываться из API, а метаданные файлов будут напрямую преобразовываться из файлов .ajxp_meta внутри источников данных."
+    "other": "Map metadata to Cells internal features. Global metadata (watches and bookmarks) will be read from the API and files metadata will be directly converted from the .ajxp_meta files inside datasources."
   },
   "step.meta.feature.watches": {
-    "other": "Смотрим установленные пользователем файлы и папки"
+    "other": "Watches set by user on files and folders"
   },
   "step.meta.feature.bookmark": {
-    "other": "Закладки пользователя"
+    "other": "User bookmarks"
   },
   "step.meta.feature.files": {
-    "other": "Метаданные файлов и папок: используйте приведенное ниже сопоставление для создания пространств имен метаданных Cells"
+    "other": "Files and folders metadata: use mapping below to create Cells metadata namespaces"
   },
   "step.meta.from": {
-    "other": "Метаданные из рабочих областей"
+    "other": "Metadata from Workspaces"
   },
   "step.meta.to": {
-    "other": "Пространства имен Cell (нажмите для редактирования)"
+    "other": "Cells Namespaces (click to edit)"
   },
   "step.meta.map.ws": {
-    "other": "Рабочее пространство %s"
+    "other": "Workspace %s"
   },
   "step.meta.map.values": {
-    "other": " (Значения %s)"
+    "other": " (Values %s)"
   },
   "step.disclaimer.title": {
-    "other": "Отказ от ответственности"
+    "other": "Disclaimer"
   },
   "step.disclaimer": {
-    "other": "Учитывая количество функций, предоставляемых Pydio 8, каждая установка уникальна, и инструмент не может обрабатывать все возможные комбинации. Лучше всего подходит для импорта данных из обычной установки Pydio 8, включая пользователей, рабочие пространства (только для fs и s3), права доступа и общие ресурсы."
+    "other": "Given the number of features provided by Pydio 8, each installation is unique and the tool cannot handle all possible combinations. It is best suited for importing data from a typical Pydio 8 installation including users, workspaces (fs and s3 only), access rights and shares."
   },
   "step.disclaimer.ed": {
-    "other": "Мы настоятельно рекомендуем вам связаться с нашей службой поддержки (через вашу учетную запись pydio.com) и назначить встречу, чтобы пройти процедуру миграции с помощью Pydio Expert"
+    "other": "We strongly recommend you to contact our support (via your pydio.com account) and schedule an appointment to be walked through the migration by a Pydio Expert"
   },
   "step.disclaimer.home": {
-    "other": "Мы не хотим оставлять вас, и команда Pydio предлагает единовременную платную услугу, которая поможет вам выполнить эту миграцию в версии с открытым исходным кодом. Пожалуйста, свяжитесь с нашей службой продаж, если вы хотите получить помощь от эксперта Pydio."
+    "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
   },
   "step.disclaimer.support": {
-    "other": "Связаться с техподдержкой"
+    "other": "Contact Support"
   },
   "step.disclaimer.quote": {
-    "other": "Узнать цену"
+    "other": "Ask for a quote"
   },
   "step.disclaimer.start": {
-    "other": "Начать миграцию"
+    "other": "Start Migration"
   },
   "step.prereq.title": {
-    "other": "Предварительные условия"
+    "other": "Pre-requisites"
   },
   "step.prereq.welcome": {
-    "other": "Запуск импорта Pydio 8. Будут выполнены действия для переноса данных с существующего сервера Pydio 8 в Pydio Cells."
+    "other": "Starting Pydio 8 import tool. This wizard will guide you through the steps required to feed Pydio Cells with data from an existing Pydio 8 server."
   },
   "step.prereq.step1": {
-    "other": "1. Подготовка Pydio 8"
+    "other": "1. Prepare Pydio 8"
   },
   "step.prereq.step2": {
-    "other": "2. Подготовка Cell и данных"
+    "other": "2. Prepare Cells and Data"
   },
   "step.prereq.step3": {
-    "other": "3. Подготовка источников данных"
+    "other": "3. Prepare DataSources"
   },
   "step.prereq.check": {
-    "other": "Пожалуйста, внимательно прочитайте предварительные условия, описанные ниже, и выполните необходимые шаги перед началом миграции."
+    "other": "Please carefully read the pre-requisites described below and perform the necessary steps before starting the migration."
   },
   "step.prereq.check.copy": {
-    "other": "Скопируйте все данные Pydio 8 (файлы и папки, к которым имеют доступ пользователи) в другое месте на сервере. В целях тестирования вы можете в конечном итоге воссоздать полное дерево папок и файлов с помощью тестовых файлов (например, файлов размером 1 байт)."
+    "other": "Copy all Pydio 8 data (files and folders accessed by users) in a different location on the server. For testing purpose, you can eventually recreate the full arborescence with fake files (e.g 1byte files)."
   },
   "step.prereq.check.install": {
-    "other": "Установите выделенный плагин миграции на сервер Pydio 8. Разархивируйте и перетащите папку внутрь папки plugins/ folder вашего сервера Pydio 8 и очистите кеш плагинов. Загрузите его отсюда "
+    "other": "Install the dedicated migration plugin on the Pydio 8 server. Unzip and drop the folder inside the plugins/ folder of your Pydio 8 server and clear the plugins cache. Download it from here "
   },
   "step.prereq.check.admincell": {
-    "other": "Создайте выделенного пользователя Cells с правами администратора (например, cell_importer). Импорт пользователей будет пытаться синхронизировать пользователей Pydio 8 с пользователями Cells, только этот конкретный логин останется без изменений."
+    "other": "Create a dedicated Cells user with administrative privileges (e.g. cells_importer). Users import will try to synchronize Pydio 8 users to Cells user, only this specific login will be left untouched."
   },
   "step.prereq.check.adminpydio": {
-    "other": "Создайте выделенного пользователя Pydio 8 с правами администратора с другим логином (например import). Некоторые задачи импорта автоматически устанавливают права на чтение / запись для импортируемых пользователей во всех рабочих пространствах."
+    "other": "Create a dedicated Pydio 8 user with administrative privileges, with another login (e.g. import). Some import tasks will automatically set read/write permissions for this import users on all workspaces."
   },
   "step.prereq.ds.create": {
-    "other": "Создавайте базы данных, указывающие на новые данные и дождитесь завершения индексации."
+    "other": "Create datasources pointing to the new data and wait for the indexation to be complete."
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "Для пользовательских рабочих областей (например, «Мои файлы») используйте существующее местоположение «личного» пути к шаблонам Cells или подготовьте новые пути к шаблонам для нового местоположения."
+    "other": "For \"per-user\" workspaces (like My Files), use the existing location of Cells \"personal\" template path, or prepare new template paths for the new location."
   },
   "step.prereq.ds.tpl.home": {
-    "other": "Для пользовательских рабочих областей (например, «Мои файлы») убедитесь, что данные находятся в «персональном» пути шаблона Cells."
+    "other": "For \"per-user\" workspaces (like My Files), make sure to place the data under the existing location of the Cells \"personal\" Template Path."
   },
   "step.prereq.ds.done": {
-    "other": "После того, как источники данных проиндексируются, вы можете начать процесс миграции. Мастер поможет вам сопоставить рабочие пространства Pydio 8 с новыми рабочими пространствами."
+    "other": "Once datasources are properly indexed, you can start the migration process. The wizard will help you map your Pydio 8 workspaces to new workspaces."
   },
   "step.prereq.start": {
-    "other": "Всё готово! Давайте начнем"
+    "other": "All set! Let's start"
   },
   "step.shares.feature.links": {
-    "other": "Публичная ссылка"
+    "other": "Public Links"
   },
   "step.shares.feature.cells": {
-    "other": "Папка общего доступа"
+    "other": "Shared Folders"
   },
   "step.shares.title": {
-    "other": "Импорт общего доступа"
+    "other": "Import Shares"
   },
   "step.shares.alert": {
-    "other": "Пожалуйста, выберите по крайней мере один тип публичного доступа!"
+    "other": "Please pick at least one share type!"
   },
   "step.shares.legend": {
-    "other": "Импортируйте публичные ссылки Pydio 8 и общие папки в ячейки. Публичные ссылки будут создаваться с тем же идентификатором и свойствами (пароль, срок действия и т. д.). Папки, используемые в Pydio 8 как рабочие пространства, будут сопоставлены с новыми ячейками."
+    "other": "Import Pydio 8 public links and shared folders into Cells. Public links will be created with the same identifier and properties (password, expiration, etc...). Folders shared as workspaces in Pydio 8 will be mapped to new Cells."
   },
   "step.shares.legend.warning": {
-    "other": "Пожалуйста, обратите внимание, что импорт общего доступа является однонаправленной синхронизацией: выполнение этого шага несколько раз создаст дубликаты. Если вы планируете выполнять миграцию несколько раз, сначала импортируйте общий доступ для ограниченного числа тестовых пользователей."
+    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
   },
   "step.shares.restrict.type": {
-    "other": "1. Ограничить тип импортируемых общих данных (выберите по крайней мере один):"
+    "other": "1. Restrict the type of shares to be imported (select at least one):"
   },
   "step.shares.restrict.user": {
-    "other": "2. Для тестирования вы можете ограничить импорт одним или несколькими пользователями (через запятую)"
+    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
   },
   "step.shares.restrict.user.login": {
-    "other": "Вход владельца"
+    "other": "Owner login"
   },
   "step.ws.title": {
-    "other": "Импорт рабочих областей"
+    "other": "Import Workspaces"
   },
   "step.ws.loading": {
-    "other": "(загрузка...)"
+    "other": "(loading...)"
   },
   "step.ws.legend": {
-    "other": "Импорт рабочих областей из Pydio 8 в ячейки является многоступенчатым процессом:"
+    "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
   },
   "step.ws.step1": {
-    "other": "1. Переместите существующие данные вручную с текущего сервера на новый (это может быть ненужно, если вы используете Pydio и ячейки на том же сервере)."
+    "other": "1. Manually migrate the existing data from the current server to the new one (this may be unnecessary if you are running Pydio and Cells on the same server)."
   },
   "step.ws.step2": {
-    "other": "2. Создавайте базы данных, указывающие на новые места хранения на сервере."
+    "other": "2. Create Cells datasources pointing to the new storage locations on the server."
   },
   "step.ws.step3": {
-    "other": "3. Дождитесь правильного индексирования всех источников данных."
+    "other": "3. Wait for all datasources to be properly indexed."
   },
   "step.ws.step4": {
-    "other": "4. Сопоставьте старые рабочие области в новые рабочие области с помощью инструмента ниже"
+    "other": "4. Map old workspaces to new workspaces by using the tool below"
   },
   "step.mapper.already": {
-    "other": "Рабочие пространства уже сопоставлены (тот же UUID)"
+    "other": "Workspaces already mapped (same UUID)"
   },
   "step.mapper.wsnumber": {
-    "other": "Сопоставление %s рабочих пространств с сервера в новые рабочие пространства"
+    "other": "Mapping %s workspaces from server to new Cells workspaces"
   },
   "step.mapper.loading": {
-    "other": "Загрузка рабочих областей с сервера..."
+    "other": "Loading workspaces from server..."
   },
   "step.mapper.loading.error": {
-    "other": "Ошибка при загрузке рабочих областей с сервера: %s. Убедитесь, что CORS включен в вашей установке Pydio8."
+    "other": "Error while loading workspaces from server: %s. Make sure to have CORS enabled on your Pydio8 installation."
   },
   "step.mapper.p8.title": {
-    "other": "Pydio 8 Рабочие пространства"
+    "other": "Pydio 8 Workspaces"
   },
   "step.mapper.p8.ds.show": {
-    "other": "Показать источники данных"
+    "other": "Show datasources"
   },
   "step.mapper.p8.tpl.show": {
-    "other": "Показать пути шаблонов"
+    "other": "Show template paths"
   },
   "step.mapper.cells.title": {
-    "other": "Источники данных ячеек"
+    "other": "Cells Datasources"
   },
   "step.mapper.createds": {
-    "other": "Создать источник данных"
+    "other": "Create Datasource"
   },
   "step.mapper.tpath.title": {
-    "other": "Шаблоны путей ячеек"
+    "other": "Cells Template Paths"
   },
   "step.mapper.tpath.create": {
-    "other": "Создать путь для шаблона"
+    "other": "Create Template Path"
   },
   "step.mapper.nodes.title": {
-    "other": "Узлы ячеек"
+    "other": "Cells Nodes"
   },
   "step.mapper.notplpath.primary": {
-    "other": "Нет"
+    "other": "None"
   },
   "step.mapper.notplpath.secondary": {
-    "other": "Путь к шаблону не требуется"
+    "other": "No template path required"
   },
   "step.mapper.next10": {
-    "other": "Далее "
+    "other": "Next "
   },
   "step.mapper.prev10": {
-    "other": "Предыдущая "
+    "other": "Previous "
   },
   "step.mapper.invalid": {
-    "other": "Недопустимое сопоставление - Пожалуйста, выберите источник данных или рабочую область"
+    "other": "Invalid mapping - Please select a datasource or a workspace"
   },
   "dash.feature.configs": {
-    "other": "Конфигурация системы AD/LDAP"
+    "other": "AD/LDAP Configuration"
   },
   "dash.feature.configs.legend": {
-    "other": "Для этого шага нет конкретной конфигурации. Конфигурации AD / LDAP будут импортированы во внешний каталог Pydio ячеек."
+    "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."
   },
   "dash.feature.users": {
-    "other": "Пользователи, группы и роли"
+    "other": "Users, Groups and Roles"
   },
   "dash.feature.users.legend": {
-    "other": "Для этого шага нет конкретной конфигурации. Пользователи будут синхронизированы с удаленным сервером. Когда это возможно, их хешированный пароль также будет импортирован (пароль не сохраняется и не передается в открытом виде), чтобы пользователи могли регистрироваться с тем же идентификатором на новом сервере."
+    "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
   },
   "dash.feature.workspaces": {
-    "other": "Рабочие пространства"
+    "other": "Workspaces"
   },
   "dash.feature.acls": {
-    "other": "Рабочие пространства ACL"
+    "other": "Workspaces ACLs"
   },
   "dash.feature.acls.legend": {
-    "other": "Для этого шага нет конкретной конфигурации. Список доступа будет загружен с сервера и применен к рабочим областям."
+    "other": "There is no specific configuration for this step. Access list will be loaded from server and applied to workspaces."
   },
   "dash.feature.meta": {
-    "other": "Метаданные файлов"
+    "other": "Files Metadata"
   },
   "dash.feature.shares": {
-    "other": "Общие ресурсы"
+    "other": "Shares"
   },
   "dash.job.new": {
-    "other": "Новая задача импорта"
+    "other": "New import job"
   },
   "dash.importing": {
-    "other": "Импорт данных"
+    "other": "Importing Data"
   },
   "logs.legend": {
-    "other": "Журнал записанных во время задачи %s"
+    "other": "Log recorded during task %s"
   },
   "action.createws.success": {
-    "other": "[Workspaces] Создано рабочее пространство %s"
+    "other": "[Workspaces] Created workspace %s"
   },
   "action.createws.fail.": {
-    "other": "[Workspaces] Ошибка при создании рабочего пространства %1 : %s"
+    "other": "[Workspaces] Error while creating workspace %1 : %s"
   },
   "action.createws.summary": {
-    "other": "Будет применено следующее сопоставление uuid => uuid:"
+    "other": "The following uuid => uuid mapping will be applied:"
   },
   "action.createws.head.pydio": {
     "other": "Pydio"
@@ -303,39 +303,39 @@
     "other": "Cells"
   },
   "action.createws.head.status": {
-    "other": "Статус"
+    "other": "Status"
   },
   "action.createws.notexists": {
-    "other": "Создать/Обновить"
+    "other": "Create/Update"
   },
   "action.createws.exists": {
-    "other": "Уже существует"
+    "other": "Already Exists"
   },
   "action.share.linksonly": {
-    "other": "Только публичные ссылки будут импортированы."
+    "other": "Only Public Links will be imported."
   },
   "action.share.cellsonly": {
-    "other": "Будут импортированы только общие папки."
+    "other": "Only shared folders will be imported."
   },
   "action.share.all": {
-    "other": "Все общие данные будут импортированы (ссылки и общие папки)."
+    "other": "All shares will be imported (links and shared folders)."
   },
   "action.share.user": {
-    "other": "Будут импортированы только общие данные, принадлежащие %s."
+    "other": "Only shares owned by %s will be imported."
   },
   "action.meta.summary": {
-    "other": "Следующие метаданные будут импортированы: "
+    "other": "The following metadata will be imported: "
   },
   "action.meta.files": {
-    "other": "Для метаданных файлов будут использоваться следующие сопоставления: "
+    "other": "For files metadata, the following mapping will be used: "
   },
   "action.meta.success": {
-    "other": "Создано пространство имён метаданных"
+    "other": "Metadata namespaces created"
   },
   "action.meta.fail": {
-    "other": "Ошибка при создании пространства имен метаданных: %s"
+    "other": "Error while creating metadata namespace : %s"
   },
   "logs.empty": {
-    "other": "Действия не найдены"
+    "other": "No activity found"
   }
 }
