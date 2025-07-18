@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "Mappa OpenLayers"
+    "other": "OpenLayers Map"
   },
   "10": {
-    "other": "Pulisci"
+    "other": "Clear"
   },
   "2": {
-    "other": "Filtro"
+    "other": "Filter"
   },
   "3": {
-    "other": "Posizione"
+    "other": "Position"
   },
   "4": {
-    "other": "Livelli"
+    "other": "Layers"
   },
   "5": {
-    "other": "Anti-aliasing"
+    "other": "Antialias"
   },
   "6": {
-    "other": "Formato"
+    "other": "Format"
   },
   "7": {
-    "other": "Stili"
+    "other": "Styles"
   },
   "8": {
-    "other": "Filtra"
+    "other": "Filter"
   },
   "9": {
-    "other": "Cerca"
+    "other": "Search"
   }
 }
