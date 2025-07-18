@@ -27,42 +27,42 @@
     "other": "Innerhalb"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Aktivitäten werden geladen..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Keine kürzliche Aktivität"
   },
   "19": {
-    "other": "More"
+    "other": "Mehr"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "Ereignisspeicher"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Thema wird geladen..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "Wichtige Nachrichten"
   },
   "4": {
-    "other": "Notifications"
+    "other": "Benachrichtigungen"
   },
   "5": {
-    "other": "All Events"
+    "other": "Aktuelle Ereignisse"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "Gehe zu ..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "Verwerfen"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Keine Benachrichtigungen"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Aktivitäten"
   },
   "tasks.subheader": {
-    "other": "Running Tasks"
+    "other": "Laufende Aufgaben"
   }
 }
