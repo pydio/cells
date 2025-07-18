@@ -1,62 +1,62 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Открытый доступ"
+    "other": "Public access"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Открытый доступ к конечным точкам"
+    "other": "Public access to discovery endpoints"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Анонимный доступ к данным (GET)"
+    "other": "Anonymous access to discovery (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Анонимный доступ к точкам сброса пароля (PUT, POST)"
+    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Анонимный доступ к загрузке статуса интерфейса (GET)"
+    "other": "Anonymous access to load frontend state (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Анонимный доступ к начальной сессии (POST)"
+    "other": "Anonymous access to init frontend session (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Установочные точки (первый запуск)"
+    "other": "Installation Endpoints (first run)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Конечные точки установки требуют публичного доступа при первом запуске"
+    "other": "Installation endpoints require public access at first run"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Анонимный доступ для установки конечных точек (GET, POST)"
+    "other": "Anonymous access to install endpoints (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Зарегистрированные пользователи и администратор"
+    "other": "Logged User and Admin User accesses"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Решите, как обычные пользователи/пользователи могут получить доступ к остальным API"
+    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Полные REST доступ к профилю администратора"
+    "other": "Full REST accesses to Admin profile"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Доступ по умолчанию REST для зарегистрированного пользователя"
+    "other": "Default REST accesses for a logged user"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Список и поиск метаданных, определенных пользователем"
+    "other": "List and search user-defined metadata"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Обновить метаданные, определенные пользователем"
+    "other": "Update user-defined metadata"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Доступ к чтению для всего FrontendService"
+    "other": "Read-access to all FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Доступ к FrontendService без глобальных загрузок бинарных файлов"
+    "other": "Write-access to FrontendService except global binaries uploads"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "Операции OpenIdConnect"
+    "other": "OpenIdConnect Operations"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Включить/отключить аутентификацию в OpenID Connect Server"
+    "other": "Enable/Disable authentications in OpenID Connect Server"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "По умолчанию доступ для входа всех пользователей"
+    "other": "Default accesses to login action for all users"
   }
 }
