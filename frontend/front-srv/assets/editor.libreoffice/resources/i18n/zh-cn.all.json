@@ -1,59 +1,59 @@
 {
   "1": {
-    "other": "Libre办公室文档"
+    "other": "Libre Office Documents"
   },
   "10": {
-    "other": "创建空文档"
+    "other": "Create an empty document"
   },
   "11": {
-    "other": "文档格式"
+    "other": "Document Format"
   },
   "12": {
-    "other": "您也可以 <a>创建空文档</a>"
+    "other": "You can also <a>create an empty document</a>"
   },
   "13": {
-    "other": "无标题文档"
+    "other": "Untitled Document"
   },
   "14": {
-    "other": "文档已创建，您现在可以编辑了"
+    "other": "The document was created, you can now edit it"
   },
   "15": {
-    "other": "未知文档格式"
+    "other": "Unknown document format"
   },
   "2": {
-    "other": "Libre办公室外部浏览器窗口"
+    "other": "Libre Office External browser window"
   },
   "ext.doc": {
-    "other": "微软Word 97/2000/XP/2003"
+    "other": "Microsoft Word 97/2000/XP/2003"
   },
   "ext.docx": {
-    "other": "微软Word 2007/2010/2013 XML"
+    "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "ODF 绘图"
+    "other": "ODF Drawing"
   },
   "ext.odp": {
-    "other": "ODF 演示文稿"
+    "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "ODF 电子表格"
+    "other": "ODF Spreadsheet"
   },
   "ext.odt": {
-    "other": "ODF 文本文档"
+    "other": "ODF Text Document"
   },
   "ext.ppt": {
-    "other": "微软PowerPoint 97/2000/XP/2003"
+    "other": "Microsoft PowerPoint 97/2000/XP/2003"
   },
   "ext.pptx": {
-    "other": "微软PowerPoint 2007/2010/2013 XML"
+    "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "富文本"
+    "other": "Rich Text"
   },
   "ext.xls": {
-    "other": "微软Excel 97/2000/XP/2003"
+    "other": "Microsoft Excel 97/2000/XP/2003"
   },
   "ext.xlsx": {
-    "other": "微软Excel 2007/2010/2013 XML"
+    "other": "Microsoft Excel 2007/2010/2013 XML"
   }
 }
