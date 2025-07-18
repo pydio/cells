@@ -3,40 +3,40 @@
     "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
   },
   "40": {
-    "other": "Vítejte, %s! "
+    "other": "Welcome, %s! "
   },
   "41": {
-    "other": "Použít tento pracovní prostor jako výchozí"
+    "other": "Use this workspace as default"
   },
   "42": {
     "other": "Enter"
   },
   "43": {
-    "other": "Můj profil"
+    "other": "My Profile"
   },
   "43t": {
-    "other": "Všechny mé osobní údaje"
+    "other": "All my personal data"
   },
   "44": {
-    "other": "Můj účet"
+    "other": "My Account"
   },
   "45": {
-    "other": "Osobní údaje"
+    "other": "Personal data"
   },
   "46": {
-    "other": "Adresář kontaktů"
+    "other": "Address Book"
   },
   "47": {
-    "other": "Uživatelé a týmy, které jste vytvořili"
+    "other": "Users and teams that you created"
   },
   "48": {
-    "other": "Mí uživatelé"
+    "other": "My Users"
   },
   "49": {
-    "other": "Externí uživatelé, které jste vytvořili"
+    "other": "External users that you created"
   },
   "50": {
-    "other": "Mé týmy"
+    "other": "My Teams"
   },
   "51": {
     "other": "Teams of users, used as shortcuts when sharing"
@@ -45,7 +45,7 @@
     "other": "Are you sure you want to delete this team? This will not remove any users."
   },
   "53": {
-    "other": "Začínáme"
+    "other": "Getting Started"
   },
   "54": {
     "other": "Get started with APPLICATION_TITLE by following How-to videos"
@@ -57,7 +57,7 @@
     "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
   },
   "57": {
-    "other": "Stáhnout APLIKAC_TITLE pro…"
+    "other": "Download APPLICATION_TITLE for..."
   },
   "58": {
     "other": "Android"
@@ -66,7 +66,7 @@
     "other": "iPhone/iPad"
   },
   "60": {
-    "other": "macOS"
+    "other": "Mac OS"
   },
   "61": {
     "other": "Windows"
@@ -90,28 +90,28 @@
     "other": "If you are not %s, %logout."
   },
   "68": {
-    "other": "Stáhnout si synchronizačního klienta pro Windows"
+    "other": "Download Sync Client for Windows"
   },
   "69": {
-    "other": "Stáhnout si synchronizačního klienta pro macOS"
+    "other": "Download Sync Client for Mac OSX"
   },
   "70": {
-    "other": "Nativní aplikace pro iOS zařízení"
+    "other": "Native application for iOS devices"
   },
   "71": {
-    "other": "Nativní aplikace pro Android zařízení"
+    "other": "Native application for Android Devices"
   },
   "72": {
-    "other": "QR kód serveru"
+    "other": "Server QRCode"
   },
   "73": {
-    "other": "Jednoduše připojte své mobilní aplikace"
+    "other": "Easily connect your mobile applications"
   },
   "74": {
-    "other": "Naskenováním tohoto QR kódu snadno nastavíte mobilní aplikaci"
+    "other": "Scan this QRCode to easily configure your mobile application"
   },
   "75": {
-    "other": "Prohledat všechny soubory…"
+    "other": "Search all files..."
   },
   "76": {
     "other": "Access the %1 through the top-right menu"
@@ -144,58 +144,58 @@
     "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Přehrát video"
+    "other": "Play video"
   },
   "87": {
-    "other": "Má nedávná aktivita"
+    "other": "My Recent Activity"
   },
   "88": {
-    "other": "Přetáhněte sem soubor ze svého počítače"
+    "other": "Drop a file here from your desktop"
   },
   "89": {
-    "other": "Vyberte soubor k nahrání"
+    "other": "Selected file for upload"
   },
   "90": {
-    "other": "Vyberte cílový pracovní prostor"
+    "other": "Select target workspace"
   },
   "91": {
     "other": "Keep your files offline with our Desktop Sync Client"
   },
   "92": {
-    "other": "Stahování aplikací"
+    "other": "Applications Download"
   },
   "93": {
-    "other": "Pohotové nahrání"
+    "other": "Quick Upload"
   },
   "94": {
-    "other": "Video úvod"
+    "other": "Video Tutorial"
   },
   "desc": {
-    "other": "Uvítací stránka"
+    "other": "Welcome page"
   },
   "title": {
-    "other": "Domů"
+    "other": "Home"
   },
   "search.result.location": {
-    "other": "Složka"
+    "other": "Folder"
   },
   "search.facets.title": {
-    "other": "Filtrovat výsledky…"
+    "other": "Filter Results..."
   },
   "search.facet.type": {
-    "other": "Typ"
+    "other": "Type"
   },
   "search.facet.extension": {
-    "other": "Přípona"
+    "other": "Extension"
   },
   "search.facet.size": {
-    "other": "Velikost"
+    "other": "Size"
   },
   "search.facet.modified": {
-    "other": "Změněno"
+    "other": "Modified"
   },
   "search.facet.found": {
-    "other": "Nalezeno v"
+    "other": "Found in"
   },
   "search.facet.metadata": {
     "other": "Metadata"
@@ -216,19 +216,19 @@
     "other": "Smallest First"
   },
   "facet.label.file": {
-    "other": "Soubor"
+    "other": "File"
   },
   "facet.label.folder": {
-    "other": "Složka"
+    "other": "Folder"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1 až 10MB"
+    "other": "1MB to 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10 až 100MB"
+    "other": "10MB to 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
@@ -237,22 +237,22 @@
     "other": "Moments ago"
   },
   "facet.label.date.today": {
-    "other": "Dnes"
+    "other": "Today"
   },
   "facet.label.date.last.7": {
-    "other": "Uplynulých 7 dnů"
+    "other": "Last 7 days"
   },
   "facet.label.date.last.30": {
-    "other": "Uplynulých 30 dnů"
+    "other": "Last 30 days"
   },
   "facet.label.date.older.30": {
-    "other": "Starší než 30 dní"
+    "other": "Older than 30 days"
   },
   "facet.label.found.contents": {
-    "other": "Obsah"
+    "other": "Contents"
   },
   "facet.label.found.basename": {
-    "other": "Název souboru"
+    "other": "File name"
   },
   "reco.bookmark": {
     "other": "Bookmark"
