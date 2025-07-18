@@ -21,10 +21,10 @@
     "other": "Абсолютный путь к одному или нескольким корневым узлам"
   },
   "#Items per page": {
-    "other": "#Items на странице"
+    "other": "#Элементов на странице"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Только при нумерации страниц - число объектов на одной странице."
+    "other": "Once in pagination mode, number of items to display per page."
   },
   "Delete Permanently": {
     "other": "Удалить Безвозвратно"
