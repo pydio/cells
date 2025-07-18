@@ -1,63 +1,63 @@
 {
   "39": {
-    "other": "Hieronder staat een lijst van de werkruimtes waar je toegang tot hebt. Deze kunnen persoonlijk zijn of gedeeld met andere gebruikers."
+    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
   },
   "40": {
-    "other": "Welkom, %s! "
+    "other": "Welcome, %s! "
   },
   "41": {
-    "other": "Deze werkruimte als standaard gebruiken"
+    "other": "Use this workspace as default"
   },
   "42": {
-    "other": "Invoeren"
+    "other": "Enter"
   },
   "43": {
-    "other": "Mijn profiel"
+    "other": "My Profile"
   },
   "43t": {
-    "other": "Al mijn persoonlijke gegevens"
+    "other": "All my personal data"
   },
   "44": {
-    "other": "Mijn account"
+    "other": "My Account"
   },
   "45": {
-    "other": "Persoonlijke gegevens"
+    "other": "Personal data"
   },
   "46": {
-    "other": "Adres boek"
+    "other": "Address Book"
   },
   "47": {
-    "other": "Gebruikers en teams die je hebt aangemaakt"
+    "other": "Users and teams that you created"
   },
   "48": {
-    "other": "Mijn gebruikers"
+    "other": "My Users"
   },
   "49": {
-    "other": "Externe gebruikers die je hebt aangemaakt"
+    "other": "External users that you created"
   },
   "50": {
-    "other": "Mijn teams"
+    "other": "My Teams"
   },
   "51": {
-    "other": "Teams van gebruikers, gebruikt als snelkoppeling bij het delen"
+    "other": "Teams of users, used as shortcuts when sharing"
   },
   "52": {
-    "other": "Weet je zeker dat je dit team wilt verwijderen? Dit zal geen gebruikers verwijderen."
+    "other": "Are you sure you want to delete this team? This will not remove any users."
   },
   "53": {
-    "other": "Aan de slag"
+    "other": "Getting Started"
   },
   "54": {
-    "other": "Ga aan de slag met APPLICATION_TITLE door How-to video's te volgen"
+    "other": "Get started with APPLICATION_TITLE by following How-to videos"
   },
   "55": {
-    "other": "Nieuw bij APPLICATION_TITLE? <a>Bekijk onze tutorials</a>!"
+    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
   },
   "56": {
-    "other": "Aan de slag met APPLICATION_TITLE? Hier zijn enkele video's voor jou!"
+    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE voor..."
+    "other": "Download APPLICATION_TITLE for..."
   },
   "58": {
     "other": "Android"
@@ -72,109 +72,109 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] Wat is een werkruimte?</h2>\n            Deze video legt uit welke werkruimtes in de APPLICATION_TITLE\n            <ul>\n                <li>Waarom staan werkruimtes centraal in APPLICATION_TITLE?</li>\n                <li>Wat zijn werkruimtes vanuit technisch perspectief?</li>\n                <li>Hoe staan zij je toe om je gegevens te organiseren?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Het uploaden van files naar APPLICATION_TITLE</h2>\n            Begin met APPLICATION_TITLE en leer hoe files geupload moeten worden\n            <ul>\n                <li>Drag and drop files in APPLICATION_TITLE</li>\n                <li>Creëer een nieuwe folder</li>\n                <li>Hernoem files en folders</li>\n                <li>Download files naar je computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>[How-to] Het zoeken, browse en beheren van je files</h2>\n            Deze video laat tips zien om efficiënt je files te beheren in APPLICATION_TITLE\n            <ul>\n                <li>Over alle werkruimtes heen zoeken</li>\n                <li>Content display modes, keyboard shortcuts</li>\n                <li>Sorteer files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Ontdek meer op het APPLICATION_TITLE kanaal!"
+    "other": "Discover more on the APPLICATION_TITLE channel!"
   },
   "66": {
-    "other": "<h2>[How-to] Het gebruiken van APPLICATION_TITLE op een iOS apparaat</h2>\n                            Deze video legt uit hoe de APPLICATION_TITLE applicatie te gebruiken (beschikbaar in de App Store). Het proces is vergelijkbaar op Android.\n<ul><li>Stel de serververbinding in</li>\n<li>Navigeer door de bestanden</li>\n<li>Bestanden offline houden en interactie met externe applicaties</li>\n<li>Bescherm de app met een PIN-code</li>\n<li>Bladwijzers en zoekmachine</li></ul>"
+    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
   },
   "67": {
-    "other": "Als je niet %sbent, %logout."
+    "other": "If you are not %s, %logout."
   },
   "68": {
-    "other": "Download Sync Client voor Windows"
+    "other": "Download Sync Client for Windows"
   },
   "69": {
-    "other": "Download Sync Client voor Mac OSX"
+    "other": "Download Sync Client for Mac OSX"
   },
   "70": {
-    "other": "Native applicatie voor iOS apparaten"
+    "other": "Native application for iOS devices"
   },
   "71": {
-    "other": "Native applicatie voor Android apparaten"
+    "other": "Native application for Android Devices"
   },
   "72": {
     "other": "Server QRCode"
   },
   "73": {
-    "other": "Verbind eenvoudig uw mobiele applicaties"
+    "other": "Easily connect your mobile applications"
   },
   "74": {
-    "other": "Scan deze QRCode om uw mobiele applicatie eenvoudig te configureren"
+    "other": "Scan this QRCode to easily configure your mobile application"
   },
   "75": {
-    "other": "Zoek in alle bestanden..."
+    "other": "Search all files..."
   },
   "76": {
-    "other": "Toegang tot %1 via het menu rechtsboven"
+    "other": "Access the %1 through the top-right menu"
   },
   "77": {
     "other": "admin dashboard"
   },
   "78": {
-    "other": "Kies een doel werkruimte"
+    "other": "Pick a target workspace"
   },
   "79": {
-    "other": "<h2>[How-to] Het delen van files en folders</h2>\n            Deze tutorial laat zien hoe je files and folders kan delen, zowel intern als extern\n            <ul>\n                <li>Aanmaken van deel links voor externe personen</li>\n                <li>Het delen van  files en folders met interne gebruikers</li>\n                <li>Het delen van een folder als een werkruimte</li>\n                <li>Layout mogelijkheden van gedeelde folders</li>\n                <li>Aanmaken van een blind drop folder</li>\n                <li>Beheer van gebruikers en deel rechten</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Delen: Beveiligings mogelijkheden</h2>\n            Deze video geeft een overzicht van de deel opties die helpen om veilig te kunnen delen\n            <ul>\n                <li>Wachtwoord bescherming</li>\n                <li>Expiratie datum's</li>\n                <li>Limiteer de hoeveelheid downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Pas je deel links aan</h2>\n            Bekijk hoe je de URL van jou deel links kunt aanpassen om ze er gebruiksvriendelijker uit te laten zien.\n            "
+    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Gedeelde links aangepaste rechten</h2>\n            Deze video laat je zien hoe jij de rechten die aan jou deel links zijn gekoppeld kunt beheren\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li> Upload / bewerk</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Taal</h2>\n            APPLICATION_TITLE is beschikbaar in 28 talen. Deze video laat je zien hoe je de taal in APPLICATION_TITLE.\n            kunt wijzigen.            "
+    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Waarschuwingen</h2>\n            Leer hoe u waarschuwingen instelt op een bestand, om te zien wanneer het is gewijzigd of geraadpleegd.\n            "
+    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Samenwerken</h2>\n            Deze video laat zien hoe je kunt samenwerken aan office docs, dankzij Collabora online office suite\n            <ul>\n                <li>Werk aan text docs, presentaties, spreadsheets</li>\n                <li>Bewerk docs gezamelijk in real time</li>\n                <li>Creëer nieuwe documenten rechtstreek vanuit je browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Video afspelen"
+    "other": "Play video"
   },
   "87": {
-    "other": "Mijn recente activiteit"
+    "other": "My Recent Activity"
   },
   "88": {
-    "other": "Sleep een bestand vanaf uw bureaublad hier naartoe"
+    "other": "Drop a file here from your desktop"
   },
   "89": {
-    "other": "Geselecteerd bestand voor uploaden"
+    "other": "Selected file for upload"
   },
   "90": {
-    "other": "Selecteer doel werkruimte"
+    "other": "Select target workspace"
   },
   "91": {
-    "other": "Houd uw bestanden offline met onze desktop-Sync Client"
+    "other": "Keep your files offline with our Desktop Sync Client"
   },
   "92": {
-    "other": "Applicaties downloaden"
+    "other": "Applications Download"
   },
   "93": {
-    "other": "Snel uploaden"
+    "other": "Quick Upload"
   },
   "94": {
-    "other": "Video handleiding"
+    "other": "Video Tutorial"
   },
   "desc": {
-    "other": "Welkom pagina"
+    "other": "Welcome page"
   },
   "title": {
-    "other": "Startpagina"
+    "other": "Home"
   },
   "search.result.location": {
     "other": "Folder"
