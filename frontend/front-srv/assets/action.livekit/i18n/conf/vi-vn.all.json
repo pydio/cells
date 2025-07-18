@@ -9,18 +9,18 @@
     "other": "Websocket URL"
   },
   "Livekit Websocket URL": {
-    "other": "Livekit Websocket URL"
+    "other": "Địa chỉ url của websocket"
   },
   "API Key": {
-    "other": "API Key"
+    "other": "Khóa API"
   },
   "Livekit server API Key": {
-    "other": "Livekit server API Key"
+    "other": "Bộ công cụ để kiểm tra api của server"
   },
   "API Secret": {
-    "other": "API Secret"
+    "other": "Mã bí mật của API"
   },
   "Livekit server API Secret": {
-    "other": "Livekit server API Secret"
+    "other": "Bộ công cụ cho khóa bí mật của API của server"
   }
 }
