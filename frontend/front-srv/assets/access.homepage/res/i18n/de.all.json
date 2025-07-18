@@ -1,69 +1,69 @@
 {
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "Unten finden Sie eine Liste der Workspaces, auf die Sie zugreifen können. Diese können persönlich oder gemeinsam mit anderen Benutzern genutzt werden."
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Willkommen, %s!"
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Standardmässig öffnen"
   },
   "42": {
-    "other": "Enter"
+    "other": "Öffnen"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Mein Profil"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Alle meine persönlichen Dateien"
   },
   "44": {
-    "other": "My Account"
+    "other": "Mein Benutzerkonto"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Persönliche Daten"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Adressbuch"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Von Ihnen erstellte Benutzer"
   },
   "48": {
-    "other": "My Users"
+    "other": "Meine Benutzer"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "Freigaben-Benutzer, die Sie erstellt haben"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Meine Teams"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Um Inhalte schnell an einen bestimmten Personenkreis freizugeben"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Möchten Sie dieses Team wirklich löschen? Es werden dabei keine Benutzer gelöscht."
   },
   "53": {
-    "other": "Getting Started"
+    "other": "Erste Schritte"
   },
   "54": {
-    "other": "Get started with APPLICATION_TITLE by following How-to videos"
+    "other": "Machen Sie Ihre ersten Schritte mit APPLICATION_TITLE mit folgenden Video-Kurzanleitungen"
   },
   "55": {
-    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
+    "other": "Unterstützung für die <a>ersten Schritte?</a>"
   },
   "56": {
-    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
+    "other": "Ihre ersten Schritte mit APPLICATION_TITLE? Hier finden Sie einige Videos dazu!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "APPLICATION_TITLE herunterladen für..."
   },
   "58": {
     "other": "Android"
   },
   "59": {
-    "other": "iPhone/iPad"
+    "other": "iPhone & iPad"
   },
   "60": {
     "other": "Mac OS"
@@ -72,190 +72,190 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[Anleitung] Was ist ein Workspace?</h2>\n            Dieses Video erklärt, was Workspaces in APPLICATION_TITLE sind\n            <ul>\n                <li>Warum sind Workspaces zentral in APPLICATION_TITLE?</li>\n                <li>Was sind Workspaces aus technischer Sicht?</li>\n                <li>Wie ermöglichen sie die Organisation Ihrer Daten?</li>\n            </ul>            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Dateien zu APPLICATION_TITLE hochladen</h2>\n            Beginnen Sie mit APPLICATION_TITLE und erfahren Sie, wie Sie Dateien hochladen können.\n            <ul>\n                <li>Drag and Drop von Dateien in APPLICATION_TITLE</li>\n                <li>Erstellen neuer Ordner</li>.\n                <li>Dateien und Ordner umbenennen</li>\n                <li>Download von Dateien auf Ihren Computer </li>           \n</ul>            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[Anleitung] Suchen, durchsuchen und verwalten Ihrer Dateien</h2>\n            Dieses Video zeigt Ihnen verschiedene Tipps, um Ihre Dateien in APPLICATION_TITLE effizient zu verwalten\n            <ul>\n                <li>übergreifende Workspaces-Suchleiste</li>\n                <li>Inhaltsanzeigemodi, Tastaturkürzel</li>\n                <li>Dateien sortieren</li>\n                <li>Meta-Daten, Lesezeichen</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "Mehr über APPLICATION_TITLE im YouTube-Kanal erfahren!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>APPLICATION_TITLE auf iOS-Geräten verwenden</h2>\n                            Das folgende Video erklärt die Verwendung der APPLICATION_TITLE App (verfügbar im App Store). Die Nutzung auf Android ist ähnlich.\n<ul><li>Serververbindung einrichten</li>\n<li>Dateinavigation</li>\n<li>Dateien offline speichern</li>\n<li>App mit einem PIN-Code schützen</li>\n<li>Verwenden von Lesezeichen und der Suchfunktion</li></ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "Sie sind nicht %s? %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Sync-Client für Windows herunterladen"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Sync-Client für Mac OSX herunterladen"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "App für iOS-Geräte"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "App für Android-Geräte"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "Server-QRCode"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "App schnell verbinden"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "QRCode scannen um eine Verbindung zum Server zu konfigurieren"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "Alle Dateien durchsuchen..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "Über das Menü oben rechts können Sie auf die %1 zugreifen"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "Einstellungen"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "Wählen Sie eine Ziel-Workspace"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[Anleitung] Dateien und Ordner teilen</h2>\n            Dieses Tutorial zeigt Ihnen, wie Sie Dateien und Ordner intern oder extern teilen können\n            <ul>\n                <li>Erstellen von Freigabelinks für externe Personen</li>\n                <li>Dateien und Ordner mit internen Mitarbeitern teilen</li>\n                <li>Einen Ordner als Workspace teilen</li>\n                <li>Layoutoptionen für geteilte Ordner</li>\n                <li>Erstellen eines Blind Drop-Ordners</li>\n                <li>Benutzer und Freigaberechte verwalten</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing : Sicherheit Features</h2>\n            Dieses Video durchläuft verschiedene Freigabeeinstellungen, die Ihnen helfen, Ihre Freigaben zu sichern\n            <ul>\n                <li>Passwort Schutz</li>\n                <li>Ablauf Datum</li>\n                <li>Anzahl der Downloads begrenzen</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] Passen Sie Ihre Share-Links an</h2>\n            Erfahren Sie, wie Sie die URL Ihrer Share-Links anpassen können, damit sie benutzerfreundlicher aussehen.\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2> [How-to] Benutzerdefinierte Rechte für shared Links </h2> \n            In diesem Video wird beschrieben, wie Sie die Berechtigungen verwalten, die Ihren Freigaben zugeordnet sind.\n            <ul>\n                <li>Vorschau</li>\n                <li>Herunterladen</li>\n                <li >Hochladen / Bearbeiten</li>\n             </ul>\n"
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] Sprache</h2>\n            APPLICATION_TITLE ist in 28 Sprachen verfügbar. Dieses Video zeigt Ihnen, wie Sie die Sprache in APPLICATION_TITLE ändern können.            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Warnmeldungen</h2>\n            Erfahren Sie, wie Sie Warnmeldungen für eine Datei einrichten, um zu sehen, wann sie geändert oder konsultiert wurde.            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Kollaborative Ausgabe</h2>\n             Dieses Video zeigt Ihnen, wie Sie dank der Collabora Online Office auf Dokumenten mit Anderen zusammenarbeiten können.\n            <ul>\n                <li>Arbeiten an Textdokumenten, Präsentationen und Tabellenkalkulationen</li>\n                <li>Dokumente in Echtzeit kollaborativ bearbeiten</li>\n                <li>Erstellen Sie neue Dokumente direkt aus Ihrem Browser heraus</li>.\n            </ul>            "
   },
   "86": {
-    "other": "Play video"
+    "other": "Video abspielen"
   },
   "87": {
-    "other": "My Recent Activity"
+    "other": "Historie"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "Dateien vom Desktop hierher ziehen"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "Zum Hochladen ausgehälte Datei"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "Ziel-Workspace auswählen"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "Dateien mit dem Sync-Client offline synchronisieren"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Programme herunterladen"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Dateien hochladen"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Video-Tutorial"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "Willkommen-Seite"
   },
   "title": {
-    "other": "Home"
+    "other": "Hauptseite"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "Ordner"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Filterergebnisse..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "Typ"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "Erweiterung"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "Größe"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "Bearbeitet"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Gefunden in"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "Metadaten"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Relevantesten zuerst"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "Zuletzt hinzugefügt zuerst"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Älteste zuerst"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Größte zuerst"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Kleinste zuerst"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "Datei"
   },
   "facet.label.folder": {
-    "other": "Folder"
+    "other": "Ordner"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB bis 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB bis 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Vor kurzem"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "Heute"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Letzten 7 Tage"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Letzten 30 Tage"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Älter als 30 Tage"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "Inhalte"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Dateiname"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "Lesezeichen"
   },
   "reco.workspace": {
     "other": "Workspace"
