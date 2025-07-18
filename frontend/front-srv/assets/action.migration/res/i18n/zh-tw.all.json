@@ -1,6 +1,6 @@
 {
   "title": {
-    "other": "Data Import"
+    "other": "匯入資料"
   },
   "legend": {
     "other": "Import tool from Pydio 8"
@@ -57,7 +57,7 @@
     "other": "Admin password"
   },
   "step.connection.button.connect": {
-    "other": "Connect"
+    "other": "連接"
   },
   "step.meta.title": {
     "other": "Import Metadata"
@@ -180,10 +180,10 @@
     "other": "Owner login"
   },
   "step.ws.title": {
-    "other": "Import Workspaces"
+    "other": "匯入工作區"
   },
   "step.ws.loading": {
-    "other": "(loading...)"
+    "other": "(載入中...)"
   },
   "step.ws.legend": {
     "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
