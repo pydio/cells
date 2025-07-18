@@ -1,0 +1,176 @@
+{
+  "Allow users to generate public links on files": {
+    "other": "Allow users to generate public links on files"
+  },
+  "Allow users to generate public links on folders": {
+    "other": "Allow users to generate public links on folders"
+  },
+  "Allow users to manually choose a hash for the generated links": {
+    "other": "Allow users to manually choose a hash for the generated links"
+  },
+  "Authorizations": {
+    "other": "Authorizations"
+  },
+  "Avoid labels duplication": {
+    "other": "Avoid labels duplication"
+  },
+  "Background Color": {
+    "other": "Background Color"
+  },
+  "Create QRCode": {
+    "other": "Create QRCode"
+  },
+  "Create and display QRCode for shared link": {
+    "other": "Create and display QRCode for shared link"
+  },
+  "Disable Folder Sharing": {
+    "other": "Disable Folder Sharing"
+  },
+  "Disallow users to create shared folders if a workspace already exists with the same label": {
+    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+  },
+  "Do not allow users to create public links, only private links (password-protected)": {
+    "other": "Do not allow users to create public links, only private links (password-protected)"
+  },
+  "Download Button": {
+    "other": "Download Button"
+  },
+  "Download text": {
+    "other": "Download text"
+  },
+  "Download text w/ Pass": {
+    "other": "Download text w/ Pass"
+  },
+  "Enable folder sharing": {
+    "other": "Enable folder sharing"
+  },
+  "Enable folder sharing (workspace and minisite)": {
+    "other": "Enable folder sharing (workspace and minisite)"
+  },
+  "Enable internal file sharing (sharing with users existing or temporary users)": {
+    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+  },
+  "Enable internal folder sharing (sharing with users existing or temporary users)": {
+    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+  },
+  "Enable public link generation for files": {
+    "other": "Enable public link generation for files"
+  },
+  "Enable public links for files": {
+    "other": "Enable public links for files"
+  },
+  "Files: enable internal sharing": {
+    "other": "Files: enable internal sharing"
+  },
+  "Files: enable public links": {
+    "other": "Files: enable public links"
+  },
+  "Folder Sharing": {
+    "other": "Folder Sharing"
+  },
+  "Folders: enable internal sharing": {
+    "other": "Folders: enable internal sharing"
+  },
+  "Folders: enable public links": {
+    "other": "Folders: enable public links"
+  },
+  "Force External Mailer": {
+    "other": "Force External Mailer"
+  },
+  "Fork Events Forwarding": {
+    "other": "Fork Events Forwarding"
+  },
+  "Hash minimum length": {
+    "other": "Hash minimum length"
+  },
+  "Hash user-editable": {
+    "other": "Hash user-editable"
+  },
+  "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
+    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+  },
+  "Image used as a button for downloading the file": {
+    "other": "Image used as a button for downloading the file"
+  },
+  "Internal Sharing": {
+    "other": "Internal Sharing"
+  },
+  "Link Generation": {
+    "other": "Link Generation"
+  },
+  "Mandatory prefix for users created temporary users login": {
+    "other": "Mandatory prefix for users created temporary users login"
+  },
+  "Maximum download limit for file, 0 = unlimited": {
+    "other": "Maximum download limit for file, 0 = unlimited"
+  },
+  "Maximum file download limit": {
+    "other": "Maximum file download limit"
+  },
+  "Maximum file expiration limit": {
+    "other": "Maximum file expiration limit"
+  },
+  "Maximum share expiration limit for file in days, 0 = unlimited": {
+    "other": "Maximum share expiration limit for file in days, 0 = unlimited"
+  },
+  "Minimum length of the generated hash": {
+    "other": "Minimum length of the generated hash"
+  },
+  "Minisite": {
+    "other": "Minisite"
+  },
+  "Minisites and Workspaces": {
+    "other": "Minisites and Workspaces"
+  },
+  "Minisites only": {
+    "other": "Minisites only"
+  },
+  "Page Title": {
+    "other": "Page Title"
+  },
+  "Set password mandatory": {
+    "other": "Set password mandatory"
+  },
+  "Sharing parameters and authorizations": {
+    "other": "Sharing parameters and authorizations"
+  },
+  "Share page background color.": {
+    "other": "Share page background color."
+  },
+  "Share page text color.": {
+    "other": "Share page text color."
+  },
+  "Share page text shadow color.": {
+    "other": "Share page text shadow color."
+  },
+  "Shared users configurations": {
+    "other": "Shared users configurations"
+  },
+  "Sharing Features": {
+    "other": "Sharing Features"
+  },
+  "Text Color": {
+    "other": "Text Color"
+  },
+  "Text Shadow": {
+    "other": "Text Shadow"
+  },
+  "Tmp users prefix": {
+    "other": "Tmp users prefix"
+  },
+  "Use Rewrite Rule": {
+    "other": "Use Rewrite Rule"
+  },
+  "Use external mailer for invitations": {
+    "other": "Use external mailer for invitations"
+  },
+  "Use web server RewriteEngine mechanism to generate prettier URLs": {
+    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+  },
+  "Weblink Page": {
+    "other": "Weblink Page"
+  },
+  "Workspaces only": {
+    "other": "Workspaces only"
+  }
+}
