@@ -1,21 +1,21 @@
 {
   "1": {
-    "other": "Carte OpenLayers"
+    "other": "OpenLayers Map"
   },
   "10": {
-    "other": "Effacer"
+    "other": "Clear"
   },
   "2": {
-    "other": "Filtres"
+    "other": "Filter"
   },
   "3": {
     "other": "Position"
   },
   "4": {
-    "other": "Calques"
+    "other": "Layers"
   },
   "5": {
-    "other": "Anti crénelage"
+    "other": "Antialias"
   },
   "6": {
     "other": "Format"
@@ -24,9 +24,9 @@
     "other": "Styles"
   },
   "8": {
-    "other": "Filtre"
+    "other": "Filter"
   },
   "9": {
-    "other": "Chercher"
+    "other": "Search"
   }
 }
