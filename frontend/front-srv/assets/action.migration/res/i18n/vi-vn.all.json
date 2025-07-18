@@ -1,267 +1,267 @@
 {
   "title": {
-    "other": "Data Import"
+    "other": "Nhập dữ liệu"
   },
   "legend": {
-    "other": "Import tool from Pydio 8"
+    "other": "Import tool từ Pydio 8"
   },
   "next": {
-    "other": "Next"
+    "other": "Kế tiếp"
   },
   "back": {
-    "other": "Back"
+    "other": "Trở lại"
   },
   "step.categories.choose": {
-    "other": "Choose features to import"
+    "other": "Chọn tính năng để import"
   },
   "step.categories.choose.legend": {
-    "other": "Use checkboxes below to select the data you want to import. If required, the wizard will lead you through specific configuration for each feature and you will validate your choices before launching proper importation job. To have best control over the import process, you may select only one step and run the import tools many times."
+    "other": "Sử dụng các checkboxes bên dưới để chọn dữ liệu bạn muốn nhập. Nếu được yêu cầu, trình hướng dẫn sẽ dẫn bạn qua cấu hình cụ thể cho từng tính năng và bạn sẽ xác thực các lựa chọn của mình trước khi khởi chạy công việc nhập khẩu thích hợp. Để kiểm soát tốt nhất quá trình nhập, bạn chỉ có thể chọn một bước và chạy import tools nhiều lần."
   },
   "step.categories.summary": {
-    "other": "Validation"
+    "other": "Hợp lệ"
   },
   "step.categories.summary.legend": {
-    "other": "Here is a summary of the configuration. Please review it before launching importation in background."
+    "other": "Dưới đây là một bản tóm tắt của cấu hình. Vui lòng xem lại trước khi khởi động import trong nền."
   },
   "step.categories.summary.empty": {
-    "other": "No specific configuration"
+    "other": "Không có cấu hình cụ thể"
   },
   "step.categories.summary.launch": {
-    "other": "Launch Import Now"
+    "other": "Khởi chạy Import ngay"
   },
   "step.connection": {
-    "other": "Pydio 8 Connection"
+    "other": "Kết nối Pydio 8"
   },
   "step.connection.legend": {
-    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
+    "other": "Sử dụng hình thức dưới đây kết nối với máy chủ Pydio 8, bằng cách sử dụng user chuyên dụng mà bạn đã tạo."
   },
   "step.connection.fail": {
-    "other": "Cannot connect to %s"
+    "other": "Không thể kết nối với %s"
   },
   "step.connection.missing": {
-    "other": "Please fill all required fields"
+    "other": "Vui lòng điền vào tất cả các trường bắt buộc"
   },
   "step.connection.success": {
-    "other": "Successful connection to the API"
+    "other": "Kết nối thành công với API"
   },
   "step.connection.field.url": {
-    "other": "Server URL"
+    "other": "URL Máy chủ"
   },
   "step.connection.field.skipssl": {
-    "other": "Skip SSL verification (self-signed)"
+    "other": "Bỏ qua xác minh SSL (self-signed)"
   },
   "step.connection.field.login": {
-    "other": "Administrator login"
+    "other": "Đăng nhập người quản trị"
   },
   "step.connection.field.pwd": {
-    "other": "Admin password"
+    "other": "Mật khẩu quản trị"
   },
   "step.connection.button.connect": {
-    "other": "Connect"
+    "other": "Kết nối"
   },
   "step.meta.title": {
     "other": "Import Metadata"
   },
   "step.meta.legend": {
-    "other": "Map metadata to Cells internal features. Global metadata (watches and bookmarks) will be read from the API and files metadata will be directly converted from the .ajxp_meta files inside datasources."
+    "other": "Map metadata đến các tính năng bên trong của Cells. Global metadata (Watches và bookmarks) sẽ được đọc từ API và tệp metadata sẽ được chuyển đổi trực tiếp từ các tệp .ajxp_meta bên trong các datasource."
   },
   "step.meta.feature.watches": {
-    "other": "Watches set by user on files and folders"
+    "other": "Watches được đặt bởi user trên các tệp và thư mục"
   },
   "step.meta.feature.bookmark": {
     "other": "User bookmarks"
   },
   "step.meta.feature.files": {
-    "other": "Files and folders metadata: use mapping below to create Cells metadata namespaces"
+    "other": "Tệp và thư mục metadata: sử dụng ánh xạ bên dưới để tạo Cells metadata namespaces"
   },
   "step.meta.from": {
-    "other": "Metadata from Workspaces"
+    "other": "Metadata từ Workspaces"
   },
   "step.meta.to": {
-    "other": "Cells Namespaces (click to edit)"
+    "other": "Cells Namespaces (bấm vào để chỉnh sửa)"
   },
   "step.meta.map.ws": {
     "other": "Workspace %s"
   },
   "step.meta.map.values": {
-    "other": " (Values %s)"
+    "other": " (Giá trị %s)"
   },
   "step.disclaimer.title": {
-    "other": "Disclaimer"
+    "other": "Chối bỏ trách nhiệm"
   },
   "step.disclaimer": {
-    "other": "Given the number of features provided by Pydio 8, each installation is unique and the tool cannot handle all possible combinations. It is best suited for importing data from a typical Pydio 8 installation including users, workspaces (fs and s3 only), access rights and shares."
+    "other": "Với số lượng tính năng được cung cấp bởi Pydio 8, mỗi cài đặt là duy nhất và công cụ không thể xử lý tất cả các kết hợp có thể. Nó phù hợp nhất để nhập dữ liệu từ bản cài đặt Pydio 8 bao gồm user, workspaces (chỉ fs và s3), quyền truy cập và chia sẻ."
   },
   "step.disclaimer.ed": {
-    "other": "We strongly recommend you to contact our support (via your pydio.com account) and schedule an appointment to be walked through the migration by a Pydio Expert"
+    "other": "Chúng tôi thực sự khuyên bạn nên liên hệ với bộ phận hỗ trợ của chúng tôi (thông qua tài khoản pydio.com của bạn) và sắp xếp một cuộc hẹn với chuyên gia Pydio để di dời"
   },
   "step.disclaimer.home": {
-    "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
+    "other": "Chúng tôi không muốn để bạn một mình và nhóm Pydio cung cấp dịch vụ thanh toán một lần để giúp bạn thực hiện việc di chuyển này trên phiên bản nguồn mở. Vui lòng liên hệ với các dịch vụ bán hàng của chúng tôi nếu bạn muốn nhận được sự giúp đỡ từ chuyên gia Pydio."
   },
   "step.disclaimer.support": {
-    "other": "Contact Support"
+    "other": "Liên hệ Hỗ trợ"
   },
   "step.disclaimer.quote": {
-    "other": "Ask for a quote"
+    "other": "Yêu cầu báo giá"
   },
   "step.disclaimer.start": {
-    "other": "Start Migration"
+    "other": "Bắt đầu di dời"
   },
   "step.prereq.title": {
-    "other": "Pre-requisites"
+    "other": "Điều kiện tiên quyết"
   },
   "step.prereq.welcome": {
-    "other": "Starting Pydio 8 import tool. This wizard will guide you through the steps required to feed Pydio Cells with data from an existing Pydio 8 server."
+    "other": "Bắt đầu Pydio 8 import tool. Trình hướng dẫn này sẽ hướng dẫn bạn qua các bước cần thiết để cung cấp dữ liệu cho Pydio Cells với dữ liệu từ máy chủ Pydio 8 hiện có."
   },
   "step.prereq.step1": {
-    "other": "1. Prepare Pydio 8"
+    "other": "1. Chuẩn bị Pydio 8"
   },
   "step.prereq.step2": {
-    "other": "2. Prepare Cells and Data"
+    "other": "2. Chuẩn bị Cells và dữ liệu"
   },
   "step.prereq.step3": {
-    "other": "3. Prepare DataSources"
+    "other": "3. Chuẩn bị DataSources"
   },
   "step.prereq.check": {
-    "other": "Please carefully read the pre-requisites described below and perform the necessary steps before starting the migration."
+    "other": "Vui lòng đọc kỹ các điều kiện tiên quyết được mô tả dưới đây và thực hiện các bước cần thiết trước khi bắt đầu di dời."
   },
   "step.prereq.check.copy": {
-    "other": "Copy all Pydio 8 data (files and folders accessed by users) in a different location on the server. For testing purpose, you can eventually recreate the full arborescence with fake files (e.g 1byte files)."
+    "other": "Sao chép tất cả dữ liệu Pydio 8 (tệp và thư mục được user truy cập) ở một vị trí khác trên máy chủ. Đối với mục đích thử nghiệm, bạn có thể tạo lại toàn bộ thông số bằng các tệp giả mạo (ví dụ: các tệp 1byte)."
   },
   "step.prereq.check.install": {
-    "other": "Install the dedicated migration plugin on the Pydio 8 server. Unzip and drop the folder inside the plugins/ folder of your Pydio 8 server and clear the plugins cache. Download it from here "
+    "other": "Cài đặt plugin di chuyển chuyên dụng trên máy chủ Pydio 8. Giải nén và thả thư mục bên trong các plugin / thư mục của máy chủ Pydio 8 của bạn và xóa bộ đệm của plugin. Tải xuống từ đây "
   },
   "step.prereq.check.admincell": {
-    "other": "Create a dedicated Cells user with administrative privileges (e.g. cells_importer). Users import will try to synchronize Pydio 8 users to Cells user, only this specific login will be left untouched."
+    "other": "Tạo Cells user chuyên dụng với các đặc quyền quản trị (ví dụ: cell_importer). Users import sẽ cố gắng đồng bộ hóa người dùng Pydio 8 với người dùng Cells, chỉ có thông tin đăng nhập cụ thể này sẽ không bị ảnh hưởng."
   },
   "step.prereq.check.adminpydio": {
-    "other": "Create a dedicated Pydio 8 user with administrative privileges, with another login (e.g. import). Some import tasks will automatically set read/write permissions for this import users on all workspaces."
+    "other": "Tạo user dành riêng cho Pydio 8 với các đặc quyền quản trị, với thông tin đăng nhập khác (ví dụ: import). Một số tác vụ import sẽ tự động đặt quyền read/write cho người dùng import trên tất cả các workspace."
   },
   "step.prereq.ds.create": {
-    "other": "Create datasources pointing to the new data and wait for the indexation to be complete."
+    "other": "Tạo datasources trỏ đến các dữ liệu mới và chờ cho lập chỉ mục(indexation) được hoàn tất."
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "For \"per-user\" workspaces (like My Files), use the existing location of Cells \"personal\" template path, or prepare new template paths for the new location."
+    "other": "Đối với \"workspaces\" cho mỗi người dùng (như tập tin của tôi), sử dụng vị trí hiện tại của đường dẫn Template Cells \"cá nhân\", hoặc chuẩn bị đường dẫn template mới cho vị trí mới."
   },
   "step.prereq.ds.tpl.home": {
-    "other": "For \"per-user\" workspaces (like My Files), make sure to place the data under the existing location of the Cells \"personal\" Template Path."
+    "other": "Đối với \"workspaces\" cho mỗi người dùng (như tập tin của tôi), hãy chắc chắn để các dữ liệu trong vị trí hiện tại của đường dẫn Template Cells \"cá nhân\"."
   },
   "step.prereq.ds.done": {
-    "other": "Once datasources are properly indexed, you can start the migration process. The wizard will help you map your Pydio 8 workspaces to new workspaces."
+    "other": "Khi datasources được lập chỉ mục đúng, bạn có thể bắt đầu quá trình di chuyển. Thuật sĩ sẽ giúp bạn ánh xạ Pydio 8 workspaces của bạn đến Workspaces mới."
   },
   "step.prereq.start": {
-    "other": "All set! Let's start"
+    "other": "Tất cả được thiết lập! Hãy bắt đầu"
   },
   "step.shares.feature.links": {
     "other": "Public Links"
   },
   "step.shares.feature.cells": {
-    "other": "Shared Folders"
+    "other": "Thư mục được chia sẻ"
   },
   "step.shares.title": {
     "other": "Import Shares"
   },
   "step.shares.alert": {
-    "other": "Please pick at least one share type!"
+    "other": "Vui lòng chọn ít nhất một loại chia sẻ!"
   },
   "step.shares.legend": {
-    "other": "Import Pydio 8 public links and shared folders into Cells. Public links will be created with the same identifier and properties (password, expiration, etc...). Folders shared as workspaces in Pydio 8 will be mapped to new Cells."
+    "other": "Import Pydio 8 public links và các thư mục được chia sẻ vào Cells. Public links sẽ được tạo ra với cùng một mã định danh và thuộc tính (mật khẩu, hết hạn, vv...). Cặp chia sẻ như workspaces trong Pydio 8 sẽ được ánh xạ tới các Cells mới."
   },
   "step.shares.legend.warning": {
-    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
+    "other": "Xin lưu ý rằng việc import thông tin của các liên kết chỉ được thực hiện một lần duy nhất. Nếu không bạn sẽ có nhiều đường link trùng nhau."
   },
   "step.shares.restrict.type": {
-    "other": "1. Restrict the type of shares to be imported (select at least one):"
+    "other": "1. Giới hạn loại chia sẻ được import (chọn ít nhất một):"
   },
   "step.shares.restrict.user": {
-    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
+    "other": "2. Mục đích để kiểm tra hoạt động của việc import. Bạn có thể import cho 1 vài người (phân cách bằng dấu phẩy)"
   },
   "step.shares.restrict.user.login": {
-    "other": "Owner login"
+    "other": "Chủ sở hữu đăng nhập"
   },
   "step.ws.title": {
     "other": "Import Workspaces"
   },
   "step.ws.loading": {
-    "other": "(loading...)"
+    "other": "(đang tải...)"
   },
   "step.ws.legend": {
-    "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
+    "other": "Import Workspaces từ Pydio 8 vào Cells là một quá trình nhiều bước:"
   },
   "step.ws.step1": {
-    "other": "1. Manually migrate the existing data from the current server to the new one (this may be unnecessary if you are running Pydio and Cells on the same server)."
+    "other": "1. Di chuyển dữ liệu hiện có từ máy chủ hiện tại sang máy chủ mới (điều này có thể không cần thiết nếu bạn đang chạy Pydio và Cells trên cùng một máy chủ)."
   },
   "step.ws.step2": {
-    "other": "2. Create Cells datasources pointing to the new storage locations on the server."
+    "other": "2. Tạo Cells datasources trỏ đến các vị trí lưu trữ mới trên máy chủ."
   },
   "step.ws.step3": {
-    "other": "3. Wait for all datasources to be properly indexed."
+    "other": "3. Chờ cho tất cả datasources được lập đúng chỉ mục."
   },
   "step.ws.step4": {
-    "other": "4. Map old workspaces to new workspaces by using the tool below"
+    "other": "4. Ánh xạ Workspaces cũ sang workspaces mới bằng cách sử dụng công cụ dưới đây"
   },
   "step.mapper.already": {
-    "other": "Workspaces already mapped (same UUID)"
+    "other": "Workspaces đã được ánh xạ (cùng UUID)"
   },
   "step.mapper.wsnumber": {
-    "other": "Mapping %s workspaces from server to new Cells workspaces"
+    "other": "Ánh xạ %s workspaces từ máy chủ đến Cells workspaces mới"
   },
   "step.mapper.loading": {
-    "other": "Loading workspaces from server..."
+    "other": "Đang tải workspaces từ máy chủ..."
   },
   "step.mapper.loading.error": {
-    "other": "Error while loading workspaces from server: %s. Make sure to have CORS enabled on your Pydio8 installation."
+    "other": "Lỗi khi tải workspaces từ máy chủ: %s. Đảm bảo đã bật CORS trên cài đặt Pydio8 của bạn."
   },
   "step.mapper.p8.title": {
     "other": "Pydio 8 Workspaces"
   },
   "step.mapper.p8.ds.show": {
-    "other": "Show datasources"
+    "other": "Hiển thị datasources"
   },
   "step.mapper.p8.tpl.show": {
-    "other": "Show template paths"
+    "other": "Hiển thị đường dẫn template"
   },
   "step.mapper.cells.title": {
     "other": "Cells Datasources"
   },
   "step.mapper.createds": {
-    "other": "Create Datasource"
+    "other": "Tạo Datasource"
   },
   "step.mapper.tpath.title": {
-    "other": "Cells Template Paths"
+    "other": "Đường dẫn Cells Template"
   },
   "step.mapper.tpath.create": {
-    "other": "Create Template Path"
+    "other": "Tạo đường dẫn Template"
   },
   "step.mapper.nodes.title": {
     "other": "Cells Nodes"
   },
   "step.mapper.notplpath.primary": {
-    "other": "None"
+    "other": "Trống"
   },
   "step.mapper.notplpath.secondary": {
-    "other": "No template path required"
+    "other": "Không yêu cầu đường dẫn template"
   },
   "step.mapper.next10": {
-    "other": "Next "
+    "other": "Kế tiếp "
   },
   "step.mapper.prev10": {
-    "other": "Previous "
+    "other": "Trước đó "
   },
   "step.mapper.invalid": {
-    "other": "Invalid mapping - Please select a datasource or a workspace"
+    "other": "Ánh xạ không hợp lệ -vui lòng chọn một datasource hoặc một workspace"
   },
   "dash.feature.configs": {
-    "other": "AD/LDAP Configuration"
+    "other": "Cấu hình AD/LDAP"
   },
   "dash.feature.configs.legend": {
-    "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."
+    "other": "Không có cấu hình cụ thể cho bước này. Các cấu hình AD/LDAP sẽ được nhập vào thư mục bên ngoài của Pydio Cells."
   },
   "dash.feature.users": {
-    "other": "Users, Groups and Roles"
+    "other": "Users, nhóm và Roles"
   },
   "dash.feature.users.legend": {
-    "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
+    "other": "Không có cấu hình cụ thể cho bước này. Users sẽ được đồng bộ hóa với máy chủ từ xa. Bất cứ khi nào có thể, mật khẩu băm của họ cũng sẽ được nhập (không có mật khẩu nào được lưu trữ hoặc truyền đi rõ ràng), để người dùng có thể đăng nhập với cùng một mã định danh trên máy chủ mới."
   },
   "dash.feature.workspaces": {
     "other": "Workspaces"
@@ -270,31 +270,31 @@
     "other": "Workspaces ACLs"
   },
   "dash.feature.acls.legend": {
-    "other": "There is no specific configuration for this step. Access list will be loaded from server and applied to workspaces."
+    "other": "Không có cấu hình cụ thể cho bước này. Danh sách truy cập sẽ được tải từ máy chủ và áp dụng cho các workspaces."
   },
   "dash.feature.meta": {
-    "other": "Files Metadata"
+    "other": "Tệp Metadata"
   },
   "dash.feature.shares": {
-    "other": "Shares"
+    "other": "Chia sẻ"
   },
   "dash.job.new": {
-    "other": "New import job"
+    "other": "Công việc import mới"
   },
   "dash.importing": {
-    "other": "Importing Data"
+    "other": "Nhập dữ liệu"
   },
   "logs.legend": {
-    "other": "Log recorded during task %s"
+    "other": "Nhật ký được ghi lại ghi trong tác vụ %s"
   },
   "action.createws.success": {
-    "other": "[Workspaces] Created workspace %s"
+    "other": "[Workspaces] Tạo workspace %s"
   },
   "action.createws.fail.": {
-    "other": "[Workspaces] Error while creating workspace %1 : %s"
+    "other": "[Workspaces] Lỗi trong khi tạo workspace %1 : %s"
   },
   "action.createws.summary": {
-    "other": "The following uuid => uuid mapping will be applied:"
+    "other": "Uuid sau đây => uuid sau đây sẽ được áp dụng:"
   },
   "action.createws.head.pydio": {
     "other": "Pydio"
@@ -303,39 +303,39 @@
     "other": "Cells"
   },
   "action.createws.head.status": {
-    "other": "Status"
+    "other": "Trạng thái"
   },
   "action.createws.notexists": {
-    "other": "Create/Update"
+    "other": "Tạo/Cập nhật %s"
   },
   "action.createws.exists": {
-    "other": "Already Exists"
+    "other": "Đã tồn tại"
   },
   "action.share.linksonly": {
-    "other": "Only Public Links will be imported."
+    "other": "Chỉ Public Links sẽ được import."
   },
   "action.share.cellsonly": {
-    "other": "Only shared folders will be imported."
+    "other": "Chỉ các thư mục được chia sẻ sẽ được import."
   },
   "action.share.all": {
-    "other": "All shares will be imported (links and shared folders)."
+    "other": "Tất cả các chia sẻ sẽ được import (liên kết và thư mục chia sẻ)."
   },
   "action.share.user": {
-    "other": "Only shares owned by %s will be imported."
+    "other": "Chỉ các chia sẻ thuộc sở hữu của %s sẽ được import."
   },
   "action.meta.summary": {
-    "other": "The following metadata will be imported: "
+    "other": "Metadata sau đây sẽ được import: "
   },
   "action.meta.files": {
-    "other": "For files metadata, the following mapping will be used: "
+    "other": "Đối với tệp metadata, ánh xạ sau sẽ được sử dụng: "
   },
   "action.meta.success": {
-    "other": "Metadata namespaces created"
+    "other": "Metadata namespaces được tạo"
   },
   "action.meta.fail": {
-    "other": "Error while creating metadata namespace : %s"
+    "other": "Lỗi trong khi tạo metadata namespace: %s"
   },
   "logs.empty": {
-    "other": "No activity found"
+    "other": "Không tìm thấy hoạt động nào"
   }
 }
