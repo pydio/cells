@@ -12,7 +12,7 @@
     "other": "Enter"
   },
   "43": {
-    "other": "ملفي الشخصي"
+    "other": "My Profile"
   },
   "43t": {
     "other": "All my personal data"
@@ -177,7 +177,7 @@
     "other": "Home"
   },
   "search.result.location": {
-    "other": "المجلد"
+    "other": "Folder"
   },
   "search.facets.title": {
     "other": "Filter Results..."
@@ -219,7 +219,7 @@
     "other": "File"
   },
   "facet.label.folder": {
-    "other": "المجلد"
+    "other": "Folder"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
