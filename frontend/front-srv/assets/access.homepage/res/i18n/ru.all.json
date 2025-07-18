@@ -1,266 +1,266 @@
 {
   "39": {
-    "other": "Список пространств, которые Вам доступны. Они могут быть персональными или общие с другими людьми."
+    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
   },
   "40": {
-    "other": "Добро пожаловать, %s! "
+    "other": "Welcome, %s! "
   },
   "41": {
-    "other": "Использовать это пространство по умолчанию"
+    "other": "Use this workspace as default"
   },
   "42": {
-    "other": "Войти"
+    "other": "Enter"
   },
   "43": {
-    "other": "Мой профиль"
+    "other": "My Profile"
   },
   "43t": {
-    "other": "Все мои персональные данные"
+    "other": "All my personal data"
   },
   "44": {
-    "other": "Моя учётная запись"
+    "other": "My Account"
   },
   "45": {
-    "other": "Персональные данные"
+    "other": "Personal data"
   },
   "46": {
-    "other": "Адресная книга"
+    "other": "Address Book"
   },
   "47": {
-    "other": "Пользователи и сообщества, которые Вы создали"
+    "other": "Users and teams that you created"
   },
   "48": {
-    "other": "Мои пользователи"
+    "other": "My Users"
   },
   "49": {
-    "other": "Внешние пользователи, которых Вы создали"
+    "other": "External users that you created"
   },
   "50": {
-    "other": "Мои сообщества"
+    "other": "My Teams"
   },
   "51": {
-    "other": "Команды из пользователей, которые служат для быстрого доступа при обмене информацией"
+    "other": "Teams of users, used as shortcuts when sharing"
   },
   "52": {
-    "other": "Вы уверены, что хотите удалить сообщество? Это не удалит пользователей."
+    "other": "Are you sure you want to delete this team? This will not remove any users."
   },
   "53": {
-    "other": "Начать работу"
+    "other": "Getting Started"
   },
   "54": {
-    "other": "Начало работы с APPLICATION_TITLE . Как сделать видео"
+    "other": "Get started with APPLICATION_TITLE by following How-to videos"
   },
   "55": {
-    "other": "Впервые на APPLICATION_TITLE? <a>Смотрите наши учебники.</a>"
+    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
   },
   "56": {
-    "other": "Первый раз используете APPLICATION_TITLE? Видео для Вас!"
+    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
   },
   "57": {
-    "other": "Загрузить в APPLICATION_TITLE..."
+    "other": "Download APPLICATION_TITLE for..."
   },
   "58": {
     "other": "Android"
   },
   "59": {
-    "other": "iPhone / iPad"
+    "other": "iPhone/iPad"
   },
   "60": {
-    "other": "Max OS"
+    "other": "Mac OS"
   },
   "61": {
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Смотрите видео на канале APPLICATION_TITLE!"
+    "other": "Discover more on the APPLICATION_TITLE channel!"
   },
   "66": {
-    "other": "<h2>Использование APPLICATION_TITLE на iOS устройствах</h2>\n                            Это видео показывает, как использовать приложение APPLICATION_TITLE (доступно в App Store). Для Android - аналогично.\n<ul><li>Настроить соединение с сервером</li>\n<li>Навигация по файлам</li>\n<li>Хранение файлов без подключения ( offline) и взаимодействие с внешними приложениями</li>\n<li>Защита приложения с использованием PIN-кода</li>\n<li>Использование закладок и поискового механизма</li></ul>"
+    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
   },
   "67": {
-    "other": "Если Вы не %s, %logout."
+    "other": "If you are not %s, %logout."
   },
   "68": {
-    "other": "Скачать клиент Синхронизации для Windows"
+    "other": "Download Sync Client for Windows"
   },
   "69": {
-    "other": "Скачать клиент Синхронизации для Mac OSX"
+    "other": "Download Sync Client for Mac OSX"
   },
   "70": {
-    "other": "Нативное приложение для iOS устройств"
+    "other": "Native application for iOS devices"
   },
   "71": {
-    "other": "Приложение для Android"
+    "other": "Native application for Android Devices"
   },
   "72": {
-    "other": "QRCode сервера"
+    "other": "Server QRCode"
   },
   "73": {
-    "other": " Простое подключение Ваших мобильных приложений"
+    "other": "Easily connect your mobile applications"
   },
   "74": {
-    "other": "Scan this QRCode with your mobile application to easily configure the connection"
+    "other": "Scan this QRCode to easily configure your mobile application"
   },
   "75": {
-    "other": "Искать все файлы ..."
+    "other": "Search all files..."
   },
   "76": {
-    "other": "Доступ к % 1 через верхнее правое меню"
+    "other": "Access the %1 through the top-right menu"
   },
   "77": {
-    "other": "Панель администратора"
+    "other": "admin dashboard"
   },
   "78": {
-    "other": "Выбрать рабочую область"
+    "other": "Pick a target workspace"
   },
   "79": {
-    "other": "<h2>Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
   },
   "82": {
-    "other": "<h2>Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "<h2>Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
   },
   "85": {
-    "other": "<h2>Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Воспроизвести видео"
+    "other": "Play video"
   },
   "87": {
-    "other": "Recent History"
+    "other": "My Recent Activity"
   },
   "88": {
-    "other": "Перетащите файл сюда с рабочего стола"
+    "other": "Drop a file here from your desktop"
   },
   "89": {
-    "other": "Выберите файл для загрузки"
+    "other": "Selected file for upload"
   },
   "90": {
-    "other": "Выберите рабочую область"
+    "other": "Select target workspace"
   },
   "91": {
-    "other": "Сохраняйте файлы офлайн с Desktop Sync Client"
+    "other": "Keep your files offline with our Desktop Sync Client"
   },
   "92": {
-    "other": "Скачать приложение"
+    "other": "Applications Download"
   },
   "93": {
-    "other": "Быстрая загрузка"
+    "other": "Quick Upload"
   },
   "94": {
-    "other": "Видеоинструкция"
+    "other": "Video Tutorial"
   },
   "desc": {
-    "other": "Страница приветствия"
+    "other": "Welcome page"
   },
   "title": {
-    "other": "Главная"
+    "other": "Home"
   },
   "search.result.location": {
-    "other": "Папка"
+    "other": "Folder"
   },
   "search.facets.title": {
-    "other": "Фильтровать результат..."
+    "other": "Filter Results..."
   },
   "search.facet.type": {
-    "other": "Тип"
+    "other": "Type"
   },
   "search.facet.extension": {
-    "other": "Расширение"
+    "other": "Extension"
   },
   "search.facet.size": {
-    "other": "Размер"
+    "other": "Size"
   },
   "search.facet.modified": {
-    "other": "Изменено"
+    "other": "Modified"
   },
   "search.facet.found": {
-    "other": "Найдено в"
+    "other": "Found in"
   },
   "search.facet.metadata": {
-    "other": "Метаданные"
+    "other": "Metadata"
   },
   "search.sorter.relevant.desc": {
-    "other": "Наиболее актуальные сначала"
+    "other": "Most Relevant First"
   },
   "search.sorter.modified.desc": {
-    "other": "Сначала недавно добавленные"
+    "other": "Recently Added First"
   },
   "search.sorter.modified.asc": {
-    "other": "Сначала старые"
+    "other": "Oldest First"
   },
   "search.sorter.size.desc": {
-    "other": "Сначала большие"
+    "other": "Biggest First"
   },
   "search.sorter.size.asc": {
-    "other": "Сначала маленькие"
+    "other": "Smallest First"
   },
   "facet.label.file": {
-    "other": "Файл"
+    "other": "File"
   },
   "facet.label.folder": {
-    "other": "Папка"
+    "other": "Folder"
   },
   "facet.label.size.lt.1MB": {
-    "other": "< 1Mб"
+    "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "от 1 Мб до 10 Мб"
+    "other": "1MB to 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "от 10 Мб до 100 Мб"
+    "other": "10MB to 100MB"
   },
   "facet.label.size.gt.100MB": {
-    "other": "> 100Мб"
+    "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Только что"
+    "other": "Moments ago"
   },
   "facet.label.date.today": {
-    "other": "Cегодня"
+    "other": "Today"
   },
   "facet.label.date.last.7": {
-    "other": "Последние 7 дней"
+    "other": "Last 7 days"
   },
   "facet.label.date.last.30": {
-    "other": "Последние 30 дней"
+    "other": "Last 30 days"
   },
   "facet.label.date.older.30": {
-    "other": "Старше 30 дней"
+    "other": "Older than 30 days"
   },
   "facet.label.found.contents": {
-    "other": "Содержимое"
+    "other": "Contents"
   },
   "facet.label.found.basename": {
-    "other": "Имя файла"
+    "other": "File name"
   },
   "reco.bookmark": {
-    "other": "Закладка"
+    "other": "Bookmark"
   },
   "reco.workspace": {
-    "other": "Рабочее пространство"
+    "other": "Workspace"
   },
   "reco.cell": {
-    "other": "Ячейка"
+    "other": "Cell"
   }
 }
