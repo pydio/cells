@@ -600,100 +600,100 @@
     "other": "Изменить выбранную запись"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "Удалить выбранные записи"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "Вы уверены, что хотите удалить выбранные записи?"
   },
   "279": {
-    "other": "Tables"
+    "other": "Таблицы"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "Создать новый файл в: "
   },
   "280": {
-    "other": "Records"
+    "other": "Записи"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "Ограничения загрузки"
   },
   "282": {
-    "other": "Size per File"
+    "other": "Размер на файл"
   },
   "283": {
-    "other": "Total Size"
+    "other": "Общий размер"
   },
   "284": {
-    "other": "Files Number"
+    "other": "Количество файлов"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "Не удается найти пользователя, пожалуйста, попробуйте еще раз.\\n Убедитесь, что Caps Lock не включен!"
   },
   "286": {
-    "other": "Your user is out of date with the current version, please use the upgrade procedure."
+    "other": "Ваш пользователь устарел, пожалуйста используйте процедуру обновления."
   },
   "287": {
-    "other": "File Permissions"
+    "other": "Разрешения файлов"
   },
   "288": {
-    "other": "User"
+    "other": "Пользователь"
   },
   "289": {
-    "other": "Group"
+    "other": "Группа"
   },
   "29": {
-    "other": "Create"
+    "other": "Создать"
   },
   "290": {
-    "other": "All"
+    "other": "Все"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "Применить рекурсивно?"
   },
   "292": {
-    "other": "Share"
+    "other": "Поделиться"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "Создать публичную ссылку на этот файл"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "Срок действия ссылки (в днях) и пароль (оставьте пустым, если отсутствует)."
   },
   "295": {
-    "other": "Expiration"
+    "other": "Срок действия"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "Текст ссылки:"
   },
   "297": {
-    "other": "New User"
+    "other": "Новый пользователь"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Создать нового пользователя"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Рабочие области"
   },
   "3": {
-    "other": "Type"
+    "other": "Тип"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "Введите имя каталога, затем нажмите &quot;Создать&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Создать новую рабочую область"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Изменить конфигурацию"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Копировать как текст"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "Копировать выделенное как текст, разделенный табуляцией."
   },
   "304": {
-    "other": "Back"
+    "other": "Назад"
   },
   "305": {
     "other": "Back to Homepage"
@@ -702,1279 +702,1279 @@
     "other": "My Workspaces"
   },
   "306": {
-    "other": "Too many items"
+    "other": "Слишком много элементов"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "Заполнить необязательные поля"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Создать ссылку"
   },
   "309": {
-    "other": "Generate"
+    "other": "Создать"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Необходимо выбрать файл"
   },
   "310": {
-    "other": "Options"
+    "other": "Варианты"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Загружать автоматически при добавлении файла"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Параметры загрузчика"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Сжатие..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Сжать выделенное zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Сжать выделенное в"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Просмотр/Редактирование"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "Редактор исходного кода"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "Просмотрщик исходного кода CodePress"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML-редактор"
   },
   "32": {
-    "other": "Explore"
+    "other": "Найти"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "WYSIWYG редактор для HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Выбрать"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Выбрать текущий файл"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Отправить на этот адрес"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Редактор недоступен"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "По лучшему"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Нет подходящего варианта"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Читатель документа"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Просмотр pdf, svg, tif и других форматов онлайн"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Ошибка загрузки файла!"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Пожалуйста, подождите, пока страницы отображаются..."
   },
   "331": {
-    "other": "Page"
+    "other": "Страница"
   },
   "332": {
-    "other": "of"
+    "other": "из"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Редактор изображений Pixlr"
   },
   "334": {
-    "other": "more"
+    "other": "ещё"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Пожалуйста, введите номер страницы между 1 и "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Извините, вы не можете удалить папки, удалять только файлы!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Запустить загрузку автоматически"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Закрыть панель после завершения загрузки"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Существующие файлы"
   },
   "34": {
-    "other": "The file"
+    "other": "Файл"
   },
   "340": {
-    "other": "Alert"
+    "other": "Предупреждение"
   },
   "341": {
-    "other": "File Info"
+    "other": "Сведения о файле"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Сведения о папке"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Сведения об изображении"
   },
   "344": {
-    "other": "Search on"
+    "other": "Поиск по"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Не удалось получить информацию о версии"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Ваша версия обновлена"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "Доступна новая версия (%s)! Посетите %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Новое рабочее пространство в общем доступе."
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "Предупреждение, пропущены аргументы"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "был успешно создан в каталоге"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "Пользователь с таким именем уже существует, пожалуйста, выберите другое имя."
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "Вы не можете делиться файлами."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Рабочая область с таким именем уже существует, пожалуйста, выберите другое имя."
   },
   "353": {
-    "other": "Target User"
+    "other": "Пользователь"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Создайте нового пользователя или выберите существующий из списка."
   },
   "355": {
-    "other": "User Name"
+    "other": "Имя пользователя"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Пароль пользователя"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Целевое хранилище"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Выберите имя для общей рабочей области."
   },
   "359": {
-    "other": "Label"
+    "other": "Метка"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Размер"
   },
   "360": {
-    "other": "Rights"
+    "other": "Права"
   },
   "361": {
-    "other": "Read"
+    "other": "Чтение"
   },
   "362": {
-    "other": "Write"
+    "other": "Запись"
   },
   "363": {
-    "other": "Shared"
+    "other": "Общий доступ"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "У вас нет прав для этого действия"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Вы не можете загружать более %s файлов одновременно."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "У этого пользователя нет активных рабочих областей."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Вы не можете загрузить этот тип файла. Пожалуйста, выберите из следующих расширений: "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Выбранное успешно распаковано из архива %s в папку %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Ярлык"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Вы должны ввести допустимое имя"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE публичная загрузка"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Для этой загрузки требуется пароль"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Текущая рабочая область"
   },
   "373": {
-    "other": "Destination"
+    "other": "Назначение"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Нельзя копировать папки между рабочими областями"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Мы обнаружили, что вы были неактивны более чем __IDLE__. Для безопасности ваших данных вы выйдете из системы __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Вы ещё тут?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Нажмите в любом месте, чтобы возобновить сеанс"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Внимание, пароль пустой или слишком короткий!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Небезопасное слово!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Каталог"
   },
   "380": {
-    "other": "Too short"
+    "other": "Слишком короткий"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Очень слабый"
   },
   "382": {
-    "other": "Weak"
+    "other": "Слабый"
   },
   "383": {
-    "other": "Medium"
+    "other": "Средний"
   },
   "384": {
-    "other": "Strong"
+    "other": "Сильный"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Очень сильный"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Пожалуйста, используйте только строчные символы для входа"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Пожалуйста, используйте буквенно-цифровые символы или корректные адреса электронной почты для входа"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Вы не смогли войти 3 раза.\\nДля вашей безопасности, пожалуйста, введите код с картинки"
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Пожалуйста, прочитайте код ниже:"
   },
   "39": {
-    "other": "has been created in"
+    "other": "был создан в"
   },
   "390": {
-    "other": "Code"
+    "other": "Код"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Нет репозитория"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Внимание, версия APPLICATION_TITLE изменилась (теперь %s), очистите кэш браузера и обновите страницу, чтобы убедиться, что все функционирует!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Внимание, длина имени должна быть меньше %s символов, имя этого файла будет обрезано!"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "К сожалению, в данный момент невозможно сделать общими папки с использованием текущего драйвера авторизации (пользователи не редактируются). Однако, обмен общими файлами возможен."
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "Добавленный элемент является папкой, а папки не могут быть загружены на сервер! Вы уверены, что хотите загрузить?"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Метод аутентификации"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "Скачать кусками"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "Скачать выбранный файл по частям"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "Введите количество частей, которое вы хотите загрузить, затем нажмите на кнопку и нажмите на каждый файл, чтобы загрузить их."
   },
   "4": {
-    "other": "Modified"
+    "other": "Изменено"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Этот каталог уже существует (регистр букв не имеет значения)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Количество частей:"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "Вы можете скачать и установить следующее программное обеспечение, чтобы объединить части файла на вашем компьютере: "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "был переименован в"
   },
   "411": {
-    "other": "Open"
+    "other": "Открыть"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Только загрузка"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Доступ открыл"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "Используйте стрелки для перемещения и +/- для изменения масштаба"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Видимость левой панели"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Левая панель"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Создать ячейку..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Создать ячейку"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Загрузка шаблонов..."
   },
   "42": {
-    "other": "to"
+    "other": "в"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "Пожалуйста, выберите шаблон из списка"
   },
   "421": {
-    "other": "New %s"
+    "other": "Новый %s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "Пожалуйста, заполните необходимые параметры. Проведите мышкой над заголовками полей, чтобы получить больше информации."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Удалить рабочую область"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "Уверены, что хотите удалить эту рабочую область? Эту операцию нельзя отменить."
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "Рабочая область создана, она добавлена в ваш список рабочих областей, если вы хотите ее удалить, не забудьте переключиться на другую рабочую область, затем нажмите на красный крест рядом с названием рабочей области."
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "Произошла ошибка при создании рабочей области"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "Произошла ошибка при удалении рабочей области"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "Рабочая область успешно удалена"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "Так будет отображаться рабочая область в вашем списке."
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "уже существует (регистр не имеет значения)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "Общие файлы"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "Пример шаблона"
   },
   "432": {
-    "other": "My Files"
+    "other": "Мои файлы"
   },
   "433": {
-    "other": "ready"
+    "other": "готов"
   },
   "434": {
-    "other": "sending"
+    "other": "отправка"
   },
   "435": {
-    "other": "done"
+    "other": "готово"
   },
   "436": {
-    "other": "error"
+    "other": "ошибка"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "Ой, похоже, что ваш токен безопасности истёк! Пожалуйста, %s нажимая \"обновить\" или F5 в вашем браузере!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "перезагрузить страницу"
   },
   "439": {
-    "other": "Main Options"
+    "other": "Основные параметры"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "был удален"
   },
   "440": {
-    "other": "Yes"
+    "other": "Да"
   },
   "441": {
-    "other": "No"
+    "other": "Нет"
   },
   "442": {
-    "other": "My Account"
+    "other": "Мой аккаунт"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Обновить вашу личную информацию"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "Пожалуйста, обновите свой пароль, иначе вы не сможете войти."
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "Сейчас вы выйдете из системы, пожалуйста, войдите обратно с помощью нового пароля, спасибо!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Представление"
   },
   "447": {
-    "other": "My group"
+    "other": "Моя группа"
   },
   "448": {
-    "other": "create user"
+    "other": "создать пользователя"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "Создание %s, выберите пароль"
   },
   "45": {
-    "other": "directory"
+    "other": "каталог"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Сортировать по ..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "Сортировать миниатюры по ..."
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "Размер миниатюр"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "Установить размер миниатюр"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Выберите файлы на вашем компьютере"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "Рабочие области"
   },
   "456": {
-    "other": "More"
+    "other": "Ещё"
   },
   "457": {
-    "other": "update"
+    "other": "обновить"
   },
   "458": {
-    "other": "remove"
+    "other": "удалить"
   },
   "459": {
-    "other": "Top folder"
+    "other": "Верхняя папка"
   },
   "46": {
-    "other": "file"
+    "other": "файл"
   },
   "460": {
-    "other": "List"
+    "other": "Список"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Переключиться на представление в виде списка"
   },
   "462": {
-    "other": "Preview"
+    "other": "Предпросмотр"
   },
   "463": {
-    "other": "Download all"
+    "other": "Скачать все"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Скачать всю рабочую область сразу (архивом)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "Показать альтернативные URL (монтировать рабочие области отдельно)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Загрузка..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Все общие элементы"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Рабочие области"
   },
   "469": {
-    "other": "Cells"
+    "other": "Ячейки"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Вы действительно хотите удалить"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Создано %date"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "Создал %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Поделился %user"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Поделился %user %date"
   },
   "474": {
-    "other": "No description available"
+    "other": "Нет описания"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Файлы доступные для всех пользователей"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Ваша личная рабочая область"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Выберите файл или папку, чтобы увидеть здесь подробности"
   },
   "478": {
-    "other": "No results found"
+    "other": "Ничего не найдено"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Забыли пароль?"
   },
   "48": {
-    "other": "Ok"
+    "other": "Ок"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Просмотреть все папки в текущей рабочей области."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Все ваши общие файлы и папки"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Быстрый доступ к закладкам"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "Вы не можете создать больше пользователей!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Создать пользователя"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Создать общего пользователя"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Дополнительные параметры"
   },
   "487": {
-    "other": "Basic"
+    "other": "Основные"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Дополнительный фильтр"
   },
   "489": {
-    "other": "Metadata"
+    "other": "Метаданные"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Отмена"
   },
   "490": {
-    "other": "Date range"
+    "other": "Диапазон дат"
   },
   "491": {
-    "other": "After"
+    "other": "После"
   },
   "492": {
-    "other": "until"
+    "other": "до"
   },
   "493": {
-    "other": "Today"
+    "other": "Cегодня"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Вчера"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "Завтра"
   },
   "495": {
-    "other": "Last week"
+    "other": "Прошлая неделя"
   },
   "496": {
-    "other": "Last month"
+    "other": "Прошлый месяц"
   },
   "497": {
-    "other": "Last year"
+    "other": "Прошлый год"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Свойство документа"
   },
   "499": {
-    "other": "File"
+    "other": "Файл"
   },
   "5": {
-    "other": "Actions"
+    "other": "Действия"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe файл"
   },
   "500": {
-    "other": "Extension"
+    "other": "Расширение"
   },
   "501": {
-    "other": "or"
+    "other": "или"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Только папки"
   },
   "503": {
-    "other": "Size"
+    "other": "Размер"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "в"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Параметры приложения (пользователи, рабочие пространства, конфигурации)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Добро пожаловать в %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Я только что создал учетную запись для вас на сайте %s. Для подключения, пожалуйста, нажмите на следующую ссылку %link и используйте эти учетные данные:  <br><br> Логин: %user <br><br> Пароль: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Сохранить как команду"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Текстовый редактор"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Пожалуйста, введите метку команды"
   },
   "511": {
-    "other": "My %s"
+    "other": "Мой %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "Полный экран"
   },
   "513": {
-    "other": "show"
+    "other": "показать"
   },
   "514": {
-    "other": "hide"
+    "other": "скрыть"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Нет закладок - Перетащите файлы или папки здесь для быстрого доступа."
   },
   "516": {
-    "other": "expand"
+    "other": "развернуть"
   },
   "517": {
-    "other": "collapse"
+    "other": "свернуть"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Кроме того, вы можете <a>создать новую закладку по адресу</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Обновить пользователя"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Редактирование файла"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Обновить данные пользователя и пароль"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Пользователь успешно обновлен"
   },
   "522": {
-    "other": "User ID"
+    "other": "ID пользователя"
   },
   "523": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Обновить пароль"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Показать исходное изображение"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Версия с низким разрешением"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Общие с..."
   },
   "528": {
-    "other": "Internal users"
+    "other": "Внутренние пользователи"
   },
   "53": {
-    "other": "Save"
+    "other": "Сохранить"
   },
   "530": {
-    "other": "External users"
+    "other": "Внешние пользователи"
   },
   "531": {
-    "other": "Users"
+    "other": "Пользователи"
   },
   "532": {
-    "other": "Groups"
+    "other": "Группы"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "Идентификатор, используемый для входа, используйте буквенно-цифровые или строчные символы email."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Пароль для входа"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Отправить пароль по электронной почте"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Отправить приветственное письмо с паролем новому пользователю"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Файл слишком большой! Максимально допустимый размер %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Ошибка загрузки: файл не найден на сервере!"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "Ошибка загрузки: файл из частей"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Отмена"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Ошибка загрузки: невозможно найти временный каталог"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Ошибка загрузки: невозможно записать во временный каталог"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Ошибка загрузки: расширение PHP прервало загрузку."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Результаты ограничены %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Показать еще"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Удаленный общий ресурс"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "%%OWNER%% из удаленного местоположения поделился этим элементом. Вы хотите продолжить?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Принять"
   },
   "548": {
-    "other": "Decline"
+    "other": "Отклонить"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "Вы ранее приняли этот элемент, который был предоставлен вам %%OWNER%% из удаленного местоположения. Вы хотите отклонить его сейчас?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "был изменен"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Отклонить этот запрос"
   },
   "551": {
-    "other": "Reject"
+    "other": "Отклонить"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Пожалуйста, укажите пароль."
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "Неверный пароль, повторите попытку. \\n Убедитесь, что Caps Lock не включен!"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s результат(ов) в Корзине"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "Запуск задачи %s в фоне"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Требуются учетные данные"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Пожалуйста, введите пароль для этой рабочей области."
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "Ошибка аутентификации для этой рабочей области."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "Изображение BMP"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Требуется аутентификация"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Мы перенаправим вас на страницу аутентификации провайдера. Если вы не перенаправлены автоматически, нажмите ОК для повторной попытки..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Эта папка пуста!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Эта рабочая область пуста!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "Корзина пуста."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Начните добавлять файлы или папки, выбрав или перетащив их прямо с рабочего стола"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Вы не можете добавлять файлы здесь"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Просмотр корзины"
   },
   "568": {
-    "other": "Teams"
+    "other": "Команды"
   },
   "569": {
-    "other": "New Team"
+    "other": "Новая команда"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "Изображение PNG"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Удалить команду"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Нет созданных команд"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "Создайте свои собственную команду, чтобы легко обмениваться данными между несколькими пользователями"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Нет доступных команд"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "Вы не можете создавать команды, но некоторые авторизованные пользователи могут поделиться с вами командами"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Создать и редактировать команды"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "Позволить пользователям создавать и редактировать свои собственные команды"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Добавить пользователя в команду"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Удалить из команды"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Участники команды"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s участников"
   },
   "577": {
-    "other": "No members"
+    "other": "Нет участников"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Метка команды"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Создать команду"
   },
   "58": {
-    "other": "CSS File"
+    "other": "Файл CSS"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Изменить метку команды"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Пользователь состоит командах: %s"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Удалить пользователя"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Каталог поиска"
   },
   "584": {
-    "other": "Directory"
+    "other": "Папка"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Нет внешних пользователей"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Создавайте собственных пользователей и обменивайтесь с ними файлами или папками из ваших рабочих областей."
   },
   "587": {
-    "other": "No results"
+    "other": "Ничего не найденo"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Начните вводить в форму поиска, чтобы найти пользователей в каталоге"
   },
   "589": {
-    "other": "External user"
+    "other": "Внешний пользователь"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 файл"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Внутренний пользователь"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Выберите название для команды, и вы сможете добавить в нее пользователей после создания."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Aдресная книга"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "Общие Пользователи"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Доверенные серверы"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Поиск пользователя..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Сервер: '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "все"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Отправить сообщение"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Добавить пользователя"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Все результаты"
   },
   "6": {
-    "other": "Rename"
+    "other": "Переименовать"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR файл"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Редактировать пользователя"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "Одна общая ячейка"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 общих ячеек"
   },
   "603": {
-    "other": "Team"
+    "other": "Команда"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Удалённый пользователь"
   },
   "605": {
-    "other": "More search options"
+    "other": "Больше настроек поиска"
   },
   "606": {
-    "other": "Less search options"
+    "other": "Больше настроек поиска"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "Ваши последние действия - Вводите для поиска файлов во всех рабочих областях"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Текущая папка"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Вся рабочая область"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ Файл"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "Все рабочие области"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Начните вводить слово для поиска"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Собственный диапазон"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Больше чем..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Меньше, чем..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Выполнить"
   },
   "616": {
-    "other": "Mask"
+    "other": "Маска"
   },
   "617": {
-    "other": "Enter"
+    "other": "Вход"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Переключить язык..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "Поиск ограничен текущей папкой и ее дочерними элементами"
   },
   "62": {
-    "other": "Root directory"
+    "other": "Корневой каталог"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "Поиск ограничен текущей рабочей областью"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Это поле не может быть пустым"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Стек ошибок"
   },
   "623": {
-    "other": "Copy"
+    "other": "Копировать"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Скопировано!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Буква"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Файлы, которыми со мною поделились"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Удаленные общие ресурсы"
   },
   "628": {
-    "other": "Revert"
+    "other": "Сброс"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Нет записей"
   },
   "63": {
-    "other": "Log out"
+    "other": "Выйти"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Папки, которыми со мною поделились"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Эта ячейка пуста!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Ещё нет ячеек"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Ячейки - это общие области для совместной работы с документами"
   },
   "634": {
-    "other": "You"
+    "other": "Вы"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Ваша группа"
   },
   "634c": {
-    "other": "All users"
+    "other": "Все пользователи"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Комната чата"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Начните печатать и нажмите Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Пока нет сообщений, начните писать, чтобы общаться с пользователями этой ячейки!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "Ячейка содержит несколько корневых каталогов или файлов, вы не можете загружать файлы прямо сюда."
   },
   "639": {
-    "other": "In this cell"
+    "other": "В этой ячейке"
   },
   "64": {
-    "other": "XLS File"
+    "other": "Файл XLS"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Создать ячейку с %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Удалить из текущей ячейки"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Добавить в текущую ячейку"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Вы поделились ячейкой с %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Не удалось создать ячейку: %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Файл Word"
   },
   "66": {
-    "other": "Copy"
+    "other": "Копировать"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Выбранный файл"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Вставить в"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "Или выберите другой каталог"
   },
   "7": {
-    "other": "Delete"
+    "other": "Удалить"
   },
   "70": {
-    "other": "Move"
+    "other": "Переместить"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "Этот файл уже существует (регистр букв не имеет значения)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "Неправильный корневой путь. Проверьте его в файле conf/conf.php"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "был скопирован в папку"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "был перемещен в папку"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "Файл users.txt отсутствует в папке"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Этот файл был удален"
   },
   "77": {
-    "other": "Send"
+    "other": "Отправить"
   },
   "78": {
-    "other": "Pass"
+    "other": "Пароль"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF файл"
   },
   "8": {
-    "other": "Directory"
+    "other": "Папка"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV файл"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI файл"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG файл"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG файл"
   },
   "84": {
-    "other": "Help"
+    "other": "Справка"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Обновить"
   },
   "86": {
-    "other": "Close"
+    "other": "Закрыть"
   },
   "87": {
-    "other": "Search"
+    "other": "Поиск"
   },
   "88": {
-    "other": "Download"
+    "other": "Скачивание"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Не удается открыть файл"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Файл Midi"
   },
   "90": {
-    "other": "Print"
+    "other": "Печать"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "Файл FLASH"
   },
   "92": {
-    "other": "Language"
+    "other": "Язык"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Чтобы выбрать язык, ваш браузер должен принимать cookies."
   },
   "94": {
-    "other": "Login"
+    "other": "Логин"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Выберите язык:"
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "Пожалуйста, выберите папку назначения в дереве : "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Загрузить файл"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Кликните в любом месте этого окна, чтобы закрыть его."
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "не доступен для записи. Это может быть проблема доступа, пожалуйста, проверьте с вашим администратором."
   },
   "about_access_key": {
     "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "B"
+    "other": "В"
   },
   "byte_unit_symbol": {
-    "other": "B"
+    "other": "В"
   },
   "copy_access_key": {
     "other": "C"
   },
   "create_repo_accesskey": {
-    "other": "R"
+    "other": "Р"
   },
   "create_user_accesskey": {
-    "other": "U"
+    "other": "У"
   },
   "date_format": {
     "other": "Y/m/d H:i"
   },
   "date_intl_locale": {
-    "other": "en_US"
+    "other": "Английский (США)"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "в дату"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s дней назад"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "через %s дней"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "ВРЕМЯ"
   },
   "date_relative_time_format": {
     "other": "H:i"
@@ -1995,193 +1995,193 @@
     "other": "dddd [at] LT"
   },
   "delete_access_key": {
-    "other": "D"
+    "other": "Д"
   },
   "detail_access_key": {
-    "other": "L"
+    "other": "Л"
   },
   "download_access_key": {
     "other": "w"
   },
   "edit_access_key": {
-    "other": "E"
+    "other": "Е"
   },
   "empty_recycle_access_key": {
     "other": "y"
   },
   "file_access_key": {
-    "other": "F"
+    "other": "Ф"
   },
   "folder_access_key": {
-    "other": "N"
+    "other": "Н"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Английский"
   },
   "leftpane_accesskey": {
-    "other": "L"
+    "other": "Л"
   },
   "list_access_key": {
-    "other": "i"
+    "other": "и"
   },
   "move_access_key": {
-    "other": "M"
+    "other": "М"
   },
   "open_with_access": {
-    "other": "e"
+    "other": "е"
   },
   "parent_access_key": {
-    "other": "P"
+    "other": "Р"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "Плагины, определяющие как рабочая область будет иметь доступ к своему бэкэнду (хранилище файлов или что-то другое) и основным макетам и действиям."
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "Функциональные плагины для различных задач"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "Как данные пользователей хранятся в бэкенде"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Методы получения данных авторизации (вебформа, ключ api и т.д.)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "Уникальный плагин для загрузки фреймворка"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "Уникальный плагин для настройки сервера кэша, используемого приложением"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "Как данные конфигурации хранятся в бэкенде"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Плагины шифрования данных"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Просмотрщики или редакторы для разных типов mime"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "Реализации для хранения событий данных (пока только SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "Основной веб-интерфейс, темы и расширения"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "Вспомогающие инструменты для административных задач"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "Инструменты для индексации данных и быстрого поиска"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "Отправка журналов приложения в различные каналы"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "Инструменты для отправки писем"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Параметры поисковой системы"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "Дополнительные возможности для добавления в рабочие области"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "Различные возможности для хранения метаданных вместе с файлами и папками"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "Реализации простого PUB/SUB сервера"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Расширенные функции безопасности"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "Веб-сервисы для сокращения публичных ссылок"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "Загрузчики на основе различных технологий, таких как HTML, Javascript, Java и других"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "Драйверы рабочей области"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "Плагины действий"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "Бэкэнды аутентификации"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "Интерфейсы аутентификации"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Загрузчик"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Кэширующий сервер"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Хранилище настроек"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Инструменты шифрования"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Редакторы"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Хранилище событий"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Графический интерфейс пользователя"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Помощник"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "Индексирование"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "Регистраторы журналов"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "Почтовые службы"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Поисковая система"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "Мета-аспекты рабочей области"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Хранилище метаданных"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Мгновенные сообщения"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Безопасность"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Сокращение URL"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Загрузчики"
   },
   "preview_access_key": {
-    "other": "e"
+    "other": "е"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "родительская папка"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "групповые действия"
   },
   "refresh_access_key": {
-    "other": "h"
+    "other": "ч"
   },
   "rename_access_key": {
     "other": "R"
   },
   "restore_access_key": {
-    "other": "o"
+    "other": "о"
   },
   "settings_access_key": {
     "other": "g"
@@ -2190,7 +2190,7 @@
     "other": "L"
   },
   "thumbs_access_key": {
-    "other": "T"
+    "other": "Т"
   },
   "upload_access_key": {
     "other": "U"
@@ -2199,193 +2199,193 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Публичный доступ"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Перемещение файла в фоновом режиме ..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Перемещение папки в фоновом режиме ..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Перемещение выделения в фоновом режиме ..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Файл заблокирован"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Папка заблокирована"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Сейчас смотрят этот файл"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Сейчас просматривают эту папку"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Общий файл, нажмите для редактирования"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Общая папка, нажмите для редактирования"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Файл в закладках"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Папка в закладках"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Добавить этот элемент в закладки"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Удалить эту закладку"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Смешанные значения, нажмите чтобы добавить все в закладки"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Сохранение статуса закладки"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Внутри"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Пустой файл"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Безымянный документ"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Не используйте \"/\" в имени файла!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "Необходимо указать название!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Предупреждение, кажется, имя начинается или заканчивается пустым символом (возможно, опечаткой?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Пожалуйста, используйте другое значение для переименования!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Переименование %1 в %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Фильтр Cell"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Фильтровать рабочие пространства"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Видимость"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Смотреть"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Редактировать"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Пользователи"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Ваша команда"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Изменение видимости"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Сохранить изменения"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Отменить изменения"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Произошла ошибка"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Выбрать пользователя..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Установить видимость на..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Эта расширенная функция позволяет решить, что создаваемые вами пользователи могут видеть и/или редактировать другие пользователи. По умолчанию, ваши пользователи видны только вам."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Неизвестно"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Выберите группу"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Выбрать несколько"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Подтвердить"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Вы собираетесь удалить"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Не предупреждать меня в следующий раз"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Строк на странице"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "из"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Пожалуйста, используйте только изображения (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Сброс"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Вы хотите удалить текущее изображение?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Пожалуйста, используйте изображения меньше, чем 5MB"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Начните вводить для поиска файлов и папок"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Поиск..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Поиск..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Поиск: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Поиск по..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Общий доступ"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Нет статуса"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Публичная ссылка"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Общий доступ в ячейки"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Публичная ссылка или ячейка"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "Формат"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Только файлы"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Расширенные фильтры"
   },
   "searchengine.results.foundN": {
     "other": "%1 results found"
@@ -2394,114 +2394,114 @@
     "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Сохранить"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Сохранить запрос"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "Очистить"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Очистить все"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Удалить"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "Удалить этот сохранённый фильтр?"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Введите метку"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Имя/Контент"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Сохраненные поиски"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Последние поиски"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Расширенное предложение"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Вы имели в виду"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "содержащие '%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Фильтры:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "Нажмите, чтобы изменить"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Удалить"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "Включить предпросмотр?"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "Вставить встроенно"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Старые записи"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "Изменить сообщение"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Сохранить изменения"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "Отменить изменения"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Удалить сообщение"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "Удалить сообщение?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "Это действие нельзя будет отменить"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "Загрузка документа..."
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "Открытие документа..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Перейти к документу"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "Документ не найден, возможно он был удален."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "Нажмите, чтобы открыть %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Открыть документы в..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Использование квоты"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Удалить навсегда"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "Внимание! Это необратимая операция."
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Перейти в папку"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Недавние локации"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Верхняя папка"
   }
 }
