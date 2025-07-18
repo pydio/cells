@@ -255,114 +255,114 @@
     "other": "Chat de la Cell"
   },
   "pinned-bookmarks.other": {
-    "other": "Tous les fichiers"
+    "other": "All files"
   },
   "file.temporary-etag.flag": {
-    "other": "Partiel"
+    "other": "Incomplete"
   },
   "file.temporary-etag.tooltip": {
-    "other": "Fichier en cours de téléchargement (ou le téléchargement a échoué)."
+    "other": "This file is being uploaded (or the upload has failed)."
   },
   "mimegroup.byextension": {
-    "other": "Par extension..."
+    "other": "By File Extension..."
   },
   "mimegroup.word": {
-    "other": "Documents Word"
+    "other": "Word documents"
   },
   "mimegroup.spreadsheet": {
-    "other": "Feuilles de calcul"
+    "other": "Spreadsheets"
   },
   "mimegroup.presentation": {
-    "other": "Présentations"
+    "other": "Presentations"
   },
   "mimegroup.pdf": {
-    "other": "Fichiers PDF"
+    "other": "PDFs"
   },
   "mimegroup.image": {
     "other": "Images"
   },
   "mimegroup.video": {
-    "other": "Vidéos"
+    "other": "Videos"
   },
   "mimegroup.audio": {
-    "other": "Fichiers audio"
+    "other": "Audios"
   },
   "fastsearch.quick-jump.title": {
-    "other": "Accès Rapide"
+    "other": "Quick Jump"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Appuyez sur [Entrée] pour accéder au répertoire, ajoutez [/] pour rechercher à l'intérieur, [Esc] pour Fermer"
+    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
   },
   "fastsearch.quick-move.title": {
-    "other": "Déplacement Rapide"
+    "other": "Quick Move"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Impossible de déplacer vers cette cible !"
+    "other": "Cannot move to this target!"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Appuyez sur [Entrée] pour déplacer les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
+    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
   },
   "fastsearch.quick-copy.title": {
-    "other": "Copie Rapide"
+    "other": "Quick Copy"
   },
   "fastsearch.quick-copy.target-error": {
-    "other": "Impossible de copier vers cette cible !"
+    "other": "Cannot copy to this target!"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Appuyez sur [Entrée] pour copier les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
+    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
   },
   "wslist-options.title": {
-    "other": "Options d'affichage"
+    "other": "Display Options"
   },
   "wslist-options.show-masked": {
-    "other": "Afficher les éléments masqués"
+    "other": "Show masked items"
   },
   "wslist.action.mask": {
-    "other": "Masquer"
+    "other": "Mask"
   },
   "wslist.action.unmask": {
-    "other": "Afficher"
+    "other": "Unmask"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Fusionner les Workspaces et les Cells"
+    "other": "Merge workspaces and cells"
   },
   "wslist-options.own-cells-first": {
-    "other": "Cells créées par moi en premier"
+    "other": "Cells created by me first"
   },
   "leftrail.buttons.home": {
-    "other": "Accueil"
+    "other": "Home"
   },
   "leftrail.buttons.directory": {
-    "other": "Annuaire"
+    "other": "Directory"
   },
   "leftrail.buttons.all-files": {
-    "other": "Fichiers"
+    "other": "All Files"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Mode Clair"
+    "other": "Light Mode"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Mode Sombre"
+    "other": "Dark Mode"
   },
   "task.status.Starting": {
-    "other": "Démarré {startTime}"
+    "other": "Started {startTime}"
   },
   "task.status.Pending": {
-    "other": "En attente de démarrage..."
+    "other": "Will start soon..."
   },
   "task.status.Complete": {
-    "other": "Tâche terminée en {duration}"
+    "other": "Task completed in {duration}"
   },
   "task.status.Finished": {
-    "other": "Tâche terminée en {duration}"
+    "other": "Task completed in {duration}"
   },
   "task.status.Error": {
-    "other": "Une erreur est survenue !"
+    "other": "An error happened!"
   },
   "bigppanel.filter.default-hint": {
-    "other": "Recherche rapide..."
+    "other": "Quick Find..."
   },
   "sorter.metas.more": {
-    "other": "Plus..."
+    "other": "More..."
   }
 }
