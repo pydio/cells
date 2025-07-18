@@ -1,26 +1,26 @@
 {
   "Livekit Server": {
-    "other": "Livekit 服务器"
+    "other": "Livekit Server"
   },
   "Enable audio/video conferencing with Livekit Server": {
-    "other": "启用 Livekit 服务器的音频/视频会议"
+    "other": "Enable audio/video conferencing with Livekit Server"
   },
   "Websocket URL": {
-    "other": "Websocket 网址"
+    "other": "Websocket URL"
   },
   "Livekit Websocket URL": {
-    "other": "Liveket Websocket 网址"
+    "other": "Livekit Websocket URL"
   },
   "API Key": {
-    "other": "API 密钥"
+    "other": "API Key"
   },
   "Livekit server API Key": {
-    "other": "Livekit 服务器 API 密钥"
+    "other": "Livekit server API Key"
   },
   "API Secret": {
-    "other": "API秘密"
+    "other": "API Secret"
   },
   "Livekit server API Secret": {
-    "other": "Livekit 服务器 API秘密"
+    "other": "Livekit server API Secret"
   }
 }
