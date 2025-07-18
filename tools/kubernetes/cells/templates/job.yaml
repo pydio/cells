@@ -1,4 +1,4 @@
-{{- if .Values.externalVault.enabled }}
+{{- if and .Values.externalVault.enabled .Values.externalVault.test.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -14,12 +14,12 @@ spec:
       annotations: {
         vault.hashicorp.com/agent-inject: "true",
         vault.hashicorp.com/auth-type: "kubernetes",
-        vault.hashicorp.com/role: "app",
+        vault.hashicorp.com/role: {{ include "cells.serviceAccountName" . }},
         vault.hashicorp.com/agent-pre-populate-only : "true",
         vault.hashicorp.com/agent-inject-token: "true",
       }
     spec:
-      serviceAccountName: app
+      serviceAccountName: {{ include "cells.serviceAccountName" . }}
       containers:
         - name: vault
           image: hashicorp/vault

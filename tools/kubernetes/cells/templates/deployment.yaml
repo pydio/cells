@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "cells.fullname" . }}
   labels:
-    {{- include "cells.labels" . | nindent 4 }}
+    {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" .) | nindent 4 }}
 spec:
   {{- if gt (.Values.replicaCount | int) 1 }}
   replicas: {{ .Values.replicaCount }}
@@ -15,14 +15,15 @@ spec:
   {{- end }}
   {{- end }}
   selector:
-    matchLabels:
+    {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels ) "context" . ) }}
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" .) | nindent 6 }}
       {{- include "cells.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
       {{- if (include "cells.vault.enabled" .) }}
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "app"
+        vault.hashicorp.com/role: {{ include "cells.serviceAccountName" . }}
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-inject-token: "true"
 {{/*        vault.hashicorp.com/auth-config: |*/}}
