@@ -1,261 +1,261 @@
 {
   "1": {
-    "other": "設定データ"
+    "other": "Configuration Data"
   },
   "10": {
-    "other": "メタソース"
+    "other": "Meta Sources"
   },
   "100": {
-    "other": "共通の '%s' プラグインオプション"
+    "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "名前"
+    "other": "Name"
   },
   "102": {
-    "other": "識別子"
+    "other": "Identifier"
   },
   "103": {
-    "other": "備考"
+    "other": "Description"
   },
   "104": {
-    "other": "有効化"
+    "other": "Enabled"
   },
   "105": {
-    "other": "自動チェック"
+    "other": "Automatic checks"
   },
   "106": {
-    "other": "一意識別子"
+    "other": "Unique Identifier"
   },
   "107": {
-    "other": "プラグイン設定"
+    "other": "Plugin Configurations"
   },
   "108": {
-    "other": "ドキュメンテーション"
+    "other": "Documentation"
   },
   "109": {
-    "other": "アプリケーションのパラメータ"
+    "other": "Application Parameters"
   },
   "11": {
-    "other": "ソースを追加"
+    "other": "Add a source"
   },
   "110": {
-    "other": "ワークスペース & ユーザー"
+    "other": "Workspaces & Users"
   },
   "111": {
-    "other": "バックエンド"
+    "other": "Backend"
   },
   "112": {
-    "other": "すべての新規ユーザーに<b>このデフォルトのロール</b>を適用します。"
+    "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
-    "other": "ロールの状態が正常に変更されました"
+    "other": "Role status was successfully modified"
   },
   "114": {
-    "other": "適用先"
+    "other": "Applies to"
   },
   "115": {
-    "other": "スキーマ"
+    "other": "Scheme"
   },
   "116": {
-    "other": "テンプレートラベル"
+    "other": "Template Label"
   },
   "117": {
-    "other": "テンプレートドライバ"
+    "other": "Template Driver"
   },
   "118": {
-    "other": "新規グループ"
+    "other": "New group"
   },
   "119": {
-    "other": "ユーザーグループを設定"
+    "other": "Set user group"
   },
   "12": {
     "other": "Meta Plugin"
   },
   "120": {
-    "other": "Pro版にアップデートする"
+    "other": "Go Pro"
   },
   "121": {
-    "other": "インストールのプロフェッショナルサポートを受ける"
+    "other": "Get professional support for your install"
   },
   "122": {
-    "other": "すべての設定"
+    "other": "All Settings"
   },
   "123": {
-    "other": "その他のプラグイン"
+    "other": "Other plugins"
   },
   "124": {
-    "other": "ソース"
+    "other": "Source"
   },
   "125": {
-    "other": "エイリアス"
+    "other": "Alias"
   },
   "126": {
-    "other": "選択されたアイテムを削除してよいですか？"
+    "other": "Are you sure that you want to delete the selected element(s)?"
   },
   "127": {
-    "other": "警告、特殊文字を使用しないでください、ユーザーはログインID '%s' で作成されます"
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
   },
   "128": {
-    "other": "グループを正常に削除しました"
+    "other": "Successfully deleted group"
   },
   "129": {
-    "other": "プラグインのキャッシュを更新"
+    "other": "Refresh plugins cache"
   },
   "13": {
-    "other": "このソースを本当に削除しますか？"
+    "other": "Are you sure you want to delete this source?"
   },
   "130": {
-    "other": "プラグインキャッシュをクリアした場合、新しいプラグインがリストに表示されるのを確認する必要があります。"
+    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
   },
   "131": {
-    "other": "プラグインキャッシュファイルが正常に削除されました！"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
-    "other": "キャッシュは消去されましたが、現在SKIP_CACHE モードで実行されています (bootstrap_context.phpを参照)。"
+    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
   },
   "133": {
-    "other": "コアアプリケーションのパラメータ"
+    "other": "Core application parameters"
   },
   "134": {
-    "other": "追加の機能指向のプラグインを有効/無効にします。プラグインが正しく動作しているかどうかを確認し、プラグインのグローバルパラメータを設定します。"
+    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
   },
   "135": {
-    "other": "コアプラグイン（auth、conf、メールなど）を有効/無効にするには、正しく動作しているかどうかを確認します。これらのプラグインの設定は、通常、メインオプションを介して行われます。"
+    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
   },
   "136": {
-    "other": "アプリケーションコアと各プラグインのグローバル設定。プラグインを有効/無効にする"
+    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
   },
   "137": {
-    "other": "アプリケーションの日常的な管理：誰が何にアクセスし、役割を作成するかなど。"
+    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
   },
   "138": {
-    "other": "ワークスペースの作成と削除、メタ ソースを使用して機能を追加します。"
+    "other": "Create and delete workspaces, add features to them using meta sources."
   },
   "139": {
-    "other": "ユーザーとグループを管理"
+    "other": "Manage users and groups"
   },
   "14": {
     "other": "True"
   },
   "140": {
-    "other": "一度にユーザー全体に適用できるプロファイルを定義します。"
+    "other": "Define profiles that can be applied at once to whole bunch of users."
   },
   "141": {
-    "other": "アプリケーションの状態を監視するための管理者タスク。"
+    "other": "Administrator tasks to monitor the application state."
   },
   "142": {
-    "other": "サーバーで起きているすべてのアクティビティを監視します"
+    "other": "Monitor all activities happening on the server"
   },
   "143": {
-    "other": "起動診断の読み取り"
+    "other": "Read the start-up diagnostic"
   },
   "144": {
-    "other": "開発者リソース"
+    "other": "Developer Resources"
   },
   "145": {
-    "other": "開発者向けに生成されたドキュメント"
+    "other": "Generated documentations for developers"
   },
   "146": {
-    "other": "アクションAPI"
+    "other": "Actions API"
   },
   "147": {
-    "other": "すべてのプラグインによって貢献されたすべてのアクションをリストし、入力パラメーターを視覚化します"
+    "other": "List all actions contributed by all plugins and visualize their input parameters"
   },
   "148": {
-    "other": "フックの定義"
+    "other": "Hooks Definitions"
   },
   "149": {
-    "other": "アプリケーションでトリガーされたすべてのフック、そのドキュメント、トリガーされている場所、およびプラグインがそれらをリッスンします。"
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
   },
   "15": {
     "other": "False"
   },
   "150": {
-    "other": "リポジトリを選択"
+    "other": "Select a repository"
   },
   "151": {
-    "other": "ルートグループ"
+    "other": "Root Group"
   },
   "152": {
-    "other": "ルートグループロール"
+    "other": "Root Group Role"
   },
   "153": {
-    "other": "ユーザー階層全体に適用されます"
+    "other": "Applies to the whole hierarchy of users"
   },
   "154": {
-    "other": "リポジトリ テンプレート"
+    "other": "Repository Templates"
   },
   "155": {
-    "other": "アクセスドライバー"
+    "other": "Access Drivers"
   },
   "156": {
-    "other": "標準"
+    "other": "Standard"
   },
   "157": {
-    "other": "管理者"
+    "other": "Administrator"
   },
   "158": {
-    "other": "共有"
+    "other": "Shared"
   },
   "159": {
-    "other": "ゲスト"
+    "other": "Guest"
   },
   "160": {
-    "other": "グループは正常に作成されました。"
+    "other": "Group was successfully created"
   },
   "161": {
-    "other": "あなたはグループ内で自分自身を移動しようとしており、あなたは特権管理者権限を失うことになります。 別のユーザーとしてログインしてください。中止します。"
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
   },
   "162": {
-    "other": "ユーザー %s を更新する権限がありません。"
+    "other": "You are not authorized to update user %s"
   },
   "163": {
-    "other": "ユーザー %s のロールが更新されました"
+    "other": "Roles reordered for user %s"
   },
   "164": {
-    "other": "ロールが正常に更新されました"
+    "other": "Successfully updated roles"
   },
   "165": {
-    "other": "ユーザー設定を保存しました"
+    "other": "Successfully saved user preferences"
   },
   "166": {
-    "other": "ユーザー (%2) で ロック (%1) を設定しました"
+    "other": "Successfully set lock (%1) on user (%2)"
   },
   "167": {
-    "other": "ユーザー (%s) のロックを解除しました"
+    "other": "Successfully unlocked user (%s)"
   },
   "168": {
-    "other": "%1 人のユーザーがグループ %2 に移動されました"
+    "other": "%1 users were moved to group %2"
   },
   "169": {
-    "other": "ユーザーが移動されませんでした。何か問題があったに違いありません！"
+    "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "日時"
+    "other": "Date"
   },
   "170": {
-    "other": "%1 を有効にする (%2)"
+    "other": "Enable %1 (%2)"
   },
   "171": {
-    "other": "インポートユーザー（エンタープライズのみ）"
+    "other": "Import Users (Enterprise only)"
   },
   "172": {
-    "other": "サービス"
+    "other": "Services"
   },
   "173": {
-    "other": "Pydioバックエンドサービスとその稼働状況"
+    "other": "Pydio Backend Services and their running status"
   },
   "174": {
-    "other": "アイデンティティ管理"
+    "other": "Identity Management"
   },
   "175": {
-    "other": "データ管理"
+    "other": "Data Management"
   },
   "176": {
-    "other": "セキュリティポリシー"
+    "other": "Security Policies"
   },
   "177": {
-    "other": "セキュリティポリシー"
+    "other": "Security Policies"
   },
   "18": {
     "other": "I.P."
@@ -264,286 +264,286 @@
     "other": "Level"
   },
   "2": {
-    "other": "メンバー"
+    "other": "People"
   },
   "20": {
-    "other": "ユーザー"
+    "other": "User"
   },
   "21": {
-    "other": "アクション"
+    "other": "Action"
   },
   "22": {
-    "other": "パラメーター"
+    "other": "Params"
   },
   "22a": {
-    "other": "詳細情報"
+    "other": "More info"
   },
   "23": {
-    "other": "テスト名"
+    "other": "Test Name"
   },
   "24": {
-    "other": "テストデータ"
+    "other": "Test Data"
   },
   "25": {
-    "other": "ワークスペースアクセス"
+    "other": "Workspaces Access"
   },
   "26": {
-    "other": "パスワードを変更"
+    "other": "Modify Password"
   },
   "27": {
-    "other": "管理者権限"
+    "other": "Admin Right"
   },
   "28": {
-    "other": "ユーザーは管理者権限がありますか？"
+    "other": "User has admin rights?"
   },
   "29": {
-    "other": "読み込み"
+    "other": "Read"
   },
   "2b": {
-    "other": "データ管理"
+    "other": "Data Management"
   },
   "3": {
-    "other": "ワークスペース"
+    "other": "Workspaces"
   },
   "30": {
-    "other": "書き込み"
+    "other": "Write"
   },
   "32": {
-    "other": "アクセスドライバー"
+    "other": "Access Driver"
   },
   "33": {
-    "other": "読み込み中…"
+    "other": "Loading..."
   },
   "34": {
-    "other": "このユーザーを本当に削除しますか？　削除を取り消すことはできません。"
+    "other": "Are you sure you want to delete this user? This operation is not reversible!"
   },
   "35": {
-    "other": "このワークスペースを本当に削除しますか？　削除を取り消すことはできません。"
+    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
   },
   "36": {
-    "other": "必須項目に誤りがあります！"
+    "other": "Mandatory fields are missing!"
   },
   "37": {
-    "other": "警告、パスワードと確認用のパスワードが異なります!"
+    "other": "Warning, password and confirmation differ!"
   },
   "38": {
-    "other": "ログインフィールドを入力してください！"
+    "other": "Please fill the login field!"
   },
   "39": {
-    "other": "両方のパスワードフィールドを入力してください!"
+    "other": "Please fill both password fields!"
   },
   "3b": {
-    "other": "ストレージ"
+    "other": "Storage"
   },
   "3c": {
-    "other": "テンプレートパス"
+    "other": "Template Paths"
   },
   "4": {
-    "other": "ログ"
+    "other": "Logs"
   },
   "40": {
-    "other": "確認するためにボックスをチェックしてください!"
+    "other": "Please check the box to confirm!"
   },
   "41": {
-    "other": "データソースノード"
+    "other": "Datasource Nodes"
   },
   "42": {
-    "other": "ドライバーを選択してください！"
+    "other": "Please choose a driver!"
   },
   "43": {
-    "other": "ユーザーが既に存在します。別のログインユーザーを選択してください！"
+    "other": "User already exists, please choose another login!"
   },
   "44": {
-    "other": "ユーザーが正常に作成されました"
+    "other": "User created successfully"
   },
   "45": {
-    "other": "管理者権限を変更しました "
+    "other": "Changed admin right for user "
   },
   "46": {
-    "other": "ユーザー権限を変更しました "
+    "other": "Changed right for user "
   },
   "47": {
-    "other": "ユーザーに保存されたデータ "
+    "other": "Saved data for user "
   },
   "48": {
-    "other": "パスワードが正常に変更されました "
+    "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "パスワードを更新できません"
+    "other": "Cannot update password"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "エラー：同じ名前のワークスペースが既に存在します"
+    "other": "Error: a workspace with the same name already exists"
   },
   "51": {
-    "other": "Conf ディレクトリに書き込みができません"
+    "other": "The conf directory is not writeable"
   },
   "52": {
-    "other": "ワークスペースが正常に作成されました。 いくつかの 'メタデータソース' を追加して、データを充実させたり、自動インデックスを追加したりできるようになりました。"
+    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
   },
   "53": {
-    "other": "ワークスペースの編集中にエラーが発生しました"
+    "other": "Error while trying to edit workspace"
   },
   "54": {
-    "other": "ワークスペースを編集しました"
+    "other": "Successfully edited workspace"
   },
   "55": {
-    "other": "警告: 現時点では、各メタプラグインのインスタンスを1つだけ追加できます。"
+    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
   },
   "56": {
-    "other": "メタソースの追加に成功しました"
+    "other": "Successfully added meta source"
   },
   "57": {
-    "other": "メタソースは正常に削除されました"
+    "other": "Successfully deleted meta source"
   },
   "58": {
-    "other": "メタソースの編集が完了しました"
+    "other": "Successfully edited meta source"
   },
   "59": {
-    "other": "ワークスペースを削除しました"
+    "other": "Successfully deleted workspace"
   },
   "6": {
-    "other": "ユーザー名"
+    "other": "User Name"
   },
   "60": {
-    "other": "ユーザーの消去に成功しました"
+    "other": "User successfully erased"
   },
   "61": {
-    "other": "引数が間違っています！"
+    "other": "Wrong arguments!"
   },
   "62": {
-    "other": "権限のサマリー"
+    "other": "Rights Summary"
   },
   "63": {
-    "other": "すべて"
+    "other": "All"
   },
   "64": {
-    "other": "ロールの権限を変更しました "
+    "other": "Changed right for role "
   },
   "65": {
-    "other": "ロールは既に存在します。別の名前を選択してください！"
+    "other": "Role already exists, choose another name!"
   },
   "66": {
-    "other": "ロールを作成しました"
+    "other": "Role successfully created"
   },
   "67": {
-    "other": "ロールが見つかりません "
+    "other": "Cannot find role "
   },
   "68": {
-    "other": "ロールは正常に削除されました"
+    "other": "Successfully deleted role"
   },
   "69": {
-    "other": "ロール"
+    "other": "Roles"
   },
   "7": {
-    "other": "管理者"
+    "other": "Is Admin"
   },
   "70": {
-    "other": "ユーザーのロール"
+    "other": "User Roles"
   },
   "71": {
-    "other": "利用可能なロール"
+    "other": "Available Roles"
   },
   "72": {
-    "other": "ユーザーに割り当てるロールをドラッグ＆ドロップします"
+    "other": "Drag'n'drop roles to assign them to the user"
   },
   "73": {
-    "other": "ユーザーにロールを追加しました "
+    "other": "Role added to user "
   },
   "74": {
-    "other": "ユーザーから削除されたロール "
+    "other": "Role deleted from user "
   },
   "75": {
-    "other": "新しいロール"
+    "other": "New Role"
   },
   "76": {
-    "other": "ロール Id"
+    "other": "Role Id"
   },
   "77": {
-    "other": "アクセスコントロール"
+    "other": "Access Control"
   },
   "78": {
-    "other": "パーソナルデータ"
+    "other": "Personal data"
   },
   "79": {
-    "other": "ワークスペース"
+    "other": "Workspace"
   },
   "8": {
-    "other": "ワークスペースのラベル"
+    "other": "Workspace Label"
   },
   "80": {
-    "other": "このユーザーのアクセスを微調整します（ユーザーがログインしたときにワークスペースのラベルをデフォルトのワークスペースにしたい場合は、ワークスペースのラベルをクリックします）"
+    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
   },
   "81": {
-    "other": "特定のワークスペースデータ"
+    "other": "Specific workspaces data"
   },
   "82": {
-    "other": "一括編集ユーザー"
+    "other": "Batch-edit users"
   },
   "83": {
-    "other": "役割をドラッグアンドドロップして、選択したすべてのユーザーに適用します（共有ユーザーはスキップされます）"
+    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "ユーザーのロール"
+    "other": "Users Roles"
   },
   "85": {
-    "other": "手動操作のフィルタリング"
+    "other": "Manual actions filtering"
   },
   "86": {
-    "other": "アクセス権に関係なく、このロールで無効になるカンマ区切りアクションのリストです。"
+    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
   },
   "87": {
-    "other": "このロールのアクションを正常に更新しました"
+    "other": "Successfully updated actions for this role"
   },
   "88": {
-    "other": "このワークスペースは設定ファイルで定義されており、GUI でメタ ソースを編集することはできません。"
+    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
   },
   "89": {
-    "other": "ユーザー固有のデータ"
+    "other": "User specific data"
   },
   "9": {
-    "other": "アクセスタイプ"
+    "other": "Access Type"
   },
   "90": {
-    "other": "新しいワークスペース"
+    "other": "New Workspace"
   },
   "91": {
-    "other": "新規テンプレート"
+    "other": "New Template"
   },
   "92": {
-    "other": "新しいテンプレートを作成"
+    "other": "Create a new template"
   },
   "93": {
-    "other": "編集"
+    "other": "Edit"
   },
   "94": {
-    "other": "一括編集"
+    "other": "Batch Edit"
   },
   "95": {
-    "other": "データにアクセスするためのラベルとドライバーを選択します（必須フィールドのすべてのセクションを確認してください。マウスでオプションラベルにカーソルを合わせると、詳細が表示されます）。"
+    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
   },
   "96": {
-    "other": "ラベルとドライバーを選択したら、チェックボックスを使用して、テンプレートに事前入力するフィールドを有効にします。 他のフィールドはユーザーに任されます。 それでもユーザーからフィールドを非表示にする場合は、一部のフィールドを有効にして空のままにしておくことができます。"
+    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
   },
   "97": {
-    "other": "プラグインオプションが正常に更新されました"
+    "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "メイン設定"
+    "other": "Main Settings"
   },
   "99": {
-    "other": "プラグイン機能"
+    "other": "Feature plugins"
   },
   "topbar.title": {
-    "other": "セルコンソール"
+    "other": "Cells Console"
   },
   "topbar.button.advanced": {
-    "other": "高度なパラメータの表示/非表示"
+    "other": "Show/hide advanced parameters"
   },
   "topbar.button.about": {
-    "other": "Pydio Cellsについてもっと知る"
+    "other": "Learn more about Pydio Cells"
   },
   "group_access": {
     "other": "g"
@@ -555,9 +555,9 @@
     "other": "o"
   },
   "uploaders-chunk-size-warn-multiple": {
-    "other": "分割サイズは10MBの倍数でなければなりません！"
+    "other": "Part size must be a multiple of 10MB!"
   },
   "uploaders-chunk-size-warn-too-small": {
-    "other": "分割サイズは少なくとも10MBでなければなりません！"
+    "other": "Part size must be at least 10MB!"
   }
 }
