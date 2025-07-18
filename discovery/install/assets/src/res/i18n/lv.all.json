@@ -141,7 +141,7 @@
     "other": "Socket"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manuāli"
+    "other": "Manual"
   },
   "form.dbTCPHostname.label": {
     "other": "Host Name"
@@ -186,13 +186,13 @@
     "other": "Use Golang-style DSN to describe the database connection"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Aplikācijas nosaukums"
+    "other": "Application Title"
   },
   "form.frontendApplicationTitle.legend": {
     "other": "Main title of your installation"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Noklusējuma valoda"
+    "other": "Default Language"
   },
   "form.frontendLogin.label": {
     "other": "Admin user login *"
@@ -207,7 +207,7 @@
     "other": "Password used to log in"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Apstiprināt paroli"
+    "other": "Confirm password"
   },
   "form.frontendRepeatPassword.legend": {
     "other": "Confirm password twice"
@@ -240,13 +240,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api atslēga"
+    "other": "S3 Api Key"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Key to connect to S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Parole"
+    "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Secret Key"
@@ -273,15 +273,15 @@
     "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Nākamā"
+    "other": "Next"
   },
   "stepper.button.back": {
-    "other": "Atpakaļ"
+    "other": "Back"
   },
   "stepper.button.last": {
     "other": "Install Now"
   },
   "stepper.button.reload": {
-    "other": "Pārlādēt"
+    "other": "Reload"
   }
 }
