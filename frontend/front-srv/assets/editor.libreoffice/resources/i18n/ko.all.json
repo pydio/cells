@@ -1,59 +1,59 @@
 {
   "1": {
-    "other": "리브레 오피스 문서"
+    "other": "Libre Office Documents"
   },
   "10": {
-    "other": "빈 문서 생성"
+    "other": "Create an empty document"
   },
   "11": {
-    "other": "문서 형식"
+    "other": "Document Format"
   },
   "12": {
-    "other": "당신은 <a>빈 문서를 생성할 수 있습니다.</a>"
+    "other": "You can also <a>create an empty document</a>"
   },
   "13": {
-    "other": "제목없는 문서"
+    "other": "Untitled Document"
   },
   "14": {
-    "other": "문서가 생성되었습니다. 이제 편집하세요."
+    "other": "The document was created, you can now edit it"
   },
   "15": {
-    "other": "알 수 없는 문서 형식"
+    "other": "Unknown document format"
   },
   "2": {
-    "other": "리브레 오피스 외부 브라우저 윈도우"
+    "other": "Libre Office External browser window"
   },
   "ext.doc": {
-    "other": "마이크로소프트 워드 97/2000/XP/2003"
+    "other": "Microsoft Word 97/2000/XP/2003"
   },
   "ext.docx": {
-    "other": "마이크로소프트 워드 2007/2010/2013 XML"
+    "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "ODF 그리기"
+    "other": "ODF Drawing"
   },
   "ext.odp": {
-    "other": "ODF 프레젠테이션"
+    "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "ODF 스프레드시트"
+    "other": "ODF Spreadsheet"
   },
   "ext.odt": {
-    "other": "ODF 텍스트 문서"
+    "other": "ODF Text Document"
   },
   "ext.ppt": {
-    "other": "마이크로소프트 파워포인트 97/2000/2003 XML"
+    "other": "Microsoft PowerPoint 97/2000/XP/2003"
   },
   "ext.pptx": {
-    "other": "마이크로소프트 파워포인트 2007/2010/2013 XML"
+    "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "서식 있는 텍스트"
+    "other": "Rich Text"
   },
   "ext.xls": {
-    "other": "마이크로소프트 엑셀 97/2000/XP/2003"
+    "other": "Microsoft Excel 97/2000/XP/2003"
   },
   "ext.xlsx": {
-    "other": "마이크로소프트 엑셀 2007/2010/2013 XML"
+    "other": "Microsoft Excel 2007/2010/2013 XML"
   }
 }
