@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "提取图像缩略图和Exif数据"
+    "other": "Extract image thumbnails and Exif data"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "清除已删除文件的缩略图缓存"
+    "other": "Clear thumbnails cache for deleted files"
   },
   "Jobs.Default.Directories": {
-    "other": "同步外部目录"
+    "other": "Synchronize external directories"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "清理调度器中的作业和任务"
+    "other": "Clean jobs and tasks in scheduler"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "伪装的长时运行任务 (用于测试目的)"
+    "other": "Fake a long running job (for testing purpose)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "创建随机用户 (用于测试目的)"
+    "other": "Creation of random users (for testing purpose)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "示例RPC作业（用于测试）"
+    "other": "Sample RPC job (for testing purpose)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "自动存档更改服务"
+    "other": "Automatic archiving of changes service"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "删除时清理或传输用户数据"
+    "other": "Clean or transfer user data on deletion"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "24小时后清理孤立文件"
+    "other": "Clean orphan files after 24h"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "10天后清理过期的 ACL"
+    "other": "Clean expired ACLs after 10 days"
   },
   "Jobs.User.Compress": {
-    "other": "压缩选项..."
+    "other": "Compressing Selection..."
   },
   "Jobs.User.Extract": {
-    "other": "正在提取存档..."
+    "other": "Extracting archive..."
   },
   "Jobs.User.Delete": {
-    "other": "正在后台删除选择的文件..."
+    "other": "Deleting selection in background..."
   },
   "Jobs.User.DirCopy": {
-    "other": "正在后台复制文件夹..."
+    "other": "Copying folder in background..."
   },
   "Jobs.User.DirMove": {
-    "other": "正在后台移动文件夹..."
+    "other": "Moving folder in background..."
   },
   "Jobs.User.FileCopy": {
-    "other": "正在后台复制文件..."
+    "other": "Copying file in background..."
   },
   "Jobs.User.FileMove": {
-    "other": "正在后台移动文件..."
+    "other": "Moving file in background..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "正在后台复制选择的文件..."
+    "other": "Copying selection in background..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "在后台移动选择..."
+    "other": "Moving selection in background..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "在后台移动到回收站..."
+    "other": "Moving to recycle bin in background..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "同步数据源 {{.DsName}} 然后对新文件重新分配哈希值"
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
-    "other": "正在后台下载文件..."
+    "other": "Downloading file in background..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "正在删除 %s"
+    "other": "Deleting %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "正在复制 %s"
+    "other": "Copying %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "正在移动 %s"
+    "other": "Moving %s"
   }
 }
