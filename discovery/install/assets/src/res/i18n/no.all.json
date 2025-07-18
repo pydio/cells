@@ -1,0 +1,287 @@
+{
+  "welcome.stepLabel": {
+    "other": "Terms of Use"
+  },
+  "welcome.title": {
+    "other": "Welcome to Pydio Cells Installation Wizard"
+  },
+  "welcome.legend": {
+    "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
+  },
+  "welcome.agreed": {
+    "other": "I agree with the terms"
+  },
+  "database.stepLabel": {
+    "other": "Database Connection"
+  },
+  "database.title": {
+    "other": "Database Configuration"
+  },
+  "database.legend": {
+    "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
+  },
+  "database.legend.bold": {
+    "other": "Please make sure that your database is running MySQL version 5.6 or higher"
+  },
+  "database.installDetected": {
+    "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
+  },
+  "database.installDetected.retry": {
+    "other": "retry with new value"
+  },
+  "database.useDefaultsSet": {
+    "other": "A default database is already configured, just click next to validate connection."
+  },
+  "database.forceConfigure": {
+    "other": "Configure another database."
+  },
+  "admin.stepLabel": {
+    "other": "Admin User"
+  },
+  "admin.title": {
+    "other": "Admin user and frontend defaults"
+  },
+  "admin.legend": {
+    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+  },
+  "admin.adminFound": {
+    "other": "En administrativ bruker ble allerede funnet i DB. Sjekk om du ønsker å opprette en ny."
+  },
+  "advanced.stepLabel": {
+    "other": "Avanserte innstillinger"
+  },
+  "advanced.title": {
+    "other": "Avanserte innstillinger (valgfritt)"
+  },
+  "advanced.legend": {
+    "other": "Pydio Cells tjenester vil bli distribuert på denne maskinen. Du kan gjennomgå noen avanserte innstillinger nedenfor for å finjustere konfigurasjonen."
+  },
+  "advanced.toggle": {
+    "other": "Vis avanserte innstillinger"
+  },
+  "advanced.default.datasource": {
+    "other": "En standard datakilde for å lagre brukernes personlige data og cells data blir laget ved oppstart. Du kan opprette andre datakilder senere."
+  },
+  "advanced.mongo.title": {
+    "other": "Konfigurer en MongoDB tilkobling"
+  },
+  "advanced.mongo.legend": {
+    "other": "Dette er bedre for skalerbarhet, og kreves for clustret installasjon. Hvis du ikke har en Mongo DB klar, kan dette legges til senere."
+  },
+  "advanced.mongo.host": {
+    "other": "Server host"
+  },
+  "advanced.mongo.port": {
+    "other": "Server port"
+  },
+  "advanced.mongo.db": {
+    "other": "Databasenavn"
+  },
+  "advanced.mongo.username": {
+    "other": "Brukernavn"
+  },
+  "advanced.mongo.password": {
+    "other": "Passord"
+  },
+  "advanced.mongo.authSource": {
+    "other": "Auth DB"
+  },
+  "advanced.mongo.validate": {
+    "other": "Test tilkoblingen"
+  },
+  "license.stepLabel": {
+    "other": "Enterprise lisens"
+  },
+  "license.title": {
+    "other": "Pydio Cells Enterprise lisens"
+  },
+  "license.success": {
+    "other": "Lisensfil oppdaget."
+  },
+  "license.details": {
+    "other": "Dette installasjonen er gyldig for %count brukere til %expiration."
+  },
+  "license.failed": {
+    "other": "Feil under forsøk på å verifisere denne lisensnøkkelen. Vennligst kontakt brukerstøtten."
+  },
+  "license.required": {
+    "other": "En gyldig lisensnøkkel er påkrevd for å kunne kjøre Enterprise Distribution. For å få en 30 dager lang prøveperiode eller et salgstilbud, vennligst kontakt"
+  },
+  "license.fieldLabel": {
+    "other": "Lisens streng"
+  },
+  "license.fieldLegend": {
+    "other": "Kopier og lim inn lisensnøkkelen delt med deg."
+  },
+  "apply.stepLabel": {
+    "other": "Bruk installasjon"
+  },
+  "apply.title": {
+    "other": "Vennligst være tålmodig mens Pydio Cells blir installert..."
+  },
+  "apply.success": {
+    "other": "Installasjonen var vellykket, og tjenestene starter nå, siden vil bli lastet inn på nytt når tjenestene har startet."
+  },
+  "apply.success.restarted": {
+    "other": "Installasjonen var vellykket, og tjenestene har nå startet. Vennligst oppdater siden nå (den blir automatisk oppdatert om %1s)"
+  },
+  "apply.error": {
+    "other": "Det oppstod en feil under utføring av installasjonen! Vennligst sjekk din konfigurasjon."
+  },
+  "apply.error.detail": {
+    "other": "Feilmelding: "
+  },
+  "form.dbConnectionType.label": {
+    "other": "Tilkoblingstype"
+  },
+  "form.dbConnectionType.tcp": {
+    "other": "TCP"
+  },
+  "form.dbConnectionType.socket": {
+    "other": "Socket"
+  },
+  "form.dbConnectionType.manual": {
+    "other": "Manuell"
+  },
+  "form.dbTCPHostname.label": {
+    "other": "Vertsnavn"
+  },
+  "form.dbTCPHostname.legend": {
+    "other": "Server hvor mysql kjører"
+  },
+  "form.dbName.label": {
+    "other": "Databasenavn"
+  },
+  "form.dbName.legend": {
+    "other": "Database som skal brukes (vil bli opprettet om den ikke eksisterer)"
+  },
+  "form.dbTCPPort.label": {
+    "other": "Port"
+  },
+  "form.dbTCPPort.legend": {
+    "other": "Port for tilkobling til mysql"
+  },
+  "form.dbUser.label": {
+    "other": "Databasebruker"
+  },
+  "form.dbUser.legend": {
+    "other": "La være blank om ikke nødvendig"
+  },
+  "form.dbPassword.label": {
+    "other": "Databasepassord"
+  },
+  "form.dbPassword.legend": {
+    "other": "La være blank om ikke nødvendig"
+  },
+  "form.dbSocketFile.label": {
+    "other": "Socket"
+  },
+  "form.dbSocketFile.legend": {
+    "other": "Angi plasseringen av socket filen du vil bruke til å koble til"
+  },
+  "form.dbManualDSN.label": {
+    "other": "DSN"
+  },
+  "form.dbManualDSN.legend": {
+    "other": "Bruk Golang-stil DSN for å beskrive databasetilkobling"
+  },
+  "form.frontendApplicationTitle.label": {
+    "other": "Applikasjonstittel"
+  },
+  "form.frontendApplicationTitle.legend": {
+    "other": "Hovedtittel til installasjonen"
+  },
+  "form.frontendDefaultLanguage.label": {
+    "other": "Standardspråk"
+  },
+  "form.frontendLogin.label": {
+    "other": "Admin user login *"
+  },
+  "form.frontendLogin.legend": {
+    "other": "Identifier used to log in"
+  },
+  "form.frontendPassword.label": {
+    "other": "Admin password *"
+  },
+  "form.frontendPassword.legend": {
+    "other": "Password used to log in"
+  },
+  "form.frontendRepeatPassword.label": {
+    "other": "Confirm password"
+  },
+  "form.frontendRepeatPassword.legend": {
+    "other": "Confirm password twice"
+  },
+  "form.dsFolder.label": {
+    "other": "Path of the default datasource"
+  },
+  "form.dsFolder.legend": {
+    "other": "Use an absolute path on the server"
+  },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
+  "form.dsType.FS": {
+    "other": "Local FS (store all data on this server)"
+  },
+  "form.dsType.S3": {
+    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+  },
+  "form.dsS3Custom.label": {
+    "other": "URL, append ?minio=true if Minio."
+  },
+  "form.dsS3Custom.legend": {
+    "other": "Leave empty for Amazon"
+  },
+  "form.dsS3CustomRegion.label": {
+    "other": "S3 Custom region"
+  },
+  "form.dsS3CustomRegion.legend": {
+    "other": "Leave empty for default (us-east-1)"
+  },
+  "form.dsS3ApiKey.label": {
+    "other": "S3 Api Key"
+  },
+  "form.dsS3ApiKey.legend": {
+    "other": "Key to connect to S3"
+  },
+  "form.dsS3ApiSecret.label": {
+    "other": "S3 Api Secret"
+  },
+  "form.dsS3ApiSecret.legend": {
+    "other": "Secret Key"
+  },
+  "form.dsS3ValidateKeys": {
+    "other": "Connect to S3 to define buckets"
+  },
+  "form.s3BucketsPrefix.label": {
+    "other": "Buckets prefix"
+  },
+  "form.s3BucketsPrefix.legend": {
+    "other": "A unique prefix for creating the 6 default buckets"
+  },
+  "form.bucketList.found": {
+    "other": "Following bucket(s) already exist"
+  },
+  "form.bucketList.toCreate": {
+    "other": "Following bucket(s) will be created"
+  },
+  "form.bucketList.notFound": {
+    "other": "Following buckets were not found"
+  },
+  "form.bucketList.warnCreate": {
+    "other": "You are not allowed to create buckets, make sure to create them manually!"
+  },
+  "stepper.button.next": {
+    "other": "Next"
+  },
+  "stepper.button.back": {
+    "other": "Back"
+  },
+  "stepper.button.last": {
+    "other": "Install Now"
+  },
+  "stepper.button.reload": {
+    "other": "Reload"
+  }
+}

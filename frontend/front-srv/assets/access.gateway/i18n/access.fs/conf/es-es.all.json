@@ -21,10 +21,10 @@
     "other": "Ruta absoluta a uno o más nodos raíz"
   },
   "#Items per page": {
-    "other": "#Items por página"
+    "other": "Elementos por página"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Una vez en modo de paginación, número de items a mostrar por página."
+    "other": "Número de elementos por página en modo paginación."
   },
   "Delete Permanently": {
     "other": "Eliminar permanentemente"

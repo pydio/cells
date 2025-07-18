@@ -21,10 +21,10 @@
     "other": "Caminho absoluto para um ou mais nós raiz"
   },
   "#Items per page": {
-    "other": "Nº. de itens por página"
+    "other": "#Items per page"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Uma vez no modo de paginação, este é o número de itens a ser exibido por página."
+    "other": "Once in pagination mode, number of items to display per page."
   },
   "Delete Permanently": {
     "other": "Apagar permanentemente"

@@ -1116,7 +1116,7 @@
     "other": "Risorse REST"
   },
   "react.1": {
-    "other": "cartella superiore"
+    "other": "Cartella superiore"
   },
   "react.10": {
     "other": "Eredita i permessi"
@@ -1134,7 +1134,7 @@
     "other": "Visualizza la struttura ad albero"
   },
   "react.2": {
-    "other": "azioni massive"
+    "other": "Operazioni bulk"
   },
   "react.3": {
     "other": "Risultati della Ricerca per: %s"

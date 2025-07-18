@@ -1116,7 +1116,7 @@
     "other": "REST Resources"
   },
   "react.1": {
-    "other": "thư mục cha"
+    "other": "thư mục chính"
   },
   "react.10": {
     "other": "Kế thừa quyền"
@@ -1134,7 +1134,7 @@
     "other": "Hiển thị cây kết quả"
   },
   "react.2": {
-    "other": "chuỗi các hành động"
+    "other": "hành động lớn"
   },
   "react.3": {
     "other": "Kết quả tìm kiếm cho '%s'"

@@ -42,7 +42,7 @@
     "other": "Consentire agli utenti senza privilegi di amministratore di creare un workspace da questo modello."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Consente agli utenti di selezionare un utente esistente quando si condivide una cartella"
+    "other": "Consente all'utente di selezionare un utente esistente, durante la condivisione di una cartella"
   },
   "Allow to group admins": {
     "other": "Abilita per il gruppo degli amministratori"
