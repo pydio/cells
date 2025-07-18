@@ -72,133 +72,133 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Kas ir darbvirsma?</h2>\n            Palīdzība par darbvismām APPLICATION_TITLE\n            <ul>\n                <li>Kapēc darbvirsmas APPLICATION_TITLE ir centralizētas?</li>\n                <li>Kas ir darbvirsmas no tehniskā skatījuma?</li>\n                <li>Kā tās ļauj organizēt darbu un datus?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Failu augšupielāde uz APPLICATION_TITLE</h2>\n            Darbojieties ar APPLICATION_TITLE un augšupielādējiet failus\n            <ul>\n                <li>Ievelciet failus APPLICATION_TITLE</li>\n                <li>Izveidot jaunu direktoriju</li>\n                <li>Pārsaukt failus un direktorijas</li>\n                <li>Lejupielādēt failus uz Jūsu datora</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Meklēšana, pārlūkošana un filu pārvaldība</h2>\n            Kā APPLICATION_TITLE efektīvi pārvaldīt failus un datus\n            <ul>\n                <li>Meklēšana starp darbvirsmām</li>\n                <li>Satura attēlošanas veidi, klaviatūras saīsnes</li>\n                <li>Failu šķirošana</li>\n                <li>Meta dati, Grāmatzīmes</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "Atklājiet vairāk APPLICATION_TITLE kanālā!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>[How-to] APPLICATION_TITLE lietošana uz iOS ierīcēm</h2>\n                            Palīdzība par APPLICATION_TITLE aplikācijas lietošanu (pieejama App Store). Uz Android ierīcēm šis process ir tāds pats.\n<ul><li>Izveidot servera pieslēgumu</li>\n<li>Navigācija</li>\n<li>Failu saglabāšana bezsaistē un darbs ar ārējā aplikācijām</li>\n<li>Aplikācijas aizsardzība ar PIN kodu</li>\n<li>Grāmatzīmju un meklēšanas lietošana</li></ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "Ja Jūs neesat %s, %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Lejupielādēt Windows Sinhronizācijas klientu"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Lejupielādēt Mac OSX Sinhronizācijas klientu"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "Aplikācija iOS iekārtām"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "Aplikācija Android iekārtām"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "Servera QR Kods"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "Pieslēgt mobilās aplikācijas"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "Noskanē šo QR Kodu lai nokonfigurētu mobilo aplikāciju"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "Meklēt visus failus..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "Piekļūt %1 no augšējās labās izvēlnes"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "admin pārvaldības panelis"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "Izvēlēties darba virsmu"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Failu un direktoriju koplietošana</h2>\n            Pamācība par failu un direktoriju koplietošanu sistēmā un ārpus tās\n            <ul>\n                <li>Izveidot koplietošanas saites ārējiem lietotājiem</li>\n                <li>Failu un direktoriju koplietošana ar iekšējiem lietotājiem</li>\n                <li>Koplietot direktoriju kā darbvirsmu</li>\n                <li>Izkārtojuma opcijas koplietotām direktorijām</li>\n                <li>Izveidot augšupielādes direktoriju</li>\n                <li>Pārvaldīt lietotājus un koplietošanas tiesības</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Koplietošana : drošības iespējas</h2>\n            Pamācības par koplietošanas drošības iespējām\n            <ul>\n                <li>Aizsardzība ar paroli</li>\n                <li>Beigu datums</li>\n                <li>Lejupielāžu skaita limitēšana</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] Pielāgot koplietošanas saites nosaukumu</h2>\n            Apskatiet kā Jūs varat mainīt saiti lai tās būtu draudzīgas lietotājiem.\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Koplietoto saišu pielāgota piekļuve</h2>\n            Pamācība par koplietošanas atļaujām\n            <ul>\n                <li>Priekšskats</li>\n                <li>Lejpielāde</li>\n                <li>Augšupielāde / Labošana</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] Valoda</h2>\n            APPLICATION_TITLE ir pieejama 29 valodās. Parādīts kā pārslēgt APPLICATION_TITLE valodu.\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Brīdinājumi</h2>\n            Pamācība kā uzlikt failam brīdinājumus lai zinātu kad kāds ir modificējis vai piekļuvis failiem.\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sadarbība</h2>\n            Instrukcijā paskaidrots kā sadarboties komandā ar ofisa dokumentiem. Tiek izmantota Collabora ofisa tiešsaistes platforma\n            <ul>\n                <li>Darbs ar teksta dokumentiem, prezentācijām, izklājlapām</li>\n                <li>Labojiet dokumentus kopīgi reālā laikā</li>\n                <li>Izveidojiet jaunus dokumentus tieši interneta pārlūkā</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Play video"
+    "other": "Atskaņot video"
   },
   "87": {
-    "other": "My Recent Activity"
+    "other": "Manas pēdējās aktivitātes"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "Ievilkt failu no Jūsu datora"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "Izvēlēties failu augšupielādei"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "Izvēlēties darba virsmu"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "Uzglabājiet failus bezsaistē izmantojot Darbvirsmas Sinhrinozācijas Klientu"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Aplikāciju lejupielāde"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Ātrā augšupielāde"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Video apmācība"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "Sākuma lapa"
   },
   "title": {
-    "other": "Home"
+    "other": "Sākums"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "Direktorija"
   },
   "search.facets.title": {
     "other": "Filter Results..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "Veids"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "Paplašinājums"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "Izmērs"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "Labots"
   },
   "search.facet.found": {
     "other": "Found in"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "Metadati"
   },
   "search.sorter.relevant.desc": {
     "other": "Most Relevant First"
@@ -216,10 +216,10 @@
     "other": "Smallest First"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "Fails"
   },
   "facet.label.folder": {
-    "other": "Folder"
+    "other": "Direktorija"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
@@ -237,7 +237,7 @@
     "other": "Moments ago"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "Šodien"
   },
   "facet.label.date.last.7": {
     "other": "Last 7 days"
@@ -249,7 +249,7 @@
     "other": "Older than 30 days"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "Saturs"
   },
   "facet.label.found.basename": {
     "other": "File name"
