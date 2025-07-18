@@ -456,7 +456,7 @@
     "other": "No more downloads"
   },
   "23": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "230": {
     "other": "Please save before sending an invitation"
@@ -597,10 +597,10 @@
     "other": "Share file"
   },
   "270": {
-    "other": "users"
+    "other": "användare"
   },
   "271": {
-    "other": "groups"
+    "other": "grupper"
   },
   "272": {
     "other": "teams"
@@ -609,7 +609,7 @@
     "other": "nobody"
   },
   "274": {
-    "other": " and "
+    "other": " och "
   },
   "275": {
     "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
@@ -651,7 +651,7 @@
     "other": "Wrong password"
   },
   "30": {
-    "other": "Share with..."
+    "other": "Dela med..."
   },
   "31": {
     "other": "Read"
@@ -669,13 +669,13 @@
     "other": "Select Users"
   },
   "35": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
     "other": "Set a label and a short description"
   },
   "37": {
-    "other": "Confirm"
+    "other": "Bekräfta"
   },
   "38": {
     "other": "Watch this folder content"
@@ -723,7 +723,7 @@
     "other": "create user"
   },
   "5": {
-    "other": "password"
+    "other": "lösenord"
   },
   "50": {
     "other": "Shared"
@@ -813,7 +813,7 @@
     "other": "Upload files"
   },
   "74b": {
-    "other": "Edit"
+    "other": "Redigera"
   },
   "75": {
     "other": "Please use a positive number for both Expiration and Download limit fields."
@@ -852,7 +852,7 @@
     "other": "Toggle watch status to receive or not notifications when workspace is consulted"
   },
   "84": {
-    "other": "password"
+    "other": "lösenord"
   },
   "85": {
     "other": "A protection password is set on this link"
@@ -879,16 +879,16 @@
     "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Skapa länk"
   },
   "93": {
     "other": "Existing links"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR-kod"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR-kod"
   },
   "96": {
     "other": "stop sharing"
@@ -906,7 +906,7 @@
     "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "eller"
   },
   "cells.create.title.fill.folders": {
     "other": "Share existing folder(s)"
@@ -927,10 +927,10 @@
     "other": "Create a new Cell"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "En deltagare"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d deltagare"
   },
   "cell.participant.other.single": {
     "other": "One other participant"
@@ -939,10 +939,10 @@
     "other": "%d other participants"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "En mapp"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d mappar"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
