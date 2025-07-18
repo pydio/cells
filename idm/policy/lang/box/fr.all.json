@@ -1,62 +1,62 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Accès Public"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Accès aux endpoints publics"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "Accès anonyme à /discovery (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Accès anonyme aux API de réinitialisation de mot de passe (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Accès public pour charger l'état de l'interface (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Accès public pour charger la session (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Installation (premier démarrage)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Les endpoints d'installation nécessitent un accès public au premier démarrage"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Accès anonyme à /install (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Accès des utilisateurs identifiés et administrateurs"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "APIs REST accessibles aux utilisateurs identifiés"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Accès complet pour les profils Admin"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Accès par défaut pour les utilisateurs identifiés"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "Lister et rechercher les métadonnées définies par l'utilisateur"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "Mettre à jour les métadonnées définies par l'utilisateur"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Accès en lecture à tous les services FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Accès en écriture à FrontendService à l'exception des uploads de binaires"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "Opérations OpenIdConnect"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Activation de l'authentification du serveur OpenID Connect"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Par défaut, login autorisé à tous les utilisateurs"
   }
 }
