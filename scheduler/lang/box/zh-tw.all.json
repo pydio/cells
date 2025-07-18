@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "提取圖片縮圖和 Exif 資料"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "清空已刪除檔案的縮圖快取"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "同步外部目錄"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "清空排程中的工作和任務"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "模擬長時間工作 (測試專用)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "建立隨機使用者 (測試專用)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "RPC 工作測試樣本 (測試專用)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "已變更服務自動歸檔"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "刪除時清理或轉移使用者資料"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "24小時後清理孤立文件"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "10 天後清理過期的 ACL"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "正在壓縮所選的項目..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "正在解壓縮檔案..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "在背景中刪除所選的項目..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "在背景中複製目錄..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "在背景中移動目錄..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "在背景中複製檔案..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "在背景中移動檔案..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "在背景中複製所選的項目..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "在背景中移動所選的項目..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "在背景中移動到垃圾回收桶..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "同步資料來源 {{.DsName}} 然後重新雜湊新文件"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "在背景中下載檔案..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "正在刪除 %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "正在複製 %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "正在移動 %s"
   }
 }
