@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "Compress"
+    "other": "Comprimi"
   },
   "10": {
-    "other": "Extract selected archives"
+    "other": "Estrai gli archivi selezionati"
   },
   "11": {
-    "other": "Path of the extracted files "
+    "other": "Percorsi dei file estratti "
   },
   "12": {
-    "other": "Starting extraction..."
+    "other": "Avvio estrazione..."
   },
   "13": {
-    "other": "Extracting files ... %s "
+    "other": "Estrazione file ... %s "
   },
   "14": {
-    "other": "Extraction finished successfullly in the folder '%s'."
+    "other": "Estrazione avvenuta correttamente nella cartella '%s'."
   },
   "15": {
-    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
+    "other": "I file selezionati non sono archivi TAR, TAR.GZ o TAR.BZ2."
   },
   "16": {
-    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
+    "other": "E' possibile comprimere solo in TAR, TAR.GZ o TAR.BZ2."
   },
   "17": {
-    "other": "You can't compress empty folders."
+    "other": "Non è possibile comprire una cartella vuota."
   },
   "2": {
-    "other": "Compress Selection"
+    "other": "Comprimi i file selezionati"
   },
   "3": {
-    "other": "Format"
+    "other": "Comprimi in"
   },
   "4": {
-    "other": "Archive's name"
+    "other": "Nome archivio"
   },
   "5": {
-    "other": "Starting compression..."
+    "other": "Avvio compressione..."
   },
   "6": {
-    "other": "Adding files in the archive... %s "
+    "other": "Aggiunta file all'archivio... %s "
   },
   "7": {
-    "other": "During compression in %s ..."
+    "other": "Compressione in %s ..."
   },
   "8": {
-    "other": "Your archive finished successfully !!"
+    "other": "Archivio creato correttamente!!"
   },
   "9": {
-    "other": "Extract"
+    "other": "Estrai"
   }
 }
