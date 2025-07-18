@@ -1350,7 +1350,7 @@
     "other": "Créer"
   },
   "virtual.create.error": {
-    "other": "Doit différer des Datasources"
+    "other": "Must differ from datasources"
   },
   "virtual.label": {
     "other": "Libellé"
@@ -2286,34 +2286,34 @@
     "other": "Sites"
   },
   "sites.externals": {
-    "other": "URLs externes"
+    "other": "External URLs"
   },
   "sites.details": {
-    "other": "<div>\nLes sites définissent comment Cells se connecte aux interfaces réseau et quels accès sont exposés à l'extérieur.\nUtilisez ‘<i>./cells configure sites</i>’ pour gérer les sites à partir de la ligne de commande.\n<br/><br/>\nChaque site a les paramètres suivants :\n\n<ol>\n<li>1. <u>Bind(s)</u>: une ou plusieurs [ip/hostname:port] auxquelles le serveur web va être lié.</li>\n<li>2. <u>Paramètres TLS</u>: configuration TLS pour le support HTTPS.</li>\n<li>3. <u>URL externe</u>: l'URL que vous communiquez aux utilisateurs finaux. Elle peut différer de votre Bind si l'application est derrière un reverse proxy, ou par exemple à l'intérieur d'un conteneur (avec mapping des ports).</li>\n<li>4. <u>Mode Maintenance</u> [On|Off]: affiche une page de maintenance sur cet adresse, bien que Cells soit en cours d'exécution.</li>\n</ol></div>"
+    "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>Notes complémentaires</i>\n<ol>\n<li>1. Quand aucun site n'est défini, Cells utilise une valeur par défaut (https://0.0.0:8080 avec certificat auto-signé).</li>\n<li>2. Les sites peuvent être remplacés à l'exécution en utilisant le flag « —bind» ou la variable d'environnement « CELLS_BIND».\n</li>\n</ol></div>"
+    "other": "<div><i>Additional notes</i>\n<ol>\n<li>1. When there are no sites defined, Cells use a default configuration (https://0.0.0.0:8080 with self-signed).</li>\n<li>2. Sites can be overridden at runtime by using ‘--bind’ flag or ‘CELLS_BIND’ environment variable.\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
-    "other": "<div>\nCells a besoin d'une URL publique pour certaines fonctionnalités. Le logiciel essaiera d'utiliser la valeur la plus appropriée en fonction de votre configuration. <br/><br/>Par exemple :\n<ul>\n<li>&bull; Si un site unique est défini et qu'il a une URL externe, c'est probablement la bonne.</li>\n<li>&bull; Lorsque plusieurs sites sont définis, vous pouvez vouloir forcer qu'une seule URL soit utilisée pour toutes les communications externes.</li>\n<li>&bull; Si aucune URL externe n'est détectée, le Bind interne sera utilisé. Dans ce cas, vous ne voulez probablement pas envoyer une IP privée (ou 0.0.0.0:port…) à l'extérieur.</li>\n</ul>\n\n<br/>\nLes champs ci-dessous montrent les valeurs détectées. Sélectionnez ou entrez une valeur personnalisée, puis appuyez sur Entrée pour sauvegarder.\n</div>"
+    "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "URL utilisée pour créer des liens dans les e-mails"
+    "other": "URL used to build links in emails"
   },
   "sites.links.url": {
-    "other": "URL utilisée pour construire les liens publics"
+    "other": "URL used to build public links"
   },
   "sites.no-defaults": {
-    "other": "Pas de valeur par défaut"
+    "other": "No defaults set"
   },
   "sites.enter-to-save": {
-    "other": "(appuyez sur Entrée pour sauvegarder)"
+    "other": "(hit enter to save)"
   },
   "sites.detected.sites": {
-    "other": "Sites actuellement détectés"
+    "other": "Sites currently detected"
   },
   "sites.configs.command": {
-    "other": "Utilisez la commande './cells config sites' pour éditer les sites."
+    "other": "Use './cells config sites' command to edit sites."
   },
   "sites.column.bind": {
     "other": "Bind"
@@ -2328,15 +2328,15 @@
     "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Auto-signé"
+    "other": "Self Signed"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificat"
+    "other": "Certificate"
   },
   "sites.configs.tls.notls": {
-    "other": "Pas de TLS"
+    "other": "No TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "Pas de TLS derrière le proxy"
+    "other": "No TLS behind proxy"
   }
 }
