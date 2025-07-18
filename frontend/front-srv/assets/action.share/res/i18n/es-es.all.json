@@ -213,780 +213,780 @@
     "other": "Propietario"
   },
   "16": {
-    "other": "reset"
+    "other": "reiniciar"
   },
   "160": {
-    "other": "You are not allowed to delete this shared item"
+    "other": "No le está permitido eliminar este recurso compartido"
   },
   "161": {
-    "other": "Deprecated Link"
+    "other": "Enlace obsoleto"
   },
   "162": {
-    "other": "You have one or more legacy link on this file. Links are still active, but you can replace them with a new share link by stopping this share and recreating a new one. Copy the share 'hash' (the last part of the link, e.g. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) and apply it to the new link using the 'Change Parameters' form."
+    "other": "Tiene uno o más enlaces antiguos en este archivo. Los enlaces siguen activos, por lo que puede reemplazarlos con un nuevo enlace de compartir deteniendo esta acción y creando un nuevo enlace. Copie el 'hash' (la última parte del enlace, por ejemplo: http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) y aplíquelo al nuevo enlace usando el formulario 'Cambiar parámetros'."
   },
   "163": {
-    "other": "Drop Files Here (for upload-enabled minisites)"
+    "other": "Arrastre archivos aquí (para minisitios con subida de archivos habilitada)"
   },
   "164": {
-    "other": "Not allowed: script was modified!"
+    "other": "¡No permitido: el script fue modificado!"
   },
   "165": {
-    "other": "Sorry, this link is expired!"
+    "other": "¡Lo sentimos, este enlace ha expirado!"
   },
   "166": {
-    "other": "Cannot find specified link!"
+    "other": "¡No se puede encontrar el enlace especificado!"
   },
   "167": {
-    "other": "Link is expired!"
+    "other": "¡El enlace ha expirado!"
   },
   "168": {
-    "other": "The number of authorized downloads have been reached. Click to reset the counter and reactivate the link."
+    "other": "Se ha alcanzado el número de descargas autorizadas. Haga click para reiniciar el contador y reactivar el enlace."
   },
   "169": {
-    "other": "The expiration date was reached. Change the parameters with a new date if you want to reactivate the link."
+    "other": "Se ha alcanzado la fecha de expiración. Cambie los parámetros con una nueva fecha si desea reactivar el enlace."
   },
   "17": {
-    "other": "Click to reset download counter"
+    "other": "Haga click para reiniciar contador de descargas"
   },
   "170": {
-    "other": "This is link is secured with a password."
+    "other": "Este enlace se ha protegido con una contraseña."
   },
   "171": {
-    "other": "Link Handle"
+    "other": "Manipulación del enlace"
   },
   "172": {
-    "other": "Sorry this link is already used, please pick another handle."
+    "other": "Lo sentimos pero este enlace ya está en uso, por favor seleccione otro nombre."
   },
   "173": {
-    "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
+    "other": "Si desea un enlace atractivo y duradero (al estilo https://.../mi-enlace), puede usar este campo. Si no lo establece, se generará automáticamente."
   },
   "174": {
-    "other": "Reset"
+    "other": "Reiniciar"
   },
   "175": {
-    "other": "Please set a password and make sure it's long enough!"
+    "other": "¡Por favor establezca una contraseña y asegúrese de que es suficientemente larga!"
   },
   "176": {
-    "other": "(Mandatory)"
+    "other": "(Obligatorio)"
   },
   "177": {
-    "other": "View parameters"
+    "other": "Ver parámetros"
   },
   "178": {
-    "other": "enabled"
+    "other": "activado"
   },
   "179": {
-    "other": "Revert"
+    "other": "Revertir"
   },
   "18": {
-    "other": "Folder is shared as a new workspace"
+    "other": "Carpeta compartida como un nuevo workspace"
   },
   "180": {
-    "other": "Clear list"
+    "other": "Limpiar lista"
   },
   "181": {
-    "other": "Modify"
+    "other": "Modificar"
   },
   "182": {
-    "other": "Use the field above to pick a user from the internal directory or from your personal address book. If you want to create a new user, just type in a new identifier and hit Enter."
+    "other": "Utilice el campo anterior para seleccionar un usuario del directorio interno o su lista de direcciones. Si quiere crear un nuevo usuario, pulse en un identificador nuevo y luego Enter."
   },
   "183": {
-    "other": "Notify on content change"
+    "other": "Notificar cambio en el contenido"
   },
   "184": {
-    "other": "Notify me when content is accessed or changed"
+    "other": "Notificar cuando se acceda o se cambie el contenido"
   },
   "185": {
-    "other": "Notify me when content is accessed"
+    "other": "Notificarme cuando se acceda al contenido"
   },
   "186": {
-    "other": "Notify me when content is changed"
+    "other": "Notificarme cuando se cambie el contenido"
   },
   "187": {
-    "other": "Do not notify me"
+    "other": "No notificarme"
   },
   "188": {
-    "other": "Receive alerts whenever a user accesses or modifies the content of this share."
+    "other": "Reciba alertas cuando un usuario acceda o modifique el contenido compartido."
   },
   "189": {
-    "other": "Enable Public Link"
+    "other": "Activar el enlace público"
   },
   "19": {
-    "other": "Shared workspace options were successfully modified"
+    "other": "Las opciones del workspace compartido fueron modificadas"
   },
   "190": {
-    "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
+    "other": "Este archivo no es accesible públicamente en este momento. Activar un enlace público creará un acceso único que puede enviar a cualquier persona. Si desea compartir con los usuarios de Pydio existentes, utilice la pestaña \"Usuarios\"."
   },
   "191": {
-    "other": "Copy link to clipboard"
+    "other": "Copiar enlace al portapapeles"
   },
   "192": {
-    "other": "Link has been copied to clipboard"
+    "other": "El enlace ha sido copiado al portapapeles"
   },
   "193": {
-    "other": "Customize Link"
+    "other": "Personalizar el enlace"
   },
   "194": {
-    "other": "For a prettier link, you can customize the last part"
+    "other": "Para crear enlaces más amigables, puede personalizar la última parte"
   },
   "195": {
-    "other": "Warning, there is no embedded viewer for this file, except opening in a new tab of your browser: this may trigger a download automatically when user opens the link."
+    "other": "Atención, no hay visor integrado para este archivo. A menos que se abra en una nueva pestaña del navegador, el archivo se descargará automáticamente al pulsar el enlace."
   },
   "196": {
-    "other": "Secure Access"
+    "other": "Acceso seguro"
   },
   "197": {
-    "other": "Use this field to send optional comments"
+    "other": "Usa este campo para enviar comentarios opcionales"
   },
   "198": {
-    "other": "You can select the appearance of the link as it will appear in the browser."
+    "other": "Puede seleccionar la apariencia de este enlace en el navegador."
   },
   "199": {
-    "other": "Share Visibility"
+    "other": "Visibilidad de los Recursos Compartidos"
   },
   "2": {
-    "other": "Click on the image to download <b>%s</b> to your hard drive"
+    "other": "Haga clic en la imagen para descargar <b>%s</b> a su disco duro"
   },
   "20": {
-    "other": "Ooops, the file you required could not be found! Maybe it was deleted or it is not shared with you anymore."
+    "other": "¡vaya!, el archivo requerido no fue encontrado. Tal vez fue eliminado o ya no está compartido."
   },
   "200": {
-    "other": "Visible to other users"
+    "other": "Visible para otros usuarios"
   },
   "201": {
-    "other": "Other users who access to the current workspace can update the links parameters, but they cannot delete it. Only you can stop this share or toggle its visibility"
+    "other": "Otros usuarios con acceso al workspace pueden actualizar los parámetros del enlace, pero no pueden borrarlo. Solo usted puede eliminar o cambiar la visibilidad del recurso compartido"
   },
   "202": {
-    "other": "Other users who access to the current workspace can update the links parameters. You are not the owner of the share so you cannot delete it or toggle its visibility"
+    "other": "Otros usuarios con acceso al workspace pueden actualizar los parámetros del enlace. Usted no es el propietario del recurso compartido y no puede borrarlo ni cambiar su visibilidad"
   },
   "203": {
-    "other": "Transfer Ownership"
+    "other": "Transferir la Propiedad"
   },
   "203b": {
-    "other": "Transfer"
+    "other": "Transferir"
   },
   "204": {
-    "other": "If the share is publicly visible and you want another user to manage this share, you can transfer its ownership."
+    "other": "Si el intercambio es visible públicamente y quieres que otro usuario lo gestione, puedes transferir la titularidad del intercambio."
   },
   "205": {
-    "other": "Transfer to ... (user identifier)"
+    "other": "Transferir a... (identificador de usuario)"
   },
   "206": {
-    "other": "Shares are 'private' by default: you only can see them. If you want other users who access the current workspace to see and edit this share, toggle the visibility."
+    "other": "Los recursos compartidos son 'privados' por defecto: sólo usted los puede ver. Si quiere que otros usuarios de este workspace puedan verlos y modificarlos, cambie la opción de visibilidad."
   },
   "207": {
-    "other": "Remote Users"
+    "other": "Usuarios Remotos"
   },
   "208": {
-    "other": "Share with users from other filesharing platforms (compatible with Federated Sharing API)."
+    "other": "Compartir con usuarios de otras plataformas de intercambio (compatible con Federated Sharing API)."
   },
   "209": {
-    "other": "Remote Address"
+    "other": "Dirección Remota"
   },
   "21": {
-    "other": "Will expire on"
+    "other": "Caducidad (en días): "
   },
   "210": {
-    "other": "Identifier"
+    "other": "Identificación de Usuario"
   },
   "211": {
-    "other": "pending"
+    "other": "pendiente"
   },
   "212": {
-    "other": "accepted"
+    "other": "aceptado"
   },
   "213": {
-    "other": "rejected"
+    "other": "rechazado"
   },
   "214": {
-    "other": "not sent"
+    "other": "no enviado"
   },
   "215": {
-    "other": "To enable a public link on a file or a folder, you first need to set up a password."
+    "other": "Para activar el enlace público a un archivo o carpeta, necesita primero establecer una contraseña."
   },
   "216": {
-    "other": "Successfully unshared element"
+    "other": "Este elemento se dejó de compartir"
   },
   "217": {
-    "other": "Local Users"
+    "other": "Usuarios Locales"
   },
   "218": {
-    "other": "Notification"
+    "other": "Notificación"
   },
   "219": {
-    "other": "Error while loading share. Error was (%s)."
+    "other": "Error al cargar el recurso compartido. El error fue (%s)."
   },
   "21b": {
-    "other": "Expired on"
+    "other": "Expira el día"
   },
   "22": {
-    "other": "Allowed Downloads"
+    "other": "Descargas permitidas"
   },
   "220": {
-    "other": "You are not allowed to create users"
+    "other": "No tiene permisos para crear usuarios"
   },
   "221": {
-    "other": "You are not allowed to share with other users, only your own external users"
+    "other": "No tiene permisos para compartir con otros usuarios, sólo con sus propios usuarios externos"
   },
   "222": {
-    "other": "User %s already exists, please choose another identifier"
+    "other": "El usuario %s ya existe, elija otro identificador"
   },
   "223": {
-    "other": "Custom link is too short, please use at least %s characters"
+    "other": "El enlace personalizado es demasiado corto, use al menos %s carácteres"
   },
   "224": {
-    "other": "You are not allowed to manage this share, please ask its owner to perform the changes, or to transfer you the ownership."
+    "other": "No tiene permisos para gestionar este recurso compartido, pídale al propietario que haga los cambios o le transfiera la titularidad."
   },
   "225": {
-    "other": "You are not allowed to create public links on files"
+    "other": "No tiene permisos para crear enlaces públicos de archivos"
   },
   "226": {
-    "other": "You are not allowed to create public links on folders"
+    "other": "No tiene permisos para crear enlaces públicos de carpetas"
   },
   "227": {
-    "other": "You are not allowed to share files internally"
+    "other": "No tiene permisos para compartir archivos internamente"
   },
   "228": {
-    "other": "You are not allowed to share folders internally"
+    "other": "No tiene permisos para compartir archivos internamente"
   },
   "229": {
-    "other": "Insert a preview of the file by pasting this code inside an HTML page."
+    "other": "Insertar vista previa de archivo copiando este código en una página HTML."
   },
   "22b": {
-    "other": "No more downloads"
+    "other": "No más descargas"
   },
   "23": {
-    "other": "Password"
+    "other": "Contraseña"
   },
   "230": {
-    "other": "Please save before sending an invitation"
+    "other": "Por favor, guarde antes de enviar el enlace"
   },
   "231": {
-    "other": "Click to start downloading"
+    "other": "Pulse para empezar a descargar"
   },
   "232": {
-    "other": "No entries found for share, did you maybe delete some users?"
+    "other": "No se encontró nada para compartir, ¿quizá ha eliminado algún usuario?"
   },
   "233": {
-    "other": "Reset this share"
+    "other": "Resetear este recurso compartido"
   },
   "234": {
-    "other": "It has been added to your %s workspace."
+    "other": "Se ha añadido a su workspace %s."
   },
   "235": {
-    "other": "Generate unique links to identify users"
+    "other": "Generar enlaces unicos para identificar usuarios."
   },
   "236": {
-    "other": "Restrict access only to identified users"
+    "other": "Restringir acceso sólo a usuarios identificados"
   },
   "237": {
-    "other": "Use a random key instead of email in link"
+    "other": "Usar una clave aleatoria en vez del email en el enlace"
   },
   "238": {
-    "other": "Share Types"
+    "other": "Tipos de recurso compartido"
   },
   "24": {
-    "other": "Set expiration limits or define a password to access this share."
+    "other": "Establezca límite de descargas y expiración para el acceso al archivo."
   },
   "240": {
-    "other": "Group by..."
+    "other": "Agrupado por..."
   },
   "241": {
-    "other": "Shares List"
+    "other": "List de Recursos Compartidos"
   },
   "242": {
-    "other": "Load More Results"
+    "other": "Cargar más Resultados"
   },
   "243": {
-    "other": "Public Links"
+    "other": "Enlaces Públicos"
   },
   "244": {
-    "other": "Shared Folders"
+    "other": "Carpetas Compartidas"
   },
   "245": {
-    "other": "%s personal invitation(s) sent"
+    "other": "%s invitación(es) personal(es) enviada(s)"
   },
   "246": {
-    "other": "Open cell"
+    "other": "Abrir celda"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "Editar celda"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "Eliminar celda"
   },
   "249": {
-    "other": "Contents"
+    "other": "Contenidos"
   },
   "25": {
-    "other": "No limit"
+    "other": "Sin límites"
   },
   "250": {
-    "other": "Cells"
+    "other": "Celdas"
   },
   "251": {
-    "other": "Link"
+    "other": "Enlace"
   },
   "252": {
-    "other": "Access"
+    "other": "Acceso"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Visibilidad"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "Compartido en celdas"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Con usuarios o grupos"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Compartido en %d celdas"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Compartido en '%s'"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "¿Está seguro de que desea eliminar todas las celdas y enlaces de este elemento?"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "Compartir para %s"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "Creado el %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "Editar usuarios"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "Eliminar de esta celda"
   },
   "26": {
-    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
+    "other": "Elija usuarios o grupos y establezca sus permisos de acceso. El permiso de 'Escritura' creará un workspace que sólo permite subir documentos."
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "La carpeta está compartida en las siguientes celdas. Puede editar la lista de usuarios o crear una nueva celda."
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "Escoja los usuarios o grupos que tendrán acceso a esta celda"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "Comparta esta carpeta con otros usuarios creando una nueva celda"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "Añadir a la celda..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ Nueva Celda"
   },
   "265": {
-    "other": "Link Label"
+    "other": "Etiqueta del enlace"
   },
   "266": {
-    "other": "Link Description"
+    "other": "Descripción del enlace"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "Etiqueta de la celda"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "Descripción de la Celda"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "Se creará una celda compartida con %USERS. ¡Elija las carpetas que quiera compartir o simplemente deje que Pydio cree una carpeta vacía!"
   },
   "27": {
-    "other": "Share file"
+    "other": "Compartir archivo"
   },
   "270": {
-    "other": "users"
+    "other": "usuarios"
   },
   "271": {
-    "other": "groups"
+    "other": "grupos"
   },
   "272": {
-    "other": "teams"
+    "other": "equipos"
   },
   "273": {
-    "other": "nobody"
+    "other": "ninguno"
   },
   "274": {
-    "other": " and "
+    "other": " y "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "Cree celdas para colaborar con otros usuarios. Primero, comience describiendo el objeto de esta celda."
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "Título de la celda"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "Opcionalmente, añada una descripción"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "Elija con quién compartirá los datos"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "¡Cree la celda ahora!"
   },
   "28": {
-    "other": "Share folder"
+    "other": "Compartir carpeta"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "La celda tiene su propia carpeta"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "La celda se creará en una nueva carpeta"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "Añadir una carpeta existente..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "Seleccione un nodo en el árbol..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "Visible en %s celdas"
   },
   "29": {
-    "other": "WebLink"
+    "other": "Enlace Web"
   },
   "3": {
-    "other": "Wrong password"
+    "other": "Contraseña incorrecta"
   },
   "30": {
-    "other": "Share with..."
+    "other": "Compartir con..."
   },
   "31": {
-    "other": "Read"
+    "other": "Leer"
   },
   "32": {
-    "other": "Write"
+    "other": "Escribir"
   },
   "33": {
-    "other": "Watch"
+    "other": "Monitorizar"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "Seleccionar o Crear Usuarios"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "Seleccionar Usuarios"
   },
   "35": {
-    "other": "Label"
+    "other": "Nombre"
   },
   "36": {
-    "other": "Set a label and a short description"
+    "other": "Establezca una etiqueta y una breve descripción"
   },
   "37": {
-    "other": "Confirm"
+    "other": "Confirmar"
   },
   "38": {
-    "other": "Watch this folder content"
+    "other": "Monitorizar el contenido de esta carpeta"
   },
   "39": {
-    "other": "Watch this file activity"
+    "other": "Monitorizar la actividad de este archivo"
   },
   "4": {
-    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
+    "other": "Introduzca la contraseña correcta y haga click en la imagen para descargar <b>%s</b> a su disco duro"
   },
   "40": {
-    "other": "Invitations"
+    "other": "Invitaciones"
   },
   "41": {
-    "other": "Send invitations by email to the users you have shared this item with."
+    "other": "Envíe invitaciones por correo electrónico a los usuarios con los que ha compartido este elemento."
   },
   "42": {
-    "other": "A user of %s is sharing a file with you"
+    "other": "Un usuario de %s está compartiendo este enlace con usted"
   },
   "43": {
-    "other": "A user of %s is sharing a folder with you"
+    "other": "Un usuario de %s está compartiendo esta carpeta con usted"
   },
   "44": {
-    "other": "%s Share"
+    "other": "Compartir %s"
   },
   "45": {
-    "other": "Send Invitation"
+    "other": "Enviar invitación"
   },
   "46": {
-    "other": "Open workspace %s1 directly in %s2"
+    "other": "Abrir workspace %s1 directamente en %s2"
   },
   "46_file": {
-    "other": "Open file %s1"
+    "other": "Abrir archivo %s1"
   },
   "46_mini": {
-    "other": "Open mini %s1"
+    "other": "Abrir mini %s1"
   },
   "47": {
-    "other": "Successfully updated watch status"
+    "other": "Estado de monitorización actualizado correctamente"
   },
   "48": {
-    "other": "You are not allowed to access this data"
+    "other": "No se le permite acceder a estos datos"
   },
   "49": {
-    "other": "create user"
+    "other": "crear usuario"
   },
   "5": {
-    "other": "password"
+    "other": "contraseña"
   },
   "50": {
-    "other": "Shared"
+    "other": "Elemento compartido"
   },
   "51": {
-    "other": "Downloaded"
+    "other": "Descargado"
   },
   "52": {
-    "other": "Configuration"
+    "other": "Configuración"
   },
   "53": {
-    "other": "none"
+    "other": "ninguno"
   },
   "54": {
-    "other": "Shared with"
+    "other": "Compartido con"
   },
   "55": {
-    "other": "Shared..."
+    "other": "Compartido..."
   },
   "56": {
-    "other": "Configure sharing..."
+    "other": "Configure la función de compartir..."
   },
   "57": {
-    "other": "times"
+    "other": "veces"
   },
   "58": {
-    "other": "Please check at least one permission!"
+    "other": "¡Por favor seleccione al menos un permiso!"
   },
   "59": {
-    "other": "Download Page"
+    "other": "Página de descargas"
   },
   "6": {
-    "other": "Stop Sharing"
+    "other": "Detener la función de compartir"
   },
   "60": {
-    "other": "Direct Download Link"
+    "other": "Enlace de Descarga Directa"
   },
   "61": {
-    "other": "HTML Embed Code"
+    "other": "Código HTML incrustado"
   },
   "62": {
-    "other": "Minisite Adress"
+    "other": "Dirección de minisitio"
   },
   "63": {
-    "other": "New workspace"
+    "other": "Nuevo workspace"
   },
   "64": {
-    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
+    "other": "Para usuarios internos y externos, la carpeta aparecerá como un nuevo workspace en la lista de workspaces de los usuarios."
   },
   "65": {
-    "other": "Public Minisite (no authentication required)"
+    "other": "Minisite público (no se requiere autenticación)"
   },
   "66": {
-    "other": "For external users, the folder will appear at a new public adress as a simple file list."
+    "other": "Para usuarios externos, la carpeta aparecerá en una nueva dirección pública como una simple lista de archivos."
   },
   "67": {
-    "other": "Private Minisite (users authentication required)"
+    "other": "Minisitio privado (se requiere autenticación)"
   },
   "68": {
-    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
+    "other": "Para usuarios internos o externos, la carpeta aparecerá en una nueva dirección como una simple lista de archivos, pero se requerirá autenticación de usuario"
   },
   "69": {
-    "other": "Configure Minisite"
+    "other": "Configure el Minisitio"
   },
   "69r": {
-    "other": "Link Parameters"
+    "other": "Parámetros de enlace"
   },
   "7": {
-    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
+    "other": "Detener la función de compartir no eliminará el archivo. Si quiere cambiar los parámetros, vuelva a compartir el archivo."
   },
   "70": {
-    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
+    "other": "Use las casillas de verificación para conceder permisos a esta carpeta para el público. Si selecciona solamente 'Subida' esta carpeta estará vacía y los usuarios podrán guardar archivos en ella."
   },
   "70r": {
-    "other": "Permissions granted to the users accessing this link"
+    "other": "Permisos concedidos a los usuarios que acceden a este enlace"
   },
   "71": {
-    "other": "Permissions"
+    "other": "Permisos"
   },
   "72": {
-    "other": "Preview"
+    "other": "Previsualizar"
   },
   "73": {
-    "other": "Download"
+    "other": "Descargar"
   },
   "74": {
-    "other": "Upload files"
+    "other": "Subir archivos"
   },
   "74b": {
-    "other": "Edit"
+    "other": "Editar"
   },
   "75": {
-    "other": "Please use a positive number for both Expiration and Download limit fields."
+    "other": "Por favor, utilice un número positivo para los campos de Expiración y límite de Descargas."
   },
   "76": {
-    "other": "Please enable Cookies to access this application"
+    "other": "Por favor, habilite las cookies para acceder a esta aplicación"
   },
   "77": {
-    "other": "Please enable JavaScript to access this application"
+    "other": "Por favor, habilite JavaScript para acceder a esta aplicación"
   },
   "78": {
-    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
+    "other": "Atención, sólo se pueden usar carácteres alfanuméricos estándar para los nombres de usuario. El identificador '%CURRENT%' será reemplazado por '%NEW%'"
   },
   "79": {
-    "other": "invite"
+    "other": "invitar"
   },
   "8": {
-    "other": "File is shared"
+    "other": "Archivo compartido"
   },
   "80": {
-    "other": "Send link by email to a selection of users or addresses"
+    "other": "Enviar enlace por correo electrónico a una selección de usuarios o direcciones"
   },
   "80b": {
-    "other": "Invite by email the selected users to visit this workspace"
+    "other": "Invite por correo electrónico a los usuarios seleccionados a visitar este workspace"
   },
   "81": {
-    "other": "stop watching"
+    "other": "detener la monitorización"
   },
   "82": {
-    "other": "watch"
+    "other": "monitorizar"
   },
   "83": {
-    "other": "Toggle watch status to receive or not notifications when file is downloaded"
+    "other": "Cambie el estado de monitorización para recibir o no notificaciones cuando el archivo se haya descargado"
   },
   "83b": {
-    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
+    "other": "Cambie el estado de monitorización para recibir o no notificaciones cuando el workspace es consultado"
   },
   "84": {
-    "other": "password"
+    "other": "contraseña"
   },
   "85": {
-    "other": "A protection password is set on this link"
+    "other": "Se ha establecido una contraseña de protección en este enlace"
   },
   "86": {
-    "other": "expire"
+    "other": "expira"
   },
   "87": {
-    "other": "This link will automatically expire on..."
+    "other": "Este enlace expirará automáticamente el..."
   },
   "88": {
-    "other": "downloads"
+    "other": "descargas"
   },
   "89": {
-    "other": "Number of downloads / authorized downloads. Click to reset download counter."
+    "other": "Número de descargas / descargas autorizadas. Click para restablecer el contador de descargas."
   },
   "9": {
-    "other": "Use this button to stop sharing this folder"
+    "other": "Utilice este botón para dejar de compartir esta carpeta"
   },
   "90": {
-    "other": "Link URL"
+    "other": "Enlace URL"
   },
   "91": {
-    "other": "Tags (Enter to save)"
+    "other": "Etiquetas (Pulsar ENTER para guardar)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Nuevo enlace"
   },
   "93": {
-    "other": "Existing links"
+    "other": "Enlaces existentes"
   },
   "94": {
-    "other": "QR Code"
+    "other": "Código QR"
   },
   "95": {
-    "other": "QR code"
+    "other": "Código QR"
   },
   "96": {
-    "other": "stop sharing"
+    "other": "dejar de compartir"
   },
   "97": {
-    "other": "Stop sharing this folder with other users"
+    "other": "Dejar de compartir esta carpeta con otros usuarios"
   },
   "98": {
-    "other": "My Shares"
+    "other": "Mis Elementos Compartidos"
   },
   "99": {
-    "other": "All shared elements"
+    "other": "Todos los elementos compartidos"
   },
   "cells.create.advanced": {
-    "other": "Add users/data"
+    "other": "Añadir usuarios/datos"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "o"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "Compartir carpeta(s) existente(s)"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Eliminar de esta celda"
   },
   "cell.visibility.advanced": {
-    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+    "other": "Esta característica avanzada le permite decidir quién puede editar las propiedades de esta celda (derecho a añadir/quitar usuarios y añadir/eliminar carpetas en la raíz de la celda). Para simplemente administrar los accesos reales a los datos, por favor utilice la pestaña 'Compartir con'."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Añadir a celda existente o nueva"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Añadir a celda existente"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Crear una celda nueva"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "Un participante"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d participantes"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "Un otro participante"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d otros participantes"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "Una carpeta"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d carpetas"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Advanced] Visibilidad"
   },
   "link.visibility.advanced": {
-    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
+    "other": "Esta característica avanzada le permite decidir si este enlace es visible para otros usuarios cuando ven este archivo, y si pueden editar sus propiedades. Por defecto, los enlaces que crea sólo son visibles para usted. Puede transferir la propiedad de enlace permitiendo que un otro usuario lo edite."
   },
   "dialog.close.confirm.unsaved": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "Hay cambios sin guardar, ¿seguro que quiere cerrar?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "¿Está seguro de que quiere desactivar este enlace?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Filtro rápido..."
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "Desactivar todos los elementos compartidos"
   },
   "link.active": {
-    "other": "active"
+    "other": "activo"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Desactivar enlace"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Copiar y enviar este enlace para acceso directo"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Restricciones de Acceso"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "expira"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "caducado"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "se requiere contraseña"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "Sólo %d descargas"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "Cambiar tema oscuro/claro"
   }
 }
