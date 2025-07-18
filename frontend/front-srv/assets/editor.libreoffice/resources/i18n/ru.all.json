@@ -1,27 +1,27 @@
 {
   "1": {
-    "other": "Libre Office Документы"
+    "other": "Libre Office Documents"
   },
   "10": {
-    "other": "Создать пустой документ"
+    "other": "Create an empty document"
   },
   "11": {
-    "other": "Формат документа"
+    "other": "Document Format"
   },
   "12": {
-    "other": "Вы также можете <a>создать пустой документ</a>"
+    "other": "You can also <a>create an empty document</a>"
   },
   "13": {
-    "other": "Безымянный документ"
+    "other": "Untitled Document"
   },
   "14": {
-    "other": "Документ создан, вы можете его редактировать"
+    "other": "The document was created, you can now edit it"
   },
   "15": {
-    "other": "Неизвестный формат документа"
+    "other": "Unknown document format"
   },
   "2": {
-    "other": "Окно браузера Libre Office"
+    "other": "Libre Office External browser window"
   },
   "ext.doc": {
     "other": "Microsoft Word 97/2000/XP/2003"
@@ -30,16 +30,16 @@
     "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "Рисунок ODF"
+    "other": "ODF Drawing"
   },
   "ext.odp": {
-    "other": "Презентация ODF"
+    "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "Электронная таблица ODF"
+    "other": "ODF Spreadsheet"
   },
   "ext.odt": {
-    "other": "Текстовый документ ODF"
+    "other": "ODF Text Document"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"
@@ -48,7 +48,7 @@
     "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "RTF"
+    "other": "Rich Text"
   },
   "ext.xls": {
     "other": "Microsoft Excel 97/2000/XP/2003"
