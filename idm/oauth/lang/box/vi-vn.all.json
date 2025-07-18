@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "Prune revoked tokens and expired reset password keys"
+    "other": "Tiến hành xóa token đã thu hồi và các mật khẩu đã hết hạn"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "Deleted {{.Count}} expired revoked token",
-    "other": "Deleted {{.Count}} expired revoked tokens"
+    "one": "Đã xóa {{.Count}} token không còn giá trị",
+    "other": "Đã xóa {{.Count}} token không còn giá trị"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "Deleted {{.DeletionCount}} expired reset password token",
-    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
+    "one": "Đã xóa {{.DeletionCount}} token hết hạn",
+    "other": "Đã xóa {{.DeletionCount}} token hết hạn"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "Không thể tìm thấy địa chỉ email tương ứng"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "Một email hướng dẫn đã được gửi cho bạn"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "Rất tiếc, đã xảy ra lỗi - Vui lòng khởi chạy lại quy trình đặt lại mật khẩu"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "Token đã hết hạn, vui lòng thực hiện lại quy trình đặt lại mật khẩu!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "Token không đúng với Id người dùng!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "Không thể tìm thấy người dùng tương ứng!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "Đã xảy ra lỗi khi cố gắng đặt mật khẩu mới!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "Mật khẩu của bạn đã được đặt lại thành công, bây giờ bạn có thể quay lại trang đăng nhập!"
   }
 }
