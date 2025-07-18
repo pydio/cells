@@ -3,7 +3,7 @@
     "other": "OpenLayers Map"
   },
   "10": {
-    "other": "Rensa"
+    "other": "Clear"
   },
   "2": {
     "other": "Filter"
@@ -27,6 +27,6 @@
     "other": "Filter"
   },
   "9": {
-    "other": "Sök"
+    "other": "Search"
   }
 }
