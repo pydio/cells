@@ -1,62 +1,62 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "공용 접근"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "검색 엔드포인트에 대한 공용 접근"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "검색을 위한 익명 접근 (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "암호 재설정 엔드포인트에 대한 익명 접근 (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "프론트엔드 상태를 로드하기 위한 익명 접근 (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "초기 프론트엔드 세션에 대한 익명 접근 (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "설치 엔드포인트 (최초 실행)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "최초 실행시 공용 접근이 요구되는 설치 엔드포인트"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "엔드포인트에 설치하기 위한 익명 접근 (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "기록된 사용자 및 관리 사용자 액세스"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "표준 사용자/공유 사용자/관리 사용자가 나머지 API에 액세스할 수 있는 방법 결정"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "관리자 프로필에 대한 전체 REST 액세스"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "기록된 사용자에 대한 기본 REST 액세스"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "사용자 정의 메타데이터 나열 및 검색"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "사용자 정의 메타데이터 업데이트"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "모든 프론트엔드 서비스에 대한 읽기 액세스"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "전역 바이너리 업로드를 제외한 프론트엔드 서비스에 대한 쓰기 액세스"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "OpenIdConnect 작업"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "OpenID 연결 서버에서 인증 사용/사용 안함"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "모든 사용자에 대한 로그인 작업에 대한 기본 액세스"
   }
 }
