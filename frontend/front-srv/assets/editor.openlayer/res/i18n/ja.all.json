@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "OpenLayersマップ"
+    "other": "OpenLayers Map"
   },
   "10": {
-    "other": "クリア"
+    "other": "Clear"
   },
   "2": {
-    "other": "フィルター"
+    "other": "Filter"
   },
   "3": {
-    "other": "位置"
+    "other": "Position"
   },
   "4": {
-    "other": "レイヤー"
+    "other": "Layers"
   },
   "5": {
-    "other": "アンチエイリアス"
+    "other": "Antialias"
   },
   "6": {
-    "other": "フォーマット"
+    "other": "Format"
   },
   "7": {
-    "other": "スタイル"
+    "other": "Styles"
   },
   "8": {
-    "other": "フィルター"
+    "other": "Filter"
   },
   "9": {
-    "other": "検索"
+    "other": "Search"
   }
 }
