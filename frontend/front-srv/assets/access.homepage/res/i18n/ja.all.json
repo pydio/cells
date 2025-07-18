@@ -1,63 +1,63 @@
 {
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "下のリストはあなたがアクセスできるワークスペースの一覧です。そのワークスペースは個人用か他のユーザーと共有されてるかもしれません。"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "ようこそ、%sさん! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "このワークスペースをデフォルトとして使用"
   },
   "42": {
-    "other": "Enter"
+    "other": "続行"
   },
   "43": {
-    "other": "My Profile"
+    "other": "プロフィール"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "全てのパーソナルデータ"
   },
   "44": {
-    "other": "My Account"
+    "other": "マイアカウント"
   },
   "45": {
-    "other": "Personal data"
+    "other": "パーソナルデータ"
   },
   "46": {
-    "other": "Address Book"
+    "other": "アドレス帳"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "あなたが作成したユーザーとチーム"
   },
   "48": {
-    "other": "My Users"
+    "other": "マイユーザー"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "あなたの作成した外部のユーザー"
   },
   "50": {
-    "other": "My Teams"
+    "other": "マイチーム"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "共有時ショートカット利用時のユーザー規約"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "本当にこのチームを削除しますか？この操作ではユーザーは削除しません。"
   },
   "53": {
-    "other": "Getting Started"
+    "other": "はじめに"
   },
   "54": {
-    "other": "Get started with APPLICATION_TITLE by following How-to videos"
+    "other": "次のHow to ビデオで APPLICATION_TITLE を始めましょう"
   },
   "55": {
-    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
+    "other": "APPLICATION_TITLE は初めてですか？ <a>チュートリアルを見る</a>"
   },
   "56": {
-    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
+    "other": "APPLICATION_TITLE を始めますか？ そんなあなたのために、ここにはいくつかのビデオがあります。"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "... 用の APPLICATION_TITLE をダウンロードする"
   },
   "58": {
     "other": "Android"
@@ -72,193 +72,193 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] ワークスペースとは何ですか?</h2>\n            このビデオでは、 APPLICATION_TITLE におけるワークスペースの説明をしています。\n            <ul>\n                <li>APPLICATION_TITLE において、ワークスペースはなぜ重要なのですか?</li>\n                <li>技術的な観点においてワークスペースとは何ですか?</li>\n                <li>ワークスペースではどのようにデータを整理できますか?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] APPLICATION_TITLE にファイルをアップロードする</h2>\n            APPLICATION_TITLE を始めて、どのようにファイルをアップロードするかを知りましょう。\n            <ul>\n                <li>APPLICATION_TITLE にファイルをドラック＆ドロップする</li>\n                <li>新しいフォルダを作成する</li>\n                <li>ファイル名やフォルダ名を変更する</li>\n                <li>コンピュータにファイルをダンロードする</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] ファイルの検索やブラウス、管理の仕方</h2>\n            このビデオでは APPLICATION_TITLE における効果的なファイルの管理の仕方についていくつかの秘訣を紹介しています。\n            <ul>\n                <li>ワークスペース横断検索</li>\n                <li>コンテンツ表示モードやキーボードショートカット</li>\n                <li>ファイルの並び替え</li>\n                <li>メタデータやブックマーク</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "APPLICATION_TITLE についてもっと知りましょう!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>[How-to] iOSデバイスでの APPLICATION_TITLE の使い方</h2>\n                            このビデオでは APPLICATION_TITLE アプリ (App Storeで利用できます) の使い方について説明しています。 Androidでも同様です。\n<ul><li>サーバーの接続を設定する</li>\n<li>ファイルを移動する</li>\n<li>ファイルをオフラインで保存して他のアプリで利用する</li>\n<li>PINコードでアプリを保護する</li>\n<li>ブックマークや検索を利用する</li></ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "%sさんでない場合は、%logout"
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Windows用の同期アプリをダウンロード"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Mac OSX用の同期アプリをダウンロード"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "iOS用のネイティブアプリ"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "Android用のネイティブアプリ"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "サーバーのQRコード"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "モバイルアプリを簡単に接続する"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "このQRコードをスキャンすることで簡単にモバイルアプリを設定できます"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "全ファイルの検索..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "右上メニューから %1 にアクセス"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "管理者用ダッシュボード"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "対象のワークスペースを選択してください"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>ファイルとフォルダーの共有の仕方</h2>\n            このチュートリアルでは内外的にファイルとフォルダーの共有の方法を紹介します。\n            <ul>\n                <li>外部の人のための共有リンクを作成</li>\n                <li>内部の仲間とのファイルとフォルダーの共有</li>\n                <li>フォルダーをワークスペースとして共有</li>\n                <li>フォルダー共有のレイアウトオプション</li>\n                <li>ブラインドドロップフォルダーの作成</li>\n                <li>ユーザと共有権限の管理</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 公開: セキュリティ設定</h2>\n           このビデオは安全に公開するための、様々な設定を説明します\n            <ul>\n                <li>パスワード保護</li>\n                <li>期限</li>\n                <li>ダウンロード数の制限</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] 公開リンクをカスタマイズする</h2>\n            公開リンクをよりわかりやすくするためのカスタマイズ方法を説明します。\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 公開リンクの権限をカスタマイズする</h2>\n            このビデオは公開されたファイルの権限を管理する方法を説明します\n            <ul>\n                <li>プレビュー</li>\n                <li>ダウンロード</li>\n                <li>アップロード / 編集</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] 言語</h2>\n            APPLICATION_TITLEは28の言語を使用可能です。このビデオはAPPLICATION_TITLEの言語設定の変更方法を説明します。\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] アラート</h2>\n            ファイルの通知設定の方法を学び、変更を確認することができます。\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 共同編集</h2>\n            このビデオはオフィスドキュメントをCollabora online office suiteによって、共同編集する方法を説明します\n            <ul>\n                <li>テキスト、プレゼンテーション、スプレッドシートを実行する</li>\n                <li>リアルタイムで共同編集する</li>\n                <li>ブラウザから新規ドキュメントを作成する</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Play video"
+    "other": "ビデオを再生"
   },
   "87": {
-    "other": "My Recent Activity"
+    "other": "最近のアクティビティ"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "デスクトップからファイルをここにドロップ"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "アップロード用に選択したファイル"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "対象のワークスペースを選択してください"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "デスクトップ同期クライアントを使ってオフラインで保存"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "アプリのダウンロード"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "クイックアップロード"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "ビデオチュートリアル"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "ウェルカムページ"
   },
   "title": {
-    "other": "Home"
+    "other": "ホーム"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "フォルダ"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "フィルタの結果..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "種別"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "拡張機能"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "サイズ"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "更新日時"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "見つかりました:"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "メタデータ"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "関連順"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "更新日が新しい順"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "古い順"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "サイズの大きい順"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "サイズの小さい順"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "ファイル"
   },
   "facet.label.folder": {
-    "other": "Folder"
+    "other": "フォルダ"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB から 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB から 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "少し前"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "今日"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "過去7日間"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "過去30日間"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "30日以上前"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "コンテンツ"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "ファイル名"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "ブックマーク"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "ワークスペース"
   },
   "reco.cell": {
     "other": "Cell"
