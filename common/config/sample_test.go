@@ -23,6 +23,8 @@ package config
 import (
 	"testing"
 
+	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -34,8 +36,18 @@ func TestLoadSampleConf(t *testing.T) {
 		var data map[string]interface{}
 		e := json.Unmarshal([]byte(SampleConfig), &data)
 		So(e, ShouldBeNil)
-		_, ok := data["defaults"]
+		def, ok := data["defaults"]
 		So(ok, ShouldBeTrue)
-	})
+		testConf := configx.New()
+		So(testConf.Set(data), ShouldBeNil)
 
+		defaults := def.(map[string]interface{})
+		layout := defaults["layout"].(map[string]interface{})
+		templates := layout["templates"].([]interface{})
+		bb, _ := json.Marshal(templates)
+		var tpl []*tree.Node
+		err := json.Unmarshal(bb, &tpl)
+		So(err, ShouldBeNil)
+		So(len(tpl), ShouldEqual, 2)
+	})
 }

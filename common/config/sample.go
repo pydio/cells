@@ -48,6 +48,16 @@ var SampleConfig = `{
 			"publicKey": "` + common.UpdateDefaultPublicKey + `",
 			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
 		},
+		"layout": {
+			"templates":[
+				{"Uuid":"my-files","Path":"my-files","Type":2,"MetaStore":{"name":"my-files", "onDelete":"rename-uuid","resolution":"\/\/ Default node used for storing personal users data in separate folders. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nSplitMode = true; DataSourceName = DataSources.personal; DataSourcePath = User.Name;","contentType":"text\/javascript"}},
+				{"Uuid":"cells","Path":"cells","Type":2,"MetaStore":{"name":"cells","resolution":"\/\/ Default node used as parent for creating empty cells. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nSplitMode = true; DataSourceName = DataSources.cellsdata; DataSourcePath = User.Name;","contentType":"text\/javascript"}}
+			],
+			"workspaces":[
+				{"Label": "Personal Files", "Description": "User personal files", "Slug": "personal-files", "RootUUIDs": ["my-files"], "Attributes":"{\"DEFAULT_RIGHTS\":\"rw\"}"},
+				{"Label": "Common Files", "Description": "Data shared by all users", "Slug": "common-files", "RootUUIDs": ["DATASOURCE:pydiods1"], "Attributes":"{\"DEFAULT_RIGHTS\":\"rw\"}"}
+			]
+		},
 		"sites": [
 		  {
 			"Binds": [
@@ -86,31 +96,3 @@ var SampleConfig = `{
 		}
 	}
 }`
-
-//"loggers": [
-//{
-//"encoding": "console",
-//"level": "info",
-//"outputs": [
-//"stdout:///"
-//]
-//},
-//{
-//"encoding": "json",
-//"level": "info",
-//"outputs": [
-//"file://` + runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs) + `/pydio.log",
-//"service:///?service=pydio.grpc.log"
-//]
-//}
-//],
-
-//"frontend":{
-//"$ref": "rp#/frontend"
-//},
-//"services":{
-//"$ref": "rp#/services"
-//},
-//"versions": {
-//"$ref": "rp#/versions"
-//}

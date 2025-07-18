@@ -32,12 +32,20 @@ import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSu
 import { en } from '@blocknote/core/locales'
 import {codeBlock} from "@blocknote/code-block";
 import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
-import {nodeBlockSpecs, nodeInlineSpecs, insertChildrenList, NodesSuggestionMenu, pasteHandler} from "./specs/NodeRef";
+import {
+    nodeBlockSpecs,
+    nodeInlineSpecs,
+    insertChildrenList,
+    NodesSuggestionMenu,
+    pasteHandler
+} from "./specs/NodeRef";
 import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
 import {SideMenuButton} from "./SideMenuButton";
 import ContextMenuModel from 'pydio/model/context-menu'
 import {headerBlockSpecs, HeaderSpecType} from "./specs/Header";
 import {findExistingHeader} from "./hooks/useNodeTitle";
+import {padFileDropHandler} from "./hooks/padFileDropHandler";
+
 import './pad-styles.less'
 
 const schema = BlockNoteSchema.create({
@@ -81,7 +89,8 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
             }
         },
         pasteHandler:pasteHandler,
-        codeBlock
+        codeBlock,
+        setIdAttribute:true
     });
 
     const onChangePreventHeaderDelete = useCallback(()=>{
@@ -117,6 +126,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 theme={darkMode?"dark":"light"}
                 sideMenu={false}
                 onClick={(e) => ContextMenuModel.getInstance().close()}
+                onDrop={(e) => padFileDropHandler(editor, e)}
             >
                 <SideMenuController
                     sideMenu={(props) => (

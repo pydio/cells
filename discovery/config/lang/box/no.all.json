@@ -1,0 +1,473 @@
+{
+  "30 days max": {
+    "other": "Maks 30 dager"
+  },
+  "Remove versions after 30 days": {
+    "other": "Slett versjoner etter 30 dager"
+  },
+  "Keep All": {
+    "other": "Behold alle"
+  },
+  "Keep all versions forever": {
+    "other": "Behold alle versjoner for alltid"
+  },
+  "Regular Pruning": {
+    "other": "Normal trimming"
+  },
+  "Prune versions regularly at various intervals": {
+    "other": "Prune versions regularly at various intervals"
+  },
+  "aclAction.Name": {
+    "other": "Name"
+  },
+  "aclAction.Value": {
+    "other": "Value"
+  },
+  "aclSingleQuery.Actions": {
+    "other": "Actions"
+  },
+  "aclSingleQuery.NodeIDs": {
+    "other": "Node Identifiers"
+  },
+  "aclSingleQuery.Not": {
+    "other": "Not"
+  },
+  "aclSingleQuery.RoleIDs": {
+    "other": "Role Identifiers"
+  },
+  "aclSingleQuery.WorkspaceIDs": {
+    "other": "Workspace Identifiers"
+  },
+  "aclSingleQuery.not": {
+    "other": "not"
+  },
+  "actionOutputSingleQuery.ErrorStringRegexp": {
+    "other": "Search on error string (regexp)"
+  },
+  "actionOutputSingleQuery.IsSuccess": {
+    "other": "Is Success"
+  },
+  "actionOutputSingleQuery.JsonBodyHasKey": {
+    "other": "Json body has key..."
+  },
+  "actionOutputSingleQuery.JsonBodyRegexp": {
+    "other": "Search on Json body (regexp)"
+  },
+  "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
+    "other": "Size of Json body is greater than"
+  },
+  "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
+    "other": "Size of Json body is smaller than"
+  },
+  "actionOutputSingleQuery.Not": {
+    "other": "Not"
+  },
+  "actionOutputSingleQuery.StringBodyRegexp": {
+    "other": "Search on String body (regexp)"
+  },
+  "actionOutputSingleQuery.StringBodySizeGreaterThan": {
+    "other": "Size of string body is greater than"
+  },
+  "actionOutputSingleQuery.StringBodySizeSmallerThan": {
+    "other": "Size of string body is smaller than"
+  },
+  "actionOutputSingleQuery.TaskTimeGt": {
+    "other": "Task time greater than"
+  },
+  "actionOutputSingleQuery.TaskTimeLt": {
+    "other": "Task time lower than"
+  },
+  "actionOutputSingleQuery.FreeCondition": {
+    "other": "Free Condition"
+  },
+  "dataSelectorSingleQuery.JsonPath": {
+    "other": "JSON Path"
+  },
+  "conditionCIDRCondition.CIDR": {
+    "other": "CIDR"
+  },
+  "conditionCIDRCondition.cidr": {
+    "other": "cidr"
+  },
+  "conditionStringEqualCondition.Equals": {
+    "other": "Equals"
+  },
+  "conditionStringEqualCondition.equals": {
+    "other": "equals"
+  },
+  "conditionStringMatchCondition.Matches": {
+    "other": "Matches"
+  },
+  "conditionStringMatchCondition.matches": {
+    "other": "matches"
+  },
+  "conditionPathGlobCondition.glob": {
+    "other": "pattern"
+  },
+  "conditionBooleanCondition.value": {
+    "other": "True"
+  },
+  "contextMetaCondition.CIDRCondition": {
+    "other": "CIDRCondition"
+  },
+  "contextMetaCondition.EqualsSubjectCondition": {
+    "other": "Subject equals"
+  },
+  "contextMetaCondition.ResourceContainsCondition": {
+    "other": "Resource contains"
+  },
+  "contextMetaCondition.StringEqualCondition": {
+    "other": "String equals"
+  },
+  "contextMetaCondition.StringMatchCondition": {
+    "other": "String matches"
+  },
+  "contextMetaCondition.StringPairsEqualCondition": {
+    "other": "StringPairs equals"
+  },
+  "contextMetaCondition.StringNotMatchCondition": {
+    "other": "String does not match"
+  },
+  "contextMetaCondition.WithinPeriodCondition": {
+    "other": "Date period"
+  },
+  "contextMetaCondition.OfficeHoursCondition": {
+    "other": "Office Hours"
+  },
+  "contextMetaCondition.DateAfterCondition": {
+    "other": "Date after"
+  },
+  "contextMetaCondition.PathGlobCondition": {
+    "other": "Glob Matcher"
+  },
+  "contextMetaCondition.BooleanCondition": {
+    "other": "Boolean Value"
+  },
+  "contextMetaField.ContentType": {
+    "other": "Content Type"
+  },
+  "contextMetaField.CookiesString": {
+    "other": "Cookies String"
+  },
+  "contextMetaField.HttpProtocol": {
+    "other": "HTTP Protocol"
+  },
+  "contextMetaField.RemoteAddress": {
+    "other": "Remote Address"
+  },
+  "contextMetaField.RequestHostname": {
+    "other": "Request Hostname"
+  },
+  "contextMetaField.RequestHost": {
+    "other": "Request Host"
+  },
+  "contextMetaField.RequestPort": {
+    "other": "Request Port"
+  },
+  "contextMetaField.RequestMethod": {
+    "other": "Forespørselsmetode"
+  },
+  "contextMetaField.RequestURI": {
+    "other": "Forespørsel URI"
+  },
+  "contextMetaField.ServerTime": {
+    "other": "Servertid"
+  },
+  "contextMetaField.UserAgent": {
+    "other": "Brukeragent"
+  },
+  "contextMetaSingleQuery.Condition": {
+    "other": "Betingelse"
+  },
+  "contextMetaSingleQuery.FieldName": {
+    "other": "Feltnavn"
+  },
+  "roleSingleQuery.HasAutoApply": {
+    "other": "Har AutoApply"
+  },
+  "roleSingleQuery.IsGroupRole": {
+    "other": "Er Grupperolle"
+  },
+  "roleSingleQuery.IsTeam": {
+    "other": "Er Team"
+  },
+  "roleSingleQuery.IsUserRole": {
+    "other": "Er Brukergruppe"
+  },
+  "roleSingleQuery.Label": {
+    "other": "Etikett"
+  },
+  "roleSingleQuery.Not": {
+    "other": "Ikke"
+  },
+  "roleSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "roleSingleQuery.not": {
+    "other": "ikke"
+  },
+  "treeQuery.Content": {
+    "other": "Innhold"
+  },
+  "treeQuery.DurationDate": {
+    "other": "Endringsdato (bruk sammenligning)"
+  },
+  "treeQuery.Extension": {
+    "other": "Filtype"
+  },
+  "treeQuery.FileName": {
+    "other": "Filnavn"
+  },
+  "treeQuery.FileNameOrContent": {
+    "other": "Filnavn eller innhold"
+  },
+  "treeQuery.FreeString": {
+    "other": "Bleve-aktig søkestreng"
+  },
+  "treeQuery.GeoQuery": {
+    "other": "Geolokasjonsspørring"
+  },
+  "treeQuery.MaxDate": {
+    "other": "Endret før"
+  },
+  "treeQuery.MaxSize": {
+    "other": "MaksStørrelse"
+  },
+  "treeQuery.MinDate": {
+    "other": "Endret siden"
+  },
+  "treeQuery.MinSize": {
+    "other": "Størrelse større enn"
+  },
+  "treeQuery.Not": {
+    "other": "Ikke"
+  },
+  "treeQuery.PathDepth": {
+    "other": "Stidybde"
+  },
+  "treeQuery.PathPrefix": {
+    "other": "Prefiks for sti"
+  },
+  "treeQuery.Paths": {
+    "other": "Absolutte stier"
+  },
+  "treeQuery.Type": {
+    "other": "Type"
+  },
+  "treeQuery.Type.COLLECTION": {
+    "other": "Mappe"
+  },
+  "treeQuery.Type.LEAF": {
+    "other": "Fil"
+  },
+  "treeQuery.Type.UNKNOWN": {
+    "other": "Alle"
+  },
+  "treeQuery.UUIDs": {
+    "other": "Node UUIDer"
+  },
+  "treeQuery.ETag": {
+    "other": "ETag"
+  },
+  "userSingleQuery.AttributeAnyValue": {
+    "other": "Har en verdi"
+  },
+  "userSingleQuery.AttributeName": {
+    "other": "Attributtnavn"
+  },
+  "userSingleQuery.AttributeValue": {
+    "other": "Attributtverdi"
+  },
+  "userSingleQuery.ConnectedSince": {
+    "other": "Tilkoblet siden"
+  },
+  "userSingleQuery.FullPath": {
+    "other": "Fullstendig sti"
+  },
+  "userSingleQuery.GroupPath": {
+    "other": "Gruppesti"
+  },
+  "userSingleQuery.HasProfile": {
+    "other": "Har Profil"
+  },
+  "userSingleQuery.HasRole": {
+    "other": "Har Rolle"
+  },
+  "userSingleQuery.Login": {
+    "other": "Innlogging"
+  },
+  "userSingleQuery.NodeType": {
+    "other": "Objekttype"
+  },
+  "userSingleQuery.NodeType.GROUP": {
+    "other": "Gruppe"
+  },
+  "userSingleQuery.NodeType.UNKNOWN": {
+    "other": "Alle"
+  },
+  "userSingleQuery.NodeType.USER": {
+    "other": "Bruker"
+  },
+  "userSingleQuery.Not": {
+    "other": "Ikke"
+  },
+  "userSingleQuery.Password": {
+    "other": "Passord"
+  },
+  "userSingleQuery.Recursive": {
+    "other": "Recursive"
+  },
+  "userSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "userSingleQuery.not": {
+    "other": "not"
+  },
+  "workspaceSingleQuery.AttributeName": {
+    "other": "Attribute Name"
+  },
+  "workspaceSingleQuery.AttributeValue": {
+    "other": "Attribute Value"
+  },
+  "workspaceSingleQuery.Description": {
+    "other": "Description"
+  },
+  "workspaceSingleQuery.HasAttribute": {
+    "other": "Has Attribute"
+  },
+  "workspaceSingleQuery.Label": {
+    "other": "Label"
+  },
+  "workspaceSingleQuery.LastUpdated": {
+    "other": "Last updated"
+  },
+  "workspaceSingleQuery.Not": {
+    "other": "Not"
+  },
+  "workspaceSingleQuery.Scope": {
+    "other": "Scope"
+  },
+  "workspaceSingleQuery.Slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "workspaceSingleQuery.description": {
+    "other": "Description"
+  },
+  "workspaceSingleQuery.label": {
+    "other": "Label"
+  },
+  "workspaceSingleQuery.not": {
+    "other": "not"
+  },
+  "workspaceSingleQuery.scope": {
+    "other": "Workspace Type"
+  },
+  "workspaceSingleQuery.scope.ADMIN": {
+    "other": "Workspace"
+  },
+  "workspaceSingleQuery.scope.ANY": {
+    "other": "Any"
+  },
+  "workspaceSingleQuery.scope.LINK": {
+    "other": "Public Link"
+  },
+  "workspaceSingleQuery.scope.ROOM": {
+    "other": "Cell"
+  },
+  "workspaceSingleQuery.slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.uuid": {
+    "other": "Uuid"
+  },
+  "dataSourceSingleQuery.Name": {
+    "other": "Name"
+  },
+  "dataSourceSingleQuery.IsDisabled": {
+    "other": "Is Disabled"
+  },
+  "dataSourceSingleQuery.StorageType": {
+    "other": "Storage Type"
+  },
+  "dataSourceSingleQuery.StorageType.REMOTE": {
+    "other": "Remote"
+  },
+  "dataSourceSingleQuery.StorageType.ANY": {
+    "other": "Any"
+  },
+  "dataSourceSingleQuery.StorageType.LOCALFS": {
+    "other": "Local"
+  },
+  "dataSourceSingleQuery.PeerAddress": {
+    "other": "Peer Address"
+  },
+  "dataSourceSingleQuery.FlatStorage": {
+    "other": "Flat Storage"
+  },
+  "dataSourceSingleQuery.SkipSyncOnRestart": {
+    "other": "Skip sync on restart"
+  },
+  "dataSourceSingleQuery.IsVersioned": {
+    "other": "Is Versioned"
+  },
+  "dataSourceSingleQuery.IsEncrypted": {
+    "other": "Is Encrypted"
+  },
+  "dataSourceSingleQuery.EncryptionMode": {
+    "other": "Encryption Mode"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER": {
+    "other": "User-key"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
+    "other": "User-pwd"
+  },
+  "dataSourceSingleQuery.EncryptionMode.CLEAR": {
+    "other": "Clear"
+  },
+  "dataSourceSingleQuery.EncryptionMode.MASTER": {
+    "other": "Master-key"
+  },
+  "dataSourceSingleQuery.EncryptionKey": {
+    "other": "Encryption Key"
+  },
+  "dataSourceSingleQuery.VersioningPolicyName": {
+    "other": "Versioning Policy"
+  },
+  "dataSourceSingleQuery.StorageConfigurationName": {
+    "other": "Configuration Key"
+  },
+  "dataSourceSingleQuery.StorageConfigurationValue": {
+    "other": "Configuration Value"
+  },
+  "dataSourceSingleQuery.ObjectServiceName": {
+    "other": "Object Service"
+  },
+  "dataSourceSingleQuery.Not": {
+    "other": "Not"
+  },
+  "triggerFilterQuery.IsSchedule": {
+    "other": "Scheduled Trigger"
+  },
+  "triggerFilterQuery.IsApiHook": {
+    "other": "Triggered by Webhook"
+  },
+  "triggerFilterQuery.ApiHookSlug": {
+    "other": "Webhook Api Slug"
+  },
+  "triggerFilterQuery.RunParameterName": {
+    "other": "Run Parameter Name"
+  },
+  "triggerFilterQuery.RunParameterValue": {
+    "other": "Run Parameter Value"
+  },
+  "triggerFilterQuery.IsManual": {
+    "other": "Manuell Utløser"
+  },
+  "triggerFilterQuery.EventNames": {
+    "other": "Hendelser"
+  }
+}
