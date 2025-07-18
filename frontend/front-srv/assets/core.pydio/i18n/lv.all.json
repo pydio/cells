@@ -744,823 +744,823 @@
     "other": "CodePress koda skatītājs"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML redaktors"
   },
   "32": {
-    "other": "Explore"
+    "other": "Aplūkot"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "WYSIWYG redaktors priekš HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Izvēlēties"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Izvēlēties šo failu"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Nosūtīt saiti"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Nav pieejams redaktors"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "Ietilpināt"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Neietilpināt"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Dokumentu lasītājs"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Skatīt pdf, svg, tif un citus failus pārlūkā"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Kļūda augšuplādējot failu!"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Lūdzu pagaidiet kamēr lapas tiek ģenerētas..."
   },
   "331": {
-    "other": "Page"
+    "other": "Lapa"
   },
   "332": {
-    "other": "of"
+    "other": "no"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Pixlr attēlu redaktors"
   },
   "334": {
-    "other": "more"
+    "other": "vairāk"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Ievadiet lapas numuru no 1 līdz "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Atvainojiet, nevar ievilkt direktorijas, tikai failus!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Sākt automātisku augšupielādi"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Aizvērt paneli pēc augšupielādes pabeigšanas"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Esošie faili"
   },
   "34": {
-    "other": "The file"
+    "other": "Fails"
   },
   "340": {
-    "other": "Alert"
+    "other": "Brīdinājums"
   },
   "341": {
-    "other": "File Info"
+    "other": "Faila informācija"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Direktorijas informācija"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Attēla informācija"
   },
   "344": {
-    "other": "Search on"
+    "other": "Meklēt uz"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Nevar iegūt versiju informāciju"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Šī versija ir visjaunākā"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "Ir pieejama jauna versija (%s)! Apmeklējiet %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Izveidot jauna darbvirsma."
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "Uzmanību, nepietiekami argumenti"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "veiksmīgi izveidota direktorijā"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "Jums nepiederošs lietotājs ar šādu vārdu jau eksistē, izvēlieties citu vārdu."
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "Jums nav tiesības publiski koplietot datus."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Darbvirsma ar šādu nosaukum jau eksistē, izvēlieties citu nosaukumu."
   },
   "353": {
-    "other": "Target User"
+    "other": "Lietotājs"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Izveidot jaunu vai izvēlēties jau esošu lietotāju no saraksta."
   },
   "355": {
-    "other": "User Name"
+    "other": "Lietotājvārds"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Parole"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Mērķa repozitorijs"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Izvēlieties nosaukumu koplietotajai darbvirsmai."
   },
   "359": {
-    "other": "Label"
+    "other": "Nosaukums"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Apjoms"
   },
   "360": {
-    "other": "Rights"
+    "other": "Tiesības"
   },
   "361": {
-    "other": "Read"
+    "other": "Lasīt"
   },
   "362": {
-    "other": "Write"
+    "other": "Rakstīt"
   },
   "363": {
-    "other": "Shared"
+    "other": "Koplietots"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Jums nav tiesību veikt šo darbību"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Jums nav atļauts augšupielādēt vienā reizē vairāk kā %s failus."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Šim lietotājam nav nevienas aktīvas darbvirsmas."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Jums nav atļauts augšupielādēt šo faila veidu. Izvēlieties kādu no sekojošiem paplašinājumiem : "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Izvēlētie dati no arhīva %s ir veiksmīgi atpakoti uz direktoriju %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Īsceļš"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Ierakstiet derīgu vārdu"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE publiskā lejupielāde"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Šai lejupielādei nepieciešama parole"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Pašreizējā darbvirsma"
   },
   "373": {
-    "other": "Destination"
+    "other": "Mērķis"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Jūs nevarat kopēt direktorijas starp darbvirsmām"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Jūs esat neaktīvs jau __IDLE__. Drošības apsvērumu pēc Jūs tiksiet atslēgts no sistēmas __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Vai Jūs vēl darbojaties sistēmā?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Nospiediet jebkur lai turpinātu sesiju"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Uzmanību, parole ir tukša vai par īsu!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Nedrošs vārds!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Direktorija"
   },
   "380": {
-    "other": "Too short"
+    "other": "Par īsu"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Par vāju"
   },
   "382": {
-    "other": "Weak"
+    "other": "Vāja"
   },
   "383": {
-    "other": "Medium"
+    "other": "Vide'ja"
   },
   "384": {
-    "other": "Strong"
+    "other": "Spēcīga"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Ļoti spēcīga"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Lai pieslēgtos lietojiet tikai mazos burtus"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Lietojiet burtu un ciparu kombināciju vai e-pastu priekš lietotājvārda"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Jums neizdevās pieslēgties 3 reizes.\\nDrošības apsvērumu dēļ ievadiet kodu kas redzams attēlā."
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Izlasīt zemākesošo kodu :"
   },
   "39": {
-    "other": "has been created in"
+    "other": "tika izveidots"
   },
   "390": {
-    "other": "Code"
+    "other": "Kods"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Nav repozitorija"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Uzmanību, APPLICATION_TITLE versija mainījās (patreiz %s), iztīriet pārlūka kešu un atjaunojiet lapu lai pārliecinātos vai viss darbojas pareizi!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Uzmanību, nosaukuma garumam jābūt mazākam par %s simboliem, šis vārds tiks samazināts līdz atļautajam simbolu skaitam!"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "Atvainojiet, šobrīd direktoriju koplietošana nav pieejama izmantojot esošo autorizācijas dzinēju (lietotāji nav labojami). Failu koplietošana joprojām ir pieejama."
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "Dati kurus pievienojāt ir direktorija un tās uz servera augšupielādēt nav iespējams! Vai vēlaties augšupielādēt?"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Autentifikācijas veids"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "Dalīta lejupielāde"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "Lejupielādēt izvēlēto failu pa daļām"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "Izvēlieties cik daļās vēlaties lejupielādēt failu un tad spiediet uz pogas un izvēlieties katru failu kuru lejupielādēt."
   },
   "4": {
-    "other": "Modified"
+    "other": "Labots"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Šāda direktorija jau eksistē (nosaukumi ir reģistrjūtīgi)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Daļu skaits:"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "Jūs varat ielādēt šo aplikāciju lai savienotu darbvirsmas ar datoru : "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "tika pārsaukts par"
   },
   "411": {
-    "other": "Open"
+    "other": "Atvērt"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Tikai augšupielāde"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Koplietoja"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "Lietojiet bultas lai pārvietotos un +/- lai mainītu pietuvinājumu"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Pārslēgt kreisā paneļa redzamību"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Kreisais panelis"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Izveidot šūnu..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Izveidot šūnu"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Ielādē šablonus..."
   },
   "42": {
-    "other": "to"
+    "other": "uz"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "Izvēlieties šablonu no saraksta"
   },
   "421": {
-    "other": "New %s"
+    "other": "Jauns %s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "Aizpildiet nepieciešamos parametrus. Novietojiet peles kursoru virs lauka lai iegūtu vairāk informācijas."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Dzēst darbvirsmu"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "Vai vēlaties dzēst šo darbvirsmu? Darbība ir neatgriezeniska."
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "Darbvirsma ir izveidota un pievienota darbvirsmu sarakstam. Ja vēlaties to nodzēst, pārslēdzieties uz citu darbvirsmu un nospiediet sarkano krustiņu pie dzēšamās darbvirsmas nosaukuma."
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "Kļūda izveidojot darbvirsmu"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "Kļūda dzēšot darbvirsmu"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "Darbvirsma veiksmīgi nodzēsta"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "Šādi darbvirsma izskatīsies Jūsu darbvirsmu sarakstā."
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "jau eksistē (nosaukumi ir reģistrjūtīgi)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "Kopējie faili"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "Parauga šablons"
   },
   "432": {
-    "other": "My Files"
+    "other": "Mani faili"
   },
   "433": {
-    "other": "ready"
+    "other": "gatavs"
   },
   "434": {
-    "other": "sending"
+    "other": "sūta"
   },
   "435": {
-    "other": "done"
+    "other": "pabeigts"
   },
   "436": {
-    "other": "error"
+    "other": "kļūda"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "Šķiet ka drošības kods ir beidzies! Nospiediet %s vai F5 lai atjauninātu lapu!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "pārlādēt lapu"
   },
   "439": {
-    "other": "Main Options"
+    "other": "Pamata opcijas"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "tika nodzēsts"
   },
   "440": {
-    "other": "Yes"
+    "other": "Jā"
   },
   "441": {
-    "other": "No"
+    "other": "Nē"
   },
   "442": {
-    "other": "My Account"
+    "other": "Mans konts"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Atjaunot Jūsu personīgo informāciju"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "Atjaunojiet Jūsu paroli. Neatjaunotjot paroli Jūs nevarēsiet pieslēgties sistēmai."
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "Jūs tiksiet atslēgts no sistēmas. Pēc tam pieslēdzieties ar jauno paroli!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Prezentācija"
   },
   "447": {
-    "other": "My group"
+    "other": "Mana grupa"
   },
   "448": {
-    "other": "create user"
+    "other": "izveidot lietotāju"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "Izveido %s, izvēlieties paroli"
   },
   "45": {
-    "other": "directory"
+    "other": "direktorija"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Kārtot pēc..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "Kārtot priekšskatus pēc ..."
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "Priekšskatu izmērs"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "Iestatīt priekšskatu izmēru"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Izvēlieties failus uz datora"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "Darbvirsmas"
   },
   "456": {
-    "other": "More"
+    "other": "Vairāk"
   },
   "457": {
-    "other": "update"
+    "other": "atjaunot"
   },
   "458": {
-    "other": "remove"
+    "other": "noņemt"
   },
   "459": {
-    "other": "Top folder"
+    "other": "Augstākā direktorija"
   },
   "46": {
-    "other": "file"
+    "other": "fails"
   },
   "460": {
-    "other": "List"
+    "other": "Saraksts"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Pārslēgties uz saraksta skatu"
   },
   "462": {
-    "other": "Preview"
+    "other": "Priekšskats"
   },
   "463": {
-    "other": "Download all"
+    "other": "Lejupielādēt visu"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Lejupielādēt visu darbvirsmas saturu vienā reizē (ar zip arhivēts fails)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "Rādīt alternatīvas saites (pievienot darbvirsmas atsevišķi)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Ielādē..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Visi koplietotie elementi"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Darbvirsmas"
   },
   "469": {
-    "other": "Cells"
+    "other": "Šūnas"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Vai Jūs tiešām vēlaties izdzēst"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Izveidots %date"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "Izveidoja %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Koplietoja %user"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Koplietoja %user %date"
   },
   "474": {
-    "other": "No description available"
+    "other": "Apraksts nav pieejams"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Starp visiem lietotājiem koplietotie faili"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Jūsu personīgās darbvirsmas"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Izvēlieties failu vai direktoriju lai apskatītu papildu informāciju"
   },
   "478": {
-    "other": "No results found"
+    "other": "Nav rezultātu"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Aizmirsāt paroli?"
   },
   "48": {
     "other": "Ok"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Pārlūkot visas esošās darbvirsmas direktorijas."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Visi Jūsu koplietotie faili un direktorijas"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Ātrā piekļuve Jūsu grāmatzīmēm"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "Jums nav atļauts veidot vēl vairāk lietotājus!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Izveidot lietotāju"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Izveidot koplietojamu lietotāju"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Papildu"
   },
   "487": {
-    "other": "Basic"
+    "other": "Pamata"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Paplašināts filtrs"
   },
   "489": {
-    "other": "Metadata"
+    "other": "Metadati"
   },
   "49": {
     "other": "Cancel"
   },
   "490": {
-    "other": "Date range"
+    "other": "Datumu periods"
   },
   "491": {
-    "other": "After"
+    "other": "Pēc"
   },
   "492": {
-    "other": "until"
+    "other": "līdz"
   },
   "493": {
-    "other": "Today"
+    "other": "Šodien"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Vakar"
   },
   "494t": {
     "other": "Tomorrow"
   },
   "495": {
-    "other": "Last week"
+    "other": "Iepriekšējā nedēļa"
   },
   "496": {
-    "other": "Last month"
+    "other": "Iepriekšējā mēnesī"
   },
   "497": {
-    "other": "Last year"
+    "other": "Pagājušajā gadā"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Dokumenta opcijas"
   },
   "499": {
-    "other": "File"
+    "other": "Fails"
   },
   "5": {
-    "other": "Actions"
+    "other": "Darbības"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe fails"
   },
   "500": {
-    "other": "Extension"
+    "other": "Paplašinājums"
   },
   "501": {
-    "other": "or"
+    "other": "vai"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Tikai direktorijas"
   },
   "503": {
-    "other": "Size"
+    "other": "Izmērs"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "uz"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Aplikācijas parametri (lietotāji, darbvirsmas, konfigurācijas)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Sveicināti %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Jums ir izveidots lietotāja konts uz %s. Lai pieslēgtos nospiediet uz saites %link un lietojiet šo pieslēgšanās informāciju: <br><br> Lietotājvārds: %user <br><br> Parole: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Saglabāt kā komandu"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Teksta redaktors"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Ievadiet komandas nosaukumu"
   },
   "511": {
-    "other": "My %s"
+    "other": "Mans %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "Pilnekrāna darbvirsma"
   },
   "513": {
-    "other": "show"
+    "other": "rādīt"
   },
   "514": {
-    "other": "hide"
+    "other": "slēpt"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Nav grāmatzīmju - Ievelciet šeit failus vai direktorijas priekš ātras piekļuves."
   },
   "516": {
-    "other": "expand"
+    "other": "izvērst"
   },
   "517": {
-    "other": "collapse"
+    "other": "sakļaut"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Kā alternatīvu Jūs varat <a class='create_file_alt_link'>izveidot jaunu tukšu failu</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Atjaunot lietotāju"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Labo failu"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Atjaunot lietotāja datus un paroli"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Lietotājs veiksmīgi atjaunots"
   },
   "522": {
-    "other": "User ID"
+    "other": "Lietotāja ID"
   },
   "523": {
-    "other": "Password"
+    "other": "Parole"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Atjaunot paroli"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Rādīt oriģinālo attēlu"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Zemas izšķirtspējas versija"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Koplietots ar"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Iekšējie lietotāji"
   },
   "53": {
-    "other": "Save"
+    "other": "Saglabāt"
   },
   "530": {
-    "other": "External users"
+    "other": "Ārējie lietotāji"
   },
   "531": {
-    "other": "Users"
+    "other": "Lietotāji"
   },
   "532": {
-    "other": "Groups"
+    "other": "Grupas"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "Lietotājvārds, lietojiet burtu un ciparu kombināciju vai e-pastu ar mazajiem burtiem."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Parole ar kuru pieslēgties"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Sūtīt paroli e-pastā"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Sūtīt sveiciena e-pastu iekļaujot jaunā lietotāja paroli"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Fails ir par lielu! Maksimālais pieļaujamais izmērs %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Augšupielādes kļūda: fails uz servera nav atrasts!"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "Augšupielādes kļūda: fails ir daļējs"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Atcelt"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Augšupielādes kļūda: nevar atrast pagaidu (tmp) direktoriju"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Augšupielādes kļūda: nevar ierakstīt pagaidu (tmp) direktorijā"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Augšupielādes kļūda: PHP paplašinājums pārtrauca procesu."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Rezultāti limitēti līdz %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Rādīt vairāk"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Attālināta koplietošana"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "Šis objektu ar Jums koplietoja %%OWNER%% no attālināta servera. Vai vēlaties turpināt?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Apstiprināt"
   },
   "548": {
-    "other": "Decline"
+    "other": "Noraidīt"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "Jūs iepriekš apstiprinājāt ar Jums koplietotus datus no attālināta servera ar lietotāju %%OWNER%%. Vai šoreiz vēlaties noraidīt?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "tika modificēts"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Noraidīt šo koplietošanu"
   },
   "551": {
-    "other": "Reject"
+    "other": "Noraidīt"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Lūdzu, ievadiet paroli."
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "Nepareiza parole, mēģiniet vēlreiz. \\n Pārliecinieties vai nav ieslēgti lielie burti!"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s objekti Miskastē"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "Palaiž fona uzdevumu %s"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Nepieciešami lietotāja dati"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Ievadiet paroli lai piekļūtu šai darbvirsmai."
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "Neveiksmīga autentifikācija pieslēdzoties darbvirsmai."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "BMP attēls"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Nepieciešama autentifikācija"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Jūs tiksiet pārvirzīts uz pakalpojuma sniedzēja Autentifikācijas lapu. Ja netiekat pārvirzīts automātiski, nospiediet OK lai mēģinātu vēlreiz..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Šī direktorija ir tukša!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Šī darbvirsma ir tukša!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "Miskaste ir tukša."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Pievienojiet failus vai direktorijas tās izvēloties vai ievelkot šajā logā no datora"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Jums nav tiesību šeit pievienot failus"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Pārlūkot Miskasti"
   },
   "568": {
-    "other": "Teams"
+    "other": "Komandas"
   },
   "569": {
-    "other": "New Team"
+    "other": "Jauna komanda"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "PNG attēls"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Dzēst komandu"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Nav izveidota vēl neviena komanda"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "Izveidot savas komandas lai būtu vieglāk koplietot datus starp vairākiem lietotājiem"
   },
   "571.readonly": {
     "other": "No teams available"
@@ -1575,367 +1575,367 @@
     "other": "Let users create and edit their own teams"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Pievienot lietotāju komandai"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Noņemt lietotāju no komandas"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Komandas dalībnieki"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s biedri"
   },
   "577": {
-    "other": "No members"
+    "other": "Nav komandas biedru"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Komandas nosaukums"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Izveidot komandu"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS fails"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Labot komandas nosaukumu"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Lietotājs ir %s komandā(s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Dzēst lietotāju"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Meklēt direktorijā"
   },
   "584": {
-    "other": "Directory"
+    "other": "Direktorija"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Nav ārējo lietotāju"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Izveidojiet savus lietotājus un koplietojiet failus un direktorijas ar viņiem no savām darbvirsmām."
   },
   "587": {
-    "other": "No results"
+    "other": "Nav rezultātu"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Sāciet rakstīt meklēšanas formā lai meklētu lietotājus direktorijā"
   },
   "589": {
-    "other": "External user"
+    "other": "Ārējais lietotājs"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 fails"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Iekšējais lietotājs"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Izvēlieties komandas nosaukumu un pēc izveidošanas Jūs varēsiet pievienot jaunus lietotājus."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Adresu grāmata"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "Koplietotie lietotāji"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Uzticamie serveri"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Meklēt lietotāju..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Serveris '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "visi"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Sūtīt ziņu"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Pievienot lietotāju"
   },
   "599-a": {
     "other": "All Results"
   },
   "6": {
-    "other": "Rename"
+    "other": "Pārsaukt"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR fails"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Labot lietotāju"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "Viena koplietota šūna"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 koplietotas šūnas"
   },
   "603": {
-    "other": "Team"
+    "other": "Komanda"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Attālināts lietotājs"
   },
   "605": {
-    "other": "More search options"
+    "other": "Vairāk Meklēšanas Opcijas"
   },
   "606": {
-    "other": "Less search options"
+    "other": "Mazāk Meklēšanas Opcijas"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "Jūsu pēdējās aktivitātes - Rakstiet lai meklētu failus visās darbvirsmās"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Patreizējā direktorija"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Visa darbvirsma"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ fails"
   },
   "610": {
     "other": "All workspaces"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Sāciet rakstīt lai meklētu"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Pielēgots apgabals"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Lielāks kā..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Mazāks kā..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Izpildīt"
   },
   "616": {
-    "other": "Mask"
+    "other": "Maska"
   },
   "617": {
-    "other": "Enter"
+    "other": "Ievadīt"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Mainīt valodu..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "Meklēšana limitēta tikai šajā un apakšdirektorijās"
   },
   "62": {
-    "other": "Root directory"
+    "other": "Saknes direktorija"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "Meklēšana limitēta tikai šajā darbvirsmā"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Šis lauks nevar būt tukšs"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Stack kļūda"
   },
   "623": {
-    "other": "Copy"
+    "other": "Kopēt"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Nokopēts!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Burts"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Ar mani koplietotie faili"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Koplietošanas no attālinātiem serveriem"
   },
   "628": {
-    "other": "Revert"
+    "other": "Atgriezt"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Nav ierakstu"
   },
   "63": {
-    "other": "Log out"
+    "other": "Atslēgties"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Ar mani koplietotās direktorijas"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Šī šūna ir tukša!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Nav šūnu"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Šūnas ir koplietotas vietas kurās sadarboties ar citiem lietotājiem dokumentu pārvaldībai"
   },
   "634": {
-    "other": "You"
+    "other": "Jūs"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Jūsu grupa"
   },
   "634c": {
-    "other": "All users"
+    "other": "Visi lietotāji"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Sarunu istaba"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Sāciet rakstīt un nospiediet ievades taustiņu"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Nav ziņu. Sāciet rakstīt lai sazinātot ar šūnas pārējiem lietotājiem!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "Šuna satur vairākas pamata direktorijas vai failus. Jūs nevarat šeit augšupielādēt datus."
   },
   "639": {
-    "other": "In this cell"
+    "other": "Šajā šūnā"
   },
   "64": {
-    "other": "XLS File"
+    "other": "XLS fails"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Izveidot šūnu ar %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Noņemt no šīs šūnas"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Pievienot šai šūnai"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Jūs koplietojat šūnu ar %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Nevar izveidot šūnu: %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Word fails"
   },
   "66": {
-    "other": "Copy"
+    "other": "Kopēt"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Izvēlētais fails"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Iekopēt"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "Vai izvēlaties citu direktoriju"
   },
   "7": {
-    "other": "Delete"
+    "other": "Dzēst"
   },
   "70": {
-    "other": "Move"
+    "other": "Pārvietot"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "Fails jau eksistē (nosaukumi nav reģistrjūtīgi)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "Pamata ceļš nav pareizs. Pārbaudiet conf/conf.php failā"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "tika nokopēts uz direktoriju"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "tiks pārvietots uz direktoriju"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "Fails users.txt neatrodas direktorijā"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Šis fails ir nodzēsts"
   },
   "77": {
-    "other": "Send"
+    "other": "Sūtīt"
   },
   "78": {
-    "other": "Pass"
+    "other": "Parole"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF fails"
   },
   "8": {
-    "other": "Directory"
+    "other": "Direktorija"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV fails"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI fails"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG fails"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG fails"
   },
   "84": {
-    "other": "Help"
+    "other": "Palīdzība"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Atjaunināt"
   },
   "86": {
-    "other": "Close"
+    "other": "Aizvērt"
   },
   "87": {
-    "other": "Search"
+    "other": "Meklēt"
   },
   "88": {
-    "other": "Download"
+    "other": "Lejuplādēt"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Nevar atvērt failu"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Midi fails"
   },
   "90": {
-    "other": "Print"
+    "other": "Drukāt"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "FLASH fails"
   },
   "92": {
-    "other": "Language"
+    "other": "Valoda"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Lai izvēlētos valodu, pārlūkam ir jāizmanto sīkdatnes."
   },
   "94": {
-    "other": "Login"
+    "other": "Pieslēgties"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Izvēlēties valodu :"
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "Izvēlieties no koka mērķa direktoriju : "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Augšupielādēt failu"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Nospiediet jebkurā vietā lai aizvērtu šo logu."
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "nav rakstāma. Tā varētu būt problēma ar atļaujām, sazinieties ar administratoru."
   },
   "about_access_key": {
     "other": "A"
@@ -1959,19 +1959,19 @@
     "other": "Y/m/d H:i"
   },
   "date_intl_locale": {
-    "other": "en_US"
+    "other": "lv_LV"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "DATE"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "Pirms %s dienām"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "%s dienās"
   },
   "date_relative_time": {
     "other": "TIME"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Angļu"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,145 +2034,145 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "Sparaudnis nosaka kā darbvirsma piekļūs datu krātuvei (diskiem, partīcijām vai citām datu krātuvēm), galvenajiem šabloniem un darbībām."
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "Spraudņi ar dažādām iespējām"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "Kā tiek glabāti lietotāju dati datu krātuvē"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Lietotāju informācijas savākšanas veidi (web formas, api atslēgas, u.t.t.)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "Unikāls spraudnis struktūras ielādēšanai"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "Spraudni kurš paredzēts plikācijas kešošanas serverim"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "Kā konfigurācijas dati tiks glabāti administrācijas panelī"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Datu šifrēšanas spraudņi"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Dažādu mime tipu skatītāji un redaktori"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "Datu notikumu glabāšanas implementācija (šobrīd tikai SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "Galvenais web interfeiss, tēmas un paplašinājumi"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "Palīdzība administratīviem uzdevumiem"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "Datu indeksācijas un ātras meklēšanas rīki"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "Sūtīt aplikācijas log failus uz dažādiem kanāliem"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "Aplikācijas e-pastu sūtīšanas rīki"
   },
   "plugtype.desc.search-engine": {
     "other": "Search Engine options"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "Papildu iespējas kuras pievienot darbvirsmai"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "Dažādi meta datu glabāšanas veidi paralēli failiem un direktorijām"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "Vienkāršota PUB/SUB servera implementācija"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Papildus drošības iespējas"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "Web servisi publisko saišu saīsināšanai"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "Augšupielādētāji kuri veidoti uz HTML, JavaScript, Java vai citām tehnoloģijām"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "Darbvirsmu dzinēji"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "Darbību spraudņi"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "Autentifikācija administrācijas panelī"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "Autentifikācija lapas priekšpusē"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Ielādētājs"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Keša serveris"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Konfigurācijas glabātuve"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Šifrēšanas rīki"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Redaktori"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Notikumu barotnes glabātuve"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Lietotāja Grafiskais Interfeiss"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Palīdzība"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "Indeksē"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "Logu ierakstīšana"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "E-pasta nosūtītāji"
   },
   "plugtype.title.search-engine": {
     "other": "Search Engine"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "Darbvirsmas Meta Skats"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Meta datu glabāšana"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Paziņojumu sūtīšana"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Drošība"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Saišu saīsināšana"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Augšupielādētāji"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "augstāk esoša direktorija"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "vairākas darbības reizē"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2199,40 +2199,40 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Publiska piekļuve"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Pārvieto failu fonā..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Pārvieto direktoriju fonā ..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Kopē atlasītos datus fonā ..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Fails ir slēgts"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Direktorija ir slēgta"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Pašlaik šo failu skatās"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Pašlaik šo direktoriju skatās"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Koplietots fails, nospiest lai labotu"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Koplietota dirtektorija, nospiest lai labotu"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Fails ir grāmatzīmēs"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Direktorija ir grāmatzīmēs"
   },
   "bookmark.button.tip.add": {
     "other": "Bookmark this element"
@@ -2247,16 +2247,16 @@
     "other": "Saving bookmark status"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Iekšā"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Tukšs fails"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Dokuments bez nosaukuma"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Nelietojiet / failu nosaukumos!"
   },
   "filename.forbidden.empty": {
     "other": "You must provide a name!"
@@ -2265,55 +2265,55 @@
     "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Pārsaukšanai lietojiet citu vērtību!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Pārsauc %1 uz %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Filtrēt šūnas"
   },
   "ws.quick-filter": {
     "other": "Filter Workspaces"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Redzamība"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Skatīt"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Labot"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Lietotāji"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Jūsu Komandas"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Mainīt redzamību"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Saglabāt izmaiņas"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Atsaukt izmaiņas"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Notika kļūda"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Izvēlietie lietotāju..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Redzams..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Šī paplašinātā funkcija ļauj iestatīt vai adresu grāmatā Jūsu pievienotos lietotājus var redzēt un/vai labot citi lietotāji. Pēc noklusējuma šie lietotāji ir redzami tikai Jums."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Nezināms"
   },
   "addressbook.pick.group": {
     "other": "Select group"
@@ -2322,7 +2322,7 @@
     "other": "Multiple Selection"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Apstiprināt"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
@@ -2334,13 +2334,13 @@
     "other": "Rows per page"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "no"
   },
   "form.input-image.fileTypes": {
     "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Atiestatīt"
   },
   "form.input-image.clearConfirm": {
     "other": "Do you want to remove current image?"
@@ -2394,19 +2394,19 @@
     "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Saglabāt"
   },
   "searchengine.query.action.save-new": {
     "other": "Save Query"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "Notīrīt"
   },
   "searchengine.query.action.clear-all": {
     "other": "Clear All"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Dzēst"
   },
   "searchengine.query.action.delete-confirm": {
     "other": "Delete this saved query?"
