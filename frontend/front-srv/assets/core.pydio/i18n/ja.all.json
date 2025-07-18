@@ -507,838 +507,838 @@
     "other": "Zip から選択範囲を抽出します..."
   },
   "249": {
-    "other": "Users"
+    "other": "ユーザー"
   },
   "25": {
-    "other": "Upload one or more files (max. %s in the directory : "
+    "other": "1つ以上のファイルをアップロードします（ディレクトリ内の最大 %s 個： "
   },
   "250": {
-    "other": "Workspaces"
+    "other": "ワークスペース"
   },
   "251": {
-    "other": "Logs"
+    "other": "ログ"
   },
   "252": {
-    "other": "The total file size limit has been reached."
+    "other": "合計ファイルサイズが制限に達しました。"
   },
   "253": {
-    "other": "There has been an HTTP Error:"
+    "other": "HTTP エラーが発生しました:"
   },
   "254": {
-    "other": "There has been an IO Error:"
+    "other": "IOエラーが発生しました:"
   },
   "255": {
-    "other": "These has been a Security Error:"
+    "other": "セキュリティエラーが発生しました:"
   },
   "256": {
-    "other": "Uploaded"
+    "other": "アップロードしました"
   },
   "257": {
-    "other": "Remove"
+    "other": "削除"
   },
   "258": {
-    "other": "File count :"
+    "other": "ファイル数:"
   },
   "259": {
-    "other": "Total size :"
+    "other": "合計サイズ:"
   },
   "26": {
-    "other": "Create a new directory in : "
+    "other": "新しいディレクトリを作成: "
   },
   "260": {
-    "other": "bytes"
+    "other": "バイト"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "ログイン情報を記録する"
   },
   "262": {
-    "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
+    "other": "1つ以上のファイルが既に \\n宛先フォルダに存在しているようです。\\nどうされますか？"
   },
   "263": {
-    "other": "Overwrite"
+    "other": "上書き"
   },
   "264": {
-    "other": "Skip"
+    "other": "スキップ"
   },
   "265": {
-    "other": "Files"
+    "other": "ファイル"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "作成"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "新しいテーブルを作成"
   },
   "269": {
-    "other": "Structure"
+    "other": "構成"
   },
   "27": {
-    "other": "Upload"
+    "other": "アップロード"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "テーブル構造の編集"
   },
   "271": {
-    "other": "Drop"
+    "other": "ドロップ"
   },
   "272": {
-    "other": "Drop open table"
+    "other": "開いているテーブルをドロップ"
   },
   "273": {
-    "other": "Insert"
+    "other": "インサート"
   },
   "274": {
-    "other": "Insert a new record"
+    "other": "新しいレコードを挿入"
   },
   "275": {
-    "other": "Are you sure you want to drop the selected table(s)?"
+    "other": "選択したテーブルをドロップしてもよろしいですか？"
   },
   "276": {
-    "other": "Edit selected record"
+    "other": "選択したレコードを編集"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "選択したレコードを削除"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "選択したレコードを削除してもよろしいですか？"
   },
   "279": {
-    "other": "Tables"
+    "other": "テーブル"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "新規ファイルを作成: "
   },
   "280": {
-    "other": "Records"
+    "other": "レコード"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "アップロード制限"
   },
   "282": {
-    "other": "Size per File"
+    "other": "1ファイル当たりのサイズ"
   },
   "283": {
-    "other": "Total Size"
+    "other": "合計サイズ"
   },
   "284": {
-    "other": "Files Number"
+    "other": "ファイル番号"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "ユーザーが見つかりません。もう一度やり直してください。\\n Caps Lockが有効でないことを確認してください！"
   },
   "286": {
-    "other": "Your user is out of date with the current version, please use the upgrade procedure."
+    "other": "あなたのユーザーは現在のバージョンが古くなっています。アップグレードしてください。"
   },
   "287": {
-    "other": "File Permissions"
+    "other": "ファイル権限"
   },
   "288": {
-    "other": "User"
+    "other": "ユーザー"
   },
   "289": {
-    "other": "Group"
+    "other": "グループ"
   },
   "29": {
-    "other": "Create"
+    "other": "作成"
   },
   "290": {
-    "other": "All"
+    "other": "すべて"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "再帰適用しますか？"
   },
   "292": {
-    "other": "Share"
+    "other": "共有"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "このファイルへの公開リンクを作成"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "リンク時間の有効期限(日) とパスワード(パスワードがない場合は空白のままにしてください)。"
   },
   "295": {
-    "other": "Expiration"
+    "other": "有効期限"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "以下のURLをコピーしてください："
   },
   "297": {
-    "other": "New User"
+    "other": "新規ユーザー"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "新しいユーザーを作成"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "ワークスペース"
   },
   "3": {
-    "other": "Type"
+    "other": "種別"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "ディレクトリ名を入力し、 &quot;作成をクリックしてください&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "新しいワークスペースを作成"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "設定を編集"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "テキストとしてコピー"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "選択範囲をタブ区切りのテキストとしてコピーします。"
   },
   "304": {
-    "other": "Back"
+    "other": "戻る"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "トップに戻る"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "マイワークスペース"
   },
   "306": {
-    "other": "Too many items"
+    "other": "アイテムが多すぎます"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "任意のフィールドに入力"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "リンクを生成する"
   },
   "309": {
-    "other": "Generate"
+    "other": "生成"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "ファイルを選択する必要があります"
   },
   "310": {
-    "other": "Options"
+    "other": "オプション"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "ファイルが追加されたときに自動的にアップロードする"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "アップローダーオプション"
   },
   "313": {
-    "other": "Compress..."
+    "other": "圧縮..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "選択しzipに圧縮..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "選択を圧縮"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "表示/編集"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "ソースエディター"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "コードプレスソースコードビューアー"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML エディター"
   },
   "32": {
-    "other": "Explore"
+    "other": "探索する"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "HTML用WYSIWYGエディタ"
   },
   "321": {
-    "other": "Select"
+    "other": "選択"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "現在のファイルを選択"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "このURLをE-mail"
   },
   "324": {
-    "other": "No editor available"
+    "other": "利用可能なエディタがありません"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "最適化"
   },
   "326": {
-    "other": "No Fit"
+    "other": "最適化しない"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "ドキュメントリーダー"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Pdf, svg, tif などをオンラインで表示"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "ファイルのアップロード中にエラーが発生しました！"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "ページがレンダリングされるまでしばらくお待ちください..."
   },
   "331": {
-    "other": "Page"
+    "other": "ページ"
   },
   "332": {
-    "other": "of"
+    "other": "/"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Pixlr 画像エディター"
   },
   "334": {
-    "other": "more"
+    "other": "もっと見る"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "1からページ番号を入力してください "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "申し訳ありませんが、フォルダをドロップすることはできません。ファイルのみをドロップしてください！"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "自動的にアップロード開始"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "アップロードが完了した後パネルを閉じる"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "既存のファイル"
   },
   "34": {
-    "other": "The file"
+    "other": "ファイル"
   },
   "340": {
-    "other": "Alert"
+    "other": "アラート"
   },
   "341": {
-    "other": "File Info"
+    "other": "ファイル情報"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "フォルダ情報"
   },
   "343": {
-    "other": "Image Info"
+    "other": "画像情報"
   },
   "344": {
-    "other": "Search on"
+    "other": "検索"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "バージョン情報を取得できませんでした"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "あなたのバージョンは最新です"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "新しいバージョン (%s) が利用可能です! %s を訪問"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "新しいワークスペースが共有されました。"
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "警告、引数がありません"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "ディレクトリに正常に作成されました"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "ユーザーが既にこの名前で存在します。別の名前を選択してください。"
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "要素を公開することはできません。"
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "同じ名前のワークスペースが既に存在します。別の名前を選択してください。"
   },
   "353": {
-    "other": "Target User"
+    "other": "ターゲットユーザー"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "新しいユーザーを作成するか、リストから既存のユーザーのいずれかを選択します。"
   },
   "355": {
-    "other": "User Name"
+    "other": "ユーザー名"
   },
   "356": {
-    "other": "User Pass"
+    "other": "ユーザーパス"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "ターゲットレポジトリ"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "共有ワークスペースの名前を選択します。"
   },
   "359": {
-    "other": "Label"
+    "other": "ラベル"
   },
   "36": {
-    "other": "It's size is"
+    "other": "サイズは"
   },
   "360": {
-    "other": "Rights"
+    "other": "権限"
   },
   "361": {
-    "other": "Read"
+    "other": "読み込み"
   },
   "362": {
-    "other": "Write"
+    "other": "書き込み"
   },
   "363": {
-    "other": "Shared"
+    "other": "共有"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "この操作を実行する権限がありません"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "同時に %s 個以上のファイルをアップロードすることはできません。"
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "このユーザーにはアクティブなワークスペースがありません。"
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "この種類のファイルをアップロードすることはできません。以下の拡張子の中から選択してください: "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "アーカイブ %s からフォルダ %sへの解凍が成功しました"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "ショートカット"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "有効な名前を入力してください"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE 公開ダウンロード"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "このダウンロードにはパスワードが必要です"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "現在のワークスペース"
   },
   "373": {
-    "other": "Destination"
+    "other": "保存先"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "ワークスペース間でフォルダをコピーすることはできません"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "__IDLE__を超えてからアクティブではないことが検出されました。データの安全のために、 __LOGOUT__ でログアウトされます。"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "まだいらっしゃいますか？"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "セッションを再開するには、どこかをクリックしてください"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "警告、パスワードが空または短すぎます！"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "安全でない単語です！"
   },
   "38": {
-    "other": "The directory"
+    "other": "ディレクトリ"
   },
   "380": {
-    "other": "Too short"
+    "other": "短すぎます"
   },
   "381": {
-    "other": "Very weak"
+    "other": "非常に弱い"
   },
   "382": {
-    "other": "Weak"
+    "other": "弱い"
   },
   "383": {
-    "other": "Medium"
+    "other": "普通"
   },
   "384": {
-    "other": "Strong"
+    "other": "強力"
   },
   "385": {
-    "other": "Very strong"
+    "other": "非常に強い"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "ログインには小文字のみを使用してください"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "ログインには英数字または有効な電子メールを使用してください"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "3回ログインに失敗しました。\\nセキュリティのため、画像に表示されるコードを入力してください。"
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "以下のコードをお読みください："
   },
   "39": {
-    "other": "has been created in"
+    "other": "が作成されました"
   },
   "390": {
-    "other": "Code"
+    "other": "コード"
   },
   "391": {
-    "other": "No Repository"
+    "other": "リポジトリがありません"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "警告：APPLICATION_TITLE バージョンが変更されました (現在 %s)。ブラウザのキャッシュをクリアし、ページを更新して、すべてが機能していることを確認してください！"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "警告：名前の長さは %s以下でなければなりません。このファイルの名前は切り捨てられます！"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "申し訳ありませんが、現在の認証ドライバを使用してフォルダの共有ができません（ユーザーは編集できません）。ファイル共有は可能です。"
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "あなたがドロップしたアイテムはフォルダのようです。フォルダはサーバーにアップロードできません！アップロードしてもよろしいですか？"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Aust. Method"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "チャンクをダウンロード"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "選択したファイルをピース単位でダウンロード"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "ダウンロードしたいピースの数を入力し、ボタンをクリックし、それぞれのファイルをクリックしてダウンロードします。"
   },
   "4": {
-    "other": "Modified"
+    "other": "更新日"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "このディレクトリは既に存在します（名前は大文字小文字を区別しません）"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "ピース数 :"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "コンピュータをピースに参加させるには、次のソフトウェアをダウンロードしてインストールします : "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "名前が変更されました"
   },
   "411": {
-    "other": "Open"
+    "other": "オープン"
   },
   "412": {
-    "other": "Upload only"
+    "other": "アップロードのみ"
   },
   "413": {
-    "other": "Shared by"
+    "other": "共有者"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "ズームを変更するには、矢印を使用して移動し、+/-を押します。"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "左ペインの表示を切り替える"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "左ペイン"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "セルを作成..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "セルを作成"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "テンプレートを読み込み中..."
   },
   "42": {
     "other": "to"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "リストからテンプレートを選択してください"
   },
   "421": {
-    "other": "New %s"
+    "other": "新規 %s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "必要なパラメータを記入してください。 より多くの情報を表示するにはマウスでフィールドにポインターを合わせます。"
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "ワークスペースを削除"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "このワークスペースを削除してもよろしいですか？操作は元に戻せません。"
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "ワークスペースが作成されました。ワークスペースを削除したい場合は、ワークスペース リストに追加されます。 別のワークスペースに切り替えて、ワークスペース名の横にある赤い十字をクリックしてください。"
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "ワークスペースの作成中にエラーが発生しました"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "ワークスペースの削除中にエラーが発生しました"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "ワークスペースは正常に削除されました"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "これはワークスペースがリストに表示される方法です。"
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "既に存在します (名前は大文字小文字を区別しません)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "一般的なファイル"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "サンプルテンプレート"
   },
   "432": {
-    "other": "My Files"
+    "other": "マイファイル"
   },
   "433": {
-    "other": "ready"
+    "other": "準備完了"
   },
   "434": {
-    "other": "sending"
+    "other": "送信中"
   },
   "435": {
-    "other": "done"
+    "other": "完了"
   },
   "436": {
-    "other": "error"
+    "other": "エラー"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "セキュリティトークンの有効期限が切れています！ブラウザーの更新またはF5を押して、 %s を押してください！"
   },
   "438": {
-    "other": "reload the page"
+    "other": "ページをリロード"
   },
   "439": {
-    "other": "Main Options"
+    "other": "メインオプション"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "が削除されました"
   },
   "440": {
-    "other": "Yes"
+    "other": "はい"
   },
   "441": {
-    "other": "No"
+    "other": "いいえ"
   },
   "442": {
-    "other": "My Account"
+    "other": "マイアカウント"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "個人情報を更新する"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "パスワードを更新してください。更新しないとログインできなくなります。"
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "ログアウトしました。新しいパスワードを使用してログアウトしてください。ありがとうございます！"
   },
   "446": {
-    "other": "Presentation"
+    "other": "プレゼンテーション"
   },
   "447": {
-    "other": "My group"
+    "other": "マイグループ"
   },
   "448": {
-    "other": "create user"
+    "other": "ユーザーを作成"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "%sを作成し、パスワードを選択してください"
   },
   "45": {
-    "other": "directory"
+    "other": "ディレクトリ"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "並び替え..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "サムネイルの並べ替え:"
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "サムネイルのサイズ"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "サムネイルのサイズを設定"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "コンピュータ上のファイルを選択してください"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "ワークスペース"
   },
   "456": {
-    "other": "More"
+    "other": "もっと見る"
   },
   "457": {
-    "other": "update"
+    "other": "更新"
   },
   "458": {
-    "other": "remove"
+    "other": "削除"
   },
   "459": {
-    "other": "Top folder"
+    "other": "トップフォルダ"
   },
   "46": {
-    "other": "file"
+    "other": "ファイル"
   },
   "460": {
-    "other": "List"
+    "other": "リスト"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "リストビューに切り替える"
   },
   "462": {
-    "other": "Preview"
+    "other": "プレビュー"
   },
   "463": {
-    "other": "Download all"
+    "other": "すべてダウンロード"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "すべてのワークスペースのコンテンツを一度にダウンロード(zipped)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "代替URLを表示 (ワークスペースを別々にマウント)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "読み込み中…"
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "すべての共有要素"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "ワークスペース"
   },
   "469": {
-    "other": "Cells"
+    "other": "セル"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "本当に削除しますか？"
   },
   "470": {
-    "other": "Created %date"
+    "other": "作成日 %d日"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "%uのプレイヤー %dによって作成されました"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "%uのユーザーによって共有されました"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "%uのプレイヤー %dがシェアしました"
   },
   "474": {
-    "other": "No description available"
+    "other": "説明はありません"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "すべてのユーザー間で共有されたファイル"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "個人ワークスペース"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "ファイルまたはフォルダを選択して、詳細をここに表示します"
   },
   "478": {
-    "other": "No results found"
+    "other": "結果が見つかりませんでした"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "パスワードをお忘れですか？"
   },
   "48": {
-    "other": "Ok"
+    "other": "OK"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "現在のワークスペースのすべてのフォルダを参照します。"
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "すべての共有ファイルとフォルダ"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "ブックマークされたアイテムへのクイックアクセス"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "これ以上の数のユーザーを作成する権限がありません！"
   },
   "484": {
-    "other": "Create user"
+    "other": "ユーザーを作成"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "共有ユーザーを作成"
   },
   "486": {
-    "other": "Advanced"
+    "other": "高度な設定"
   },
   "487": {
-    "other": "Basic"
+    "other": "基本設定"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "高度なフィルタ"
   },
   "489": {
-    "other": "Metadata"
+    "other": "メタデータ"
   },
   "49": {
-    "other": "Cancel"
+    "other": "キャンセル"
   },
   "490": {
-    "other": "Date range"
+    "other": "日付の範囲"
   },
   "491": {
-    "other": "After"
+    "other": "以後"
   },
   "492": {
-    "other": "until"
+    "other": "まで"
   },
   "493": {
-    "other": "Today"
+    "other": "今日"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "昨日"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "明日"
   },
   "495": {
-    "other": "Last week"
+    "other": "先週"
   },
   "496": {
-    "other": "Last month"
+    "other": "先月"
   },
   "497": {
-    "other": "Last year"
+    "other": "昨年"
   },
   "498": {
-    "other": "Document Property"
+    "other": "ドキュメントプロパティ"
   },
   "499": {
-    "other": "File"
+    "other": "ファイル"
   },
   "5": {
-    "other": "Actions"
+    "other": "アクション"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exeファイル"
   },
   "500": {
     "other": "Extension"
   },
   "501": {
-    "other": "or"
+    "other": "または"
   },
   "502": {
-    "other": "Folders only"
+    "other": "フォルダのみ"
   },
   "503": {
-    "other": "Size"
+    "other": "サイズ"
   },
   "504": {
     "other": "1k,1M,1G"
@@ -1347,595 +1347,595 @@
     "other": "to"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "アプリケーションパラメータ（ユーザー、ワークスペース、構成）"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "%s へようこそ"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "%s であなたのためのアカウントを作成しました。 接続するには、次のリンク %link をクリックしてください。<br> <br>ログイン： %user <br> <br>パスワード：%pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "チームとして保存"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "テキストエディター"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "チームのラベルを入力してください"
   },
   "511": {
-    "other": "My %s"
+    "other": "私の %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "デスクトップを全画面"
   },
   "513": {
-    "other": "show"
+    "other": "表示"
   },
   "514": {
-    "other": "hide"
+    "other": "隠す"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "ブックマークなし - ファイルやフォルダをここにドロップして、すばやくアクセスできます。"
   },
   "516": {
-    "other": "expand"
+    "other": "展開する"
   },
   "517": {
-    "other": "collapse"
+    "other": "折りたたむ"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "または、 <a class='create_file_alt_link'>空のファイル</a> を新規作成することもできます。"
   },
   "519": {
-    "other": "Update user"
+    "other": "ユーザーを更新"
   },
   "52": {
-    "other": "Editing file"
+    "other": "ファイルの編集"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "ユーザーデータとパスワードを更新"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "ユーザーは正常に更新されました"
   },
   "522": {
-    "other": "User ID"
+    "other": "ユーザー ID"
   },
   "523": {
-    "other": "Password"
+    "other": "パスワード"
   },
   "524": {
-    "other": "Update Password"
+    "other": "パスワードの更新"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "元の画像を表示"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "低解像度バージョン"
   },
   "527": {
-    "other": "Shared with"
+    "other": "共有先"
   },
   "528": {
-    "other": "Internal users"
+    "other": "内部ユーザー"
   },
   "53": {
-    "other": "Save"
+    "other": "保存"
   },
   "530": {
-    "other": "External users"
+    "other": "外部ユーザー"
   },
   "531": {
-    "other": "Users"
+    "other": "ユーザー"
   },
   "532": {
-    "other": "Groups"
+    "other": "グループ"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "ログインに使用する識別子は、英数字または電子メール形式で小文字を使用してください。"
   },
   "534": {
-    "other": "Password used to login"
+    "other": "ログインに使用するパスワード"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "メールでパスワードを送信"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "新しいユーザーにパスワードを含むウェルカムメールを送信する"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "ファイルが大きすぎます！最大サイズは %i です"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "アップロードエラー：サーバー上にファイルが見つかりません！"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "アップロードエラー: ファイルは部分的です"
   },
   "54": {
-    "other": "Cancel"
+    "other": "キャンセル"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "アップロードエラー: 一時ディレクトリが見つかりません"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "アップロードエラー: 一時ディレクトリに書き込むことができません"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "アップロードエラー：PHPエクステンションがアップロードプロセスを停止しました。"
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "検索結果は %s に制限されています。"
   },
   "544": {
-    "other": "Show more"
+    "other": "詳細を表示"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "リモート共有"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "このアイテムは、リモートの場所から %%OWNER%% によって共有されています。続行しますか？"
   },
   "547": {
-    "other": "Accept"
+    "other": "同意する"
   },
   "548": {
-    "other": "Decline"
+    "other": "拒否"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "以前にリモートの場所から %%OWNER%% によって共有されたこのアイテムを受け入れました。今すぐ拒否しますか？"
   },
   "55": {
-    "other": "has been modified"
+    "other": "が変更されました"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "この共有を拒否"
   },
   "551": {
-    "other": "Reject"
+    "other": "拒否"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "パスワードを入力してください。"
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "パスワードが無効です。もう一度やり直してください。 \\n Caps Lockが有効でないことを確認してください！"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s 件のごみ箱の結果"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "バックグラウンドでタスク %s を起動中"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "資格情報が必要です"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "このワークスペースを入力するにはパスワードを入力してください。"
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "このワークスペースの認証に失敗しました。"
   },
   "56": {
-    "other": "BMP picture"
+    "other": "BMP画像"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "認証が必要です"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "プロバイダの認証ページにリダイレクトされます。自動的にリダイレクトされない場合は、OK を押して再試行してください。"
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "このフォルダは空です！"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "このワークスペースは空です！"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "ごみ箱は空です。"
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "ファイルやフォルダを選択するか、デスクトップから直接ドラッグして追加を開始します"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "ここにファイルを追加する権限がありません"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "ごみ箱を参照"
   },
   "568": {
-    "other": "Teams"
+    "other": "チーム"
   },
   "569": {
-    "other": "New Team"
+    "other": "新しいチーム"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "PNG画像"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "チームを削除"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "まだチームが作成されていません"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "複数のユーザー間で簡単にデータを共有するために、独自のチームを作成します"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "利用可能なチームがありません"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "チームを作成することは許可されていませんが、一部の許可されたユーザーはチームを共有することができます"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "チームの作成と編集"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "ユーザーが自分のチームを作成して編集できるようにします"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "ユーザーをチームに追加"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "チームから削除"
   },
   "575": {
-    "other": "Team Members"
+    "other": "チーム メンバー"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s メンバー"
   },
   "577": {
-    "other": "No members"
+    "other": "メンバーなし"
   },
   "578": {
-    "other": "Team Label"
+    "other": "チームラベル"
   },
   "579": {
-    "other": "Create Team"
+    "other": "チームを作成"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS ファイル"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "チームのラベルを編集"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "ユーザーは %s チームに所属しています"
   },
   "582": {
-    "other": "Delete User"
+    "other": "ユーザーを削除"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "ディレクトリを検索"
   },
   "584": {
-    "other": "Directory"
+    "other": "ディレクトリ"
   },
   "585": {
-    "other": "No External Users"
+    "other": "外部ユーザーがいません"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "独自のユーザーを作成し、ワークスペースからファイルやフォルダを共有します。"
   },
   "587": {
-    "other": "No results"
+    "other": "結果がありません"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "ユーザーを見つけるために検索フォームに入力します"
   },
   "589": {
-    "other": "External user"
+    "other": "外部ユーザー"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 ファイル"
   },
   "590": {
-    "other": "Internal user"
+    "other": "内部ユーザー"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "作成後にチームの名前を選択するとユーザーを追加することができます。"
   },
   "592": {
-    "other": "Address Book"
+    "other": "アドレス帳"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "共有ユーザー"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "信頼されたサーバー"
   },
   "595": {
-    "other": "Search user..."
+    "other": "ユーザーを検索..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "サーバー '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "すべて"
   },
   "598": {
-    "other": "Send a message"
+    "other": "メッセージを送信"
   },
   "599": {
-    "other": "Add a user"
+    "other": "ユーザーを追加"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "結果"
   },
   "6": {
-    "other": "Rename"
+    "other": "名称変更"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RARファイル"
   },
   "600": {
-    "other": "Edit user"
+    "other": "ユーザーを編集"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "1つの共有セル"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 はセルを共有しました"
   },
   "603": {
-    "other": "Team"
+    "other": "チーム"
   },
   "604": {
-    "other": "Remote User"
+    "other": "リモートユーザー"
   },
   "605": {
-    "other": "More search options"
+    "other": "その他の検索オプション"
   },
   "606": {
-    "other": "Less search options"
+    "other": "検索オプションを減らす"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "あなたの最近のアクティビティ - すべてのワークスペースにファイルを検索するには入力してください"
   },
   "608": {
-    "other": "Current folder"
+    "other": "現在のフォルダ"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "ワークスペース全体"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZファイル"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "全ワークスペース"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "検索を開始する"
   },
   "612": {
-    "other": "Custom range"
+    "other": "カスタム範囲"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "次の値より大きい..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "次の値より小さい..."
   },
   "615": {
-    "other": "Execute"
+    "other": "実行"
   },
   "616": {
-    "other": "Mask"
+    "other": "マスク"
   },
   "617": {
-    "other": "Enter"
+    "other": "続行"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "言語を切り替える..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "検索は現在のフォルダとその子フォルダに制限されています"
   },
   "62": {
-    "other": "Root directory"
+    "other": "ルートディレクトリ"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "検索は現在のワークスペースに制限されています"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "このフィールドは空にできません"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "エラースタック"
   },
   "623": {
-    "other": "Copy"
+    "other": "コピー"
   },
   "624": {
-    "other": "Copied!"
+    "other": "コピーしました！"
   },
   "625": {
-    "other": "Letter"
+    "other": "レター"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "自分と共有されたファイル"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "リモートサーバーから共有"
   },
   "628": {
-    "other": "Revert"
+    "other": "元に戻す"
   },
   "629": {
-    "other": "No records yet"
+    "other": "まだ記録がありません"
   },
   "63": {
-    "other": "Log out"
+    "other": "ログアウト"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "フォルダを共有しました"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "このセルは空です！"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "まだセルがありません"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "セルはドキュメント上でコラボレーションするために他の人と共有されるスペースです。"
   },
   "634": {
-    "other": "You"
+    "other": "あなた"
   },
   "634b": {
-    "other": "Your group"
+    "other": "あなたのグループ"
   },
   "634c": {
-    "other": "All users"
+    "other": "すべてのユーザー"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "チャットルーム"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "入力を開始し、Enter キーを押します"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "まだメッセージがありません。このセルのユーザーとチャットするために入力を開始してください！"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "セルには複数のルートフォルダまたはファイルが含まれています。直接ここにデータをアップロードすることはできません。"
   },
   "639": {
-    "other": "In this cell"
+    "other": "このセル"
   },
   "64": {
-    "other": "XLS File"
+    "other": "XLSファイル"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "%s のセルを作成"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "現在のセルから削除"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "現在のセルに追加"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "%sとセルを共有しました"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "セルを作成できませんでした: %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Word ファイル"
   },
   "66": {
-    "other": "Copy"
+    "other": "コピー"
   },
   "67": {
-    "other": "Selected file"
+    "other": "選択したファイル"
   },
   "68": {
-    "other": "Paste in"
+    "other": "貼り付け"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "他のディレクトリを選択"
   },
   "7": {
-    "other": "Delete"
+    "other": "削除"
   },
   "70": {
-    "other": "Move"
+    "other": "移動"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "このファイルは既に存在します (名前は大文字小文字を区別しません)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "ルートパスが正しくありません。conf/conf.phpファイルで確認してください。"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "ディレクトリにコピーされました"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "ディレクトリに移動されました"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "Users.txtファイルはプライブディレクトリにありません"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "このファイルは削除されました"
   },
   "77": {
-    "other": "Send"
+    "other": "送信"
   },
   "78": {
-    "other": "Pass"
+    "other": "パス"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF ファイル"
   },
   "8": {
-    "other": "Directory"
+    "other": "ディレクトリ"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOVファイル"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI ファイル"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPGファイル"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEGファイル"
   },
   "84": {
-    "other": "Help"
+    "other": "ヘルプ"
   },
   "85": {
-    "other": "Refresh"
+    "other": "更新"
   },
   "86": {
-    "other": "Close"
+    "other": "閉じる"
   },
   "87": {
-    "other": "Search"
+    "other": "検索"
   },
   "88": {
-    "other": "Download"
+    "other": "ダウンロード"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "ファイルを開くことができません"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Midi ファイル"
   },
   "90": {
-    "other": "Print"
+    "other": "印刷"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "FLASH ファイル"
   },
   "92": {
-    "other": "Language"
+    "other": "言語"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "言語を選択するには、ブラウザはクッキーを受け入れる必要があります。"
   },
   "94": {
-    "other": "Login"
+    "other": "ログイン"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "言語を選択："
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "ツリー内の保存先フォルダを選択してください： "
   },
   "97": {
-    "other": "Upload File"
+    "other": "ファイルをアップロード"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "このボックスのどこかをクリックして閉じます。"
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "書き込み可能できません。権限に問題がある可能性があります。管理者に確認してください。"
   },
   "about_access_key": {
     "other": "A"
@@ -1962,19 +1962,19 @@
     "other": "en_US"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "日付"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s 日前"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "%s 日後"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "時間"
   },
   "date_relative_time_format": {
     "other": "H:i"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "日本語"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,148 +2034,148 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "ワークスペースがバックエンド(ファイルストレージなど) と主要なレイアウトとアクションの両方にアクセスする方法を定義するプラグイン。"
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "さまざまな側面のための機能指向のプラグイン"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "バックエンドにユーザーデータが保存される方法"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Id認証情報を収集するための方法（Webフォーム、Apiキーなど）"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "フレームワークをロードするためのユニークなプラグイン"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "アプリケーションが使用するキャッシュサーバーを設定するためのユニークなプラグイン"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "設定データのバックエンドへの保存方法"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "データ暗号化プラグイン"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Mime タイプのビューアーまたはエディター"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "データイベントを保存するための実装 (まだSQLのみ)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "メインのWebインターフェース、テーマ、エクステンション"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "管理タスクのためのヘルパーツール"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "データのインデックス作成とクイック検索オプションの提供"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "アプリケーションログをさまざまなチャンネルに送信"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "アプリケーションにメールを送信させるためのツール"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "検索エンジンのオプション"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "ワークスペースに追加する追加機能"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "ファイルやフォルダと一緒にメタデータを格納するための様々な実装"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "簡易PUB/SUBサーバの実装"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "高度なセキュリティ機能"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "公開リンクを短縮するためのWebサービスブリッジ"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "HTML、Javascript、Javaなどのさまざまな技術に基づいたアップローダー"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "ワークスペースドライバ"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "アクションプラグイン"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "認証バックエンド"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "認証フロントエンド"
   },
   "plugtype.title.boot": {
     "other": "Loader"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "キャッシュサーバー"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "ストレージの設定"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "暗号化ツール"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "エディター"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "イベントフィードストレージ"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "グラフィカル ユーザー インターフェイス"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "ヘルパー"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "インデックス作成"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "ロガー"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "メーラー"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "検索エンジン"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "ワークスペースメタアスペクト"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "メタデータストレージ"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "インスタントメッセージ"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "セキュリティ"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "URLの短縮"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "アップローダー"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "親フォルダ"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "一括操作"
   },
   "refresh_access_key": {
-    "other": "h"
+    "other": "時間"
   },
   "rename_access_key": {
     "other": "R"
@@ -2199,309 +2199,309 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "パブリック・アクセス"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "ファイルをバックグラウンドで移動しています..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "バックグラウンドでフォルダを移動しています..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "選択範囲をバックグラウンドでコピー中..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "ファイルがロックされています"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "フォルダがロックされています"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "現在このファイルを監視しています"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "現在このフォルダを監視しています"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "共有ファイルをクリックして編集"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "共有フォルダをクリックして編集"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "ファイルがブックマークされました"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "フォルダがブックマークされています"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "この要素をブックマーク"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "このブックマークを削除"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "混合値、クリックしてすべてをブックマークする"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "ブックマーク状態を保存しています"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "内部"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "空のファイル"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "無題ドキュメント"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "ファイル名に / を使用しないでください！"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "ファイル名を指定してください！"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "警告: 名前は空白の文字で始まるか、または終わるようです(もしかしてタイプミスですか?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "名前を変更するには、別の値を使用してください!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "%1 の名前を %2に変更中"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "セルのフィルタリング"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "ワークスペースをフィルター"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "公開範囲"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "表示"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "編集"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "ユーザー"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "あなたのチーム"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "表示を変更する"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "変更を保存"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "変更を元に戻す"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "エラーが発生"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "ユーザーを選択..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "公開するユーザーを設定"
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "この高度な機能を使用すると、アドレス帳で作成したユーザーが他のユーザーに表示されたり編集されたりできるかどうかを決定できます。 デフォルトでは、ユーザーはあなたにのみ表示されます。"
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "不明"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "グループを選択"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "複数を選択"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "確認"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "削除しようとしています"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "次回警告しない"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "ページあたりの行数"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "/"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "画像のみを使用する（jpeg,png,bmp,webp）"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "リセット"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "現在の画像を削除しますか？"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "5MB未満の画像を使用してください"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "ファイルとフォルダを検索するために入力を開始"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "検索中..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "検索..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "検索: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "検索..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "共有中"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "ステータスなし"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "公開リンク"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Cellで共有"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "公開リンク または Cell"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "フォーマット"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "ファイルのみ"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "高度なフィルタ"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 件の結果が見つかりました"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "%1を表示中、もっと読み込む..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "保存"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "クエリを保存"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "クリア"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "すべてクリア"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "削除"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "この保存したクエリを削除しますか？"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "ラベルを入力してください"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "名前/コンテンツ"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "保存済みの検索"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "直近の検索"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "高度な提案"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "もしかして ？"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "'%s ' を含む"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "フィルター:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "クリックして変更"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "削除"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "プレビューを含めますか？"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "インライン挿入"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "古い項目"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "メッセージを編集"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "変更を保存"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "変更内容を破棄"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "メッセージを削除"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "メッセージを削除しますか？"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "この操作は元に戻せません"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "ファイルを読み込み中…"
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "ドキュメントを開いています..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "ドキュメントに移動"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "ドキュメントが見つかりません。削除された可能性があります。"
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "クリックで %s を開く"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "ドキュメントを開く..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "クオータの使用"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "完全に削除"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "警告! この操作は元に戻せません!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "フォルダに移動"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "最近使用したロケーション"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "トップフォルダ"
   }
 }
