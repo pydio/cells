@@ -1,11 +1,11 @@
 {
   "open-addressbook": {
-    "other": "地址簿"
+    "other": "Address Book"
   },
   "desc": {
-    "other": "管理我的账户首选项、我的地址簿、共享元素等。"
+    "other": "Manage my account preferences, my address book, shared elements, etc."
   },
   "title": {
-    "other": "我的帐户"
+    "other": "My Account"
   }
 }
