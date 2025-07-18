@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "圧縮"
+    "other": "Compress"
   },
   "10": {
-    "other": "選択したアーカイブを抽出"
+    "other": "Extract selected archives"
   },
   "11": {
-    "other": "抽出されたファイルのパス "
+    "other": "Path of the extracted files "
   },
   "12": {
-    "other": "抽出を開始しています..."
+    "other": "Starting extraction..."
   },
   "13": {
-    "other": "ファイルの抽出中... %s "
+    "other": "Extracting files ... %s "
   },
   "14": {
-    "other": "フォルダ '%s' で正常に抽出が完了しました。"
+    "other": "Extraction finished successfullly in the folder '%s'."
   },
   "15": {
-    "other": "選択されたファイルは、TARまたはTAR.GZまたはTAR.BZ2アーカイブではありません。"
+    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
   },
   "16": {
-    "other": "圧縮はTAR、TAR.GZまたはTAR.BZ2でのみ行えます。"
+    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
   },
   "17": {
-    "other": "空のフォルダは圧縮できません。"
+    "other": "You can't compress empty folders."
   },
   "2": {
-    "other": "選択を圧縮"
+    "other": "Compress Selection"
   },
   "3": {
-    "other": "フォーマット"
+    "other": "Format"
   },
   "4": {
-    "other": "アーカイブの名前"
+    "other": "Archive's name"
   },
   "5": {
-    "other": "圧縮を開始しています..."
+    "other": "Starting compression..."
   },
   "6": {
-    "other": "ファイルをアーカイブに追加しています... %s "
+    "other": "Adding files in the archive... %s "
   },
   "7": {
-    "other": "%s での圧縮中..."
+    "other": "During compression in %s ..."
   },
   "8": {
-    "other": "アーカイブが正常に完了しました!!"
+    "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "抽出"
+    "other": "Extract"
   }
 }
