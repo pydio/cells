@@ -1,287 +1,287 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "이용약관"
   },
   "welcome.title": {
-    "other": "Welcome to Pydio Cells Installation Wizard"
+    "other": "Pydio Cells 설치 마법사에 오신 것을 환영합니다."
   },
   "welcome.legend": {
-    "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
+    "other": "현재 서버에 모든 서비스를 설치할 것입니다. 시작하기 전에 아래의 라이선스 약관에 동의해주세요."
   },
   "welcome.agreed": {
-    "other": "I agree with the terms"
+    "other": "약관에 동의합니다"
   },
   "database.stepLabel": {
-    "other": "Database Connection"
+    "other": "데이터베이스 연결"
   },
   "database.title": {
-    "other": "Database Configuration"
+    "other": "데이터베이스 설정"
   },
   "database.legend": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
+    "other": "Pydio는 설정과 데이터 색인을 위해서 최소한의 하나의 SQL 저장소를 요구합니다. 여기에서 MySQL/MariaDB의 연결을 설정하세요."
   },
   "database.legend.bold": {
-    "other": "Please make sure that your database is running MySQL version 5.6 or higher"
+    "other": "데이터베이스가 MySQL 버전 5.6 또는 그 이상의 버전을 실행 중인지 확인하세요."
   },
   "database.installDetected": {
-    "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
+    "other": "이 데이터베이스에서는 Cells 설치 과정이 이미 완료된 것으로 보입니다. 확인하여 계속하시거나"
   },
   "database.installDetected.retry": {
-    "other": "retry with new value"
+    "other": "새 값으로 재시도하세요"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "기본 데이터베이스가 이미 설정되었으며 다음을 클릭하여 연결을 검증하세요."
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "다른 데이터베이스를 설정하세요."
   },
   "admin.stepLabel": {
-    "other": "Admin User"
+    "other": "관리자 계정"
   },
   "admin.title": {
-    "other": "Admin user and frontend defaults"
+    "other": "관리자 계정과 프론트엔드 기본값"
   },
   "admin.legend": {
-    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+    "other": "관리자 수준의 계정에 대한 인증 수단을 제공하세요. 만약 이미 설치를 완료한 후에 배포하는 경우 칸을 비워두세요."
   },
   "admin.adminFound": {
-    "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
+    "other": "DB에서 이미 관리자 계정을 발견했습니다. 새로운 계정을 생성하시고 싶으시다면 체크하세요."
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "고급 설정"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "고급 설정 (선택)"
   },
   "advanced.legend": {
-    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+    "other": "Pydio Cells 서비스가 이 장치에 배포될 것입니다. 설정을 최적화하기 위해 몇몇의 고급 설정을 확인할 수 있습니다."
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "고급 설정 표시"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "시작할 때 계정들의 사용자 데이터와 cells 데이터를 저장하기 위한 기본 데이터 저장소가 생성됩니다. 이후에 다른 데이터 저장소를 생성할 수 있습니다."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "MongoDB 접속 설정"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "이는 확장성이 뛰어나며 클러스터링 구현에 필요합니다. Mongo DB가 준비되지 않은 경우 나중에 이 작업을 수행할 수 있습니다."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "서버 호스트"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "서버 포트"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "데이터베이스 명"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "사용자명"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "비밀번호"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "인증 DB"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "테스트 연결"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "기업 라이선스"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Pydio Cells 기업용 라이선스"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "라이선스 파일이 성공적으로 업로드되었습니다."
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "현새 설치는 %e까지 %c명의 사용자 계정에 대해 유효합니다."
   },
   "license.failed": {
-    "other": "Error while trying to verify this license key. Please contact the support."
+    "other": "라이선스 키를 검증하는 중 오류가 발생했습니다. 지원 창구에 문의해주세요."
   },
   "license.required": {
-    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+    "other": "기업용 배포판을 실행하기 위해서는 올바른 라이선스 키가 필요합니다. 30일 무료 체험 라이선스를 얻으시려거나 세일즈 팀과 협력이 필요하시다면 문의해주세요."
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "라이선스 키"
   },
   "license.fieldLegend": {
-    "other": "Please copy/paste the license key provided to you."
+    "other": "제공된 라이선스 키를 복사 후 붙여넣기 해주세요."
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "설정 적용"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Pydio Cells를 설치하는 동안 기다려 주십시오..."
   },
   "apply.success": {
-    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+    "other": "설치가 성공적으로 완료되었으며 서비스를 시작하는 중입니다. 서비스가 시작되면 설치 관리자가 페이지 새로고칠 것입니다."
   },
   "apply.success.restarted": {
-    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+    "other": "설치가 성공적으로 완료되었으며 서비스가 시작되었습니다. 페이지를 새로고침해주세요. (%1s 초안에 자동으로 새로고침됩니다)"
   },
   "apply.error": {
-    "other": "There was an error while performing installation! Please check your configuration."
+    "other": "설치 진행 중에 오류가 발생했습니다! 설정을 다시 확인해주세요."
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "오류: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "연결 방식"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
   },
   "form.dbConnectionType.socket": {
-    "other": "Socket"
+    "other": "소켓"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manual"
+    "other": "수동 설정"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "호스트명"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "MySQL이 실행 중인 서버"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "데이터베이스 이름"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "사용할 데이터베이스 (존재하지 않을 경우 생성됩니다)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "포트"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "MySQL에 연결할 포트 번호"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "데이터베이스 사용자"
   },
   "form.dbUser.legend": {
-    "other": "Leave blank if not required"
+    "other": "필요하지 않은 경우 비워두십시오"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "데이터베이스 비밀번호"
   },
   "form.dbPassword.legend": {
-    "other": "Leave blank if not required"
+    "other": "필요하지 않은 경우 비워두십시오"
   },
   "form.dbSocketFile.label": {
-    "other": "Socket"
+    "other": "소켓"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "연결할 소켓 파일의 위치를 입력하십시오"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "데이터베이스 연결을 위해 Golang 형식의 DSN을 사용하십시오"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "애플리케이션 제목"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "설치에 대한 대표 이름"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "기본 언어"
   },
   "form.frontendLogin.label": {
-    "other": "Admin user login *"
+    "other": "관리자 계정 로그인"
   },
   "form.frontendLogin.legend": {
-    "other": "Identifier used to log in"
+    "other": "로그인에 사용될 식별자"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "관리자 비밀번호"
   },
   "form.frontendPassword.legend": {
-    "other": "Password used to log in"
+    "other": "로그인에 사용될 비밀번호"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirm password"
+    "other": "비밀번호 확인"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirm password twice"
+    "other": "비밀번호 재확인"
   },
   "form.dsFolder.label": {
-    "other": "Path of the default datasource"
+    "other": "기본 데이터 저장소 경로"
   },
   "form.dsFolder.legend": {
-    "other": "Use an absolute path on the server"
+    "other": "서버 상의 절대 경로를 사용하십시오"
   },
   "form.dsType.Label": {
     "other": "Storage Type"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "로컬 FS (모든 데이터를 이 서버에 저장)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / S3 호환 형식 (S3 버킷 내부에 저장)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "만약 Minio라면 URL에 ?minio=true를 추가해주세요."
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "Amazon을 위해서라면 비워두십시오"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "S3 지역 지정"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "기본값을 사용하려면 비워두세요 (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 API 키"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "S3 연결에 사용될 키"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 API 시크릿"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "시크릿 키"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "버킷을 정의하기 위해 S3에 연결하세요"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Buckets prefix"
+    "other": "버킷 접두사"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "6개의 기본 버킷을 만들기 위한 고유한 접두사"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "다음 버킷은 이미 존재합니다"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "다음 버킷들이 생성될 것입니다"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "다음 버킷들이 발견되지 않았습니다"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "버킷을 생성할 수 있는 권한이 없으므로 직접 생성하십시오!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "다음"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "이전"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "지금 설치"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "새로고침"
   }
 }
