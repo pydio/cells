@@ -1,27 +1,27 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Miniaturen en Exif data extraheren"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Miniatuurcache voor verwijderde bestanden wissen"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Externe mappen synchroniseren"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Schoon taken op in de planner"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Een lang lopende nep taak uitvoeren (voor testdoeleinden)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Creatie van willekeurige gebruikers (voor testdoeleinden)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Voorbeeld RPC job (voor testdoeleinden)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Automatisch archiveren van wijzigingen service"
   },
   "Jobs.Default.CleanUserData": {
     "other": "Clean or transfer user data on deletion"
@@ -33,48 +33,48 @@
     "other": "Clean expired ACLs after 10 days"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Selectie comprimeren..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Archief uitpakken..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Selectie verwijderen op de achtergrond..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Map kopiëren op de achtergrond..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Map verplaatsen op de achtergrond..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Bestand kopiëren op de achtergrond..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Bestand verplaatsen op de achtergrond..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Selectie kopiëren op de achtergrond..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Selectie verplaatsen op de achtergrond..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Verplaatsen naar prullenbak op de achtergrond..."
   },
   "Jobs.User.ResyncDS": {
     "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Bestand downloaden op de achtergrond..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "%s verwijderen"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "%s kopiëren"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "%s verplaatsen"
   }
 }
