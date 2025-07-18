@@ -1,24 +1,24 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Tạo các thumbnails và dữ liệu exif từ file ảnh"
+    "other": "Extract image thumbnails and Exif data"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Xóa thumbnails của những files đã bị xóa"
+    "other": "Clear thumbnails cache for deleted files"
   },
   "Jobs.Default.Directories": {
-    "other": "Đồng bộ với các Ldap Directory"
+    "other": "Synchronize external directories"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Dọn dẹp các jobs và tasks trong scheduler"
+    "other": "Clean jobs and tasks in scheduler"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Giả một job lâu (dùng cho việc test)"
+    "other": "Fake a long running job (for testing purpose)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Tạo danh sách users ngẫu nhiên (dùng cho test)"
+    "other": "Creation of random users (for testing purpose)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Mẫu RPC job (dành cho test)"
+    "other": "Sample RPC job (for testing purpose)"
   },
   "Jobs.Default.ArchiveJobs": {
     "other": "Automatic archiving of changes service"
@@ -33,48 +33,48 @@
     "other": "Clean expired ACLs after 10 days"
   },
   "Jobs.User.Compress": {
-    "other": "Đang nén các dữ liệu vừa chọn..."
+    "other": "Compressing Selection..."
   },
   "Jobs.User.Extract": {
-    "other": "Đang giải nén..."
+    "other": "Extracting archive..."
   },
   "Jobs.User.Delete": {
-    "other": "Quá trình xóa đang được thực hiện ngầm..."
+    "other": "Deleting selection in background..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Quá trình sao chép thư mục đang chạy ngầm..."
+    "other": "Copying folder in background..."
   },
   "Jobs.User.DirMove": {
-    "other": "Quá trình di chuyển thư mục đang chạy ngầm..."
+    "other": "Moving folder in background..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Quá trình sao chép file đang chạy ngầm..."
+    "other": "Copying file in background..."
   },
   "Jobs.User.FileMove": {
-    "other": "Quá trình di chuyển file đang chạy ngầm..."
+    "other": "Moving file in background..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Quá trình sao chép đang chạy ngầm..."
+    "other": "Copying selection in background..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Quá trình di chuyển dữ liệu đang chạy ngầm..."
+    "other": "Moving selection in background..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Quá trình xóa và lưu vào thùng rác đang chạy ngầm..."
+    "other": "Moving to recycle bin in background..."
   },
   "Jobs.User.ResyncDS": {
     "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
-    "other": "Tải file đang chạy ngầm..."
+    "other": "Downloading file in background..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Đang xóa được %s"
+    "other": "Deleting %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Đang chép được %s"
+    "other": "Copying %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Đang di chuyển được %s"
+    "other": "Moving %s"
   }
 }
