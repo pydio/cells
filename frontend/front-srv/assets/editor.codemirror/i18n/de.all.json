@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Source Editor"
+    "other": "Quelltext-Editor"
   },
   "10": {
-    "other": "Indent size"
+    "other": "Zeileneinzug"
   },
   "2": {
-    "other": "CodeMirror Syntax Highlighter"
+    "other": "Text-Editor mit Syntaxhervorhebung"
   },
   "3": {
-    "other": "Wrapping"
+    "other": "Zeilenumbruch"
   },
   "3b": {
-    "other": "Toggle lines wrapping"
+    "other": "Wechsel des Zeilenumbruchs bei langem Text"
   },
   "4": {
-    "other": "Numbers"
+    "other": "Zeilennummern"
   },
   "5": {
-    "other": "Toggle lines numbers"
+    "other": "Zeilennummern anzeigen oder ausblenden"
   },
   "6": {
-    "other": "Jump to line"
+    "other": "Zu Zeile"
   },
   "7": {
-    "other": "Undo"
+    "other": "Rückgängig"
   },
   "8": {
-    "other": "Redo"
+    "other": "Wiederherstellen"
   },
   "9": {
-    "other": "Text Search"
+    "other": "Suche:"
   }
 }
