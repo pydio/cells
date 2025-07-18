@@ -324,7 +324,7 @@
     "other": "Unmask"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Combinar Workspaces y Cells"
+    "other": "Merge workspaces and cells"
   },
   "wslist-options.own-cells-first": {
     "other": "Cells created by me first"
