@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "소스 편집기"
+    "other": "Source Editor"
   },
   "10": {
-    "other": "들여쓰기 크기"
+    "other": "Indent size"
   },
   "2": {
-    "other": "코드미러 구문 강조 표시기"
+    "other": "CodeMirror Syntax Highlighter"
   },
   "3": {
-    "other": "감싸기"
+    "other": "Wrapping"
   },
   "3b": {
-    "other": "줄 바꿈 전환"
+    "other": "Toggle lines wrapping"
   },
   "4": {
-    "other": "숫자"
+    "other": "Numbers"
   },
   "5": {
-    "other": "줄번호 전환"
+    "other": "Toggle lines numbers"
   },
   "6": {
-    "other": "줄번호로 이동하기"
+    "other": "Jump to line"
   },
   "7": {
-    "other": "실행취소"
+    "other": "Undo"
   },
   "8": {
-    "other": "재실행"
+    "other": "Redo"
   },
   "9": {
-    "other": "텍스트 검색"
+    "other": "Text Search"
   }
 }
