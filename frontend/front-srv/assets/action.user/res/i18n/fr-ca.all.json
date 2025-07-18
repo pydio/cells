@@ -1,11 +1,11 @@
 {
   "open-addressbook": {
-    "other": "Address Book"
+    "other": "Annuaire"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "Gérer mes préférences, mon carnet d'adresses, mes éléments partagés, ..."
   },
   "title": {
-    "other": "My Account"
+    "other": "Mon Compte"
   }
 }
