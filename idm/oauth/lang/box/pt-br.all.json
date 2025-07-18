@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "Prune revoked tokens and expired reset password keys"
+    "other": "Remover tokens revogados e chaves de redefinição de senha expiradas"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "Deleted {{.Count}} expired revoked token",
-    "other": "Deleted {{.Count}} expired revoked tokens"
+    "one": "Excluído {{.Count}} token revogado expirado",
+    "other": "Excluído {{.Count}} tokens revogados expirados"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "Deleted {{.DeletionCount}} expired reset password token",
-    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
+    "one": "Excluído {{.DeletionCount}} token de redefinição de senha expirado",
+    "other": "Excluído {{.DeletionCount}} tokens de redefinição de senha expirada"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "Endereço de e-mail correspondente não encontrado"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "Um e-mail foi enviado para você com mais instruções"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "Ops, algo errado aconteceu - Por favor, reinicie o processo de redefinição de senha"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "Token expirado, por favor, siga novamente o processo de redefinição de senha!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "Token não corresponde a este identificador de usuário!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "Usuário correspondente não encontrado!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "Ocorreu um erro ao tentar definir a nova senha!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "Sua senha foi redefinida com sucesso, agora você pode voltar para a página de login!"
   }
 }
