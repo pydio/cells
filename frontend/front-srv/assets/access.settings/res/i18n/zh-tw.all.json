@@ -189,19 +189,19 @@
     "other": "Access Drivers"
   },
   "156": {
-    "other": "標準"
+    "other": "Standard"
   },
   "157": {
-    "other": "管理員"
+    "other": "Administrator"
   },
   "158": {
-    "other": "共享者"
+    "other": "Shared"
   },
   "159": {
-    "other": "訪客"
+    "other": "Guest"
   },
   "160": {
-    "other": "已成功建立群組"
+    "other": "Group was successfully created"
   },
   "161": {
     "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
@@ -231,7 +231,7 @@
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "日期"
+    "other": "Date"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -240,7 +240,7 @@
     "other": "Import Users (Enterprise only)"
   },
   "172": {
-    "other": "服務"
+    "other": "Services"
   },
   "173": {
     "other": "Pydio Backend Services and their running status"
@@ -297,16 +297,16 @@
     "other": "User has admin rights?"
   },
   "29": {
-    "other": "讀取"
+    "other": "Read"
   },
   "2b": {
     "other": "Data Management"
   },
   "3": {
-    "other": "工作區"
+    "other": "Workspaces"
   },
   "30": {
-    "other": "寫入"
+    "other": "Write"
   },
   "32": {
     "other": "Access Driver"
@@ -339,7 +339,7 @@
     "other": "Template Paths"
   },
   "4": {
-    "other": "日誌"
+    "other": "Logs"
   },
   "40": {
     "other": "Please check the box to confirm!"
@@ -384,10 +384,10 @@
     "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
   },
   "53": {
-    "other": "編輯工作區時發生錯誤"
+    "other": "Error while trying to edit workspace"
   },
   "54": {
-    "other": "成功編輯工作區"
+    "other": "Successfully edited workspace"
   },
   "55": {
     "other": "Warning, at the moment, you can only add one instance of each meta plugin."
@@ -441,7 +441,7 @@
     "other": "Is Admin"
   },
   "70": {
-    "other": "使用者角色"
+    "other": "User Roles"
   },
   "71": {
     "other": "Available Roles"
@@ -468,10 +468,10 @@
     "other": "Personal data"
   },
   "79": {
-    "other": "工作空间"
+    "other": "Workspace"
   },
   "8": {
-    "other": "工作區標籤"
+    "other": "Workspace Label"
   },
   "80": {
     "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
@@ -486,7 +486,7 @@
     "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "使用者角色"
+    "other": "Users Roles"
   },
   "85": {
     "other": "Manual actions filtering"
@@ -507,19 +507,19 @@
     "other": "Access Type"
   },
   "90": {
-    "other": "新工作區"
+    "other": "New Workspace"
   },
   "91": {
-    "other": "新模板"
+    "other": "New Template"
   },
   "92": {
     "other": "Create a new template"
   },
   "93": {
-    "other": "編輯"
+    "other": "Edit"
   },
   "94": {
-    "other": "批量編輯"
+    "other": "Batch Edit"
   },
   "95": {
     "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
