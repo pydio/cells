@@ -321,445 +321,445 @@
     "other": "クリップボードへリンクをコピー"
   },
   "192": {
-    "other": "リンクがクリップボードにコピーされました"
+    "other": "Link has been copied to clipboard"
   },
   "193": {
-    "other": "リンクのカスタマイズ"
+    "other": "Customize Link"
   },
   "194": {
-    "other": "整形されたリンクで、あなたは最後のパートをカスタマイズすることができます"
+    "other": "For a prettier link, you can customize the last part"
   },
   "195": {
-    "other": "警告：このファイルに埋め込まれたビューアはありません ブラウザの新しいタブで開く以外: ユーザーがリンクを開くと自動的にダウンロードが開始されることがあります。"
+    "other": "Warning, there is no embedded viewer for this file, except opening in a new tab of your browser: this may trigger a download automatically when user opens the link."
   },
   "196": {
-    "other": "安全なアクセス"
+    "other": "Secure Access"
   },
   "197": {
-    "other": "任意のコメントを送信するためにこのフィールドを使用します"
+    "other": "Use this field to send optional comments"
   },
   "198": {
-    "other": "ブラウザに表示されるリンクの外観を選択できます。"
+    "other": "You can select the appearance of the link as it will appear in the browser."
   },
   "199": {
-    "other": "可視性を共有"
+    "other": "Share Visibility"
   },
   "2": {
-    "other": "画像をクリックして <b>%s</b> をハードドライブにダウンロードします"
+    "other": "Click on the image to download <b>%s</b> to your hard drive"
   },
   "20": {
-    "other": "必要なファイルが見つかりませんでした！削除されたか、もう共有されていません。"
+    "other": "Ooops, the file you required could not be found! Maybe it was deleted or it is not shared with you anymore."
   },
   "200": {
-    "other": "他のユーザーに表示"
+    "other": "Visible to other users"
   },
   "201": {
-    "other": "現在のワークスペースにアクセスする他のユーザは、リンクパラメータを更新できますが、削除できません。 あなただけがこの共有を停止するか、その表示を切り替えることができます"
+    "other": "Other users who access to the current workspace can update the links parameters, but they cannot delete it. Only you can stop this share or toggle its visibility"
   },
   "202": {
-    "other": "現在のワークスペースにアクセスする他のユーザは、リンクパラメータを更新できます。 あなたは共有の所有者ではないため、削除したり表示を切り替えることはできません"
+    "other": "Other users who access to the current workspace can update the links parameters. You are not the owner of the share so you cannot delete it or toggle its visibility"
   },
   "203": {
-    "other": "所有権の移行"
+    "other": "Transfer Ownership"
   },
   "203b": {
-    "other": "譲渡"
+    "other": "Transfer"
   },
   "204": {
-    "other": "共有が公開されていて、別のユーザーにこの共有を管理させたい場合は、その所有権を譲渡できます。"
+    "other": "If the share is publicly visible and you want another user to manage this share, you can transfer its ownership."
   },
   "205": {
-    "other": "譲渡する ... (user identifier)"
+    "other": "Transfer to ... (user identifier)"
   },
   "206": {
-    "other": "共有はデフォルトで \"非公開\" です: あなたはそれらを見ることができます。 現在のワークスペースにアクセスしている他のユーザーにこの共有を表示および編集させたい場合は、表示を切り替えます。"
+    "other": "Shares are 'private' by default: you only can see them. If you want other users who access the current workspace to see and edit this share, toggle the visibility."
   },
   "207": {
-    "other": "リモートユーザー"
+    "other": "Remote Users"
   },
   "208": {
-    "other": "他のファイル共有プラットフォームのユーザーと共有します (Federated Sharing APIと互換性があります)。"
+    "other": "Share with users from other filesharing platforms (compatible with Federated Sharing API)."
   },
   "209": {
-    "other": "リモートアドレス"
+    "other": "Remote Address"
   },
   "21": {
-    "other": "有効期限："
+    "other": "Will expire on"
   },
   "210": {
-    "other": "識別子"
+    "other": "Identifier"
   },
   "211": {
-    "other": "保留中"
+    "other": "pending"
   },
   "212": {
-    "other": "承認済"
+    "other": "accepted"
   },
   "213": {
-    "other": "拒否"
+    "other": "rejected"
   },
   "214": {
-    "other": "未送信"
+    "other": "not sent"
   },
   "215": {
-    "other": "ファイルまたはフォルダに公開リンクを有効にするには、パスワードを設定する必要があります。"
+    "other": "To enable a public link on a file or a folder, you first need to set up a password."
   },
   "216": {
-    "other": "要素の共有を解除しました"
+    "other": "Successfully unshared element"
   },
   "217": {
-    "other": "ローカル ユーザー"
+    "other": "Local Users"
   },
   "218": {
-    "other": "通知"
+    "other": "Notification"
   },
   "219": {
-    "other": "共有の読み込み中にエラーが発生しました。エラーは (%s) でした。"
+    "other": "Error while loading share. Error was (%s)."
   },
   "21b": {
-    "other": "有効期限"
+    "other": "Expired on"
   },
   "22": {
-    "other": "許可されたダウンロード"
+    "other": "Allowed Downloads"
   },
   "220": {
-    "other": "ユーザーを作成する権限がありません"
+    "other": "You are not allowed to create users"
   },
   "221": {
-    "other": "他のユーザーと共有することは許可されていません。自分の外部ユーザーのみを共有できます。"
+    "other": "You are not allowed to share with other users, only your own external users"
   },
   "222": {
-    "other": "ユーザー %s は既に存在します。別の識別子を選択してください"
+    "other": "User %s already exists, please choose another identifier"
   },
   "223": {
-    "other": "カスタムリンクが短すぎます。少なくとも %s 文字を使用してください。"
+    "other": "Custom link is too short, please use at least %s characters"
   },
   "224": {
-    "other": "この共有を管理する権限がありません。所有者に変更を依頼するか、所有権を譲渡してください。"
+    "other": "You are not allowed to manage this share, please ask its owner to perform the changes, or to transfer you the ownership."
   },
   "225": {
-    "other": "このファイルに公開リンクを作成する権限がありません"
+    "other": "You are not allowed to create public links on files"
   },
   "226": {
-    "other": "このフォルダに公開リンクを作成する権限がありません"
+    "other": "You are not allowed to create public links on folders"
   },
   "227": {
-    "other": "内部でファイルを共有する権限がありません"
+    "other": "You are not allowed to share files internally"
   },
   "228": {
-    "other": "内部的にフォルダを共有する権限がありません"
+    "other": "You are not allowed to share folders internally"
   },
   "229": {
-    "other": "HTML ページ内にこのコードを貼り付けることで、ファイルのプレビューを挿入します。"
+    "other": "Insert a preview of the file by pasting this code inside an HTML page."
   },
   "22b": {
-    "other": "ダウンロードはありません"
+    "other": "No more downloads"
   },
   "23": {
-    "other": "パスワード"
+    "other": "Password"
   },
   "230": {
-    "other": "招待状を送信する前に保存してください"
+    "other": "Please save before sending an invitation"
   },
   "231": {
-    "other": "クリックしてダウンロードを開始"
+    "other": "Click to start downloading"
   },
   "232": {
-    "other": "共有のためのエントリが見つかりませんでした。いくつかのユーザーを削除しましたか？"
+    "other": "No entries found for share, did you maybe delete some users?"
   },
   "233": {
-    "other": "この共有をリセット"
+    "other": "Reset this share"
   },
   "234": {
-    "other": "%s ワークスペースに追加されました。"
+    "other": "It has been added to your %s workspace."
   },
   "235": {
-    "other": "ユーザーを識別するための一意のリンクを生成します"
+    "other": "Generate unique links to identify users"
   },
   "236": {
-    "other": "特定のユーザーのみアクセスを制限する"
+    "other": "Restrict access only to identified users"
   },
   "237": {
-    "other": "リンクに電子メールの代わりにランダムなキーを使用します"
+    "other": "Use a random key instead of email in link"
   },
   "238": {
-    "other": "共有タイプ"
+    "other": "Share Types"
   },
   "24": {
-    "other": "この共有リンクにアクセスするための、有効期限やパスワードを設定してください。"
+    "other": "Set expiration limits or define a password to access this share."
   },
   "240": {
-    "other": "グループ化..."
+    "other": "Group by..."
   },
   "241": {
-    "other": "共有リスト"
+    "other": "Shares List"
   },
   "242": {
-    "other": "さらに結果を読み込む"
+    "other": "Load More Results"
   },
   "243": {
-    "other": "公開リンク"
+    "other": "Public Links"
   },
   "244": {
-    "other": "共有フォルダ"
+    "other": "Shared Folders"
   },
   "245": {
-    "other": "%s 個の招待状が送信されました"
+    "other": "%s personal invitation(s) sent"
   },
   "246": {
-    "other": "セルを開く"
+    "other": "Open cell"
   },
   "247": {
-    "other": "セルを編集"
+    "other": "Edit cell"
   },
   "248": {
-    "other": "セルを削除"
+    "other": "Delete cell"
   },
   "249": {
-    "other": "内容"
+    "other": "Contents"
   },
   "25": {
-    "other": "制限なし"
+    "other": "No limit"
   },
   "250": {
-    "other": "セル"
+    "other": "Cells"
   },
   "251": {
-    "other": "リンク"
+    "other": "Link"
   },
   "252": {
-    "other": "アクセス"
+    "other": "Access"
   },
   "253": {
-    "other": "公開範囲"
+    "other": "Visibility"
   },
   "254": {
-    "other": "セル内で共有"
+    "other": "Shared in cells"
   },
   "254b": {
-    "other": "ユーザーまたはグループで"
+    "other": "With users or groups"
   },
   "254c": {
-    "other": "%d 個のセルを共有"
+    "other": "Shared in %d cells"
   },
   "254d": {
-    "other": "'%s ' で共有"
+    "other": "Shared in '%s'"
   },
   "255": {
-    "other": "このアイテムのすべてのセルとリンクを削除してもよろしいですか？"
+    "other": "Are you sure you want to delete all cells and links on this item?"
   },
   "256": {
-    "other": "%s のシェア"
+    "other": "Shares for %s"
   },
   "257": {
-    "other": "作成日 %s"
+    "other": "Created on %s"
   },
   "258": {
-    "other": "セルユーザーの編集"
+    "other": "Edit cell users"
   },
   "259": {
-    "other": "このセルから削除"
+    "other": "Remove from this cell"
   },
   "26": {
-    "other": "ユーザーまたはグループを選択し、アクセス権を設定します。「書き込み」はアップロードのみのワークスペースを作成します。"
+    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
   },
   "260": {
-    "other": "フォルダは、次のセルに共有されます。ユーザーを編集したり、新しいセルを作成したりできます。"
+    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
   },
   "261": {
-    "other": "このセルにアクセスできるユーザーまたはグループを選択してください"
+    "other": "Pick users or groups who will have access to this cell"
   },
   "262": {
-    "other": "新しいセルを作成して、このフォルダを他のユーザーと共有する"
+    "other": "Share this folder with other users by creating a new cell"
   },
   "263": {
-    "other": "セルに追加..."
+    "other": "Add to Cell..."
   },
   "264": {
-    "other": "+ 新しいセル"
+    "other": "+ New Cell"
   },
   "265": {
-    "other": "リンクのラベル"
+    "other": "Link Label"
   },
   "266": {
-    "other": "リンクの説明"
+    "other": "Link Description"
   },
   "267": {
-    "other": "セルのラベル"
+    "other": "Cell Label"
   },
   "268": {
-    "other": "セルの説明"
+    "other": "Cell Description"
   },
   "269": {
-    "other": "%USERSと共有されたセルを作成します。 共有したいフォルダを選択するか、Pydioに空のフォルダを作成させてください！"
+    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
   },
   "27": {
-    "other": "ファイルを共有"
+    "other": "Share file"
   },
   "270": {
-    "other": "ユーザー"
+    "other": "users"
   },
   "271": {
-    "other": "グループ"
+    "other": "groups"
   },
   "272": {
-    "other": "チーム"
+    "other": "teams"
   },
   "273": {
     "other": "nobody"
   },
   "274": {
-    "other": " および "
+    "other": " and "
   },
   "275": {
-    "other": "他のユーザーとコラボレーションするセルを作成します。まず、セルの名称と説明を記述します。"
+    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
   },
   "276": {
-    "other": "セルの名称"
+    "other": "Title of your cell"
   },
   "277": {
-    "other": "説明 (任意)"
+    "other": "Optionally add a description"
   },
   "278": {
-    "other": "データを共有するユーザーを選択してください"
+    "other": "Choose who you will share data with"
   },
   "279": {
-    "other": "セルを作成"
+    "other": "Create cell now!"
   },
   "28": {
-    "other": "共有フォルダ"
+    "other": "Share folder"
   },
   "280": {
-    "other": "セルには独自のフォルダがあります"
+    "other": "Cell has its own folder"
   },
   "281": {
-    "other": "新しいフォルダにセルが作成されます"
+    "other": "Cell will be created in a new folder"
   },
   "282": {
-    "other": "既存のフォルダを追加..."
+    "other": "Add an existing folder..."
   },
   "283": {
-    "other": "ツリー内のノードを選択..."
+    "other": "Select a node in the tree..."
   },
   "284": {
-    "other": "%s 個のセルで表示"
+    "other": "Visible in %s cells"
   },
   "29": {
-    "other": "ウェブリンク"
+    "other": "WebLink"
   },
   "3": {
-    "other": "パスワードが間違っています"
+    "other": "Wrong password"
   },
   "30": {
-    "other": "共有:"
+    "other": "Share with..."
   },
   "31": {
-    "other": "読み込み"
+    "other": "Read"
   },
   "32": {
-    "other": "書き込み"
+    "other": "Write"
   },
   "33": {
-    "other": "見る"
+    "other": "Watch"
   },
   "34": {
-    "other": "ユーザーを選択または作成"
+    "other": "Select or Create Users"
   },
   "34b": {
-    "other": "ユーザーを選択"
+    "other": "Select Users"
   },
   "35": {
-    "other": "ラベル"
+    "other": "Label"
   },
   "36": {
-    "other": "ラベルと短い説明を設定"
+    "other": "Set a label and a short description"
   },
   "37": {
-    "other": "確認"
+    "other": "Confirm"
   },
   "38": {
-    "other": "このフォルダの内容を見る"
+    "other": "Watch this folder content"
   },
   "39": {
-    "other": "このファイルのアクティビティを見る"
+    "other": "Watch this file activity"
   },
   "4": {
-    "other": "必要なパスワードを入力し、画像をクリックして <b>%s</b> をハードドライブにダウンロードしてください"
+    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
   },
   "40": {
-    "other": "招待状"
+    "other": "Invitations"
   },
   "41": {
-    "other": "このアイテムを共有したユーザーにメールで招待状を送信します。"
+    "other": "Send invitations by email to the users you have shared this item with."
   },
   "42": {
-    "other": "%s のユーザーがファイルを共有しています"
+    "other": "A user of %s is sharing a file with you"
   },
   "43": {
-    "other": "%s のユーザーがフォルダを共有しています"
+    "other": "A user of %s is sharing a folder with you"
   },
   "44": {
-    "other": "%s 共有"
+    "other": "%s Share"
   },
   "45": {
-    "other": "招待状を送信"
+    "other": "Send Invitation"
   },
   "46": {
-    "other": "ワークスペース %s1 を %s2 で直接開く"
+    "other": "Open workspace %s1 directly in %s2"
   },
   "46_file": {
-    "other": "ファイル %s1 を開く"
+    "other": "Open file %s1"
   },
   "46_mini": {
-    "other": "ミニ %s1を開く"
+    "other": "Open mini %s1"
   },
   "47": {
-    "other": "ウォッチのステータスが正常に更新されました"
+    "other": "Successfully updated watch status"
   },
   "48": {
-    "other": "このデータにアクセスする権限がありません"
+    "other": "You are not allowed to access this data"
   },
   "49": {
-    "other": "ユーザーを作成"
+    "other": "create user"
   },
   "5": {
-    "other": "パスワード"
+    "other": "password"
   },
   "50": {
-    "other": "共有"
+    "other": "Shared"
   },
   "51": {
-    "other": "ダウンロード済"
+    "other": "Downloaded"
   },
   "52": {
-    "other": "設定"
+    "other": "Configuration"
   },
   "53": {
-    "other": "なし"
+    "other": "none"
   },
   "54": {
-    "other": "共有先"
+    "other": "Shared with"
   },
   "55": {
-    "other": "共有中..."
+    "other": "Shared..."
   },
   "56": {
-    "other": "共有を設定しています..."
+    "other": "Configure sharing..."
   },
   "57": {
-    "other": "回"
+    "other": "times"
   },
   "58": {
-    "other": "少なくとも 1 つの権限を確認してください！"
+    "other": "Please check at least one permission!"
   },
   "59": {
-    "other": "ダウンロードページ"
+    "other": "Download Page"
   },
   "6": {
-    "other": "共有を停止"
+    "other": "Stop Sharing"
   },
   "60": {
-    "other": "ダウンロードリンク"
+    "other": "Direct Download Link"
   },
   "61": {
     "other": "HTML Embed Code"
@@ -768,225 +768,225 @@
     "other": "Minisite Adress"
   },
   "63": {
-    "other": "新しいワークスペース"
+    "other": "New workspace"
   },
   "64": {
-    "other": "内部ユーザと外部ユーザの両方で、フォルダは対象ユーザのワークスペースリストに新しいワークスペースとして表示されます。"
+    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
   },
   "65": {
-    "other": "公開ミニサイト（認証不要）"
+    "other": "Public Minisite (no authentication required)"
   },
   "66": {
-    "other": "外部ユーザーの場合、フォルダは単純なファイルリストとして新しい公開アドレスに表示されます。"
+    "other": "For external users, the folder will appear at a new public adress as a simple file list."
   },
   "67": {
-    "other": "プライベートミニサイト（ユーザー認証が必要）"
+    "other": "Private Minisite (users authentication required)"
   },
   "68": {
-    "other": "内部または外部ユーザーの場合、フォルダは単純なファイルリストとして新しいアドレスに表示されますが、ユーザー認証が必要です"
+    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
   },
   "69": {
-    "other": "ミニサイトを設定"
+    "other": "Configure Minisite"
   },
   "69r": {
-    "other": "パラメータをリンク"
+    "other": "Link Parameters"
   },
   "7": {
-    "other": "共有を停止すると、ファイルは削除されません。パラメータを変更したい場合は、ファイルを再共有してください。"
+    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
   },
   "70": {
-    "other": "このフォルダにアクセス許可を付与するには、チェックボックスを使用します。 'アップロード' のみにチェックを入れると、このフォルダは人々がファイルをドロップできる空の受信トレイになります。"
+    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
   },
   "70r": {
-    "other": "このリンクにアクセスするユーザーに許可されている権限"
+    "other": "Permissions granted to the users accessing this link"
   },
   "71": {
-    "other": "アクセス許可"
+    "other": "Permissions"
   },
   "72": {
-    "other": "プレビュー"
+    "other": "Preview"
   },
   "73": {
-    "other": "ダウンロード"
+    "other": "Download"
   },
   "74": {
-    "other": "ファイルをアップロード"
+    "other": "Upload files"
   },
   "74b": {
-    "other": "編集"
+    "other": "Edit"
   },
   "75": {
-    "other": "有効期限とダウンロード制限の両方の項目に正数を使用してください。"
+    "other": "Please use a positive number for both Expiration and Download limit fields."
   },
   "76": {
-    "other": "このアプリケーションにアクセスするにはクッキーを有効にしてください"
+    "other": "Please enable Cookies to access this application"
   },
   "77": {
-    "other": "このアプリケーションにアクセスするにはJavaScriptを有効にしてください"
+    "other": "Please enable JavaScript to access this application"
   },
   "78": {
-    "other": "警告！ユーザー名には標準の英数字のみを使用してください。識別子 '%CURRENT%' は、'%NEW% ' に置き換えられます。"
+    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
   },
   "79": {
-    "other": "招待"
+    "other": "invite"
   },
   "8": {
-    "other": "ファイルが共有されました"
+    "other": "File is shared"
   },
   "80": {
-    "other": "選択したユーザーまたはアドレスにメールでリンクを送信"
+    "other": "Send link by email to a selection of users or addresses"
   },
   "80b": {
-    "other": "選択したユーザーをこのワークスペースに招待する"
+    "other": "Invite by email the selected users to visit this workspace"
   },
   "81": {
-    "other": "ウォッチを解除"
+    "other": "stop watching"
   },
   "82": {
-    "other": "ウォッチ"
+    "other": "watch"
   },
   "83": {
-    "other": "ファイルをダウンロードしたときに通知を受信するかどうかを切り替えます"
+    "other": "Toggle watch status to receive or not notifications when file is downloaded"
   },
   "83b": {
-    "other": "ワークスペースが参照されたときに通知を受信するかどうかを確認するために監視ステータスを切り替えます"
+    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
   },
   "84": {
-    "other": "パスワード"
+    "other": "password"
   },
   "85": {
-    "other": "このリンクには保護パスワードが設定されています"
+    "other": "A protection password is set on this link"
   },
   "86": {
-    "other": "期限切れ"
+    "other": "expire"
   },
   "87": {
-    "other": "このリンクは自動的に期限切れになります..."
+    "other": "This link will automatically expire on..."
   },
   "88": {
-    "other": "ダウンロード"
+    "other": "downloads"
   },
   "89": {
-    "other": "ダウンロード数/許可されたダウンロード数。クリックしてダウンロード数をリセットします。"
+    "other": "Number of downloads / authorized downloads. Click to reset download counter."
   },
   "9": {
-    "other": "このボタンを使用して、このフォルダの共有を停止します"
+    "other": "Use this button to stop sharing this folder"
   },
   "90": {
-    "other": "リンク URL"
+    "other": "Link URL"
   },
   "91": {
-    "other": "タグ（Enterで保存）"
+    "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "リンクを作成"
+    "other": "Create link"
   },
   "93": {
-    "other": "既存のリンク"
+    "other": "Existing links"
   },
   "94": {
-    "other": "QR コード"
+    "other": "QR Code"
   },
   "95": {
-    "other": "QR コード"
+    "other": "QR code"
   },
   "96": {
-    "other": "共有を停止"
+    "other": "stop sharing"
   },
   "97": {
-    "other": "このフォルダを他のユーザーと共有するのをやめる"
+    "other": "Stop sharing this folder with other users"
   },
   "98": {
-    "other": "自分のシェア"
+    "other": "My Shares"
   },
   "99": {
-    "other": "すべての共有要素"
+    "other": "All shared elements"
   },
   "cells.create.advanced": {
-    "other": "ユーザー/データを追加"
+    "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "または"
+    "other": "or"
   },
   "cells.create.title.fill.folders": {
-    "other": "既存のフォルダを共有"
+    "other": "Share existing folder(s)"
   },
   "cells.remove.node": {
-    "other": "このセルから削除"
+    "other": "Remove from this cell"
   },
   "cell.visibility.advanced": {
-    "other": "この高度な機能を使用すると、このセルのプロパティを編集できるユーザーを決定できます（ユーザーを追加/削除したり、セルのルートにあるフォルダーを追加/削除したりする権利）。 データへの実際のアクセスを簡単に管理するには、代わりに[共有] タブを使用してください。"
+    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
   },
   "cell.add.existing-or-new": {
-    "other": "既存または新規セルに追加"
+    "other": "Add to existing or new Cell"
   },
   "cell.add.existing": {
-    "other": "既存のセルに追加"
+    "other": "Add to existing Cell"
   },
   "cell.add.new": {
-    "other": "新しいセルを作成"
+    "other": "Create a new Cell"
   },
   "cell.participant.single": {
-    "other": "1人が参加"
+    "other": "One participant"
   },
   "cell.participant.multiple": {
-    "other": "%d人が参加"
+    "other": "%d participants"
   },
   "cell.participant.other.single": {
-    "other": "他の参加者"
+    "other": "One other participant"
   },
   "cell.participant.other.multiple": {
-    "other": "他%d 人の参加者"
+    "other": "%d other participants"
   },
   "cell.folder-root.single": {
-    "other": "1 つのフォルダ"
+    "other": "One folder"
   },
   "cell.folder-root.multiple": {
-    "other": "%1$d 個のフォルダ"
+    "other": "%d folders"
   },
   "link.visibility.title": {
-    "other": "[Advanced] 可視性"
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
-    "other": "この高度な機能を使用すると、他のユーザーがこのファイルを表示したときにこのリンクを表示できるかどうか、およびそのプロパティを編集できるかどうかを決定できます。 デフォルトでは、作成したリンクは自分だけに表示されます。 リンクの所有権は、他のユーザーに編集させることで譲渡できます。"
+    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
   },
   "dialog.close.confirm.unsaved": {
-    "other": "保存されていない変更があります。本当に閉じますか？"
+    "other": "There are unsaved changes, are you sure you want to close?"
   },
   "dialog.link.confirm.remove": {
-    "other": "このリンクを無効にしてもよろしいですか？"
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
-    "other": "クイックフィルター..."
+    "other": "Quick filter..."
   },
   "composite.deleteAll": {
-    "other": "すべての共有を無効にする"
+    "other": "Disable all shares"
   },
   "link.active": {
-    "other": "有効"
+    "other": "active"
   },
   "link.disable": {
-    "other": "リンクを無効にする"
+    "other": "Disable Link"
   },
   "link.floatingLabel": {
-    "other": "このリンクをコピーして直接アクセスする"
+    "other": "Copy and send this link for direct access"
   },
   "link.secure.title": {
-    "other": "アクセス制限"
+    "other": "Access Restrictions"
   },
   "link.secure.expires": {
-    "other": "有効期限"
+    "other": "expires"
   },
   "link.secure.expired": {
-    "other": "期限切れ"
+    "other": "expired"
   },
   "link.secure.hasPassword": {
-    "other": "パスワードが必要です"
+    "other": "password required"
   },
   "link.secure.maxdownloads": {
-    "other": "%d個に制限してダウンロード"
+    "other": "%d downloads only"
   },
   "minisite.toggle.theme": {
-    "other": "ダーク/ライト テーマの切り替え"
+    "other": "Toggle Dark/Light Theme"
   }
 }
