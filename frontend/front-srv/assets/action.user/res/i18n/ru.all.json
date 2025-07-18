@@ -1,11 +1,11 @@
 {
   "open-addressbook": {
-    "other": "Aдресная книга"
+    "other": "Address Book"
   },
   "desc": {
-    "other": "Управление настройками учетной записи, моей адресной книги, общими элементами и т. д."
+    "other": "Manage my account preferences, my address book, shared elements, etc."
   },
   "title": {
-    "other": "Мой аккаунт"
+    "other": "My Account"
   }
 }
