@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Extraer thumbnails de imagen y datos Exif"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Borrar caché de thumbnails de archivos eliminados"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Sincronizar directorios externos"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Limpiar trabajos y tareas en el programador"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Simular un trabajo de ejecución prolongada (con propósito de prueba)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Creación de usuarios aleatorios (con propósito de prueba)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Ejemplo de trabajo RPC (con propósito de prueba)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Servicio de archivado de cambios automático"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Limpiar o transferir los datos del usuario al ser borrados"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Limpiar archivos huérfanos después de 24h"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Limpiar ACLs expirados después de 10 días"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Comprimiendo selección..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Extrayendo archivo..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Eliminando selección en segundo plano..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Copiando carpeta en segundo plano..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Moviendo carpeta en segundo plano..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Copiando archivo en segundo plano..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Moviendo archivo en segundo plano..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Copiando selección en segundo plano..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Moviendo selección en segundo plano..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Moviendo a la papelera de reciclaje en segundo plano..."
   },
   "Jobs.User.ResyncDS": {
     "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Descargando archivo en segundo plano..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Borrando %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Copiando %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "Moviendo %s"
   }
 }
