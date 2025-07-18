@@ -1,9 +1,9 @@
 {
   "1": {
-    "other": "Karten-Betrachter"
+    "other": "OpenLayers Map"
   },
   "10": {
-    "other": "Löschen"
+    "other": "Clear"
   },
   "2": {
     "other": "Filter"
@@ -12,21 +12,21 @@
     "other": "Position"
   },
   "4": {
-    "other": "Ebenen"
+    "other": "Layers"
   },
   "5": {
-    "other": "Antialiasing"
+    "other": "Antialias"
   },
   "6": {
     "other": "Format"
   },
   "7": {
-    "other": "Aussehen"
+    "other": "Styles"
   },
   "8": {
     "other": "Filter"
   },
   "9": {
-    "other": "Suchen"
+    "other": "Search"
   }
 }
