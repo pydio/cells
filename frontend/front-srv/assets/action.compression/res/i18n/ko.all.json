@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "압축"
+    "other": "Compress"
   },
   "10": {
-    "other": "선택한 아카이브 추출"
+    "other": "Extract selected archives"
   },
   "11": {
-    "other": "추출된 파일의 경로 "
+    "other": "Path of the extracted files "
   },
   "12": {
-    "other": "추출 시작..."
+    "other": "Starting extraction..."
   },
   "13": {
-    "other": "파일을 추출하는 중... %s "
+    "other": "Extracting files ... %s "
   },
   "14": {
-    "other": "폴더 '%s'에서 성공적으로 파일추출이 완료되었습니다."
+    "other": "Extraction finished successfullly in the folder '%s'."
   },
   "15": {
-    "other": "선택한 파일은 TAR 또는 TAR.GZ 또는 TAR.BZ2 아카이브가 아닙니다."
+    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
   },
   "16": {
-    "other": "TAR, TAR.GZ 또는 TAR.BZ2으로만 압축할 수 있습니다."
+    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
   },
   "17": {
-    "other": "빈 폴더는 압축할 수 없습니다."
+    "other": "You can't compress empty folders."
   },
   "2": {
-    "other": "선택항목 압축"
+    "other": "Compress Selection"
   },
   "3": {
-    "other": "형식"
+    "other": "Format"
   },
   "4": {
-    "other": "아카이브명"
+    "other": "Archive's name"
   },
   "5": {
-    "other": "압축 시작..."
+    "other": "Starting compression..."
   },
   "6": {
-    "other": "%s 에 파일을 추가하는 중... "
+    "other": "Adding files in the archive... %s "
   },
   "7": {
-    "other": "%s 을 압축하는 중..."
+    "other": "During compression in %s ..."
   },
   "8": {
-    "other": "성공적으로 압축이 완료되었습니다!!"
+    "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "추출"
+    "other": "Extract"
   }
 }
