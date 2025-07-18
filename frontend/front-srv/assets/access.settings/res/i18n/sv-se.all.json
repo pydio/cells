@@ -84,7 +84,7 @@
     "other": "Other plugins"
   },
   "124": {
-    "other": "Källa"
+    "other": "Source"
   },
   "125": {
     "other": "Alias"
@@ -198,7 +198,7 @@
     "other": "Shared"
   },
   "159": {
-    "other": "Gäst"
+    "other": "Guest"
   },
   "160": {
     "other": "Group was successfully created"
@@ -231,7 +231,7 @@
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Datum"
+    "other": "Date"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -267,7 +267,7 @@
     "other": "People"
   },
   "20": {
-    "other": "Användare"
+    "other": "User"
   },
   "21": {
     "other": "Action"
@@ -339,7 +339,7 @@
     "other": "Template Paths"
   },
   "4": {
-    "other": "Loggar"
+    "other": "Logs"
   },
   "40": {
     "other": "Please check the box to confirm!"
@@ -417,7 +417,7 @@
     "other": "Rights Summary"
   },
   "63": {
-    "other": "Alla"
+    "other": "All"
   },
   "64": {
     "other": "Changed right for role "
@@ -435,16 +435,16 @@
     "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Roller"
+    "other": "Roles"
   },
   "7": {
     "other": "Is Admin"
   },
   "70": {
-    "other": "Användarroller"
+    "other": "User Roles"
   },
   "71": {
-    "other": "Tillgängliga roller"
+    "other": "Available Roles"
   },
   "72": {
     "other": "Drag'n'drop roles to assign them to the user"
@@ -456,7 +456,7 @@
     "other": "Role deleted from user "
   },
   "75": {
-    "other": "Ny roll"
+    "other": "New Role"
   },
   "76": {
     "other": "Role Id"
@@ -486,7 +486,7 @@
     "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Användarroller"
+    "other": "Users Roles"
   },
   "85": {
     "other": "Manual actions filtering"
@@ -510,13 +510,13 @@
     "other": "New Workspace"
   },
   "91": {
-    "other": "Ny mall"
+    "other": "New Template"
   },
   "92": {
-    "other": "Skapa ny mall"
+    "other": "Create a new template"
   },
   "93": {
-    "other": "Redigera"
+    "other": "Edit"
   },
   "94": {
     "other": "Batch Edit"
@@ -543,7 +543,7 @@
     "other": "Show/hide advanced parameters"
   },
   "topbar.button.about": {
-    "other": "Läs mer om Pydio Cells"
+    "other": "Learn more about Pydio Cells"
   },
   "group_access": {
     "other": "g"
