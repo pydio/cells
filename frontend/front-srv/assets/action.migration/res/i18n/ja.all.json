@@ -1,300 +1,300 @@
 {
   "title": {
-    "other": "データインポート"
+    "other": "Data Import"
   },
   "legend": {
-    "other": "Pydio 8 からツールをインポート"
+    "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "次へ"
+    "other": "Next"
   },
   "back": {
-    "other": "戻る"
+    "other": "Back"
   },
   "step.categories.choose": {
-    "other": "インポートする機能を選択"
+    "other": "Choose features to import"
   },
   "step.categories.choose.legend": {
-    "other": "インポートするデータを選択するには、以下のチェックボックスを使用します。 必要に応じて、ウィザードが各機能の特定の設定を案内し、適切なインポートジョブを起動する前に選択を検証します。 インポートプロセスを最適に制御するには、1ステップのみを選択し、インポートツールを何度も実行することができます。"
+    "other": "Use checkboxes below to select the data you want to import. If required, the wizard will lead you through specific configuration for each feature and you will validate your choices before launching proper importation job. To have best control over the import process, you may select only one step and run the import tools many times."
   },
   "step.categories.summary": {
-    "other": "バリデーション"
+    "other": "Validation"
   },
   "step.categories.summary.legend": {
-    "other": "ここに設定の概要があります。インポートを開始する前に確認してください。"
+    "other": "Here is a summary of the configuration. Please review it before launching importation in background."
   },
   "step.categories.summary.empty": {
-    "other": "特定の設定がありません"
+    "other": "No specific configuration"
   },
   "step.categories.summary.launch": {
-    "other": "今すぐインポートを起動"
+    "other": "Launch Import Now"
   },
   "step.connection": {
-    "other": "Pydio 8 接続"
+    "other": "Pydio 8 Connection"
   },
   "step.connection.legend": {
-    "other": "以下のフォームを使用して、作成した専用ユーザーを使用して Pydio 8 サーバーに接続します。"
+    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
   },
   "step.connection.fail": {
-    "other": "%s に接続できません"
+    "other": "Cannot connect to %s"
   },
   "step.connection.missing": {
-    "other": "すべての必須項目を入力してください"
+    "other": "Please fill all required fields"
   },
   "step.connection.success": {
-    "other": "APIへの接続に成功しました"
+    "other": "Successful connection to the API"
   },
   "step.connection.field.url": {
-    "other": "サーバー URL"
+    "other": "Server URL"
   },
   "step.connection.field.skipssl": {
-    "other": "SSL 検証をスキップ(自己署名)"
+    "other": "Skip SSL verification (self-signed)"
   },
   "step.connection.field.login": {
-    "other": "管理者ログイン"
+    "other": "Administrator login"
   },
   "step.connection.field.pwd": {
-    "other": "管理者パスワード"
+    "other": "Admin password"
   },
   "step.connection.button.connect": {
-    "other": "接続"
+    "other": "Connect"
   },
   "step.meta.title": {
-    "other": "メタデータのインポート"
+    "other": "Import Metadata"
   },
   "step.meta.legend": {
-    "other": "メタデータをCellsの内部機能にマップします。 グローバルメタデータ(ウォッチとブックマーク)はAPIから読み込まれ、ファイルメタデータはデータソース内の.ajxp_metaファイルから直接変換されます。"
+    "other": "Map metadata to Cells internal features. Global metadata (watches and bookmarks) will be read from the API and files metadata will be directly converted from the .ajxp_meta files inside datasources."
   },
   "step.meta.feature.watches": {
-    "other": "ユーザーがファイルやフォルダに設定したウォッチ"
+    "other": "Watches set by user on files and folders"
   },
   "step.meta.feature.bookmark": {
-    "other": "ユーザーブックマーク"
+    "other": "User bookmarks"
   },
   "step.meta.feature.files": {
-    "other": "ファイルとフォルダのメタデータ: セルのメタデータ名前空間を作成するためにマッピングを使用します"
+    "other": "Files and folders metadata: use mapping below to create Cells metadata namespaces"
   },
   "step.meta.from": {
-    "other": "ワークスペースからのメタデータ"
+    "other": "Metadata from Workspaces"
   },
   "step.meta.to": {
-    "other": "Cells の名前空間（クリックで編集）"
+    "other": "Cells Namespaces (click to edit)"
   },
   "step.meta.map.ws": {
-    "other": "ワークスペース %s"
+    "other": "Workspace %s"
   },
   "step.meta.map.values": {
-    "other": " (値 %s)"
+    "other": " (Values %s)"
   },
   "step.disclaimer.title": {
-    "other": "免責事項"
+    "other": "Disclaimer"
   },
   "step.disclaimer": {
-    "other": "Pydio 8 で提供される機能の数を考えると、それぞれのインストールはユニークであり、ツールはすべての組み合わせに対応できません。 これは Pydio 8 の標準的なインストールからデータをインポートするのに最適です。これには、ユーザ、ワークスペース (fs と s3 のみ)、アクセス権および共有が含まれます。"
+    "other": "Given the number of features provided by Pydio 8, each installation is unique and the tool cannot handle all possible combinations. It is best suited for importing data from a typical Pydio 8 installation including users, workspaces (fs and s3 only), access rights and shares."
   },
   "step.disclaimer.ed": {
-    "other": "（pydio.comアカウントを介して）サポートに連絡し、Pydioエキスパートによる移行をウォークスルーする予定をスケジュールすることを強くお勧めします"
+    "other": "We strongly recommend you to contact our support (via your pydio.com account) and schedule an appointment to be walked through the migration by a Pydio Expert"
   },
   "step.disclaimer.home": {
-    "other": "私たちはあなたを暗闇の中で放っておくことを望んでいません、そしてPydioチームはあなたがオープンソースバージョンでこの移行を実行するのを助けるためにワンショット支払いサービスを提供します。 Pydioの専門家のサポートが必要な場合は、当社の販売サービスにお問い合わせください。"
+    "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
   },
   "step.disclaimer.support": {
-    "other": "サポートに連絡"
+    "other": "Contact Support"
   },
   "step.disclaimer.quote": {
-    "other": "見積書を要求する"
+    "other": "Ask for a quote"
   },
   "step.disclaimer.start": {
-    "other": "マイグレーションを開始"
+    "other": "Start Migration"
   },
   "step.prereq.title": {
-    "other": "前提条件"
+    "other": "Pre-requisites"
   },
   "step.prereq.welcome": {
-    "other": "Pydio8インポートツールを起動します。 このウィザードは、既存のPydio8サーバーからのデータをPydio Cells に供給するために必要な手順をガイドします。"
+    "other": "Starting Pydio 8 import tool. This wizard will guide you through the steps required to feed Pydio Cells with data from an existing Pydio 8 server."
   },
   "step.prereq.step1": {
-    "other": "1. Pydio 8 を準備する"
+    "other": "1. Prepare Pydio 8"
   },
   "step.prereq.step2": {
-    "other": "2. Cells とデータを準備する"
+    "other": "2. Prepare Cells and Data"
   },
   "step.prereq.step3": {
-    "other": "3. データソースの準備"
+    "other": "3. Prepare DataSources"
   },
   "step.prereq.check": {
-    "other": "以下に記載されている前提条件をよくお読みいただき、移行を開始する前に必要な手順を実行してください。"
+    "other": "Please carefully read the pre-requisites described below and perform the necessary steps before starting the migration."
   },
   "step.prereq.check.copy": {
-    "other": "Pydio 8 のすべてのデータ (ユーザがアクセスするファイルとフォルダ) をサーバ上の別の場所にコピーします。 テスト目的のために、最終的には偽のファイル(例えば1バイトのファイル)を使用して完全なarborescenceを再現することができます。"
+    "other": "Copy all Pydio 8 data (files and folders accessed by users) in a different location on the server. For testing purpose, you can eventually recreate the full arborescence with fake files (e.g 1byte files)."
   },
   "step.prereq.check.install": {
-    "other": "Pydio 8 サーバに専用のマイグレーションプラグインをインストールします。 Pydio 8サーバーのプラグイン/フォルダ内にフォルダを解凍し、プラグインのキャッシュをクリアします。ここからダウンロードしてください。 "
+    "other": "Install the dedicated migration plugin on the Pydio 8 server. Unzip and drop the folder inside the plugins/ folder of your Pydio 8 server and clear the plugins cache. Download it from here "
   },
   "step.prereq.check.admincell": {
-    "other": "Cells_importer などの管理権限を持つ専用の Cells ユーザを作成します。 ユーザーのインポートは Pydio 8 ユーザを Cells ユーザに同期しようとします。この特定のログインのみがそのまま残ります。"
+    "other": "Create a dedicated Cells user with administrative privileges (e.g. cells_importer). Users import will try to synchronize Pydio 8 users to Cells user, only this specific login will be left untouched."
   },
   "step.prereq.check.adminpydio": {
-    "other": "管理権限を持つ専用の Pydio 8 ユーザを別のログイン (インポートなど) で作成します。 一部のインポートタスクは、すべてのワークスペースにこのインポートユーザーの読み取り/書き込み権限を自動的に設定します。"
+    "other": "Create a dedicated Pydio 8 user with administrative privileges, with another login (e.g. import). Some import tasks will automatically set read/write permissions for this import users on all workspaces."
   },
   "step.prereq.ds.create": {
-    "other": "新しいデータを指すデータソースを作成し、インデックスが完了するまで待ちます。"
+    "other": "Create datasources pointing to the new data and wait for the indexation to be complete."
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "\"ユーザーごとの\" ワークスペース（マイファイルなど）の場合は、Cellsの \"個人用\" テンプレートパスの既存の場所を使用するか、新しい場所の新しいテンプレートパスを準備します。"
+    "other": "For \"per-user\" workspaces (like My Files), use the existing location of Cells \"personal\" template path, or prepare new template paths for the new location."
   },
   "step.prereq.ds.tpl.home": {
-    "other": "\"ユーザーごとの\" ワークスペース（マイファイルなど）の場合は、Cells の \"個人用\" テンプレートパスの既存の場所の下にデータを配置してください。"
+    "other": "For \"per-user\" workspaces (like My Files), make sure to place the data under the existing location of the Cells \"personal\" Template Path."
   },
   "step.prereq.ds.done": {
-    "other": "データソースが適切にインデックスされると、移行プロセスを開始できます。ウィザードは Pydio 8 ワークスペースを新しいワークスペースにマッピングするのに役立ちます。"
+    "other": "Once datasources are properly indexed, you can start the migration process. The wizard will help you map your Pydio 8 workspaces to new workspaces."
   },
   "step.prereq.start": {
-    "other": "準備完了！始めましょう"
+    "other": "All set! Let's start"
   },
   "step.shares.feature.links": {
-    "other": "公開リンク"
+    "other": "Public Links"
   },
   "step.shares.feature.cells": {
-    "other": "共有フォルダ"
+    "other": "Shared Folders"
   },
   "step.shares.title": {
-    "other": "共有をインポート"
+    "other": "Import Shares"
   },
   "step.shares.alert": {
-    "other": "少なくとも1つの共有タイプを選択してください！"
+    "other": "Please pick at least one share type!"
   },
   "step.shares.legend": {
-    "other": "Pydio 8 の公開リンクと共有フォルダを Cells にインポートします。パブリックリンクは同じ識別子とプロパティ（パスワード、有効期限など）で作成されます。) Pydio 8 のワークスペースとして共有されたフォルダは、新しい Cells にマップされます。"
+    "other": "Import Pydio 8 public links and shared folders into Cells. Public links will be created with the same identifier and properties (password, expiration, etc...). Folders shared as workspaces in Pydio 8 will be mapped to new Cells."
   },
   "step.shares.legend.warning": {
-    "other": "共有インポートは単方向の同期です: このステップを何度も実行すると重複が生成されます。 移行を複数回行う予定の場合は、最初に限られた数のテストユーザに対して共有をインポートする必要があります。"
+    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
   },
   "step.shares.restrict.type": {
-    "other": "1. インポートする共有の種類を制限します（少なくとも 1 つを選択します）："
+    "other": "1. Restrict the type of shares to be imported (select at least one):"
   },
   "step.shares.restrict.user": {
-    "other": "2. テスト目的の場合、1 つまたは複数の特定のユーザーにインポートを制限することができます（カンマ区切りリスト）"
+    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
   },
   "step.shares.restrict.user.login": {
-    "other": "オーナーログイン"
+    "other": "Owner login"
   },
   "step.ws.title": {
-    "other": "ワークスペースをインポート"
+    "other": "Import Workspaces"
   },
   "step.ws.loading": {
-    "other": "(読み込み中...)"
+    "other": "(loading...)"
   },
   "step.ws.legend": {
-    "other": "Pydio 8 から Cell へのワークスペースのインポートは、マルチステッププロセスです。"
+    "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
   },
   "step.ws.step1": {
-    "other": "1. 既存のデータを現在のサーバーから新しいサーバーに手動で移行します(同じサーバーで Pydio と Cell を実行している場合は不要です)。"
+    "other": "1. Manually migrate the existing data from the current server to the new one (this may be unnecessary if you are running Pydio and Cells on the same server)."
   },
   "step.ws.step2": {
-    "other": "2. Cells の作成 サーバー上の新しい保存場所を指すデータソースをデータソースとして作成します。"
+    "other": "2. Create Cells datasources pointing to the new storage locations on the server."
   },
   "step.ws.step3": {
-    "other": "3. すべてのデータソースが適切にインデックスされるのを待ちます。"
+    "other": "3. Wait for all datasources to be properly indexed."
   },
   "step.ws.step4": {
-    "other": "4. 以下のツールを使用して、古いワークスペースを新しいワークスペースにマップします"
+    "other": "4. Map old workspaces to new workspaces by using the tool below"
   },
   "step.mapper.already": {
-    "other": "ワークスペースはすでにマップされています (同一の UUID)"
+    "other": "Workspaces already mapped (same UUID)"
   },
   "step.mapper.wsnumber": {
-    "other": "サーバーから新しい Cells ワークスペースに %s 個のワークスペースをマッピング"
+    "other": "Mapping %s workspaces from server to new Cells workspaces"
   },
   "step.mapper.loading": {
-    "other": "サーバーからワークスペースを読み込んでいます..."
+    "other": "Loading workspaces from server..."
   },
   "step.mapper.loading.error": {
-    "other": "サーバからワークスペースを読み込む際にエラーが発生しました: %s。Pydio8 インストールで CORS が有効になっていることを確認してください。"
+    "other": "Error while loading workspaces from server: %s. Make sure to have CORS enabled on your Pydio8 installation."
   },
   "step.mapper.p8.title": {
-    "other": "Pydio 8 ワークスペース"
+    "other": "Pydio 8 Workspaces"
   },
   "step.mapper.p8.ds.show": {
-    "other": "データソースを表示"
+    "other": "Show datasources"
   },
   "step.mapper.p8.tpl.show": {
-    "other": "テンプレートパスを表示"
+    "other": "Show template paths"
   },
   "step.mapper.cells.title": {
-    "other": "Cells データソース"
+    "other": "Cells Datasources"
   },
   "step.mapper.createds": {
-    "other": "データソースを作成"
+    "other": "Create Datasource"
   },
   "step.mapper.tpath.title": {
-    "other": "Cells テンプレートパス"
+    "other": "Cells Template Paths"
   },
   "step.mapper.tpath.create": {
-    "other": "テンプレートパスを作成"
+    "other": "Create Template Path"
   },
   "step.mapper.nodes.title": {
-    "other": "Cells ノード"
+    "other": "Cells Nodes"
   },
   "step.mapper.notplpath.primary": {
-    "other": "なし"
+    "other": "None"
   },
   "step.mapper.notplpath.secondary": {
-    "other": "テンプレートパスは必要ありません"
+    "other": "No template path required"
   },
   "step.mapper.next10": {
-    "other": "次へ "
+    "other": "Next "
   },
   "step.mapper.prev10": {
-    "other": "前へ "
+    "other": "Previous "
   },
   "step.mapper.invalid": {
-    "other": "無効なマッピング - データソースまたはワークスペースを選択してください"
+    "other": "Invalid mapping - Please select a datasource or a workspace"
   },
   "dash.feature.configs": {
-    "other": "AD/LDAP 設定"
+    "other": "AD/LDAP Configuration"
   },
   "dash.feature.configs.legend": {
-    "other": "このステップに固有の設定はありません。AD/LDAP 設定は Pydio Cell の外部ディレクトリにインポートされます。"
+    "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."
   },
   "dash.feature.users": {
-    "other": "ユーザー、グループ、ロール"
+    "other": "Users, Groups and Roles"
   },
   "dash.feature.users.legend": {
-    "other": "このステップに特定の設定はありません。ユーザーはリモートサーバーと同期されます。 可能な場合はいつでもハッシュ化されたパスワードもインポートされます(パスワードは保存または送信されません) 新しいサーバーで同じ識別子でログインできるようにしました"
+    "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
   },
   "dash.feature.workspaces": {
-    "other": "ワークスペース"
+    "other": "Workspaces"
   },
   "dash.feature.acls": {
-    "other": "ワークスペース ACL"
+    "other": "Workspaces ACLs"
   },
   "dash.feature.acls.legend": {
-    "other": "このステップに特定の設定はありません。アクセスリストはサーバーから読み込まれ、ワークスペースに適用されます。"
+    "other": "There is no specific configuration for this step. Access list will be loaded from server and applied to workspaces."
   },
   "dash.feature.meta": {
-    "other": "メタデータファイル"
+    "other": "Files Metadata"
   },
   "dash.feature.shares": {
-    "other": "共有"
+    "other": "Shares"
   },
   "dash.job.new": {
-    "other": "新規インポートジョブ"
+    "other": "New import job"
   },
   "dash.importing": {
-    "other": "データのインポート"
+    "other": "Importing Data"
   },
   "logs.legend": {
-    "other": "タスク％s中に記録されたログ"
+    "other": "Log recorded during task %s"
   },
   "action.createws.success": {
-    "other": "[Workspaces] ワークスペース %s を作成しました"
+    "other": "[Workspaces] Created workspace %s"
   },
   "action.createws.fail.": {
-    "other": "[Workspaces] ワークスペース %1 の作成中にエラーが発生しました: %s"
+    "other": "[Workspaces] Error while creating workspace %1 : %s"
   },
   "action.createws.summary": {
-    "other": "次の uuid => uuid マッピングが適用されます:"
+    "other": "The following uuid => uuid mapping will be applied:"
   },
   "action.createws.head.pydio": {
     "other": "Pydio"
@@ -303,39 +303,39 @@
     "other": "Cells"
   },
   "action.createws.head.status": {
-    "other": "ステータス"
+    "other": "Status"
   },
   "action.createws.notexists": {
-    "other": "作成/更新"
+    "other": "Create/Update"
   },
   "action.createws.exists": {
-    "other": "既に存在します"
+    "other": "Already Exists"
   },
   "action.share.linksonly": {
-    "other": "公開リンクのみがインポートされます。"
+    "other": "Only Public Links will be imported."
   },
   "action.share.cellsonly": {
-    "other": "共有フォルダのみがインポートされます。"
+    "other": "Only shared folders will be imported."
   },
   "action.share.all": {
-    "other": "すべての共有はインポートされます(リンクと共有フォルダ)。"
+    "other": "All shares will be imported (links and shared folders)."
   },
   "action.share.user": {
-    "other": "%s が所有している共有のみがインポートされます。"
+    "other": "Only shares owned by %s will be imported."
   },
   "action.meta.summary": {
-    "other": "次のメタデータがインポートされます: "
+    "other": "The following metadata will be imported: "
   },
   "action.meta.files": {
-    "other": "ファイルメタデータの場合、次のマッピングが使用されます: "
+    "other": "For files metadata, the following mapping will be used: "
   },
   "action.meta.success": {
-    "other": "メタデータ名前空間が作成されました"
+    "other": "Metadata namespaces created"
   },
   "action.meta.fail": {
-    "other": "メタデータ名前空間の作成中にエラーが発生しました: %s"
+    "other": "Error while creating metadata namespace : %s"
   },
   "logs.empty": {
-    "other": "アクティビティはありません"
+    "other": "No activity found"
   }
 }
