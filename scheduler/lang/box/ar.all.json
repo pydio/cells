@@ -1,6 +1,6 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "استخراج الصور المصغرة وبيانات Exif"
+    "other": "Extract image thumbnails and Exif data"
   },
   "Jobs.Default.ThumbsCache": {
     "other": "Clear thumbnails cache for deleted files"
