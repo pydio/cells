@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "Biên tập Nguồn"
+    "other": "Source Editor"
   },
   "10": {
-    "other": "Kích thước thụt lề"
+    "other": "Indent size"
   },
   "2": {
-    "other": "Đánh dấu cú pháp với CodeMirror"
+    "other": "CodeMirror Syntax Highlighter"
   },
   "3": {
     "other": "Wrapping"
@@ -15,21 +15,21 @@
     "other": "Toggle lines wrapping"
   },
   "4": {
-    "other": "Số"
+    "other": "Numbers"
   },
   "5": {
-    "other": "Hiển thị / Ẩn số dòng"
+    "other": "Toggle lines numbers"
   },
   "6": {
-    "other": "Chuyển đến dòng"
+    "other": "Jump to line"
   },
   "7": {
-    "other": "Lùi lại"
+    "other": "Undo"
   },
   "8": {
-    "other": "Thực hiện lại"
+    "other": "Redo"
   },
   "9": {
-    "other": "Tìm kiếm theo từ"
+    "other": "Text Search"
   }
 }
