@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Source Editor"
+    "other": "源代码编辑器"
   },
   "10": {
-    "other": "Indent size"
+    "other": "缩进大小"
   },
   "2": {
-    "other": "CodeMirror Syntax Highlighter"
+    "other": "CodeMirror 语法荧光笔"
   },
   "3": {
-    "other": "Wrapping"
+    "other": "换行"
   },
   "3b": {
-    "other": "Toggle lines wrapping"
+    "other": "切换换行"
   },
   "4": {
-    "other": "Numbers"
+    "other": "数字"
   },
   "5": {
-    "other": "Toggle lines numbers"
+    "other": "切换行号"
   },
   "6": {
-    "other": "Jump to line"
+    "other": "跳转到行"
   },
   "7": {
-    "other": "Undo"
+    "other": "撤销"
   },
   "8": {
-    "other": "Redo"
+    "other": "重做"
   },
   "9": {
-    "other": "Text Search"
+    "other": "搜索文本"
   }
 }
