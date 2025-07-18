@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "Bản đồ OpenLayers"
+    "other": "OpenLayers Map"
   },
   "10": {
-    "other": "Xoá"
+    "other": "Clear"
   },
   "2": {
-    "other": "Bộ lọc"
+    "other": "Filter"
   },
   "3": {
-    "other": "Vị trí"
+    "other": "Position"
   },
   "4": {
-    "other": "Các lớp"
+    "other": "Layers"
   },
   "5": {
     "other": "Antialias"
   },
   "6": {
-    "other": "Định dạng"
+    "other": "Format"
   },
   "7": {
-    "other": "Giao diện"
+    "other": "Styles"
   },
   "8": {
-    "other": "Bộ lọc"
+    "other": "Filter"
   },
   "9": {
-    "other": "Tìm kiếm"
+    "other": "Search"
   }
 }
