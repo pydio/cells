@@ -1,33 +1,33 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "Fildelingsplattform stolt drevet av Pydio"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "Hvis {ACTION}-knappen ikke fungerer, kopier og lim inn URLen nedenfor inn i nettleseren din."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "Hei"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "Vennlig hilsen"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "Tilbakestilling av passord forespurt for {{.Configs.Title}}"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "En forespørsel om å tilbakestille passordet har blitt mottatt for din konto hos {{.Configs.Title}}."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "Hvis du ikke utløste denne forespørselen, kan du trygt ignorere den. Hvis du fortsatt mottar e-post som dette, vær vennlig å varsle systemansvarlig da det kan være et sikkerhetsproblem."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Tilbakestill passordet mitt"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "Trykk for å tilbakestille passordet ditt"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "Ditt passord på {{.Configs.Title}} har blitt tilbakestilt"
   },
   "Mail.ResetPasswordDone.Intros": {
     "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
