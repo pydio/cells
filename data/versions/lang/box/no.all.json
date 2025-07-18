@@ -1,0 +1,103 @@
+{
+  "Job.Version.Title": {
+    "other": "Hendelsesbasert jobb for replikering av data til versjonering"
+  },
+  "Job.Version.StatusFile": {
+    "other": "Opprettet versjon {{.Uuid}} innenfor versjon bucket "
+  },
+  "Job.Version.StatusMeta": {
+    "other": "Opprettet versjonsmetadata for {{.Uuid}}"
+  },
+  "Job.Version.StatusPrune": {
+    "one": "Trimmet {{.Count}} versjon",
+    "other": "Trimmet {{.Count}} versjoner"
+  },
+  "Job.Pruning.Title": {
+    "other": "Rydder versjoner for slettede noder"
+  },
+  "Job.Pruning.StatusDone": {
+    "one": "Vellykket fjerning av {{.Count}} versjon",
+    "other": "Vellykket fjerning av {{.Count}} versjoner."
+  },
+  "Config.GroupPolicy.Title": {
+    "other": "Policy"
+  },
+  "Config.GroupPolicy.Name.Label": {
+    "other": "Navn"
+  },
+  "Config.GroupPolicy.Name.Description": {
+    "other": "Policynavn"
+  },
+  "Config.GroupPolicy.Description.Label": {
+    "other": "Beskrivelse"
+  },
+  "Config.GroupPolicy.Description.Description": {
+    "other": "Beskrivelse av Policy"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Label": {
+    "other": "Butikk"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Description": {
+    "other": "Datakilde brukt for å lagre versjoner"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
+    "other": "Bøtte"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
+    "other": "Bøtte brukt i denne datakilden"
+  },
+  "Config.GroupSizes.Title": {
+    "other": "Grenser for størrelse"
+  },
+  "Config.GroupSizes.MaxTotalSize.Label": {
+    "other": "Global størrelse på alle versjoner beholdt i denne bøtten"
+  },
+  "Config.GroupSizes.MaxTotalSize.Description": {
+    "other": "Begrens den totale størrelsen. Hvis grensen er nådd, vil eldste versjon slettes. Bruk -1 for ingen grense"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Label": {
+    "other": "Kumulativ størrelse for versjonene av en gitt fil"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Description": {
+    "other": "Begrens størrelsen brukt av alle versjonene av en fil. Hvis grensen er nådd, vil eldste versjon bli slettet. Bruk -1 for ingen grense"
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
+    "other": "Ignorer filer større enn..."
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
+    "other": "IKKE versjoner filer med størrelse større enn denne grensen. Bruk -1 for ingen grense"
+  },
+  "Config.GroupRetention.Title": {
+    "other": "Oppbevaringsperiode"
+  },
+  "Config.GroupRetention.Description": {
+    "other": "Antall versjoner som skal beholdes per periode"
+  },
+  "Config.GroupRetention.IntervalStart.Name": {
+    "other": "Start periode"
+  },
+  "Config.GroupRetention.IntervalStart.Description": {
+    "other": "Startpunkt brukt for beregningsperiode. 0 er tidspunktet for den siste versjonen, bruk en annen periode for å sette en begrensning"
+  },
+  "Config.GroupRetention.MaxNumber.Name": {
+    "other": "Maksimalt antall versjoner"
+  },
+  "Config.GroupRetention.MaxNumber.Description": {
+    "other": "Maksimalt antall versjoner å beholde denne perioden. Bruk -1 for å beholde alle versjoner, 0 for å slette alle."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "Etter sletting av orginalfilen"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Antallet versjoner som skal beholdes etter sletting av originalfilen."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Sikkerhetskopier alle eksisterende versjoner"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Sikkerhetskopier kun den nyeste versjonen"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Slett alle eksisterende versjoner"
+  }
+}
