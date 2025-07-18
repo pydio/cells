@@ -1,66 +1,66 @@
 {
   "1": {
-    "other": "الإشعارات"
+    "other": "Notifications"
   },
   "10": {
-    "other": "نشاط المجلد"
+    "other": "Folder Activity"
   },
   "11": {
-    "other": "نشاط الملف"
+    "other": "File Activity"
   },
   "11b": {
     "other": "Activity"
   },
   "12": {
-    "other": "اعتمادًا على المتصفح الخاص بك، سيطلب هذا إذنًا محددًا. لتعطيل، انتقل إلى خيارات المستعرض ومن ثمّ الاستثناءات الخاصة بك. إذا قمت بالفعل بتمكين هذه الميزة، فربما لن يحدث شيء."
+    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
   },
   "13": {
-    "other": "يبدو أن المتصفح الخاص بك لا يدعم إشعارات سطح المكتب بعد."
+    "other": "Your browser does not seem to support Desktop Notifications yet."
   },
   "14": {
-    "other": "لا توجد تنبيهات"
+    "other": "No alerts"
   },
   "15": {
-    "other": "الإشعارات حول الملفات التي تراقبها ستظهر هنا"
+    "other": "Notifications about files that you monitor will appear here"
   },
   "16": {
-    "other": "داخل"
+    "other": "Inside"
   },
   "17": {
-    "other": "تحميل الأنشطة..."
+    "other": "Loading activities..."
   },
   "18": {
-    "other": "لا يوجد نشاط حديث"
+    "other": "No recent activity"
   },
   "19": {
-    "other": "المزيد"
+    "other": "More"
   },
   "2": {
-    "other": "تغذية الإشعارات"
+    "other": "Notifications feed"
   },
   "20": {
-    "other": "جاري تحميل الخلاصة..."
+    "other": "Loading feed..."
   },
   "3": {
-    "other": "التنبيهات"
+    "other": "Alerts"
   },
   "4": {
-    "other": "الإشعارات"
+    "other": "Notifications"
   },
   "5": {
-    "other": "جميع الأحداث"
+    "other": "All Events"
   },
   "6": {
-    "other": "انتقل إلى..."
+    "other": "Go to ..."
   },
   "7": {
-    "other": "تجاهل"
+    "other": "Dismiss"
   },
   "8": {
-    "other": "لا توجد تنبيهات"
+    "other": "No alerts"
   },
   "9": {
-    "other": "نشاط مساحة العمل"
+    "other": "Workspace Activity"
   },
   "tasks.subheader": {
     "other": "Running Tasks"
