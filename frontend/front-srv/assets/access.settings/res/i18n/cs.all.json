@@ -9,37 +9,37 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Name"
+    "other": "Název"
   },
   "102": {
-    "other": "Identifier"
+    "other": "Identifikátor"
   },
   "103": {
-    "other": "Description"
+    "other": "Popis"
   },
   "104": {
-    "other": "Enabled"
+    "other": "Zapnuto"
   },
   "105": {
-    "other": "Automatic checks"
+    "other": "Automatické kontroly"
   },
   "106": {
-    "other": "Unique Identifier"
+    "other": "Neopakující se identifikátor"
   },
   "107": {
-    "other": "Plugin Configurations"
+    "other": "Nastavení přídavných modulů"
   },
   "108": {
-    "other": "Documentation"
+    "other": "Dokumentace"
   },
   "109": {
-    "other": "Application Parameters"
+    "other": "Parametry aplikace"
   },
   "11": {
-    "other": "Add a source"
+    "other": "Přidat zdroj"
   },
   "110": {
-    "other": "Workspaces & Users"
+    "other": "Pracovní prostory a uživatelé"
   },
   "111": {
     "other": "Backend"
@@ -51,19 +51,19 @@
     "other": "Role status was successfully modified"
   },
   "114": {
-    "other": "Applies to"
+    "other": "Platí pro"
   },
   "115": {
-    "other": "Scheme"
+    "other": "Schéma"
   },
   "116": {
-    "other": "Template Label"
+    "other": "Popisek šablony"
   },
   "117": {
     "other": "Template Driver"
   },
   "118": {
-    "other": "New group"
+    "other": "Nová skupina"
   },
   "119": {
     "other": "Set user group"
@@ -75,19 +75,19 @@
     "other": "Go Pro"
   },
   "121": {
-    "other": "Get professional support for your install"
+    "other": "Získejte profesionální podporu pro vaši instalaci"
   },
   "122": {
-    "other": "All Settings"
+    "other": "Všechna nastavení"
   },
   "123": {
-    "other": "Other plugins"
+    "other": "Ostatní zásuvné moduly"
   },
   "124": {
-    "other": "Source"
+    "other": "Zdrojové kódy"
   },
   "125": {
-    "other": "Alias"
+    "other": "Alternativní název"
   },
   "126": {
     "other": "Are you sure that you want to delete the selected element(s)?"
@@ -132,7 +132,7 @@
     "other": "Create and delete workspaces, add features to them using meta sources."
   },
   "139": {
-    "other": "Manage users and groups"
+    "other": "Spravovat uživatele a skupiny"
   },
   "14": {
     "other": "True"
@@ -150,7 +150,7 @@
     "other": "Read the start-up diagnostic"
   },
   "144": {
-    "other": "Developer Resources"
+    "other": "Informace pro vývojáře"
   },
   "145": {
     "other": "Generated documentations for developers"
@@ -171,7 +171,7 @@
     "other": "False"
   },
   "150": {
-    "other": "Select a repository"
+    "other": "Vyberte repozitář"
   },
   "151": {
     "other": "Root Group"
@@ -189,19 +189,19 @@
     "other": "Access Drivers"
   },
   "156": {
-    "other": "Standard"
+    "other": "Standardní"
   },
   "157": {
-    "other": "Administrator"
+    "other": "Správce"
   },
   "158": {
-    "other": "Shared"
+    "other": "Sdílené"
   },
   "159": {
-    "other": "Guest"
+    "other": "Host"
   },
   "160": {
-    "other": "Group was successfully created"
+    "other": "Skupina byla úspěšně vytvořena"
   },
   "161": {
     "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
@@ -231,31 +231,31 @@
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Date"
+    "other": "Datum"
   },
   "170": {
     "other": "Enable %1 (%2)"
   },
   "171": {
-    "other": "Import Users (Enterprise only)"
+    "other": "Naimportovat uživatele (pouze varianta pro podniky)"
   },
   "172": {
-    "other": "Services"
+    "other": "Služby"
   },
   "173": {
     "other": "Pydio Backend Services and their running status"
   },
   "174": {
-    "other": "Identity Management"
+    "other": "Správa identit"
   },
   "175": {
-    "other": "Data Management"
+    "other": "Správa dat"
   },
   "176": {
-    "other": "Security Policies"
+    "other": "Zásady zabezpečení"
   },
   "177": {
-    "other": "Security Policies"
+    "other": "Zásady zabezpečení"
   },
   "18": {
     "other": "I.P."
@@ -264,19 +264,19 @@
     "other": "Level"
   },
   "2": {
-    "other": "People"
+    "other": "Lidé"
   },
   "20": {
-    "other": "User"
+    "other": "Uživatel"
   },
   "21": {
-    "other": "Action"
+    "other": "Akce"
   },
   "22": {
-    "other": "Params"
+    "other": "Parametry"
   },
   "22a": {
-    "other": "More info"
+    "other": "Další informace"
   },
   "23": {
     "other": "Test Name"
@@ -288,31 +288,31 @@
     "other": "Workspaces Access"
   },
   "26": {
-    "other": "Modify Password"
+    "other": "Upravit heslo"
   },
   "27": {
     "other": "Admin Right"
   },
   "28": {
-    "other": "User has admin rights?"
+    "other": "Uživatel má práva pro správu?"
   },
   "29": {
-    "other": "Read"
+    "other": "Číst"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Správa dat"
   },
   "3": {
-    "other": "Workspaces"
+    "other": "Pracovní prostory"
   },
   "30": {
-    "other": "Write"
+    "other": "Zápis"
   },
   "32": {
     "other": "Access Driver"
   },
   "33": {
-    "other": "Loading..."
+    "other": "Načítání…"
   },
   "34": {
     "other": "Are you sure you want to delete this user? This operation is not reversible!"
@@ -321,25 +321,25 @@
     "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
   },
   "36": {
-    "other": "Mandatory fields are missing!"
+    "other": "Nejsou vyplněné potřebné kolonky!"
   },
   "37": {
-    "other": "Warning, password and confirmation differ!"
+    "other": "Varování – heslo a jeho potvrzení se liší!"
   },
   "38": {
-    "other": "Please fill the login field!"
+    "other": "Vyplňte kolonku přihlašovací jméno!"
   },
   "39": {
-    "other": "Please fill both password fields!"
+    "other": "Vyplňte obě kolonky pro zadání hesla!"
   },
   "3b": {
-    "other": "Storage"
+    "other": "Úložiště"
   },
   "3c": {
-    "other": "Template Paths"
+    "other": "Popis umístění šablon"
   },
   "4": {
-    "other": "Logs"
+    "other": "Záznamy událostí"
   },
   "40": {
     "other": "Please check the box to confirm!"
@@ -348,13 +348,13 @@
     "other": "Datasource Nodes"
   },
   "42": {
-    "other": "Please choose a driver!"
+    "other": "Vyberte ovladač!"
   },
   "43": {
-    "other": "User already exists, please choose another login!"
+    "other": "Takový uživatel už existuje – zvolte jiné přihlašovací jméno!"
   },
   "44": {
-    "other": "User created successfully"
+    "other": "Uživatel úspěšně vytvořen"
   },
   "45": {
     "other": "Changed admin right for user "
@@ -369,7 +369,7 @@
     "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "Cannot update password"
+    "other": "Heslo se nedaří zaktualizovat"
   },
   "5": {
     "other": "PHP"
@@ -378,7 +378,7 @@
     "other": "Error: a workspace with the same name already exists"
   },
   "51": {
-    "other": "The conf directory is not writeable"
+    "other": "Do složky s nastaveními se nedaří zapisovat"
   },
   "52": {
     "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
@@ -405,19 +405,19 @@
     "other": "Successfully deleted workspace"
   },
   "6": {
-    "other": "User Name"
+    "other": "Uživatelské jméno"
   },
   "60": {
-    "other": "User successfully erased"
+    "other": "Uživatel úspěšně vymazán"
   },
   "61": {
-    "other": "Wrong arguments!"
+    "other": "Nesprávné argumenty!"
   },
   "62": {
-    "other": "Rights Summary"
+    "other": "Souhrn oprávnění"
   },
   "63": {
-    "other": "All"
+    "other": "Vše"
   },
   "64": {
     "other": "Changed right for role "
@@ -429,49 +429,49 @@
     "other": "Role successfully created"
   },
   "67": {
-    "other": "Cannot find role "
+    "other": "Roli se nedaří nalézt "
   },
   "68": {
     "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Roles"
+    "other": "Role"
   },
   "7": {
-    "other": "Is Admin"
+    "other": "Je správce"
   },
   "70": {
-    "other": "User Roles"
+    "other": "Uživatelské role"
   },
   "71": {
-    "other": "Available Roles"
+    "other": "Role k dispozici"
   },
   "72": {
     "other": "Drag'n'drop roles to assign them to the user"
   },
   "73": {
-    "other": "Role added to user "
+    "other": "Uživateli přidána role "
   },
   "74": {
-    "other": "Role deleted from user "
+    "other": "Role uživateli odebrána "
   },
   "75": {
-    "other": "New Role"
+    "other": "Nová role"
   },
   "76": {
-    "other": "Role Id"
+    "other": "Identif. role"
   },
   "77": {
-    "other": "Access Control"
+    "other": "Řízení přístupu"
   },
   "78": {
-    "other": "Personal data"
+    "other": "Osobní údaje"
   },
   "79": {
-    "other": "Workspace"
+    "other": "Pracovní prostor"
   },
   "8": {
-    "other": "Workspace Label"
+    "other": "Popisek pracovního prostoru"
   },
   "80": {
     "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
@@ -486,7 +486,7 @@
     "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Users Roles"
+    "other": "Role uživatele"
   },
   "85": {
     "other": "Manual actions filtering"
@@ -504,22 +504,22 @@
     "other": "User specific data"
   },
   "9": {
-    "other": "Access Type"
+    "other": "Typ přístupu"
   },
   "90": {
-    "other": "New Workspace"
+    "other": "Nový pracovní prostor"
   },
   "91": {
-    "other": "New Template"
+    "other": "Nová šablona"
   },
   "92": {
-    "other": "Create a new template"
+    "other": "Vytvořit novou šablonu"
   },
   "93": {
-    "other": "Edit"
+    "other": "Upravit"
   },
   "94": {
-    "other": "Batch Edit"
+    "other": "Dávkové úpravy"
   },
   "95": {
     "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
@@ -531,7 +531,7 @@
     "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "Main Settings"
+    "other": "Hlavní nastavení"
   },
   "99": {
     "other": "Feature plugins"
@@ -540,10 +540,10 @@
     "other": "Cells Console"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Zobrazit/skrýt pokročilé parametry"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Více o Pidyo Cells"
   },
   "group_access": {
     "other": "g"
