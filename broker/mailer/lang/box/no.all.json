@@ -174,7 +174,7 @@
     "other": "Skriv e-post til fil for feilsøkingsformål"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Målmappe for skriving av e-post"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Server"
