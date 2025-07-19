@@ -15,43 +15,43 @@
     "other": "Normal trimming"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Trim versjoner jevnlig ved ulike intervaller"
   },
   "aclAction.Name": {
-    "other": "Name"
+    "other": "Navn"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "Verdi"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Handlinger"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Nodeidentifikatorer"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Rolleidentifikatorer"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Arbeidsområdeidentifikatorer"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "ikke"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Søk på feilmelding (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Er vellykket"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Json body har nøkkel..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Søk på Json body (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
     "other": "Size of Json body is greater than"
