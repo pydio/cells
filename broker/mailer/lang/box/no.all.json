@@ -30,148 +30,148 @@
     "other": "Ditt passord på {{.Configs.Title}} har blitt tilbakestilt"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "Etter din forespørsel om tilbakestilling av passord, har nå passordet blitt resatt for {{.Configs.Title}}."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "Gi beskjed til din administrator umiddelbart, om du ikke startet denne prosessen. Det kan være et problem med sikkerheten."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "Dine {{.Configs.Title}} varsler"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "Nedenfor er et sammendrag av alle varslene du har mottatt på {{.Configs.Title}}"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} sendte deg en melding!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} sendte deg en melding ved hjelp av {{.Configs.Title}} søknad: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "Velkommen til {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "En konto har blitt opprettet for deg til {{.Configs.Title}}. \n Din innlogging er {{.TplData.Login}}{{if .TplData.Password}} og passordet er {{.TplData.Password}}. Du kan endre dette ved første pålogging{{end}}."
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Klikk for å logge inn"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Logg inn til {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} Fildelingsplattform brukes av ditt team for å effektivt samarbeide på dokumenter. Vi er glade for å ha deg med!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} har invitert deg til {{.Configs.Title}}"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "En konto er opprettet for deg av {{.TplData.Inviter}} på {{.Configs.Title}}. \n Din innlogging er {{.TplData.Login}}{{if .TplData.Password}} og passordet ditt er {{.TplData.Password}}. Du kan endre det første gang du logger på{{end}}."
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Klikk for å logge inn"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Logg inn til {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} Fildelingsplattform brukes av {{.TplData.Inviter}} team for å effektivt samarbeide på dokumenter. Vi er glade for å ha deg med!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} la deg til cellen {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} har inkludert deg i cellen {{.TplData.Cell}} på {{.Configs.Title}}! Du kan starte å dele filer og mapper sammen og samarbeide effektivt."
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "Klikk for å åpne cellen"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "Åpne {{.TplData.Cell}}"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} deler en fil med deg"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} deler en fil med deg.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link går ut på {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maksimum nedlastinger:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "Åpne {{.TplData.FileName}}"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "Klikk for å forhåndsvise filen i nettleseren"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} Fildelingsplattform brukes av {{.TplData.Inviter}} team for å effektivt samarbeide på dokumenter."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} deler en mappe med deg"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} deler en mappe med deg.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link går ut på {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maksimum nedlastinger:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "Åpne {{.TplData.FolderName}}"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "Klikk for å forhåndsvise dokumenter i nettleseren"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} Fildelingsplattform brukes av {{.TplData.Inviter}} team for å effektivt samarbeide på dokumenter."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} sender deg en test e-post"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Åpne celler"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "Klikk for å åpne frontend"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} Fildelingsplattform brukes av team for å effektivt samarbeide på dokumenter."
   },
   "Mail.Config.Title": {
     "other": "Mailer"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "Standard FRA e-post-adresse"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "Adresse som skal brukes som standard når du sender e-post. Du bør bruke den faktiske e-posten til support, i stedet for en noreply adresse."
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Outlook-klient fiks (deaktiver CSS inlining)"
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "Køtype"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "Vedvarende lag for lagring av ventende e-poster"
   },
   "Mail.Config.Queue.ValueBolt": {
     "other": "On-file Database (Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "I minne"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "Mail-motor"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "Engine brukt for å sende e-post"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Deaktivert (ikke aktiver e-post)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (aktiver e-post, men ikke send noe)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Skriv e-post til fil for feilsøkingsformål"
   },
   "Mail.Config.NoOp.DumpTarget": {
     "other": "Target folder for writing emails"
