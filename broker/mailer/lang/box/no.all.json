@@ -171,10 +171,10 @@
     "other": "No-Op (aktiver e-post, men ikke send noe)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Skriv e-post til fil for feilsøkingsformål"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Målmappe for skriving av e-post"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Server"
