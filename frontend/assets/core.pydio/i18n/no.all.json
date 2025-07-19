@@ -900,97 +900,97 @@
     "other": "You are not allowed to upload more than %s files at once."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Denne brukeren har ikke et aktivt arbeidsområde."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Du har ikke tilgang til å laste opp denne filtypen. Vennligst velg en av de følgende filtypene : "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Utvalg vellykket pakket ut fra arkivet %s til mappen %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Snarvei"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Du må skrive et gyldig navn"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE Offentlig nedlastning"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Et passord er nødvendig for denne nedlastingen"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Nåværende arbeidsområde"
   },
   "373": {
-    "other": "Destination"
+    "other": "Destinasjon"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Du kan ikke kopiere mapper på tvers av arbeidsområder"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Vi har oppdaget at du var inaktiv siden mer enn __IDLE__. For sikkerheten til dataene du vil bli utlogget om __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Er du der fremdeles?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Klikk hvor som helst for å gjenoppta økten"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Advarsel, passordet er tomt eller for kort!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Usikkert ord!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Mappen"
   },
   "380": {
-    "other": "Too short"
+    "other": "For kort"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Veldig svakt"
   },
   "382": {
-    "other": "Weak"
+    "other": "Svak"
   },
   "383": {
     "other": "Medium"
   },
   "384": {
-    "other": "Strong"
+    "other": "Sterk"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Veldig sterkt"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Bruk bare små bokstaver for innlogginger"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Vennligst bruk alfanumeriske tegn eller gyldig e-post for innlogginger"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Du har feilet innlogging 3 ganger.\\nFor din sikkerhet, fyll inn koden som vises i bildet."
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Vennligst les koden nedenfor :"
   },
   "39": {
-    "other": "has been created in"
+    "other": "har blitt opprettet i"
   },
   "390": {
-    "other": "Code"
+    "other": "Kode"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Ingen datakatalog"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Advarsel, APPLICATION_TITLE versjonen er endret (nå %s), vennligst rydd nettleserens cache og oppdater siden for å være sikker på at alt fungerer!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Advarsel, navnets lengde må være under %s, dette filnavnet vil bli forkortet!"
   },
   "394": {
     "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
