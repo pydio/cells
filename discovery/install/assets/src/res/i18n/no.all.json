@@ -228,22 +228,22 @@
     "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, legg til ?minio=true hvis Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "La stå tomt for Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "S3 egendefinert region"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "La stå tomt for standard (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 Api nøkkel"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "Nøkkel å koble til S3"
   },
   "form.dsS3ApiSecret.label": {
     "other": "S3 Api Secret"
@@ -252,36 +252,36 @@
     "other": "Secret Key"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "Koble til S3 for å definere buckets"
   },
   "form.s3BucketsPrefix.label": {
     "other": "Buckets prefix"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "Et unikt prefix for å lage de 6 standard bucketsene"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "Følgende bucket(s) finnes allerede"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "Følgende bucket(s) vil opprettes"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "Følgende buckets ble ikke funnet"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "Du har ikke tilgang til å lage buckets, sørg for å lage den manuelt!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "Neste"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "Tilbake"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Installer nå"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "Last på nytt"
   }
 }
