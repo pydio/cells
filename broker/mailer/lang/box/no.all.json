@@ -213,57 +213,57 @@
     "other": "Selv-signert Sertifikat"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "Deaktiver sertifikatverifisering hvis SMTP-serversertifikatet er selvsignert"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Dialer lokalt navn"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "SMTP dialer sender 'localhost' i EHLO kommandoen som standard, bruk dette feltet for å angi et egendefinert lokal navn"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "SendGrid tjeneste"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "Api-nøkkel"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "API-nøkkel angitt av SendGrid for å koble til tjenesten"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "ADVARSEL: Standard kjørbar bane er /usr/bin/sendmail. Hvis du har behov for å endre den, sørg for å sette 'standard > sendmail'-nøkkelen i din pydio.json konfigurasjonsfil."
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "Kjørbar sti"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "Fullstendig sti til sendmail på serveren"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "Andre stier (angitt manuelt i pydio.json config filen)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "Visningsnavn for standard avsender"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "Visningsnavn som brukes som standard når e-post sendes."
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "Fra/avsenderaddresse og navn som skal brukes"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "Definer hvilken avsenderadresse/navn som skal brukes. Hvis ingen e-postadresse er konfigurart vil standard FRA adresse og navn brukes i alle tilfeller."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "Send e-post FRA brukeren"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "Send e-post PÅ VEGNE AV brukeren"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "Alltid send fra standard FRA adresse/navn"
   }
 }
