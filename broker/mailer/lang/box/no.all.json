@@ -180,37 +180,37 @@
     "other": "SMTP Server"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "Servernavn"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "Host for SMTP server, eks. smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
     "other": "Server Port"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "Port til SMTP Server, eks. 587 (ikke sikker) eller 465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "Bruker for tilkobling"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "Brukernavn for å koble til SMTP server"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "Passord for tilkobling"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "Passord for å koble til SMTP server"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "Sikkerhet ved tilkobling"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "Protokoll som brukes for å sikre tilkoblingen. Blank er ikke supportert, hvis nødvendig, bruk en egendefinert Sendmail i stedet."
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "Selv-signert Sertifikat"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
     "other": "Disable certificate verification if your SMTP server certificate is self-signed"
