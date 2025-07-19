@@ -1,153 +1,153 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Siste versjon"
   },
   "1": {
-    "other": "Filename"
+    "other": "Filnavn"
   },
   "10": {
-    "other": "Text file"
+    "other": "Tekstfil"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Finner ikke filen "
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "Opprinnelsen og målmappene er de samme!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Feil ved oppretting av fil :"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Finner ikke mappen "
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Gå til angitt lokasjon"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "Send en e-post med direkte link til denne lokasjonen."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "Send e-post"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "Ditt navn og/eller e-post"
   },
   "108": {
-    "other": "The destination email"
+    "other": "Mottakers e-post"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "Klikkbar URL"
   },
   "11": {
     "other": "Javascript"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "Legg til en kommentar"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "Følgende e-post har blitt sendt :"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "Sending av e-post mislyktes : "
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "Utvalget er tomt!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "Ukjent feil under kopiering!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "Filen har blitt lagret"
   },
   "116": {
-    "other": "files"
+    "other": "filer"
   },
   "117": {
-    "other": "The folder"
+    "other": "Mappen"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "Last ned flere filer"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "Klikk på hver fil for å laste den ned."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "GIF bilde"
   },
   "120": {
-    "other": "You are not allowed to delete the whole arborescence!"
+    "other": "Du har ikke lov til å slette hele grensen!"
   },
   "121": {
-    "other": "Image File "
+    "other": "Bildefil "
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Papirkurv"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "har blitt flyttet til "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "Overskriv eksisterende filer?"
   },
   "125": {
-    "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
+    "other": "En fil/mappe med det navnet eksisterer allerede (navn skiller mellom små og store bokstaver), velg et annet!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "Miniatyrbilder"
   },
   "127": {
-    "other": "Size"
+    "other": "Størrelse"
   },
   "128": {
-    "other": "files selected."
+    "other": "filer valgt."
   },
   "129": {
-    "other": "View"
+    "other": "Visning"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "JPG bilde"
   },
   "130": {
-    "other": "Folders"
+    "other": "Mapper"
   },
   "131": {
-    "other": "Details"
+    "other": "Detaljer"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Ingen fil eller mappe"
   },
   "133": {
-    "other": "Name"
+    "other": "Navn"
   },
   "134": {
     "other": "Type"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "Dimensjoner"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "Vis større bilde"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "Sist endret"
   },
   "139": {
-    "other": "Edit Online"
+    "other": "Rediger online"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML side"
   },
   "140": {
-    "other": "Play whole folder"
+    "other": "Spill av hele mappen"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "Leser mappe"
   },
   "142": {
-    "other": "Logged as "
+    "other": "Logget inn som "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "Gjestetilgang, logg inn."
   },
   "144": {
     "other": "Not logged in."
@@ -300,154 +300,154 @@
     "other": "Stop searching"
   },
   "186": {
-    "other": "Image Preview"
+    "other": "Forhåndsvisning av bilde"
   },
   "187": {
     "other": "Online Edition - "
   },
   "189": {
-    "other": "Edit My Preferences"
+    "other": "Endre Mine Innstillinger"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "ZIP fil"
   },
   "190": {
-    "other": "Language"
+    "other": "Språk"
   },
   "191": {
-    "other": "Default Display"
+    "other": "Standardskjerm"
   },
   "192": {
-    "other": "List"
+    "other": "Liste"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "Miniatyrbilder"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Endre passord"
   },
   "195": {
-    "other": "User Preferences"
+    "other": "Brukerinnstillinger"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "Språket ditt skiller seg fra gjeldende språk!\\n Vil du laste siden på nytt for å bytte språk?"
   },
   "197": {
-    "other": "Your password change will take effect after you logout."
+    "other": "Passordendring vil tre i kraft etter at du har logget ut."
   },
   "198": {
-    "other": "New"
+    "other": "Ny"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Bekreft"
   },
   "2": {
-    "other": "Size"
+    "other": "Størrelse"
   },
   "20": {
-    "other": "WAV file"
+    "other": "WAV fil"
   },
   "200": {
-    "other": "Switch Repository to..."
+    "other": "Bytt Repository til..."
   },
   "201": {
-    "other": "Warning, some of your changes are not saved!\\n Are you sure you want to close?"
+    "other": "Advarsel, noen av endringene dine er ikke lagret!\\n Er du sikker på at du vil avslutte?"
   },
   "202": {
-    "other": "Warning, recursive copy!"
+    "other": "Advarsel, rekursiv kopi!"
   },
   "203": {
-    "other": "Destintation folder is the same as original folder!"
+    "other": "Destintationsmappe er den samme som originalmappen!"
   },
   "204": {
-    "other": "The file \""
+    "other": "Filen \""
   },
   "205": {
-    "other": "\" exceeds size limit ("
+    "other": "\" overskrider størrelsebegrensningen ("
   },
   "206": {
-    "other": "Mb).\\nIt will not be uploaded."
+    "other": "Mb).\\nDen vil ikke bli lastet opp."
   },
   "207": {
-    "other": "You have no write permission on this folder"
+    "other": "Du har ikke skrivetilgang til denne mappen"
   },
   "208": {
-    "other": "You have no read permission on this folder"
+    "other": "Du har ikke lesetilgang til denne mappen"
   },
   "209": {
-    "other": "Internal server error, please contact Administrator!"
+    "other": "Intern serverfeil, vennligst kontakt Administrator!"
   },
   "21": {
     "other": "PHP script"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "Opplasting feilet"
   },
   "211": {
-    "other": "The file is too big! Please contact your administrator or use the desktop sync client."
+    "other": "Filen er for stor! Vennligst kontakt din administrator eller bruk desktop synkroniseringsklienten."
   },
   "212": {
-    "other": "No file found on server!"
+    "other": "Ingen fil funnet på server!"
   },
   "213": {
-    "other": "Error while copying file to current folder"
+    "other": "Feil ved kopiering av fil til gjendende mappe"
   },
   "214": {
-    "other": "Browse"
+    "other": "Utforsk"
   },
   "215": {
-    "other": "Start Upload"
+    "other": "Start opplasting"
   },
   "216": {
-    "other": "Clear"
+    "other": "Tøm"
   },
   "217": {
-    "other": "Clear Completed"
+    "other": "Fjern fullførte"
   },
   "218": {
-    "other": "Remove from queue"
+    "other": "Fjern fra køen"
   },
   "219": {
-    "other": "Completed"
+    "other": "Fullført"
   },
   "22": {
     "other": "PHP script"
   },
   "220": {
-    "other": "Empty"
+    "other": "Tom"
   },
   "221": {
-    "other": "Empty Recycle Bin"
+    "other": "Tøm papirkurven"
   },
   "222": {
-    "other": "Restore"
+    "other": "Gjenopprett"
   },
   "223": {
-    "other": "Restore file to its original location"
+    "other": "Gjenopprett filen til sin opprinnelige plassering"
   },
   "224": {
-    "other": "Go to"
+    "other": "Gå til"
   },
   "225": {
-    "other": "Rename bookmark"
+    "other": "Endre navn på bokmerke"
   },
   "226": {
-    "other": "Details"
+    "other": "Detaljer"
   },
   "227": {
-    "other": "Switch to detailed table view"
+    "other": "Bytt til detaljert tabellvisning"
   },
   "228": {
-    "other": "Thumbs"
+    "other": "Miniatyrer"
   },
   "229": {
-    "other": "Switch to thumbnails view"
+    "other": "Bytt til miniatyrbildevisning"
   },
   "23": {
-    "other": "File"
+    "other": "Fil"
   },
   "230": {
-    "other": "Play"
+    "other": "Spill av"
   },
   "231": {
     "other": "Play Slideshow"
@@ -600,154 +600,154 @@
     "other": "Edit selected record"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "Slett valgte oppføringer"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "Er du sikker på at du vil slette de(n) markerte oppføringen(e)?"
   },
   "279": {
-    "other": "Tables"
+    "other": "Tabeller"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "Opprett ny fil i : "
   },
   "280": {
-    "other": "Records"
+    "other": "Poster"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "Opplastingsgrense"
   },
   "282": {
-    "other": "Size per File"
+    "other": "Størrelse per fil"
   },
   "283": {
-    "other": "Total Size"
+    "other": "Total størrelse"
   },
   "284": {
-    "other": "Files Number"
+    "other": "Filnummer"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "Finner ikke bruker, vennligst prøv igjen.\\n Vær sikker på at caps lock ikke er på!"
   },
   "286": {
-    "other": "Your user is out of date with the current version, please use the upgrade procedure."
+    "other": "Brukeren din er utdatert med gjeldende versjon, vennligst bruk oppgraderingsprosedyren."
   },
   "287": {
-    "other": "File Permissions"
+    "other": "Filrettigheter"
   },
   "288": {
-    "other": "User"
+    "other": "Bruker"
   },
   "289": {
-    "other": "Group"
+    "other": "Gruppe"
   },
   "29": {
-    "other": "Create"
+    "other": "Opprett"
   },
   "290": {
-    "other": "All"
+    "other": "Alle"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "Bruk rekursivt?"
   },
   "292": {
-    "other": "Share"
+    "other": "Del"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "Del en offentlig link til denne filen"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "Link-utløp (i dager) og passord (la stå tom hvis ingen passord)."
   },
   "295": {
-    "other": "Expiration"
+    "other": "Utløp"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "Kopier URLen under:"
   },
   "297": {
-    "other": "New User"
+    "other": "Ny Bruker"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Lag ny bruker"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Arbeidsområde"
   },
   "3": {
     "other": "Type"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "Skriv et navn på mappen og klikk &quot;Opprett&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Lag et nytt arbeidsområde"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Endre konfigurasjon"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Kopier som tekst"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "Kopier utvalg som tab-separert tekst."
   },
   "304": {
-    "other": "Back"
+    "other": "Tilbake"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "Tilbake til startsiden"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "Mine Arbeidsområder"
   },
   "306": {
-    "other": "Too many items"
+    "other": "For mange elementer"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "Fyll ut valgfrie felter"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Generer link"
   },
   "309": {
-    "other": "Generate"
+    "other": "Generer"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Du må velge en fil"
   },
   "310": {
-    "other": "Options"
+    "other": "Alternativer"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Last opp automatisk når en fil blir lagt til"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Opplastingsalternativer"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Komprimer..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Komprimer utvalget til zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Komprimer utvalget til"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Vis/Rediger"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "Kildekoderedigeringsprogram"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "CodePress kildekodevisning"
   },
   "319": {
     "other": "HTML Editor"
   },
   "32": {
-    "other": "Explore"
+    "other": "Utforsk"
   },
   "320": {
     "other": "WYSIWYG editor for HTML"
