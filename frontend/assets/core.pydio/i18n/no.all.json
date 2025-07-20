@@ -993,61 +993,61 @@
     "other": "Advarsel, navnets lengde må være under %s, dette filnavnet vil bli forkortet!"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "Beklager, deling av mapper er for tiden utilgjengelig ved bruk av den aktive autentiseringsdriveren (brukere kan ikke redigeres). Fildeling er likevel mulig."
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "Elementet du dro ser ut til å være en mappe, og en mappe kan ikke lastes opp til serveren! Er du sikker på at du vil laste opp?"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Autentiseringsmetode"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "Last ned biter"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "Last ned valgt fil i biter"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "Oppgi antall biter du vil laste ned, klikk på knappen, og klikk så på hver fil for å laste de ned."
   },
   "4": {
-    "other": "Modified"
+    "other": "Endret"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Denne mappen finnes allerede (navn skiller mellom små og store bokstaver)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Antall biter :"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "Du kan laste ned og installere følgende programvare for å sette sammen bitene på din PC : "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "har byttet navn til"
   },
   "411": {
-    "other": "Open"
+    "other": "Åpne"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Kun opplasting"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Delt av"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "Bruk piltastene for å navigere og +/- for å endre zoom"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Slå av/på venstre panels synlighet"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Venstrepanel"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Lag en cell..."
   },
   "418": {
     "other": "Create a cell"
@@ -1200,154 +1200,154 @@
     "other": "Preview"
   },
   "463": {
-    "other": "Download all"
+    "other": "Last ned alle"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Last ned alt innholdet i arbeidsområdet samtidig (zippet)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "Vis alternative URLer (monter arbeidsområder separat)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Laster..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Alle delte elementer"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Arbeidsområder"
   },
   "469": {
     "other": "Cells"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Vil du virkelig slette"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Opprettet %date"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "Opprettet av %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Delt av %user"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Delt av %user %date"
   },
   "474": {
-    "other": "No description available"
+    "other": "Ingen beskrivelse tilgjengelig"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Filer delt blant alle brukere"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Ditt personlige arbeidsområde"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Velg en fil eller mappe å se detaljene her"
   },
   "478": {
-    "other": "No results found"
+    "other": "Ingen resultater funnet"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Har du glemt passordet ditt?"
   },
   "48": {
     "other": "Ok"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Bla gjennom alle mapper i det gjeldende arbeidsområdet."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Alle dine delte filer og mapper"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Hurtigtilgang til dine bokmerkede elementer"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "Du har ikke tilgang til å lage flere brukere!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Opprett bruker"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Opprett en delt bruker"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Avansert"
   },
   "487": {
-    "other": "Basic"
+    "other": "Grunnleggende"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Avansert Filter"
   },
   "489": {
     "other": "Metadata"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "490": {
-    "other": "Date range"
+    "other": "Datointervall"
   },
   "491": {
-    "other": "After"
+    "other": "Etter"
   },
   "492": {
-    "other": "until"
+    "other": "til"
   },
   "493": {
-    "other": "Today"
+    "other": "I dag"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "I går"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "I morgen"
   },
   "495": {
-    "other": "Last week"
+    "other": "Forrige uke"
   },
   "496": {
-    "other": "Last month"
+    "other": "Forrige måned"
   },
   "497": {
-    "other": "Last year"
+    "other": "I fjor"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Dokument egenskap"
   },
   "499": {
-    "other": "File"
+    "other": "Fil"
   },
   "5": {
-    "other": "Actions"
+    "other": "Handlinger"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe-fil"
   },
   "500": {
-    "other": "Extension"
+    "other": "Utvidelse"
   },
   "501": {
-    "other": "or"
+    "other": "eller"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Kun mapper"
   },
   "503": {
-    "other": "Size"
+    "other": "Størrelse"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "til"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Applikasjonsparametre (brukere, arbeidsområder, konfigurasjoner)"
   },
   "507": {
     "other": "Welcome on %s"
