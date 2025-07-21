@@ -1458,43 +1458,43 @@
     "other": "Avbryt"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Opplastingsfeil: finner ikke midlertidig mappe"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Opplastingsfeil: kan ikke skrive til den midlertidige mappen"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Opplastingsfeil: En PHP-utvidelse stoppet opplastingen."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Resultat begrenset til %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Vis mer"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Ekstern deling"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "Dette elementet har blitt delt med deg av %%OWNER%% fra en ekstern lokasjon. Vil du fortsette?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Godta"
   },
   "548": {
-    "other": "Decline"
+    "other": "Avslå"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "Du har tidligere godtatt dette elementet som ble delt med deg av %%OWNER%% fra en ekstern lokasjon. Vil du avslå det nå?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "har blitt endret"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Avvis denne delingen"
   },
   "551": {
-    "other": "Reject"
+    "other": "Avvis"
   },
   "552": {
     "other": "Please provide password."
