@@ -37,6 +37,10 @@ MONGODB ACTIVATION
 {{- end -}}
 {{- end -}}
 
+{{- define "cells.nosql.params" -}}
+{{- include "cells.urlQuery" (list .Values.externalNoSQLDatabase.params) }}
+{{- end -}}
+
 {{/*
 MONGODB TLS ACTIVATION
 */}}
@@ -201,12 +205,13 @@ MONGODB URL COMPLÈTE
 {{- define "cells.nosql.url" -}}
 {{- $path := index . 1 }}
 {{- with index . 0 }}
-{{- printf "%s://%s%s:%s%s%s"
+{{- printf "%s://%s%s:%s%s%s%s"
     (include "cells.nosql.scheme" .)
     (include "cells.nosql.auth.urlUser" .)
     (include "cells.nosql.host" .)
     (include "cells.nosql.port" .)
     $path
+    (include "cells.nosql.params" .)
     (include "cells.nosql.tls.params" .)
 }}
 {{- end }}

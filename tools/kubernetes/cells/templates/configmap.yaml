@@ -41,7 +41,7 @@ data:
     {{ end }}
 
     {{- if (include "cells.nosql.enabled" .) }}
-    documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}?authSource=admin
+    documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}
     usedocumentsdsn: true
     {{- else }}
     usedocumentsdsn: false

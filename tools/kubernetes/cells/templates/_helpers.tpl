@@ -95,12 +95,30 @@ Names
 {{- end -}}
 {{- end -}}
 
+{{- define "cells.urlQuery" -}}
+{{- $out := dict -}}
+{{- range . -}}
+  {{- range $k, $v := . -}}
+    {{- $_ := set $out $k $v -}}
+  {{- end -}}
+{{- end -}}
+{{- $i := 0 -}}
+{{- $parts := list -}}
+{{- range $k, $v := $out -}}
+  {{- $encoded := printf "%s=%s" ($k | urlquery) ($v | toString | urlquery) -}}
+  {{- $parts = append $parts $encoded -}}
+{{- end }}
+{{- if gt (len $parts) 0 -}}
+  ?{{ join "&" $parts -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "cells.urlTLSParams" -}}
 {{- if (.enabled | default false) -}}
 {{- if (.insecure | default false) -}}
-{{- printf "?tlsCertInsecureHost=true"}}
+{{- printf "tlsCertInsecureHost=true"}}
 {{- else -}}
-{{- printf "?tlsCertUUID=%s-client-%s&tlsCertKeyUUID=%s-client-%s&tlsCertCAUUID=%s-ca-%s" .prefix .certFilename .prefix .certKeyFilename .prefix .caFilename -}}
+{{- printf "tlsCertUUID=%s-client-%s&tlsCertKeyUUID=%s-client-%s&tlsCertCAUUID=%s-ca-%s" .prefix .certFilename .prefix .certKeyFilename .prefix .caFilename -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
