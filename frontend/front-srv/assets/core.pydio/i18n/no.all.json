@@ -1413,49 +1413,49 @@
     "other": "Vis orginalbilde"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Lav-oppløslig versjon"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Delt med"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Interne brukere"
   },
   "53": {
-    "other": "Save"
+    "other": "Lagre"
   },
   "530": {
-    "other": "External users"
+    "other": "Eksterne brukere"
   },
   "531": {
-    "other": "Users"
+    "other": "Brukere"
   },
   "532": {
-    "other": "Groups"
+    "other": "Grupper"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "Identifikator brukt for login, vennligst bruk alfanumeriske tegn eller e-post i små bokstaver."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Passord brukt til innlogging"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Send passord på e-post"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Send en velkomstmail inkludert passordet til den nye brukeren"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Filen er for stor! Maksimal godkjent størrelse er %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Opplastingsfeil: ingen fil funnet på server!"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "Opplastingsfeil: filen er delvis"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "540": {
     "other": "Upload error: cannot find the temporary directory"
