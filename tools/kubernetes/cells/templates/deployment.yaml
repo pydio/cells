@@ -164,7 +164,7 @@ spec:
           image: busybox
           command: ["sh", "-c", 'until nc -zw2 {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }}; do echo waiting for broker; sleep 2; done']
         {{- end }}
-        {{- if (include "cells.s3.enabled" .) }}
+        {{- if and (include "cells.s3.enabled" .) .Values.externalS3.useCustomURL }}
         - name: wait-for-s3
           image: busybox
           command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }}; do echo waiting for s3; sleep 2; done' ]
