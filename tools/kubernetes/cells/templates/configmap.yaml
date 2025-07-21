@@ -56,14 +56,17 @@ data:
     {{- if or .Values.minio.enabled (and .Values.externalS3.enabled .Values.externalS3.useCustomURL) }}
     dss3custom: {{ include "cells.s3.url" (list . "") }}
     {{- end }}
+    dss3customregion: {{ .Values.externalS3.customRegion | default "us-east-1" }}
     dss3apikey: {{ include "cells.s3.auth.user" . }}
     dss3apisecret: {{ include "cells.s3.auth.password" . }}
-    dss3bucketdefault: pydiods1
-    dss3bucketpersonal: personal
-    dss3bucketcells: cellsdata
-    dss3bucketbinaries: binaries
-    dss3bucketthumbs: thumbnails
-    dss3bucketversions: versions
+    dss3bucketdefault: {{ .Values.externalS3.ds.pydiods1 | default "pydiods1" }}
+    dss3bucketpersonal: {{ .Values.externalS3.ds.personal | default "personal" }}
+    dss3bucketcells: {{ .Values.externalS3.ds.cellsdata | default "cellsdata" }}
+    dss3bucketbinaries: {{ .Values.externalS3.ds.binaries | default "binaries" }}
+    dss3bucketthumbs: {{ .Values.externalS3.ds.thumbnails | default "thumbnails" }}
+    dss3bucketversions: {{ .Values.externalS3.ds.versions | default "versions" }}
+
+
     {{- end }}
 
     customconfigs:

@@ -496,6 +496,13 @@ externalS3:
   enabled: false
   host: minio.cells.svc.cluster.local
   port: 9000
+  ds:
+    pydiods1: "pydiods1"
+    personal: "personal"
+    cellsdata: "cellsdata"
+    binaries: "binaries"
+    thumbnails: "thumbnails"
+    versions: "versions"
   tls:
     enabled: false
     client:
