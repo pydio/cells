@@ -837,64 +837,64 @@
     "other": "Din versjon er oppdatert"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "En ny versjon (%s) er tilgjengelig! Besøk %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Et nytt workspace har blitt delt."
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "Advarsel, manglende argumenter"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "har blitt opprettet i mappen"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "En bruker som ikke tilhører deg ekeisterer allerede med dette navnet, vennligst velg et annet navn."
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "Du har ikke rettigheter til å dele elementer offentlig."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Et workspace med samme navn eksisterer allerede, vennligst velg et annet navn."
   },
   "353": {
-    "other": "Target User"
+    "other": "Målbruker"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Lag en ny bruker eller velg en av dine eksisterende fra listen."
   },
   "355": {
-    "other": "User Name"
+    "other": "Brukernavn"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Brukerpassord"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Mål Repository"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Velg et navn for det delte workspace."
   },
   "359": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Størrelsen er"
   },
   "360": {
-    "other": "Rights"
+    "other": "Rettigheter"
   },
   "361": {
-    "other": "Read"
+    "other": "Les"
   },
   "362": {
-    "other": "Write"
+    "other": "Skriv"
   },
   "363": {
-    "other": "Shared"
+    "other": "Delt"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Du har ikke rettigheter til å utføre denne operasjonen"
   },
   "365": {
     "other": "You are not allowed to upload more than %s files at once."
@@ -1197,7 +1197,7 @@
     "other": "Switch to list view"
   },
   "462": {
-    "other": "Preview"
+    "other": "Forhåndsvisning"
   },
   "463": {
     "other": "Last ned alle"
@@ -1350,67 +1350,67 @@
     "other": "Applikasjonsparametre (brukere, arbeidsområder, konfigurasjoner)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Velkommen til %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Jeg opprettet en konto til deg på %s. For å koble til, trykk på følgende link %link og bruk disse detaljene: <br><br> Brukernavn: %user<br><br> Passord: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Lagre som et team"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Tekstbehandler"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Vennligst skriv inn et team-label"
   },
   "511": {
-    "other": "My %s"
+    "other": "Min %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "Skrivebord fullskjerm"
   },
   "513": {
-    "other": "show"
+    "other": "vis"
   },
   "514": {
-    "other": "hide"
+    "other": "skjul"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Ingen bokmerker - Slipp filer eller mapper her for rask tilgang."
   },
   "516": {
-    "other": "expand"
+    "other": "utvid"
   },
   "517": {
-    "other": "collapse"
+    "other": "skjul"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Alternativt kan du <a class='create_file_alt_link'>lage en ny tom fil</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Oppdater bruker"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Redigerer fil"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Oppdater brukerdata og passord"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Oppdatering av bruker vellykket"
   },
   "522": {
-    "other": "User ID"
+    "other": "Bruker ID"
   },
   "523": {
-    "other": "Password"
+    "other": "Passord"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Oppdater passord"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Vis orginalbilde"
   },
   "526": {
     "other": "Low-resolution version"
