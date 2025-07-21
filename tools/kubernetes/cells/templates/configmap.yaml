@@ -53,7 +53,9 @@ data:
 
     {{- if (include "cells.s3.enabled" .) }}
     dstype: S3
+    {{- if or .Values.minio.enabled (and .Values.externalS3.enabled .Values.externalS3.useCustomURL) }}
     dss3custom: {{ include "cells.s3.url" (list . "") }}
+    {{- end }}
     dss3apikey: {{ include "cells.s3.auth.user" . }}
     dss3apisecret: {{ include "cells.s3.auth.password" . }}
     dss3bucketdefault: pydiods1
