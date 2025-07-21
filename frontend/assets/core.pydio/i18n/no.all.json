@@ -153,151 +153,151 @@
     "other": "Not logged in."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "Mine Bokmerker"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Slett Bokmerke"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Bokmerker"
   },
   "148": {
-    "other": "Parent"
+    "other": "Forelder"
   },
   "149": {
-    "other": "Reload"
+    "other": "Last på nytt"
   },
   "15": {
-    "other": "HTML page"
+    "other": "HTML side"
   },
   "150": {
-    "other": "Display"
+    "other": "Vis"
   },
   "151": {
-    "other": "Switch display mode..."
+    "other": "Bytt visningsmodus..."
   },
   "152": {
-    "other": "Toggle Bookmark"
+    "other": "Veksle bokmerke"
   },
   "153": {
-    "other": "Add/remove item to MyBookmarks"
+    "other": "Legg til/fjern element i MyBookmarks"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Bokmerke"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Legg til element i MyBookmarks"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Fjern Bokmerke"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Gjern element fra MyBookmarks"
   },
   "154": {
-    "other": "New Folder"
+    "other": "Ny Mappe"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "Opprett ny mappe"
   },
   "156": {
-    "other": "New empty file"
+    "other": "Ny tom fil"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "Opprett ny tom fil"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "Endre navn på valgt fil eller mappe"
   },
   "159": {
-    "other": "Copy selection to..."
+    "other": "Kopier utvalg til..."
   },
   "16": {
-    "other": "REAL file"
+    "other": "REAL fil"
   },
   "160": {
-    "other": "Move selected files to ..."
+    "other": "Flytt valgte filer til ..."
   },
   "161": {
-    "other": "Delete selected files."
+    "other": "Slett valgte filer."
   },
   "162": {
-    "other": "Edit text files online."
+    "other": "Endre tekstfil online."
   },
   "163": {
-    "other": "Log in"
+    "other": "Logg inn"
   },
   "164": {
-    "other": "Log out"
+    "other": "Logg ut"
   },
   "165": {
-    "other": "Settings"
+    "other": "Innstillinger"
   },
   "166": {
-    "other": "About"
+    "other": "Om"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Om Pydio"
   },
   "168": {
-    "other": "Connect to APPLICATION_TITLE"
+    "other": "Koble til APPLICATION_TITLE"
   },
   "169": {
-    "other": "Disconnect from APPLICATION_TITLE"
+    "other": "Koble fra APPLICATION_TITLE"
   },
   "17": {
-    "other": "REAL file"
+    "other": "REAL fil"
   },
   "170": {
-    "other": "Current Folder"
+    "other": "Gjeldende mappe"
   },
   "171": {
-    "other": "Browse"
+    "other": "Utforsk"
   },
   "172": {
-    "other": "Your Selection"
+    "other": "Ditt utvalg"
   },
   "173": {
-    "other": "New folder name"
+    "other": "Nytt mappenavn"
   },
   "174": {
-    "other": "New file name"
+    "other": "Nytt filnavn"
   },
   "175": {
-    "other": "Select destination folder"
+    "other": "Velg destinasjonsmappe"
   },
   "176": {
-    "other": "The selected files will be moved to the Recycle Bin."
+    "other": "De valgte filene vil bli flyttet til papirkurven."
   },
   "177": {
-    "other": "Are you sure you want to permanently delete the selected files?"
+    "other": "Er du sikker på at du vil slette de valgte filene permanent?"
   },
   "178": {
-    "other": "Previous"
+    "other": "Forrige"
   },
   "179": {
-    "other": "Next"
+    "other": "Neste"
   },
   "18": {
     "other": "PERL script"
   },
   "180": {
-    "other": "Enter login/password"
+    "other": "Angi brukernavn/passord"
   },
   "181": {
-    "other": "Login"
+    "other": "Logg inn"
   },
   "182": {
-    "other": "Password"
+    "other": "Passord"
   },
   "183": {
-    "other": "Please select a destination folder different from the origin!"
+    "other": "Velg en målmappe forskjellig fra opprinnelig plassering!"
   },
   "184": {
-    "other": "Search in current folder and sub-folders"
+    "other": "Søk i gjeldende mappe og undermapper"
   },
   "185": {
-    "other": "Stop searching"
+    "other": "Slutt å søke"
   },
   "186": {
     "other": "Forhåndsvisning av bilde"
@@ -597,7 +597,7 @@
     "other": "Are you sure you want to drop the selected table(s)?"
   },
   "276": {
-    "other": "Edit selected record"
+    "other": "Endre valgt oppføring"
   },
   "277": {
     "other": "Slett valgte oppføringer"
@@ -753,88 +753,88 @@
     "other": "WYSIWYG editor for HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Velg"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Velg gjeldende fil"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Send e-post med denne URLen"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Ingen editor tilgjengelig"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "Tilpass beste"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Ingen Tilpass"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Dokumentleser"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Vis pdf,svg, tif og mer online"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Feil ved opplasing av fil !"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Vennligst vent mens sidene lastes..."
   },
   "331": {
-    "other": "Page"
+    "other": "Side"
   },
   "332": {
-    "other": "of"
+    "other": "av"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Pixlr bildeeditor"
   },
   "334": {
-    "other": "more"
+    "other": "mer"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Vennligst anngi et sidenummer mellom 1 og "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Beklager, du kan ikke slippe mapper - kun filer!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Start opplasting automatisk"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Lukk panel etter opplasting er ferdig"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Eksisterende filer"
   },
   "34": {
-    "other": "The file"
+    "other": "Filen"
   },
   "340": {
-    "other": "Alert"
+    "other": "Varsel"
   },
   "341": {
-    "other": "File Info"
+    "other": "Filinfo"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Mappeinfo"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Bildeinfo"
   },
   "344": {
-    "other": "Search on"
+    "other": "Søk på"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Ingne versjonsinformasjon kunne hentes"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Din versjon er oppdatert"
   },
   "347": {
     "other": "A new version (%s) is available! Visit %s"
