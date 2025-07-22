@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/url"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 )
 
@@ -29,10 +31,18 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 		return nil, err
 	}
 
-	cli, err := clientv3.New(clientv3.Config{
+	config := clientv3.Config{
 		Endpoints: []string{u.Host},
-	})
+	}
 
+	if u.User != nil {
+		config.Username = u.User.Username()
+		if pwd, ok := u.User.Password(); ok {
+			config.Password = pwd
+		}
+	}
+
+	cli, err := clientv3.New(config)
 	if err != nil {
 		return nil, err
 	}
@@ -51,5 +61,49 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 		return nil, err
 	}
 
-	return m, nil
+	rcvr, err := m.Watch()
+	if err != nil {
+		return nil, err
+	}
+
+	st := kv.NewStore()
+	//w := watcher.NewWatcher
+	st.Set(m.Get())
+
+	go func() {
+		for {
+			_, err := rcvr.Next()
+			if err != nil {
+				continue
+			}
+
+			st.Set(m.Get())
+		}
+	}()
+
+	// Watching remote store
+
+	return &etcdStore{
+		Store: st,
+		m:     m,
+	}, nil
+}
+
+type etcdStore struct {
+	kv.Store
+
+	m config.Store
+}
+
+func (e *etcdStore) Save(key string, value string) error {
+	str, err := json.Marshal(e.Store.Val().Get())
+	if err != nil {
+		return err
+	}
+
+	if err := e.m.Val("").Set(str); err != nil {
+		return err
+	}
+
+	return e.m.Save(key, value)
 }
