@@ -1,36 +1,36 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Hent ut miniatyrbilder og Exif data"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Fjern buffer for miniatyrbilder for slettede filer"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Synkronisere eksterne mapper"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Rengjør jobber og oppgaver i planleggeren"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Kjør en falsk lang jobb (for testing)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Opprettelse av tilfeldige brukere (for testing)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Eksempel RPC jobb (for testing)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Automatisk arkivering av endringstjeneste"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Rydd eller overfør brukerdata ved sletting"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Slett foreldreløse filer etter 24t"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Rydd utgåtte ACLer etter 10 dager"
   },
   "Jobs.User.Compress": {
     "other": "Compressing Selection..."

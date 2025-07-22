@@ -1,87 +1,87 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Åpnet av {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Åpnet {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} ble åpnet av {{.Actor}}"
   },
   "Cell": {
     "other": "Cell"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Opprettet av {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Opprettet {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} ble opprettet av {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Slettet av {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Slettet {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} ble slettet av {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Delt i {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} har delt {{.Object}} med deg"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Dette er din daglige Pydio Digest"
   },
   "Document": {
-    "other": "Document"
+    "other": "Dokument"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Mappe"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Endret av {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Endret {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} ble endret av {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Metadata endret av {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Endret metadata på {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} endret metadata på {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "Kommentert av {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Kommenterte {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} publiserte ny kommentar på {{.Object}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Flyttet av {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Flyttet {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} ble flyttet av {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "Arbeidsområde"
   },
   "DateFormat": {
     "other": "2006-01-02 15:04"

@@ -1,453 +1,453 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Siste versjon"
   },
   "1": {
-    "other": "Filename"
+    "other": "Filnavn"
   },
   "10": {
-    "other": "Text file"
+    "other": "Tekstfil"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Finner ikke filen "
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "Opprinnelsen og målmappene er de samme!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Feil ved oppretting av fil :"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Finner ikke mappen "
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Gå til angitt lokasjon"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "Send en e-post med direkte link til denne lokasjonen."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "Send e-post"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "Ditt navn og/eller e-post"
   },
   "108": {
-    "other": "The destination email"
+    "other": "Mottakers e-post"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "Klikkbar URL"
   },
   "11": {
     "other": "Javascript"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "Legg til en kommentar"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "Følgende e-post har blitt sendt :"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "Sending av e-post mislyktes : "
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "Utvalget er tomt!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "Ukjent feil under kopiering!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "Filen har blitt lagret"
   },
   "116": {
-    "other": "files"
+    "other": "filer"
   },
   "117": {
-    "other": "The folder"
+    "other": "Mappen"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "Last ned flere filer"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "Klikk på hver fil for å laste den ned."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "GIF bilde"
   },
   "120": {
-    "other": "You are not allowed to delete the whole arborescence!"
+    "other": "Du har ikke lov til å slette hele grensen!"
   },
   "121": {
-    "other": "Image File "
+    "other": "Bildefil "
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Papirkurv"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "har blitt flyttet til "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "Overskriv eksisterende filer?"
   },
   "125": {
-    "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
+    "other": "En fil/mappe med det navnet eksisterer allerede (navn skiller mellom små og store bokstaver), velg et annet!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "Miniatyrbilder"
   },
   "127": {
-    "other": "Size"
+    "other": "Størrelse"
   },
   "128": {
-    "other": "files selected."
+    "other": "filer valgt."
   },
   "129": {
-    "other": "View"
+    "other": "Visning"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "JPG bilde"
   },
   "130": {
-    "other": "Folders"
+    "other": "Mapper"
   },
   "131": {
-    "other": "Details"
+    "other": "Detaljer"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Ingen fil eller mappe"
   },
   "133": {
-    "other": "Name"
+    "other": "Navn"
   },
   "134": {
     "other": "Type"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "Dimensjoner"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "Vis større bilde"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "Sist endret"
   },
   "139": {
-    "other": "Edit Online"
+    "other": "Rediger online"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML side"
   },
   "140": {
-    "other": "Play whole folder"
+    "other": "Spill av hele mappen"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "Leser mappe"
   },
   "142": {
-    "other": "Logged as "
+    "other": "Logget inn som "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "Gjestetilgang, logg inn."
   },
   "144": {
     "other": "Not logged in."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "Mine Bokmerker"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Slett Bokmerke"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Bokmerker"
   },
   "148": {
-    "other": "Parent"
+    "other": "Forelder"
   },
   "149": {
-    "other": "Reload"
+    "other": "Last på nytt"
   },
   "15": {
-    "other": "HTML page"
+    "other": "HTML side"
   },
   "150": {
-    "other": "Display"
+    "other": "Vis"
   },
   "151": {
-    "other": "Switch display mode..."
+    "other": "Bytt visningsmodus..."
   },
   "152": {
-    "other": "Toggle Bookmark"
+    "other": "Veksle bokmerke"
   },
   "153": {
-    "other": "Add/remove item to MyBookmarks"
+    "other": "Legg til/fjern element i MyBookmarks"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Bokmerke"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Legg til element i MyBookmarks"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Fjern Bokmerke"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Gjern element fra MyBookmarks"
   },
   "154": {
-    "other": "New Folder"
+    "other": "Ny Mappe"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "Opprett ny mappe"
   },
   "156": {
-    "other": "New empty file"
+    "other": "Ny tom fil"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "Opprett ny tom fil"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "Endre navn på valgt fil eller mappe"
   },
   "159": {
-    "other": "Copy selection to..."
+    "other": "Kopier utvalg til..."
   },
   "16": {
-    "other": "REAL file"
+    "other": "REAL fil"
   },
   "160": {
-    "other": "Move selected files to ..."
+    "other": "Flytt valgte filer til ..."
   },
   "161": {
-    "other": "Delete selected files."
+    "other": "Slett valgte filer."
   },
   "162": {
-    "other": "Edit text files online."
+    "other": "Endre tekstfil online."
   },
   "163": {
-    "other": "Log in"
+    "other": "Logg inn"
   },
   "164": {
-    "other": "Log out"
+    "other": "Logg ut"
   },
   "165": {
-    "other": "Settings"
+    "other": "Innstillinger"
   },
   "166": {
-    "other": "About"
+    "other": "Om"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Om Pydio"
   },
   "168": {
-    "other": "Connect to APPLICATION_TITLE"
+    "other": "Koble til APPLICATION_TITLE"
   },
   "169": {
-    "other": "Disconnect from APPLICATION_TITLE"
+    "other": "Koble fra APPLICATION_TITLE"
   },
   "17": {
-    "other": "REAL file"
+    "other": "REAL fil"
   },
   "170": {
-    "other": "Current Folder"
+    "other": "Gjeldende mappe"
   },
   "171": {
-    "other": "Browse"
+    "other": "Utforsk"
   },
   "172": {
-    "other": "Your Selection"
+    "other": "Ditt utvalg"
   },
   "173": {
-    "other": "New folder name"
+    "other": "Nytt mappenavn"
   },
   "174": {
-    "other": "New file name"
+    "other": "Nytt filnavn"
   },
   "175": {
-    "other": "Select destination folder"
+    "other": "Velg destinasjonsmappe"
   },
   "176": {
-    "other": "The selected files will be moved to the Recycle Bin."
+    "other": "De valgte filene vil bli flyttet til papirkurven."
   },
   "177": {
-    "other": "Are you sure you want to permanently delete the selected files?"
+    "other": "Er du sikker på at du vil slette de valgte filene permanent?"
   },
   "178": {
-    "other": "Previous"
+    "other": "Forrige"
   },
   "179": {
-    "other": "Next"
+    "other": "Neste"
   },
   "18": {
     "other": "PERL script"
   },
   "180": {
-    "other": "Enter login/password"
+    "other": "Angi brukernavn/passord"
   },
   "181": {
-    "other": "Login"
+    "other": "Logg inn"
   },
   "182": {
-    "other": "Password"
+    "other": "Passord"
   },
   "183": {
-    "other": "Please select a destination folder different from the origin!"
+    "other": "Velg en målmappe forskjellig fra opprinnelig plassering!"
   },
   "184": {
-    "other": "Search in current folder and sub-folders"
+    "other": "Søk i gjeldende mappe og undermapper"
   },
   "185": {
-    "other": "Stop searching"
+    "other": "Slutt å søke"
   },
   "186": {
-    "other": "Image Preview"
+    "other": "Forhåndsvisning av bilde"
   },
   "187": {
     "other": "Online Edition - "
   },
   "189": {
-    "other": "Edit My Preferences"
+    "other": "Endre Mine Innstillinger"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "ZIP fil"
   },
   "190": {
-    "other": "Language"
+    "other": "Språk"
   },
   "191": {
-    "other": "Default Display"
+    "other": "Standardskjerm"
   },
   "192": {
-    "other": "List"
+    "other": "Liste"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "Miniatyrbilder"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Endre passord"
   },
   "195": {
-    "other": "User Preferences"
+    "other": "Brukerinnstillinger"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "Språket ditt skiller seg fra gjeldende språk!\\n Vil du laste siden på nytt for å bytte språk?"
   },
   "197": {
-    "other": "Your password change will take effect after you logout."
+    "other": "Passordendring vil tre i kraft etter at du har logget ut."
   },
   "198": {
-    "other": "New"
+    "other": "Ny"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Bekreft"
   },
   "2": {
-    "other": "Size"
+    "other": "Størrelse"
   },
   "20": {
-    "other": "WAV file"
+    "other": "WAV fil"
   },
   "200": {
-    "other": "Switch Repository to..."
+    "other": "Bytt Repository til..."
   },
   "201": {
-    "other": "Warning, some of your changes are not saved!\\n Are you sure you want to close?"
+    "other": "Advarsel, noen av endringene dine er ikke lagret!\\n Er du sikker på at du vil avslutte?"
   },
   "202": {
-    "other": "Warning, recursive copy!"
+    "other": "Advarsel, rekursiv kopi!"
   },
   "203": {
-    "other": "Destintation folder is the same as original folder!"
+    "other": "Destintationsmappe er den samme som originalmappen!"
   },
   "204": {
-    "other": "The file \""
+    "other": "Filen \""
   },
   "205": {
-    "other": "\" exceeds size limit ("
+    "other": "\" overskrider størrelsebegrensningen ("
   },
   "206": {
-    "other": "Mb).\\nIt will not be uploaded."
+    "other": "Mb).\\nDen vil ikke bli lastet opp."
   },
   "207": {
-    "other": "You have no write permission on this folder"
+    "other": "Du har ikke skrivetilgang til denne mappen"
   },
   "208": {
-    "other": "You have no read permission on this folder"
+    "other": "Du har ikke lesetilgang til denne mappen"
   },
   "209": {
-    "other": "Internal server error, please contact Administrator!"
+    "other": "Intern serverfeil, vennligst kontakt Administrator!"
   },
   "21": {
     "other": "PHP script"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "Opplasting feilet"
   },
   "211": {
-    "other": "The file is too big! Please contact your administrator or use the desktop sync client."
+    "other": "Filen er for stor! Vennligst kontakt din administrator eller bruk desktop synkroniseringsklienten."
   },
   "212": {
-    "other": "No file found on server!"
+    "other": "Ingen fil funnet på server!"
   },
   "213": {
-    "other": "Error while copying file to current folder"
+    "other": "Feil ved kopiering av fil til gjendende mappe"
   },
   "214": {
-    "other": "Browse"
+    "other": "Utforsk"
   },
   "215": {
-    "other": "Start Upload"
+    "other": "Start opplasting"
   },
   "216": {
-    "other": "Clear"
+    "other": "Tøm"
   },
   "217": {
-    "other": "Clear Completed"
+    "other": "Fjern fullførte"
   },
   "218": {
-    "other": "Remove from queue"
+    "other": "Fjern fra køen"
   },
   "219": {
-    "other": "Completed"
+    "other": "Fullført"
   },
   "22": {
     "other": "PHP script"
   },
   "220": {
-    "other": "Empty"
+    "other": "Tom"
   },
   "221": {
-    "other": "Empty Recycle Bin"
+    "other": "Tøm papirkurven"
   },
   "222": {
-    "other": "Restore"
+    "other": "Gjenopprett"
   },
   "223": {
-    "other": "Restore file to its original location"
+    "other": "Gjenopprett filen til sin opprinnelige plassering"
   },
   "224": {
-    "other": "Go to"
+    "other": "Gå til"
   },
   "225": {
-    "other": "Rename bookmark"
+    "other": "Endre navn på bokmerke"
   },
   "226": {
-    "other": "Details"
+    "other": "Detaljer"
   },
   "227": {
-    "other": "Switch to detailed table view"
+    "other": "Bytt til detaljert tabellvisning"
   },
   "228": {
-    "other": "Thumbs"
+    "other": "Miniatyrer"
   },
   "229": {
-    "other": "Switch to thumbnails view"
+    "other": "Bytt til miniatyrbildevisning"
   },
   "23": {
-    "other": "File"
+    "other": "Fil"
   },
   "230": {
-    "other": "Play"
+    "other": "Spill av"
   },
   "231": {
     "other": "Play Slideshow"
@@ -597,457 +597,457 @@
     "other": "Are you sure you want to drop the selected table(s)?"
   },
   "276": {
-    "other": "Edit selected record"
+    "other": "Endre valgt oppføring"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "Slett valgte oppføringer"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "Er du sikker på at du vil slette de(n) markerte oppføringen(e)?"
   },
   "279": {
-    "other": "Tables"
+    "other": "Tabeller"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "Opprett ny fil i : "
   },
   "280": {
-    "other": "Records"
+    "other": "Poster"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "Opplastingsgrense"
   },
   "282": {
-    "other": "Size per File"
+    "other": "Størrelse per fil"
   },
   "283": {
-    "other": "Total Size"
+    "other": "Total størrelse"
   },
   "284": {
-    "other": "Files Number"
+    "other": "Filnummer"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "Finner ikke bruker, vennligst prøv igjen.\\n Vær sikker på at caps lock ikke er på!"
   },
   "286": {
-    "other": "Your user is out of date with the current version, please use the upgrade procedure."
+    "other": "Brukeren din er utdatert med gjeldende versjon, vennligst bruk oppgraderingsprosedyren."
   },
   "287": {
-    "other": "File Permissions"
+    "other": "Filrettigheter"
   },
   "288": {
-    "other": "User"
+    "other": "Bruker"
   },
   "289": {
-    "other": "Group"
+    "other": "Gruppe"
   },
   "29": {
-    "other": "Create"
+    "other": "Opprett"
   },
   "290": {
-    "other": "All"
+    "other": "Alle"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "Bruk rekursivt?"
   },
   "292": {
-    "other": "Share"
+    "other": "Del"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "Del en offentlig link til denne filen"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "Link-utløp (i dager) og passord (la stå tom hvis ingen passord)."
   },
   "295": {
-    "other": "Expiration"
+    "other": "Utløp"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "Kopier URLen under:"
   },
   "297": {
-    "other": "New User"
+    "other": "Ny Bruker"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Lag ny bruker"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Arbeidsområde"
   },
   "3": {
     "other": "Type"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "Skriv et navn på mappen og klikk &quot;Opprett&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Lag et nytt arbeidsområde"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Endre konfigurasjon"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Kopier som tekst"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "Kopier utvalg som tab-separert tekst."
   },
   "304": {
-    "other": "Back"
+    "other": "Tilbake"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "Tilbake til startsiden"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "Mine Arbeidsområder"
   },
   "306": {
-    "other": "Too many items"
+    "other": "For mange elementer"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "Fyll ut valgfrie felter"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Generer link"
   },
   "309": {
-    "other": "Generate"
+    "other": "Generer"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Du må velge en fil"
   },
   "310": {
-    "other": "Options"
+    "other": "Alternativer"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Last opp automatisk når en fil blir lagt til"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Opplastingsalternativer"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Komprimer..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Komprimer utvalget til zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Komprimer utvalget til"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Vis/Rediger"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "Kildekoderedigeringsprogram"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "CodePress kildekodevisning"
   },
   "319": {
     "other": "HTML Editor"
   },
   "32": {
-    "other": "Explore"
+    "other": "Utforsk"
   },
   "320": {
     "other": "WYSIWYG editor for HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Velg"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Velg gjeldende fil"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Send e-post med denne URLen"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Ingen editor tilgjengelig"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "Tilpass beste"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Ingen Tilpass"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Dokumentleser"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Vis pdf,svg, tif og mer online"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Feil ved opplasing av fil !"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Vennligst vent mens sidene lastes..."
   },
   "331": {
-    "other": "Page"
+    "other": "Side"
   },
   "332": {
-    "other": "of"
+    "other": "av"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Pixlr bildeeditor"
   },
   "334": {
-    "other": "more"
+    "other": "mer"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Vennligst anngi et sidenummer mellom 1 og "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Beklager, du kan ikke slippe mapper - kun filer!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Start opplasting automatisk"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Lukk panel etter opplasting er ferdig"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Eksisterende filer"
   },
   "34": {
-    "other": "The file"
+    "other": "Filen"
   },
   "340": {
-    "other": "Alert"
+    "other": "Varsel"
   },
   "341": {
-    "other": "File Info"
+    "other": "Filinfo"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Mappeinfo"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Bildeinfo"
   },
   "344": {
-    "other": "Search on"
+    "other": "Søk på"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Ingne versjonsinformasjon kunne hentes"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Din versjon er oppdatert"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "En ny versjon (%s) er tilgjengelig! Besøk %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Et nytt workspace har blitt delt."
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "Advarsel, manglende argumenter"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "har blitt opprettet i mappen"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "En bruker som ikke tilhører deg ekeisterer allerede med dette navnet, vennligst velg et annet navn."
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "Du har ikke rettigheter til å dele elementer offentlig."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Et workspace med samme navn eksisterer allerede, vennligst velg et annet navn."
   },
   "353": {
-    "other": "Target User"
+    "other": "Målbruker"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Lag en ny bruker eller velg en av dine eksisterende fra listen."
   },
   "355": {
-    "other": "User Name"
+    "other": "Brukernavn"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Brukerpassord"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Mål Repository"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Velg et navn for det delte workspace."
   },
   "359": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Størrelsen er"
   },
   "360": {
-    "other": "Rights"
+    "other": "Rettigheter"
   },
   "361": {
-    "other": "Read"
+    "other": "Les"
   },
   "362": {
-    "other": "Write"
+    "other": "Skriv"
   },
   "363": {
-    "other": "Shared"
+    "other": "Delt"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Du har ikke rettigheter til å utføre denne operasjonen"
   },
   "365": {
     "other": "You are not allowed to upload more than %s files at once."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Denne brukeren har ikke et aktivt arbeidsområde."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Du har ikke tilgang til å laste opp denne filtypen. Vennligst velg en av de følgende filtypene : "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Utvalg vellykket pakket ut fra arkivet %s til mappen %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Snarvei"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Du må skrive et gyldig navn"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE Offentlig nedlastning"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Et passord er nødvendig for denne nedlastingen"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Nåværende arbeidsområde"
   },
   "373": {
-    "other": "Destination"
+    "other": "Destinasjon"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Du kan ikke kopiere mapper på tvers av arbeidsområder"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Vi har oppdaget at du var inaktiv siden mer enn __IDLE__. For sikkerheten til dataene du vil bli utlogget om __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Er du der fremdeles?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Klikk hvor som helst for å gjenoppta økten"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Advarsel, passordet er tomt eller for kort!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Usikkert ord!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Mappen"
   },
   "380": {
-    "other": "Too short"
+    "other": "For kort"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Veldig svakt"
   },
   "382": {
-    "other": "Weak"
+    "other": "Svak"
   },
   "383": {
     "other": "Medium"
   },
   "384": {
-    "other": "Strong"
+    "other": "Sterk"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Veldig sterkt"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Bruk bare små bokstaver for innlogginger"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Vennligst bruk alfanumeriske tegn eller gyldig e-post for innlogginger"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Du har feilet innlogging 3 ganger.\\nFor din sikkerhet, fyll inn koden som vises i bildet."
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Vennligst les koden nedenfor :"
   },
   "39": {
-    "other": "has been created in"
+    "other": "har blitt opprettet i"
   },
   "390": {
-    "other": "Code"
+    "other": "Kode"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Ingen datakatalog"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Advarsel, APPLICATION_TITLE versjonen er endret (nå %s), vennligst rydd nettleserens cache og oppdater siden for å være sikker på at alt fungerer!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Advarsel, navnets lengde må være under %s, dette filnavnet vil bli forkortet!"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "Beklager, deling av mapper er for tiden utilgjengelig ved bruk av den aktive autentiseringsdriveren (brukere kan ikke redigeres). Fildeling er likevel mulig."
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "Elementet du dro ser ut til å være en mappe, og en mappe kan ikke lastes opp til serveren! Er du sikker på at du vil laste opp?"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Autentiseringsmetode"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "Last ned biter"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "Last ned valgt fil i biter"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "Oppgi antall biter du vil laste ned, klikk på knappen, og klikk så på hver fil for å laste de ned."
   },
   "4": {
-    "other": "Modified"
+    "other": "Endret"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Denne mappen finnes allerede (navn skiller mellom små og store bokstaver)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Antall biter :"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "Du kan laste ned og installere følgende programvare for å sette sammen bitene på din PC : "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "har byttet navn til"
   },
   "411": {
-    "other": "Open"
+    "other": "Åpne"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Kun opplasting"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Delt av"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "Bruk piltastene for å navigere og +/- for å endre zoom"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Slå av/på venstre panels synlighet"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Venstrepanel"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Lag en cell..."
   },
   "418": {
     "other": "Create a cell"
@@ -1197,304 +1197,304 @@
     "other": "Switch to list view"
   },
   "462": {
-    "other": "Preview"
+    "other": "Forhåndsvisning"
   },
   "463": {
-    "other": "Download all"
+    "other": "Last ned alle"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Last ned alt innholdet i arbeidsområdet samtidig (zippet)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "Vis alternative URLer (monter arbeidsområder separat)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Laster..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Alle delte elementer"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Arbeidsområder"
   },
   "469": {
     "other": "Cells"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Vil du virkelig slette"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Opprettet %date"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "Opprettet av %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Delt av %user"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Delt av %user %date"
   },
   "474": {
-    "other": "No description available"
+    "other": "Ingen beskrivelse tilgjengelig"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Filer delt blant alle brukere"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Ditt personlige arbeidsområde"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Velg en fil eller mappe å se detaljene her"
   },
   "478": {
-    "other": "No results found"
+    "other": "Ingen resultater funnet"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Har du glemt passordet ditt?"
   },
   "48": {
     "other": "Ok"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Bla gjennom alle mapper i det gjeldende arbeidsområdet."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Alle dine delte filer og mapper"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Hurtigtilgang til dine bokmerkede elementer"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "Du har ikke tilgang til å lage flere brukere!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Opprett bruker"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Opprett en delt bruker"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Avansert"
   },
   "487": {
-    "other": "Basic"
+    "other": "Grunnleggende"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Avansert Filter"
   },
   "489": {
     "other": "Metadata"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "490": {
-    "other": "Date range"
+    "other": "Datointervall"
   },
   "491": {
-    "other": "After"
+    "other": "Etter"
   },
   "492": {
-    "other": "until"
+    "other": "til"
   },
   "493": {
-    "other": "Today"
+    "other": "I dag"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "I går"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "I morgen"
   },
   "495": {
-    "other": "Last week"
+    "other": "Forrige uke"
   },
   "496": {
-    "other": "Last month"
+    "other": "Forrige måned"
   },
   "497": {
-    "other": "Last year"
+    "other": "I fjor"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Dokument egenskap"
   },
   "499": {
-    "other": "File"
+    "other": "Fil"
   },
   "5": {
-    "other": "Actions"
+    "other": "Handlinger"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe-fil"
   },
   "500": {
-    "other": "Extension"
+    "other": "Utvidelse"
   },
   "501": {
-    "other": "or"
+    "other": "eller"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Kun mapper"
   },
   "503": {
-    "other": "Size"
+    "other": "Størrelse"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "til"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Applikasjonsparametre (brukere, arbeidsområder, konfigurasjoner)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Velkommen til %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Jeg opprettet en konto til deg på %s. For å koble til, trykk på følgende link %link og bruk disse detaljene: <br><br> Brukernavn: %user<br><br> Passord: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Lagre som et team"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Tekstbehandler"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Vennligst skriv inn et team-label"
   },
   "511": {
-    "other": "My %s"
+    "other": "Min %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "Skrivebord fullskjerm"
   },
   "513": {
-    "other": "show"
+    "other": "vis"
   },
   "514": {
-    "other": "hide"
+    "other": "skjul"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Ingen bokmerker - Slipp filer eller mapper her for rask tilgang."
   },
   "516": {
-    "other": "expand"
+    "other": "utvid"
   },
   "517": {
-    "other": "collapse"
+    "other": "skjul"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Alternativt kan du <a class='create_file_alt_link'>lage en ny tom fil</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Oppdater bruker"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Redigerer fil"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Oppdater brukerdata og passord"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Oppdatering av bruker vellykket"
   },
   "522": {
-    "other": "User ID"
+    "other": "Bruker ID"
   },
   "523": {
-    "other": "Password"
+    "other": "Passord"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Oppdater passord"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Vis orginalbilde"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Lav-oppløslig versjon"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Delt med"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Interne brukere"
   },
   "53": {
-    "other": "Save"
+    "other": "Lagre"
   },
   "530": {
-    "other": "External users"
+    "other": "Eksterne brukere"
   },
   "531": {
-    "other": "Users"
+    "other": "Brukere"
   },
   "532": {
-    "other": "Groups"
+    "other": "Grupper"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "Identifikator brukt for login, vennligst bruk alfanumeriske tegn eller e-post i små bokstaver."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Passord brukt til innlogging"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Send passord på e-post"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Send en velkomstmail inkludert passordet til den nye brukeren"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Filen er for stor! Maksimal godkjent størrelse er %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Opplastingsfeil: ingen fil funnet på server!"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "Opplastingsfeil: filen er delvis"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Opplastingsfeil: finner ikke midlertidig mappe"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Opplastingsfeil: kan ikke skrive til den midlertidige mappen"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Opplastingsfeil: En PHP-utvidelse stoppet opplastingen."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Resultat begrenset til %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Vis mer"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Ekstern deling"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "Dette elementet har blitt delt med deg av %%OWNER%% fra en ekstern lokasjon. Vil du fortsette?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Godta"
   },
   "548": {
-    "other": "Decline"
+    "other": "Avslå"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "Du har tidligere godtatt dette elementet som ble delt med deg av %%OWNER%% fra en ekstern lokasjon. Vil du avslå det nå?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "har blitt endret"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Avvis denne delingen"
   },
   "551": {
-    "other": "Reject"
+    "other": "Avvis"
   },
   "552": {
     "other": "Please provide password."
