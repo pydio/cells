@@ -33,33 +33,33 @@
     "other": "Velg hvordan standard brukere/delte brukere/adminbrukere kan få tilgang til resten av APIene"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Full REST tilgang til Admin-profilen"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Standard REST tilgang til en innlogget bruker"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "Liste og søke i brukerdefinerte metadata"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "Oppdatere brukerdefinerte metadata"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Lesetilgang til FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Skrivetilgang til FrontendService untatt globale binærfilopplastinger"
   },
   "PolicyGroup.LoggedUsers.Rule7": {
-    "other": "Default REST accesses API V2 for a logged user"
+    "other": "Standard REST tilgang API V2 for innloggede brukere"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "OpenIdConnect operasjoner"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Aktivere/Deaktivere autentisering i OpenID Connect Server"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Standard tilgang til innlogging for alle brukere"
   }
 }

@@ -15,67 +15,67 @@
     "other": "Normal trimming"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Trim versjoner jevnlig ved ulike intervaller"
   },
   "aclAction.Name": {
-    "other": "Name"
+    "other": "Navn"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "Verdi"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Handlinger"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Nodeidentifikatorer"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Rolleidentifikatorer"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Arbeidsområdeidentifikatorer"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "ikke"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Søk på feilmelding (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Er vellykket"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Json body har nøkkel..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Søk på Json body (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Størrelsen på Json body er større enn"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Størrelsen på Json body er mindre enn"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "Søk på String body (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "Størrelsen på String body er større enn"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "Størrelsen på String body er mindre enn"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "Oppgavetiden er større enn"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "Oppgavetiden er lavere enn"
   },
   "actionOutputSingleQuery.FreeCondition": {
     "other": "Free Condition"
@@ -384,85 +384,85 @@
     "other": "Uuid"
   },
   "dataSourceSingleQuery.Name": {
-    "other": "Name"
+    "other": "Navn"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "Er deaktivert"
   },
   "dataSourceSingleQuery.StorageType": {
-    "other": "Storage Type"
+    "other": "Lagringstype"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "Ekstern"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "Alle"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "Lokal"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "Peer Adresse"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "Flat lagring"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "Hopp over synkronisering ved omstart"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "Er Versjonert"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "Er kryptert"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "Krypteringsmodus"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "Brukernøkkel"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
-    "other": "User-pwd"
+    "other": "Bruker-pwd"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
-    "other": "Clear"
+    "other": "Tøm"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "Hovednøkkel"
   },
   "dataSourceSingleQuery.EncryptionKey": {
-    "other": "Encryption Key"
+    "other": "Krypteringsnøkkel"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "Versioning Policy"
+    "other": "Retningslinjer for versjonskontroll"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "Konfigurasjonsnøkkel"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "Konfigurasjonsverdi"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
     "other": "Object Service"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ikke"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "Planlagt Trigger"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Utløst av Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
     "other": "Webhook Api Slug"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Kjør Parameter Navn"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Kjør Parameter Verdi"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Manuell Utløser"
