@@ -20,18 +20,7 @@
 
 package migrations
 
-import (
-	"net/url"
-	"path"
-	"strings"
-
-	"github.com/hashicorp/go-version"
-
-	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/utils/configx"
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
-)
-
+/*
 func init() {
 	v, _ := version.NewVersion("2.1.99")
 	add(v, getMigration(updateDatabaseDefault))
@@ -229,3 +218,4 @@ func updateSourceKeys(config configx.Values) error {
 
 	return nil
 }
+*/

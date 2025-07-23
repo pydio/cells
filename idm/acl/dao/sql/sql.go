@@ -73,7 +73,7 @@ type Role struct {
 
 type Workspace struct {
 	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
-	UUID string `gorm:"column:uuid; unique; type:varchar(500)"`
+	UUID string `gorm:"column:name; unique; type:varchar(500)"`
 }
 
 type Node struct {
@@ -352,7 +352,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 
 	if len(q.WorkspaceIDs) > 0 {
 		count++
-		subQuery := db.Session(&gorm.Session{NewDB: true}).Model(&Workspace{}).Select("id").Where("uuid IN (?)", q.GetWorkspaceIDs())
+		subQuery := db.Session(&gorm.Session{NewDB: true}).Model(&Workspace{}).Select("id").Where("name IN (?)", q.GetWorkspaceIDs())
 		db = db.Where("workspace_id IN (?)", subQuery)
 	}
 

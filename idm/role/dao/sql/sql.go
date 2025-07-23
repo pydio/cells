@@ -22,6 +22,9 @@ package sql
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -33,6 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/idm/role"
 )
@@ -52,6 +56,54 @@ func NewDAO(db *gorm.DB) (role.DAO, error) {
 // Impl of the SQL interface
 type sqlimpl struct {
 	*sql.AbstractResources
+}
+
+// Migrate handles json format
+func (s *sqlimpl) Migrate(ctx context.Context) error {
+	e := s.AbstractResources.Migrate(ctx)
+	if e != nil {
+		return e
+	}
+	// Role represents the minimal schema used for migration
+	type Role struct {
+		Uuid        string `gorm:"column:uuid;primaryKey;type:varchar(255)"`
+		AutoApplies string `gorm:"column:auto_applies"`
+	}
+	var roles []Role
+	if err := s.
+		Where("auto_applies <> ''").
+		Find(&roles).Error; err != nil {
+		return fmt.Errorf("fetching roles failed: %w", err)
+	}
+
+	for _, ro := range roles {
+		raw := strings.TrimSpace(ro.AutoApplies)
+
+		// Try decoding as JSON
+		var js []string
+		if err := json.Unmarshal([]byte(raw), &js); err == nil {
+			// Already valid JSON, skip
+			continue
+		}
+
+		// Not valid JSON: assume comma-separated, split
+		parts := strings.Split(raw, ",")
+		for i := range parts {
+			parts[i] = strings.TrimSpace(parts[i])
+		}
+
+		jsonVal, _ := json.Marshal(parts)
+		// Update row
+		if err := s.
+			Model(&Role{}).
+			Where(&Role{Uuid: ro.Uuid}).
+			Update("auto_applies", string(jsonVal)).Error; err != nil {
+			log.Logger(ctx).Errorf("failed to update role auto_applies: %s", err.Error())
+			continue
+		}
+		log.Logger(ctx).Infof("Updated role auto_applies value: %s", ro.Uuid)
+	}
+	return nil
 }
 
 // Add to the underlying SQL DB.

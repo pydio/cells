@@ -20,16 +20,7 @@
 
 package migrations
 
-import (
-	"log"
-	"path"
-
-	"github.com/hashicorp/go-version"
-
-	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/utils/configx"
-)
-
+/*
 func init() {
 
 	v, _ := version.NewVersion("2.1.0")
@@ -100,3 +91,4 @@ func movePydioConnectors(config configx.Values) error {
 
 	return nil
 }
+*/

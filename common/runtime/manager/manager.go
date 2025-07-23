@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/migrations"
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/crypto/keyring"
 	"github.com/pydio/cells/v5/common/middleware"
@@ -479,6 +480,14 @@ func (m *manager) initConfig(ctx context.Context) (*openurl.Pool[config.Store], 
 
 		// Additional Proxy
 		mainStore = config.Proxy(mainStore)
+
+		// Initial Configs migration
+		if upgraded, er := migrations.UpgradeConfigsIfRequired(mainStore.Val(), common.Version()); er != nil {
+			return nil, errors.New("upgrade configs failed: " + er.Error())
+		} else if upgraded {
+			fmt.Println("✅ Successfully upgraded configurations")
+			_ = mainStore.Save("Upgraded configuration", common.PydioSystemUsername)
+		}
 
 		return mainStore, nil
 	})

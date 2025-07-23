@@ -20,13 +20,7 @@
 
 package migrations
 
-import (
-	"github.com/hashicorp/go-version"
-
-	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/utils/configx"
-)
-
+/*
 func init() {
 	v, _ := version.NewVersion("0.1.0")
 	add(v, getMigration(renameKeys))
@@ -45,3 +39,4 @@ func renameKeys(config configx.Values) error {
 		// "services/pydio.grpc.auth/dex/connectors": "services/" + common.ServiceWebNamespace_ + common.ServiceOAuth + "/connectors",
 	})
 }
+*/

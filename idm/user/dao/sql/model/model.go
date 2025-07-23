@@ -48,7 +48,7 @@ type UserAttribute struct {
 
 type UserRole struct {
 	UUID   string `gorm:"column:uuid; primaryKey; type: varchar(128) not null; index:,composite:ui;"`
-	Role   string `gorm:"column:name; primaryKey; type: varchar(255) not null;"`
+	Role   string `gorm:"column:role; primaryKey; type: varchar(255) not null;"`
 	Weight int    `gorm:"column:weight;type:int;default:0;"`
 	User   *User  `gorm:"foreignKey:UUID;constraint:OnDelete:CASCADE;"`
 }

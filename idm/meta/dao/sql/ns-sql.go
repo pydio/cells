@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
 )
 
@@ -44,11 +45,11 @@ func nsTag(err error) error {
 }
 
 type MetaNamespace struct {
-	Namespace  string `gorm:"primaryKey; column: namespace;"`
-	Label      string `gorm:"column: label;"`
-	Order      int32  `gorm:"column: ns_order;"`
-	Indexable  bool   `gorm:"column: indexable;"`
-	Definition []byte `gorm:"column: definition;"`
+	Namespace  string `gorm:"primaryKey;column:namespace;type:varchar(255)"`
+	Label      string `gorm:"column:label;type:varchar(255)"`
+	Order      int32  `gorm:"column:ns_order;"`
+	Indexable  bool   `gorm:"column:indexable;"`
+	Definition []byte `gorm:"column:definition;"`
 }
 
 func (*MetaNamespace) TableName(namer schema.Namer) string {
@@ -98,15 +99,20 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 		return err
 	}
 
-	if err := s.Add(ctx, &idm.UserMetaNamespace{
-		Namespace: meta.ReservedNamespaceBookmark,
-		Label:     "Bookmarks",
-		Policies: []*service.ResourcePolicy{
-			{Action: service.ResourcePolicyAction_READ, Subject: "*", Effect: service.ResourcePolicy_allow},
-			{Action: service.ResourcePolicyAction_WRITE, Subject: "*", Effect: service.ResourcePolicy_allow},
-		},
-	}); err != nil {
-		return err
+	var bm *MetaNamespace
+	tx := s.Where(&MetaNamespace{Namespace: meta.ReservedNamespaceBookmark}).First(&bm)
+	if tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		log.Logger(ctx).Info("creating namespace bookmark")
+		if err := s.Add(ctx, &idm.UserMetaNamespace{
+			Namespace: meta.ReservedNamespaceBookmark,
+			Label:     "Bookmarks",
+			Policies: []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Subject: "*", Effect: service.ResourcePolicy_allow},
+				{Action: service.ResourcePolicyAction_WRITE, Subject: "*", Effect: service.ResourcePolicy_allow},
+			},
+		}); err != nil {
+			return err
+		}
 	}
 
 	return nil

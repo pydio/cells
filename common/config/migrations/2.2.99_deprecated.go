@@ -20,21 +20,7 @@
 
 package migrations
 
-import (
-	"context"
-	"path"
-
-	version "github.com/hashicorp/go-version"
-	"google.golang.org/protobuf/proto"
-
-	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/proto/object"
-	"github.com/pydio/cells/v5/common/utils/configx"
-	"github.com/pydio/cells/v5/common/utils/uuid"
-)
-
+/*
 func init() {
 	v, _ := version.NewVersion("2.2.99")
 	add(v, getMigration(updateVersionsStore))
@@ -43,7 +29,7 @@ func init() {
 
 func updateVersionsStore(conf configx.Values) error {
 
-	// TODO NIL CONTEXT
+	//  NIL CONTEXT FOR V5 => DEPRECATE
 	var ctx context.Context
 
 	c := conf.Val("services", "pydio.versions-store")
@@ -92,7 +78,7 @@ func updateVersionsStore(conf configx.Values) error {
 
 func updateThumbsStore(conf configx.Values) error {
 
-	// TODO NIL CONTEXT
+	//  NIL CONTEXT FOR V5 => DEPRECATE
 	var ctx context.Context
 
 	c := conf.Val("services", "pydio.thumbs_store")
@@ -122,12 +108,6 @@ func updateThumbsStore(conf configx.Values) error {
 		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
-	/*
-		conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
-			"dsn":    "default",
-			"tables": config.IndexServiceTableNames(newDsName),
-		})
-	*/
 	// Reset sync > sources
 	syncSrcVal := conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
 	indexSrcVal := conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources")
@@ -143,3 +123,4 @@ func updateThumbsStore(conf configx.Values) error {
 
 	return nil
 }
+*/
