@@ -27,7 +27,7 @@ func newUserRole(db *gorm.DB, opts ...gen.DOOption) userRole {
 	tableName := _userRole.userRoleDo.TableName()
 	_userRole.ALL = field.NewAsterisk(tableName)
 	_userRole.UUID = field.NewString(tableName, "uuid")
-	_userRole.Role = field.NewString(tableName, "name")
+	_userRole.Role = field.NewString(tableName, "role")
 	_userRole.Weight = field.NewInt(tableName, "weight")
 	_userRole.User = userRoleBelongsToUser{
 		db: db.Session(&gorm.Session{}),
@@ -65,7 +65,7 @@ func (u userRole) As(alias string) *userRole {
 func (u *userRole) updateTableName(table string) *userRole {
 	u.ALL = field.NewAsterisk(table)
 	u.UUID = field.NewString(table, "uuid")
-	u.Role = field.NewString(table, "name")
+	u.Role = field.NewString(table, "role")
 	u.Weight = field.NewInt(table, "weight")
 
 	u.fillFieldMap()
@@ -93,7 +93,7 @@ func (u *userRole) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (u *userRole) fillFieldMap() {
 	u.fieldMap = make(map[string]field.Expr, 4)
 	u.fieldMap["uuid"] = u.UUID
-	u.fieldMap["name"] = u.Role
+	u.fieldMap["role"] = u.Role
 	u.fieldMap["weight"] = u.Weight
 
 }
