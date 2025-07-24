@@ -23,6 +23,7 @@ package cache_helper
 import (
 	"context"
 	"net/url"
+	"os"
 	"strings"
 
 	"go.uber.org/zap"
@@ -69,6 +70,7 @@ func RegisterCachePool(scheme string, opener cache.URLOpener) {
 		}
 		reg.RegisterCache(scheme, controller.WithCustomOpener(func(ctx context.Context, uu string) (*openurl.Pool[cache.Cache], error) {
 			return openurl.OpenPool[cache.Cache](ctx, []string{uu}, func(ctx context.Context, raw string) (cache.Cache, error) {
+				raw = os.ExpandEnv(raw)
 				u, e := url.Parse(raw)
 				if e != nil {
 					return nil, e

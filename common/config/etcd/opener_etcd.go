@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -26,6 +27,8 @@ func init() {
 type EtcdOpener struct{}
 
 func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store) (config.Store, error) {
+	urlstr = os.ExpandEnv(urlstr)
+
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err

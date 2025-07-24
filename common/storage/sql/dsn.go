@@ -76,6 +76,7 @@ type StorageDSN interface {
 }
 
 func NewStorageDSN(dsn string) (StorageDSN, error) {
+	dsn = os.ExpandEnv(dsn)
 	parts := strings.SplitN(dsn, "://", 2)
 	if len(parts) < 2 {
 		return nil, errors.WithMessage(errors.SqlDAO, "wrong format")

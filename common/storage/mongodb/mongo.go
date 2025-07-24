@@ -22,7 +22,9 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"net/url"
+	"os"
 	"reflect"
 	"strings"
 
@@ -61,8 +63,11 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 			dsn = strings.Replace(dsn, "mongodb://", "mongodb+srv://", 1)
 		}
 
+		dsn = os.ExpandEnv(dsn)
+
 		u, err := url.Parse(dsn)
 		if err != nil {
+			fmt.Println("could not parse mongodb:", err)
 			return nil, err
 		}
 
@@ -80,6 +85,7 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 		mgClient, err := mongo.Connect(context.TODO(), clOption)
 		if err != nil {
+			fmt.Println("mongodb connect err:", err)
 			return nil, err
 		}
 

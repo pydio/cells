@@ -38,7 +38,7 @@ MONGODB ACTIVATION
 {{- end -}}
 
 {{- define "cells.nosql.params" -}}
-{{- include "cells.urlQuery" (list .Values.externalNoSQLDatabase.params) }}
+{{- .Values.externalNoSQLDatabase.params | toJson }}
 {{- end -}}
 
 {{/*
@@ -138,14 +138,16 @@ NATS TLS CA
 MONGODB TLS PARAMÈTRES
 */}}
 {{- define "cells.nosql.tls.params" -}}
-{{ if (include "cells.nosql.tls.enabled" .) }}
-{{ include "cells.urlTLSParams" (dict
+{{- if (include "cells.nosql.tls.enabled" .) -}}
+{{- include "cells.urlTLSParamsDict" (dict
   "enabled"         (include "cells.nosql.tls.enabled" .)
   "prefix"          "mongodb"
   "certFilename"    (include "cells.nosql.tls.client.cert" .)
   "certKeyFilename" (include "cells.nosql.tls.client.key" .)
   "caFilename"      (include "cells.nosql.tls.ca.cert" .)
-) }}
+) -}}
+{{- else -}}
+{{ "{}" -}}
 {{- end -}}
 {{- end -}}
 
@@ -186,33 +188,45 @@ MONGODB PASSWORD
 MONGODB ENV SECRET
 */}}
 {{- define "cells.nosql.auth.envvar" -}}
+{{- if .Values.mongodb.enabled -}}
+{{ $secret := .Values.mongodb.auth.existingSecret | default "cells-mariadb" }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "NOSQL_USERNAME" "value" (.Values.mongodb.auth.username | default "root")) }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "NOSQL_PASSWORD" "value" (dict "secretName" $secret "secretPasswordKey" "password")) }}
+{{- else if .Values.externalNoSQLDatabase.auth.enabled -}}
+{{- include "cells.auth.envvar" (dict "auth" .Values.externalNoSQLDatabase.auth "prefix" "NOSQL") }}
+{{- end -}}
 {{- end -}}
 
 {{/*
 MONGODB URL UTILISATEUR
 */}}
 {{- define "cells.nosql.auth.urlUser" -}}
-{{ include "cells.urlUser" (dict
+{{- include "cells.urlUser" (dict
   "enabled"  (include "cells.nosql.auth.enabled" .)
   "user"     (include "cells.nosql.auth.user" .)
   "password" (include "cells.nosql.auth.password" .)
-) }}
+) -}}
 {{- end -}}
 
 {{/*
 MONGODB URL COMPLÈTE
 */}}
 {{- define "cells.nosql.url" -}}
-{{- $path := index . 1 }}
-{{- with index . 0 }}
-{{- printf "%s://%s%s:%s%s%s%s"
-    (include "cells.nosql.scheme" .)
-    (include "cells.nosql.auth.urlUser" .)
-    (include "cells.nosql.host" .)
-    (include "cells.nosql.port" .)
+{{- $path := .path -}}
+{{- $scheme := (.scheme | default (include "cells.nosql.scheme" .context)) -}}
+{{- $authParams := (.authParams | default (include "cells.nosql.auth.urlUser" .context)) -}}
+{{- $host := (.host | default (include "cells.nosql.host" .context)) -}}
+{{- $port := (.port | default (include "cells.nosql.port" .context)) -}}
+{{- $params := (.params | default ((include "cells.nosql.params" .context) | fromJson)) -}}
+{{- $tlsParams := (.tlsParams | default ((include "cells.nosql.tls.params" .context) | fromJson)) -}}
+{{- with .context -}}
+{{- printf "%s://%s%s:%s/%s%s"
+    $scheme
+    $authParams
+    $host
+    $port
     $path
-    (include "cells.nosql.params" .)
-    (include "cells.nosql.tls.params" .)
+    (include "cells.urlQuery" (list $params $tlsParams))
 }}
-{{- end }}
-{{- end }}
+{{- end -}}
+{{- end -}}

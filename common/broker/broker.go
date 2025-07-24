@@ -78,13 +78,16 @@ func NewBroker(s string, opts ...Option) Broker {
 	)
 
 	options := newOptions(opts...)
-	u, _ := url.Parse(s)
+	u, err := url.Parse(s)
+	if err != nil {
+		panic(err)
+	}
 	scheme := u.Scheme
 
 	br := &broker{
 		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {
 			namespace := u.Query().Get("namespace")
-			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
+			uu := &url.URL{User: u.User, Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
 			return pubsub.OpenTopic(ctx, uu.String())
 		},
 		subscribeOpener: func(ctx context.Context, topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
@@ -105,7 +108,7 @@ func NewBroker(s string, opts ...Option) Broker {
 
 			namespace := u.Query().Get("namespace")
 
-			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: q.Encode()}
+			uu := &url.URL{User: u.User, Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: q.Encode()}
 			return pubsub.OpenSubscription(ctx, uu.String())
 		},
 		publishers: make(map[string]*pubsub.Topic),

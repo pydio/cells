@@ -1,6 +1,14 @@
 {{/*
 REDIS HOST
 */}}
+{{- define "cells.cache.scheme" -}}
+{{- if .Values.redis.enabled -}}
+{{- "redis" -}}
+{{- else if .Values.externalCache.enabled -}}
+{{- .Values.externalCache.scheme | default "redis" }}
+{{- end -}}
+{{- end }}
+
 {{- define "cells.cache.host" -}}
 {{- if .Values.redis.enabled -}}
 {{- printf "%s-redis-master.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
@@ -29,11 +37,19 @@ REDIS ACTIVATION
 {{- end -}}
 {{- end -}}
 
+{{- define "cells.cache.params" -}}
+{{- .Values.externalCache.params | toJson }}
+{{- end -}}
+
+
 {{- define "cells.cache.envvar" -}}
+{{- $authParams := (include "cells.urlUser" (dict "enabled" (include "cells.cache.auth.enabled" .) "user" "$CACHE_USERNAME" "password" "$CACHE_PASSWORD")) }}
+{{- $cacheURL := (include "cells.cache.url" (dict "context" . "path" "cache" "authParams" $authParams)) -}}
+{{- $shortcacheURL := (include "cells.cache.url" (dict "context" . "path" "vault" "authParams" $authParams)) -}}
 {{- if (include "cells.cache.enabled" .) -}}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CACHE" "value" (include "cells.cache.url" (list . "/cache")))) "context" .) }}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CACHE" "value" $cacheURL)) "context" .) }}
 {{- if .Values.redis.shortcacheEnabled -}}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_SHORTCACHE" "value" (include "cells.cache.url" (list . "/shortcache")))) "context" .) }}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_SHORTCACHE" "value" $shortcacheURL)) "context" .) }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -145,13 +161,15 @@ CACHE TLS PARAMÈTRES
 */}}
 {{- define "cells.cache.tls.params" -}}
 {{ if (include "cells.cache.tls.enabled" .) }}
-{{- include "cells.urlTLSParams" (dict
+{{- include "cells.urlTLSParamsDict" (dict
   "enabled"         (include "cells.cache.tls.enabled" .)
   "prefix"          "cache"
   "certFilename"    (include "cells.cache.tls.client.cert" .)
   "certKeyFilename" (include "cells.cache.tls.client.key" .)
   "caFilename"      (include "cells.cache.tls.ca.cert" .)
 ) -}}
+{{- else -}}
+{{- "{}" -}}
 {{- end -}}
 {{- end -}}
 
@@ -195,9 +213,7 @@ CACHE ENV SECRET (password)
 {{- if and (include "cells.cache.auth.enabled" .) .Values.redis.enabled }}
 {{- include "cells.tplvalues.renderSecretPassword" (dict "name" "REDIS_PASSWORD" "value" .Values.redis.auth.password) }}
 {{- else if and (include "cells.cache.auth.enabled" .) .Values.externalCache.auth.enabled -}}
-{{- include "cells.tplvalues.renderSecretPassword" (dict "name" "REDIS_PASSWORD" "value" (dict
-  "secretName"           .Values.externalCache.auth.existingSecret
-  "secretPasswordKey"    .Values.externalCache.auth.existingSecretPasswordKey)) }}
+{{- include "cells.auth.envvar" (dict "auth" .Values.externalCache.auth "prefix" "CACHE") }}
 {{- end -}}
 {{- end -}}
 
@@ -216,15 +232,21 @@ CACHE URL UTILISATEUR
 CACHE URL COMPLÈTE
 */}}
 {{- define "cells.cache.url" -}}
-{{- $path := index . 1 }}
-{{- with index . 0 }}
-{{- printf "%s://%s%s:%s%s%s"
-    (include "cells.cache.tls.scheme" .)
-    (include "cells.cache.auth.urlUser" .)
-    (include "cells.cache.host" .)
-    (include "cells.cache.port" .)
+{{- $path := .path -}}
+{{- $scheme := (.scheme | default (include "cells.cache.scheme" .context)) -}}
+{{- $authParams := .authParams -}}
+{{- $host := (.host | default (include "cells.cache.host" .context)) -}}
+{{- $port := (.port | default (include "cells.cache.port" .context)) -}}
+{{- $params := (.params | default ((include "cells.cache.params" .context) | fromJson)) -}}
+{{- $tlsParams := (.tlsParams | default ((include "cells.cache.tls.params" .context) | fromJson) | default) -}}
+{{- with .context -}}
+{{- printf "%s://%s%s:%s/%s%s"
+    $scheme
+    $authParams
+    $host
+    $port
     $path
-    (include "cells.cache.tls.params" .)
+    (include "cells.urlQuery" (list $params $tlsParams))
 }}
-{{- end }}
+{{- end -}}
 {{- end }}

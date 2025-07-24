@@ -27,5 +27,4 @@ func init() {
 			LongConnectionTimeout = ddc
 		}
 	}
-
 }

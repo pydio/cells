@@ -112,6 +112,11 @@ ETCD HOST
 {{- end -}}
 
 {{- define "cells.s3.auth.envvar" -}}
+{{- if .Values.minio.enabled -}}
+{{- include "cells.tplvalues.renderSecretPassword" (dict "name" "S3_PASSWORD" "value" (dict "secretName" .Values.minio.auth.existingSecret "secretPasswordKey" .Values.minio.auth.rootPasswordSecretKey)) }}
+{{- else if .Values.externalS3.auth.enabled -}}
+{{- include "cells.auth.envvar" (dict "auth" .Values.externalS3.auth "prefix" "S3") }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.s3.auth.urlUser" -}}

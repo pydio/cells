@@ -1,6 +1,14 @@
 {{/*
 NATS HOST
 */}}
+{{- define "cells.broker.scheme" -}}
+{{- if .Values.nats.enabled -}}
+{{- "nats" -}}
+{{- else if .Values.externalBroker.enabled -}}
+{{- .Values.externalBroker.scheme | default "nats" }}
+{{- end -}}
+{{- end }}
+
 {{- define "cells.broker.host" -}}
 {{- if .Values.nats.enabled -}}
 {{- printf "%s-nats.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
@@ -29,9 +37,24 @@ NATS ACTIVATION
 {{- end -}}
 {{- end -}}
 
+{{- define "cells.broker.params" -}}
+{{- if .Values.externalBroker.enabled -}}
+{{- $array := .Values.externalBroker.params -}}
+{{- if not (empty .Values.externalBroker.auth.existingSecretServerConf) }}
+{{- $array = merge $array (dict "serverConfEnv" "BROKER_SERVER_CONF") -}}
+{{- end -}}
+{{- $array | toJson -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "cells.broker.envvar" -}}
 {{- if (include "cells.broker.enabled" .) -}}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_BROKER" "value" (include "cells.broker.url" (list . )))) "context" .) }}
+{{- $enabled := (and .Values.externalBroker.auth.enabled (empty .Values.externalBroker.auth.existingSecretServerConf)) -}}
+{{ include "common.tplvalues.render" (dict "value" (list (
+    dict
+        "name" "CELLS_BROKER"
+        "value" (include "cells.broker.url" (dict "context" . "path" "cells" "authParams" (include "cells.urlUser" (dict "enabled" $enabled "user" "$BROKER_USERNAME" "password" "$BROKER_PASSWORD")) ))
+    )) "context" .) }}
 {{- end -}}
 {{- end -}}
 
@@ -157,13 +180,15 @@ NATS TLS PARAMÈTRES URL
 */}}
 {{- define "cells.broker.tls.params" -}}
 {{- if (include "cells.broker.tls.enabled" .) -}}
-{{- include "cells.urlTLSParams" (dict
+{{- include "cells.urlTLSParamsDict" (dict
   "enabled" (include "cells.broker.tls.enabled" .)
   "prefix" "broker"
   "certFilename" (include "cells.broker.tls.client.cert" .)
   "certKeyFilename" (include "cells.broker.tls.client.key" .)
   "caFilename" (include "cells.broker.tls.ca.cert" .)
 ) -}}
+{{- else -}}
+{{ "{}" }}
 {{- end -}}
 {{- end -}}
 
@@ -221,12 +246,23 @@ NATS SECRET D'ENV (rend le mot de passe dans un secret)
 "secretName" (index $credentials "existingSecret")
 */}}
 {{- define "cells.broker.auth.envvar" -}}
+{{- if .Values.nats.enabled -}}
+{{- $secret := .Values.nats.auth.existingSecret | default "cells-nats" -}}
+{{- include "cells.tplvalues.renderSecretPassword" (dict "name" "BROKER_USERNAME" "value" (.Values.nats.auth.username | default "root")) -}}
+{{- include "cells.tplvalues.renderSecretPassword" (dict "name" "BROKER_PASSWORD" "value" (dict "secretName" $secret "secretPasswordKey" "password")) -}}
+{{- else if .Values.externalBroker.auth.enabled -}}
+{{- if empty .Values.externalBroker.auth.existingSecretServerConf -}}
+{{- include "cells.auth.envvar" (dict "auth" .Values.externalBroker.auth "prefix" "BROKER") }}
+{{- else -}}
+{{- $secret := .Values.externalBroker.auth.existingSecret | default "cells-nats" -}}
+{{- include "common.tplvalues.render" (dict "value" (list (dict "name" "NATS_SERVER_NAME" "value" "mock"))) }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "BROKER_SERVER_CONF" "value" (dict "secretName" $secret "secretPasswordKey" .Values.externalBroker.auth.existingSecretServerConf)) -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
 NATS AUTH URL (username:password@)
-
-
 */}}
 {{- define "cells.broker.auth.urlUser" -}}
 {{ include "cells.urlUser" (dict
@@ -240,14 +276,21 @@ NATS AUTH URL (username:password@)
 NATS COMPLETE URL
 */}}
 {{- define "cells.broker.url" -}}
-{{- $path := "" -}}
-{{- $ := index . 0 }}
-{{- printf "%s://%s%s:%s%s%s"
-  (include "cells.broker.tls.scheme" $)
-  (include "cells.broker.auth.urlUser" $)
-  (include "cells.broker.host" $)
-  (include "cells.broker.port" $)
-  $path
-  (include "cells.broker.tls.params" $)
+{{- $path := .path -}}
+{{- $scheme := (.scheme | default (include "cells.broker.scheme" .context)) -}}
+{{- $authParams := .authParams -}}
+{{- $host := (.host | default (include "cells.broker.host" .context)) -}}
+{{- $port := (.port | default (include "cells.broker.port" .context)) -}}
+{{- $params := (.params | default ((include "cells.broker.params" .context) | fromJson)) -}}
+{{- $tlsParams := (.tlsParams | default ((include "cells.broker.tls.params" .context) | fromJson)) -}}
+{{- with .context -}}
+{{- printf "%s://%s%s:%s/%s%s"
+    $scheme
+    $authParams
+    $host
+    $port
+    $path
+    (include "cells.urlQuery" (list $params $tlsParams))
 }}
+{{- end -}}
 {{- end -}}

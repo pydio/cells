@@ -77,6 +77,25 @@ Return the PVC name (only in standalone mode)
 {{- end -}}
 {{- end -}}
 
+{{- define "cells.auth.envvar" -}}
+{{- $username := (printf "%s_USERNAME" (upper .prefix)) -}}
+{{- $password := (printf "%s_PASSWORD" (upper .prefix)) -}}
+{{- if empty .auth.existingSecretUsernameKey -}}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" $username "value" (.auth.user | default "root")) }}
+{{- else -}}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" $username "value" (dict
+  "secretName"        .auth.existingSecret
+  "secretPasswordKey" .auth.existingSecretUsernameKey)) }}
+{{- end }}
+{{ if empty .auth.existingSecretPasswordKey }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" $password "value" .auth.password) }}
+{{- else -}}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" $password "value" (dict
+  "secretName"        .auth.existingSecret
+  "secretPasswordKey" .auth.existingSecretPasswordKey)) }}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Names
 */}}
@@ -110,6 +129,22 @@ Names
 {{- end }}
 {{- if gt (len $parts) 0 -}}
   ?{{ join "&" $parts -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "cells.urlTLSParamsDict" -}}
+{{- if (.enabled | default false) -}}
+{{- if (.insecure | default false) -}}
+{{- (dict "tlsCertInsecureHost" "true") | toJson }}
+{{- else -}}
+{{- (dict
+    "tlsCertUUID" (printf "%s-client-%s" .prefix .certFilename)
+    "tlsCertKeyUUID" (printf "%s-client-%s" .prefix .certKeyFilename)
+    "tlsCertCAUUID" (printf "%s-ca-%s" .prefix .caFilename)
+ ) | toJson }}
+{{- end -}}
+{{- else }}
+{{ "{}" }}
 {{- end -}}
 {{- end -}}
 
