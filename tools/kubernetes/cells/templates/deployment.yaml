@@ -142,37 +142,37 @@ spec:
         {{- if (include "cells.database.enabled" .) }}
         - name: wait-for-database
           image: busybox
-          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.database.host" . | quote }} {{ include "cells.database.port" . | quote }}; do echo waiting for database; sleep 2; done' ]
+          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.database.host" . | quote }} {{ include "cells.database.port" . | quote }}; do echo waiting for database; sleep .5; done' ]
         {{- end }}
         {{- if (include "cells.nosql.enabled" .) }}
         - name: wait-for-nosql
           image: busybox
-          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.nosql.host" . | quote }} {{ include "cells.nosql.port" . | quote }}; do echo waiting for nosql; sleep 2; done' ]
+          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.nosql.host" . | quote }} {{ include "cells.nosql.port" . | quote }}; do echo waiting for nosql; sleep .5; done' ]
         {{- end }}
         {{- if (include "cells.discovery.enabled" .) }}
         - name: wait-for-discovery
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.discovery.host" . | quote }} {{ include "cells.discovery.port" . | quote }}; do echo waiting for discovery; sleep 2; done']
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.discovery.host" . | quote }} {{ include "cells.discovery.port" . | quote }}; do echo waiting for discovery; sleep .5; done']
         {{- end }}
         {{- if (include "cells.cache.enabled" .) }}
         - name: wait-for-cache
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.cache.host" . | quote }} {{ include "cells.cache.port" . | quote }}; do echo waiting for cache; sleep 2; done']
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.cache.host" . | quote }} {{ include "cells.cache.port" . | quote }}; do echo waiting for cache; sleep .5; done']
         {{- end }}
         {{- if (include "cells.broker.enabled" .) }}
         - name: wait-for-broker
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }}; do echo waiting for broker; sleep 2; done']
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }}; do echo waiting for broker; sleep .5; done']
         {{- end }}
         {{- if and (include "cells.s3.enabled" .) .Values.externalS3.useCustomURL }}
         - name: wait-for-s3
           image: busybox
-          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }}; do echo waiting for s3; sleep 2; done' ]
+          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }}; do echo waiting for s3; sleep .5; done' ]
         {{- end }}
         {{- if (include "cells.vault.enabled" .) }}
         - name: wait-for-vault
           image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }}; do echo waiting for vault; sleep 2; done']
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }}; do echo waiting for vault; sleep .5; done']
         {{- end }}
         - name: install-certs
           {{- if .Values.image.local }}

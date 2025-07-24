@@ -199,36 +199,21 @@ MARIADB ENV SECRET
 */}}
 {{- define "cells.database.auth.envvar" -}}
 {{- if and (include "cells.database.auth.enabled" .) .Values.mariadb.enabled -}}
-{{- if and (empty .Values.mariadb.auth.existingSecret) (empty .Values.mariadb.auth.username) -}}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_USERNAME" "value" "root") }}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_PASSWORD" "value" (dict
-  "secretName"        "cells-mariadb"
-  "secretPasswordKey" "mariadb-root-password")) }}
-{{- else if not (empty .Values.mariadb.auth.username) -}}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_USERNAME" "value" .Values.mariadb.auth.username) }}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_PASSWORD" "value" (dict
-  "secretName"        "cells-mariadb"
-  "secretPasswordKey" "mariadb-password")) }}
-{{- else -}}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_USERNAME" "value" (dict
-  "secretName"        .Values.mariadb.auth.existingSecret
-  "secretPasswordKey" "username")) }}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_PASSWORD" "value" (dict
-  "secretName"        .Values.mariadb.auth.existingSecret
-  "secretPasswordKey" "password")) }}
-{{- end -}}
+{{ $secret := .Values.mariadb.auth.existingSecret | default "cells-mariadb" }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "DB_USERNAME" "value" (.Values.mariadb.auth.username | default "root")) }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "DB_PASSWORD" "value" (dict "secretName" $secret "secretPasswordKey" "password")) }}
 {{- else if and (include "cells.database.auth.enabled" .) .Values.externalSQLDatabase.auth.enabled -}}
 {{- if empty .Values.externalSQLDatabase.auth.existingSecretUsernameKey -}}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_USERNAME" "value" (.Values.externalSQLDatabase.auth.user | default "root")) }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "DB_USERNAME" "value" (.Values.externalSQLDatabase.auth.user | default "root")) }}
 {{- else -}}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_USERNAME" "value" (dict
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "DB_USERNAME" "value" (dict
   "secretName"        .Values.externalSQLDatabase.auth.existingSecret
   "secretPasswordKey" .Values.externalSQLDatabase.auth.existingSecretUsernameKey)) }}
 {{- end }}
 {{ if empty .Values.externalSQLDatabase.auth.existingSecretPasswordKey }}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_PASSWORD" "value" .Values.externalSQLDatabase.auth.password) }}
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "DB_PASSWORD" "value" .Values.externalSQLDatabase.auth.password) }}
 {{- else -}}
-{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "MARIADB_ROOT_PASSWORD" "value" (dict
+{{ include "cells.tplvalues.renderSecretPassword" (dict "name" "DB_PASSWORD" "value" (dict
   "secretName"        .Values.externalSQLDatabase.auth.existingSecret
   "secretPasswordKey" .Values.externalSQLDatabase.auth.existingSecretPasswordKey)) }}
 {{- end -}}
@@ -250,16 +235,22 @@ MARIADB URL UTILISATEUR
 MARIADB URL COMPLÈTE
 */}}
 {{- define "cells.database.url" -}}
-{{- $path := index . 1 }}
-{{- with index . 0 }}
+{{- $path := .path -}}
+{{- $scheme := (.scheme | default (include "cells.database.scheme" .)) -}}
+{{- $authParams := (.authParams | default (include "cells.database.auth.urlUser" .)) -}}
+{{- $host := (.host | default (include "cells.database.host" .)) -}}
+{{- $port := (.port | default (include "cells.database.port" .)) -}}
+{{- $params := (.params | default (include "cells.database.params" .)) -}}
+{{- $tlsParams := (.tlsParams | default (include "cells.database.tls.params" .)) -}}
+{{- with .context }}
 {{- printf "%s://%s%s:%s%s?%s&%s"
-    (include "cells.database.scheme" .)
-    (include "cells.database.auth.urlUser" .)
-    (include "cells.database.host" .)
-    (include "cells.database.port" .)
+    $scheme
+    $authParams
+    $host
+    $port
     $path
-    (include "cells.database.params" .)
-    (include "cells.database.tls.params" .)
+    $params
+    $tlsParams
 }}
 {{- end }}
 {{- end }}
@@ -268,16 +259,20 @@ MARIADB URL COMPLÈTE
 MARIADB URL COMPLÈTE
 */}}
 {{- define "cells.database.dsn" -}}
-{{- $path := index . 1 }}
-{{- with index . 0 }}
+{{- $path := .path -}}
+{{- $scheme := (.scheme | default (include "cells.database.scheme" .context)) -}}
+{{- $authParams := (.authParams | default (include "cells.database.auth.urlUser" .context)) -}}
+{{- $host := (.host | default (include "cells.database.host" .context)) -}}
+{{- $port := (.port | default (include "cells.database.port" .context)) -}}
+{{- $params := (.params | default (include "cells.database.params" .context)) -}}
+{{- $tlsParams := (.tlsParams | default (include "cells.database.tls.params" .context)) -}}
 {{- printf "%s://%stcp(%s:%s)/%s?%s&%s"
-    (include "cells.database.scheme" .)
-    (include "cells.database.auth.urlUser" .)
-    (include "cells.database.host" .)
-    (include "cells.database.port" .)
+    $scheme
+    $authParams
+    $host
+    $port
     $path
-    (include "cells.database.params" .)
-    (include "cells.database.tls.params" .)
+    $params
+    $tlsParams
 }}
-{{- end }}
 {{- end }}

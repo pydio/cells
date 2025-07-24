@@ -34,14 +34,14 @@ data:
 
     {{ if (include "cells.database.enabled" .) }}
     dbconnectiontype: manual
-    dbmanualdsn: {{ include "cells.database.dsn" (list . (include "cells.database.name" .)) }}
+    dbmanualdsn: {{ include "cells.database.dsn" (dict "context" . "path" (include "cells.database.name" .) "authParams" (include "cells.urlUser" (dict "enabled" "true" "user" "$DB_USERNAME" "password" "$DB_PASSWORD")) ) }}
     {{ else }}
     dbconnectiontype: manual
     dbmanualdsn: sqlite:///var/cells/pydio.db
     {{ end }}
 
     {{- if (include "cells.nosql.enabled" .) }}
-    documentsdsn: {{ include "cells.nosql.url" (list . "/cells") }}
+    documentsdsn: {{ include "cells.nosql.url" (dict "context" . "path" "cells" "authParams" (include "cells.urlUser" (dict "enabled" "true" "user" "$NOSQL_USERNAME" "password" "$NOSQL_PASSWORD")) ) }}
     usedocumentsdsn: true
     {{- else }}
     usedocumentsdsn: false
@@ -57,8 +57,8 @@ data:
     dss3custom: {{ include "cells.s3.url" (list . "") }}
     {{- end }}
     dss3customregion: {{ .Values.externalS3.customRegion | default "us-east-1" }}
-    dss3apikey: {{ include "cells.s3.auth.user" . }}
-    dss3apisecret: {{ include "cells.s3.auth.password" . }}
+    dss3apikey: $S3_USERNAME
+    dss3apisecret: $S3_PASSWORD
     dss3bucketdefault: {{ .Values.externalS3.ds.pydiods1 | default "pydiods1" }}
     dss3bucketpersonal: {{ .Values.externalS3.ds.personal | default "personal" }}
     dss3bucketcells: {{ .Values.externalS3.ds.cellsdata | default "cellsdata" }}

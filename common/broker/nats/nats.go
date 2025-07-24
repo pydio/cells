@@ -7,11 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/nats-io/nats-server/conf"
 	nats "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"gocloud.dev/gcerrors"
@@ -66,7 +68,6 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 	}
 
 	if err := std.Retry(ctx, func() error {
-		u.RawQuery = ""
 		opts := []nats.Option{
 			nats.Timeout(10 * time.Second),
 		}
@@ -78,6 +79,44 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 		if pwd, ok := u.User.Password(); ok {
 			opts = append(opts, nats.UserInfo(u.User.Username(), pwd))
 		}
+
+		if env := u.Query().Get("serverConfEnv"); env != "" {
+			serverConf := os.Getenv(env)
+			if serverConf != "" {
+				data, err := conf.Parse(serverConf)
+				if err != nil {
+					fmt.Println("Could not parse", err)
+					return err
+				}
+
+				if auth, ok := data["authorization"]; ok {
+					if authMap, ok := auth.(map[string]any); ok {
+						if users, ok := authMap["users"]; ok {
+							if usersSlice, ok := users.([]any); ok {
+								if len(usersSlice) > 0 {
+									if userMap, ok := usersSlice[0].(map[string]any); ok {
+										username, ok1 := userMap["user"].(string)
+										password, ok2 := userMap["password"].(string)
+
+										if ok1 && ok2 {
+											opts = append(opts, nats.UserInfo(username, password))
+										}
+									}
+								}
+							}
+						}
+
+						if token, ok := authMap["token"]; ok {
+							if tokenString, ok := token.(string); ok {
+								opts = append(opts, nats.Token(tokenString))
+							}
+						}
+					}
+				}
+			}
+		}
+
+		u.RawQuery = ""
 
 		c, err := nats.Connect(u.String(), opts...)
 		if err != nil {
@@ -122,9 +161,6 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 		o.Connection = conn
 	}
 
-	for param := range u.Query() {
-		return nil, fmt.Errorf("open topic %v: invalid query parameter %s", u, param)
-	}
 	subject := path.Join(u.Host, u.Path)
 	return OpenTopic(o.Connection, subject, &o.TopicOptions)
 }
@@ -142,8 +178,6 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	for param, values := range u.Query() {
 		if strings.ToLower(param) == "queue" && values != nil {
 			opts.Queue = values[0]
-		} else {
-			return nil, fmt.Errorf("open subscription %v: invalid query parameter %s", u, param)
 		}
 	}
 	subject := path.Join(u.Host, u.Path)

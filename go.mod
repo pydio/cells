@@ -80,6 +80,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.82
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.6.0
+	github.com/nats-io/nats-server v1.4.1
 	github.com/nats-io/nats.go v1.34.1
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
 	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5

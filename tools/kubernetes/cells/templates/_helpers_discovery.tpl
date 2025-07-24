@@ -1,6 +1,14 @@
 {{/*
 ETCD HOST
 */}}
+{{- define "cells.discovery.scheme" -}}
+{{- if .Values.etcd.enabled -}}
+{{- "etcd" -}}
+{{- else if .Values.externalDiscovery.enabled -}}
+{{- .Values.externalDiscovery.scheme | default "etcd" }}
+{{- end -}}
+{{- end }}
+
 {{- define "cells.discovery.host" -}}
 {{- if .Values.etcd.enabled }}
 {{- printf "%s-etcd.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
@@ -23,11 +31,19 @@ ETCD HOST
 {{- end -}}
 {{- end -}}
 
+{{- define "cells.discovery.params" -}}
+{{- .Values.externalDiscovery.params | toJson }}
+{{- end -}}
+
 {{- define "cells.discovery.envvar" -}}
 {{- if (include "cells.discovery.enabled" .) -}}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CONFIG" "value" (include "cells.discovery.url" (list . "/config")))) "context" .) }}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_VAULT" "value" (include "cells.discovery.url" (list . "/vault")))) "context" .) }}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_REGISTRY" "value" (include "cells.discovery.url" (list . "/registry")))) "context" .) }}
+{{- $authParams := (include "cells.urlUser" (dict "enabled" (include "cells.discovery.auth.enabled" .) "user" "$DISCOVERY_USERNAME" "password" "$DISCOVERY_PASSWORD")) }}
+{{- $configURL := (include "cells.discovery.url" (dict "context" . "path" "config" "authParams" $authParams)) -}}
+{{- $vaultURL := (include "cells.discovery.url" (dict "context" . "path" "vault" "authParams" $authParams)) -}}
+{{- $registryURL := (include "cells.discovery.url" (dict "context" . "path" "registry" "authParams" $authParams)) -}}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CONFIG" "value" $configURL)) "context" .) }}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_VAULT" "value" $vaultURL)) "context" .) }}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_REGISTRY" "value" $registryURL)) "context" .) }}
 {{- end -}}
 {{- end -}}
 
@@ -143,8 +159,10 @@ NATS TLS CA
 {{- end -}}
 
 {{- define "cells.discovery.tls.params" -}}
-{{ if (include "cells.discovery.tls.enabled" .) }}
-{{- include "cells.urlTLSParams" (dict "enabled" (include "cells.discovery.tls.enabled" .) "insecure" (empty (include "cells.discovery.tls.client.existingSecret" .)) "prefix" "etcd" "certFilename" (include "cells.discovery.tls.client.cert" .) "certKeyFilename" (include "cells.discovery.tls.client.key" .) "caFilename" (include "cells.discovery.tls.ca.cert" .)) -}}
+{{- if (include "cells.discovery.tls.enabled" .) -}}
+{{- include "cells.urlTLSParamsDict" (dict "enabled" (include "cells.discovery.tls.enabled" .) "insecure" (empty (include "cells.discovery.tls.client.existingSecret" .)) "prefix" "etcd" "certFilename" (include "cells.discovery.tls.client.cert" .) "certKeyFilename" (include "cells.discovery.tls.client.key" .) "caFilename" (include "cells.discovery.tls.ca.cert" .)) -}}
+{{- else -}}
+{{- "{}" -}}
 {{- end -}}
 {{- end -}}
 
@@ -176,7 +194,7 @@ NATS TLS CA
 {{- if and (include "cells.discovery.auth.enabled" .) .Values.etcd.enabled -}}
 {{- include "cells.tplvalues.renderSecretPassword" (dict "name" "DISCOVERY_ROOT_PASSWORD" "value" (index (index .Values.nats.auth.credentials 0) "password")) }}
 {{- else if and (include "cells.discovery.auth.enabled" .) .Values.externalDiscovery.auth.enabled -}}
-{{- include "cells.tplvalues.renderSecretPassword" (dict "name" "DISCOVERY_ROOT_PASSWORD" "value" (dict "secretName" .Values.externalDiscovery.auth.existingSecret "secretPasswordKey" .Values.externalDiscovery.auth.existingSecretPasswordKey)) -}}
+{{- include "cells.auth.envvar" (dict "auth" .Values.externalDiscovery.auth "prefix" "DISCOVERY") }}
 {{- end -}}
 {{- end -}}
 
@@ -188,9 +206,21 @@ NATS TLS CA
 {{- end -}}
 
 {{- define "cells.discovery.url" -}}
-{{- $path := index . 1 }}
-{{- with index . 0 }}
-
-{{- printf "%s://%s%s:%s%s%s" (include "cells.discovery.tls.scheme" .) (include "cells.discovery.auth.urlUser" .) (include "cells.discovery.host" .) (include "cells.discovery.port" .) $path (include "cells.discovery.tls.params" .) }}
-{{- end }}
+{{- $path := .path -}}
+{{- $scheme := (.scheme | default (include "cells.discovery.scheme" .context)) -}}
+{{- $authParams := (.authParams | default (include "cells.discovery.auth.urlUser" .context)) -}}
+{{- $host := (.host | default (include "cells.discovery.host" .context)) -}}
+{{- $port := (.port | default (include "cells.discovery.port" .context)) -}}
+{{- $params := (.params | default ((include "cells.discovery.params" .context) | fromJson)) -}}
+{{- $tlsParams := (.tlsParams | default ((include "cells.discovery.tls.params" .context) | fromJson) | default) -}}
+{{- with .context -}}
+{{- printf "%s://%s%s:%s/%s%s"
+    $scheme
+    $authParams
+    $host
+    $port
+    $path
+    (include "cells.urlQuery" (list $params $tlsParams))
+}}
+{{- end -}}
 {{- end }}
