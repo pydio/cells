@@ -39,7 +39,7 @@ require (
 	github.com/go-openapi/spec v0.21.0
 	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/go-sql-driver/mysql v1.9.2
+	github.com/go-sql-driver/mysql v1.9.3
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/gobuffalo/pop/v6 v6.1.2-0.20230318123913-c85387acc9a0
 	github.com/gobwas/glob v0.2.3
