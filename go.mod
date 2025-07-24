@@ -81,7 +81,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.6.0
 	github.com/nats-io/nats-server v1.4.1
-	github.com/nats-io/nats.go v1.34.1
+	github.com/nats-io/nats.go v1.43.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
 	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5
 	github.com/olahol/melody v1.2.1
@@ -361,7 +361,7 @@ require (
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/klauspost/readahead v1.4.0 // indirect
@@ -401,7 +401,7 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/ncw/directio v1.0.5 // indirect
