@@ -270,6 +270,7 @@ var InstallForm = function (_React$Component) {
             finished: false,
             stepIndex: 0,
             dbConnectionType: "tcp",
+            prevConnectionType: null,
             licenseAgreed: false,
             showAdvanced: false,
             installEvents: [],
@@ -364,6 +365,39 @@ var InstallForm = function (_React$Component) {
                     window.location.reload();
                 }, 5000);
             });
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps) {
+            var _props = this.props,
+                dbConnectionType = _props.dbConnectionType,
+                change = _props.change;
+
+            if (prevProps.dbConnectionType === dbConnectionType) {
+                return;
+            }
+            this.setState({ prevDbConnectionType: dbConnectionType });
+            // Adjust fields based on dbConnectionType
+            switch (dbConnectionType) {
+                case 'tcp':
+                case 'mysql_tcp':
+                    change('dbTCPPort', '3306');
+                    break;
+                case 'pg_tcp':
+                    change('dbTCPPort', '5432');
+                    break;
+                case 'sqlite':
+                    change('dbSocketFile', '/var/cells/cells.db');
+                    break;
+                case 'mysql_socket':
+                    change('dbSocketFile', '/tmp/mysql.sock');
+                    break;
+                case 'pg_socket':
+                    change('dbSocketFile', '/var/run/postgresql');
+                    break;
+                default:
+                    break;
+            }
         }
     }, {
         key: 'checkDbConfig',
@@ -539,11 +573,11 @@ var InstallForm = function (_React$Component) {
                 stepIndex = _state.stepIndex,
                 tablesFoundConfirm = _state.tablesFoundConfirm,
                 dbCheckSuccess = _state.dbCheckSuccess;
-            var _props = this.props,
-                handleSubmit = _props.handleSubmit,
-                licenseRequired = _props.licenseRequired,
-                invalid = _props.invalid,
-                dsType = _props.dsType;
+            var _props2 = this.props,
+                handleSubmit = _props2.handleSubmit,
+                licenseRequired = _props2.licenseRequired,
+                invalid = _props2.invalid,
+                dsType = _props2.dsType;
 
             var stepOffset = licenseRequired ? 1 : 0;
 
@@ -633,19 +667,19 @@ var InstallForm = function (_React$Component) {
         value: function render() {
             var _this8 = this;
 
-            var _props2 = this.props,
-                dbConnectionType = _props2.dbConnectionType,
-                handleSubmit = _props2.handleSubmit,
-                installPerformed = _props2.installPerformed,
-                installError = _props2.installError,
-                initialChecks = _props2.initialChecks,
-                licenseRequired = _props2.licenseRequired,
-                licenseString = _props2.licenseString,
-                frontendPassword = _props2.frontendPassword,
-                frontendLogin = _props2.frontendLogin,
-                frontendRepeatPassword = _props2.frontendRepeatPassword,
-                DocumentsDSN = _props2.DocumentsDSN,
-                change = _props2.change;
+            var _props3 = this.props,
+                dbConnectionType = _props3.dbConnectionType,
+                handleSubmit = _props3.handleSubmit,
+                installPerformed = _props3.installPerformed,
+                installError = _props3.installError,
+                initialChecks = _props3.initialChecks,
+                licenseRequired = _props3.licenseRequired,
+                licenseString = _props3.licenseString,
+                frontendPassword = _props3.frontendPassword,
+                frontendLogin = _props3.frontendLogin,
+                frontendRepeatPassword = _props3.frontendRepeatPassword,
+                DocumentsDSN = _props3.DocumentsDSN,
+                change = _props3.change;
             var _state3 = this.state,
                 stepIndex = _state3.stepIndex,
                 licenseAgreed = _state3.licenseAgreed,
@@ -894,16 +928,11 @@ var InstallForm = function (_React$Component) {
                                 ) })
                         ),
                         !dbUseDefaultsToggle && _react2.default.createElement(
-                            'span',
+                            'div',
                             null,
-                            this.t('database.legend'),
-                            ' ',
-                            _react2.default.createElement(
-                                'span',
-                                { style: { fontWeight: 500 } },
-                                this.t('database.legend.bold'),
-                                '.'
-                            )
+                            this.t('database.legend1'),
+                            _react2.default.createElement('br', null),
+                            this.t('database.legend2')
                         ),
                         dbCheckError && _react2.default.createElement(
                             'div',
@@ -917,8 +946,8 @@ var InstallForm = function (_React$Component) {
                                 _reduxForm.Field,
                                 { name: 'dbConnectionType', component: renderSelectField, label: this.t('database.stepLabel') },
                                 _react2.default.createElement(_materialUi.MenuItem, { value: 'tcp', primaryText: this.t('form.dbConnectionType.mysql_tcp') }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: 'pg_tcp', primaryText: this.t('form.dbConnectionType.pg_tcp') }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: 'mysql_socket', primaryText: this.t('form.dbConnectionType.mysql_socket') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'pg_tcp', primaryText: this.t('form.dbConnectionType.pg_tcp') }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: 'pg_socket', primaryText: this.t('form.dbConnectionType.pg_socket') }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: 'sqlite', primaryText: this.t('form.dbConnectionType.sqlite') }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: 'manual', primaryText: this.t('form.dbConnectionType.manual') })
@@ -979,7 +1008,7 @@ var InstallForm = function (_React$Component) {
                             dbConnectionType === "sqlite" && _react2.default.createElement(
                                 'div',
                                 { style: flexContainer },
-                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketFile', component: renderTextField, floatingLabel: this.t('form.dbSocketFile.label'), label: this.t('form.dbSocketFile.legend') })
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketFile', component: renderTextField, floatingLabel: this.t('form.dbSocketFileSQLite.label'), label: this.t('form.dbSocketFileSQLite.legend') })
                             ),
                             dbConnectionType === "manual" && _react2.default.createElement(
                                 'div',
@@ -1105,9 +1134,9 @@ var InstallForm = function (_React$Component) {
                 change('DocumentsDSN', url.toString());
             };
 
-            var _props3 = this.props,
-                dsType = _props3.dsType,
-                s3Config = _props3.s3Config;
+            var _props4 = this.props,
+                dsType = _props4.dsType,
+                s3Config = _props4.s3Config;
 
             steps.push(_react2.default.createElement(
                 _materialUi.Step,

@@ -205,6 +205,7 @@ class InstallForm extends React.Component {
         finished: false,
         stepIndex: 0,
         dbConnectionType: "tcp",
+        prevConnectionType: null,
         licenseAgreed: false,
         showAdvanced: false,
         installEvents: [],
@@ -264,6 +265,34 @@ class InstallForm extends React.Component {
             }, 5000);
         });
     }
+
+    componentDidUpdate(prevProps) {
+        const { dbConnectionType, change } = this.props;
+        if (prevProps.dbConnectionType === dbConnectionType) {
+            return
+        }
+        this.setState({prevDbConnectionType: dbConnectionType});
+        // Adjust fields based on dbConnectionType
+        switch (dbConnectionType) {
+            case 'tcp':
+            case 'mysql_tcp':
+                change('dbTCPPort', '3306');
+                break;
+            case 'pg_tcp':
+                change('dbTCPPort', '5432');
+                break;
+            case 'sqlite':
+                change('dbSocketFile', '/var/cells/cells.db');
+                break;
+            case 'mysql_socket':
+                change('dbSocketFile', '/tmp/mysql.sock');
+                break;
+            case 'pg_socket':
+                change('dbSocketFile', '/var/run/postgresql');
+                break;
+            default:
+                break;
+        }    }
 
     checkDbConfig(callback) {
         const {dbConfig} = this.props;
@@ -626,9 +655,7 @@ class InstallForm extends React.Component {
                         </div>
                         }
                         {!dbUseDefaultsToggle &&
-                        <span>
-                            {this.t('database.legend')} <span style={{fontWeight: 500}}>{this.t('database.legend.bold')}.</span>
-                        </span>
+                        <div>{this.t('database.legend1')}<br/>{this.t('database.legend2')}</div>
                         }
                         {dbCheckError &&
                         <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
@@ -638,8 +665,8 @@ class InstallForm extends React.Component {
                         <div style={flexContainer}>
                             <Field name="dbConnectionType" component={renderSelectField} label={this.t('database.stepLabel')}>
                                 <MenuItem value="tcp" primaryText={this.t('form.dbConnectionType.mysql_tcp')} />
-                                <MenuItem value="pg_tcp" primaryText={this.t('form.dbConnectionType.pg_tcp')} />
                                 <MenuItem value="mysql_socket" primaryText={this.t('form.dbConnectionType.mysql_socket')} />
+                                <MenuItem value="pg_tcp" primaryText={this.t('form.dbConnectionType.pg_tcp')} />
                                 <MenuItem value="pg_socket" primaryText={this.t('form.dbConnectionType.pg_socket')} />
                                 <MenuItem value="sqlite" primaryText={this.t('form.dbConnectionType.sqlite')} />
                                 <MenuItem value="manual" primaryText={this.t('form.dbConnectionType.manual')} />
@@ -672,7 +699,7 @@ class InstallForm extends React.Component {
 
                             {dbConnectionType === "sqlite" && (
                                 <div style={flexContainer}>
-                                    <Field name="dbSocketFile" component={renderTextField} floatingLabel={this.t('form.dbSocketFile.label')} label={this.t('form.dbSocketFile.legend')} />
+                                    <Field name="dbSocketFile" component={renderTextField} floatingLabel={this.t('form.dbSocketFileSQLite.label')} label={this.t('form.dbSocketFileSQLite.legend')} />
                                 </div>
                             )}
 
