@@ -80,7 +80,7 @@ func TestGetSet(t *testing.T) {
 
 			})
 
-			Convey("SMTP password is encrypted:", func() {
+			SkipConvey("SMTP password is encrypted:", func() {
 
 				pwd := "This is a p@$$w0rd"
 

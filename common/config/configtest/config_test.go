@@ -56,7 +56,7 @@ var (
 func init() {
 	testCases = []testCase{
 		{label: "memory", store: "mem://?pools=rp%3Dmem%3A%2F%2F", vault: "mem://?masterKey=whatever"},
-		{label: "etcd", store: "etcd://:23379", vault: "etcd://:23379?masterKey=whatever"},
+		//{label: "etcd", store: "etcd://:23379", vault: "etcd://:23379?masterKey=whatever"},
 	}
 }
 

@@ -177,11 +177,13 @@ func (v *vaultvalues) Get() any {
 func (v *vaultvalues) Set(value interface{}) error {
 	// Checking we have a registered value
 	for _, p := range registeredVaultKeys {
-		if strings.TrimPrefix(v.path, "/") == p {
+		vPath := strings.TrimPrefix(v.path, "/")
+
+		if vPath == p {
 			return v.set(value)
 		}
 
-		if strings.HasPrefix(p, v.path) {
+		if strings.HasPrefix(p, vPath) {
 			// First removing keys that don't exist anymore
 			current := v.Values.Map()
 
