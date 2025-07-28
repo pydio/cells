@@ -150,7 +150,7 @@
     "other": "Gjestetilgang, logg inn."
   },
   "144": {
-    "other": "Not logged in."
+    "other": "Ikke innlogget."
   },
   "145": {
     "other": "Mine Bokmerker"
@@ -450,151 +450,151 @@
     "other": "Spill av"
   },
   "231": {
-    "other": "Play Slideshow"
+    "other": "Start lysbildefremvisning"
   },
   "232": {
-    "other": "Stop"
+    "other": "Stopp"
   },
   "233": {
-    "other": "Stop Slideshow"
+    "other": "Stopp lysbildefremvisning"
   },
   "234": {
-    "other": "View selected images"
+    "other": "Vis valgte bilder"
   },
   "235": {
-    "other": "Fullscreen"
+    "other": "Fullskjerm"
   },
   "236": {
-    "other": "Restore"
+    "other": "Gjenopprett"
   },
   "237": {
-    "other": "Old password"
+    "other": "Gammelt passord"
   },
   "238": {
-    "other": "Passwords differ!"
+    "other": "Passordene er forskjellige!"
   },
   "239": {
-    "other": "Please fill you current password"
+    "other": "Vennligst fyll inn gjeldende passord"
   },
   "24": {
-    "other": "Parent directory"
+    "other": "Overordnet mappe"
   },
   "240": {
-    "other": "Wrong password!"
+    "other": "Feil passord!"
   },
   "241": {
-    "other": "Your preferences have been saved successfully!"
+    "other": "Innstillingene dine er lagret!"
   },
   "242": {
     "other": "Svn Log"
   },
   "243": {
-    "other": "Revision"
+    "other": "Revisjon"
   },
   "244": {
-    "other": "Author"
+    "other": "Forfatter"
   },
   "245": {
-    "other": "Date"
+    "other": "Dato"
   },
   "246": {
-    "other": "Message"
+    "other": "Melding"
   },
   "247": {
-    "other": "Extract"
+    "other": "Pakk ut"
   },
   "248": {
-    "other": "Extract selection from zip to..."
+    "other": "Pakk ut utvalg fra zip til..."
   },
   "249": {
-    "other": "Users"
+    "other": "Brukere"
   },
   "25": {
-    "other": "Upload one or more files (max. %s in the directory : "
+    "other": "Last opp en eller flere filer (maks %s i mappen : "
   },
   "250": {
     "other": "Workspaces"
   },
   "251": {
-    "other": "Logs"
+    "other": "Logger"
   },
   "252": {
-    "other": "The total file size limit has been reached."
+    "other": "Grensen for total filstørrelse er nådd."
   },
   "253": {
-    "other": "There has been an HTTP Error:"
+    "other": "Det har skjedd en HTTP feil:"
   },
   "254": {
-    "other": "There has been an IO Error:"
+    "other": "Det har skjedd en IO feil:"
   },
   "255": {
-    "other": "These has been a Security Error:"
+    "other": "Det har skjedd en sikkerhetsfeil:"
   },
   "256": {
-    "other": "Uploaded"
+    "other": "Opplastet"
   },
   "257": {
-    "other": "Remove"
+    "other": "Fjern"
   },
   "258": {
-    "other": "File count :"
+    "other": "Antall filer :"
   },
   "259": {
-    "other": "Total size :"
+    "other": "Total størrelse :"
   },
   "26": {
-    "other": "Create a new directory in : "
+    "other": "Lag ny mappe i : "
   },
   "260": {
     "other": "bytes"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "Husk meg"
   },
   "262": {
-    "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
+    "other": "Det ser ut til at en eller flere filer allerede eksisterer \\ni målmappen.\\nHva vil du gjøre?"
   },
   "263": {
-    "other": "Overwrite"
+    "other": "Overskriv"
   },
   "264": {
-    "other": "Skip"
+    "other": "Hopp over"
   },
   "265": {
-    "other": "Files"
+    "other": "Filer"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Opprett"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "Opprett ny tabell"
   },
   "269": {
-    "other": "Structure"
+    "other": "Struktur"
   },
   "27": {
-    "other": "Upload"
+    "other": "Last opp"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "Endre tabellstruktur"
   },
   "271": {
-    "other": "Drop"
+    "other": "Slipp"
   },
   "272": {
-    "other": "Drop open table"
+    "other": "Slipp åpen tabell"
   },
   "273": {
-    "other": "Insert"
+    "other": "Sette inn"
   },
   "274": {
-    "other": "Insert a new record"
+    "other": "Sette inn ny post"
   },
   "275": {
-    "other": "Are you sure you want to drop the selected table(s)?"
+    "other": "Er du sikker på at du vil fjerne de(n) valgte tabellen(e)?"
   },
   "276": {
     "other": "Endre valgt oppføring"
@@ -1497,154 +1497,154 @@
     "other": "Avvis"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Vennligst oppgi et passord."
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "Ugyldig passord, vennligst prøv igjen. \\n Kontroller at Caps Lock ikke er slått på!"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s resultat(er) i papirkurven"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "Starter oppgave %s i bakgrunnen"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Legitimasjon kreves"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Vennligst oppgi et passord for å få tilgang til dette workspacet."
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "Autentisering feilet for dette workspacet."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "BMP bilde"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Autentisering påkrevd"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Vi vil omdirigere deg til autentiseringssiden til leverandøren. Hvis du ikke omdirigeres automatisk, trykk OK for å prøve på nytt..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Denne mappen er tom!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Dette workspacet er tomt!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "Papirkurven er tom."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Begynn å legge til filer eller mapper ved å velge de eller dra de direkte fra skrivebordet"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Du har ikke tillatelse til å legge filer her"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Bla gjennom papirkurven"
   },
   "568": {
     "other": "Teams"
   },
   "569": {
-    "other": "New Team"
+    "other": "Nytt Team"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "PNG bilde"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Slett Team"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Ingen team opprettet enda"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "Lag dine egne teams for å lett kunne dele data mellom flere brukere"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Ingen teams tilgjengelig"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "Du har ikke rettigheter til å opprette teams, men noen autoriserte brukere kan dele teams med deg"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Opprett og endre Teams"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "La brukere opprette og endre deres egne teams"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Legg bruker til i team"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Fjern fra team"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Team-medlemmer"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s medlemmer"
   },
   "577": {
-    "other": "No members"
+    "other": "Ingen medlemmer"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Team-etikett"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Opprett Team"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS Fil"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Endre team-etikett"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Brukeren tilhører %s team(s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Slett bruker"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Søk i mappe"
   },
   "584": {
-    "other": "Directory"
+    "other": "Mappe"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Ingen eksterne brukere"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Opprett dine egen brukere og del filer og mapper fra dine workspaces med de."
   },
   "587": {
-    "other": "No results"
+    "other": "Ingen resultater"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Begynn å skrive i søkefeltet for å finne brukere i mappen"
   },
   "589": {
-    "other": "External user"
+    "other": "Ekstern bruker"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 fil"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Intern bruker"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Velg et navn for teamet, og du vil kunne legge til brukere etter oppretting."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Adressebok"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "Delte bruker"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Betrodde Servere"
   },
   "595": {
     "other": "Search user..."
