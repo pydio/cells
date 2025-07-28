@@ -214,16 +214,23 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 
 	// Check if pre-configured DB is up and running
 	nbRetry := 20
-	for i := 0; i < nbRetry; i++ {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+	for attempt := 1; attempt <= nbRetry; attempt++ {
 		if res, _ := lib.PerformCheck(ctx, "DB", iConf); res.Success {
 			break
 		}
-		if i == nbRetry-1 {
+		if attempt == nbRetry {
 			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection configuration.")
 			return nil, errors.New("No DB. Aborting...")
 		}
 		fmt.Println("... Cannot connect to database, wait before retry")
-		<-time.After(10 * time.Second)
+		select {
+		case <-ctx.Done():
+			fmt.Println("[Error] Retries interrupted by user, aborting...")
+			return nil, ctx.Err()
+		case <-ticker.C:
+		}
 	}
 
 	err = lib.Install(ctx, iConf, lib.InstallAll, func(event *lib.InstallProgressEvent) {
