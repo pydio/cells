@@ -80,7 +80,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DbSocketName = "cells"
 	c.DbSocketUser = "root"
 	c.DbSocketPassword = ""
-	c.DbManualDSN = "root@tcp(localhost=3306)/cells"
+	c.DbManualDSN = "mysql://root@tcp(127.0.0.1:3306)/cells?parseTime=true"
 	c.DsName = "pydiods1"
 	c.DsPort = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.DsFolder = runtime.ApplicationWorkingDir(runtime.ApplicationDirData)
