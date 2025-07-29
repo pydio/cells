@@ -24,7 +24,7 @@
     "other": "Veuillez vous assurer que votre base de données utilise MySQL version 5.6 ou supérieure"
   },
   "database.legend1": {
-    "other": "L'installation nécéssite une base de données SQL pour la configuration et l'indexation des données."
+    "other": "L'installation nécessite une base de données SQL pour la configuration et l'indexation des données."
   },
   "database.legend2": {
     "other": "Les bases de données supportées sont MySQL/MariaDB, PostgreSQL ou SQLite."
@@ -153,7 +153,7 @@
     "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite (dev purpose only)"
+    "other": "SQLite (test ou développement)"
   },
   "form.dbConnectionType.manual": {
     "other": "Manuel"
@@ -195,10 +195,10 @@
     "other": "Entrez l'emplacement du fichier de socket à utiliser pour se connecter"
   },
   "form.dbSocketFileSQLite.label": {
-    "other": "Database Path"
+    "other": "Chemin de la base de données"
   },
   "form.dbSocketFileSQLite.legend": {
-    "other": "Enter the location of the SQLite database"
+    "other": "Emplacement du fichier pour la base de données SQLite"
   },
   "form.dbSqliteFile.label": {
     "other": "Chemin"
