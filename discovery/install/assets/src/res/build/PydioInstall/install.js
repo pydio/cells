@@ -1113,7 +1113,10 @@ var InstallForm = function (_React$Component) {
             } else {
                 DSNURL = new _urlParse2.default('mongodb://localhost:27017/cells?maxPoolSize=20&w=majority');
             }
-            var DSNSearchParams = new URL(DSNURL.toString()).searchParams;
+            var DSNSearchParams = void 0;
+            try {
+                DSNSearchParams = new URL(DSNURL.toString()).searchParams;
+            } catch (e) {}
             var changeDSN = function changeDSN(url, key, value) {
                 if (key === "authSource") {
                     var sp = new URL(url.toString()).searchParams;
@@ -1234,7 +1237,7 @@ var InstallForm = function (_React$Component) {
                                         return changeDSN(DSNURL, 'password', v);
                                     }, floatingLabelText: "Password", fullWidth: true, type: this.t('advanced.mongo.password'), floatingLabelFixed: true }, fieldStyles.textFieldV2)),
                                 _react2.default.createElement('div', { style: { marginRight: 10 } }),
-                                _react2.default.createElement(_materialUi.TextField, _extends({ value: DSNSearchParams.get('authSource') || "",
+                                _react2.default.createElement(_materialUi.TextField, _extends({ value: DSNSearchParams && DSNSearchParams.get('authSource') || "",
                                     onChange: function onChange(e, v) {
                                         return changeDSN(DSNURL, 'authSource', v);
                                     },

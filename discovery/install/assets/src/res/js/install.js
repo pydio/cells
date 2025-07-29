@@ -771,7 +771,10 @@ class InstallForm extends React.Component {
         } else {
             DSNURL = new Url('mongodb://localhost:27017/cells?maxPoolSize=20&w=majority')
         }
-        const DSNSearchParams = new URL(DSNURL.toString()).searchParams
+        let DSNSearchParams;
+        try{
+            DSNSearchParams = new URL(DSNURL.toString()).searchParams
+        }catch (e){}
         const changeDSN = (url, key, value) => {
             if(key === "authSource") {
                 const sp = new URL(url.toString()).searchParams
@@ -848,7 +851,7 @@ class InstallForm extends React.Component {
                                     <div style={{marginRight: 10}} />
                                     <TextField value={DSNURL.password} onChange={(e,v)=>changeDSN(DSNURL, 'password', v)} floatingLabelText={"Password"} fullWidth={true} type={this.t('advanced.mongo.password')} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
                                     <div style={{marginRight: 10}} />
-                                    <TextField value={DSNSearchParams.get('authSource')||""}
+                                    <TextField value={DSNSearchParams&&DSNSearchParams.get('authSource')||""}
                                                onChange={(e,v)=>changeDSN(DSNURL, 'authSource', v)}
                                                floatingLabelText={this.t('advanced.mongo.authSource')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
                                     <div style={{minWidth:48}}/>
