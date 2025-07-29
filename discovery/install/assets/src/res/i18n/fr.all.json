@@ -23,6 +23,12 @@
   "database.legend.bold": {
     "other": "Veuillez vous assurer que votre base de données utilise MySQL version 5.6 ou supérieure"
   },
+  "database.legend1": {
+    "other": "L'installation nécéssite une base de données SQL pour la configuration et l'indexation des données."
+  },
+  "database.legend2": {
+    "other": "Les bases de données supportées sont MySQL/MariaDB, PostgreSQL ou SQLite."
+  },
   "database.installDetected": {
     "other": "Il semble y avoir une instance de Cells déjà installée dans cette base de données. Veuillez confirmer pour continuer ou "
   },
@@ -135,19 +141,19 @@
     "other": "Type de connexion"
   },
   "form.dbConnectionType.mysql_tcp": {
-    "other": "MySQL/MariaDB (TCP)"
+    "other": "MySQL/MariaDB - TCP"
   },
   "form.dbConnectionType.mysql_socket": {
-    "other": "MySQL/MariaDB (Socket)"
+    "other": "MySQL/MariaDB - Socket"
   },
   "form.dbConnectionType.pg_tcp": {
-    "other": "PostGreSQL (TCP)"
+    "other": "PostGreSQL - TCP"
   },
   "form.dbConnectionType.pg_socket": {
-    "other": "PostGreSQL (Socket)"
+    "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite"
+    "other": "SQLite (dev purpose only)"
   },
   "form.dbConnectionType.manual": {
     "other": "Manuel"
@@ -187,6 +193,12 @@
   },
   "form.dbSocketFile.legend": {
     "other": "Entrez l'emplacement du fichier de socket à utiliser pour se connecter"
+  },
+  "form.dbSocketFileSQLite.label": {
+    "other": "Database Path"
+  },
+  "form.dbSocketFileSQLite.legend": {
+    "other": "Enter the location of the SQLite database"
   },
   "form.dbSqliteFile.label": {
     "other": "Chemin"

@@ -23,6 +23,12 @@
   "database.legend.bold": {
     "other": "Please make sure that your database is running MySQL version 5.6 or higher"
   },
+  "database.legend1": {
+    "other": "Pydio requires at least one SQL storage for configuration and data indexation."
+  },
+  "database.legend2": {
+    "other": "Supported databases are MySQL/MariaDB or PostgreSQL or SQLite."
+  },
   "database.installDetected": {
     "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
   },
@@ -135,19 +141,19 @@
     "other": "Typ připojení"
   },
   "form.dbConnectionType.mysql_tcp": {
-    "other": "MySQL/MariaDB (TCP)"
+    "other": "MySQL/MariaDB - TCP"
   },
   "form.dbConnectionType.mysql_socket": {
-    "other": "MySQL/MariaDB (Socket)"
+    "other": "MySQL/MariaDB - Socket"
   },
   "form.dbConnectionType.pg_tcp": {
-    "other": "PostGreSQL (TCP)"
+    "other": "PostGreSQL - TCP"
   },
   "form.dbConnectionType.pg_socket": {
-    "other": "PostGreSQL (Socket)"
+    "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite"
+    "other": "SQLite (dev purpose only)"
   },
   "form.dbConnectionType.manual": {
     "other": "Ručně"
@@ -187,6 +193,12 @@
   },
   "form.dbSocketFile.legend": {
     "other": "Enter the location of the socket file to use to connect"
+  },
+  "form.dbSocketFileSQLite.label": {
+    "other": "Database Path"
+  },
+  "form.dbSocketFileSQLite.legend": {
+    "other": "Enter the location of the SQLite database"
   },
   "form.dbSqliteFile.label": {
     "other": "File Path"

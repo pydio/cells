@@ -23,6 +23,12 @@
   "database.legend.bold": {
     "other": "Zorg ervoor dat uw database MySQL versie 5.6 of hoger gebruikt"
   },
+  "database.legend1": {
+    "other": "Pydio requires at least one SQL storage for configuration and data indexation."
+  },
+  "database.legend2": {
+    "other": "Supported databases are MySQL/MariaDB or PostgreSQL or SQLite."
+  },
   "database.installDetected": {
     "other": "Er lijkt al een Cells-installatie in deze database te zijn ingesteld. Bevestig om door te gaan of "
   },
@@ -135,19 +141,19 @@
     "other": "Verbindingstype"
   },
   "form.dbConnectionType.mysql_tcp": {
-    "other": "MySQL/MariaDB (TCP)"
+    "other": "MySQL/MariaDB - TCP"
   },
   "form.dbConnectionType.mysql_socket": {
-    "other": "MySQL/MariaDB (Socket)"
+    "other": "MySQL/MariaDB - Socket"
   },
   "form.dbConnectionType.pg_tcp": {
-    "other": "PostGreSQL (TCP)"
+    "other": "PostGreSQL - TCP"
   },
   "form.dbConnectionType.pg_socket": {
-    "other": "PostGreSQL (Socket)"
+    "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite"
+    "other": "SQLite (dev purpose only)"
   },
   "form.dbConnectionType.manual": {
     "other": "Manueel"
@@ -187,6 +193,12 @@
   },
   "form.dbSocketFile.legend": {
     "other": "Voer de locatie in van het socket-bestand dat gebruikt wordt om te verbinden"
+  },
+  "form.dbSocketFileSQLite.label": {
+    "other": "Database Path"
+  },
+  "form.dbSocketFileSQLite.legend": {
+    "other": "Enter the location of the SQLite database"
   },
   "form.dbSqliteFile.label": {
     "other": "File Path"
