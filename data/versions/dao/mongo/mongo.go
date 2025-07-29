@@ -87,6 +87,11 @@ type MongoStore struct {
 	*mongodb.Database
 }
 
+// Migrate implements storage.Migrator but does nothing
+func (m *MongoStore) Migrate(_ context.Context) error {
+	return nil
+}
+
 func (m *MongoStore) GetLastVersion(ctx context.Context, nodeUuid string) (*tree.ContentRevision, error) {
 	res := m.Collection(collVersions).FindOne(ctx, bson.D{{"node_uuid", nodeUuid}}, &options.FindOneOptions{
 		Sort: bson.M{"ts": -1},

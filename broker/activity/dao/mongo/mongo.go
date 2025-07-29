@@ -111,6 +111,11 @@ func (m *mongoimpl) Init(ctx context.Context, values configx.Values) error {
 	return model.Init(ctx, m.Database)
 }
 
+// Migrate implements storage.Migrator but does nothing
+func (m *mongoimpl) Migrate(_ context.Context) error {
+	return nil
+}
+
 func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *proto.Subscription) error {
 	selector := bson.D{
 		{"objecttype", subscription.ObjectType},
