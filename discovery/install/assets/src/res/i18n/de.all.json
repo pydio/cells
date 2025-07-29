@@ -24,10 +24,10 @@
     "other": "Bitte stellen Sie sicher, dass Ihre Datenbank MySQL Version 5.6 oder höher läuft"
   },
   "database.legend1": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation."
+    "other": "Pydio benötigt mindestens einen SQL-Speicher für Konfiguration und Daten-Indexierung."
   },
   "database.legend2": {
-    "other": "Supported databases are MySQL/MariaDB or PostgreSQL or SQLite."
+    "other": "Unterstützte Datenbanken sind MySQL/MariaDB, PostgreSQL und SQLite."
   },
   "database.installDetected": {
     "other": "Es scheint bereits eine Cells-Installation in dieser Datenbank eingerichtet zu sein. Bitte bestätigen Sie, um fortzufahren, oder "
@@ -153,7 +153,7 @@
     "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite (dev purpose only)"
+    "other": "SQLite (nur für Entwickler)"
   },
   "form.dbConnectionType.manual": {
     "other": "Manuell"
@@ -195,10 +195,10 @@
     "other": "Geben Sie den Speicherort der Socket-Datei ein, über die eine Verbindung hergestellt werden soll"
   },
   "form.dbSocketFileSQLite.label": {
-    "other": "Database Path"
+    "other": "Datenbank-Pfad"
   },
   "form.dbSocketFileSQLite.legend": {
-    "other": "Enter the location of the SQLite database"
+    "other": "Geben Sie den Speicherort der SQLite-Datenbank ein"
   },
   "form.dbSqliteFile.label": {
     "other": "Dateipfad"
