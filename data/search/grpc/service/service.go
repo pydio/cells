@@ -61,7 +61,7 @@ func init() {
 					"basenameAnalyzer":    "standard",
 					"contentAnalyzer":     "en",
 					"contentRef":          "pydio:ContentRef",
-					"plainTextExtensions": "text,md",
+					"plainTextExtensions": "txt,md",
 				}),
 			}),
 			service.WithStorageDrivers(search.Drivers),
