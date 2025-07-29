@@ -24,10 +24,10 @@
     "other": "Veuillez vous assurer que votre base de données utilise MySQL version 5.6 ou supérieure"
   },
   "database.legend1": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation."
+    "other": "L'installation nécéssite une base de données SQL pour la configuration et l'indexation des données."
   },
   "database.legend2": {
-    "other": "Supported databases are MySQL/MariaDB or PostgreSQL or SQLite."
+    "other": "Les bases de données supportées sont MySQL/MariaDB, PostgreSQL ou SQLite."
   },
   "database.installDetected": {
     "other": "Il semble y avoir une instance de Cells déjà installée dans cette base de données. Veuillez confirmer pour continuer ou "
