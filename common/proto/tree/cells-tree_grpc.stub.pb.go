@@ -8,8 +8,8 @@ package tree
 
 import (
 	context "context"
+	errors "errors"
 	fmt "fmt"
-	"github.com/pydio/cells/v5/common/errors"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"

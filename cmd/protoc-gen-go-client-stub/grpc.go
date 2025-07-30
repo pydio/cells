@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
 const (
 	timePackage    = protogen.GoImportPath("time")
 	fmtPackage     = protogen.GoImportPath("fmt")
+	errorsPackage  = protogen.GoImportPath("errors")
 	contextPackage = protogen.GoImportPath("context")
 	ioPackage      = protogen.GoImportPath("io")
 	grpcPackage    = protogen.GoImportPath("google.golang.org/grpc")
@@ -58,7 +60,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("// This is a compile-time assertion to ensure that this generated file")
 	g.P("// is compatible with the grpc package it is being compiled against.")
 	g.P("// Requires gRPC-Go v1.32.0 or later.")
-	g.P("const _ = ", grpcPackage.Ident("SupportPackageIsVersion7")) // When changing, update version number above.
+	g.P("const _ = ", grpcPackage.Ident("SupportPackageIsVersion7"))
 	g.P()
 	for _, service := range file.Services {
 		genService(gen, file, g, service)
@@ -90,10 +92,9 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		g.P("} else {")
 		g.P("e = er")
 		g.P("}")
-
 	}
 	g.P("default:")
-	g.P("e = fmt.Errorf(method + \" not implemented\")")
+	g.P("e = ", errorsPackage.Ident("New"), "(method + \" not implemented\")")
 	g.P("}")
 	g.P("return e")
 	g.P("}")
@@ -126,7 +127,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		}
 	}
 	g.P("}")
-	g.P("return nil, fmt.Errorf(method + \"  not implemented\")")
+	g.P("return nil, ", errorsPackage.Ident("New"), "(method + \"  not implemented\")")
 	g.P("}")
 
 	for _, method := range service.Methods {
@@ -138,7 +139,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			g.P("func (s *", stubServer, "_", method.GoName, "Streamer) Recv() (*", method.Input.Desc.Name(), ", error) {")
 			g.P("if req, o := <-s.ReqChan; o {")
 			g.P("return req.(*", method.Input.Desc.Name(), "), nil")
-			g.P("}else{")
+			g.P("} else {")
 			g.P("return nil, ", ioPackage.Ident("EOF"))
 			g.P("}")
 			g.P("}")
@@ -149,12 +150,10 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			g.P("}")
 
 			if !method.Desc.IsStreamingServer() {
-				// Add SendAndClose method
-				g.P("func (s *", stubServer, "_", method.GoName, "Streamer) SendAndClose(*", method.Output.Desc.Name(), ") error{")
+				g.P("func (s *", stubServer, "_", method.GoName, "Streamer) SendAndClose(*", method.Output.Desc.Name(), ") error {")
 				g.P("return nil")
 				g.P("}")
 			}
-
 		} else if method.Desc.IsStreamingServer() {
 			g.P("type ", stubServer, "_", method.GoName, "Streamer struct {")
 			g.P(stubsPackage.Ident("ClientServerStreamerCore"))
@@ -166,5 +165,4 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			g.P("}")
 		}
 	}
-
 }
