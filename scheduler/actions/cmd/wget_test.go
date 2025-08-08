@@ -104,7 +104,7 @@ func TestWGetAction_Run(t *testing.T) {
 		job := &jobs.Job{}
 		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
-				"url": "https://pydio.com/sites/default/files/Create%20a%20cell_4.png",
+				"url": "https://docs.pydio.com/cells-v4/admin-guide/images/1_quick_start/sharing_features/create_cell_4.png",
 			},
 		})
 
@@ -131,7 +131,7 @@ func TestWGetAction_Run(t *testing.T) {
 		fileInfo, err := os.Stat(savedFile)
 		So(err, ShouldBeNil)
 		defer os.Remove(savedFile)
-		So(fileInfo.Size(), ShouldEqual, 178780)
+		So(fileInfo.Size(), ShouldEqual, 76865)
 
 	})
 
