@@ -54,3 +54,50 @@ func TestRandkey(t *testing.T) {
 		})
 	}
 }
+
+// TestCryptoRandKey checks the expected output of RandKey function.
+func TestCryptoRandkey(t *testing.T) {
+	tests := []struct {
+		name string
+		n    int
+		want string
+	}{
+		{name: "length 4", n: 4},
+		{name: "length 8", n: 8},
+		{name: "length 16", n: 16},
+		{name: "length 32", n: 32},
+		{name: "length 64", n: 64},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Check that the returned string has the correct length
+			got, er := CryptoRandKey(tt.n)
+			if er != nil {
+				t.Errorf("CryptoRandKey() = %v, want nil", er)
+			}
+			if len(got) != tt.n {
+				t.Errorf("CryptoRandKey() = %v, want length %v", got, tt.n)
+			}
+
+			// Check that the returned string only contains letters and numbers
+			match, _ := regexp.MatchString("^[a-zA-Z0-9]+$", got)
+			if !match {
+				t.Errorf("CryptoRandKey() = %v, want only letters and numbers", got)
+			}
+		})
+	}
+}
+
+func BenchmarkRandkey(b *testing.B) {
+	const size = 32
+	for i := 0; i < b.N; i++ {
+		_ = Randkey(size)
+	}
+}
+
+func BenchmarkCryptoRandKey(b *testing.B) {
+	const size = 32
+	for i := 0; i < b.N; i++ {
+		_, _ = CryptoRandKey(size)
+	}
+}

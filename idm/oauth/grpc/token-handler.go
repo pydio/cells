@@ -183,7 +183,10 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 		return nil, err
 	}
 	if request.GenerateSecretPair {
-		token.SecretPair = std.Randkey(24)
+		token.SecretPair, err = std.CryptoRandKey(24)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err := dao.Store(accessToken, token, false); err != nil {

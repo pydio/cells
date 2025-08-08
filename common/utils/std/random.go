@@ -22,12 +22,15 @@
 package std
 
 import (
+	crand "crypto/rand"
+	"math/big"
 	"math/rand"
 	"sync"
 	"time"
 )
 
 const letterBytes = "abcdefghijklmnpqrstuvwxyz0123456789ABCDEFGHIJKLMNPQRSTUVWXYZ"
+
 const (
 	letterIdxBits = 6                    // 6 bits to represent a letter index
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
@@ -64,4 +67,18 @@ func Randkey(n int) string {
 	}
 
 	return string(b)
+}
+
+// CryptoRandKey generates a cryptographically secure random string of length n.
+// It uses base64 encoding to represent the random bytes.
+func CryptoRandKey(n int) (string, error) {
+	b := make([]byte, n)
+	for i := 0; i < n; i++ {
+		idx, err := crand.Int(crand.Reader, big.NewInt(int64(len(letterBytes))))
+		if err != nil {
+			return "", err
+		}
+		b[i] = letterBytes[idx.Int64()]
+	}
+	return string(b), nil
 }
