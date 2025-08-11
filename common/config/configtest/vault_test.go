@@ -37,7 +37,7 @@ var (
 )
 
 func TestVault(t *testing.T) {
-	test.RunGenericTests(testCases, t, func(ctx context.Context, testcase testCase) {
+	test.RunGenericTests(testCases, t, func(ctx context.Context, t *testing.T, testcase testCase) {
 		store, err := config.OpenStore(ctx, testcase.store)
 		if err != nil {
 			t.Fatal(err)

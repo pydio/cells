@@ -37,6 +37,7 @@ import (
 )
 
 var (
+	userCreateUUID     string
 	userCreateLogin    string
 	userCreatePassword string
 )
@@ -94,6 +95,7 @@ EXAMPLES
 		policies := permissions.NewResourcePoliciesBuilder().WithStandardUserPolicies().Policies()
 
 		newUser := &idm.User{
+			Uuid:       userCreateUUID,
 			Login:      login,
 			GroupPath:  groupPath,
 			Password:   userCreatePassword,
@@ -150,6 +152,7 @@ EXAMPLES
 }
 
 func init() {
+	userCreateCmd.Flags().StringVarP(&userCreateUUID, "uuid", "i", "", "UUID of the new user")
 	userCreateCmd.Flags().StringVarP(&userCreateLogin, "username", "u", "", "Login of the new user")
 	userCreateCmd.Flags().StringVarP(&userCreatePassword, "password", "p", "", "Password of the new user")
 

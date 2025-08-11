@@ -22,6 +22,7 @@ package configtest
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"testing"
 
@@ -54,20 +55,26 @@ var (
 )
 
 func init() {
+	etcdServerAddr := os.Getenv("ETCD_SERVER_ADDR")
 	testCases = []testCase{
-		{label: "memory", store: "mem://?pools=rp%3Dmem%3A%2F%2F", vault: "mem://?masterKey=whatever"},
-		//{label: "etcd", store: "etcd://:23379", vault: "etcd://:23379?masterKey=whatever"},
+		{label: "memory", enabled: true, store: "mem://?pools=rp%3Dmem%3A%2F%2F", vault: "mem://?masterKey=whatever"},
+		{label: "etcd", enabled: etcdServerAddr != "", store: etcdServerAddr, vault: etcdServerAddr + "?masterKey=whatever"},
 	}
 }
 
 type testCase struct {
-	label string
-	store string
-	vault string
+	label   string
+	enabled bool
+	store   string
+	vault   string
 }
 
 func (t testCase) Label() string {
 	return t.label
+}
+
+func (t testCase) Enabled() bool {
+	return t.enabled
 }
 
 func TestSimpleDiff(t *testing.T) {

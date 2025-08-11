@@ -256,6 +256,8 @@ ENVIRONMENT
 			panic(e)
 		}
 
+		<-time.After(1 * time.Second)
+
 		return nil
 	},
 }

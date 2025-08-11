@@ -162,6 +162,7 @@ func init() {
 
 type Testable interface {
 	Label() string
+	Enabled() bool
 }
 
 type T testing.T
@@ -170,7 +171,7 @@ func (t *T) Run(name string, f func(*testing.T)) bool {
 	return (*testing.T)(t).Run(name, f)
 }
 
-func RunGenericTests[T Testable](testcases []T, t *testing.T, f func(ctx context.Context, testcase T)) {
+func RunGenericTests[T Testable](testcases []T, t *testing.T, f func(ctx context.Context, t *testing.T, testcase T)) {
 
 	ctx := context.Background()
 
@@ -204,8 +205,12 @@ func RunGenericTests[T Testable](testcases []T, t *testing.T, f func(ctx context
 	}, nil)
 
 	for _, testcase := range testcases {
-		t.Run(testcase.Label(), func(_ *testing.T) {
-			f(ctx, testcase)
+		t.Run(testcase.Label(), func(t *testing.T) {
+			if !testcase.Enabled() {
+				t.Skip()
+				return
+			}
+			f(ctx, t, testcase)
 		})
 	}
 

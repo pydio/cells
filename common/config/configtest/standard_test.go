@@ -36,7 +36,7 @@ import (
 )
 
 func TestGetSet(t *testing.T) {
-	test.RunGenericTests(testCases, t, func(ctx context.Context, testcase testCase) {
+	test.RunGenericTests(testCases, t, func(ctx context.Context, t *testing.T, testcase testCase) {
 		store, err := config.OpenStore(ctx, testcase.store)
 		if err != nil {
 			t.Fatal(err)
@@ -95,6 +95,7 @@ func TestGetSet(t *testing.T) {
 				store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Set(pwd)
 
 				resPwd := store.Val(std.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String()
+
 				//So(resPwd, ShouldNotEqual, pwd)
 				So(resPwd, ShouldNotEqual, "")
 			})

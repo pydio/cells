@@ -560,8 +560,8 @@ externalNoSQLDatabase:
     existingSecretPasswordKey: "mongodb-root-password"
 
 externalVault:
-  enabled: false
-  host: vault-server.cells.svc.cluster.local
+  enabled: true
+  host: vault-server
   port: 8200
   tls:
     enabled: false

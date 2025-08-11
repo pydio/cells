@@ -24,9 +24,12 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"net/url"
+	"os"
 	"time"
 
+	"github.com/nats-io/nats-server/conf"
 	nats "github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
@@ -142,23 +145,70 @@ func (q *Queue) Close(ctx context.Context) error {
 
 func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, error) {
 	if nc == nil {
+		opts := []nats.Option{
+			nats.Timeout(10 * time.Second),
+		}
+
 		tlsConfig, err := crypto.TLSConfigFromURL(u)
 		if err != nil {
 			return nil, err
 		}
-		opts := []nats.Option{
-			nats.Timeout(10 * time.Second),
-		}
+
 		if tlsConfig != nil {
 			opts = append(opts, nats.Secure(tlsConfig))
 		}
+
+		if pwd, ok := u.User.Password(); ok {
+			opts = append(opts, nats.UserInfo(u.User.Username(), pwd))
+		}
+
+		if env := u.Query().Get("serverConfEnv"); env != "" {
+			serverConf := os.Getenv(env)
+			if serverConf != "" {
+				data, err := conf.Parse(serverConf)
+				if err != nil {
+					fmt.Println("Could not parse", err)
+					return nil, err
+				}
+
+				if auth, ok := data["authorization"]; ok {
+					if authMap, ok := auth.(map[string]any); ok {
+						if users, ok := authMap["users"]; ok {
+							if usersSlice, ok := users.([]any); ok {
+								if len(usersSlice) > 0 {
+									if userMap, ok := usersSlice[0].(map[string]any); ok {
+										username, ok1 := userMap["user"].(string)
+										password, ok2 := userMap["password"].(string)
+
+										if ok1 && ok2 {
+											opts = append(opts, nats.UserInfo(username, password))
+										}
+									}
+								}
+							}
+						}
+
+						if token, ok := authMap["token"]; ok {
+							if tokenString, ok := token.(string); ok {
+								opts = append(opts, nats.Token(tokenString))
+							}
+						}
+					}
+				}
+			}
+		}
+
 		u.RawQuery = ""
-		if n, err := nats.Connect(u.String(), opts...); err == nil {
-			nc = n
-		} else {
+
+		c, err := nats.Connect(u.String(), opts...)
+		if err != nil {
+			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...", zap.Error(err))
 			return nil, err
 		}
+
+		nc = c
 	}
+
 	js, er := jetstream.New(nc)
 	if er != nil {
 		return nil, er
@@ -170,5 +220,6 @@ func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, e
 		streamName: streamName,
 		js:         js,
 	}
+
 	return q, nil
 }
