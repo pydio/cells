@@ -82,7 +82,7 @@ require (
 	github.com/mssola/user_agent v0.6.0
 	github.com/nats-io/nats-server v1.4.1
 	github.com/nats-io/nats.go v1.34.1
-	github.com/nicksnyder/go-i18n/v2 v2.4.1
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5
 	github.com/olahol/melody v1.2.1
 	github.com/olekukonko/tablewriter v0.0.5
@@ -184,7 +184,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	git.apache.org/thrift.git v0.13.0 // indirect
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
-	github.com/BurntSushi/toml v1.4.0 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
