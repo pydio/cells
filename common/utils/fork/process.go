@@ -64,6 +64,8 @@ type Process struct {
 	lastErr      error
 	cmd          *exec.Cmd
 	ctx          context.Context
+	// waitChan chan of waiting for process to complete stopping.
+	waitChan chan struct{}
 }
 
 func NewProcess(ctx context.Context, serviceNames []string, oo ...Option) *Process {
@@ -73,6 +75,7 @@ func NewProcess(ctx context.Context, serviceNames []string, oo ...Option) *Proce
 		o: &Options{
 			watch: func(event string, p *Process) {},
 		},
+		waitChan: make(chan struct{}),
 	}
 	for _, opt := range oo {
 		opt(p.o)
@@ -97,10 +100,15 @@ func (p *Process) Stop() {
 			p.cmd.Process.Kill()
 		}
 	}
+	// wait for sub processes to complete.
+	<-p.waitChan
 }
 
 func (p *Process) StartAndWait(retry ...int) error {
-
+	// wait for all process (including the retries) to complete.
+	if len(retry) < 1 || retry[0] >= p.o.retries {
+		defer close(p.waitChan)
+	}
 	cmd := exec.Command(os.Args[0], p.buildForkStartParams()...)
 	if err := p.pipeOutputs(cmd); err != nil {
 		p.lastErr = err
