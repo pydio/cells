@@ -897,7 +897,7 @@
     "other": "Du har ikke rettigheter til å utføre denne operasjonen"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Du har ikke tillatelse til å laste opp flere enn %s filer samtidig."
   },
   "366": {
     "other": "Denne brukeren har ikke et aktivt arbeidsområde."
@@ -1050,22 +1050,22 @@
     "other": "Lag en cell..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Lag en cell"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Laster inn maler..."
   },
   "42": {
-    "other": "to"
+    "other": "til"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "Vennligst velg en mal fra listen"
   },
   "421": {
-    "other": "New %s"
+    "other": "Ny %s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "Vennligst fyll de nødvendige parametrene. Pek på felttitler med musen for å få mer informasjon."
   },
   "423": {
     "other": "Delete workspace"
