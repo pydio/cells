@@ -1068,133 +1068,133 @@
     "other": "Vennligst fyll de nødvendige parametrene. Pek på felttitler med musen for å få mer informasjon."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Slett workspace"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "Er du sikker på at du vil slette dette workspace? Operasjonen er irreversibel."
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "Workspace er nå opprettet, det er lagt til i workspacelisten din, hvis du vil fjerne det, sørg for å bytte til et annet workspace, klikk så på det røde krysset ved siden av workspace navnet."
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "Det oppstod en feil ved opprettelse av workspace"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "Det oppstå en feil ved sletting av workspace"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "Workspace ble slettet"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "Dette er hvordan workspacet vil vises i din liste."
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "eksisterer allerede (navn skiller mellom små og store bokstaver)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "Vanlige Filer"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "Eksempelmal"
   },
   "432": {
-    "other": "My Files"
+    "other": "Mine filer"
   },
   "433": {
-    "other": "ready"
+    "other": "klar"
   },
   "434": {
-    "other": "sending"
+    "other": "sender"
   },
   "435": {
-    "other": "done"
+    "other": "ferdig"
   },
   "436": {
-    "other": "error"
+    "other": "feil"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "Ooops, det ser ut til at sikkerhetstoken er utløpt! Vennligst %s ved å trykke oppdater eller F5 i nettleseren din!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "Last inn siden på nytt"
   },
   "439": {
-    "other": "Main Options"
+    "other": "Hovedalternativer"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "har blitt slettet"
   },
   "440": {
-    "other": "Yes"
+    "other": "Ja"
   },
   "441": {
-    "other": "No"
+    "other": "Nei"
   },
   "442": {
-    "other": "My Account"
+    "other": "Min konto"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Oppdater til personlige informasjon"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "Vennligst oppdater passordet ditt, du vil ikke kunne logge inn uten å gjøre dette."
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "Du blir nå logget ut, vennligst logg inn igjen med ditt nye passord, takk!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Presentasjon"
   },
   "447": {
-    "other": "My group"
+    "other": "Min gruppe"
   },
   "448": {
-    "other": "create user"
+    "other": "lag bruker"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "Lager %s, velg et passord"
   },
   "45": {
-    "other": "directory"
+    "other": "mappe"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Sorter etter ..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "Sorter miniatyrbilder etter ..."
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "Miniatyrstørrelser"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "Angi størrelse på miniatyrbilder"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Velg filer på din datamaskin"
   },
   "455": {
     "other": "Workspaces"
   },
   "456": {
-    "other": "More"
+    "other": "Mer"
   },
   "457": {
-    "other": "update"
+    "other": "oppdater"
   },
   "458": {
-    "other": "remove"
+    "other": "fjern"
   },
   "459": {
-    "other": "Top folder"
+    "other": "Toppnivå"
   },
   "46": {
-    "other": "file"
+    "other": "fil"
   },
   "460": {
-    "other": "List"
+    "other": "Liste"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Bytt til listevisning"
   },
   "462": {
     "other": "Forhåndsvisning"
