@@ -95,6 +95,9 @@
   "welc.title": {
     "other": "Pydio Cells v4에 오신 것을 환영합니다."
   },
+  "welc.title.5": {
+    "other": "Welcome to Pydio Cells v5"
+  },
   "card.quick-access": {
     "other": "퀵 액세스"
   },
