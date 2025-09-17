@@ -364,5 +364,29 @@
   },
   "sorter.metas.more": {
     "other": "もっと見る..."
+  },
+  "drag-layer.move.file": {
+    "other": "Move File"
+  },
+  "drag-layer.move.folder": {
+    "other": "Move Folder"
+  },
+  "drag-layer.move.plural": {
+    "other": "Move %s Items"
+  },
+  "drag-layer.copy.file": {
+    "other": "Copy File"
+  },
+  "drag-layer.copy.folder": {
+    "other": "Copy Folder"
+  },
+  "drag-layer.copy.plural": {
+    "other": "Copy %s Items"
+  },
+  "drag-layer.more": {
+    "other": "...and %s more."
+  },
+  "drag-layer.hint": {
+    "other": "Use [alt/option] key to copy"
   }
 }
