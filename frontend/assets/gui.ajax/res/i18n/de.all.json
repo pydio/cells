@@ -366,27 +366,27 @@
     "other": "Mehr..."
   },
   "drag-layer.move.file": {
-    "other": "Move File"
+    "other": "Datei verschieben"
   },
   "drag-layer.move.folder": {
-    "other": "Move Folder"
+    "other": "Ordner verschieben"
   },
   "drag-layer.move.plural": {
-    "other": "Move %s Items"
+    "other": "Bewege %s Elemente"
   },
   "drag-layer.copy.file": {
-    "other": "Copy File"
+    "other": "Datei kopieren"
   },
   "drag-layer.copy.folder": {
-    "other": "Copy Folder"
+    "other": "Ordner kopieren"
   },
   "drag-layer.copy.plural": {
-    "other": "Copy %s Items"
+    "other": "%s Elemente kopieren"
   },
   "drag-layer.more": {
-    "other": "...and %s more."
+    "other": "...und %s mehr."
   },
   "drag-layer.hint": {
-    "other": "Use [alt/option] key to copy"
+    "other": "[alt/option] Schlüssel zum Kopieren verwenden"
   }
 }
