@@ -74,6 +74,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/mholt/caddy-ratelimit v0.1.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/minio/cli v1.24.2
 	github.com/minio/md5-simd v1.1.2
@@ -82,7 +83,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.6.0
 	github.com/nats-io/nats-server v1.4.1
-	github.com/nats-io/nats.go v1.34.1
+	github.com/nats-io/nats.go v1.46.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
 	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5
 	github.com/olahol/melody v1.2.1
@@ -387,7 +388,6 @@ require (
 	github.com/mattn/goveralls v0.0.12 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mholt/acmez/v3 v3.0.0 // indirect
-	github.com/mholt/caddy-ratelimit v0.1.0 // indirect
 	github.com/miekg/dns v1.1.62 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
@@ -405,7 +405,7 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/ncw/directio v1.0.5 // indirect
