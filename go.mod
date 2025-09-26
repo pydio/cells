@@ -188,7 +188,7 @@ require (
 	git.apache.org/thrift.git v0.13.0 // indirect
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
-	github.com/ClickHouse/ch-go v0.61.5 // indirect
+	github.com/ClickHouse/ch-go v0.65.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0 // indirect
 	github.com/KimMachineGun/automemlimit v0.7.4 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -440,7 +440,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
-	github.com/pierrec/lz4/v4 v4.1.21 // indirect
+	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pires/go-proxyproto v0.8.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
