@@ -48,7 +48,7 @@ make dev
 To have the environment running, you must also:
 
 - Create a database in your chosen DB server,
-- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://pydio.com/en/docs/cells/v4/cells-installation) for additional information.
+- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://docs.pydio.com/cells-v4/admin-guide/quick-start/cells-installation/index/) for additional information.
 
 
 ```sh
@@ -75,7 +75,7 @@ Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add m
 
 ## Pre-built Binaries
 
-Binaries are currently provided for [Linux, macOS and Windows distributions](https://pydio.com/en/download). To deploy them on a live system, please see the [Installation Guide](https://pydio.com/en/docs/cells/v4/cells-installation) instructions.
+Binaries are currently provided for [Linux, macOS and Windows distributions](https://pydio.com/en/download). To deploy them on a live system, please see the [Installation Guide](https://docs.pydio.com/cells-v4/admin-guide/quick-start/cells-installation/index/) instructions.
 
 
 ## Contributing
