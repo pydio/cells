@@ -48,8 +48,6 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/scheduler/actions"
 	"github.com/pydio/cells/v5/scheduler/actions/images/encoding"
-
-	_ "golang.org/x/image/webp"
 )
 
 const (
@@ -142,7 +140,6 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
 	if !nodes.IsUnitTestEnv {
 		t.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(t.GetRuntimeContext(), common.ServiceMetaGRPC))
 	}
-	t.codec = encoding.DefaultCodec()
 	return nil
 }
 
@@ -154,6 +151,10 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 		log.Logger(ctx).Debug("[THUMB EXTRACTOR] task ignored")
 		return input.WithIgnore(), nil
 	}
+
+	fileFormat := strings.ToLower(filepath.Ext(input.Nodes[0].GetStringMeta(common.MetaNamespaceNodeName)))
+
+	t.codec = encoding.NewImageCodec(fileFormat)
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Resizing image...")
 	node := input.Nodes[0]
@@ -213,6 +214,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 
 	displayMemStat(ctx, "BEFORE DECODE")
 	src, err := t.codec.Decode(reader)
+	fmt.Printf("@@@@@@@@ err %+v \n", err)
 	if err != nil {
 		return nil, errors.Wrap(err, errPath)
 	}
@@ -222,6 +224,8 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	bounds := src.Bounds()
 	width := bounds.Max.X
 	height := bounds.Max.Y
+	fmt.Printf("@@@@@@@@ height %+v \n", height)
+	fmt.Printf("@@@@@@@@ width %+v \n", width)
 	// Send update event right now
 	node.MustSetMeta(MetadataImageDimensions, struct {
 		Width  int
@@ -239,7 +243,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		return nil, errors.Wrap(err, errPath)
 	}
 
-	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
+	log.Logger(ctx).Info("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
 	meta := &ThumbnailsMeta{}
 
 	for metaId, size := range sizes {
@@ -305,7 +309,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 	}
 
-	logger.Debug("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
+	logger.Info("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
 	var dst *image.NRGBA
 	if img.Bounds().Max.X >= img.Bounds().Max.Y {
 		// Resize the cropped image to width = 256px preserving the aspect ratio.

@@ -26,7 +26,8 @@ import (
 	"io"
 
 	"github.com/disintegration/imaging"
-	_ "golang.org/x/image/webp"
+	"golang.org/x/image/tiff"
+	"golang.org/x/image/webp"
 )
 
 // ImageFormat represents the supported image formats
@@ -35,6 +36,9 @@ type ImageFormat int
 const (
 	JPEG ImageFormat = iota
 	PNG
+	BMP
+	WEBP
+	TIFF
 )
 
 // ResizeFilter represents the resizing algorithm
@@ -65,32 +69,46 @@ type ImageCodec interface {
 	Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image
 }
 
-// imagingCodec implements ImageCodec using the github.com/disintegration/imaging package
-type imagingCodec struct{}
+// defaultCodec implements ImageCodec using the github.com/disintegration/imaging package
+type defaultCodec struct {
+	format ImageFormat
+}
+
+func NewImageCodec(fileExt string) ImageCodec {
+	format := extensionToFormat(fileExt)
+
+	image.RegisterFormat("tiff", "II*\x00", tiff.Decode, tiff.DecodeConfig) // little-endian
+	image.RegisterFormat("tiff", "MM\x00*", tiff.Decode, tiff.DecodeConfig) // big-endian
+
+	return defaultCodec{format: format}
+}
 
 // Decode reads an image from the provided reader
-func (c *imagingCodec) Decode(reader io.Reader) (image.Image, error) {
-	// NOTE: The second value is the format name which we ignore here
-	img, _, err := image.Decode(reader)
-	return img, err
+func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
+	if c.format == WEBP {
+		return webp.Decode(reader)
+	}
+
+	return imaging.Decode(reader)
 }
 
 // Encode writes an image to the provided writer in the specified format
-func (c *imagingCodec) Encode(writer io.Writer, img image.Image, format ImageFormat) error {
-	var imagingFormat imaging.Format
+func (c defaultCodec) Encode(writer io.Writer, img image.Image, format ImageFormat) error {
+	var formatToUse imaging.Format
 	switch format {
-	case JPEG:
-		imagingFormat = imaging.JPEG
 	case PNG:
-		imagingFormat = imaging.PNG
+		formatToUse = imaging.PNG
+	case BMP:
+		formatToUse = imaging.BMP
 	default:
-		imagingFormat = imaging.JPEG
+		formatToUse = imaging.JPEG
 	}
-	return imaging.Encode(writer, img, imagingFormat)
+
+	return imaging.Encode(writer, img, formatToUse)
 }
 
 // Resize resizes an image to the specified dimensions using the given filter
-func (c *imagingCodec) Resize(img image.Image, width, height int, filter ResizeFilter) image.Image {
+func (c defaultCodec) Resize(img image.Image, width, height int, filter ResizeFilter) image.Image {
 	var imagingFilter imaging.ResampleFilter
 	switch filter {
 	case Lanczos:
@@ -106,16 +124,29 @@ func (c *imagingCodec) Resize(img image.Image, width, height int, filter ResizeF
 }
 
 // New creates a new image with the specified dimensions and background color
-func (c *imagingCodec) New(width, height int, color color.Color) image.Image {
+func (c defaultCodec) New(width, height int, color color.Color) image.Image {
 	return imaging.New(width, height, color)
 }
 
 // Overlay overlays the source image onto the destination image at the specified position
-func (c *imagingCodec) Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image {
+func (c defaultCodec) Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image {
 	return imaging.Overlay(dst, src, pos, opacity)
+}
+
+func extensionToFormat(ext string) ImageFormat {
+	switch ext {
+	case ".jpg", ".jpeg":
+		return JPEG
+	case ".png":
+		return PNG
+	case ".bmp":
+		return BMP
+	default:
+		return JPEG
+	}
 }
 
 // DefaultCodec returns the default implementation of ImageCodec
 func DefaultCodec() ImageCodec {
-	return &imagingCodec{}
+	return defaultCodec{}
 }
