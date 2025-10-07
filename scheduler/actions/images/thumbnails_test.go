@@ -125,3 +125,119 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 	})
 
 }
+
+func TestThumbnailExtractor_Run_GIF(t *testing.T) {
+	Convey("Test thumbnail generation with GIF input", t, func() {
+		action := &ThumbnailExtractor{}
+		job := &jobs.Job{}
+		e := action.Init(job, &jobs.Action{
+			Parameters: map[string]string{
+				"ThumbSizes": `{"sm":256,"md":512}`,
+			},
+		})
+		So(e, ShouldBeNil)
+		action.metaClient = nodes.NewHandlerMock()
+
+		tmpDir := os.TempDir()
+		uuidNode := uuid.New()
+		testDir := "testdata"
+
+		// Test with GIF file
+		data, err := os.ReadFile(filepath.Join(testDir, "photo-600.gif"))
+		So(err, ShouldBeNil)
+		target := filepath.Join(tmpDir, uuidNode+".gif")
+		err = os.WriteFile(target, data, 0755)
+		So(err, ShouldBeNil)
+		defer os.Remove(target)
+
+		node := &tree.Node{
+			Path: "path/to/local/" + uuidNode + ".gif",
+			Type: tree.NodeType_LEAF,
+			Uuid: uuidNode,
+		}
+		node.MustSetMeta(common.MetaNamespaceNodeName, uuidNode+".gif")
+		node.MustSetMeta(common.MetaNamespaceDatasourceName, "dsname")
+		node.MustSetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
+
+		status := make(chan string)
+		progress := make(chan float32)
+		result, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
+			Nodes: []*tree.Node{node},
+		})
+
+		// Should succeed without error
+		So(err, ShouldBeNil)
+		So(result, ShouldNotBeNil)
+
+		// Check that thumbnails were created
+		test512 := filepath.Join(tmpDir, uuidNode+"-512.jpg")
+		test256 := filepath.Join(tmpDir, uuidNode+"-256.jpg")
+
+		// Verify thumbnails exist
+		_, err = os.Stat(test512)
+		So(err, ShouldBeNil)
+		defer os.Remove(test512)
+
+		_, err = os.Stat(test256)
+		So(err, ShouldBeNil)
+		defer os.Remove(test256)
+	})
+}
+
+func TestThumbnailExtractor_Run_WEBP(t *testing.T) {
+	Convey("Test thumbnail generation with WEBP input", t, func() {
+		action := &ThumbnailExtractor{}
+		job := &jobs.Job{}
+		e := action.Init(job, &jobs.Action{
+			Parameters: map[string]string{
+				"ThumbSizes": `{"sm":128,"md":256}`,
+			},
+		})
+		So(e, ShouldBeNil)
+		action.metaClient = nodes.NewHandlerMock()
+
+		tmpDir := os.TempDir()
+		uuidNode := uuid.New()
+		testDir := "testdata"
+
+		// Test with WEBP file
+		data, err := os.ReadFile(filepath.Join(testDir, "photo-320.webp"))
+		So(err, ShouldBeNil)
+		target := filepath.Join(tmpDir, uuidNode+".webp")
+		err = os.WriteFile(target, data, 0755)
+		So(err, ShouldBeNil)
+		defer os.Remove(target)
+
+		node := &tree.Node{
+			Path: "path/to/local/" + uuidNode + ".webp",
+			Type: tree.NodeType_LEAF,
+			Uuid: uuidNode,
+		}
+		node.MustSetMeta(common.MetaNamespaceNodeName, uuidNode+".webp")
+		node.MustSetMeta(common.MetaNamespaceDatasourceName, "dsname")
+		node.MustSetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
+
+		status := make(chan string)
+		progress := make(chan float32)
+		result, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
+			Nodes: []*tree.Node{node},
+		})
+
+		// Should succeed without error
+		So(err, ShouldBeNil)
+		So(result, ShouldNotBeNil)
+
+		// Check that thumbnails were created
+		test256 := filepath.Join(tmpDir, uuidNode+"-256.jpg")
+		test128 := filepath.Join(tmpDir, uuidNode+"-128.jpg")
+
+		// Verify thumbnails exist
+		_, err = os.Stat(test256)
+		So(err, ShouldBeNil)
+		defer os.Remove(test256)
+
+		_, err = os.Stat(test128)
+		So(err, ShouldBeNil)
+		defer os.Remove(test128)
+	})
+}
