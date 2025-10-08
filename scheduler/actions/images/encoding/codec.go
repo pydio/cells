@@ -77,18 +77,19 @@ type defaultCodec struct {
 func NewImageCodec(fileExt string) ImageCodec {
 	format := extensionToFormat(fileExt)
 
-	image.RegisterFormat("tiff", "II*\x00", tiff.Decode, tiff.DecodeConfig) // little-endian
+	// WebP support
+	image.RegisterFormat("webp", "RIFF????WEBPVP8 ", webp.Decode, webp.DecodeConfig)
+
+	// Tiff support
+	image.RegisterFormat("tiff", "tiff", tiff.Decode, tiff.DecodeConfig)    // little-endian
 	image.RegisterFormat("tiff", "MM\x00*", tiff.Decode, tiff.DecodeConfig) // big-endian
+	image.RegisterFormat("tiff", "II*\x00", tiff.Decode, tiff.DecodeConfig) // little-endian
 
 	return defaultCodec{format: format}
 }
 
 // Decode reads an image from the provided reader
 func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
-	if c.format == WEBP {
-		return webp.Decode(reader)
-	}
-
 	return imaging.Decode(reader)
 }
 
@@ -120,6 +121,7 @@ func (c defaultCodec) Resize(img image.Image, width, height int, filter ResizeFi
 	default:
 		imagingFilter = imaging.Lanczos
 	}
+
 	return imaging.Resize(img, width, height, imagingFilter)
 }
 
@@ -144,9 +146,4 @@ func extensionToFormat(ext string) ImageFormat {
 	default:
 		return JPEG
 	}
-}
-
-// DefaultCodec returns the default implementation of ImageCodec
-func DefaultCodec() ImageCodec {
-	return defaultCodec{}
 }
