@@ -696,10 +696,10 @@
     "other": "Atrás"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "Volver a la página principal"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "Mis Workspaces"
   },
   "306": {
     "other": "Demasiados elementos"
@@ -2373,10 +2373,10 @@
     "other": "Enlace Público"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Compartido en Celda"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Enlace público o celda"
   },
   "searchengine.format.title": {
     "other": "Formato"
@@ -2430,10 +2430,10 @@
     "other": "Quieres decir"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "conteniendo '%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Filtros:"
   },
   "searchengine.complete.activefilters-edit": {
     "other": "Click to modify"
