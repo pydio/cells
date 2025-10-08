@@ -26,6 +26,7 @@ import (
 	"io"
 
 	"github.com/disintegration/imaging"
+	goheif "github.com/gen2brain/heic"
 	"golang.org/x/image/tiff"
 	"golang.org/x/image/webp"
 )
@@ -39,6 +40,7 @@ const (
 	BMP
 	WEBP
 	TIFF
+	HEIC
 )
 
 // ResizeFilter represents the resizing algorithm
@@ -81,9 +83,12 @@ func NewImageCodec(fileExt string) ImageCodec {
 	image.RegisterFormat("webp", "RIFF????WEBPVP8 ", webp.Decode, webp.DecodeConfig)
 
 	// Tiff support
-	image.RegisterFormat("tiff", "tiff", tiff.Decode, tiff.DecodeConfig)    // little-endian
 	image.RegisterFormat("tiff", "MM\x00*", tiff.Decode, tiff.DecodeConfig) // big-endian
 	image.RegisterFormat("tiff", "II*\x00", tiff.Decode, tiff.DecodeConfig) // little-endian
+
+	// Heic support
+	image.RegisterFormat("heic", "ftypheic", goheif.Decode, goheif.DecodeConfig)
+	image.RegisterFormat("heif", "ftypheic", goheif.Decode, goheif.DecodeConfig)
 
 	return defaultCodec{format: format}
 }
@@ -143,6 +148,12 @@ func extensionToFormat(ext string) ImageFormat {
 		return PNG
 	case ".bmp":
 		return BMP
+	case ".webp":
+		return WEBP
+	case ".tiff", ".tif":
+		return TIFF
+	case ".heic", ".heif":
+		return HEIC
 	default:
 		return JPEG
 	}

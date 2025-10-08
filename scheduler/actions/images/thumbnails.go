@@ -214,7 +214,6 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 
 	displayMemStat(ctx, "BEFORE DECODE")
 	src, err := t.codec.Decode(reader)
-	fmt.Printf("@@@@@@@@ err %+v \n", err)
 	if err != nil {
 		return nil, errors.Wrap(err, errPath)
 	}
@@ -224,8 +223,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	bounds := src.Bounds()
 	width := bounds.Max.X
 	height := bounds.Max.Y
-	fmt.Printf("@@@@@@@@ height %+v \n", height)
-	fmt.Printf("@@@@@@@@ width %+v \n", width)
+
 	// Send update event right now
 	node.MustSetMeta(MetadataImageDimensions, struct {
 		Width  int
