@@ -241,7 +241,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		return nil, errors.Wrap(err, errPath)
 	}
 
-	log.Logger(ctx).Info("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
+	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
 	meta := &ThumbnailsMeta{}
 
 	for metaId, size := range sizes {
@@ -307,7 +307,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 	}
 
-	logger.Info("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
+	logger.Debug("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
 	var dst *image.NRGBA
 	if img.Bounds().Max.X >= img.Bounds().Max.Y {
 		// Resize the cropped image to width = 256px preserving the aspect ratio.
