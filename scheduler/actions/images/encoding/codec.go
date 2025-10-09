@@ -27,8 +27,6 @@ import (
 	"io"
 
 	"github.com/disintegration/imaging"
-	// NOTE: It's handled by https://github.com/pydio/cells-convert-tools
-	// _ "github.com/gen2brain/heic"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
 )
