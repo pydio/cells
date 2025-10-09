@@ -21,7 +21,6 @@
 package encoding
 
 import (
-	"errors"
 	"image"
 	"image/color"
 	"io"
@@ -40,7 +39,6 @@ const (
 	BMP
 	WEBP
 	TIFF
-	HEIC
 )
 
 // ResizeFilter represents the resizing algorithm
@@ -84,9 +82,6 @@ func NewImageCodec(fileExt string) ImageCodec {
 
 // Decode reads an image from the provided reader
 func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
-	if c.format == HEIC {
-		return nil, errors.New("HEIC format is not natively supported. Use cells-convert-tools.")
-	}
 	return imaging.Decode(reader)
 }
 
