@@ -21,12 +21,14 @@
 package encoding
 
 import (
+	"errors"
 	"image"
 	"image/color"
 	"io"
 
 	"github.com/disintegration/imaging"
-	_ "github.com/gen2brain/heic"
+	// NOTE: It's handled by https://github.com/pydio/cells-convert-tools
+	// _ "github.com/gen2brain/heic"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
 )
@@ -40,6 +42,7 @@ const (
 	BMP
 	WEBP
 	TIFF
+	HEIC
 )
 
 // ResizeFilter represents the resizing algorithm
@@ -83,6 +86,9 @@ func NewImageCodec(fileExt string) ImageCodec {
 
 // Decode reads an image from the provided reader
 func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
+	if c.format == HEIC {
+		return nil, errors.New("HEIC format is not natively supported. Use cells-convert-tools.")
+	}
 	return imaging.Decode(reader)
 }
 
