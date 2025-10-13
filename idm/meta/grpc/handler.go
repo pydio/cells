@@ -186,6 +186,11 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				Target: target,
 			})
 		}
+		// Additional event
+		broker.MustPublish(ctx, common.TopicUserMetaDiffs, &idm.UpdateUserMetaRequest{
+			Operation: request.GetOperation(),
+			MetaDatas: request.GetMetaDatas(),
+		})
 	}(context.WithoutCancel(ctx))
 
 	return response, nil
