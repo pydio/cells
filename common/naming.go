@@ -183,6 +183,7 @@ const (
 	TopicDatasourceEvent     = "topic.pydio.datasource.event"
 	TopicIndexEvent          = "topic.pydio.index.event"
 	TopicLogLevelEvent       = "topic.pydio.log-level.event"
+	TopicUserMetaDiffs       = "topic.pydio.user.meta.diffs" // Special topic used for sync
 )
 
 // Define constants for metadata and fixed datasources

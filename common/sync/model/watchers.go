@@ -48,6 +48,10 @@ const (
 	EventOther EventType = "ObjectOther"
 	// EventSureMove notifies a known move
 	EventSureMove EventType = "NodeMoved"
+	// EventMetaPut notifies a PUT metadata operation
+	EventMetaPut EventType = "NodeMetaPut"
+	// EventMetaDel notifies a DEL metadata operation
+	EventMetaDel EventType = "NodeMetaDel"
 )
 
 // EventInfo contains the information of the event that occurred and the source

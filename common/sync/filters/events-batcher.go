@@ -237,6 +237,18 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession st
 			} else {
 				t = merger.OpMoveFolder
 			}
+		case model.EventMetaPut:
+			metaNode := event.MoveTarget
+			t = merger.OpCreateMeta
+			event.Type = model.EventCreate
+			patch.Enqueue(merger.NewOperation(t, event, metaNode))
+			continue
+		case model.EventMetaDel:
+			metaNode := event.MoveTarget
+			t = merger.OpDeleteMeta
+			event.Type = model.EventRemove
+			patch.Enqueue(merger.NewOperation(t, event, metaNode))
+			continue
 		default:
 			t = merger.OpDelete
 		}
