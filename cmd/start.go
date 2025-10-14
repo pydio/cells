@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/proto/service"
@@ -238,6 +239,11 @@ ENVIRONMENT
 			if !strings.Contains(installConf.DbManualDSN, "?") {
 				installConf.DbManualDSN += "?" // URL maybe appended with &key=value string
 			}
+		}
+
+		hasCustomBind := routing.EnvOverrideDefaultBind()
+		if hasCustomBind {
+			cmd.Printf("Binding service to '%s'\n", niBindUrl)
 		}
 
 		return nil
