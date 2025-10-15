@@ -320,6 +320,7 @@ func TestIndex(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(resp, ShouldNotBeNil)
 
+			// GREP BY NAME, RECURSIVELY
 			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{
 				Node:      &tree.Node{Path: "/", MetaStore: map[string]string{tree.MetaFilterGrep: "\".jpg$\""}},
 				Recursive: true,
@@ -337,6 +338,24 @@ func TestIndex(t *testing.T) {
 			So(len(nodes), ShouldEqual, 2)
 			So(nodes[0].Path, ShouldEqual, "/test.jpg")
 			So(nodes[1].Path, ShouldEqual, "/other/sub/picture.jpg")
+
+			// GREP BY NAME, NON RECURSIVE, UNDER A GIVEN FOLDER
+			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{
+				Node:      &tree.Node{Path: "/other/sub", MetaStore: map[string]string{tree.MetaFilterGrep: "\".jpg$\""}},
+				Recursive: false,
+			})
+			So(resp.(*List), ShouldNotBeNil)
+
+			nodes = []*tree.Node{}
+			for {
+				response, err := resp.(*List).Recv()
+				if err != nil {
+					break
+				}
+				nodes = append(nodes, response.Node)
+			}
+			So(len(nodes), ShouldEqual, 1)
+			So(nodes[0].Path, ShouldEqual, "/other/sub/picture.jpg")
 
 			// SEARCH INSENSITIVE BASENAME
 			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{
