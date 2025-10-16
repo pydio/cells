@@ -22,7 +22,9 @@ const { EditorActions } = Pydio.requireLib('hoc')
 import React from 'react';
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux';
-import CKEditor from './CKEditor';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
 const mapStateToProps = (state, props) => {
     const {tabs} = state
 
@@ -50,54 +52,6 @@ class Editor extends React.Component {
         }
     }
 
-    static get base() {
-        return {
-            resize_enabled:false,
-            toolbar : "Ajxp",
-            contentsCss: '../../res/ckeditor.css',
-            filebrowserBrowseUrl : 'index.php?external_selector_type=ckeditor',
-            // IF YOU KNOW THE RELATIVE PATH OF THE IMAGES (BETWEEN REPOSITORY ROOT AND REAL FILE)
-            // YOU CAN PASS IT WITH THE relative_path PARAMETER. FOR EXAMPLE :
-            //filebrowserBrowseUrl : 'index.php?external_selector_type=ckeditor&relative_path=files',
-            filebrowserImageBrowseUrl : 'index.php?external_selector_type=ckeditor',
-            filebrowserFlashBrowseUrl : 'index.php?external_selector_type=ckeditor',
-            language : pydio.currentLanguage,
-            fullPage : true,
-        }
-    }
-
-    static get config() {
-        return {
-            basePath: `${DOMUtils.getUrlFromBase()}plug/editor.ckeditor/res/ckeditor/`,
-            desktop : {
-                ...Editor.base,
-    			toolbar_Ajxp : [
-    				['Source','Preview','Templates'],
-    			    ['Undo','Redo','-', 'Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
-    			    ['Find','Replace','-','SelectAll','RemoveFormat'],
-    			    ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField'],
-    			    '/',
-    			    ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-    			    ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
-    			    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-    			    ['Link','Unlink','Anchor'],
-    			    ['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
-    			    '/',
-    			    ['Styles','Format','Font','FontSize'],
-    			    ['TextColor','BGColor'],
-    			    ['Maximize', 'ShowBlocks','-','About']
-    			]
-            },
-            mobile: {
-                ...Editor.base,
-				toolbar_Ajxp : [
-				    ['Bold','Italic','Underline', '-', 'NumberedList','BulletedList'],
-				    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock']
-				]
-            }
-        }
-    }
-
     componentDidMount() {
         const {pydio, node, tab, dispatch} = this.props
 
@@ -121,25 +75,38 @@ class Editor extends React.Component {
     }
 
     render() {
-        const {pydio, node, tab, dispatch} = this.props
-        const {desktop, mobile} = Editor.config
+        const {tab, dispatch} = this.props
         const {id, content} = tab
 
-        if (!content) return null
+        const modules = {
+            toolbar: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline','strike', 'blockquote'],
+                [{'align':[]}, {'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+                ['link', 'blockquote', 'code-block'],
+                ['clean']
+            ],
+        }
 
-        return (
-            <CKEditor
-                url={node.getPath()}
-                content={content}
-                config={pydio.UI.MOBILE_EXTENSIONS ? mobile : desktop}
-                onChange={content => dispatch(EditorActions.tabModify({id, content}))}
-            />
-        );
+            const formats = [
+                'header',
+                'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block',
+                'list', 'bullet', 'indent',
+                'align', 'justify',
+                'link', 'image'
+            ]
+
+        return <ReactQuill
+            theme="snow"
+            style={{width: '100%', flex: 1, backgroundColor: 'var(--md-sys-color-surface)'}}
+            value={content || ''}
+            modules={modules}
+            formats={formats}
+            onChange={content => dispatch(EditorActions.tabModify({id, content}))}
+        />;
     }
 }
 
-CKEDITOR.basePath = Editor.config.basePath
-CKEDITOR.contentsCss = Editor.config.basePath + '../../res/css/ckeditor.css'
 
 
 export default connect(mapStateToProps)(Editor)

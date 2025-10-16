@@ -78,6 +78,9 @@ export default ({href, children}) => {
     }, [href])
 
     const linkStyle = {};
+    let title = "";
+    let icon;
+    let onClick = null, onEnter = null;
 
     if (href.startsWith('user://')) {
         const userId = href.replace('user://', '');
@@ -89,12 +92,7 @@ export default ({href, children}) => {
                 style={{...linkStyle, display:'inline-block'}}
                 pydio={pydio}
             />)
-    }
-
-    let title = "";
-    let icon;
-    let onClick = null, onEnter = null;
-    if(href.startsWith('doc://')){
+    } else if(href.startsWith('doc://')){
         icon = 'mdi mdi-file-outline'
         const hasPreview = href.indexOf('?preview') > -1;
         const nodeUUID = href.replace('doc://', '').replace('?preview', '')
@@ -164,8 +162,10 @@ export default ({href, children}) => {
         if (loading) {
             title = m('ws.switching')
         }
-    } else {
+    } else if (href.startsWith('http://') || href.startsWith('https://')) {
         return <a href={href} target={"_blank"}>{children}</a>
+    } else {
+        return <a href={"#"} onClick={e => e.preventDefault()}>{children}</a>
     }
 
     title = <div style={{padding:'8px 16px', fontSize: 13}}>{title}</div>

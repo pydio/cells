@@ -96,7 +96,8 @@ class Viewer extends Component {
             }
         }
         const distViewerPath = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web'
-        const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
+        //const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
+        const viewerPage = "viewer_noscript.html"
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
             this.setState({
                 pdfUrl: pdfUrl,
