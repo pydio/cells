@@ -70,7 +70,7 @@ type ImageCodec interface {
 	Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image
 }
 
-type CodedOptions struct {
+type CodecOptions struct {
 	EnforceExifOrientation bool
 }
 
@@ -80,7 +80,7 @@ type defaultCodec struct {
 	enforceExifOrientation bool
 }
 
-func NewImageCodec(fileExt string, options *CodedOptions) ImageCodec {
+func NewImageCodec(fileExt string, options *CodecOptions) ImageCodec {
 	return defaultCodec{
 		format:                 extensionToFormat(fileExt),
 		enforceExifOrientation: options != nil && options.EnforceExifOrientation,

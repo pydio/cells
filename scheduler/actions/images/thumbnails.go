@@ -154,7 +154,7 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 
 	fileFormat := strings.ToLower(filepath.Ext(input.Nodes[0].GetStringMeta(common.MetaNamespaceNodeName)))
 
-	t.codec = encoding.NewImageCodec(fileFormat, &encoding.CodedOptions{
+	t.codec = encoding.NewImageCodec(fileFormat, &encoding.CodecOptions{
 		EnforceExifOrientation: true,
 	})
 
