@@ -64,23 +64,11 @@ class Editor extends PureComponent {
 
         if (!node || !src) return null;
 
-        let orientation;
-        if(node.getMetadata().get("image_exif_orientation")){
-            orientation = node.getMetadata().get("image_exif_orientation");
-        }
-
         let imageClassName = ['diaporama-image-main-block']
         let imageStyle = {
             boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
         }
 
-        if (orientation) {
-            imageClassName = [
-                ...imageClassName,
-                'ort-rotate-' + orientation
-            ];
-            imageStyle.imageOrientation = 'none'
-        }
         return (
             <ExtendedImageContainer
                 editorData={editorData}

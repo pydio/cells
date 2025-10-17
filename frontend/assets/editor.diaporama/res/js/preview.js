@@ -36,19 +36,6 @@ export default ({node, containerWidth, ...remainingProps}) => {
         return null;
     }
 
-    let orientation;
-    if(node && node.getMetadata().get("image_exif_orientation")){
-        orientation = node.getMetadata().get("image_exif_orientation");
-        if(remainingProps.className){
-            remainingProps.className += ' ort-rotate-' + orientation
-        } else {
-            remainingProps.className = 'ort-rotate-' + orientation
-        }
-        if(parseInt(orientation) >= 5 && remainingProps.style && remainingProps.style.height === 200){
-            remainingProps.style.height = 250;
-        }
-    }
-
     let mFont;
     const {mimeFontOverlay} = remainingProps;
     if(mimeFontOverlay && node.isLeaf() && node.getMetadata().get('ImagePreview')){

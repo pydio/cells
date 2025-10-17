@@ -25,6 +25,7 @@ import (
 	"image/color"
 	"io"
 
+	"github.com/disintegration/imageorient"
 	"github.com/disintegration/imaging"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
@@ -82,7 +83,8 @@ func NewImageCodec(fileExt string) ImageCodec {
 
 // Decode reads an image from the provided reader
 func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
-	return imaging.Decode(reader)
+	img, _, err := imageorient.Decode(reader)
+	return img, err
 }
 
 // Encode writes an image to the provided writer in the specified format
