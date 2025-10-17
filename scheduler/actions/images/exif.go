@@ -112,13 +112,6 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 
 	output := input.Clone()
 	node.MustSetMeta(MetadataExif, exifData)
-	orientation, oe := exifData.Get(exif.Orientation)
-	if oe == nil {
-		t := orientation.String()
-		if t != "" {
-			node.MustSetMeta(MetadataCompatOrientation, t)
-		}
-	}
 	lat, long, err := exifData.LatLong()
 	if err == nil {
 		var readLat, readLong string
