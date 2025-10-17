@@ -70,19 +70,29 @@ type ImageCodec interface {
 	Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image
 }
 
-// defaultCodec implements ImageCodec using the github.com/disintegration/imaging package
-type defaultCodec struct {
-	format ImageFormat
+type CodedOptions struct {
+	EnforceExifOrientation bool
 }
 
-func NewImageCodec(fileExt string) ImageCodec {
+// defaultCodec implements ImageCodec using the github.com/disintegration/imaging package
+type defaultCodec struct {
+	format                 ImageFormat
+	enforceExifOrientation bool
+}
+
+func NewImageCodec(fileExt string, options *CodedOptions) ImageCodec {
 	return defaultCodec{
-		format: extensionToFormat(fileExt),
+		format:                 extensionToFormat(fileExt),
+		enforceExifOrientation: options != nil && options.EnforceExifOrientation,
 	}
 }
 
 // Decode reads an image from the provided reader
 func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
+	if !c.enforceExifOrientation {
+		return imaging.Decode(reader)
+	}
+
 	img, _, err := imageorient.Decode(reader)
 	return img, err
 }
