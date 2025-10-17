@@ -23,6 +23,8 @@ package images
 import (
 	"context"
 	"fmt"
+	"image"
+	_ "image/jpeg"
 	"os"
 	"path/filepath"
 	"testing"
@@ -33,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/scheduler/actions"
+	"github.com/rwcarlsen/goexif/exif"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -133,6 +136,104 @@ func TestThumbnailExtractor_RunFormats(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestThumbnailExtractor_RunOrientation(t *testing.T) {
+	Convey("Thumbnails respect EXIF orientation", t, func() {
+		cases := []struct {
+			name       string
+			sourceFile string
+		}{
+			// How to check the exif of these images:
+			// exiftool -Orientation orientation/landscape_3.jpg
+			// Orientation                     : Rotate 180
+			{
+				name:       "Landscape - Orientation : Rotate 180",
+				sourceFile: filepath.Join("orientation", "landscape_3.jpg"),
+			},
+			// exiftool -Orientation orientation/portrait_4.jpg
+			// Orientation                     : Mirror vertical
+			{
+				name:       "Portrait - Orientation : Mirror vertical",
+				sourceFile: filepath.Join("orientation", "portrait_4.jpg"),
+			},
+		}
+
+		for _, testcase := range cases {
+			tc := testcase
+			Convey(tc.name, func() {
+				// Given
+				orientation := readExifOrientation(t, tc.sourceFile)
+				So(orientation, ShouldBeGreaterThan, 0)
+				rawWidth, rawHeight := readImageDimensions(t, tc.sourceFile)
+				expectedLandscape := landscapeAfterOrientation(orientation, rawWidth, rawHeight)
+
+				result, err := runThumbnailForFormat(t, `{"sm":256}`, tc.sourceFile, ".jpg")
+				So(err, ShouldBeNil)
+
+				thumbPath := assertThumbnailExists(t, result.tmpDir, result.uuid, 256)
+
+				file, err := os.Open(thumbPath)
+				So(err, ShouldBeNil)
+				defer file.Close()
+
+				// When
+				img, _, err := image.Decode(file)
+				So(err, ShouldBeNil)
+
+				// Then
+				width := img.Bounds().Dx()
+				height := img.Bounds().Dy()
+
+				if expectedLandscape {
+					So(width, ShouldBeGreaterThanOrEqualTo, height)
+				} else {
+					So(height, ShouldBeGreaterThanOrEqualTo, width)
+				}
+			})
+		}
+	})
+}
+
+func readExifOrientation(t *testing.T, sourceFile string) int {
+	t.Helper()
+
+	file, err := os.Open(filepath.Join("testdata", sourceFile))
+	So(err, ShouldBeNil)
+	defer file.Close()
+
+	info, err := exif.Decode(file)
+	So(err, ShouldBeNil)
+
+	tag, err := info.Get(exif.Orientation)
+	So(err, ShouldBeNil)
+
+	val, err := tag.Int(0)
+	So(err, ShouldBeNil)
+
+	return val
+}
+
+func readImageDimensions(t *testing.T, sourceFile string) (int, int) {
+	t.Helper()
+
+	file, err := os.Open(filepath.Join("testdata", sourceFile))
+	So(err, ShouldBeNil)
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	So(err, ShouldBeNil)
+
+	bounds := img.Bounds()
+	return bounds.Dx(), bounds.Dy()
+}
+
+func landscapeAfterOrientation(orientation, width, height int) bool {
+	switch orientation {
+	case 5, 6, 7, 8:
+		width, height = height, width // Swap dimensions for rotations
+	}
+	return width >= height
 }
 
 type thumbnailRunResult struct {
