@@ -40,6 +40,7 @@ const (
 	BMP
 	WEBP
 	TIFF
+	GIF
 )
 
 // ResizeFilter represents the resizing algorithm
@@ -70,26 +71,21 @@ type ImageCodec interface {
 	Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image
 }
 
-type CodecOptions struct {
-	EnforceExifOrientation bool
-}
-
 // defaultCodec implements ImageCodec using the github.com/disintegration/imaging package
 type defaultCodec struct {
-	format                 ImageFormat
-	enforceExifOrientation bool
+	format ImageFormat
 }
 
-func NewImageCodec(fileExt string, options *CodecOptions) ImageCodec {
+func NewImageCodec(fileExt string) ImageCodec {
 	return defaultCodec{
-		format:                 extensionToFormat(fileExt),
-		enforceExifOrientation: options != nil && options.EnforceExifOrientation,
+		format: extensionToFormat(fileExt),
 	}
 }
 
 // Decode reads an image from the provided reader
 func (c defaultCodec) Decode(reader io.Reader) (image.Image, error) {
-	if !c.enforceExifOrientation {
+	// Formats that don't support EXIF, so we avoid the extra processing
+	if c.format == GIF || c.format == BMP {
 		return imaging.Decode(reader)
 	}
 
@@ -151,6 +147,8 @@ func extensionToFormat(ext string) ImageFormat {
 		return WEBP
 	case ".tiff", ".tif":
 		return TIFF
+	case ".gif":
+		return GIF
 	default:
 		return JPEG
 	}
