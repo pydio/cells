@@ -49,6 +49,12 @@ func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Req
 		return nil, time.Now(), err
 	}
 	exp := time.Now().Add(time.Duration(v.expiration) * time.Second)
+
+	// Adding Cache-Control
+	query := req.URL.Query()
+	query.Add("response-cache-control", fmt.Sprintf("private, max-age=%d", v.expiration/2))
+	req.URL.RawQuery = query.Encode()
+
 	req = signer.PreSignV4(*req, v.apiKey, v.apiSecret, "", v.region, v.expiration)
 	return req, exp, nil
 }
