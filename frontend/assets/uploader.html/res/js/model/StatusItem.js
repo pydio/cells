@@ -41,6 +41,8 @@ class StatusItem extends Observable {
         this._progress = 0;
         this.children = {folders: [], files: [], pg: {}};
         this._targetNode = targetNode;
+        this._userMeta = undefined;
+        this._userMetaSet = false;
         if(parent){
             this._parent = parent;
             if(type === StatusItem.TypeFolder) {
@@ -55,6 +57,21 @@ class StatusItem extends Observable {
     }
     getParent(){
         return this._parent;
+    }
+
+    setUserMeta(metadata) {
+        this._userMeta = metadata;
+        this._userMetaSet = true
+    }
+
+    /**
+     * @returns Map
+     */
+    getUserMeta(){
+        if(this._parent){
+            return this._parent.getUserMeta();
+        }
+        return this._userMeta;
     }
     getLabel(){
         if(this._label && this._label.normalize){

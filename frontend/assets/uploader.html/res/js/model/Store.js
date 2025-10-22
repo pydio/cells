@@ -57,12 +57,8 @@ class Store extends Observable{
         return Configs.getInstance().getAutoStart();
     }
 
-    static openUploadDialog(confirm = false){
-        if(confirm){
-            Pydio.getInstance().getController().fireAction("upload", {confirmDialog: true});
-        }else{
-            Pydio.getInstance().getController().fireAction("upload");
-        }
+    static openUploadDialog(){
+        Pydio.getInstance().getController().fireAction("upload");
     }
 
     makeStatusString(item){
@@ -182,8 +178,8 @@ class Store extends Observable{
                 } else if(!autoStart){
                     Store.openUploadDialog();
                 }
-            } else if(s === 'confirm') {
-                Store.openUploadDialog(true);
+            } else if(s === 'confirm' || s === 'promptMeta') {
+                Store.openUploadDialog();
             }
         });
         this.notify('session_added', session);
@@ -410,6 +406,9 @@ class Store extends Observable{
         this.processNext();
     }
 
+    /**
+     * @returns {Store}
+     */
     static getInstance(){
         if(!Store.__INSTANCE){
             Store.__INSTANCE = new Store();
@@ -419,7 +418,6 @@ class Store extends Observable{
 
     handleFolderPickerResult(files, targetNode){
 
-        const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
         const session = new Session(Pydio.getInstance().user.activeRepository, targetNode);
         this.pushSession(session);
 
@@ -452,8 +450,8 @@ class Store extends Observable{
             });
         };
         recurse(tree, session);
-        session.prepare(overwriteStatus).catch((e) => {
-            // DO SOMETHING?
+        session.prepare().catch((e) => {
+            console.error('Error while preparing session', e);
         }) ;
 
         return session;
@@ -461,7 +459,6 @@ class Store extends Observable{
 
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null, targetRepositoryId = null){
 
-        const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
         const session = new Session(targetRepositoryId || Pydio.getInstance().user.activeRepository, targetNode);
         this.pushSession(session);
         const filter = (refPath) => {
@@ -474,7 +471,7 @@ class Store extends Observable{
         if(targetNode && targetNode.isLeaf() && targetNode.getMetadata().has('local:dropFunc')){
             const dropFunc = targetNode.getMetadata().get('local:dropFunc');
             dropFunc('native', session, items, files, targetNode).then(() => {
-                session.prepare(overwriteStatus).then(()=>{
+                session.prepare().then(()=>{
                     this.notify('update')
                 }).catch((e) => {
                     this.notify('update')
@@ -538,7 +535,7 @@ class Store extends Observable{
             }
 
             Promise.all(promises).then(() => {
-                return session.prepare(overwriteStatus).then(()=>{
+                return session.prepare().then(()=>{
                     this.notify('update')
                 });
             }).catch((e) => {
@@ -556,7 +553,7 @@ class Store extends Observable{
                 }
                 new UploadItem(files[j], targetNode, null, session);
             }
-            session.prepare(overwriteStatus).then(()=>{
+            session.prepare().then(()=>{
                 this.notify('update')
             }).catch((e) => {
                 this.notify('update')
