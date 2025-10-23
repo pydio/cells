@@ -23,8 +23,8 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "pdfjs-dist": "2.12.313",
-    "react-pdf": "5.7.2"
+    "pdfjs-dist": "4.8.69",
+    "react-pdf": "9.2.1"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",

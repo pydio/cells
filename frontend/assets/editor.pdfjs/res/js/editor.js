@@ -20,12 +20,21 @@
 
 import { pdfjs } from 'react-pdf';
 
-pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/build/pdf.worker.js';
+pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-dist/build/pdf.worker.mjs';
+
+//
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//   'pdfjs-dist/build/pdf.worker.min.mjs',
+//   import.meta.url,
+// ).toString();
+
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { Document, Page } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
@@ -95,10 +104,13 @@ class Viewer extends Component {
                 Key:'pydio-thumbstore/' + pdfPreview
             }
         }
-        const distViewerPath = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web'
+        const distViewerPath = 'plug/editor.pdfjs/pdfjs-dist/web'
+
+        // const distViewerPath = 'plug/editor.pdfjs/pdfjs-dist/web'
         //const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
         const viewerPage = "viewer_noscript.html"
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
+            console.log('@@@@@@ pdfUrl: ', pdfUrl);
             this.setState({
                 pdfUrl: pdfUrl,
                 crtPage: 1,

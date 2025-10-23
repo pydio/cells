@@ -1,0 +1,34 @@
+{
+  "name": "pdfjs-dist",
+  "version": "4.8.69",
+  "main": "build/pdf.mjs",
+  "types": "types/src/pdf.d.ts",
+  "description": "Generic build of Mozilla's PDF.js library.",
+  "keywords": [
+    "Mozilla",
+    "pdf",
+    "pdf.js"
+  ],
+  "homepage": "https://mozilla.github.io/pdf.js/",
+  "bugs": "https://github.com/mozilla/pdf.js/issues",
+  "license": "Apache-2.0",
+  "optionalDependencies": {
+    "canvas": "^3.0.0-rc2",
+    "path2d": "^0.2.1"
+  },
+  "browser": {
+    "canvas": false,
+    "fs": false,
+    "http": false,
+    "https": false,
+    "url": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/pdf.js.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {}
+}
