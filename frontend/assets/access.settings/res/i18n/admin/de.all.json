@@ -396,10 +396,10 @@
     "other": "Standardmäßig werden alle Dateien in einem einzigen Ordner gespeichert. Verwenden Sie ein Muster 'N:P:Q', um automatisch Unterordner zu erstellen, z.B.: id[:N]/id[:P]/id[:P]/id[:Q]/..."
   },
   "ds.editor.initFlatFromSnapshot.hint": {
-    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+    "other": "Pfad zum Snapshot im Speicher (z.B. $snapshot.db)"
   },
   "ds.editor.foldersShardingPattern.hint": {
-    "other": "Sharding pattern (e.g. N:P:Q)"
+    "other": "Sharding Muster (z.B. N:P:Q)"
   },
   "ds.encryption": {
     "other": "Verschlüsselt"
