@@ -395,6 +395,12 @@
   "ds.editor.foldersShardingPattern": {
     "other": "Par défaut, tous les fichiers sont stockés dans un dossier unique. Utilisez un motif 'N:P:Q' pour créer automatiquement les sous-dossiers id[:N]/id[:P]/id[:Q]/..."
   },
+  "ds.editor.initFlatFromSnapshot.hint": {
+    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+  },
+  "ds.editor.foldersShardingPattern.hint": {
+    "other": "Sharding pattern (e.g. N:P:Q)"
+  },
   "ds.encryption": {
     "other": "Encryptée"
   },
