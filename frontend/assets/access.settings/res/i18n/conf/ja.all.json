@@ -4,5 +4,11 @@
   },
   "Admin Driver": {
     "other": "管理ドライバー"
+  },
+  "Display structured storage format during data source creation.": {
+    "other": "Display structured storage format during data source creation."
+  },
+  "Allow structured format storage (to be deprecated)": {
+    "other": "Allow structured format storage (to be deprecated)"
   }
 }
