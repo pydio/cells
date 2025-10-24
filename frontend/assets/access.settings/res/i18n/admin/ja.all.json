@@ -395,6 +395,12 @@
   "ds.editor.foldersShardingPattern": {
     "other": "デフォルトでは、すべてのファイルは一意のフォルダ内に格納されています。サブフォルダID[:N]/id[:P]/id[:Q]/... を自動作成するには、パターン 'N:P:Q' を使用します。"
   },
+  "ds.editor.initFlatFromSnapshot.hint": {
+    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+  },
+  "ds.editor.foldersShardingPattern.hint": {
+    "other": "Sharding pattern (e.g. N:P:Q)"
+  },
   "ds.encryption": {
     "other": "暗号化"
   },
