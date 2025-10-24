@@ -101,7 +101,7 @@ require (
 	github.com/pydio/caddyvault v1.0.3
 	github.com/pydio/go/v2 v2.0.0
 	github.com/r3labs/diff/v3 v3.0.1
-	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
+	github.com/rivo/tview v0.42.0
 	github.com/rjeczalik/notify v0.9.3
 	github.com/robertkrimen/otto v0.5.1
 	github.com/rs/cors v1.11.1
