@@ -395,6 +395,12 @@
   "ds.editor.foldersShardingPattern": {
     "other": "默认情况下，所有文件都存储在一个唯一的文件夹中。使用 \"N:P:Q \"模式自动创建子文件夹 id[:N]/id[:P]/id[:Q]/..."
   },
+  "ds.editor.initFlatFromSnapshot.hint": {
+    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+  },
+  "ds.editor.foldersShardingPattern.hint": {
+    "other": "Sharding pattern (e.g. N:P:Q)"
+  },
   "ds.encryption": {
     "other": "已加密"
   },
