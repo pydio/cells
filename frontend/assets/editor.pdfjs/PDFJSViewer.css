@@ -10,3 +10,11 @@
 	height: 100%;
 	border: none;
 }
+
+/* Hide text layer and annotations for the preview */
+.react-pdf__Page__textContent {
+	display: none;
+}
+.react-pdf__Page__annotations {
+	display: none;
+}

@@ -18,14 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import { pdfjs } from 'react-pdf';
+import React, {Component} from 'react'
+import { Document, Page, pdfjs } from 'react-pdf';
 
-pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/build/pdf.worker.js';
+pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/res/dist/pdfjs/build/pdf.worker.mjs';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import React, {Component} from 'react'
 import { connect } from 'react-redux'
-import { Document, Page } from 'react-pdf';
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
@@ -95,7 +94,7 @@ class Viewer extends Component {
                 Key:'pydio-thumbstore/' + pdfPreview
             }
         }
-        const distViewerPath = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web'
+        const distViewerPath = 'plug/editor.pdfjs/res/dist/pdfjs/web'
         const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
             this.setState({
