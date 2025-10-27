@@ -1647,103 +1647,103 @@
     "other": "Betrodde Servere"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Søk etter bruker..."
   },
   "596": {
     "other": "Server '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "alle"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Send en melding"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Legg til en bruker"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Alle Resultater"
   },
   "6": {
-    "other": "Rename"
+    "other": "Endre navn"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR fil"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Rediger bruker"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "En delt celle"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 delte celler"
   },
   "603": {
     "other": "Team"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Ekstern bruker"
   },
   "605": {
-    "other": "More search options"
+    "other": "Flere søkealternativer"
   },
   "606": {
-    "other": "Less search options"
+    "other": "Mindre søkealternativer"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "Din nylige aktivitet - Skriv inn for å søke etter filer i alle workspaces"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Gjeldende mappe"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Hele workspacet"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ fil"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "Alle workspaces"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Skriv for å søke"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Egendefinert utvalg"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Større enn..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Mindre enn..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Utfør"
   },
   "616": {
-    "other": "Mask"
+    "other": "Maske"
   },
   "617": {
-    "other": "Enter"
+    "other": "Angi"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Bytt språk..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "Søk begrenset til gjeldende mappe og undermapper"
   },
   "62": {
-    "other": "Root directory"
+    "other": "Rotkatalog"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "Søk begrenset til gjeldende workspace"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Dette feltet kan ikke være tomt"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Feilmelding"
   },
   "623": {
     "other": "Copy"
