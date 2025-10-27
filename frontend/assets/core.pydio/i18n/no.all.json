@@ -1755,187 +1755,187 @@
     "other": "Brev"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Filer delt med meg"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Delt fra eksterne servere"
   },
   "628": {
-    "other": "Revert"
+    "other": "Tilbakestill"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Ingen poster enda"
   },
   "63": {
-    "other": "Log out"
+    "other": "Logg ut"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Mapper delt med meg"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Denne cellen er tom!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Ingen celler enda"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Celler er områder delt med andre for å samarbeide på dokumenter"
   },
   "634": {
-    "other": "You"
+    "other": "Du"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Din gruppe"
   },
   "634c": {
-    "other": "All users"
+    "other": "Alle brukere"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Chatterom"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Begynn å skrive og trykk Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Ingen meldinger enda, start å skrive for å chatte med brukerne av denne cellen!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "Celle inneholder flere rot mapper eller filer, du kan ikke laste opp data direkte her."
   },
   "639": {
-    "other": "In this cell"
+    "other": "I denne cellen"
   },
   "64": {
-    "other": "XLS File"
+    "other": "XLS Fil"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Lag en celle med %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Fjern fra gjeldende celle"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Legg til gjeldende celle"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Du deler nå celle med %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Kunne ikke lage celle: %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Word Fil"
   },
   "66": {
-    "other": "Copy"
+    "other": "Kopier"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Valgt fil"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Lim inn"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "Eller velg en annen mappe"
   },
   "7": {
-    "other": "Delete"
+    "other": "Slett"
   },
   "70": {
-    "other": "Move"
+    "other": "Flytt"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "Denne filen eksisterer allerede (navn skiller mellom små og store bokstaver)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "Rotbanen er ikke riktig. Sjekk den i conf/conf.php-filen"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "har blitt kopiert til mappen"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "har blitt flyttet til mappen"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "Filen users.txt er ikke i mappen prive"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Denne filen har blitt fjernet"
   },
   "77": {
-    "other": "Send"
+    "other": "Sende"
   },
   "78": {
-    "other": "Pass"
+    "other": "Bestått"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF Fil"
   },
   "8": {
-    "other": "Directory"
+    "other": "Mappe"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV Fil"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI Fil"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG Fil"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG Fil"
   },
   "84": {
-    "other": "Help"
+    "other": "Hjelp"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Oppdater"
   },
   "86": {
-    "other": "Close"
+    "other": "Lukk"
   },
   "87": {
-    "other": "Search"
+    "other": "Søk"
   },
   "88": {
-    "other": "Download"
+    "other": "Nedlasting"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Kan ikke åpne fil"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Midi Fil"
   },
   "90": {
-    "other": "Print"
+    "other": "Utskrift"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "FLASH Fil"
   },
   "92": {
-    "other": "Language"
+    "other": "Språk"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "For å velge språk, må nettleseren din akseptere informasjonskapsler."
   },
   "94": {
-    "other": "Login"
+    "other": "Innlogging"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Velg språk:"
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "Vennligst velg målmappen i treet: "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Last opp Fil"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Klikk hvor som helst på denne boksen for å lukke den."
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "er ikke skrivbar. Det kan være et tilgangsproblem, vennligst sjekk med systemansvarlig."
   },
   "about_access_key": {
     "other": "A"
@@ -1962,31 +1962,31 @@
     "other": "en_US"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "på DATO"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s dager siden"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "om %s dager"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "TID"
   },
   "date_relative_time_format": {
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "[Today at] LT"
+    "other": "[I dag på] LT"
   },
   "date_relative_tomorrow": {
-    "other": "[Tomorrow at] LT"
+    "other": "[I morgen på] LT"
   },
   "date_relative_yesterday": {
-    "other": "[Yesterday at] LT"
+    "other": "[I går på] LT"
   },
   "date_relative_lastweek": {
     "other": "[Last] dddd [at] LT"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Engelsk"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,145 +2034,145 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "Plugins definerer hvordan et workspace kontrollerer tilgang til sin backed (et filområde eller annet) og større endringer i utseende og handlinger."
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "Funksjonsorienterte plugins for ulike aspekter"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "Hvordan brukerdata lagres i backend"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Metoder for innsamling av identifikasjonslegitimasjon (web form, api nøkkel, osv.)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "Unik plugin for lasting av rammeverket"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "Unik plugin for å sette opp hurtigbufferserveren som brukes av programmet"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "Hvordan konfigurasjonsdata lagres i backend"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Data krypteringsplugins"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Seere eller editorer for en lang rekke mimetyper"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "Implementeringer for å lagre datahendelser (bare SQL enda)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "Hoved webgrensesnitt, temaer og utvidelser"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "Hjelperverktøy for administrative oppgaver"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "Verktøy for indeksering av data og gi hurtigsøkalternativ"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "Send programlogger til ulike kanaler"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "Verktøy for å la programmet sende e-post"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Søkemotor alternativer"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "Flere funksjoner som skal legges til i workspaces"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "Ulike implementasjoner for lagring av metadata sammen med filer og mapper"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "Implementeringer av en enkel PUB/SUB server"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Avanserte sikkerhetsfunksjoner"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "Nettjenestebroer for å forkorte offentlige lenker"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "Opplastere basert på ulike teknologier som HTML, Javascript, Java og andre"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "Workspaces Drivere"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "Plugins for handlinger"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "Autentiseringsbackends"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "Autentiseringsfrontends"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Laster"
   },
   "plugtype.title.cache": {
     "other": "Cache server"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Konfigurasjonslagring"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Krypteringsverktøy"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Redaktører"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Hendelseslogg lagring"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Grafisk brukergrensesnitt"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Hjelper"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "Indekserer"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "Logger"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "Utsendere"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Søkemotor"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "Workspace meta aspekter"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Metadatalagring"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Direktemelding"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Sikkerhet"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "URL forkortelse"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Opplaster"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "overordnet mappe"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "massehandlinger"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2199,309 +2199,309 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Offentlig tilgang"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Flytter fil i bakgrunnen..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Flytter mappe i bakgrunnen..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Kopierer valgte elementer i bakgrunnen..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Filen er låst"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Mappen er låst"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Ser på denne filen"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Ser på denne mappen"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Delt fil, klikk for å redigere"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Delt mappe, klikk for å redigere"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Filen er bokmerket"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Mappen er bokmerket"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Bokmerk dette elementet"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Fjern dette bokmerket"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Blandede verdier, klikk for å bokmerke alle"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Lagrer bokmerkestatus"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Innenfor"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Tom fil"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Dokument uten tittel"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Ikke bruk / i filnavn!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "Du må oppgi et navn!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Advarsel, det virker som om navnet begynner eller slutter med et mellomrom (kanskje en skrivefeil?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Vennligst bruk en annen verdi for nytt navn!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Endrer navn %1 til %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Filtrer Cells"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Filtrer Workspaces"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Synlighet"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Vis"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Rediger"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Brukere"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Dine Teams"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Endre synlighet"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Lagre endringer"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Tilbakestill endringer"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "En feil har oppstått"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Velg en bruker..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Angi synlighet til..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Denne avanserte funksjonen lar deg avgjøre om brukerne du oppretter i adresseboken kan bli sett og/eller redigert av andre brukere. Som standard er brukerne dine bare synlige for deg."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Ukjent"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Velg gruppe"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Flere valg"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Bekreft"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Du er i ferd med å slette"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Ikke advar meg neste gang"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Rader per side"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "av"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Vennligst bruk bare bilder (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Tilbakestill"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Vil du fjerne gjeldende bilde?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Vennligst bruk bilder mindre enn 5MB"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Skriv for å søke etter filer og mapper"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Søker..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Søk..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Søk: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Søker i..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Delt"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Ingen status"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Offentlig link"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Delt i Cell"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Offentlig link eller Cell"
   },
   "searchengine.format.title": {
     "other": "Format"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Kun Filer"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Avanserte Filtere"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 resultater funnet"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "Viser %1, last flere..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Lagre"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Lagre spørring"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "Tøm"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Tøm alt"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Slett"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "Slette denne lagrede spørringen?"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Skriv inn en etikett"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Navn/Innhold"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Lagrede søk"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Siste søk"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Avansert forslag"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Mente du"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "inneholder '%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Filter:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "Klikk for å endre"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Fjern"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "Inkluder forhåndsvisning?"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "Legg til inline"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Eldre oppføringer"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "Rediger Melding"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Lagre Endringer"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "Tilbakestill Endringer"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Slett Melding"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "Slette Melding?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "Denne handlingen kan ikke angres"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "Laster dokument..."
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "Åpner dokument..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Gå til dokument"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "Dokument ikke funnet, det kan ha blitt slettet."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "Klikk for å åpne %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Åpne dokument i..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Kvotebruk"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Slett permanent"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "advarsel, du kan ikke angre denne operasjonen!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Gå Til Mappe"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Siste Steder"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Toppnivå"
   }
 }
