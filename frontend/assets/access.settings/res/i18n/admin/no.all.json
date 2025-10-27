@@ -1122,7 +1122,7 @@
     "other": "REST Resources"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "overordnet mappe"
   },
   "react.10": {
     "other": "Inherit Permissions"
@@ -1140,7 +1140,7 @@
     "other": "Show resulting tree"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "massehandlinger"
   },
   "react.3": {
     "other": "Search Results for '%s'"
