@@ -9,8 +9,6 @@ export default defineConfig({
 		}),
 	],
 	test: {
-		// Enable Jest-like global APIs (describe, it, expect) without imports.
-		globals: true,
 		// Provide a browser-like DOM for React component testing.
 		environment: 'jsdom',
 		// Discover both .js and .jsx test files under the repo.
