@@ -8,6 +8,9 @@ const config = configLoader({PydioPDFJS:'./res/js/index.js'}, path.resolve(__dir
 // webpack.config.js
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+// FIXME: When building for production, the component is not even called, we 
+// need to further debug and fix this.
+// For now, build in development mode only.
 module.exports = () => {
     return {
         ...config,
