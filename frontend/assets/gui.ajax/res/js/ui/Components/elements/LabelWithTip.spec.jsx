@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
 
-import LabelWithTip from '../assets/gui.ajax/res/js/ui/Components/elements/LabelWithTip';
+import LabelWithTip from './LabelWithTip';
 
 describe('LabelWithTip', () => {
 	it('shows the tooltip when hovered and hides it on mouse leave', () => {
@@ -15,7 +16,8 @@ describe('LabelWithTip', () => {
 			</LabelWithTip>
 		);
 
-		const container = document.querySelector('.label-with-tip');
+		const label = screen.getByText('Storage quota');
+		const container = label.closest('.label-with-tip');
 		expect(container).not.toBeNull();
 
 		const tooltip = container.querySelector('div[label="Currently used space"]');
@@ -31,6 +33,6 @@ describe('LabelWithTip', () => {
 
 	it('renders the label when no tooltip is provided', () => {
 		render(<LabelWithTip label="Plain label" />);
-		expect(document.body.textContent).toContain('Plain label');
+		expect(screen.getByText('Plain label')).toBeInTheDocument();
 	});
 });
