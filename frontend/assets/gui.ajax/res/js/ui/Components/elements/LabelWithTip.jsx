@@ -57,7 +57,12 @@ export default class LabelWithTip extends React.Component {
                 <span onMouseEnter={this.show.bind(this)} onMouseLeave={this.hide.bind(this)} style={style} className={this.props.className}>
                         {label}
                     {this.props.children}
-                    <div label={this.props.tooltip} style={{...tooltipStyle,display:this.state.show?'block':'none'}} className={this.props.tooltipClassName}/>
+                    <div
+                        label={this.props.tooltip}
+                        role="tooltip"
+                        style={{...tooltipStyle,display:this.state.show?'block':'none'}}
+                        className={this.props.tooltipClassName}
+                    />
                 </span>
             );
         }else{

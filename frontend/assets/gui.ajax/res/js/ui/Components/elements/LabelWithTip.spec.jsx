@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 import LabelWithTip from './LabelWithTip';
 
 describe('LabelWithTip', () => {
-	it('shows the tooltip when hovered and hides it on mouse leave', () => {
+	it('shows the tooltip when hovered and hides it on mouse leave', async () => {
 		render(
 			<LabelWithTip
 				className="label-with-tip"
@@ -17,18 +17,19 @@ describe('LabelWithTip', () => {
 		);
 
 		const label = screen.getByText('Storage quota');
+		expect(label).toBeInTheDocument();
 		const container = label.closest('.label-with-tip');
-		expect(container).not.toBeNull();
+		expect(container).toBeInTheDocument();
 
-		const tooltip = container.querySelector('div[label="Currently used space"]');
-		expect(tooltip).not.toBeNull();
-		expect(tooltip.style.display).toBe('none');
+		const tooltip = screen.getByRole('tooltip', { hidden: true });
+		expect(tooltip).toBeInTheDocument();
+		expect(tooltip).not.toBeVisible();
 
 		fireEvent.mouseEnter(container);
-		expect(tooltip.style.display).toBe('block');
+		await waitFor(() => expect(tooltip).toBeVisible());
 
 		fireEvent.mouseLeave(container);
-		expect(tooltip.style.display).toBe('none');
+		await waitFor(() => expect(tooltip).not.toBeVisible());
 	});
 
 	it('renders the label when no tooltip is provided', () => {
