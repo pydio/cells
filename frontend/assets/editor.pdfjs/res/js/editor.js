@@ -28,6 +28,25 @@ import { connect } from 'react-redux'
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
+const sharedStyles = `
+.pdfjs_viewer {
+    width: 100%;
+    height: 100%;
+}
+
+.pdfjs_viewer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Hide text layer and annotations for the preview */
+.react-pdf__Page__textContent,
+.react-pdf__Page__annotations {
+    display: none;
+}
+`;
+
 class InlineViewer extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -110,11 +129,16 @@ class Viewer extends Component {
     makeCss(lastKnownHeight, currentPin){
         if(currentPin) {
             return `
+            ${sharedStyles}
+
             .mimefont-container.with-editor-badge.editor_mime_pdf{
                 overflow-y:auto;
             }`;
         }
+
         return `
+        ${sharedStyles}
+
         #info_panel .mimefont-container.with-editor-badge{
             position:relative;
             min-height: ${lastKnownHeight}px; 
