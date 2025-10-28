@@ -30,6 +30,8 @@ module.exports = () => {
                     },
                 ]
             })
-        ]
+        ],
+
+        mode: 'development',
     };
 };
