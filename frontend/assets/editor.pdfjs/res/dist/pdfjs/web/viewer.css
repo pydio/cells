@@ -13,6 +13,16 @@
  * limitations under the License.
  */
 
+/* CUSTOM CSS */
+#editorHighlight,
+#editorFreeText,
+#editorInk,
+#editorStamp,
+#downloadButton {
+  display: none;
+}
+/* CUSTOM CSS */
+
 .messageBar{
   --closing-button-icon:url(images/messageBar_closingButton.svg);
   --message-bar-close-button-color:var(--text-primary-color);
