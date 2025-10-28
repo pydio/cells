@@ -20,13 +20,13 @@
 
 import React, {Component} from 'react'
 import { Document, Page, pdfjs } from 'react-pdf';
-
-pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/res/dist/pdfjs/build/pdf.worker.mjs';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import { connect } from 'react-redux'
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
+
+pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/res/dist/pdfjs/build/pdf.worker.mjs';
 
 const sharedStyles = `
 .pdfjs_viewer {
@@ -49,7 +49,7 @@ const sharedStyles = `
 
 class InlineViewer extends React.Component {
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
+    shouldComponentUpdate(nextProps) {
         return nextProps.pdfUrl !== this.props.pdfUrl || nextProps.pageNumber !== this.props.pageNumber || nextProps.width !== this.props.width;
     }
 
@@ -100,7 +100,7 @@ class Viewer extends Component {
     }
 
     loadNode(props) {
-        const {node, pydio} = props;
+        const {node} = props;
 
         let bucketParams = null;
         let pdfPreview = node.getMetadata().get('PDFPreview')
@@ -114,7 +114,7 @@ class Viewer extends Component {
             }
         }
         const distViewerPath = 'plug/editor.pdfjs/res/dist/pdfjs/web'
-        const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
+        const viewerPage = "viewer.html"
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
             this.setState({
                 pdfUrl: pdfUrl,
@@ -209,7 +209,7 @@ const conf = editors.filter(({id}) => id === 'editor.pdfjs')[0]
 
 const getSelectionFilter = (node) => conf.mimes.indexOf(node.getAjxpMime()) > -1
 
-const getSelection = (node) => new Promise((resolve, reject) => {
+const getSelection = (node) => new Promise((resolve) => {
     let selection = [];
 
     node.getParent().getChildren().forEach((child) => selection.push(child));
