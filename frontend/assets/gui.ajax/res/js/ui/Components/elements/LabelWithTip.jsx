@@ -58,7 +58,7 @@ export default class LabelWithTip extends React.Component {
                         {label}
                     {this.props.children}
                     <div
-                        label={this.props.tooltip}
+                        aria-label={this.props.tooltip}
                         role="tooltip"
                         style={{...tooltipStyle,display:this.state.show?'block':'none'}}
                         className={this.props.tooltipClassName}
