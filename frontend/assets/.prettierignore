@@ -11,7 +11,11 @@ build/
 **/res/**/conf/
 **/*.xml
 **/*.json
-
+**/**/**/locale
+**/**/**/locale/
+*.less
+**/**/**/**/**/lang/
+*.css
 # Ignore HTML, plugin docs and webpack configs
 **/*.html
 **/plugin_doc.html
