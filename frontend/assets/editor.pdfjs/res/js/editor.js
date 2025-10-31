@@ -26,6 +26,9 @@ import { connect } from 'react-redux'
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
 pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/res/dist/pdfjs/build/pdf.worker.mjs';
 
 const sharedStyles = `
