@@ -17,21 +17,29 @@ module.exports = () => {
         // This is required for react-pdf to work correctly
         // See: https://archive.is/8QRLv#webpack-based-applications-may-require-a-workaround
         devtool: 'source-map',
+        mode: 'development',
         plugins: [
             ...config.plugins,
-             new CopyWebpackPlugin({
+            new CopyWebpackPlugin({
                 patterns: [
                     { 
                         from: path.resolve(__dirname, 'node_modules/pdfjs-dist/build'), 
                         to: 'pdfjs/build',
                         filter: async (resourcePath) => 
-                            !resourcePath.includes('sandbox') 
-                            && !resourcePath.endsWith('.js')
+                            !resourcePath.includes('sandbox')
                     },
                 ]
             })
         ],
-
-        mode: 'development',
+        module: {
+            ...config.module,
+            rules: [
+                ...(config.module?.rules || []),
+                {
+                    test: /pdfjs-dist[\\/].*\.mjs$/,
+                    use: path.resolve(__dirname, 'webpack.import-meta-mjs.loader.js'),
+                },
+            ],
+        },
     };
 };
