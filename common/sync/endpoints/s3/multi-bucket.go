@@ -203,11 +203,11 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 	}
 }
 
-func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, error) {
+func (m *MultiBucketClient) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	// We handle only recursivePath = "" case here
 
-	bb, e := m.mainClient.Oc.ListBuckets(context.Background())
+	bb, e := m.mainClient.Oc.ListBuckets(ctx)
 	if e != nil {
 		return nil, e
 	}
@@ -233,7 +233,7 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 		if e != nil {
 			continue
 		}
-		bWatcher, e := bClient.Watch("")
+		bWatcher, e := bClient.Watch(ctx, "")
 		if e != nil {
 			continue
 		}

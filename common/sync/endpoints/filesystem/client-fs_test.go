@@ -318,7 +318,7 @@ func TestWatch(t *testing.T) {
 
 	Convey("Init simple watch object", t, func() {
 		c := EmptyMockedClient()
-		watchObject, err := c.Watch("")
+		watchObject, err := c.Watch(context.Background(), "")
 		if err != nil {
 			log.Println("Received error, test will FAIL", err)
 		}

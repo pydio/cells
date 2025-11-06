@@ -94,7 +94,7 @@ func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 	return nil
 }
 
-func (i *Client) Watch(_ string) (*model.WatchObject, error) {
+func (i *Client) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("watch not implemented")
 }
 

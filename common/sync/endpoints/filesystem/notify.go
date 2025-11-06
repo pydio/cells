@@ -171,8 +171,7 @@ func PipeChan(capacity int) (inputCh chan notify.EventInfo, outputCh chan notify
 
 // Get current time in a predefined format
 func now() string {
-	TimeFormatFS := "2006-01-02T15:04:05.000Z"
-	return time.Now().UTC().Format(TimeFormatFS)
+	return time.Now().UTC().Format(model.EventInfoTimeFormatFS)
 }
 
 // IsEventType checks if the event is of a certain type
