@@ -208,7 +208,7 @@ func (db *MemDB) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 	return nil
 }
 
-func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
+func (db *MemDB) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 	inChan := make(chan DBEvent)
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)

@@ -145,7 +145,7 @@ type PathSyncSource interface {
 	// Walk walks the nodes with a callback
 	Walk(ctx context.Context, walknFc WalkNodesFunc, root string, recursive bool) (err error)
 	// Watch sets up an event watcher on the nodes
-	Watch(recursivePath string) (*WatchObject, error)
+	Watch(ctx context.Context, recursivePath string) (*WatchObject, error)
 }
 
 // ChecksumProvider is able to compute a checksum for a given node (typically an Etag)

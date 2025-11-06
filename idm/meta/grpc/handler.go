@@ -186,11 +186,20 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				Target: target,
 			})
 		}
-		// Additional event
-		broker.MustPublish(ctx, common.TopicUserMetaDiffs, &idm.UpdateUserMetaRequest{
-			Operation: request.GetOperation(),
-			MetaDatas: request.GetMetaDatas(),
-		})
+		// Additional event - translate req operation to event operation
+		var evOp idm.UpdateUserMetaEvent_UserMetaOp
+		switch request.Operation {
+		case idm.UpdateUserMetaRequest_PUT:
+			evOp = idm.UpdateUserMetaEvent_PUT
+		case idm.UpdateUserMetaRequest_DELETE:
+			evOp = idm.UpdateUserMetaEvent_DELETE
+		}
+		for _, metaData := range request.MetaDatas {
+			broker.MustPublish(ctx, common.TopicUserMetaDiffs, &idm.UpdateUserMetaEvent{
+				Operation: evOp,
+				UserMeta:  metaData,
+			})
+		}
 	}(context.WithoutCancel(ctx))
 
 	return response, nil

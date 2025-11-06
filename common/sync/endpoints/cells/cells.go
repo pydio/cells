@@ -41,8 +41,8 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
-	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -75,10 +75,6 @@ type Options struct {
 	// Define supported metadata
 	MetadataGlobs []glob.Glob
 }
-
-const (
-	EventTimeFormatFS = "2006-01-02T15:04:05.000Z"
-)
 
 type Abstract struct {
 	sync.Mutex
@@ -225,14 +221,14 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (mode
 }
 
 // Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the Tree Service via a Router).
-func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	c.watchConn = make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
 	// Reset watchCtxCancelled if it's a Resume after a Pause
 	c.watchCtxCancelled = false
-	ctx, cancel := context.WithCancel(c.GlobalCtx)
+	ctx, cancel := context.WithCancel(ct)
 
 	obj := &model.WatchObject{
 		EventInfoChan:  make(chan model.EventInfo),
@@ -274,18 +270,15 @@ func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	if len(c.Options.MetadataGlobs) > 0 {
 		_ = broker.SubscribeCancellable(ctx, common.TopicUserMetaDiffs, func(ctx context.Context, msg broker.Message) error {
-			target := &idm.UpdateUserMetaRequest{}
+			target := &idm.UpdateUserMetaEvent{}
 			if ct, er := msg.Unmarshal(ctx, target); er == nil {
-				op := target.GetOperation()
-				meta := target.GetMetaDatas()
+				ns := target.GetUserMeta().GetNamespace()
 				for _, g := range c.Options.MetadataGlobs {
-					for _, m := range meta {
-						if !g.Match(m.GetNamespace()) {
-							continue
-						}
-						if event, send := c.metaDiffToEventInfo(ct, op, m); send {
-							obj.EventInfoChan <- event
-						}
+					if !g.Match(ns) {
+						continue
+					}
+					if event, send := c.metaDiffToEventInfo(ct, target); send {
+						obj.EventInfoChan <- event
 					}
 				}
 			} else {
@@ -318,7 +311,6 @@ func (c *Abstract) changeValidPath(n *tree.Node) bool {
 // changeToEventInfo transforms a *tree.NodeChangeEvent to the sync model EventInfo.
 func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.EventInfo, send bool) {
 
-	now := time.Now().UTC().Format(EventTimeFormatFS)
 	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PydioSyncHiddenFile {
 		// Special case for .pydio creations, to be updated in snapshot but ignored for event processed further
 		if e := c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true); e != nil {
@@ -331,16 +323,7 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.ClientUUID
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
 		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
-		event = model.EventInfo{
-			Type:     model.EventCreate,
-			Path:     change.Target.Path,
-			Etag:     change.Target.Etag,
-			Time:     now,
-			Folder:   !change.Target.IsLeaf(),
-			Size:     change.Target.Size,
-			Metadata: change.Metadata,
-			Source:   c.Source,
-		}
+		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
 		if c.updateSnapshot != nil {
 			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Target.Path + "-" + change.Target.Etag)
 			if e := c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true); e != nil {
@@ -349,13 +332,7 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 		}
 	} else if change.Type == tree.NodeChangeEvent_DELETE {
 		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Source.Path)
-		event = model.EventInfo{
-			Type:     model.EventRemove,
-			Path:     change.Source.Path,
-			Time:     now,
-			Metadata: change.Metadata,
-			Source:   c.Source,
-		}
+		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
 		if c.updateSnapshot != nil {
 			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
 			if e := c.updateSnapshot.DeleteNode(c.GlobalCtx, change.Source.Path); e != nil {
@@ -364,17 +341,7 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 		}
 	} else if change.Type == tree.NodeChangeEvent_UPDATE_PATH {
 		log.Logger(c.GlobalCtx).Debug("Got Move Event " + change.Type.String() + " - " + change.Source.Path + " - " + change.Target.Path)
-		event = model.EventInfo{
-			Type:       model.EventSureMove,
-			Path:       change.Target.Path,
-			Folder:     !change.Target.IsLeaf(),
-			Size:       change.Target.Size,
-			Etag:       change.Target.Etag,
-			MoveSource: change.Source,
-			MoveTarget: change.Target,
-			Metadata:   change.Metadata,
-			Source:     c.Source,
-		}
+		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
 		if c.updateSnapshot != nil {
 			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
 			if e := c.updateSnapshot.MoveNode(c.GlobalCtx, change.Source.Path, change.Target.Path); e != nil {
@@ -385,8 +352,9 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 	return
 }
 
-func (c *Abstract) metaDiffToEventInfo(ct context.Context, op idm.UpdateUserMetaRequest_UserMetaOp, m *idm.UserMeta) (event model.EventInfo, send bool) {
-	if m.GetResolvedNode() != nil {
+func (c *Abstract) metaDiffToEventInfo(ct context.Context, ev *idm.UpdateUserMetaEvent) (event model.EventInfo, send bool) {
+	m := ev.GetUserMeta()
+	if m.GetResolvedNode() == nil {
 		ct, cli, er := c.Factory.GetNodeProviderClient(ct)
 		if er != nil {
 			log.Logger(ct).Warn("Failed to create client in meta diff", zap.Error(er))
@@ -407,36 +375,9 @@ func (c *Abstract) metaDiffToEventInfo(ct context.Context, op idm.UpdateUserMeta
 	}
 	m.ResolvedNode.Path = c.unrooted(pa)
 
-	log.Logger(ct).Debug("Sending meta event info", zap.Any("op", op), zap.Any("meta", m))
-	metaNode := &tree.Node{
-		Uuid: m.GetUuid(),
-		Type: merger.NodeType_METADATA,
-		Path: path.Join(m.GetResolvedNode().GetPath(), m.GetNamespace()),
-		Size: int64(len(m.GetJsonValue())),
-		Etag: m.GetJsonValue(),
-		MetaStore: map[string]string{
-			merger.MetaNodeParentPathMeta: `"` + m.GetResolvedNode().GetPath() + `"`,
-			merger.MetaNodeParentUUIDMeta: `"` + m.GetResolvedNode().GetUuid() + `"`,
-		},
-	}
-
-	var ty model.EventType
-	if op == idm.UpdateUserMetaRequest_PUT {
-		ty = model.EventMetaPut
-	} else if op == idm.UpdateUserMetaRequest_DELETE {
-		ty = model.EventMetaDel
-	}
-
-	return model.EventInfo{
-		Type:       ty,
-		Time:       time.Now().UTC().Format(EventTimeFormatFS),
-		Etag:       metaNode.Etag,
-		Size:       metaNode.Size,
-		Path:       metaNode.Path,
-		Source:     c.Source,
-		Metadata:   make(map[string]string), // retrieve from event headers?
-		MoveTarget: metaNode,
-	}, true
+	log.Logger(ct).Debug("Sending meta event info", zap.Any("op", ev.GetOperation().String()), zap.Any("meta", m))
+	modelEvent, _ := events.UserMetaToModelEvent(ev, time.Now(), c.Source)
+	return modelEvent, true
 
 }
 

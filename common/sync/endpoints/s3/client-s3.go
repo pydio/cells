@@ -723,20 +723,20 @@ func (c *Client) getFileHash(ctx context.Context, path string) (uid string, hash
 	return uid, etag, metaSize, nil
 }
 
-func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *Client) Watch(ct context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
 	doneChan := make(chan bool)
 
-	log.Logger(c.globalContext).Debug("Watching Bucket", zap.String("bucket", c.Bucket))
+	log.Logger(ct).Debug("Watching Bucket", zap.String("bucket", c.Bucket))
 
 	// Flag set to set the notification.
 	var events []string
 	events = append(events, string(notification.ObjectCreatedAll))
 	events = append(events, string(notification.ObjectRemovedAll))
 
-	ctx, cancel := context.WithCancel(context.TODO())
+	ctx, cancel := context.WithCancel(ct)
 	wConn := make(chan model.WatchConnectionInfo)
 
 	// Start listening on all bucket events.

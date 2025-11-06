@@ -454,7 +454,7 @@ func (s *BoltSnapshot) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, r
 	return err
 }
 
-func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
+func (s *BoltSnapshot) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("not.implemented")
 }
 

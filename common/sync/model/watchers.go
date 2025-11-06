@@ -52,6 +52,9 @@ const (
 	EventMetaPut EventType = "NodeMetaPut"
 	// EventMetaDel notifies a DEL metadata operation
 	EventMetaDel EventType = "NodeMetaDel"
+
+	// EventInfoTimeFormatFS Format used for EventInfo.Time
+	EventInfoTimeFormatFS = "2006-01-02T15:04:05.000Z"
 )
 
 // EventInfo contains the information of the event that occurred and the source
@@ -148,9 +151,8 @@ func (w *WatchObject) Close() {
 }
 
 func NodeToEventInfo(ctx context.Context, path string, node tree.N, eventType EventType) (eventInfo EventInfo) {
-	timeFormatFS := "2006-01-02T15:04:05.000Z"
 	eventInfo = EventInfo{
-		Time:           time.Now().UTC().Format(timeFormatFS),
+		Time:           time.Now().UTC().Format(EventInfoTimeFormatFS),
 		Folder:         !node.IsLeaf(),
 		Path:           path,
 		Type:           eventType,

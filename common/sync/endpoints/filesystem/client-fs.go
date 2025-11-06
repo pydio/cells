@@ -290,7 +290,7 @@ func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 }
 
 // Watch watches all fs events on an input path.
-func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *FSClient) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
