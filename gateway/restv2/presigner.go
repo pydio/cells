@@ -21,24 +21,30 @@ import (
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
-type SignerProviderFunc func(endpoint *url.URL, apiKey, apiSecret, region, session string, expiration int64) PreSigner
+type SignerProviderFunc func(endpoint *url.URL, apiKey, apiSecret, region, session string, options Options) PreSigner
 
-var SignerProvider SignerProviderFunc = func(endpoint *url.URL, apiKey, apiSecret, region, session string, expiration int64) PreSigner {
+var SignerProvider SignerProviderFunc = func(endpoint *url.URL, apiKey, apiSecret, region, session string, options Options) PreSigner {
 	return &v4Signer{
-		endpoint:   endpoint,
-		apiKey:     apiKey,
-		apiSecret:  apiSecret,
-		region:     region,
-		expiration: expiration,
+		endpoint:  endpoint,
+		apiKey:    apiKey,
+		apiSecret: apiSecret,
+		region:    region,
+		opts:      options,
 	}
 }
 
 type v4Signer struct {
-	apiKey     string
-	apiSecret  string
-	region     string
-	endpoint   *url.URL
-	expiration int64
+	apiKey    string
+	apiSecret string
+	region    string
+	endpoint  *url.URL
+	opts      Options
+}
+
+type Options struct {
+	Expiration      int64
+	UseCacheControl bool
+	CacheControl    string
 }
 
 func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error) {
@@ -48,25 +54,28 @@ func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Req
 	if err != nil {
 		return nil, time.Now(), err
 	}
-	exp := time.Now().Add(time.Duration(v.expiration) * time.Second)
+	exp := time.Now().Add(time.Duration(v.opts.Expiration) * time.Second)
 
-	// Adding Cache-Control
-	query := req.URL.Query()
-	query.Add("response-cache-control", fmt.Sprintf("private, max-age=%d", v.expiration/2))
-	req.URL.RawQuery = query.Encode()
+	if v.opts.UseCacheControl {
+		// Adding Cache-Control
+		query := req.URL.Query()
+		query.Add("response-cache-control", v.opts.CacheControl)
+		req.URL.RawQuery = query.Encode()
+	}
 
-	req = signer.PreSignV4(*req, v.apiKey, v.apiSecret, "", v.region, v.expiration)
+	req = signer.PreSignV4(*req, v.apiKey, v.apiSecret, "", v.region, v.opts.Expiration)
 	return req, exp, nil
 }
 
-func NewV4SignerForRequest(r *http.Request, expSeconds int64) (PreSigner, error) {
+func NewV4SignerForRequest(r *http.Request, opts Options) (PreSigner, error) {
 
 	ctx := r.Context()
+
 	// Cache for half the expiration time
 	ca, err := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cache.Config{
 		Prefix:      "requests/presign",
-		CleanWindow: fmt.Sprintf("%ds", expSeconds),
-		Eviction:    fmt.Sprintf("%ds", expSeconds/2),
+		CleanWindow: fmt.Sprintf("%ds", opts.Expiration),
+		Eviction:    fmt.Sprintf("%ds", opts.Expiration/2),
 	})
 	if err != nil {
 		return nil, err
@@ -78,7 +87,7 @@ func NewV4SignerForRequest(r *http.Request, expSeconds int64) (PreSigner, error)
 	}
 	claims, _ := claim.FromContext(r.Context())
 	cacheKey := claims.Subject + "-" + endpoint.Hostname()
-	expirationDuration := time.Second * time.Duration(expSeconds)
+	expirationDuration := time.Second * time.Duration(opts.Expiration)
 	var apiKey, apiSecret string
 
 	var found bool
@@ -112,5 +121,5 @@ func NewV4SignerForRequest(r *http.Request, expSeconds int64) (PreSigner, error)
 		_ = ca.Set(cacheKey, []byte(apiKey+"::"+apiSecret))
 	}
 
-	return SignerProvider(endpoint, apiKey, apiSecret, "us-east-1", "", expSeconds), nil
+	return SignerProvider(endpoint, apiKey, apiSecret, "us-east-1", "", opts), nil
 }

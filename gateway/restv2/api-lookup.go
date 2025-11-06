@@ -43,17 +43,27 @@ import (
 )
 
 var (
-	presignDefaultExpiration int64 = 900
-	presignBucketName              = common.DefaultRouteBucketIO
+	presignDefaultExpiration   int64  = 900
+	presignUseCacheControl     bool   = true
+	presignDefaultCacheControl string = "private, max-age=450"
+	presignBucketName                 = common.DefaultRouteBucketIO
 )
 
 func init() {
 	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "900s", "Override default expiration for pre-signed queries")
 	runtime.RegisterEnvVariable("CELLS_PRESIGN_BUCKET_SECONDARY", "false", "Use secondary bucket for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_USE_CACHE_CONTROL", "true", "Use cache control for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_CACHE_CONTROL", "private, max-age=450", "Override default cache control rules for pre-signed queries")
 	if exp := os.Getenv("CELLS_PRESIGN_DEFAULT_EXPIRATION"); exp != "" {
 		if d, er := time.ParseDuration(exp); er == nil {
 			presignDefaultExpiration = int64(math.Round(d.Seconds()))
 		}
+	}
+	if useCacheControl, isSet := os.LookupEnv("CELLS_PRESIGN_USE_CACHE_CONTROL"); isSet && strings.ToLower(useCacheControl) != "true" {
+		presignUseCacheControl = false
+	}
+	if cacheControl := os.Getenv("CELLS_PRESIGN_DEFAULT_CACHE_CONTROL"); cacheControl != "" {
+		presignDefaultCacheControl = cacheControl
 	}
 	if sb := os.Getenv("CELLS_PRESIGN_BUCKET_SECONDARY"); sb == "true" {
 		presignBucketName = common.DefaultRouteBucketData
@@ -348,7 +358,13 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 
 func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
 	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {
-		if sig, err := NewV4SignerForRequest(req.Request, presignDefaultExpiration); err != nil {
+		opts := Options{
+			Expiration:      presignDefaultExpiration,
+			UseCacheControl: presignUseCacheControl,
+			CacheControl:    presignDefaultCacheControl,
+		}
+
+		if sig, err := NewV4SignerForRequest(req.Request, opts); err != nil {
 			log.Logger(req.Request.Context()).Error("Cannot create signer", zap.Error(err))
 		} else {
 			oo = append(oo, WithPreSigner(sig))
