@@ -1,0 +1,44 @@
+# Minimal values file for deploying Collabora Online standalone
+# Usage: helm install collabora collabora-online/collabora-online --version 1.1.52 -f collabora-standalone-values.yaml
+
+# Service configuration
+service:
+  type: ClusterIP  # Use NodePort for external access, or ClusterIP with ingress
+  port: 9980
+
+# Collabora configuration
+collabora:
+  # Disable SSL inside container (use ingress/TLS termination instead)
+  extra_params: --o:ssl.enable=false
+  
+  # Admin credentials (change these!)
+  username: admin
+  password: admin123
+  
+  # Server name (optional, for reverse proxy scenarios)
+  server_name: null
+
+# Resource limits (adjust based on your cluster)
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "2000m"
+    memory: "2Gi"
+
+# Replicas
+replicaCount: 1
+
+# Optional: Ingress configuration
+ingress:
+  enabled: false
+  className: nginx
+  hosts:
+    - host: collabora.local
+      paths:
+        - path: /
+          pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
