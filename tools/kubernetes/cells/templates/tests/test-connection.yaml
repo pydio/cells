@@ -13,3 +13,25 @@ spec:
       command: ['wget']
       args: ['{{ include "cells.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
+---
+{{- if (include "cells.collabora.enabled" .) }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "cells.fullname" . }}-test-collabora"
+  labels:
+    {{- include "cells.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test-collabora
+      image: curlimages/curl:latest
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "Testing Collabora connectivity..."
+          curl -f http://{{ include "cells.collabora.host" . }}:{{ include "cells.collabora.port" . }}/hosting/discovery || exit 1
+          echo "Collabora is accessible"
+  restartPolicy: Never
+{{- end }}
