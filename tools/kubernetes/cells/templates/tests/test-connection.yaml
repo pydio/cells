@@ -14,6 +14,11 @@ spec:
       args: ['{{ include "cells.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
 ---
+# 
+# To run this test manually, use:
+# kubectl run -it --rm test --image=curlimages/curl --restart=Never -- \
+#   curl http://collabora-collabora-online:9980/hosting/discovery
+#   
 {{- if (include "cells.collabora.enabled" .) }}
 apiVersion: v1
 kind: Pod
