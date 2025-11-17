@@ -330,6 +330,7 @@ const (
 	DocStoreIdVersioningPolicies = "versioningPolicies"
 	DocStoreIdShares             = "share"
 	DocStoreIdResetPassKeys      = "resetPasswordKeys"
+	DocStoreIdTagsValues         = "user_meta_tags"
 )
 
 // Main code information. Set by the go linker in the resulting binary when doing 'make main'
