@@ -606,6 +606,10 @@ collabora:
     limits:
       cpu: "2000m"
       memory: "2Gi"
+  env:
+    # domain has to be the cells ingress hostname, adjust if necessary
+    - name: domain
+      value: "cells.local"
 
 externalCollabora:
   enabled: false
