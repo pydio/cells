@@ -290,6 +290,9 @@ func (plugin *Cplugin) PluginConfigs(status RequestStatus) map[string]interface{
 
 	if settings := plugin.GetServerSettings(); settings != nil {
 		for _, param := range settings.Cglobal_param {
+			if param.Attrexpose != "true" {
+				continue
+			}
 			confs[param.Attrname] = plugin.PluginConfig(status, param)
 		}
 	}
