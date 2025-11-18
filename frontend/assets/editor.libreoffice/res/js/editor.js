@@ -52,15 +52,17 @@ export default class Editor extends React.Component {
         pydio.notify('longtask_starting');
         const iframeUrl = configs.get("LIBREOFFICE_CODE_VERSION") === "v21" ? "/browser/dist/cool.html" : "/loleaflet/dist/loleaflet.html";
         const frontUrl = pydio.getFrontendUrl();
-        const protocol = frontUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+        const webSocketProtocol = frontUrl.protocol === 'https:' ? 'wss:' : 'ws:';
 
-        const webSocketUrl = `${protocol}//${frontUrl.host}`; //host.replace(/^http/gi, 'ws');
+        const webSocketUrl = `${webSocketProtocol}//${frontUrl.host}`; //host.replace(/^http/gi, 'ws');
         // Check current action state for permission
         const {node} = this.props;
         const readonly = node.hasMetadataInBranch("node_readonly", "true") || (node.getMetadata().get("content_lock") && node.getMetadata().get("content_lock") !== pydio.user.id);
         const permission = readonly ? "readonly" : "edit"
         const uri = "/wopi/files/" + node.getMetadata().get("uuid");
-        const fileSrcUrl = encodeURIComponent(`${frontUrl.protocol}//${frontUrl.host}${uri}`);
+        const fileSrcBaseUrl = configs.get("LIBREOFFICE_INTERNAL_CELLS_BASE_URL") || `${frontUrl.protocol}//${frontUrl.host}`;
+        const fileSrcUrl =encodeURIComponent(`${fileSrcBaseUrl}${uri}`);
+
 
         const api = new TokenServiceApi(PydioApi.getRestClient())
         const req = new RestDocumentAccessTokenRequest();

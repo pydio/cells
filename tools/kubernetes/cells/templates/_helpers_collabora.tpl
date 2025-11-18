@@ -89,6 +89,7 @@ Returns a YAML map that can be merged with existing customconfigs
   "frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT" (include "cells.collabora.port" .)
   "frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL" (eq (include "cells.collabora.scheme" .) "https")
   "frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL_SKIP_VERIFY" (include "cells.collabora.sslSkipVerify" .)
+  "frontend/plugin/editor.libreoffice/LIBREOFFICE_CELLS_INTERNAL_BASE_URL" (printf "http://%s:%s" (include "cells.name" .) .Values.service.port)
   "frontend/plugin/editor.libreoffice/PYDIO_PLUGIN_ENABLED" ($pluginEnabled | toString)
 -}}
 {{- toYaml $collaboraConfigs -}}
