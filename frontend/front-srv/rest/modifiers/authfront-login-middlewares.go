@@ -23,7 +23,9 @@ package modifiers
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -45,6 +47,19 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
+
+var (
+	maxFailedLoginAttempts = int64(10)
+)
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_MAX_FAILED_LOGIN_ATTEMPTS", "10", "Number of failed logins before locking user out")
+	if a := os.Getenv("CELLS_MAX_FAILED_LOGIN_ATTEMPTS"); a != "" {
+		if parsed, err := strconv.Atoi(a); err == nil {
+			maxFailedLoginAttempts = int64(parsed)
+		}
+	}
+}
 
 // LoginSuccessWrapper wraps functionalities after user was successfully logged in
 func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
@@ -187,8 +202,6 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 
 		username := in.AuthInfo["login"]
 
-		const maxFailedLogins = 10
-
 		// Searching user for attributes
 		user, _ := permissions.SearchUniqueUser(ctx, username, "")
 
@@ -214,7 +227,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		user.Attributes["failedConnections"] = fmt.Sprintf("%d", failedInt)
 		hardLock := false
 
-		if failedInt >= maxFailedLogins {
+		if failedInt >= maxFailedLoginAttempts {
 			// Set lock via attributes
 			var locks []string
 			if l, ok := user.Attributes["locks"]; ok {
@@ -230,7 +243,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 			locks = append(locks, "logout")
 			data, _ := json.Marshal(locks)
 			user.Attributes["locks"] = string(data)
-			msg := fmt.Sprintf("Locked user [%s] after %d failed connections", user.GetLogin(), maxFailedLogins)
+			msg := fmt.Sprintf("Locked user [%s] after %d failed connections", user.GetLogin(), maxFailedLoginAttempts)
 			log.Logger(ctx).Error(msg, user.ZapLogin())
 			log.Auditer(ctx).Error(
 				msg,
