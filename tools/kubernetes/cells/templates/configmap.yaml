@@ -68,7 +68,14 @@ data:
     {{- end }}
 
     customconfigs:
-      {{- toYaml .Values.service.customconfigs | nindent 6 }}
+      {{- $baseConfigs := .Values.service.customconfigs | default dict }}
+      {{- $collaboraConfigsStr := (include "cells.collabora.customconfigs" .) }}
+      {{- $collaboraConfigs := dict }}
+      {{- if $collaboraConfigsStr }}
+      {{- $collaboraConfigs = $collaboraConfigsStr | fromYaml | default dict }}
+      {{- end }}
+      {{- $mergedConfigs := merge $baseConfigs $collaboraConfigs }}
+      {{- toYaml $mergedConfigs | nindent 6 }}
 
   bootstrap.yaml: |
     #------------------------------------------
