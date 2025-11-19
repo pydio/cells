@@ -38,7 +38,7 @@ if [[ -n "${GENERATE_SDKS_V2}" ]]; then
 
   openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-axios -c swagger-ts-axios.json -o $GENERATE_SDKS_V2/cells-sdk-ts
   cd $GENERATE_SDKS_V2/cells-sdk-ts || exit
-  npm run build
+  npm install && npm run build
   cd - || exit
 
   echo "Generate Swift version"
