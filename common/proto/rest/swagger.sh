@@ -19,6 +19,16 @@
 #
 # The latest code can be found at <https://pydio.com>.
 #
+
+# Check for missing openapi-generator-cli
+if ! command -v openapi-generator &> /dev/null
+then
+    echo "ERROR: openapi-generator not found."
+    echo "Please install it from https://openapi-generator.tech/docs/installation"
+    echo "Required version is 7.12.0 or higher."
+    exit
+fi
+
 if [[ -n "${GENERATE_SDKS_V2}" ]]; then
 
 #  echo "Generate TS version with fetch"
