@@ -2059,9 +2059,11 @@
           "type": "string"
         },
         "dbManualDSN": {
+          "title": "Fully qualified DSN instead",
           "type": "string"
         },
         "dbSocketFile": {
+          "title": "Unix Socket Connection or SQlite File Path",
           "type": "string"
         },
         "dbSocketName": {
@@ -2074,6 +2076,7 @@
           "type": "string"
         },
         "dbTCPHostname": {
+          "title": "TCP Connection",
           "type": "string"
         },
         "dbTCPName": {
