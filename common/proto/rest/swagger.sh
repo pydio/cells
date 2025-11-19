@@ -25,9 +25,17 @@ if ! command -v openapi-generator &> /dev/null
 then
     echo "ERROR: openapi-generator not found."
     echo "Please install it from https://openapi-generator.tech/docs/installation"
-    echo "Required version is 7.12.0 or higher."
+    echo "Required version is 7.12.0"
     exit
+else 
+    OAG_VERSION=$(openapi-generator version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    if [[ "$OAG_VERSION" != "7.12.0" ]]; then
+        echo "ERROR: openapi-generator version is $OAG_VERSION but 7.12.0 is required."
+        echo "Please install the correct version from https://openapi-generator.tech/docs/installation"
+        exit
+    fi
 fi
+
 
 if [[ -n "${GENERATE_SDKS_V2}" ]]; then
 
