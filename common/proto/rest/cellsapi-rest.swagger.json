@@ -1453,6 +1453,20 @@
       },
       "type": "object"
     },
+    "idmPromptOptions": {
+      "properties": {
+        "ApplyTo": {
+          "items": {
+            "$ref": "#/definitions/treeNodeType"
+          },
+          "type": "array"
+        },
+        "OnUpload": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "idmRole": {
       "description": "Role represents a generic set of permissions that can be applied to any users or groups.",
       "properties": {
@@ -1743,12 +1757,20 @@
     },
     "idmUserMetaNamespace": {
       "properties": {
+        "EnforceDefault": {
+          "title": "Use default value from JsonSchema to enforce defaults",
+          "type": "boolean"
+        },
         "Indexable": {
           "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",
           "type": "boolean"
         },
         "JsonDefinition": {
           "title": "Json-encoded type to provide accurate interface for edition",
+          "type": "string"
+        },
+        "JsonSchema": {
+          "title": "JSON Schema for validating metadata values",
           "type": "string"
         },
         "Label": {
@@ -1775,6 +1797,10 @@
         "PoliciesContextEditable": {
           "title": "Context-resolved to quickly check if this meta is editable or not",
           "type": "boolean"
+        },
+        "PromptOptions": {
+          "$ref": "#/definitions/idmPromptOptions",
+          "title": "Prompt options for this namespace"
         }
       },
       "title": "Globally declared Namespace with associated policies",
@@ -2059,9 +2085,11 @@
           "type": "string"
         },
         "dbManualDSN": {
+          "title": "Fully qualified DSN instead",
           "type": "string"
         },
         "dbSocketFile": {
+          "title": "Unix Socket Connection or SQlite File Path",
           "type": "string"
         },
         "dbSocketName": {
@@ -2074,6 +2102,7 @@
           "type": "string"
         },
         "dbTCPHostname": {
+          "title": "TCP Connection",
           "type": "string"
         },
         "dbTCPName": {

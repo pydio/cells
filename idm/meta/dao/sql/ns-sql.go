@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
+	"gorm.io/datatypes"
 )
 
 var (
@@ -50,7 +51,16 @@ type MetaNamespace struct {
 	Order      int32  `gorm:"column:ns_order;"`
 	Indexable  bool   `gorm:"column:indexable;"`
 	Definition []byte `gorm:"column:definition;"`
+	PromptOptions *PromptOptions `gorm:"embedded;embeddedPrefix:prompt_options_"`
+	EnforceDefault bool          `gorm:"column:enforce_default;type:boolean;nullable"`
+	JsonSchema     *datatypes.JSON `gorm:"column:json_schema"`
 }
+
+type PromptOptions struct {
+	OnUpload bool     `gorm:"column:on_upload;type:boolean"`
+	NodeType []string `gorm:"column:node_type;serializer:json"`
+}
+
 
 func (*MetaNamespace) TableName(namer schema.Namer) string {
 	return namer.TableName("meta_ns")
@@ -62,6 +72,20 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.Order = u.Order
 	res.Indexable = u.Indexable
 	res.JsonDefinition = string(u.Definition)
+	res.EnforceDefault = u.EnforceDefault
+	if u.PromptOptions != nil {
+			res.PromptOptions = &idm.PromptOptions{
+					OnUpload: u.PromptOptions.OnUpload,
+		}
+	} else {
+			res.PromptOptions = nil
+	}
+	if u.JsonSchema != nil {
+		res.JsonSchema = string(*u.JsonSchema)
+	} else {
+		res.JsonSchema = "{}"
+	}
+
 	return res
 }
 
@@ -71,6 +95,17 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Order = res.Order
 	u.Indexable = res.Indexable
 	u.Definition = []byte(res.JsonDefinition)
+	u.EnforceDefault = res.EnforceDefault
+	u.PromptOptions = &PromptOptions{
+		OnUpload: res.PromptOptions != nil && res.PromptOptions.OnUpload,
+	}
+
+	if res.JsonSchema == "" {
+			u.JsonSchema = nil
+	} else {
+			j := datatypes.JSON([]byte(res.JsonSchema))
+			u.JsonSchema = &j
+	}
 
 	return u
 }

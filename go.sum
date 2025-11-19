@@ -369,6 +369,8 @@ github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDD
 github.com/dsoprea/go-exif/v2 v2.0.0-20200321225314-640175a69fe4/go.mod h1:Lm2lMM2zx8p4a34ZemkaUV95AnMl4ZvLbCUbwOvLC2E=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4 h1:Mg7pY7kxDQD2Bkvr1N+XW4BESSIQ7tTTR7Vv+Gi2CsM=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4/go.mod h1:9EXlPeHfblFFnwu5UOqmP2eoZfJyAZ2Ri/Vki33ajO0=
+github.com/dsoprea/go-exif/v2 v2.0.0-20230826092837-6579e82b732d h1:yeH8wrJa3+8uKKDAdURHUK1ds2UvKhMqX2MiOdVeKPs=
+github.com/dsoprea/go-exif/v2 v2.0.0-20230826092837-6579e82b732d/go.mod h1:oKrjk2kb3rAR5NbtSTLUMvMSbc+k8ZosI3MaVH47noc=
 github.com/dsoprea/go-exif/v3 v3.0.0-20200717053412-08f1b6708903/go.mod h1:0nsO1ce0mh5czxGeLo4+OCZ/C6Eo6ZlMWsz7rH/Gxv8=
 github.com/dsoprea/go-exif/v3 v3.0.0-20210512043655-120bcdb2a55e/go.mod h1:cg5SNYKHMmzxsr9X6ZeLh/nfBRHHp5PngtEPcujONtk=
 github.com/dsoprea/go-exif/v3 v3.0.0-20210625224831-a6301f85c82b/go.mod h1:cg5SNYKHMmzxsr9X6ZeLh/nfBRHHp5PngtEPcujONtk=
@@ -378,6 +380,8 @@ github.com/dsoprea/go-exif/v3 v3.0.1 h1:/IE4iW7gvY7BablV1XY0unqhMv26EYpOquVMwoBo
 github.com/dsoprea/go-exif/v3 v3.0.1/go.mod h1:10HkA1Wz3h398cDP66L+Is9kKDmlqlIJGPv8pk4EWvc=
 github.com/dsoprea/go-iptc v0.0.0-20200609062250-162ae6b44feb h1:gwjJjUr6FY7zAWVEueFPrcRHhd9+IK81TcItbqw2du4=
 github.com/dsoprea/go-iptc v0.0.0-20200609062250-162ae6b44feb/go.mod h1:kYIdx9N9NaOyD7U6D+YtExN7QhRm+5kq7//yOsRXQtM=
+github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 h1:YDRiMEm32T60Kpm35YzOK9ZHgjsS1Qrid+XskNcsdp8=
+github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413/go.mod h1:kYIdx9N9NaOyD7U6D+YtExN7QhRm+5kq7//yOsRXQtM=
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20221012074422-4f3f7e934102 h1:P1dsxzctGkmG6Zf7gH2xrZhNXWP5/FuLDI7xbCGsWTo=
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20221012074422-4f3f7e934102/go.mod h1:6+tQXZ+I62x13UZ+hemLVoZIuq/usVzvau7bqwUo9P0=
 github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696/go.mod h1:Nm/x2ZUNRW6Fe5C3LxdY1PyZY5wmDv/s5dkPJ/VB3iA=
@@ -386,10 +390,14 @@ github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd h1:l+vLbuxptsC6
 github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd/go.mod h1:7I+3Pe2o/YSU88W0hWlm9S22W7XI1JFNJ86U0zPKMf8=
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200609050348-3db9b63b202c h1:7j5aWACOzROpr+dvMtu8GnI97g9ShLWD72XIELMgn+c=
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200609050348-3db9b63b202c/go.mod h1:pqKB+ijp27cEcrHxhXVgUUMlSDRuGJJp1E+20Lj5H0E=
+github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d h1:dg6UMHa50VI01WuPWXPbNJpO8QSyvIF5T5n2IZiqX3A=
+github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d/go.mod h1:pqKB+ijp27cEcrHxhXVgUUMlSDRuGJJp1E+20Lj5H0E=
 github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d h1:8+qI8ant/vZkNSsbwSjIR6XJfWcDVTg/qx/3pRUUZNA=
 github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d/go.mod h1:yTR3tKgyk20phAFg6IE9ulMA5NjEDD2wyx+okRFLVtw=
 github.com/dsoprea/go-utility v0.0.0-20200711062821-fab8125e9bdf h1:/w4QxepU4AHh3AuO6/g8y/YIIHH5+aKP3Bj8sg5cqhU=
 github.com/dsoprea/go-utility v0.0.0-20200711062821-fab8125e9bdf/go.mod h1:95+K3z2L0mqsVYd6yveIv1lmtT3tcQQ3dVakPySffW8=
+github.com/dsoprea/go-utility v0.0.0-20221003172846-a3e1774ef349 h1:/py11NlxDaOxkT9OKN+gXgT+QOH5xj1ZRoyusfRIlo4=
+github.com/dsoprea/go-utility v0.0.0-20221003172846-a3e1774ef349/go.mod h1:KVK+/Hul09ujXAGq+42UBgCTnXkiJZRnLYdURGjQUwo=
 github.com/dsoprea/go-utility/v2 v2.0.0-20200717064901-2fccff4aa15e/go.mod h1:uAzdkPTub5Y9yQwXe8W4m2XuP0tK4a9Q/dantD0+uaU=
 github.com/dsoprea/go-utility/v2 v2.0.0-20221003142440-7a1927d49d9d/go.mod h1:LVjRU0RNUuMDqkPTxcALio0LWPFPXxxFCvVGVAwEpFc=
 github.com/dsoprea/go-utility/v2 v2.0.0-20221003160719-7bc88537c05e/go.mod h1:VZ7cB0pTjm1ADBWhJUOHESu4ZYy9JN+ZPqjfiW09EPU=
@@ -418,6 +426,7 @@ github.com/envoyproxy/protoc-gen-validate v1.2.1 h1:DEo3O99U8j4hBFwbJfrz9VtgcDfU
 github.com/envoyproxy/protoc-gen-validate v1.2.1/go.mod h1:d/C80l/jxXLdfEIhX1W2TmLfsJ31lvEjwamM4DxlWXU=
 github.com/evanphx/json-patch v0.5.2 h1:xVCHIVMUu1wtM/VkR9jVZ45N3FhZfYMMYGorLCR8P3k=
 github.com/evanphx/json-patch v0.5.2/go.mod h1:ZWS5hhDbVDyob71nXKNL0+PWn6ToqBHMikGIFbs31qQ=
+github.com/evanphx/json-patch v5.6.0+incompatible h1:jBYDEEiFBPxA0v50tFdvOzQQTCvpL6mnFh5mB2/l16U=
 github.com/evanphx/json-patch/v5 v5.9.11 h1:/8HVnzMq13/3x9TPvjG08wUGqBTmZBsCWzjTM0wiaDU=
 github.com/evanphx/json-patch/v5 v5.9.11/go.mod h1:3j+LviiESTElxA4p3EMKAB9HXj3/XEtnUf6OZxqIQTM=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
@@ -463,6 +472,8 @@ github.com/go-errors/errors v1.0.2/go.mod h1:psDX2osz5VnTOnFWbDeWwS7yejl+uV3FEWE
 github.com/go-errors/errors v1.1.1/go.mod h1:psDX2osz5VnTOnFWbDeWwS7yejl+uV3FEWEp4lssFEs=
 github.com/go-errors/errors v1.4.2 h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxIA=
 github.com/go-errors/errors v1.4.2/go.mod h1:sIVyrIiJhuEF+Pj9Ebtd6P/rEYROXFi3BopGUQ5a5Og=
+github.com/go-errors/errors v1.5.1 h1:ZwEMSLRCapFLflTpT7NKaAc7ukJ8ZPEjzlxt8rPN8bk=
+github.com/go-errors/errors v1.5.1/go.mod h1:sIVyrIiJhuEF+Pj9Ebtd6P/rEYROXFi3BopGUQ5a5Og=
 github.com/go-faker/faker/v4 v4.6.2 h1:IR1uQUYotFZnuTL7Iuy0FDGtHM5Rt1Q+2nipH9gnqKs=
 github.com/go-faker/faker/v4 v4.6.2/go.mod h1:u1dIRP5neLB6kTzgyVjdBOV5R1uP7BdxkcWk7tiKQXk=
 github.com/go-faster/city v1.0.1 h1:4WAxSZ3V2Ws4QRDrscLEDcibJY8uf41H6AhXDrNDcGw=
@@ -557,6 +568,8 @@ github.com/go-viper/mapstructure/v2 v2.4.0 h1:EBsztssimR/CONLSZZ04E8qAkxNYq4Qp9L
 github.com/go-viper/mapstructure/v2 v2.4.0/go.mod h1:oJDH3BJKyqBA2TXFhDsKDGDTlndYOZ6rGS0BRZIxGhM=
 github.com/go-xmlfmt/xmlfmt v0.0.0-20191208150333-d5b6f63a941b h1:khEcpUM4yFcxg4/FHQWkvVRmgijNXRfzkIDHh23ggEo=
 github.com/go-xmlfmt/xmlfmt v0.0.0-20191208150333-d5b6f63a941b/go.mod h1:aUCEOzzezBEjDBbFBoSiya/gduyIiWYRP6CnSFIV8AM=
+github.com/go-xmlfmt/xmlfmt v1.1.2 h1:Nea7b4icn8s57fTx1M5AI4qQT5HEM3rVUO8MuE6g80U=
+github.com/go-xmlfmt/xmlfmt v1.1.2/go.mod h1:aUCEOzzezBEjDBbFBoSiya/gduyIiWYRP6CnSFIV8AM=
 github.com/gobuffalo/attrs v1.0.3/go.mod h1:KvDJCE0avbufqS0Bw3UV7RQynESY0jjod+572ctX4t8=
 github.com/gobuffalo/envy v1.10.2 h1:EIi03p9c3yeuRCFPOKcSfajzkLb3hrRjEpHGI8I2Wo4=
 github.com/gobuffalo/envy v1.10.2/go.mod h1:qGAGwdvDsaEtPhfBzb3o0SfDea8ByGn9j8bKmVft9z8=
@@ -1199,6 +1212,7 @@ github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJw
 github.com/opencontainers/image-spec v1.1.1/go.mod h1:qpqAh3Dmcf36wStyyWU+kCeDgrGnAve2nCC8+7h8Q0M=
 github.com/opencontainers/runc v1.1.8 h1:zICRlc+C1XzivLc3nzE+cbJV4LIi8tib6YG0MqC6OqA=
 github.com/opencontainers/runc v1.1.8/go.mod h1:CbUumNnWCuTGFukNXahoo/RFBZvDAgRh/smNYNOhA50=
+github.com/opencontainers/runc v1.1.12 h1:BOIssBaW1La0/qbNZHXOOa71dZfZEQOzW7dqQf3phss=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/openzipkin/zipkin-go v0.1.1/go.mod h1:NtoC/o8u3JlF1lSlyPNswIbeQH9bJTmOf0Erfk+hxe8=
 github.com/openzipkin/zipkin-go v0.4.3 h1:9EGwpqkgnwdEIJ+Od7QVSEIH+ocmm5nPat0G7sjsSdg=
@@ -1307,6 +1321,8 @@ github.com/prometheus/procfs v0.17.0/go.mod h1:oPQLaDAMRbA+u8H5Pbfq+dl3VDAvHxMUO
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/pydio/caddyvault v1.0.3 h1:QPf1cUNwDkxjevZdLS7x4ryDqMDYXznDGctUjiRgTHY=
 github.com/pydio/caddyvault v1.0.3/go.mod h1:TqPZn8TE/NPaDqtkX8zCRr/XXpCPjyPloQcBe1zOrbg=
+github.com/pydio/cells/v4 v4.4.15 h1:PqIIDj3VMJj+OrhLt2CnBR+4rmNP6yJAI9f3Uy/g6RY=
+github.com/pydio/cells/v4 v4.4.15/go.mod h1:5SHFYHrgglL3UT0MV0C8ksAACnLLFdkQ1RlxqHvVADM=
 github.com/pydio/go/v2 v2.0.0 h1:Z39C+Wa7LBXfk0sqwtvZtSAySY7BwB/mys7RBgktcXQ=
 github.com/pydio/go/v2 v2.0.0/go.mod h1:ybM/nQh8ZmBgrtGLCEkl5FR1tv2o9iaxRJYwLJ7VH88=
 github.com/pydio/minio v0.0.0-20250526175410-0b3908e74845 h1:35m4py2/WcCDh/Bw45roWJalcsI3f8YPUlfOYTDVsXY=
