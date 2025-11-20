@@ -282,8 +282,6 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		}
 	}
 
-	// fmt.Println(statUuids, searchQuery, bulkRequest)
-
 	// NOW PERFORM REQUEST
 	if bulkRequest != nil {
 		// Use TreeHandler
