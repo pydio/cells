@@ -340,21 +340,33 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 // GetByUuid is a simple call on a node - it requires default stats
 func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
+	flags := req.QueryParameters("Flags")
+
+	restFlags := h.toRestFlags(flags)
+	statFlags := h.parseFlags(restFlags)
+
+	if len(statFlags) == 0 {
+		statFlags = []uint32{
+			tree.StatFlagVersionsAll,
+			tree.StatFlagFolderSize,
+			tree.StatFlagFolderCounts,
+		}
+	}
+
+	if len(restFlags) == 0 {
+		restFlags = []rest.Flag{rest.Flag_WithPreSignedURLs}
+	}
 
 	router := h.UuidClient(true)
 	ctx := req.Request.Context()
 	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{
-		Node: &tree.Node{Uuid: nodeUuid},
-		StatFlags: []uint32{
-			tree.StatFlagVersionsAll,
-			tree.StatFlagFolderSize,
-			tree.StatFlagFolderCounts,
-		},
+		Node:      &tree.Node{Uuid: nodeUuid},
+		StatFlags: statFlags,
 	})
 	if er != nil {
 		return er
 	}
-	oo := h.TNOptionsFromFlags(req, []rest.Flag{rest.Flag_WithPreSignedURLs, rest.Flag_WithEditorURLs})
+	oo := h.TNOptionsFromFlags(req, restFlags)
 	return resp.WriteEntity(h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
 }
 
@@ -397,6 +409,17 @@ func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo [
 		}))
 	}
 	return oo
+}
+
+func (h *Handler) toRestFlags(flagsStr []string) []rest.Flag {
+	var flags []rest.Flag
+	for _, flagStr := range flagsStr {
+		if v, ok := rest.Flag_value[flagStr]; ok {
+			flags = append(flags, rest.Flag(v))
+		}
+	}
+
+	return flags
 }
 
 func (h *Handler) parseFlags(ff []rest.Flag) (flags tree.Flags) {
