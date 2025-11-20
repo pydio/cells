@@ -71,6 +71,9 @@
         "Deleted": {
           "$ref": "#/definitions/StatusFilterDeletedStatus"
         },
+        "Draft": {
+          "$ref": "#/definitions/StatusFilterDraftStatus"
+        },
         "HasPublicLink": {
           "type": "boolean"
         },
@@ -78,6 +81,7 @@
           "type": "boolean"
         },
         "IsDraft": {
+          "title": "IsDraft - to be deprecated in favor of DraftOnly status",
           "type": "boolean"
         }
       },
@@ -109,6 +113,15 @@
         "Not",
         "Only",
         "Any"
+      ],
+      "type": "string"
+    },
+    "StatusFilterDraftStatus": {
+      "default": "DraftNot",
+      "enum": [
+        "DraftNot",
+        "DraftOnly",
+        "DraftAny"
       ],
       "type": "string"
     },
@@ -953,7 +966,8 @@
         "WithVersionsAll",
         "WithVersionsDraft",
         "WithVersionsPublished",
-        "WithPreSignedURLs"
+        "WithPreSignedURLs",
+        "WithEditorURLs"
       ],
       "type": "string"
     },
@@ -1283,6 +1297,13 @@
         "DataSourceFeatures": {
           "$ref": "#/definitions/restDataSourceFeatures",
           "title": "Additional features set at the datasource level"
+        },
+        "EditorURLs": {
+          "additionalProperties": {
+            "$ref": "#/definitions/restPreSignedURL"
+          },
+          "title": "CoolURL - if applicable, ready to use collabora src w/ expiration",
+          "type": "object"
         },
         "FolderMeta": {
           "items": {
@@ -1971,6 +1992,21 @@
           "title": "Storage ETag",
           "type": "string"
         },
+        "EditorURLs": {
+          "additionalProperties": {
+            "$ref": "#/definitions/restPreSignedURL"
+          },
+          "title": "CoolURL - if applicable, ready to use collabora src w/ expiration",
+          "type": "object"
+        },
+        "FilePreviews": {
+          "items": {
+            "$ref": "#/definitions/restFilePreview",
+            "type": "object"
+          },
+          "title": "If applicable, previews kept for this version",
+          "type": "array"
+        },
         "IsHead": {
           "title": "This revision is actually the current HEAD",
           "type": "boolean"
@@ -1987,6 +2023,9 @@
         "OwnerUuid": {
           "title": "Who performed this action - uuid",
           "type": "string"
+        },
+        "PreSignedGET": {
+          "$ref": "#/definitions/restPreSignedURL"
         },
         "Size": {
           "format": "int64",
@@ -3091,10 +3130,24 @@
             "type": "string"
           },
           {
+            "collectionFormat": "multi",
             "in": "query",
-            "name": "Path",
+            "items": {
+              "enum": [
+                "WithMetaDefaults",
+                "WithMetaCoreOnly",
+                "WithMetaNone",
+                "WithVersionsAll",
+                "WithVersionsDraft",
+                "WithVersionsPublished",
+                "WithPreSignedURLs",
+                "WithEditorURLs"
+              ],
+              "type": "string"
+            },
+            "name": "Flags",
             "required": false,
-            "type": "string"
+            "type": "array"
           }
         ],
         "responses": {
