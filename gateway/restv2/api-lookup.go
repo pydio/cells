@@ -33,6 +33,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/rest"
@@ -47,6 +48,7 @@ var (
 	presignUseCacheControl     bool   = true
 	presignDefaultCacheControl string = "private, max-age=450"
 	presignBucketName                 = common.DefaultRouteBucketIO
+	collaboraSupportedExt             = []string{"docx", "pptx", "xlsx", "dotx", "xltx", "ppsx", "doc", "ppt", "xls", "dot", "xlt", "pps", "odt", "odp", "ods", "ots", "ott", "otp", "rtf", "csv"}
 )
 
 func init() {
@@ -280,6 +282,8 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		}
 	}
 
+	// fmt.Println(statUuids, searchQuery, bulkRequest)
+
 	// NOW PERFORM REQUEST
 	if bulkRequest != nil {
 		// Use TreeHandler
@@ -352,11 +356,12 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 	if er != nil {
 		return er
 	}
-	oo := h.TNOptionsFromFlags(req, []rest.Flag{rest.Flag_WithPreSignedURLs})
+	oo := h.TNOptionsFromFlags(req, []rest.Flag{rest.Flag_WithPreSignedURLs, rest.Flag_WithEditorURLs})
 	return resp.WriteEntity(h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
 }
 
 func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
+	ctx := req.Request.Context()
 	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {
 		opts := Options{
 			Expiration:      presignDefaultExpiration,
@@ -365,10 +370,33 @@ func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo [
 		}
 
 		if sig, err := NewV4SignerForRequest(req.Request, opts); err != nil {
-			log.Logger(req.Request.Context()).Error("Cannot create signer", zap.Error(err))
+			log.Logger(ctx).Error("Cannot create signer", zap.Error(err))
 		} else {
 			oo = append(oo, WithPreSigner(sig))
 		}
+	}
+	if slices.Contains(ff, rest.Flag_WithEditorURLs) {
+		libreOfficeConf := config.Get(ctx, "frontend/plugin/editor.libreoffice")
+		libreOfficeCodeVersion := libreOfficeConf.Val("LIBREOFFICE_CODE_VERSION").String()
+		libreOfficeBaseURL := libreOfficeConf.Val("LIBREOFFICE_INTERNAL_CELLS_BASE_URL").String()
+
+		cVal := config.Get(ctx, "defaults", "personalTokens", "documentTokensRefresh").Default("30m").String()
+		var refresh int32
+		if d, e := time.ParseDuration(cVal); e != nil {
+			refresh = 30 * 60
+		} else {
+			refresh = int32(d.Seconds())
+		}
+
+		oo = append(oo, WithEditorProvider("collabora", &CollaboraProvider{
+			SupportedExt:           collaboraSupportedExt,
+			ReqOriginalScheme:      "https",
+			ReqOriginalHost:        req.Request.Host,
+			AutoRefreshWindow:      refresh,
+			Issuer:                 req.Request.URL.String(),
+			LibreOfficeCodeVersion: libreOfficeCodeVersion,
+			LibreOfficeBaseURL:     libreOfficeBaseURL,
+		}))
 	}
 	return oo
 }
