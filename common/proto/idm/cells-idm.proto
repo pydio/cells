@@ -478,7 +478,21 @@ message UserMetaNamespace{
     repeated service.ResourcePolicy Policies = 6;
     // Context-resolved to quickly check if this meta is editable or not
     bool PoliciesContextEditable = 7;
+    // Prompt options for this namespace
+    PromptOptions PromptOptions = 8;
+    // JSON Schema for validating metadata values
+	string JsonSchema = 9;
+    // Use default value from JsonSchema to enforce defaults 
+    bool EnforceDefault = 10;
 }
+
+message PromptOptions {
+    bool OnUpload =  1;
+    repeated tree.NodeType ApplyTo = 2  [
+    (buf.validate.field).repeated.max_items = 2
+  ];
+}
+
 // Request for modifying UserMeta
 message UpdateUserMetaRequest{
     enum UserMetaOp {

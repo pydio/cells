@@ -9,8 +9,7 @@ package idm
 import (
 	context "context"
 	fmt "fmt"
-	"github.com/pydio/cells/v5/common/errors"
-	stubs "github.com/pydio/cells/v5/common/server/stubs"
+	stubs "github.com/pydio/cells/v4/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
 	time "time"
@@ -51,7 +50,7 @@ func (s *RoleServiceStub) Invoke(ctx context.Context, method string, args interf
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -61,15 +60,14 @@ func (s *RoleServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 	case "/idm.RoleService/SearchRole":
 		st := &RoleServiceStub_SearchRoleStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.RoleServiceServer.SearchRole(i.(*SearchRoleRequest), st)
+				s.RoleServiceServer.SearchRole(i.(*SearchRoleRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	case "/idm.RoleService/StreamRole":
@@ -78,7 +76,7 @@ func (s *RoleServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 		go s.RoleServiceServer.StreamRole(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type RoleServiceStub_SearchRoleStreamer struct {
@@ -150,7 +148,7 @@ func (s *UserServiceStub) Invoke(ctx context.Context, method string, args interf
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -160,15 +158,14 @@ func (s *UserServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 	case "/idm.UserService/SearchUser":
 		st := &UserServiceStub_SearchUserStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.UserServiceServer.SearchUser(i.(*SearchUserRequest), st)
+				s.UserServiceServer.SearchUser(i.(*SearchUserRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	case "/idm.UserService/StreamUser":
@@ -177,7 +174,7 @@ func (s *UserServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 		go s.UserServiceServer.StreamUser(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type UserServiceStub_SearchUserStreamer struct {
@@ -228,7 +225,7 @@ func (s *WorkspaceServiceStub) Invoke(ctx context.Context, method string, args i
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -238,15 +235,14 @@ func (s *WorkspaceServiceStub) NewStream(ctx context.Context, desc *grpc.StreamD
 	case "/idm.WorkspaceService/SearchWorkspace":
 		st := &WorkspaceServiceStub_SearchWorkspaceStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.WorkspaceServiceServer.SearchWorkspace(i.(*SearchWorkspaceRequest), st)
+				s.WorkspaceServiceServer.SearchWorkspace(i.(*SearchWorkspaceRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	case "/idm.WorkspaceService/StreamWorkspace":
@@ -255,7 +251,7 @@ func (s *WorkspaceServiceStub) NewStream(ctx context.Context, desc *grpc.StreamD
 		go s.WorkspaceServiceServer.StreamWorkspace(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type WorkspaceServiceStub_SearchWorkspaceStreamer struct {
@@ -320,7 +316,7 @@ func (s *ACLServiceStub) Invoke(ctx context.Context, method string, args interfa
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -330,15 +326,14 @@ func (s *ACLServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, m
 	case "/idm.ACLService/SearchACL":
 		st := &ACLServiceStub_SearchACLStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.ACLServiceServer.SearchACL(i.(*SearchACLRequest), st)
+				s.ACLServiceServer.SearchACL(i.(*SearchACLRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	case "/idm.ACLService/StreamACL":
@@ -347,7 +342,7 @@ func (s *ACLServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, m
 		go s.ACLServiceServer.StreamACL(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type ACLServiceStub_SearchACLStreamer struct {
@@ -398,7 +393,7 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -408,33 +403,31 @@ func (s *UserMetaServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDe
 	case "/idm.UserMetaService/SearchUserMeta":
 		st := &UserMetaServiceStub_SearchUserMetaStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.UserMetaServiceServer.SearchUserMeta(i.(*SearchUserMetaRequest), st)
+				s.UserMetaServiceServer.SearchUserMeta(i.(*SearchUserMetaRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	case "/idm.UserMetaService/ListUserMetaNamespace":
 		st := &UserMetaServiceStub_ListUserMetaNamespaceStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.UserMetaServiceServer.ListUserMetaNamespace(i.(*ListUserMetaNamespaceRequest), st)
+				s.UserMetaServiceServer.ListUserMetaNamespace(i.(*ListUserMetaNamespaceRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type UserMetaServiceStub_SearchUserMetaStreamer struct {
@@ -492,7 +485,7 @@ func (s *PolicyEngineServiceStub) Invoke(ctx context.Context, method string, arg
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -502,19 +495,18 @@ func (s *PolicyEngineServiceStub) NewStream(ctx context.Context, desc *grpc.Stre
 	case "/idm.PolicyEngineService/StreamPolicyGroups":
 		st := &PolicyEngineServiceStub_StreamPolicyGroupsStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			var e error
 			go func() {
 				defer func() {
 					close(st.RespChan)
 				}()
-				e = s.PolicyEngineServiceServer.StreamPolicyGroups(i.(*ListPolicyGroupsRequest), st)
+				s.PolicyEngineServiceServer.StreamPolicyGroups(i.(*ListPolicyGroupsRequest), st)
 			}()
 			<-time.After(100 * time.Millisecond)
-			return e
+			return nil
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type PolicyEngineServiceStub_StreamPolicyGroupsStreamer struct {
