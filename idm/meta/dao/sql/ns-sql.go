@@ -74,11 +74,13 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.JsonDefinition = string(u.Definition)
 	res.EnforceDefault = u.EnforceDefault
 	if u.PromptOptions != nil {
-			res.PromptOptions = &idm.PromptOptions{
-					OnUpload: u.PromptOptions.OnUpload,
+		res.PromptOptions = &idm.PromptOptions{
+				OnUpload: u.PromptOptions.OnUpload,
 		}
 	} else {
-			res.PromptOptions = nil
+		res.PromptOptions = &idm.PromptOptions{
+				OnUpload: false,
+		}
 	}
 	if u.JsonSchema != nil {
 		res.JsonSchema = string(*u.JsonSchema)
@@ -96,8 +98,14 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Indexable = res.Indexable
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
-	u.PromptOptions = &PromptOptions{
-		OnUpload: res.PromptOptions != nil && res.PromptOptions.OnUpload,
+	if res.PromptOptions != nil {
+			u.PromptOptions = &PromptOptions{
+					OnUpload: res.PromptOptions.OnUpload,
+			}
+	} else {
+			u.PromptOptions = &PromptOptions{
+					OnUpload: false,
+			}
 	}
 
 	if res.JsonSchema == "" {
