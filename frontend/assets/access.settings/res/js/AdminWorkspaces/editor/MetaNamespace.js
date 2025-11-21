@@ -378,6 +378,14 @@ class MetaNamespace extends React.Component{
                     onUpdateInput={(v) => {this.setGroupValue(v)}}
                     menuProps={{maxHeight:300,overflowY: 'auto'}}
                 />
+                <Toggle
+                    label={'Prompt Metadata tagging on Upload'}
+                    disabled={readonly}
+                    labelPosition={"left"}
+                    toggled={namespace.PromptOptions ? namespace.PromptOptions.OnUpload : false}
+                    onToggle={(e,v) => { !!namespace.PromptOptions ? namespace.PromptOptions.OnUpload = v : namespace.PromptOptions = { OnUpload: v}; this.setState({namespace})}}
+                    {...ModernStyles.toggleFieldV2}
+                />
             </Dialog>
 
         );

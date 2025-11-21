@@ -39,6 +39,7 @@ class MetadataBoard extends React.Component{
         ];
         ns.JsonDefinition = JSON.stringify({type:'string'});
         ns.Indexable = true;
+        ns.PromptOptions = undefined;
         return ns;
     }
 

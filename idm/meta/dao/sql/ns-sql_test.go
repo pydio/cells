@@ -138,3 +138,65 @@ func TestNSResourceRules(t *testing.T) {
 		})
 	})
 }
+
+func TestNSNewFields(t *testing.T) {
+
+    test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
+
+        Convey("Create Meta Namespace with new fields", t, func() {
+            mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
+            So(er, ShouldBeNil)
+
+            in := &idm.UserMetaNamespace{
+                Namespace:      "namespace-newfields",
+                Label:          "label-newfields",
+                Order:          2,
+                JsonDefinition: "{\"k\":\"v\"}",
+                JsonSchema:     `{"type":"object"}`,
+                PromptOptions: &idm.PromptOptions{
+                    OnUpload: true,
+                },
+            }
+
+            // Insert a meta with new fields
+            err := mockDAO.Add(ctx, in)
+            So(err, ShouldBeNil)
+
+            // Assert
+            result, er := mockDAO.List(ctx)
+            So(er, ShouldBeNil)
+
+            ns, ok := result["namespace-newfields"]
+            So(ok, ShouldBeTrue)
+
+            // Basic fields
+            So(ns.Label, ShouldEqual, "label-newfields")
+            
+            So(ns.JsonSchema, ShouldEqual, `{"type":"object"}`)
+            So(ns.PromptOptions, ShouldNotBeNil)
+            So(ns.PromptOptions.OnUpload, ShouldBeTrue)
+
+            // Cleanup
+            e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace-newfields"})
+            So(e, ShouldBeNil)
+        })
+
+        Convey("List Meta Namespaces with new fields", t, func() {
+            mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
+            So(er, ShouldBeNil)
+
+            // List all namespaces
+            namespaces, err := mockDAO.List(ctx)
+            So(err, ShouldBeNil)
+
+            // Assert the new namespace is present
+            ns, ok := namespaces["namespace-newfields"]
+            So(ok, ShouldBeTrue)
+
+            So(ns.JsonSchema, ShouldEqual, `{"type":"object"}`)
+            So(ns.PromptOptions, ShouldNotBeNil)
+            So(ns.PromptOptions.OnUpload, ShouldBeTrue)
+        })
+    })
+}
+// ...existing code...
