@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import Node from 'pydio/model/node'
 import {Dialog, FlatButton} from 'material-ui'
 
-export default ({onDismiss, metaLib}) => {
+export default ({namespaces, onDismiss, metaLib}) => {
 
     const [data, setData] = useState({})
     const pydio = Pydio.getInstance();
@@ -35,8 +35,12 @@ export default ({onDismiss, metaLib}) => {
     }, [data])
 
 
-    const {UserMetaPanel} = metaLib
+    const {UserMetaPanel, MetaClient} = metaLib
     const metaPanel = useRef(null)
+
+    const loader = useCallback(() => {
+        return Promise.resolve(MetaClient.getInstance().namespacesAsPanelConfig(namespaces))
+    }, [namespaces]);
 
     return (
         <Dialog
@@ -53,6 +57,7 @@ export default ({onDismiss, metaLib}) => {
             <div>
                 <UserMetaPanel
                     pydio={pydio}
+                    loader={loader}
                     ref={metaPanel}
                     multiple={false}
                     node={new Node()}

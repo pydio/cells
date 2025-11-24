@@ -85,6 +85,54 @@ class MetaClient{
         this.configs = null;
     }
 
+    namespacesAsPanelConfig(nss) {
+        let defs = {};
+        let configMap = new Map();
+        nss.map(ns => {
+            const name = ns.Namespace;
+            let base = {
+                label: ns.Label,
+                indexable: ns.Indexable,
+                order: ns.Order,
+                visible: true,
+                readonly: !ns.PoliciesContextEditable,
+            };
+            if (ns.JsonDefinition){
+                const jDef = JSON.parse(ns.JsonDefinition);
+                Object.keys(jDef).map(k => {
+                    if(k === 'hide') {
+                        base['visible'] = !jDef[k];
+                    } else {
+                        base[k] = jDef[k];
+                    }
+                })
+            }
+            defs[name] = base;
+        });
+        let arrConfigs = Object.entries(defs).map(entry => {
+            entry[1].ns = entry[0];
+            return entry[1];
+        });
+        arrConfigs.sort((a,b) => {
+            const orderA = a.order || 0;
+            const orderB = b.order || 0;
+            return orderA > orderB ? 1 : orderA === orderB ? 0 : -1;
+        });
+        arrConfigs.map((value) => {
+            const type = value.type;
+            if(type === 'choice' && value.data && value.data.split){
+                // Convert old format to new format
+                const items = value.data.split(',').map(i => {
+                    const [key, value] = i.split('|')
+                    return {key, value};
+                });
+                value.data = {items};
+            }
+            configMap.set(value.ns, value);
+        });
+        return configMap;
+    }
+
     /**
      * @return {Promise<Map>}
      */
@@ -99,54 +147,9 @@ class MetaClient{
         }
 
         this.promise = new Promise(resolve => {
-            let defs = {};
-            let configMap = new Map();
-            const api = new UserMetaServiceApi(this.client);
-            api.listUserMetaNamespace().then(result => {
-                result.Namespaces.map(ns => {
-                    const name = ns.Namespace;
-                    let base = {
-                        label: ns.Label,
-                        indexable: ns.Indexable,
-                        order: ns.Order,
-                        visible: true,
-                        readonly: !ns.PoliciesContextEditable,
-                    };
-                    if (ns.JsonDefinition){
-                        const jDef = JSON.parse(ns.JsonDefinition);
-                        Object.keys(jDef).map(k => {
-                            if(k === 'hide') {
-                                base['visible'] = !jDef[k];
-                            } else {
-                                base[k] = jDef[k];
-                            }
-                        })
-                    }
-                    defs[name] = base;
-                });
-                let arrConfigs = Object.entries(defs).map(entry => {
-                    entry[1].ns = entry[0];
-                    return entry[1];
-                });
-                arrConfigs.sort((a,b) => {
-                    const orderA = a.order || 0;
-                    const orderB = b.order || 0;
-                    return orderA > orderB ? 1 : orderA === orderB ? 0 : -1;
-                });
-                arrConfigs.map((value) => {
-                    const type = value.type;
-                    if(type === 'choice' && value.data && value.data.split){
-                        // Convert old format to new format
-                        const items = value.data.split(',').map(i => {
-                            const [key, value] = i.split('|')
-                            return {key, value};
-                        });
-                        value.data = {items};
-                    }
-                    configMap.set(value.ns, value);
-                });
-                this.configs = configMap;
-                resolve(configMap);
+            this.listNamespaces().then(namespaces => {
+                this.configs = this.namespacesAsPanelConfig(namespaces);
+                resolve(this.configs);
                 this.promise = null;
             }).catch(() => {
                 resolve(new Map());
@@ -157,6 +160,14 @@ class MetaClient{
         return this.promise;
 
     }
+
+    listNamespaces() {
+        const api = new UserMetaServiceApi(this.client);
+        return api.listUserMetaNamespace().then(result => {
+            return result.Namespaces || []
+        })
+    }
+
 
     /**
      * @param namespace String

@@ -30,22 +30,23 @@ export const padFileDropHandler = (editor, e) => {
                 };
                 child.observe('node_replaced', obs)
             })
-            const session = Store.getInstance().handleDropEventResults(e.dataTransfer.items, e.dataTransfer.files, ctxNode)
-            session.observe('status', (memo) => {
-                console.log(memo, session)
-                if(memo === 'ready') {
-                    session.walk((child)=> {
-                        if(child.getStatus()==='loaded') {
-                            console.log('LOADED!', child)
-                        } else {
-                            child.observe('status', (st) => {
-                                if(st === 'loaded') {
-                                    console.log('Child status loaded', child)
-                                }
-                            })
-                        }
-                    })
-                }
+            Store.getInstance().handleDropEventResults(e.dataTransfer.items, e.dataTransfer.files, ctxNode).then(session => {
+                session.observe('status', (memo) => {
+                    console.log(memo, session)
+                    if(memo === 'ready') {
+                        session.walk((child)=> {
+                            if(child.getStatus()==='loaded') {
+                                console.log('LOADED!', child)
+                            } else {
+                                child.observe('status', (st) => {
+                                    if(st === 'loaded') {
+                                        console.log('Child status loaded', child)
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
             })
         })
     }

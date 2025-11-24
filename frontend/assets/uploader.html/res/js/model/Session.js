@@ -31,12 +31,13 @@ const UsePool = true;
 
 class Session extends FolderItem {
 
-    constructor(repositoryId, targetNode) {
+    constructor(repositoryId, targetNode, metaNamespaces = []) {
         super('/', targetNode);
         this._repositoryId = repositoryId;
         this._status = StatusItem.StatusAnalyze;
         delete this.children.pg[this.getId()];
         this._analyzeStatus = ''
+        this._promptNamespaces = metaNamespaces.filter(ns => ns.PromptOptions && ns.PromptOptions.OnUpload)
     }
 
     getAnalyzeStatus() {
@@ -54,6 +55,10 @@ class Session extends FolderItem {
 
     getCreateFolders() {
         return this._createFoldersStatus;
+    }
+
+    getPromptNamespaces() {
+        return this._promptNamespaces;
     }
 
     getFullPath(){
@@ -131,7 +136,7 @@ class Session extends FolderItem {
             overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
         }
 
-        if(!this._userMetaSet) {
+        if(this._promptNamespaces && !this._userMetaSet) {
             this.setStatus('promptMeta')
             return Promise.resolve()
         }

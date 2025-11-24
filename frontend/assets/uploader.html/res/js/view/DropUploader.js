@@ -175,6 +175,7 @@ class DropUploader extends React.Component {
         let listEmpty = true;
         let needsConfirm = false
         let needsMeta = false
+        let promptNamespaces;
         sessions.forEach(s => {
             if(s.getChildren().length){
                 listEmpty = false;
@@ -182,7 +183,7 @@ class DropUploader extends React.Component {
             if(s.getStatus() === 'confirm'){
                 needsConfirm = true;
             } else if(s.getStatus() === 'promptMeta'){
-                needsMeta = true;
+                promptNamespaces = s.getPromptNamespaces();
             }
         });
 
@@ -221,7 +222,7 @@ class DropUploader extends React.Component {
                 <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions();}}/>
                 <ClearOptionsPane configs={configs} open={showClear} anchorEl={clearAnchorEl} onDismiss={() => {this.setState({showClear: false, clearAnchorEl:null})}}/>
                 {needsConfirm && <ConfirmExists onConfirm={this.dialogSubmit.bind(this)} onCancel={this.dialogCancel.bind(this)}/>}
-                {needsMeta && metaLib && <ModalMetaPrompt onDismiss={this.metaDismiss} metaLib={metaLib}/>}
+                {promptNamespaces && metaLib && <ModalMetaPrompt namespaces={promptNamespaces} onDismiss={this.metaDismiss} metaLib={metaLib}/>}
             </div>
         );
     }
