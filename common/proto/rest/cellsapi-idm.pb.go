@@ -1226,6 +1226,101 @@ func (x *DeleteUserMetaTagsResponse) GetSuccess() bool {
 	return false
 }
 
+type GetFieldSchemaRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Type of field to get the schema for (e.g. "string", "number", "boolean", "date", etc.)
+	FieldType string `protobuf:"bytes,1,opt,name=FieldType,proto3" json:"FieldType,omitempty"`
+}
+
+func (x *GetFieldSchemaRequest) Reset() {
+	*x = GetFieldSchemaRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_cellsapi_idm_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetFieldSchemaRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFieldSchemaRequest) ProtoMessage() {}
+
+func (x *GetFieldSchemaRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cellsapi_idm_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFieldSchemaRequest.ProtoReflect.Descriptor instead.
+func (*GetFieldSchemaRequest) Descriptor() ([]byte, []int) {
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetFieldSchemaRequest) GetFieldType() string {
+	if x != nil {
+		return x.FieldType
+	}
+	return ""
+}
+
+type GetFieldSchemaResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Schema string `protobuf:"bytes,1,opt,name=Schema,proto3" json:"Schema,omitempty"`
+}
+
+func (x *GetFieldSchemaResponse) Reset() {
+	*x = GetFieldSchemaResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_cellsapi_idm_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetFieldSchemaResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFieldSchemaResponse) ProtoMessage() {}
+
+func (x *GetFieldSchemaResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cellsapi_idm_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFieldSchemaResponse.ProtoReflect.Descriptor instead.
+func (*GetFieldSchemaResponse) Descriptor() ([]byte, []int) {
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetFieldSchemaResponse) GetSchema() string {
+	if x != nil {
+		return x.Schema
+	}
+	return ""
+}
+
 type UserBookmarksRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1237,7 +1332,7 @@ type UserBookmarksRequest struct {
 func (x *UserBookmarksRequest) Reset() {
 	*x = UserBookmarksRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[18]
+		mi := &file_cellsapi_idm_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1250,7 +1345,7 @@ func (x *UserBookmarksRequest) String() string {
 func (*UserBookmarksRequest) ProtoMessage() {}
 
 func (x *UserBookmarksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[18]
+	mi := &file_cellsapi_idm_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1263,7 +1358,7 @@ func (x *UserBookmarksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserBookmarksRequest.ProtoReflect.Descriptor instead.
 func (*UserBookmarksRequest) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{18}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UserBookmarksRequest) GetAll() bool {
@@ -1287,7 +1382,7 @@ type RevokeRequest struct {
 func (x *RevokeRequest) Reset() {
 	*x = RevokeRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[19]
+		mi := &file_cellsapi_idm_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1300,7 +1395,7 @@ func (x *RevokeRequest) String() string {
 func (*RevokeRequest) ProtoMessage() {}
 
 func (x *RevokeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[19]
+	mi := &file_cellsapi_idm_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1313,7 +1408,7 @@ func (x *RevokeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeRequest.ProtoReflect.Descriptor instead.
 func (*RevokeRequest) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{19}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *RevokeRequest) GetTokenId() string {
@@ -1336,7 +1431,7 @@ type RevokeResponse struct {
 func (x *RevokeResponse) Reset() {
 	*x = RevokeResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[20]
+		mi := &file_cellsapi_idm_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1349,7 +1444,7 @@ func (x *RevokeResponse) String() string {
 func (*RevokeResponse) ProtoMessage() {}
 
 func (x *RevokeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[20]
+	mi := &file_cellsapi_idm_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1362,7 +1457,7 @@ func (x *RevokeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeResponse.ProtoReflect.Descriptor instead.
 func (*RevokeResponse) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{20}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RevokeResponse) GetSuccess() bool {
@@ -1392,7 +1487,7 @@ type ResetPasswordTokenRequest struct {
 func (x *ResetPasswordTokenRequest) Reset() {
 	*x = ResetPasswordTokenRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[21]
+		mi := &file_cellsapi_idm_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1405,7 +1500,7 @@ func (x *ResetPasswordTokenRequest) String() string {
 func (*ResetPasswordTokenRequest) ProtoMessage() {}
 
 func (x *ResetPasswordTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[21]
+	mi := &file_cellsapi_idm_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1418,7 +1513,7 @@ func (x *ResetPasswordTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordTokenRequest.ProtoReflect.Descriptor instead.
 func (*ResetPasswordTokenRequest) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{21}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ResetPasswordTokenRequest) GetUserLogin() string {
@@ -1447,7 +1542,7 @@ type ResetPasswordTokenResponse struct {
 func (x *ResetPasswordTokenResponse) Reset() {
 	*x = ResetPasswordTokenResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[22]
+		mi := &file_cellsapi_idm_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1460,7 +1555,7 @@ func (x *ResetPasswordTokenResponse) String() string {
 func (*ResetPasswordTokenResponse) ProtoMessage() {}
 
 func (x *ResetPasswordTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[22]
+	mi := &file_cellsapi_idm_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1473,7 +1568,7 @@ func (x *ResetPasswordTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordTokenResponse.ProtoReflect.Descriptor instead.
 func (*ResetPasswordTokenResponse) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{22}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ResetPasswordTokenResponse) GetSuccess() bool {
@@ -1506,7 +1601,7 @@ type ResetPasswordRequest struct {
 func (x *ResetPasswordRequest) Reset() {
 	*x = ResetPasswordRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[23]
+		mi := &file_cellsapi_idm_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1519,7 +1614,7 @@ func (x *ResetPasswordRequest) String() string {
 func (*ResetPasswordRequest) ProtoMessage() {}
 
 func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[23]
+	mi := &file_cellsapi_idm_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1532,7 +1627,7 @@ func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
 func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{23}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ResetPasswordRequest) GetResetPasswordToken() string {
@@ -1568,7 +1663,7 @@ type ResetPasswordResponse struct {
 func (x *ResetPasswordResponse) Reset() {
 	*x = ResetPasswordResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[24]
+		mi := &file_cellsapi_idm_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1581,7 +1676,7 @@ func (x *ResetPasswordResponse) String() string {
 func (*ResetPasswordResponse) ProtoMessage() {}
 
 func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[24]
+	mi := &file_cellsapi_idm_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1594,7 +1689,7 @@ func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
 func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{24}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ResetPasswordResponse) GetSuccess() bool {
@@ -1623,7 +1718,7 @@ type DocumentAccessTokenRequest struct {
 func (x *DocumentAccessTokenRequest) Reset() {
 	*x = DocumentAccessTokenRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[25]
+		mi := &file_cellsapi_idm_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1636,7 +1731,7 @@ func (x *DocumentAccessTokenRequest) String() string {
 func (*DocumentAccessTokenRequest) ProtoMessage() {}
 
 func (x *DocumentAccessTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[25]
+	mi := &file_cellsapi_idm_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1649,7 +1744,7 @@ func (x *DocumentAccessTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentAccessTokenRequest.ProtoReflect.Descriptor instead.
 func (*DocumentAccessTokenRequest) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{25}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *DocumentAccessTokenRequest) GetPath() string {
@@ -1677,7 +1772,7 @@ type DocumentAccessTokenResponse struct {
 func (x *DocumentAccessTokenResponse) Reset() {
 	*x = DocumentAccessTokenResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cellsapi_idm_proto_msgTypes[26]
+		mi := &file_cellsapi_idm_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1690,7 +1785,7 @@ func (x *DocumentAccessTokenResponse) String() string {
 func (*DocumentAccessTokenResponse) ProtoMessage() {}
 
 func (x *DocumentAccessTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cellsapi_idm_proto_msgTypes[26]
+	mi := &file_cellsapi_idm_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1703,7 +1798,7 @@ func (x *DocumentAccessTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentAccessTokenResponse.ProtoReflect.Descriptor instead.
 func (*DocumentAccessTokenResponse) Descriptor() ([]byte, []int) {
-	return file_cellsapi_idm_proto_rawDescGZIP(), []int{26}
+	return file_cellsapi_idm_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *DocumentAccessTokenResponse) GetAccessToken() string {
@@ -1858,52 +1953,59 @@ var file_cellsapi_idm_proto_rawDesc = []byte{
 	0x65, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x4d, 0x65, 0x74, 0x61, 0x54, 0x61, 0x67, 0x73, 0x52,
 	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65,
 	0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73,
-	0x73, 0x22, 0x28, 0x0a, 0x14, 0x55, 0x73, 0x65, 0x72, 0x42, 0x6f, 0x6f, 0x6b, 0x6d, 0x61, 0x72,
-	0x6b, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x41, 0x6c, 0x6c,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03, 0x41, 0x6c, 0x6c, 0x22, 0x29, 0x0a, 0x0d, 0x52,
-	0x65, 0x76, 0x6f, 0x6b, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07,
-	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x54,
-	0x6f, 0x6b, 0x65, 0x6e, 0x49, 0x64, 0x22, 0x44, 0x0a, 0x0e, 0x52, 0x65, 0x76, 0x6f, 0x6b, 0x65,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x53, 0x75, 0x63, 0x63,
-	0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65,
-	0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x51, 0x0a, 0x19,
-	0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f, 0x6b,
-	0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x55, 0x73, 0x65,
-	0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x55, 0x73,
-	0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x16, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74,
-	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x22,
-	0x50, 0x0a, 0x1a, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
-	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a,
-	0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07,
-	0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x22, 0x86, 0x01, 0x0a, 0x14, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77,
-	0x6f, 0x72, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2e, 0x0a, 0x12, 0x52, 0x65,
-	0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f, 0x6b, 0x65, 0x6e,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73,
-	0x73, 0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x55, 0x73,
-	0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x55,
-	0x73, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x20, 0x0a, 0x0b, 0x4e, 0x65, 0x77, 0x50,
-	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x4e,
-	0x65, 0x77, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x4b, 0x0a, 0x15, 0x52, 0x65,
-	0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a,
-	0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
-	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x4c, 0x0a, 0x1a, 0x44, 0x6f, 0x63, 0x75, 0x6d,
-	0x65, 0x6e, 0x74, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x50, 0x61, 0x74, 0x68, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x04, 0x50, 0x61, 0x74, 0x68, 0x12, 0x1a, 0x0a, 0x08, 0x43, 0x6c, 0x69,
-	0x65, 0x6e, 0x74, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x43, 0x6c, 0x69,
-	0x65, 0x6e, 0x74, 0x49, 0x44, 0x22, 0x3f, 0x0a, 0x1b, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e,
-	0x74, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a, 0x0b, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f,
-	0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x41, 0x63, 0x63, 0x65, 0x73,
-	0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x42, 0x2d, 0x5a, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
-	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x79, 0x64, 0x69, 0x6f, 0x2f, 0x63, 0x65, 0x6c, 0x6c, 0x73,
-	0x2f, 0x76, 0x35, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2f, 0x72, 0x65, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x22, 0x35, 0x0a, 0x15, 0x47, 0x65, 0x74, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x53, 0x63, 0x68,
+	0x65, 0x6d, 0x61, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x46, 0x69,
+	0x65, 0x6c, 0x64, 0x54, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x46,
+	0x69, 0x65, 0x6c, 0x64, 0x54, 0x79, 0x70, 0x65, 0x22, 0x30, 0x0a, 0x16, 0x47, 0x65, 0x74, 0x46,
+	0x69, 0x65, 0x6c, 0x64, 0x53, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x53, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x06, 0x53, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x22, 0x28, 0x0a, 0x14, 0x55, 0x73,
+	0x65, 0x72, 0x42, 0x6f, 0x6f, 0x6b, 0x6d, 0x61, 0x72, 0x6b, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x41, 0x6c, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x03, 0x41, 0x6c, 0x6c, 0x22, 0x29, 0x0a, 0x0d, 0x52, 0x65, 0x76, 0x6f, 0x6b, 0x65, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x49, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x49, 0x64, 0x22,
+	0x44, 0x0a, 0x0e, 0x52, 0x65, 0x76, 0x6f, 0x6b, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x18, 0x0a, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x4d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x4d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x51, 0x0a, 0x19, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x55, 0x73, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e,
+	0x12, 0x16, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08,
+	0x52, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x22, 0x50, 0x0a, 0x1a, 0x52, 0x65, 0x73, 0x65,
+	0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73,
+	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
+	0x12, 0x18, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x86, 0x01, 0x0a, 0x14, 0x52,
+	0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x2e, 0x0a, 0x12, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73,
+	0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x12, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x54, 0x6f,
+	0x6b, 0x65, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69, 0x6e,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x55, 0x73, 0x65, 0x72, 0x4c, 0x6f, 0x67, 0x69,
+	0x6e, 0x12, 0x20, 0x0a, 0x0b, 0x4e, 0x65, 0x77, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x4e, 0x65, 0x77, 0x50, 0x61, 0x73, 0x73, 0x77,
+	0x6f, 0x72, 0x64, 0x22, 0x4b, 0x0a, 0x15, 0x52, 0x65, 0x73, 0x65, 0x74, 0x50, 0x61, 0x73, 0x73,
+	0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07,
+	0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x53,
+	0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x22, 0x4c, 0x0a, 0x1a, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x63, 0x63, 0x65,
+	0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12,
+	0x0a, 0x04, 0x50, 0x61, 0x74, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x50, 0x61,
+	0x74, 0x68, 0x12, 0x1a, 0x0a, 0x08, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x44, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x44, 0x22, 0x3f,
+	0x0a, 0x1b, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73,
+	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a,
+	0x0b, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0b, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x42,
+	0x2d, 0x5a, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x79,
+	0x64, 0x69, 0x6f, 0x2f, 0x63, 0x65, 0x6c, 0x6c, 0x73, 0x2f, 0x76, 0x35, 0x2f, 0x63, 0x6f, 0x6d,
+	0x6d, 0x6f, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x72, 0x65, 0x73, 0x74, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1919,7 +2021,7 @@ func file_cellsapi_idm_proto_rawDescGZIP() []byte {
 }
 
 var file_cellsapi_idm_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_cellsapi_idm_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_cellsapi_idm_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_cellsapi_idm_proto_goTypes = []any{
 	(ResourcePolicyQuery_QueryType)(0),  // 0: rest.ResourcePolicyQuery.QueryType
 	(*ResourcePolicyQuery)(nil),         // 1: rest.ResourcePolicyQuery
@@ -1940,47 +2042,49 @@ var file_cellsapi_idm_proto_goTypes = []any{
 	(*PutUserMetaTagResponse)(nil),      // 16: rest.PutUserMetaTagResponse
 	(*DeleteUserMetaTagsRequest)(nil),   // 17: rest.DeleteUserMetaTagsRequest
 	(*DeleteUserMetaTagsResponse)(nil),  // 18: rest.DeleteUserMetaTagsResponse
-	(*UserBookmarksRequest)(nil),        // 19: rest.UserBookmarksRequest
-	(*RevokeRequest)(nil),               // 20: rest.RevokeRequest
-	(*RevokeResponse)(nil),              // 21: rest.RevokeResponse
-	(*ResetPasswordTokenRequest)(nil),   // 22: rest.ResetPasswordTokenRequest
-	(*ResetPasswordTokenResponse)(nil),  // 23: rest.ResetPasswordTokenResponse
-	(*ResetPasswordRequest)(nil),        // 24: rest.ResetPasswordRequest
-	(*ResetPasswordResponse)(nil),       // 25: rest.ResetPasswordResponse
-	(*DocumentAccessTokenRequest)(nil),  // 26: rest.DocumentAccessTokenRequest
-	(*DocumentAccessTokenResponse)(nil), // 27: rest.DocumentAccessTokenResponse
-	(*idm.RoleSingleQuery)(nil),         // 28: idm.RoleSingleQuery
-	(service.OperationType)(0),          // 29: service.OperationType
-	(*idm.Role)(nil),                    // 30: idm.Role
-	(*idm.UserSingleQuery)(nil),         // 31: idm.UserSingleQuery
-	(*idm.User)(nil),                    // 32: idm.User
-	(*idm.ACLSingleQuery)(nil),          // 33: idm.ACLSingleQuery
-	(*idm.ACL)(nil),                     // 34: idm.ACL
-	(*idm.WorkspaceSingleQuery)(nil),    // 35: idm.WorkspaceSingleQuery
-	(*idm.Workspace)(nil),               // 36: idm.Workspace
-	(*idm.UserMeta)(nil),                // 37: idm.UserMeta
-	(*idm.UserMetaNamespace)(nil),       // 38: idm.UserMetaNamespace
+	(*GetFieldSchemaRequest)(nil),       // 19: rest.GetFieldSchemaRequest
+	(*GetFieldSchemaResponse)(nil),      // 20: rest.GetFieldSchemaResponse
+	(*UserBookmarksRequest)(nil),        // 21: rest.UserBookmarksRequest
+	(*RevokeRequest)(nil),               // 22: rest.RevokeRequest
+	(*RevokeResponse)(nil),              // 23: rest.RevokeResponse
+	(*ResetPasswordTokenRequest)(nil),   // 24: rest.ResetPasswordTokenRequest
+	(*ResetPasswordTokenResponse)(nil),  // 25: rest.ResetPasswordTokenResponse
+	(*ResetPasswordRequest)(nil),        // 26: rest.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),       // 27: rest.ResetPasswordResponse
+	(*DocumentAccessTokenRequest)(nil),  // 28: rest.DocumentAccessTokenRequest
+	(*DocumentAccessTokenResponse)(nil), // 29: rest.DocumentAccessTokenResponse
+	(*idm.RoleSingleQuery)(nil),         // 30: idm.RoleSingleQuery
+	(service.OperationType)(0),          // 31: service.OperationType
+	(*idm.Role)(nil),                    // 32: idm.Role
+	(*idm.UserSingleQuery)(nil),         // 33: idm.UserSingleQuery
+	(*idm.User)(nil),                    // 34: idm.User
+	(*idm.ACLSingleQuery)(nil),          // 35: idm.ACLSingleQuery
+	(*idm.ACL)(nil),                     // 36: idm.ACL
+	(*idm.WorkspaceSingleQuery)(nil),    // 37: idm.WorkspaceSingleQuery
+	(*idm.Workspace)(nil),               // 38: idm.Workspace
+	(*idm.UserMeta)(nil),                // 39: idm.UserMeta
+	(*idm.UserMetaNamespace)(nil),       // 40: idm.UserMetaNamespace
 }
 var file_cellsapi_idm_proto_depIdxs = []int32{
 	0,  // 0: rest.ResourcePolicyQuery.Type:type_name -> rest.ResourcePolicyQuery.QueryType
-	28, // 1: rest.SearchRoleRequest.Queries:type_name -> idm.RoleSingleQuery
+	30, // 1: rest.SearchRoleRequest.Queries:type_name -> idm.RoleSingleQuery
 	1,  // 2: rest.SearchRoleRequest.ResourcePolicyQuery:type_name -> rest.ResourcePolicyQuery
-	29, // 3: rest.SearchRoleRequest.Operation:type_name -> service.OperationType
-	30, // 4: rest.RolesCollection.Roles:type_name -> idm.Role
-	31, // 5: rest.SearchUserRequest.Queries:type_name -> idm.UserSingleQuery
+	31, // 3: rest.SearchRoleRequest.Operation:type_name -> service.OperationType
+	32, // 4: rest.RolesCollection.Roles:type_name -> idm.Role
+	33, // 5: rest.SearchUserRequest.Queries:type_name -> idm.UserSingleQuery
 	1,  // 6: rest.SearchUserRequest.ResourcePolicyQuery:type_name -> rest.ResourcePolicyQuery
-	29, // 7: rest.SearchUserRequest.Operation:type_name -> service.OperationType
-	32, // 8: rest.UsersCollection.Groups:type_name -> idm.User
-	32, // 9: rest.UsersCollection.Users:type_name -> idm.User
-	33, // 10: rest.SearchACLRequest.Queries:type_name -> idm.ACLSingleQuery
-	29, // 11: rest.SearchACLRequest.Operation:type_name -> service.OperationType
-	34, // 12: rest.ACLCollection.ACLs:type_name -> idm.ACL
-	35, // 13: rest.SearchWorkspaceRequest.Queries:type_name -> idm.WorkspaceSingleQuery
+	31, // 7: rest.SearchUserRequest.Operation:type_name -> service.OperationType
+	34, // 8: rest.UsersCollection.Groups:type_name -> idm.User
+	34, // 9: rest.UsersCollection.Users:type_name -> idm.User
+	35, // 10: rest.SearchACLRequest.Queries:type_name -> idm.ACLSingleQuery
+	31, // 11: rest.SearchACLRequest.Operation:type_name -> service.OperationType
+	36, // 12: rest.ACLCollection.ACLs:type_name -> idm.ACL
+	37, // 13: rest.SearchWorkspaceRequest.Queries:type_name -> idm.WorkspaceSingleQuery
 	1,  // 14: rest.SearchWorkspaceRequest.ResourcePolicyQuery:type_name -> rest.ResourcePolicyQuery
-	29, // 15: rest.SearchWorkspaceRequest.Operation:type_name -> service.OperationType
-	36, // 16: rest.WorkspaceCollection.Workspaces:type_name -> idm.Workspace
-	37, // 17: rest.UserMetaCollection.Metadatas:type_name -> idm.UserMeta
-	38, // 18: rest.UserMetaNamespaceCollection.Namespaces:type_name -> idm.UserMetaNamespace
+	31, // 15: rest.SearchWorkspaceRequest.Operation:type_name -> service.OperationType
+	38, // 16: rest.WorkspaceCollection.Workspaces:type_name -> idm.Workspace
+	39, // 17: rest.UserMetaCollection.Metadatas:type_name -> idm.UserMeta
+	40, // 18: rest.UserMetaNamespaceCollection.Namespaces:type_name -> idm.UserMetaNamespace
 	19, // [19:19] is the sub-list for method output_type
 	19, // [19:19] is the sub-list for method input_type
 	19, // [19:19] is the sub-list for extension type_name
@@ -2211,7 +2315,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[18].Exporter = func(v any, i int) any {
-			switch v := v.(*UserBookmarksRequest); i {
+			switch v := v.(*GetFieldSchemaRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2223,7 +2327,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[19].Exporter = func(v any, i int) any {
-			switch v := v.(*RevokeRequest); i {
+			switch v := v.(*GetFieldSchemaResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2235,7 +2339,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[20].Exporter = func(v any, i int) any {
-			switch v := v.(*RevokeResponse); i {
+			switch v := v.(*UserBookmarksRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2247,7 +2351,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[21].Exporter = func(v any, i int) any {
-			switch v := v.(*ResetPasswordTokenRequest); i {
+			switch v := v.(*RevokeRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2259,7 +2363,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[22].Exporter = func(v any, i int) any {
-			switch v := v.(*ResetPasswordTokenResponse); i {
+			switch v := v.(*RevokeResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2271,7 +2375,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[23].Exporter = func(v any, i int) any {
-			switch v := v.(*ResetPasswordRequest); i {
+			switch v := v.(*ResetPasswordTokenRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2283,7 +2387,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[24].Exporter = func(v any, i int) any {
-			switch v := v.(*ResetPasswordResponse); i {
+			switch v := v.(*ResetPasswordTokenResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2295,7 +2399,7 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[25].Exporter = func(v any, i int) any {
-			switch v := v.(*DocumentAccessTokenRequest); i {
+			switch v := v.(*ResetPasswordRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2307,6 +2411,30 @@ func file_cellsapi_idm_proto_init() {
 			}
 		}
 		file_cellsapi_idm_proto_msgTypes[26].Exporter = func(v any, i int) any {
+			switch v := v.(*ResetPasswordResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_cellsapi_idm_proto_msgTypes[27].Exporter = func(v any, i int) any {
+			switch v := v.(*DocumentAccessTokenRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_cellsapi_idm_proto_msgTypes[28].Exporter = func(v any, i int) any {
 			switch v := v.(*DocumentAccessTokenResponse); i {
 			case 0:
 				return &v.state
@@ -2325,7 +2453,7 @@ func file_cellsapi_idm_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_cellsapi_idm_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   27,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
