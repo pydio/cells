@@ -6,6 +6,8 @@ import "orm.proto";
 import "cells-setter.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/descriptor.proto";
+import "google/protobuf/struct.proto";
+
 
 package idm;
 
@@ -479,18 +481,11 @@ message UserMetaNamespace{
     // Context-resolved to quickly check if this meta is editable or not
     bool PoliciesContextEditable = 7;
     // Prompt options for this namespace
-    PromptOptions PromptOptions = 8;
+    bool PromptOnUpload = 8;
     // JSON Schema for validating metadata values
-	string JsonSchema = 9;
+	google.protobuf.Struct JsonSchema = 9;
     // Use default value from JsonSchema to enforce defaults 
     bool EnforceDefault = 10;
-}
-
-message PromptOptions {
-    bool OnUpload =  1;
-    repeated tree.NodeType ApplyTo = 2  [
-    (buf.validate.field).repeated.max_items = 2
-  ];
 }
 
 // Request for modifying UserMeta

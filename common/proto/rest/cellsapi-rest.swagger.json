@@ -1453,20 +1453,6 @@
       },
       "type": "object"
     },
-    "idmPromptOptions": {
-      "properties": {
-        "ApplyTo": {
-          "items": {
-            "$ref": "#/definitions/treeNodeType"
-          },
-          "type": "array"
-        },
-        "OnUpload": {
-          "type": "boolean"
-        }
-      },
-      "type": "object"
-    },
     "idmRole": {
       "description": "Role represents a generic set of permissions that can be applied to any users or groups.",
       "properties": {
@@ -1771,7 +1757,7 @@
         },
         "JsonSchema": {
           "title": "JSON Schema for validating metadata values",
-          "type": "string"
+          "type": "object"
         },
         "Label": {
           "title": "Human-readable Label",
@@ -1798,9 +1784,9 @@
           "title": "Context-resolved to quickly check if this meta is editable or not",
           "type": "boolean"
         },
-        "PromptOptions": {
-          "$ref": "#/definitions/idmPromptOptions",
-          "title": "Prompt options for this namespace"
+        "PromptOnUpload": {
+          "title": "Prompt options for this namespace",
+          "type": "boolean"
         }
       },
       "title": "Globally declared Namespace with associated policies",
@@ -3752,6 +3738,14 @@
         }
       },
       "type": "object"
+    },
+    "protobufNullValue": {
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value.",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "type": "string"
     },
     "registryActionType": {
       "default": "ANY",
