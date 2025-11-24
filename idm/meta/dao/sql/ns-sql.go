@@ -46,21 +46,15 @@ func nsTag(err error) error {
 }
 
 type MetaNamespace struct {
-	Namespace  string `gorm:"primaryKey;column:namespace;type:varchar(255)"`
-	Label      string `gorm:"column:label;type:varchar(255)"`
-	Order      int32  `gorm:"column:ns_order;"`
-	Indexable  bool   `gorm:"column:indexable;"`
-	Definition []byte `gorm:"column:definition;"`
-	PromptOptions *PromptOptions `gorm:"embedded;embeddedPrefix:prompt_options_"`
-	EnforceDefault bool          `gorm:"column:enforce_default;type:boolean;nullable"`
+	Namespace      string          `gorm:"primaryKey;column:namespace;type:varchar(255)"`
+	Label          string          `gorm:"column:label;type:varchar(255)"`
+	Order          int32           `gorm:"column:ns_order;"`
+	Indexable      bool            `gorm:"column:indexable;"`
+	Definition     []byte          `gorm:"column:definition;"`
+	PromptOnUpload bool            `gorm:"column:prompt_on_upload;"`
+	EnforceDefault bool            `gorm:"column:enforce_default;type:boolean;nullable"`
 	JsonSchema     *datatypes.JSON `gorm:"column:json_schema"`
 }
-
-type PromptOptions struct {
-	OnUpload bool     `gorm:"column:on_upload;type:boolean"`
-	NodeType []string `gorm:"column:node_type;serializer:json"`
-}
-
 
 func (*MetaNamespace) TableName(namer schema.Namer) string {
 	return namer.TableName("meta_ns")
@@ -73,20 +67,9 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.Indexable = u.Indexable
 	res.JsonDefinition = string(u.Definition)
 	res.EnforceDefault = u.EnforceDefault
-	if u.PromptOptions != nil {
-		res.PromptOptions = &idm.PromptOptions{
-				OnUpload: u.PromptOptions.OnUpload,
-		}
-	} else {
-		res.PromptOptions = &idm.PromptOptions{
-				OnUpload: false,
-		}
-	}
-	if u.JsonSchema != nil {
-		res.JsonSchema = string(*u.JsonSchema)
-	} else {
-		res.JsonSchema = "{}"
-	}
+	res.PromptOnUpload = u.PromptOnUpload
+	// schema := BuildJsonSchema(u.Label)
+	// res.JsonSchema = schema
 
 	return res
 }
@@ -98,22 +81,9 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Indexable = res.Indexable
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
-	if res.PromptOptions != nil {
-			u.PromptOptions = &PromptOptions{
-					OnUpload: res.PromptOptions.OnUpload,
-			}
-	} else {
-			u.PromptOptions = &PromptOptions{
-					OnUpload: false,
-			}
-	}
-
-	if res.JsonSchema == "" {
-			u.JsonSchema = nil
-	} else {
-			j := datatypes.JSON([]byte(res.JsonSchema))
-			u.JsonSchema = &j
-	}
+	res.PromptOnUpload = u.PromptOnUpload
+	// schema := BuildJsonSchema(u.Label)
+	// res.JsonSchema = schema
 
 	return u
 }
