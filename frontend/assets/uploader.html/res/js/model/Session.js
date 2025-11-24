@@ -37,7 +37,7 @@ class Session extends FolderItem {
         this._status = StatusItem.StatusAnalyze;
         delete this.children.pg[this.getId()];
         this._analyzeStatus = ''
-        this._promptNamespaces = metaNamespaces.filter(ns => ns.PromptOptions && ns.PromptOptions.OnUpload)
+        this._promptNamespaces = metaNamespaces.filter(ns => ns.PromptOnUpload)
     }
 
     getAnalyzeStatus() {
