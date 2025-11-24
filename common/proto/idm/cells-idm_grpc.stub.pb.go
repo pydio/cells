@@ -392,6 +392,13 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		} else {
 			e = er
 		}
+	case "/idm.UserMetaService/GetFieldSchema":
+		resp, er := s.UserMetaServiceServer.GetFieldSchema(ctx, args.(*GetFieldSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = fmt.Errorf(method + " not implemented")
 	}

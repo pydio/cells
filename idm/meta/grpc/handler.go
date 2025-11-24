@@ -42,6 +42,7 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/meta"
+	json_schema "github.com/pydio/cells/v5/idm/meta/json_schema"
 )
 
 // Handler definition.
@@ -367,6 +368,14 @@ func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginReq
 	}
 
 	return resources.ModifyLogin(ctx, dao, req)
+}
+
+func (h *Handler) GetFieldSchema(ctx context.Context, req *idm.GetFieldSchemaRequest) (*idm.GetFieldSchemaResponse, error) {
+
+	schema := json_schema.GetFieldSchema(ctx, req.FieldType)
+	return &idm.GetFieldSchemaResponse{
+		JsonSchema: schema,
+	}, nil
 }
 
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {

@@ -1167,6 +1167,7 @@ const (
 	UserMetaService_SearchUserMeta_FullMethodName          = "/idm.UserMetaService/SearchUserMeta"
 	UserMetaService_UpdateUserMetaNamespace_FullMethodName = "/idm.UserMetaService/UpdateUserMetaNamespace"
 	UserMetaService_ListUserMetaNamespace_FullMethodName   = "/idm.UserMetaService/ListUserMetaNamespace"
+	UserMetaService_GetFieldSchema_FullMethodName          = "/idm.UserMetaService/GetFieldSchema"
 )
 
 // UserMetaServiceClient is the client API for UserMetaService service.
@@ -1180,6 +1181,7 @@ type UserMetaServiceClient interface {
 	SearchUserMeta(ctx context.Context, in *SearchUserMetaRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SearchUserMetaResponse], error)
 	UpdateUserMetaNamespace(ctx context.Context, in *UpdateUserMetaNamespaceRequest, opts ...grpc.CallOption) (*UpdateUserMetaNamespaceResponse, error)
 	ListUserMetaNamespace(ctx context.Context, in *ListUserMetaNamespaceRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ListUserMetaNamespaceResponse], error)
+	GetFieldSchema(ctx context.Context, in *GetFieldSchemaRequest, opts ...grpc.CallOption) (*GetFieldSchemaResponse, error)
 }
 
 type userMetaServiceClient struct {
@@ -1248,6 +1250,16 @@ func (c *userMetaServiceClient) ListUserMetaNamespace(ctx context.Context, in *L
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type UserMetaService_ListUserMetaNamespaceClient = grpc.ServerStreamingClient[ListUserMetaNamespaceResponse]
 
+func (c *userMetaServiceClient) GetFieldSchema(ctx context.Context, in *GetFieldSchemaRequest, opts ...grpc.CallOption) (*GetFieldSchemaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFieldSchemaResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_GetFieldSchema_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserMetaServiceServer is the server API for UserMetaService service.
 // All implementations must embed UnimplementedUserMetaServiceServer
 // for forward compatibility.
@@ -1259,6 +1271,7 @@ type UserMetaServiceServer interface {
 	SearchUserMeta(*SearchUserMetaRequest, grpc.ServerStreamingServer[SearchUserMetaResponse]) error
 	UpdateUserMetaNamespace(context.Context, *UpdateUserMetaNamespaceRequest) (*UpdateUserMetaNamespaceResponse, error)
 	ListUserMetaNamespace(*ListUserMetaNamespaceRequest, grpc.ServerStreamingServer[ListUserMetaNamespaceResponse]) error
+	GetFieldSchema(context.Context, *GetFieldSchemaRequest) (*GetFieldSchemaResponse, error)
 	mustEmbedUnimplementedUserMetaServiceServer()
 }
 
@@ -1280,6 +1293,9 @@ func (UnimplementedUserMetaServiceServer) UpdateUserMetaNamespace(context.Contex
 }
 func (UnimplementedUserMetaServiceServer) ListUserMetaNamespace(*ListUserMetaNamespaceRequest, grpc.ServerStreamingServer[ListUserMetaNamespaceResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ListUserMetaNamespace not implemented")
+}
+func (UnimplementedUserMetaServiceServer) GetFieldSchema(context.Context, *GetFieldSchemaRequest) (*GetFieldSchemaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFieldSchema not implemented")
 }
 func (UnimplementedUserMetaServiceServer) mustEmbedUnimplementedUserMetaServiceServer() {}
 func (UnimplementedUserMetaServiceServer) testEmbeddedByValue()                         {}
@@ -1360,6 +1376,24 @@ func _UserMetaService_ListUserMetaNamespace_Handler(srv interface{}, stream grpc
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type UserMetaService_ListUserMetaNamespaceServer = grpc.ServerStreamingServer[ListUserMetaNamespaceResponse]
 
+func _UserMetaService_GetFieldSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFieldSchemaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).GetFieldSchema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_GetFieldSchema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).GetFieldSchema(ctx, req.(*GetFieldSchemaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserMetaService_ServiceDesc is the grpc.ServiceDesc for UserMetaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1374,6 +1408,10 @@ var UserMetaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserMetaNamespace",
 			Handler:    _UserMetaService_UpdateUserMetaNamespace_Handler,
+		},
+		{
+			MethodName: "GetFieldSchema",
+			Handler:    _UserMetaService_GetFieldSchema_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -178,6 +178,15 @@ message DeleteUserMetaTagsResponse{
     bool Success = 1;
 }
 
+message GetFieldSchemaRequest{
+    // Type of field to get the schema for (e.g. "string", "number", "boolean", "date", etc.)
+    string FieldType = 1;
+
+}
+message GetFieldSchemaResponse{
+    string Schema = 1;
+}
+
 message UserBookmarksRequest {
     bool All = 1;
 }

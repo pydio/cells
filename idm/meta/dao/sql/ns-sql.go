@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
+	"github.com/pydio/cells/v5/idm/meta/json_schema"
 	"gorm.io/datatypes"
 )
 
@@ -68,8 +69,7 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.JsonDefinition = string(u.Definition)
 	res.EnforceDefault = u.EnforceDefault
 	res.PromptOnUpload = u.PromptOnUpload
-	// schema := BuildJsonSchema(u.Label)
-	// res.JsonSchema = schema
+	res.JsonSchema = json_schema.BuildJsonSchema(u.Label)
 
 	return res
 }
@@ -82,8 +82,7 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
 	res.PromptOnUpload = u.PromptOnUpload
-	// schema := BuildJsonSchema(u.Label)
-	// res.JsonSchema = schema
+	res.JsonSchema = json_schema.BuildJsonSchema(u.Label)
 
 	return u
 }

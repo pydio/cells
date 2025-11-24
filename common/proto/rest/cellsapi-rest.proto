@@ -601,6 +601,12 @@ service UserMetaService {
             get: "/user-meta/namespace"
         };
     }
+    // Get Json Schema for a given field type
+    rpc GetFieldSchema(idm.GetFieldSchemaRequest) returns (idm.GetFieldSchemaResponse) {
+        option (google.api.http) = {
+            get: "/namespace/discovery/field/{FieldType}"
+        };
+    }
     // List Tags for a given namespace
     rpc ListUserMetaTags(ListUserMetaTagsRequest) returns (ListUserMetaTagsResponse){
         option (google.api.http) = {
