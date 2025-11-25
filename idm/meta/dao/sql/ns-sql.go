@@ -23,6 +23,7 @@ package sql
 import (
 	"context"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
@@ -34,7 +35,6 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
-	"gorm.io/datatypes"
 )
 
 var (
@@ -51,7 +51,7 @@ type MetaNamespace struct {
 	Order          int32           `gorm:"column:ns_order;"`
 	Indexable      bool            `gorm:"column:indexable;"`
 	Definition     []byte          `gorm:"column:definition;"`
-	PromptOnUpload bool            `gorm:"column:prompt_on_upload;"`
+	PromptOnUpload bool            `gorm:"column:prompt_on_upload;type:boolean;nullable"`
 	EnforceDefault bool            `gorm:"column:enforce_default;type:boolean;nullable"`
 	JsonSchema     *datatypes.JSON `gorm:"column:json_schema"`
 }
@@ -81,7 +81,7 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Indexable = res.Indexable
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
-	res.PromptOnUpload = u.PromptOnUpload
+	u.PromptOnUpload = res.PromptOnUpload
 	// schema := BuildJsonSchema(u.Label)
 	// res.JsonSchema = schema
 

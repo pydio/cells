@@ -25,17 +25,19 @@ import FolderItem from './FolderItem'
 import StatusItem from './StatusItem'
 import PromisePool from 'es6-promise-pool'
 import {TreeServiceApi, RestGetBulkMetaRequest} from 'cells-sdk'
+import Configs from "./Configs";
 
 const UsePool = true;
 
 class Session extends FolderItem {
 
-    constructor(repositoryId, targetNode) {
+    constructor(repositoryId, targetNode, metaNamespaces = []) {
         super('/', targetNode);
         this._repositoryId = repositoryId;
         this._status = StatusItem.StatusAnalyze;
         delete this.children.pg[this.getId()];
         this._analyzeStatus = ''
+        this._promptNamespaces = metaNamespaces.filter(ns => ns.PromptOnUpload)
     }
 
     getAnalyzeStatus() {
@@ -53,6 +55,10 @@ class Session extends FolderItem {
 
     getCreateFolders() {
         return this._createFoldersStatus;
+    }
+
+    getPromptNamespaces() {
+        return this._promptNamespaces;
     }
 
     getFullPath(){
@@ -101,7 +107,7 @@ class Session extends FolderItem {
 
     /**
      * @param api {TreeServiceApi}
-     * @param nodePaths []
+     * @param nodePaths String[]
      * @param sliceSize int
      * @return {Promise<{Nodes: Array}>}
      */
@@ -124,7 +130,16 @@ class Session extends FolderItem {
         return p;
     }
 
-    prepare(overwriteStatus){
+    prepare(overwriteStatus = undefined){
+
+        if (overwriteStatus === undefined) {
+            overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+        }
+
+        if(this._promptNamespaces && !this._userMetaSet) {
+            this.setStatus('promptMeta')
+            return Promise.resolve()
+        }
 
         // No need to check stats - we'll just override existing files
         if (overwriteStatus === 'overwrite') {
