@@ -23,6 +23,7 @@
     "webpack-cli": "^5.0.1"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "build-prod": "NODE_ENV=production webpack --config webpack.config.js"
   }
 }
