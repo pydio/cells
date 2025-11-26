@@ -7419,7 +7419,7 @@
             "type": "string"
           },
           {
-            "description": "List of key values describing storage configuration",
+            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
             "in": "query",
             "name": "StorageConfiguration",
             "required": false,
@@ -7629,7 +7629,7 @@
             "type": "string"
           },
           {
-            "description": "List of key values describing storage configuration",
+            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
             "in": "query",
             "name": "StorageConfiguration",
             "required": false,
@@ -12542,7 +12542,7 @@
             "type": "string"
           },
           {
-            "description": "A free list of attributes",
+            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
             "in": "query",
             "name": "Attributes",
             "required": false,
@@ -12654,7 +12654,7 @@
             "type": "string"
           },
           {
-            "description": "A free list of attributes",
+            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
             "in": "query",
             "name": "Attributes",
             "required": false,
