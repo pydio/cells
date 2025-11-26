@@ -125,7 +125,7 @@ const (
 	TopicRegistryCommand     = "topic.pydio.registry.command"
 	TopicServiceRegistration = "topic.pydio.service.registration"
 	TopicProxyRestarted      = "topic.pydio.proxy.restarted"
-	TopicServiceStop         = "topic.pydio.service.stop" // @todo This is used in "stop" command but probably out-of-date
+	TopicServiceStop         = "topic.pydio.service.stop" // @todo This is used in "stop" command but probably deprecated
 
 	EventTypeServiceRegistered        = "registered"
 	EventTypeServiceUnregistered      = "unregistered"
