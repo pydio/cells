@@ -125,6 +125,7 @@ func (l *logger) Named(s string) ZapLogger {
 func (l *logger) With(fields ...zap.Field) ZapLogger {
 	return &logger{
 		Logger: l.Logger,
+		named:  l.named,
 		fields: fields,
 	}
 }
