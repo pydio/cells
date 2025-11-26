@@ -18,19 +18,33 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import Pydio from 'pydio'
-const {useDiaporamaBadge} = Pydio.requireLib('hoc')
+import {Component} from 'react'
+import ResourcesManager from 'pydio/http/resources-manager'
 
-const PdfBadge = (props) => {
-    const {node, pydio, mimeFontStyle} = props;
-    const {Badge} = useDiaporamaBadge(node)
-    if(Badge) {
-        return <Badge {...props}/>
-    } else {
-        return <div className="mimefont mdi-file-pdf" style={mimeFontStyle}/>;
+class PdfBadge extends Component{
+
+    constructor(props, context){
+        super(props, context);
+        const {node, pydio} = props;
+        this.state = {hasImagePreview : false};
+        if(node.getMetadata().get('ImagePreview') && pydio.Registry.findEditorById('editor.diaporama')){
+            ResourcesManager.loadClass('PydioDiaporama').then( ns => {
+                this.setState({hasImagePreview: true, Badge:ns.Badge});
+            })
+        }
+
     }
 
+    render(){
+
+        const {hasImagePreview, Badge} = this.state;
+        if(hasImagePreview) {
+            return <Badge {...this.props}/>
+        } else {
+            return <div className="mimefont mdi-file-pdf" style={this.props.mimeFontStyle}/>;
+        }
+
+    }
 
 }
 
