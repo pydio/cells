@@ -116,7 +116,6 @@ import (
 	_ "github.com/pydio/cells/v4/common/broker/grpcpubsub"
 	_ "github.com/pydio/cells/v4/common/broker/nats"
 	_ "gocloud.dev/pubsub/mempubsub"
-	// _ "gocloud.dev/pubsub/natspubsub"
 	_ "gocloud.dev/pubsub/rabbitpubsub"
 
 	// DAO Drivers
