@@ -68,13 +68,14 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 	}
 
 	var versions []*rest.Version // Create an empty array on purpose
+	node := rn.GetNode()
 	err := commons.ForEach(st, er, func(response *tree.ListVersionsResponse) error {
 		// Show only current user's drafts
 		vr := response.GetVersion()
 		if vr.Draft && vr.OwnerUuid != claims.Subject {
 			return nil
 		}
-		versions = append(versions, h.TreeContentRevisionToVersion(ctx, vr, oo...))
+		versions = append(versions, h.TreeContentRevisionToVersion(ctx, vr, node, oo...))
 		return nil
 	})
 	if err != nil {

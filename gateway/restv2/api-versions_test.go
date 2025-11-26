@@ -47,8 +47,13 @@ func TestTreeContentRevisionToVersion_WithPresignedURLs(t *testing.T) {
 			},
 		}
 
+		// Create a test node to pass to the function
+		testNode := &tree.Node{
+			Path: "common-files/test-file.docx",
+		}
+
 		Convey("Without presigner option", func() {
-			version := h.TreeContentRevisionToVersion(ctx, revision)
+			version := h.TreeContentRevisionToVersion(ctx, revision, testNode)
 			So(version, ShouldNotBeNil)
 			So(version.VersionId, ShouldEqual, "test-version-123")
 			So(version.PreSignedGET, ShouldBeNil)
@@ -58,27 +63,27 @@ func TestTreeContentRevisionToVersion_WithPresignedURLs(t *testing.T) {
 			mockSigner := &mockPreSigner{versionID: "test-version-123"}
 			opts := []TNOption{WithPreSigner(mockSigner)}
 
-			version := h.TreeContentRevisionToVersion(ctx, revision, opts...)
+			version := h.TreeContentRevisionToVersion(ctx, revision, testNode, opts...)
 			So(version, ShouldNotBeNil)
 			So(version.VersionId, ShouldEqual, "test-version-123")
 			So(version.PreSignedGET, ShouldNotBeNil)
 			So(version.PreSignedGET.Url, ShouldContainSubstring, "versionId=test-version-123")
+			So(version.PreSignedGET.Url, ShouldContainSubstring, "common-files/test-file.docx")
 			So(version.PreSignedGET.ExpiresAt, ShouldBeGreaterThan, 0)
 		})
 
-		Convey("With presigner but no location", func() {
+		Convey("With presigner but no node", func() {
 			revisionNoLocation := &tree.ContentRevision{
 				VersionId:   "test-version-456",
 				Description: "Test version",
-				Location:    nil, // No location
 			}
 			mockSigner := &mockPreSigner{versionID: "test-version-456"}
 			opts := []TNOption{WithPreSigner(mockSigner)}
 
-			version := h.TreeContentRevisionToVersion(ctx, revisionNoLocation, opts...)
+			version := h.TreeContentRevisionToVersion(ctx, revisionNoLocation, nil, opts...)
 			So(version, ShouldNotBeNil)
 			So(version.VersionId, ShouldEqual, "test-version-456")
-			// Should not have presigned URL when location is nil
+			// Should not have presigned URL when node is nil
 			So(version.PreSignedGET, ShouldBeNil)
 		})
 
@@ -86,28 +91,31 @@ func TestTreeContentRevisionToVersion_WithPresignedURLs(t *testing.T) {
 			mockSigner := &mockPreSigner{versionID: "test-version-789"}
 			opts := []TNOption{WithPreSigner(mockSigner)}
 
-			version := h.TreeContentRevisionToVersion(ctx, revision, opts...)
+			version := h.TreeContentRevisionToVersion(ctx, revision, testNode, opts...)
 			So(version.PreSignedGET, ShouldNotBeNil)
 			// ExpiresAt should be a future timestamp (Unix timestamp)
 			So(version.PreSignedGET.ExpiresAt, ShouldBeGreaterThan, time.Now().Unix())
 		})
 
-		Convey("Presigned URL includes correct versionId parameter", func() {
+		Convey("Presigned URL includes correct versionId parameter and uses node path", func() {
 			testVersionId := "specific-version-id-123"
+			testNodePath := "common-files/different-path.docx"
+			nodeWithPath := &tree.Node{
+				Path: testNodePath,
+			}
 			revisionWithId := &tree.ContentRevision{
 				VersionId:   testVersionId,
 				Description: "Test version",
-				Location: &tree.Node{
-					Path: "common-files/test-file.docx",
-				},
 			}
 			mockSigner := &mockPreSigner{versionID: testVersionId}
 			opts := []TNOption{WithPreSigner(mockSigner)}
 
-			version := h.TreeContentRevisionToVersion(ctx, revisionWithId, opts...)
+			version := h.TreeContentRevisionToVersion(ctx, revisionWithId, nodeWithPath, opts...)
 			So(version.PreSignedGET, ShouldNotBeNil)
 			// URL should contain the versionId as a query parameter
 			So(version.PreSignedGET.Url, ShouldContainSubstring, "versionId="+testVersionId)
+			// URL should use the node's path, not the location path
+			So(version.PreSignedGET.Url, ShouldContainSubstring, testNodePath)
 		})
 	})
 }

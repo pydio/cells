@@ -250,7 +250,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 			var cc []*tree.ContentRevision
 			if er := json.Unmarshal([]byte(v), &cc); er == nil {
 				for _, c := range cc {
-					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c))
+					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c, n, oo...))
 				}
 			}
 
@@ -305,7 +305,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 }
 
 // TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
-func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision, oo ...TNOption) *rest.Version {
+func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision, node *tree.Node, oo ...TNOption) *rest.Version {
 	// Node for the url and passing the version id
 	version := &rest.Version{
 		VersionId:   contentRevision.GetVersionId(),
@@ -327,8 +327,8 @@ func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevis
 	}
 
 	// Generate presigned URL if presigner is available
-	if opts.PreSigner != nil && contentRevision.GetLocation() != nil {
-		key := contentRevision.GetLocation().GetPath()
+	if opts.PreSigner != nil && node != nil {
+		key := node.GetPath()
 		params := PresignParams{
 			VersionID: contentRevision.GetVersionId(),
 		}
