@@ -305,9 +305,9 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 }
 
 // TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
-func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision) *rest.Version {
+func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision, oo ...TNOption) *rest.Version {
 	// Node for the url and passing the version id
-	return &rest.Version{
+	version := &rest.Version{
 		VersionId:   contentRevision.GetVersionId(),
 		Description: contentRevision.GetDescription(),
 		Draft:       contentRevision.GetDraft(),
@@ -319,6 +319,30 @@ func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevis
 		OwnerName:   contentRevision.GetOwnerName(),
 		OwnerUuid:   contentRevision.GetOwnerUuid(),
 	}
+
+	// Apply options for presigned URLs
+	opts := &TNOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+
+	// Generate presigned URL if presigner is available
+	if opts.PreSigner != nil && contentRevision.GetLocation() != nil {
+		key := contentRevision.GetLocation().GetPath()
+		params := PresignParams{
+			VersionID: contentRevision.GetVersionId(),
+		}
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, params); err == nil {
+			version.PreSignedGET = &rest.PreSignedURL{
+				Url:       req.URL.String(),
+				ExpiresAt: exp.Unix(),
+			}
+		} else {
+			log.Logger(ctx).Error("Cannot create presigned URL for version", zap.Error(err), zap.String("versionId", contentRevision.GetVersionId()))
+		}
+	}
+
+	return version
 }
 
 // Thumbnails feeds a rest.FilePreview struct with incoming metadata

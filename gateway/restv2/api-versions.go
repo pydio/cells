@@ -60,6 +60,13 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 	if !ok {
 		return errors.WithStack(errors.MissingClaims)
 	}
+
+	// Extract flags and build options for presigned URLs
+	var oo []TNOption
+	if filter.Flags != nil {
+		oo = h.TNOptionsFromFlags(req, filter.Flags)
+	}
+
 	var versions []*rest.Version // Create an empty array on purpose
 	err := commons.ForEach(st, er, func(response *tree.ListVersionsResponse) error {
 		// Show only current user's drafts
@@ -67,7 +74,7 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 		if vr.Draft && vr.OwnerUuid != claims.Subject {
 			return nil
 		}
-		versions = append(versions, h.TreeContentRevisionToVersion(ctx, vr))
+		versions = append(versions, h.TreeContentRevisionToVersion(ctx, vr, oo...))
 		return nil
 	})
 	if err != nil {
