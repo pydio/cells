@@ -73,7 +73,7 @@ type PreviewMeta struct {
 }
 
 type PreSigner interface {
-	PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error)
+	PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error)
 }
 
 type EditorProvider interface {
@@ -159,7 +159,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		if !n.IsLeaf() {
 			key += ".zip"
 		}
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 			rn.PreSignedGET = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),
@@ -306,6 +306,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 
 // TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
 func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision) *rest.Version {
+	// Node for the url and passing the version id
 	return &rest.Version{
 		VersionId:   contentRevision.GetVersionId(),
 		Description: contentRevision.GetDescription(),
@@ -344,7 +345,7 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 		//url := common.DefaultRouteBucketIO + "/" + key
 		var pGet *rest.PreSignedURL
 		if opts.PreSigner != nil {
-			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 				pGet = &rest.PreSignedURL{
 					Url:       req.URL.String(),
 					ExpiresAt: exp.Unix(),
@@ -404,7 +405,7 @@ func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo .
 		o(opts)
 	}
 	if opts.PreSigner != nil {
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 			pGet = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),

@@ -47,7 +47,11 @@ type Options struct {
 	CacheControl    string
 }
 
-func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error) {
+type PresignParams struct {
+	VersionID string
+}
+
+func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error) {
 	u := *v.endpoint
 	u.Path = path.Join(bucket, key)
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
@@ -55,6 +59,13 @@ func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string) (*http.Req
 		return nil, time.Now(), err
 	}
 	exp := time.Now().Add(time.Duration(v.opts.Expiration) * time.Second)
+
+	if params.VersionID != "" {
+		// Presigned URL for a specific version
+		query := req.URL.Query()
+		query.Add("versionId", params.VersionID)
+		req.URL.RawQuery = query.Encode()
+	}
 
 	if v.opts.UseCacheControl {
 		// Adding Cache-Control
