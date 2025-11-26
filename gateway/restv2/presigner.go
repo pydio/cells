@@ -63,7 +63,7 @@ func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string, params Pre
 	if params.VersionID != "" {
 		// Presigned URL for a specific version
 		query := req.URL.Query()
-		query.Add("VersionId", params.VersionID)
+		query.Add("versionId", params.VersionID)
 		req.URL.RawQuery = query.Encode()
 	}
 
