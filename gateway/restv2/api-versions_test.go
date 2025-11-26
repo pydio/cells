@@ -21,7 +21,7 @@ func (m *mockPreSigner) PreSignV4(ctx context.Context, bucket, key string, param
 	req, _ := http.NewRequest(http.MethodGet, u.String(), nil)
 	if params.VersionID != "" {
 		q := req.URL.Query()
-		q.Set("versionId", params.VersionID)
+		q.Set("VersionId", params.VersionID)
 		req.URL.RawQuery = q.Encode()
 	}
 	return req, time.Now().Add(1 * time.Hour), nil
@@ -67,7 +67,7 @@ func TestTreeContentRevisionToVersion_WithPresignedURLs(t *testing.T) {
 			So(version, ShouldNotBeNil)
 			So(version.VersionId, ShouldEqual, "test-version-123")
 			So(version.PreSignedGET, ShouldNotBeNil)
-			So(version.PreSignedGET.Url, ShouldContainSubstring, "versionId=test-version-123")
+			So(version.PreSignedGET.Url, ShouldContainSubstring, "VersionId=test-version-123")
 			So(version.PreSignedGET.Url, ShouldContainSubstring, "common-files/test-file.docx")
 			So(version.PreSignedGET.ExpiresAt, ShouldBeGreaterThan, 0)
 		})
@@ -112,8 +112,8 @@ func TestTreeContentRevisionToVersion_WithPresignedURLs(t *testing.T) {
 
 			version := h.TreeContentRevisionToVersion(ctx, revisionWithId, nodeWithPath, opts...)
 			So(version.PreSignedGET, ShouldNotBeNil)
-			// URL should contain the versionId as a query parameter
-			So(version.PreSignedGET.Url, ShouldContainSubstring, "versionId="+testVersionId)
+			// URL should contain the VersionId as a query parameter
+			So(version.PreSignedGET.Url, ShouldContainSubstring, "VersionId="+testVersionId)
 			// URL should use the node's path, not the location path
 			So(version.PreSignedGET.Url, ShouldContainSubstring, testNodePath)
 		})
