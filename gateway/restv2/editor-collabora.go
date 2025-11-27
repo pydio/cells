@@ -49,9 +49,8 @@ func init() {
 		splitExt := strings.Split(ee, ",")
 		collaboraSupportedExt = make([]string, 0, len(splitExt))
 		for _, ext := range splitExt {
-			trimmed := strings.TrimSpace(ext)
-			if trimmed != "" {
-				collaboraSupportedExt = append(collaboraSupportedExt, trimmed)
+			if tr := strings.TrimSpace(ext); tr != "" {
+				collaboraSupportedExt = append(collaboraSupportedExt, tr)
 			}
 		}
 	}
