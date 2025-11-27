@@ -8,6 +8,20 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+func shouldNotHaveEmptyInList(actual interface{}, _ ...interface{}) string {
+	extList, ok := actual.([]string)
+	if !ok {
+		return "Input is not a []string"
+	}
+	for _, ext := range extList {
+		if ext == "" {
+			return "List contains empty string"
+		}
+	}
+
+	return ""
+}
+
 func TestCollaboraProvider_Provides(t *testing.T) {
 	Convey("Test CollaboraProvider.Provides", t, func() {
 		provider := &CollaboraProvider{
@@ -149,6 +163,8 @@ func TestCollaboraProvider_EnvironmentVariableFiltering(t *testing.T) {
 				filteredExt[i] = strings.TrimSpace(ext)
 			}
 
+			So(filteredExt, shouldNotHaveEmptyInList)
+
 			provider := &CollaboraProvider{
 				SupportedExt: filteredExt,
 			}
@@ -168,6 +184,8 @@ func TestCollaboraProvider_EnvironmentVariableFiltering(t *testing.T) {
 
 			ee := strings.TrimSpace(os.Getenv("CELLS_COLLABORA_SUPPORTED_EXTENSIONS"))
 			filteredExt := strings.Split(ee, ",")
+
+			So(filteredExt, shouldNotHaveEmptyInList)
 
 			provider := &CollaboraProvider{
 				SupportedExt: filteredExt,
@@ -220,15 +238,7 @@ func TestCollaboraProvider_EnvironmentVariableFiltering(t *testing.T) {
 			})
 
 			Convey("Should not contain empty string in the list", func() {
-				// Verify that empty strings are filtered out
-				hasEmpty := false
-				for _, ext := range filteredExt {
-					if ext == "" {
-						hasEmpty = true
-						break
-					}
-				}
-				So(hasEmpty, ShouldBeFalse)
+				So(filteredExt, shouldNotHaveEmptyInList)
 				So(len(filteredExt), ShouldEqual, 2)
 			})
 
