@@ -204,6 +204,8 @@ message Node {
   PreSignedURL PreSignedGET = 29;
   // CoolURL - if applicable, ready to use collabora src w/ expiration
   map <string,PreSignedURL> EditorURLs = 30;
+  // List of available editor keys (for now always empty)
+  repeated string EditorURLsKeys = 31;
 
   // If this node is a RecycleBin folder
   bool IsRecycleBin = 10;
@@ -289,6 +291,8 @@ message Version {
   PreSignedURL PreSignedGET = 11;
   // CoolURL - if applicable, ready to use collabora src w/ expiration
   map <string,PreSignedURL> EditorURLs = 12;
+  // List of available editor keys (for now always empty)
+  repeated string EditorURLsKeys = 14;
   // If applicable, previews kept for this version
   repeated FilePreview FilePreviews = 13;
 

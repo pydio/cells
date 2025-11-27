@@ -23,25 +23,17 @@ package restv2
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
 	"path"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
-	"time"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/auth/claim"
-	"github.com/pydio/cells/v5/common/client/grpc"
-	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/uuid"
-	"github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -70,37 +62,6 @@ type PreviewMeta struct {
 	Error       bool   `json:"Error,omitempty"`
 	Key         string `json:"Key,omitempty"`
 	ContentType string `json:"ContentType,omitempty"`
-}
-
-type PreSigner interface {
-	PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error)
-}
-
-type EditorProvider interface {
-	Provides(ext string) bool
-	Get(ctx context.Context, node *tree.Node) (*rest.PreSignedURL, error)
-}
-
-type TNOptions struct {
-	PreSigner         PreSigner
-	EditorURLProvider map[string]EditorProvider
-}
-
-type TNOption func(o *TNOptions)
-
-func WithPreSigner(preSigner PreSigner) TNOption {
-	return func(o *TNOptions) {
-		o.PreSigner = preSigner
-	}
-}
-
-func WithEditorProvider(name string, prov EditorProvider) TNOption {
-	return func(o *TNOptions) {
-		if o.EditorURLProvider == nil {
-			o.EditorURLProvider = make(map[string]EditorProvider)
-		}
-		o.EditorURLProvider[name] = prov
-	}
 }
 
 func NewHandler() *Handler {
@@ -170,12 +131,17 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 	}
 
 	for name, ep := range opts.EditorURLProvider {
-		if ep.Provides(filepath.Ext(n.Path)) {
-			pu, err := ep.Get(ctx, n)
-			if err != nil {
-				continue
+		if ep.Provides(strings.ToLower(path.Ext(n.Path))) {
+			// Feed the key
+			rn.EditorURLsKeys = append(rn.EditorURLsKeys, name)
+			// If URL requested, generate now
+			if opts.EditorURLGenerate {
+				pu, err := ep.Get(ctx, n)
+				if err != nil {
+					continue
+				}
+				rn.EditorURLs[name] = pu
 			}
-			rn.EditorURLs[name] = pu
 		}
 	}
 
@@ -341,6 +307,24 @@ func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevis
 			log.Logger(ctx).Error("Cannot create presigned URL for version", zap.Error(err), zap.String("versionId", contentRevision.GetVersionId()))
 		}
 	}
+	/*
+		// DO NOT ENABLE YET - WE CANNOT GENERATE A VersionID SPECIFIC EDITOR URL YET
+		if node != nil {
+			for name, editor := range opts.EditorURLProvider {
+				if editor.Provides(path.Ext(node.GetPath())) {
+					version.EditorURLsKeys = append(version.EditorURLsKeys, name)
+				}
+				if opts.EditorURLGenerate {
+					if u, e := editor.Get(ctx, node); e == nil {
+						if version.EditorURLs == nil {
+							version.EditorURLs = map[string]*rest.PreSignedURL{}
+						}
+						version.EditorURLs[name] = u
+					}
+				}
+			}
+		}
+	*/
 
 	return version
 }
@@ -512,82 +496,4 @@ func (h *Handler) TreeNodesToNodes(ctx context.Context, nn []*tree.Node, oo ...T
 		out = append(out, h.TreeNodeToNode(ctx, n, oo...))
 	}
 	return out
-}
-
-type CollaboraProvider struct {
-	SupportedExt           []string
-	LibreOfficeBaseURL     string
-	LibreOfficeCodeVersion string
-	ReqOriginalScheme      string
-	ReqOriginalHost        string
-	Issuer                 string
-	AutoRefreshWindow      int32
-}
-
-func (p *CollaboraProvider) Provides(ext string) bool {
-	if len(ext) < 1 {
-		return false
-	}
-	return slices.Index(p.SupportedExt, ext[1:]) >= 0
-}
-
-func (p *CollaboraProvider) Get(ctx context.Context, node *tree.Node) (*rest.PreSignedURL, error) {
-	claims, ok := claim.FromContext(ctx)
-	if !ok {
-		return nil, errors.WithMessage(errors.StatusForbidden, "sending email anonymously is forbidden")
-	}
-
-	permission := "readonly" // Must be read at least by default !
-	if _, ok := node.MetaStore[common.MetaFlagReadonly]; !ok {
-		permission = "edit"
-	}
-	scope := fmt.Sprintf("node:%s:%s", node.Uuid, permission)
-
-	patGenerateRequest := &auth.PatGenerateRequest{
-		Type:              auth.PatType_DOCUMENT,
-		UserUuid:          claims.Subject,
-		UserLogin:         claims.Name,
-		Label:             "Temporary access token for document " + node.Path,
-		AutoRefreshWindow: p.AutoRefreshWindow,
-		Issuer:            p.Issuer,
-		Scopes:            []string{scope},
-	}
-
-	cli := auth.NewPersonalAccessTokenServiceClient(grpc.ResolveConn(ctx, common.ServiceTokenGRPC))
-	patGenerateResp, err := cli.Generate(ctx, patGenerateRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	fileSrcBaseUrl := p.LibreOfficeBaseURL
-	if fileSrcBaseUrl == "" {
-		fileSrcBaseUrl = p.ReqOriginalScheme + "://" + p.ReqOriginalHost
-	}
-	fileSrcUrl := url.QueryEscape(fileSrcBaseUrl + "/wopi/files/" + node.Uuid)
-
-	iframeUrl := p.ReqOriginalScheme + "://" + p.ReqOriginalHost
-	if p.LibreOfficeCodeVersion == "v21" {
-		iframeUrl = iframeUrl + "/browser/dist/cool.html"
-	} else {
-		iframeUrl = iframeUrl + "/loleaflet/dist/loleaflet.html"
-	}
-
-	websocketScheme := "wss"
-	if p.ReqOriginalScheme == "http" {
-		websocketScheme = "ws"
-	}
-
-	langParam := ""
-	//	let lang = pydio.user.getPreference('lang')
-	//	if(lang !== 'zh-cn' &&  lang.split) {
-	//		lang = lang.split('-')[0]
-	//	}
-	//	langParam = `&lang=${lang}`
-	//}
-
-	websocketURL := websocketScheme + "://" + p.ReqOriginalHost
-
-	url := fmt.Sprintf("%s?host=%s&WOPISrc=%s&access_token=%s&permission=%s%s", iframeUrl, websocketURL, fileSrcUrl, patGenerateResp.AccessToken, permission, langParam)
-
-	return &rest.PreSignedURL{Url: url, ExpiresAt: int64(p.AutoRefreshWindow)}, nil
 }

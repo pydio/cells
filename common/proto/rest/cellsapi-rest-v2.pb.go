@@ -1379,6 +1379,8 @@ type Node struct {
 	PreSignedGET *PreSignedURL `protobuf:"bytes,29,opt,name=PreSignedGET,proto3" json:"PreSignedGET,omitempty"`
 	// CoolURL - if applicable, ready to use collabora src w/ expiration
 	EditorURLs map[string]*PreSignedURL `protobuf:"bytes,30,rep,name=EditorURLs,proto3" json:"EditorURLs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// List of available editor keys (for now always empty)
+	EditorURLsKeys []string `protobuf:"bytes,31,rep,name=EditorURLsKeys,proto3" json:"EditorURLsKeys,omitempty"`
 	// If this node is a RecycleBin folder
 	IsRecycleBin bool `protobuf:"varint,10,opt,name=IsRecycleBin,proto3" json:"IsRecycleBin,omitempty"`
 	// If this node is *inside* a RecycleBin folder
@@ -1527,6 +1529,13 @@ func (x *Node) GetPreSignedGET() *PreSignedURL {
 func (x *Node) GetEditorURLs() map[string]*PreSignedURL {
 	if x != nil {
 		return x.EditorURLs
+	}
+	return nil
+}
+
+func (x *Node) GetEditorURLsKeys() []string {
+	if x != nil {
+		return x.EditorURLsKeys
 	}
 	return nil
 }
@@ -1842,6 +1851,8 @@ type Version struct {
 	PreSignedGET *PreSignedURL `protobuf:"bytes,11,opt,name=PreSignedGET,proto3" json:"PreSignedGET,omitempty"`
 	// CoolURL - if applicable, ready to use collabora src w/ expiration
 	EditorURLs map[string]*PreSignedURL `protobuf:"bytes,12,rep,name=EditorURLs,proto3" json:"EditorURLs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// List of available editor keys (for now always empty)
+	EditorURLsKeys []string `protobuf:"bytes,14,rep,name=EditorURLsKeys,proto3" json:"EditorURLsKeys,omitempty"`
 	// If applicable, previews kept for this version
 	FilePreviews  []*FilePreview `protobuf:"bytes,13,rep,name=FilePreviews,proto3" json:"FilePreviews,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1958,6 +1969,13 @@ func (x *Version) GetPreSignedGET() *PreSignedURL {
 func (x *Version) GetEditorURLs() map[string]*PreSignedURL {
 	if x != nil {
 		return x.EditorURLs
+	}
+	return nil
+}
+
+func (x *Version) GetEditorURLsKeys() []string {
+	if x != nil {
+		return x.EditorURLsKeys
 	}
 	return nil
 }
@@ -5226,7 +5244,7 @@ const file_cellsapi_rest_v2_proto_rawDesc = "" +
 	"\aIsDraft\x18\x04 \x01(\bR\aIsDraft\x12\x16\n" +
 	"\x06IsHead\x18\x05 \x01(\bR\x06IsHead\":\n" +
 	"\fUserMetaList\x12*\n" +
-	"\bUserMeta\x18\x01 \x03(\v2\x0e.rest.UserMetaR\bUserMeta\"\xa9\n" +
+	"\bUserMeta\x18\x01 \x03(\v2\x0e.rest.UserMetaR\bUserMeta\"\xd1\n" +
 	"\n" +
 	"\x04Node\x12\x17\n" +
 	"\x04Uuid\x18\x01 \x01(\tB\x03\xe0A\x02R\x04Uuid\x12\x17\n" +
@@ -5243,7 +5261,8 @@ const file_cellsapi_rest_v2_proto_rawDesc = "" +
 	"\fPreSignedGET\x18\x1d \x01(\v2\x12.rest.PreSignedURLR\fPreSignedGET\x12:\n" +
 	"\n" +
 	"EditorURLs\x18\x1e \x03(\v2\x1a.rest.Node.EditorURLsEntryR\n" +
-	"EditorURLs\x12\"\n" +
+	"EditorURLs\x12&\n" +
+	"\x0eEditorURLsKeys\x18\x1f \x03(\tR\x0eEditorURLsKeys\x12\"\n" +
 	"\fIsRecycleBin\x18\n" +
 	" \x01(\bR\fIsRecycleBin\x12\x1e\n" +
 	"\n" +
@@ -5284,7 +5303,7 @@ const file_cellsapi_rest_v2_proto_rawDesc = "" +
 	"\x06Facets\x18\x03 \x03(\v2\x11.tree.SearchFacetR\x06Facets\x120\n" +
 	"\n" +
 	"Pagination\x18\x02 \x01(\v2\x10.rest.PaginationR\n" +
-	"Pagination\"\x99\x04\n" +
+	"Pagination\"\xc1\x04\n" +
 	"\aVersion\x12!\n" +
 	"\tVersionId\x18\x01 \x01(\tB\x03\xe0A\x02R\tVersionId\x12 \n" +
 	"\vDescription\x18\x02 \x01(\tR\vDescription\x12\x14\n" +
@@ -5300,7 +5319,8 @@ const file_cellsapi_rest_v2_proto_rawDesc = "" +
 	"\fPreSignedGET\x18\v \x01(\v2\x12.rest.PreSignedURLR\fPreSignedGET\x12=\n" +
 	"\n" +
 	"EditorURLs\x18\f \x03(\v2\x1d.rest.Version.EditorURLsEntryR\n" +
-	"EditorURLs\x125\n" +
+	"EditorURLs\x12&\n" +
+	"\x0eEditorURLsKeys\x18\x0e \x03(\tR\x0eEditorURLsKeys\x125\n" +
 	"\fFilePreviews\x18\r \x03(\v2\x11.rest.FilePreviewR\fFilePreviews\x1aQ\n" +
 	"\x0fEditorURLsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12(\n" +

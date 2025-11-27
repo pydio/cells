@@ -62,10 +62,7 @@ func (h *Handler) NodeVersions(req *restful.Request, resp *restful.Response) err
 	}
 
 	// Extract flags and build options for presigned URLs
-	var oo []TNOption
-	if filter.Flags != nil {
-		oo = h.TNOptionsFromFlags(req, filter.Flags)
-	}
+	oo := h.TNOptionsFromFlags(req, filter.Flags)
 
 	var versions []*rest.Version // Create an empty array on purpose
 	node := rn.GetNode()
