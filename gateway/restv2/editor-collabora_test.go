@@ -190,5 +190,53 @@ func TestCollaboraProvider_EnvironmentVariableFiltering(t *testing.T) {
 				So(provider.Provides(".csv"), ShouldBeFalse)
 			})
 		})
+
+		Convey("With empty space between extensions", func() {
+			// Test case: extension, empty space (comma with spaces), another extension
+			// This simulates: "docx, ,xlsx" or "docx,  ,xlsx"
+			spacedList := "docx, ,xlsx"
+			os.Setenv("CELLS_COLLABORA_SUPPORTED_EXTENSIONS", spacedList)
+
+			ee := strings.TrimSpace(os.Getenv("CELLS_COLLABORA_SUPPORTED_EXTENSIONS"))
+			splitExt := strings.Split(ee, ",")
+			filteredExt := make([]string, 0, len(splitExt))
+			for _, ext := range splitExt {
+				trimmed := strings.TrimSpace(ext)
+				if trimmed != "" {
+					filteredExt = append(filteredExt, trimmed)
+				}
+			}
+			provider := &CollaboraProvider{
+				SupportedExt: filteredExt,
+			}
+
+			Convey("Should filter out empty strings from the list", func() {
+				// Empty strings should be filtered out, so only valid extensions remain
+				So(provider.Provides(".docx"), ShouldBeTrue)
+				So(provider.Provides(".xlsx"), ShouldBeTrue)
+				// NOTE Empty string input should not match just extra check
+				So(provider.Provides(""), ShouldBeFalse)
+				So(provider.Provides("."), ShouldBeFalse)
+			})
+
+			Convey("Should not contain empty string in the list", func() {
+				// Verify that empty strings are filtered out
+				hasEmpty := false
+				for _, ext := range filteredExt {
+					if ext == "" {
+						hasEmpty = true
+						break
+					}
+				}
+				So(hasEmpty, ShouldBeFalse)
+				So(len(filteredExt), ShouldEqual, 2)
+			})
+
+			Convey("Should only support the valid extensions", func() {
+				// Verify that only the valid extensions are supported
+				So(provider.Provides(".pptx"), ShouldBeFalse)
+				So(provider.Provides(".odt"), ShouldBeFalse)
+			})
+		})
 	})
 }
