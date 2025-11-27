@@ -45,7 +45,11 @@ func init() {
 	// Allow overriding the list of supported extensions
 	runtime.RegisterEnvVariable("CELLS_COLLABORA_SUPPORTED_EXTENSIONS", "", "Override default list of extensions for Collabora edition")
 	if ee := strings.TrimSpace(os.Getenv("CELLS_COLLABORA_SUPPORTED_EXTENSIONS")); ee != "" {
+		// Hadnle possible spaces after commas
 		collaboraSupportedExt = strings.Split(ee, ",")
+		for i, ext := range collaboraSupportedExt {
+			collaboraSupportedExt[i] = strings.TrimSpace(ext)
+		}
 	}
 	RegisterEditorProviderFactory("collabora", GetCollaboraProvider)
 }
