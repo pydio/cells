@@ -1305,6 +1305,13 @@
           "title": "CoolURL - if applicable, ready to use collabora src w/ expiration",
           "type": "object"
         },
+        "EditorURLsKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of available editor keys (for now always empty)",
+          "type": "array"
+        },
         "FolderMeta": {
           "items": {
             "$ref": "#/definitions/restCountMeta",
@@ -2004,6 +2011,13 @@
           },
           "title": "CoolURL - if applicable, ready to use collabora src w/ expiration",
           "type": "object"
+        },
+        "EditorURLsKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of available editor keys (for now always empty)",
+          "type": "array"
         },
         "FilePreviews": {
           "items": {
