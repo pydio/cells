@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"slices"
 	"strings"
 	"time"
 
@@ -33,7 +32,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/proto/rest"
@@ -48,7 +46,6 @@ var (
 	presignUseCacheControl     bool   = true
 	presignDefaultCacheControl string = "private, max-age=450"
 	presignBucketName                 = common.DefaultRouteBucketIO
-	collaboraSupportedExt             = []string{"docx", "pptx", "xlsx", "dotx", "xltx", "ppsx", "doc", "ppt", "xls", "dot", "xlt", "pps", "odt", "odp", "ods", "ots", "ott", "otp", "rtf", "csv"}
 )
 
 func init() {
@@ -368,76 +365,6 @@ func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error 
 	}
 	oo := h.TNOptionsFromFlags(req, restFlags)
 	return resp.WriteEntity(h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
-}
-
-func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
-	ctx := req.Request.Context()
-	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {
-		opts := Options{
-			Expiration:      presignDefaultExpiration,
-			UseCacheControl: presignUseCacheControl,
-			CacheControl:    presignDefaultCacheControl,
-		}
-
-		if sig, err := NewV4SignerForRequest(req.Request, opts); err != nil {
-			log.Logger(ctx).Error("Cannot create signer", zap.Error(err))
-		} else {
-			oo = append(oo, WithPreSigner(sig))
-		}
-	}
-	if slices.Contains(ff, rest.Flag_WithEditorURLs) {
-		libreOfficeConf := config.Get(ctx, "frontend/plugin/editor.libreoffice")
-		libreOfficeCodeVersion := libreOfficeConf.Val("LIBREOFFICE_CODE_VERSION").String()
-		libreOfficeBaseURL := libreOfficeConf.Val("LIBREOFFICE_INTERNAL_CELLS_BASE_URL").String()
-
-		cVal := config.Get(ctx, "defaults", "personalTokens", "documentTokensRefresh").Default("30m").String()
-		var refresh int32
-		if d, e := time.ParseDuration(cVal); e != nil {
-			refresh = 30 * 60
-		} else {
-			refresh = int32(d.Seconds())
-		}
-
-		oo = append(oo, WithEditorProvider("collabora", &CollaboraProvider{
-			SupportedExt:           collaboraSupportedExt,
-			ReqOriginalScheme:      "https",
-			ReqOriginalHost:        req.Request.Host,
-			AutoRefreshWindow:      refresh,
-			Issuer:                 req.Request.URL.String(),
-			LibreOfficeCodeVersion: libreOfficeCodeVersion,
-			LibreOfficeBaseURL:     libreOfficeBaseURL,
-		}))
-	}
-	return oo
-}
-
-func (h *Handler) toRestFlags(flagsStr []string) []rest.Flag {
-	var flags []rest.Flag
-	for _, flagStr := range flagsStr {
-		if v, ok := rest.Flag_value[flagStr]; ok {
-			flags = append(flags, rest.Flag(v))
-		}
-	}
-
-	return flags
-}
-
-func (h *Handler) parseFlags(ff []rest.Flag) (flags tree.Flags) {
-	for _, f := range ff {
-		switch f {
-		case rest.Flag_WithMetaCoreOnly:
-			flags = append(flags, tree.StatFlagMetaMinimal)
-		case rest.Flag_WithVersionsAll:
-			flags = append(flags, tree.StatFlagVersionsAll)
-		case rest.Flag_WithVersionsDraft:
-			flags = append(flags, tree.StatFlagVersionsDraft)
-		case rest.Flag_WithVersionsPublished:
-			flags = append(flags, tree.StatFlagVersionsPublished)
-		case rest.Flag_WithMetaNone:
-			flags = append(flags, tree.StatFlagNone)
-		}
-	}
-	return
 }
 
 func (h *Handler) resolveRootPath(ctx context.Context, router nodes.Handler, root *rest.NodeLocator) (string, error) {
