@@ -22,9 +22,24 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 )
 
+// EditorProvider interface for editor URL providers
+type EditorProvider interface {
+	Provides(ext string) bool
+	Get(ctx context.Context, node *tree.Node) (*rest.PreSignedURL, error)
+}
+
+// EditorProviderFactory creates an EditorProvider from a request context
+type EditorProviderFactory func(ctx context.Context, req *restful.Request) (EditorProvider, bool)
+
 var (
-	collaboraSupportedExt = []string{"docx", "pptx", "xlsx", "dotx", "xltx", "ppsx", "doc", "ppt", "xls", "dot", "xlt", "pps", "odt", "odp", "ods", "ots", "ott", "otp", "rtf", "csv"}
+	collaboraSupportedExt   = []string{"docx", "pptx", "xlsx", "dotx", "xltx", "ppsx", "doc", "ppt", "xls", "dot", "xlt", "pps", "odt", "odp", "ods", "ots", "ott", "otp", "rtf", "csv"}
+	editorProviderFactories = map[string]EditorProviderFactory{}
 )
+
+// RegisterEditorProviderFactory registers a factory for creating editor providers
+func RegisterEditorProviderFactory(name string, factory EditorProviderFactory) {
+	editorProviderFactories[name] = factory
+}
 
 func init() {
 	// Allow overriding the list of supported extensions

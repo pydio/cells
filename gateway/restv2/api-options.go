@@ -11,6 +11,40 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
+// TNOptions holds options for TreeNodeToNode conversion
+type TNOptions struct {
+	PreSigner         PreSigner
+	EditorURLProvider map[string]EditorProvider
+	EditorURLGenerate bool
+}
+
+// TNOption is a function that modifies TNOptions
+type TNOption func(o *TNOptions)
+
+// WithPreSigner sets a presigner for generating presigned URLs
+func WithPreSigner(preSigner PreSigner) TNOption {
+	return func(o *TNOptions) {
+		o.PreSigner = preSigner
+	}
+}
+
+// WithEditorProvider registers an available editor provider
+func WithEditorProvider(name string, prov EditorProvider) TNOption {
+	return func(o *TNOptions) {
+		if o.EditorURLProvider == nil {
+			o.EditorURLProvider = make(map[string]EditorProvider)
+		}
+		o.EditorURLProvider[name] = prov
+	}
+}
+
+// WithEditorURLGenerate translates from WithEditorURLs flag
+func WithEditorURLGenerate() TNOption {
+	return func(o *TNOptions) {
+		o.EditorURLGenerate = true
+	}
+}
+
 func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
 	ctx := req.Request.Context()
 	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {

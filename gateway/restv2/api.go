@@ -23,14 +23,11 @@ package restv2
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
-	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
@@ -65,56 +62,6 @@ type PreviewMeta struct {
 	Error       bool   `json:"Error,omitempty"`
 	Key         string `json:"Key,omitempty"`
 	ContentType string `json:"ContentType,omitempty"`
-}
-
-type PreSigner interface {
-	PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error)
-}
-
-type EditorProviderFactory func(ctx context.Context, req *restful.Request) (EditorProvider, bool)
-
-var (
-	editorProviderFactories = map[string]EditorProviderFactory{}
-)
-
-func RegisterEditorProviderFactory(name string, factory EditorProviderFactory) {
-	editorProviderFactories[name] = factory
-}
-
-type EditorProvider interface {
-	Provides(ext string) bool
-	Get(ctx context.Context, node *tree.Node) (*rest.PreSignedURL, error)
-}
-
-type TNOptions struct {
-	PreSigner         PreSigner
-	EditorURLProvider map[string]EditorProvider
-	EditorURLGenerate bool
-}
-
-type TNOption func(o *TNOptions)
-
-func WithPreSigner(preSigner PreSigner) TNOption {
-	return func(o *TNOptions) {
-		o.PreSigner = preSigner
-	}
-}
-
-// WithEditorProvider registers an available editor provider
-func WithEditorProvider(name string, prov EditorProvider) TNOption {
-	return func(o *TNOptions) {
-		if o.EditorURLProvider == nil {
-			o.EditorURLProvider = make(map[string]EditorProvider)
-		}
-		o.EditorURLProvider[name] = prov
-	}
-}
-
-// WithEditorURLGenerate translates from WithEditorURLs flag
-func WithEditorURLGenerate() TNOption {
-	return func(o *TNOptions) {
-		o.EditorURLGenerate = true
-	}
 }
 
 func NewHandler() *Handler {

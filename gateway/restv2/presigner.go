@@ -21,6 +21,11 @@ import (
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
+// PreSigner interface for generating presigned URLs
+type PreSigner interface {
+	PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error)
+}
+
 type SignerProviderFunc func(endpoint *url.URL, apiKey, apiSecret, region, session string, options Options) PreSigner
 
 var SignerProvider SignerProviderFunc = func(endpoint *url.URL, apiKey, apiSecret, region, session string, options Options) PreSigner {
