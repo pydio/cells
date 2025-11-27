@@ -48,16 +48,24 @@ type Options struct {
 }
 
 type PresignParams struct {
+	req *http.Request
 	VersionID string
 }
 
 func (v *v4Signer) PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error) {
-	u := *v.endpoint
-	u.Path = path.Join(bucket, key)
-	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-	if err != nil {
-		return nil, time.Now(), err
+	var req *http.Request
+	if params.req != nil {
+		u := *v.endpoint
+		u.Path = path.Join(bucket, key)
+		newReq, err := http.NewRequest(http.MethodGet, u.String(), nil)
+		if err != nil {
+			return nil, time.Now(), err
+		}
+		req = newReq
+	} else {
+		req = params.req
 	}
+
 	exp := time.Now().Add(time.Duration(v.opts.Expiration) * time.Second)
 
 	if params.VersionID != "" {
