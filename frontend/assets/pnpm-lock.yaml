@@ -1152,8 +1152,8 @@ importers:
         specifier: ^2.847.0
         version: 2.1692.0
       cells-sdk:
-        specifier: github:pydio/cells-sdk-js#feat/updating-extendend-namespace-model
-        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/96b4c87dac0ea6b78b06c51d64839ef25f7a3d76
+        specifier: github:pydio/cells-sdk-js#feat/optimizing-namespace-model-changes
+        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/c895f39042a18ee11f7886e8d7d2e15bbc0f1801
       classnames:
         specifier: ~2.1.3
         version: 2.1.5
@@ -1569,6 +1569,13 @@ importers:
         version: 5.1.4(webpack@5.102.1)
 
   meta.user:
+    dependencies:
+      ajv:
+        specifier: ^8.17.1
+        version: 8.17.1
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.17.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.14.6
@@ -3825,6 +3832,14 @@ packages:
       ajv:
         optional: true
 
+  ajv-formats@3.0.1:
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+
   ajv-keywords@5.1.0:
     resolution: {integrity: sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==}
     peerDependencies:
@@ -4174,9 +4189,9 @@ packages:
     resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-ts/tar.gz/cbea7de85ff1ac4602a86e8196d583b9ef6c9893}
     version: 0.1.0
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/96b4c87dac0ea6b78b06c51d64839ef25f7a3d76:
-    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/96b4c87dac0ea6b78b06c51d64839ef25f7a3d76}
-    version: 4.4.0
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/c895f39042a18ee11f7886e8d7d2e15bbc0f1801:
+    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/c895f39042a18ee11f7886e8d7d2e15bbc0f1801}
+    version: 3.0.0
 
   chai@6.2.0:
     resolution: {integrity: sha512-aUTnJc/JipRzJrNADXVvpVqi6CO0dn3nx4EVPxijri+fj3LUUDyZQOgVeW54Ob3Y1Xh9Iz8f+CgaCl8v0mn9bA==}
@@ -11096,6 +11111,10 @@ snapshots:
     optionalDependencies:
       ajv: 8.17.1
 
+  ajv-formats@3.0.1(ajv@8.17.1):
+    optionalDependencies:
+      ajv: 8.17.1
+
   ajv-keywords@5.1.0(ajv@8.17.1):
     dependencies:
       ajv: 8.17.1
@@ -11589,7 +11608,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/96b4c87dac0ea6b78b06c51d64839ef25f7a3d76:
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/c895f39042a18ee11f7886e8d7d2e15bbc0f1801:
     dependencies:
       superagent: 6.1.0
     transitivePeerDependencies:
