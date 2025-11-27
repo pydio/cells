@@ -73,7 +73,7 @@ type PreviewMeta struct {
 }
 
 type PreSigner interface {
-	PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error)
+	PreSignV4(ctx context.Context, bucket, key string, params PresignParams) (*http.Request, time.Time, error)
 }
 
 type EditorProvider interface {
@@ -159,7 +159,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		if !n.IsLeaf() {
 			key += ".zip"
 		}
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 			rn.PreSignedGET = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),
@@ -250,7 +250,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 			var cc []*tree.ContentRevision
 			if er := json.Unmarshal([]byte(v), &cc); er == nil {
 				for _, c := range cc {
-					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c))
+					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c, n, oo...))
 				}
 			}
 
@@ -305,8 +305,9 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 }
 
 // TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
-func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision) *rest.Version {
-	return &rest.Version{
+func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision, node *tree.Node, oo ...TNOption) *rest.Version {
+	// Node for the url and passing the version id
+	version := &rest.Version{
 		VersionId:   contentRevision.GetVersionId(),
 		Description: contentRevision.GetDescription(),
 		Draft:       contentRevision.GetDraft(),
@@ -318,6 +319,30 @@ func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevis
 		OwnerName:   contentRevision.GetOwnerName(),
 		OwnerUuid:   contentRevision.GetOwnerUuid(),
 	}
+
+	// Apply options for presigned URLs
+	opts := &TNOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+
+	// Generate presigned URL if presigner is available
+	if opts.PreSigner != nil && node != nil {
+		key := node.GetPath()
+		params := PresignParams{
+			VersionID: contentRevision.GetVersionId(),
+		}
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, params); err == nil {
+			version.PreSignedGET = &rest.PreSignedURL{
+				Url:       req.URL.String(),
+				ExpiresAt: exp.Unix(),
+			}
+		} else {
+			log.Logger(ctx).Error("Cannot create presigned URL for version", zap.Error(err), zap.String("versionId", contentRevision.GetVersionId()))
+		}
+	}
+
+	return version
 }
 
 // Thumbnails feeds a rest.FilePreview struct with incoming metadata
@@ -344,7 +369,7 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 		//url := common.DefaultRouteBucketIO + "/" + key
 		var pGet *rest.PreSignedURL
 		if opts.PreSigner != nil {
-			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 				pGet = &rest.PreSignedURL{
 					Url:       req.URL.String(),
 					ExpiresAt: exp.Unix(),
@@ -404,7 +429,7 @@ func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo .
 		o(opts)
 	}
 	if opts.PreSigner != nil {
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 			pGet = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),

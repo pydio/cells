@@ -1507,6 +1507,12 @@
         "FilterBy": {
           "$ref": "#/definitions/restVersionsTypes"
         },
+        "Flags": {
+          "items": {
+            "$ref": "#/definitions/restFlag"
+          },
+          "type": "array"
+        },
         "Limit": {
           "format": "int64",
           "type": "string"

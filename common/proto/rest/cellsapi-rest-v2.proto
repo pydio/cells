@@ -473,6 +473,7 @@ message NodeVersionsFilter {
   int64 Limit = 3;
   string SortField = 5;
   bool SortDirDesc = 6;
+  repeated Flag Flags = 7;
 }
 
 // Request payload for listVersions
