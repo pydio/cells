@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "User Metadata Schema",
+  "type": "object",
+  "properties": {
+    "usermeta-long-text": {
+      "type": "string",
+      "title": "Long Text",
+      "default": "",
+      "description": "",
+      "maxLength": 5000
+    },
+    "usermeta-text": {
+      "type": "string",
+      "title": "Short Text",
+      "default": "",
+      "minLength": 3,
+      "description": "",
+      "maxLength": 5
+    },
+    "usermeta-boolean": {
+      "type": "boolean",
+      "title": "Boolean",
+      "description": "",
+      "default": ""
+    },
+    "usermeta-stars-rating": {
+      "type": "integer",
+      "title": "Stars Rating",
+      "description": "",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 5
+    },
+    "usermeta-tags-values": {
+      "type": "array",
+      "title": "Tags Values",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 5
+      },
+      "default": [],
+      "minItems": 0,
+      "description": "",
+      "uniqueItems": true
+    },
+    "usermeta-tags": {
+      "type": "array",
+      "title": "Tags",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "description": "",
+      "default": [],
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "usermeta-date-or-time": {
+      "type": "string",
+      "title": "Date Or Time",
+      "description": "",
+      "format": "date",
+      "default": null,
+      "minLength": 10,
+      "maxLength": 10
+    },
+    "usermeta-page-content": {
+      "type": "object",
+      "title": "Page Contents",
+      "description": "",
+      "default": {},
+      "additionalProperties": true
+    },
+    "usermeta-colors-labels": {
+      "type": "string",
+      "title": "Colors Labels",
+      "description": "",
+      "default": "",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "usermeta-external-url": {
+      "type": "string",
+      "title": "External URL",
+      "description": "",
+      "default": "",
+      "minLength": 0,
+      "maxLength": 2048,
+      "pattern": "^(https?:\\/\\/)[\\w.-]+(?:\\.[\\w\\.-]+)+(?:[\\w\\-\\._~:\\/?#\\[\\]@!$&'()*+,;=.]+)?$"
+    }
+  },
+  "required": ["usermeta-long-text", "usermeta-text", "usermeta-date-or-time", "usermeta-tags-values"]
+}
