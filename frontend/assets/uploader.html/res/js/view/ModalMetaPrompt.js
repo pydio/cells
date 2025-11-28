@@ -35,7 +35,7 @@ export default ({namespaces, onDismiss, metaLib}) => {
     }, [data])
 
 
-    const {UserMetaPanel, MetaClient} = metaLib
+    const {UserMetaPanelV2, MetaClient} = metaLib
     const metaPanel = useRef(null)
 
     const loader = useCallback(() => {
@@ -55,7 +55,7 @@ export default ({namespaces, onDismiss, metaLib}) => {
             contentStyle={{width: 420, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
         >
             <div>
-                <UserMetaPanel
+                <UserMetaPanelV2
                     pydio={pydio}
                     loader={loader}
                     ref={metaPanel}

@@ -25,5 +25,9 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "build-prod": "NODE_ENV=production webpack --config webpack.config.js"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
   }
 }
