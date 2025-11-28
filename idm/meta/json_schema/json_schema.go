@@ -44,48 +44,27 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	switch label {
 	case "string":
 		props["properties"] = map[string]interface{}{
-			"minLength": map[string]interface{}{
-				"type":    "integer",
-				"minimum": 0,
-			},
-			"maxLength": map[string]interface{}{
-				"type":    "integer",
-				"minimum": 0,
-			},
-			"pattern": map[string]interface{}{
-				"type":   "string",
-				"format": "regex",
-			},
-			"format": map[string]interface{}{
-				"type": "string",
-			},
+			"minLength": withNumberSchema(),
+			"maxLength": withNumberSchema(),
+			"pattern":   withStringSchema(),
+			"format":    withStringSchema(),
 		}
 		return toProtoStruct(props)
 
 	case "number":
 		props["properties"] = map[string]interface{}{
-			"minimum": map[string]interface{}{
-				"type": "number",
-			},
-			"maximum": map[string]interface{}{
-				"type": "number",
-			},
+			"minimum": withNumberSchema(),
+			"maximum": withNumberSchema(),
 		}
 		return toProtoStruct(props)
 
 	case "array":
 		props["properties"] = map[string]interface{}{
 			"items": map[string]interface{}{
-				"type": []interface{}{"object", "boolean"},
+				"type": withBooleanSchema(),
 			},
-			"minItems": map[string]interface{}{
-				"type":    "integer",
-				"minimum": 0,
-			},
-			"maxItems": map[string]interface{}{
-				"type":    "integer",
-				"minimum": 0,
-			},
+			"minItems": withNumberSchema(),
+			"maxItems": withNumberSchema(),
 			"uniqueItems": map[string]interface{}{
 				"type": "boolean",
 			},
@@ -125,7 +104,6 @@ func BuildNamespacesJsonSchema(ns []NamespaceDescriptor) (*structpb.Struct, erro
 		if err := json.Unmarshal(n.Definition, &def); err != nil {
 			return nil, err
 		}
-
 		lt, _ := def["type"].(string)
 
 		switch lt {
@@ -144,6 +122,7 @@ func BuildNamespacesJsonSchema(ns []NamespaceDescriptor) (*structpb.Struct, erro
 
 	root := map[string]interface{}{
 		"type":       "object",
+		"title":      "Namespaces Json Schema",
 		"properties": props,
 		"required":   []interface{}{},
 	}

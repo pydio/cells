@@ -194,7 +194,7 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 
 func (s *nsSqlImpl) GetJS(ctx context.Context) (*structpb.Struct, error) {
 	var mm []*MetaNamespace
-	tx := s.Session(ctx).Find(&mm)
+	tx := s.Session(ctx).Find(&mm).Where("definition IS NOT NULL AND definition != ''")
 	if tx.Error != nil {
 		return nil, nsTag(tx.Error)
 
