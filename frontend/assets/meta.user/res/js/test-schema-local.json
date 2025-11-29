@@ -3,13 +3,6 @@
   "title": "User Metadata Schema",
   "type": "object",
   "properties": {
-    "usermeta-long-text": {
-      "type": "string",
-      "title": "Long Text",
-      "default": "",
-      "description": "",
-      "maxLength": 5000
-    },
     "usermeta-text": {
       "type": "string",
       "title": "Short Text",
@@ -19,5 +12,5 @@
       "maxLength": 5
     }
   },
-  "required": ["usermeta-long-text", "usermeta-text"]
+  "required": ["usermeta-text"]
 }

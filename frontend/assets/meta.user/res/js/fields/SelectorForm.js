@@ -50,7 +50,7 @@ class SelectorForm extends React.Component{
 
     render(){
         const {stepper, labels={}, keys = []} = this.state;
-        const {value, label, updateValue, search, muiTheme} = this.props;
+        const {value, label, updateValue, errorText, search, muiTheme} = this.props;
         let menuItems;
         if(this.state.menuItems === undefined){
             menuItems = [...this.props.menuItems]
@@ -92,6 +92,7 @@ class SelectorForm extends React.Component{
                         fullWidth={true}
                         value={value}
                         hintText={label}
+                        errorText={errorText}
                         onChange={this.changeSelector.bind(this)}
                         {...selectProps}
                     >{menuItems}</ModernSelectField>

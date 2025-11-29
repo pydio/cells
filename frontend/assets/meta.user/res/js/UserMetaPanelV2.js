@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, { useImperativeHandle, forwardRef } from 'react'
+import React, {useImperativeHandle, forwardRef, useEffect} from 'react'
 import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
@@ -33,13 +33,15 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         node,
         loader,
         loadChecks,
-        onChangeUpdateData,
         autoSave,
         supportTemplates,
         multiple,
         pydio,
         style,
+        onChangeUpdateData,
         onRequestEditMode,
+        onFormLoaded,
+        onValidStatusChanged,
         additionalProps
     } = props;
 
@@ -51,7 +53,9 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         updateValue,
         getUpdateData,
         resetUpdateData,
-        onCheck
+        onCheck,
+        valid,
+        errors
     } = useMetadataState({
         node,
         loader,
@@ -63,11 +67,34 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
     // Groups expand/collapse state
     const [groupsExpanded, toggleGroup] = useGroupsExpanded();
 
+    useEffect(() => {
+        if(onFormLoaded){
+            onFormLoaded(configs)
+        }
+    }, [fields]);
+
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         getUpdateData,
         resetUpdateData
     }), [getUpdateData, resetUpdateData]);
+
+
+    useEffect(() => {
+//        console.log('Valid', valid, 'Errors', errors)
+        if (onValidStatusChanged) {
+            onValidStatusChanged(valid)
+        }
+    }, [valid]);
+
+    // Merge errors with configs
+    if(!valid && errors) {
+        configs.forEach(config => {
+            if (config.ns && errors[config.ns]) {
+                config.errorText = errors[config.ns]
+            }
+        })
+    }
 
     // Build tree structure from configs
     const groupedNS = groupConfigsByNamespace(configs, supportTemplates);

@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import MetaClient from "../MetaClient";
+import {useValidation} from "./useValidation";
 
 /**
  * Custom hook to manage metadata state and operations
@@ -66,10 +67,18 @@ export const useMetadataState = ({
         }
     }, [updateMeta, autoSave]);
 
+    const {validate, valid, errors} = useValidation({configs});
+
+    useEffect(() => {
+        console.log('Valid', valid, 'Errors', errors)
+    }, [valid, errors]);
+
     const updateValue = useCallback((name, value, submit = false) => {
         setUpdateMeta(prev => {
             const newMap = new Map(prev);
             newMap.set(name, value);
+            // This performs both a global validation and a validation only on "touched" fields
+            validate(Object.fromEntries(newMap), Array.from(newMap.keys()));
             if (onChangeUpdateData) {
                 onChangeUpdateData(newMap);
             }
@@ -79,7 +88,7 @@ export const useMetadataState = ({
             // Mark that we need to submit after state updates
             pendingSubmitRef.current = true;
         }
-    }, [onChangeUpdateData, autoSave]);
+    }, [onChangeUpdateData, autoSave, validate]);
 
     const deleteValue = useCallback((name) => {
         setUpdateMeta(prev => {
@@ -122,6 +131,7 @@ export const useMetadataState = ({
         deleteValue,
         getUpdateData,
         resetUpdateData,
-        onCheck
+        onCheck,
+        valid, errors
     };
 };

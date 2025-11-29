@@ -96,40 +96,30 @@ class MetaClient{
                 order: ns.Order,
                 visible: true,
                 readonly: !ns.PoliciesContextEditable,
+                required: ns.PromptOnUpload // TODO - Temporary, make ALL prompted fields mandatory
             };
             if (ns.JsonDefinition){
                 const jDef = JSON.parse(ns.JsonDefinition);
-                Object.keys(jDef).map(k => {
-                    if(k === 'hide') {
-                        base['visible'] = !jDef[k];
-                    } else {
-                        base[k] = jDef[k];
-                    }
-                })
+                const {hide, type, ...rest} = jDef;
+                base = {...base, type, ...rest, visible:!hide};
+                if(type === 'choice' && base.data && base.data.split){
+                    // Convert old format to new format
+                    const items = base.data.split(',').map(i => {
+                        const [key, value] = i.split('|')
+                        return {key, value};
+                    });
+                    base.data = {items};
+                }
             }
             defs[name] = base;
         });
-        let arrConfigs = Object.entries(defs).map(entry => {
-            entry[1].ns = entry[0];
-            return entry[1];
-        });
-        arrConfigs.sort((a,b) => {
-            const orderA = a.order || 0;
-            const orderB = b.order || 0;
-            return orderA > orderB ? 1 : orderA === orderB ? 0 : -1;
-        });
-        arrConfigs.map((value) => {
-            const type = value.type;
-            if(type === 'choice' && value.data && value.data.split){
-                // Convert old format to new format
-                const items = value.data.split(',').map(i => {
-                    const [key, value] = i.split('|')
-                    return {key, value};
-                });
-                value.data = {items};
-            }
-            configMap.set(value.ns, value);
-        });
+
+        // Resort map by order flag
+        const arrConfigs = Object.entries(defs).map(([ns, cfg]) => {return {ns, ...cfg}});
+        arrConfigs.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        for (const cfg of arrConfigs) {
+            configMap.set(cfg.ns, cfg);
+        }
         return configMap;
     }
 
