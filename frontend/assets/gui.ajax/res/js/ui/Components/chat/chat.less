@@ -105,7 +105,7 @@
 
   .dot-flashing {
     position: relative;
-    .dot-flashing-dot;
+    .dot-flashing-dot();
     animation: dot-flashing 1s infinite linear alternate;
     animation-delay: 0.5s;
     margin-left: 18px;
@@ -115,7 +115,7 @@
       content: "";
       display: inline-block;
       position: absolute;
-      .dot-flashing-dot;
+      .dot-flashing-dot();
       top: 0;
     }
     &::before {
