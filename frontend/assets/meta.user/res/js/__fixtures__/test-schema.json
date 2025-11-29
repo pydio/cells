@@ -1,0 +1,28 @@
+{
+  "title": "User Metadata Schema",
+  "type": "object",
+  "properties": {
+    "usermeta-text": {
+      "type": "string",
+      "title": "Short Text",
+      "minLength": 3,
+      "maxLength": 5
+    },
+    "usermeta-paragraph": {
+      "type": "string",
+      "title": "Paragraph Text",
+      "minLength": 3,
+      "maxLength": 100
+    },
+    "usermeta-number": {
+      "type": "number",
+      "title": "Number",
+      "maximum": 10
+    }
+  },
+  "required": [
+    "usermeta-number",
+    "usermeta-paragraph",
+    "usermeta-text"
+  ]
+}

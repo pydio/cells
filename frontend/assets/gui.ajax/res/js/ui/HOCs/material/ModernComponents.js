@@ -177,7 +177,8 @@ const styles = (muiTheme) => {
             dropDownMenuProps: {
                 iconStyle: {right: 0, fill: '#9e9e9e'},
                 menuStyle: {background: isMUI3?'var(--md-sys-color-surface-4)':'white'}
-            }
+            },
+            errorStyle: {position: 'absolute', bottom: 16, right: 42}
         },
         div: {
             backgroundColor: v1BgColor, color: 'rgba(0,0,0,.5)',

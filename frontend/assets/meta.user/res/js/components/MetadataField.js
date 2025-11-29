@@ -37,14 +37,19 @@ const {ModernTextField} = Pydio.requireLib("hoc");
  * Renders a single metadata field in edit mode
  */
 const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, supportTemplates, additionalProps}) => {
-    const {label, type, readonly} = meta;
+    let {label} = meta;
+    const {type, readonly, required, errorText} = meta;
+    if (required) {
+        label = label + ' *'
+    }
 
     let baseProps = {
         fieldname: fieldKey,
         label,
         value,
         configs: configsForGroup,
-        onValueChange: (name, value, submit) => updateValue(name, value, submit)
+        onValueChange: updateValue,
+        errorText,
     };
 
     if (additionalProps && additionalProps[type]) {
@@ -77,6 +82,7 @@ const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, support
                     floatingLabelText={label}
                     multiLine={type === 'textarea' || type === 'json'}
                     type={isInteger ? "number" : null}
+                    errorText={errorText}
                     onChange={(event, value) => {
                         if (isInteger) {
                             value = parseInt(value);

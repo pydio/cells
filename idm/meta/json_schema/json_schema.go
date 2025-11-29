@@ -105,7 +105,11 @@ type JSONSchemaFactory struct {
 func NewJSONSchemaFactory(label string) *JSONSchemaFactory {
 	return &JSONSchemaFactory{
 		root: map[string]interface{}{
+<<<<<<< HEAD
 			"$id":                  fmt.Sprintf("https://pydio.com/%s", label),
+=======
+			"$schema":              "https://json-schema.org/draft/2020-12/schema",
+>>>>>>> 2cf5bdde0 (fix(namespace): add json schema version)
 			"type":                 "object",
 			"properties":           map[string]interface{}{},
 			"additionalProperties": false,
@@ -168,6 +172,7 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 }
 
 func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
+<<<<<<< HEAD
 	props := f.root["properties"].(map[string]interface{})
 	var usermeta = "usermeta"
 
@@ -196,6 +201,29 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
 		var t = fmt.Sprintf("%s-date-time", usermeta)
 		f.root["title"] = t
 		props[t] = withDateTimeSchema()
+=======
+
+	switch label {
+	case "boolean":
+		f.root["title"] = "usermeta-boolean"
+		f.root["properties"] = withBooleanSchema()
+
+	case "textarea":
+		f.root["title"] = "usermeta-long-text"
+		f.root["properties"] = withStringSchema()
+
+	case "string":
+		f.root["title"] = "usermeta-text"
+		f.root["properties"] = withStringSchema()
+
+	case "integer":
+		f.root["title"] = "usermeta-number"
+		f.root["properties"] = withNumberSchema()
+
+	case "date", "datetime":
+		f.root["title"] = "usermeta-datetime"
+		f.root["properties"] = withDateTimeSchema()
+>>>>>>> 2cf5bdde0 (fix(namespace): add json schema version)
 
 	default:
 		return nil, nil
