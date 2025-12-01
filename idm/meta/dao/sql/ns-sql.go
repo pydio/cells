@@ -199,21 +199,20 @@ func (s *nsSqlImpl) GetJS(ctx context.Context) (*structpb.Struct, error) {
 		return nil, nsTag(tx.Error)
 
 	}
-	if len(mm) > 0 {
-		nss := make([]json_schema.NamespaceDescriptor, 0, len(mm))
-		for _, m := range mm {
-			nss = append(nss, json_schema.NamespaceDescriptor{
-				Label:      m.Label,
-				Definition: m.Definition,
-			})
-		}
-
-		schema, err := json_schema.BuildNamespacesJsonSchema(nss)
-		if err != nil {
-			return nil, err
-		}
-		return schema, nil
-	} else {
+	if len(mm) == 0 {
 		return nil, nil
 	}
+	nss := make([]json_schema.NamespaceDescriptor, 0, len(mm))
+	for _, m := range mm {
+		nss = append(nss, json_schema.NamespaceDescriptor{
+			Label:      m.Label,
+			Definition: m.Definition,
+		})
+	}
+
+	schema, err := json_schema.BuildNamespacesJsonSchema(nss)
+	if err != nil {
+		return nil, err
+	}
+	return schema, nil
 }
