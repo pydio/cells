@@ -445,6 +445,8 @@ service UserMetaService {
     rpc SearchUserMeta(SearchUserMetaRequest) returns (stream SearchUserMetaResponse) {}
     rpc UpdateUserMetaNamespace(UpdateUserMetaNamespaceRequest) returns (UpdateUserMetaNamespaceResponse){}
     rpc ListUserMetaNamespace(ListUserMetaNamespaceRequest) returns (stream ListUserMetaNamespaceResponse){}
+    rpc GetFieldSchema(GetFieldSchemaRequest) returns (JsonSchemaResponse) {}
+    rpc GetNamespaceSchema(GetNamespaceSchemaRequest) returns (JsonSchemaResponse) {}
 }
 
 // Piece of metadata attached to a node
@@ -540,6 +542,17 @@ message ListUserMetaNamespaceRequest{}
 message ListUserMetaNamespaceResponse{
     UserMetaNamespace UserMetaNamespace = 1;
 }
+
+message GetFieldSchemaRequest{
+    string FieldType = 1;
+}
+
+message JsonSchemaResponse{
+    google.protobuf.Struct JsonSchema = 1;
+}
+
+message GetNamespaceSchemaRequest{}
+
 
 // Message Types for ChangeEvent
 enum ChangeEventType {
