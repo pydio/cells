@@ -23,7 +23,7 @@ type (
 // Schema inference helpers
 // ---------------------------------------------------------------------------
 
-// Infer returns a *Schema describing the Go type T.
+// Infer returns a *Schema describing the JSONSchema type T.
 func Infer[T any](opts *ForOptions) (*Schema, error) {
 	return jsonschema.For[T](opts)
 }
