@@ -1250,6 +1250,14 @@
       },
       "type": "object"
     },
+    "idmJsonSchemaResponse": {
+      "properties": {
+        "JsonSchema": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "idmListPolicyGroupsRequest": {
       "properties": {
         "Filter": {
@@ -12208,6 +12216,96 @@
           }
         },
         "summary": "Admin: update namespaces",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/namespace/discovery/field/{FieldType}": {
+      "get": {
+        "operationId": "GetFieldSchema",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "FieldType",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmJsonSchemaResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Get Json Schema for a given field type",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/namespace/jsonschema": {
+      "get": {
+        "operationId": "GetNamespaceSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmJsonSchemaResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Get Json Schema for UserMeta namespace",
         "tags": [
           "UserMetaService"
         ]

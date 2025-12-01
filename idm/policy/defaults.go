@@ -170,7 +170,7 @@ var (
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
 						"rest:/user-meta/bookmarks",
-						"rest:/user-meta/namespace",
+						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
 					},
@@ -543,7 +543,7 @@ func Upgrade210(ctx context.Context) error {
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
 						"rest:/user-meta/bookmarks",
-						"rest:/user-meta/namespace",
+						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
 					},

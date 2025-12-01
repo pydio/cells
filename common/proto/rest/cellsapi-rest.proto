@@ -601,6 +601,18 @@ service UserMetaService {
             get: "/user-meta/namespace"
         };
     }
+    // Get Json Schema for a given field type
+    rpc GetFieldSchema(idm.GetFieldSchemaRequest) returns (idm.JsonSchemaResponse) {
+        option (google.api.http) = {
+            get: "/user-meta/namespace/discovery/field/{FieldType}"
+        };
+    }
+    // Get Json Schema for UserMeta namespace
+    rpc GetNamespaceSchema(idm.GetNamespaceSchemaRequest) returns (idm.JsonSchemaResponse) {
+        option (google.api.http) = {
+            get: "/user-meta/namespace/jsonschema"
+        };
+    }
     // List Tags for a given namespace
     rpc ListUserMetaTags(ListUserMetaTagsRequest) returns (ListUserMetaTagsResponse){
         option (google.api.http) = {

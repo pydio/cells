@@ -28,6 +28,7 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/service"
@@ -35,6 +36,8 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
+
+	"github.com/pydio/cells/v5/idm/meta/json_schema"
 )
 
 var (
@@ -68,8 +71,9 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.JsonDefinition = string(u.Definition)
 	res.EnforceDefault = u.EnforceDefault
 	res.PromptOnUpload = u.PromptOnUpload
-	// schema := BuildJsonSchema(u.Label)
-	// res.JsonSchema = schema
+
+	schemaStruct := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
+	res.JsonSchema = schemaStruct
 
 	return res
 }
@@ -82,8 +86,7 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
 	u.PromptOnUpload = res.PromptOnUpload
-	// schema := BuildJsonSchema(u.Label)
-	// res.JsonSchema = schema
+	res.JsonSchema = json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
 
 	return u
 }
@@ -187,4 +190,29 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 	}
 
 	return res, nil
+}
+
+func (s *nsSqlImpl) GetJSONSchema(ctx context.Context) (*structpb.Struct, error) {
+	var mm []*MetaNamespace
+	tx := s.Session(ctx).Find(&mm).Where("definition IS NOT NULL AND definition != ''")
+	if tx.Error != nil {
+		return nil, nsTag(tx.Error)
+
+	}
+	if len(mm) == 0 {
+		return nil, nil
+	}
+	nss := make([]json_schema.NamespaceDescriptor, 0, len(mm))
+	for _, m := range mm {
+		nss = append(nss, json_schema.NamespaceDescriptor{
+			Label:      m.Label,
+			Definition: m.Definition,
+		})
+	}
+
+	schema, err := json_schema.BuildNamespacesJsonSchema(nss)
+	if err != nil {
+		return nil, err
+	}
+	return schema, nil
 }
