@@ -58,5 +58,5 @@ type NamespaceDAO interface {
 	Add(ctx context.Context, ns *idm.UserMetaNamespace) error
 	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
 	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
-	GetJS(ctx context.Context) (*structpb.Struct, error)
+	GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
 }

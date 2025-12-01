@@ -192,7 +192,7 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 	return res, nil
 }
 
-func (s *nsSqlImpl) GetJS(ctx context.Context) (*structpb.Struct, error) {
+func (s *nsSqlImpl) GetJSONSchema(ctx context.Context) (*structpb.Struct, error) {
 	var mm []*MetaNamespace
 	tx := s.Session(ctx).Find(&mm).Where("definition IS NOT NULL AND definition != ''")
 	if tx.Error != nil {
