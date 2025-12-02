@@ -6,13 +6,27 @@ GITREV?=$(shell git rev-parse HEAD)
 CELLS_VERSION?=${DEV_VERSION}.${TIMESTAMP}
 GOBIN?=go
 
-.PHONY: all clean build main dev
+.PHONY: all clean build main dev darwin arm win docker start ds licenses
 
-all: clean build
+## Historic Aliases
+
+all: clean main
 
 build: main
 
-main:
+main: linux-amd64
+
+darwin: darwin-arm64
+
+arm64: linux-arm64
+
+arm: linux-arm
+
+win: windows-amd64
+
+## Standard names
+
+linux-amd64:
 	env CGO_ENABLED=0 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
@@ -20,15 +34,7 @@ main:
 	 -o cells\
 	 .
 
-arm:
-	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
-	 -o cells\
-	 .
-
-arm64:
+linux-arm64:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
@@ -36,8 +42,8 @@ arm64:
 	 -o cells\
 	 .
 
-darwin:
-	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
+linux-arm:
+	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -52,7 +58,15 @@ darwin-arm64:
 	 -o cells\
 	 .
 
-win:
+darwin-amd64:
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
+	 -o cells\
+	 .
+
+windows-amd64:
 	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
