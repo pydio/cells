@@ -16,9 +16,10 @@ type MetaSchemaFactory struct {
 func NewMetaSchemaFactory(label string) *MetaSchemaFactory {
 	return &MetaSchemaFactory{
 		root: map[string]interface{}{
-			"$id":        fmt.Sprint("pydio://schemas/meta-schema/" + label),
+			"$id":        fmt.Sprintf("pydio://schemas/meta-schema/%s", label),
 			"type":       "object",
 			"properties": map[string]interface{}{},
+			"required":   []interface{}{},
 		},
 	}
 }
@@ -67,31 +68,30 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	props := f.root["properties"].(map[string]interface{})
 	switch label {
 	case "string":
-		props["properties"] = map[string]interface{}{
-			"minLength": withNumberType(),
-			"maxLength": withNumberType(),
-		}
-		return toProtoStruct(props)
+		props["minLength"] = withNumberType()
+		props["maxLength"] = withNumberType()
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
 
 	case "number":
-		props["properties"] = map[string]interface{}{
-			"minimum": withNumberType(),
-			"maximum": withNumberType(),
-		}
-		return toProtoStruct(props)
+		props["minimum"] = withNumberType()
+		props["maximum"] = withNumberType()
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
 
 	case "array":
-		props["properties"] = map[string]interface{}{
-			"items": map[string]interface{}{
-				"type": withBooleanSchema(),
-			},
-			"minItems": withNumberSchema(),
-			"maxItems": withNumberSchema(),
-			"uniqueItems": map[string]interface{}{
-				"type": "boolean",
-			},
+		props["items"] = map[string]interface{}{
+			"type": withBooleanSchema(),
 		}
-		return toProtoStruct(props)
+		props["minItems"] = withNumberSchema()
+		props["maxItems"] = withNumberSchema()
+		props["uniqueItems"] = map[string]interface{}{
+			"type": "boolean",
+		}
+		return toProtoStruct(f.root)
+	case "boolean":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
 
 	default:
 		return nil
@@ -102,10 +102,10 @@ type JSONSchemaFactory struct {
 	root map[string]interface{}
 }
 
-func NewJSONSchemaFactory() *JSONSchemaFactory {
+func NewJSONSchemaFactory(label string) *JSONSchemaFactory {
 	return &JSONSchemaFactory{
 		root: map[string]interface{}{
-			"$id":                  "",
+			"$id":                  fmt.Sprintf("https://pydio.com/%s", label),
 			"type":                 "object",
 			"properties":           map[string]interface{}{},
 			"additionalProperties": false,
@@ -135,18 +135,13 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 
 		var schema_props map[string]interface{}
 		if err := json.Unmarshal([]byte(*n.JsonSchema), &schema_props); err == nil {
-			if p, ok := schema_props["properties"]; ok && p != nil {
-				properties[n.Namespace] = p
-			}
-		}
-		entry := map[string]interface{}{}
-		if p, ok := schema_props["properties"]; ok && p != nil {
-			entry["properties"] = p
+			p := schema_props["properties"].(map[string]interface{})
+			properties[n.Namespace] = p[n.Namespace]
 		}
 
 		if raw, ok := schema_props["required"]; ok && raw != nil {
-			arr, ok := raw.([]interface{})
-			if ok && len(arr) > 0 {
+			arr := raw.([]interface{})
+			if len(arr) > 0 {
 				if s, ok := arr[0].(string); ok && s != "" {
 					schema_props["required"] = []string{s}
 					if _, seen := requiredSet[s]; !seen {
@@ -174,27 +169,33 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 
 func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
 	props := f.root["properties"].(map[string]interface{})
+	var usermeta = "usermeta"
 
 	switch label {
 	case "boolean":
-		f.root["title"] = "Boolean"
-		props["boolean"] = withBooleanSchema()
+		var t = fmt.Sprintf("%s-boolean", usermeta)
+		f.root["title"] = t
+		props[t] = withBooleanSchema()
 
 	case "textarea":
+		var t = fmt.Sprintf("%s-long-text", usermeta)
 		f.root["title"] = "Long Text"
-		props["longText"] = withStringSchema()
+		props[t] = withStringSchema()
 
 	case "string":
-		f.root["title"] = "Text"
-		props["text"] = withStringSchema()
+		var t = fmt.Sprintf("%s-text", usermeta)
+		f.root["title"] = t
+		props[t] = withStringSchema()
 
 	case "integer":
-		f.root["title"] = "Number"
-		props["number"] = withNumberSchema()
+		var t = fmt.Sprintf("%s-number", usermeta)
+		f.root["title"] = "t"
+		props[t] = withNumberSchema()
 
 	case "date", "datetime":
-		f.root["title"] = "Date Or Time"
-		props["dateTime"] = withDateTimeSchema()
+		var t = fmt.Sprintf("%s-date-time", usermeta)
+		f.root["title"] = t
+		props[t] = withDateTimeSchema()
 
 	default:
 		return nil, nil
@@ -212,7 +213,7 @@ func GetMetaSchema(label string) *structpb.Struct {
 }
 
 func GetJsonSchema(label string) ([]byte, error) {
-	return NewJSONSchemaFactory().BuildJsonSchema(label)
+	return NewJSONSchemaFactory(label).BuildJsonSchema(label)
 }
 
 func withMin(min int, t string) map[string]interface{} {
@@ -240,8 +241,8 @@ func withMax(max int, t string) map[string]interface{} {
 func withStringSchema() map[string]interface{} {
 	s, _ := Infer[string](nil)
 	prop := marshalSchema(s)
-	prop["minLength"] = withMin(0, "string")["minLength"]
-	prop["maxLength"] = withMax(0, "string")["maxLength"]
+	// prop["minLength"] = withMin(0, "string")["minLength"]
+	// prop["maxLength"] = withMax(0, "string")["maxLength"]
 	// prop["pattern"] = ""
 	// prop["format"] = ""
 	return prop
@@ -250,8 +251,8 @@ func withStringSchema() map[string]interface{} {
 func withNumberSchema() map[string]interface{} {
 	s, _ := Infer[float64](nil)
 	prop := marshalSchema(s)
-	prop["minimum"] = withMin(0, "number")["minimum"]
-	prop["maximum"] = withMax(0, "number")["maximum"]
+	// prop["minimum"] = withMin(0, "number")["minimum"]
+	// prop["maximum"] = withMax(0, "number")["maximum"]
 	return prop
 }
 
@@ -276,6 +277,12 @@ func withNumberType() map[string]interface{} {
 func withStringType() map[string]interface{} {
 	return map[string]interface{}{
 		"type": "string",
+	}
+}
+
+func withBooleanType() map[string]interface{} {
+	return map[string]interface{}{
+		"type": "boolean",
 	}
 }
 

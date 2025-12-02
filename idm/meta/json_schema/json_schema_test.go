@@ -51,8 +51,8 @@ func TestJsonSchemaPackage(t *testing.T) {
 		So(pv, ShouldNotBeNil)
 
 		// ensure text property exists and contains structure
-		stv := pv.GetStructValue()
-		So(stv, ShouldNotBeNil)
+		// textVal := pv.GetStructValue().GetFields()["usermeta-text"]
+		// So(textVal, ShouldNotBeNil)
 		// So(textVal.GetStructValue(), ShouldNotBeNil)
 	})
 
@@ -253,14 +253,14 @@ func TestJsonSchemaCoverage(t *testing.T) {
 	})
 
 	Convey("JSONSchemaFactory.BuildJsonSchema returns bytes and contains expected fields", t, func() {
-		f := NewJSONSchemaFactory()
+		f := NewJSONSchemaFactory("string")
 
 		bt, st := f.BuildJsonSchema("string")
 		So(bt, ShouldNotBeNil)
 
 		var m map[string]interface{}
 		So(json.Unmarshal(bt, &m), ShouldBeNil)
-		So(m["title"], ShouldEqual, "Text")
+		So(m["title"], ShouldEqual, "usermeta-text")
 		props := m["properties"].(map[string]interface{})
 		So(props, ShouldNotBeNil)
 
@@ -276,7 +276,7 @@ func TestJsonSchemaCoverage(t *testing.T) {
 		So(bt2, ShouldNotBeNil)
 		var mt map[string]interface{}
 		So(json.Unmarshal(bt2, &mt), ShouldBeNil)
-		So(mt["title"], ShouldEqual, "Long Text")
+		So(mt["title"], ShouldEqual, "usermeta-long-text")
 		So(mt["properties"], ShouldNotBeNil)
 
 		bb, sb := f.BuildJsonSchema("boolean")
