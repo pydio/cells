@@ -8,11 +8,27 @@ GOBIN?=go
 
 .PHONY: all clean build main dev
 
+## Aliases (both historic and for convenience)
+
 all: clean build
 
 build: main
 
-main:
+main: linux-amd64
+
+arm64: linux-arm64
+
+arm: linux-arm
+
+darwin: darwin-arm64
+
+win: windows-amd64
+
+ds: dev start
+
+## Standard targets
+
+linux-amd64:
 	env CGO_ENABLED=0 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
@@ -20,15 +36,7 @@ main:
 	 -o cells\
 	 .
 
-arm:
-	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
-	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
-	 -o cells\
-	 .
-
-arm64:
+linux-arm64:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
@@ -36,8 +44,8 @@ arm64:
 	 -o cells\
 	 .
 
-darwin:
-	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
+linux-arm:
+	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -52,7 +60,16 @@ darwin-arm64:
 	 -o cells\
 	 .
 
-win:
+darwin-amd64:
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -o cells\
+	 .
+
+
+windows-amd64:
 	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
@@ -83,19 +100,8 @@ docker:
 dockercp:
 	docker stop ${CONTAINER}; docker cp ./cells-linux ${CONTAINER}:/bin/cells; docker start ${CONTAINER}
 
-#//// to be removed ?
-#thirtytwo:
-#	GOARCH=386 GOOS=linux ${GOBIN} build -trimpath\
-#	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-#	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
-#	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
-#	 -o cells-32bits\
-#	 .
-
 start:
 	./cells start
-
-ds: dev start
 
 licenses:
 	go-licenses report . --template ${GOPATH}/src/github.com/google/go-licenses/testdata/modules/hello01/licenses.tpl > DEPENDENCIES
