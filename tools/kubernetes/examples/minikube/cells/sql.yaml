@@ -1,0 +1,30 @@
+externalSQLDatabase:
+  enabled: true
+  host: my-mariadb.cells.svc.cluster.local
+  # add 
+  scheme: mysql
+  port: 3306
+  name: cells
+  params:
+    parseTime: "true"
+    prefix: "{{ .Meta.prefix }}"
+    policies: "{{.Meta.policies}}"
+    singular: "{{.Meta.singular}}"
+    maxConnections: "100"
+  tls:
+    enabled: true
+    client:
+      existingSecret: "my-mariadb-tls"
+      cert: "tls.crt"
+      key: "tls.key"
+    ca:
+      existingSecret: "pydio-root-ca"
+      cert: "ca.crt"
+  auth:
+    enabled: true
+    user: "root"
+    password: ""
+    existingSecret: "mariadb-secret"
+    existingSecretUsernameKey: "mariadb-username"
+    existingSecretPasswordKey: "mariadb-password"
+
