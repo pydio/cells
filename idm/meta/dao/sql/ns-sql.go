@@ -23,12 +23,12 @@ package sql
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
-	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/service"
@@ -71,9 +71,11 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.JsonDefinition = string(u.Definition)
 	res.EnforceDefault = u.EnforceDefault
 	res.PromptOnUpload = u.PromptOnUpload
-
-	schemaStruct := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
-	res.JsonSchema = schemaStruct
+	schema, err := json_schema.JsonToProtoStruct(u.JsonSchema)
+	if err != nil {
+		res.JsonSchema = nil
+	}
+	res.JsonSchema = schema
 
 	return res
 }
@@ -86,8 +88,24 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
 	u.PromptOnUpload = res.PromptOnUpload
-	res.JsonSchema = json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
+	s, _, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
+	if err == nil && s != nil {
+		schemaAsJson := datatypes.JSON(s)
+		u.JsonSchema = &schemaAsJson
+	}
+	return u
+}
 
+func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) *MetaNamespace {
+	u.Namespace = res.Namespace
+	u.Label = res.Label
+	u.Order = res.Order
+	u.Indexable = res.Indexable
+	u.Definition = []byte(res.JsonDefinition)
+	u.EnforceDefault = res.EnforceDefault
+	u.PromptOnUpload = res.PromptOnUpload
+	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
+	u.JsonSchema = js
 	return u
 }
 
@@ -134,7 +152,7 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 	return nil
 }
 
-// Add inserts a namespace
+// Add inserts a namespace // Upsert
 func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
 	tx := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
 	if tx.Error != nil {
@@ -192,6 +210,7 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 	return res, nil
 }
 
+// Gets a JSON Schema for all namespaces with combined field props
 func (s *nsSqlImpl) GetJSONSchema(ctx context.Context) (*structpb.Struct, error) {
 	var mm []*MetaNamespace
 	tx := s.Session(ctx).Find(&mm).Where("definition IS NOT NULL AND definition != ''")

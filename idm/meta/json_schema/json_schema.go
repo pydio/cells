@@ -3,7 +3,9 @@ package json_schema
 import (
 	"encoding/json"
 
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
+	"gorm.io/datatypes"
 )
 
 type MetaSchemaFactory struct {
@@ -27,6 +29,29 @@ func toProtoStruct(m map[string]interface{}) *structpb.Struct {
 	return s
 }
 
+func JsonToProtoStruct(b *datatypes.JSON) (*structpb.Struct, error) {
+	var m map[string]interface{}
+	if b == nil {
+		return nil, nil
+	}
+	if err := json.Unmarshal([]byte(*b), &m); err != nil {
+		return nil, err
+	}
+	return structpb.NewStruct(m)
+}
+
+func ProtoStructToJson(s *structpb.Struct) (*datatypes.JSON, error) {
+	if s == nil {
+		return nil, nil
+	}
+	b, err := protojson.Marshal(s)
+	if err != nil {
+		return nil, err
+	}
+	tmp := datatypes.JSON(b)
+	return &tmp, nil
+}
+
 func marshalSchema(s *Schema) map[string]interface{} {
 	b, err := s.MarshalJSON()
 	if err != nil {
@@ -44,17 +69,15 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	switch label {
 	case "string":
 		props["properties"] = map[string]interface{}{
-			"minLength": withNumberSchema(),
-			"maxLength": withNumberSchema(),
-			"pattern":   withStringSchema(),
-			"format":    withStringSchema(),
+			"minLength": withNumberType(),
+			"maxLength": withNumberType(),
 		}
 		return toProtoStruct(props)
 
 	case "number":
 		props["properties"] = map[string]interface{}{
-			"minimum": withNumberSchema(),
-			"maximum": withNumberSchema(),
+			"minimum": withNumberType(),
+			"maximum": withNumberType(),
 		}
 		return toProtoStruct(props)
 
@@ -83,9 +106,10 @@ type JSONSchemaFactory struct {
 func NewJSONSchemaFactory() *JSONSchemaFactory {
 	return &JSONSchemaFactory{
 		root: map[string]interface{}{
-			"$schema":    "https://json-schema.org/draft/2020-12/schema",
-			"type":       "object",
-			"properties": map[string]interface{}{},
+			"$id":                  "",
+			"type":                 "object",
+			"properties":           map[string]interface{}{},
+			"additionalProperties": false,
 		},
 	}
 }
@@ -129,46 +153,46 @@ func BuildNamespacesJsonSchema(ns []NamespaceDescriptor) (*structpb.Struct, erro
 	return toProtoStruct(root), nil
 }
 
-func (f *JSONSchemaFactory) BuildJsonSchema(label string) *structpb.Struct {
+func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, *structpb.Struct, error) {
 	props := f.root["properties"].(map[string]interface{})
 
 	switch label {
 	case "boolean":
 		f.root["title"] = "Boolean"
 		props["boolean"] = withBooleanSchema()
-		return toProtoStruct(f.root)
 
 	case "textarea":
 		f.root["title"] = "Long Text"
 		props["longText"] = withStringSchema()
-		return toProtoStruct(f.root)
 
 	case "string":
 		f.root["title"] = "Text"
 		props["text"] = withStringSchema()
-		return toProtoStruct(f.root)
 
 	case "integer":
 		f.root["title"] = "Number"
 		props["number"] = withNumberSchema()
-		return toProtoStruct(f.root)
 
 	case "date", "datetime":
 		f.root["title"] = "Date Or Time"
 		props["dateTime"] = withDateTimeSchema()
-		return toProtoStruct(f.root)
 
 	default:
-		return nil
+		return nil, nil, nil
 	}
 
+	b, err := json.Marshal(f.root)
+	if err != nil {
+		return nil, nil, err
+	}
+	return b, nil, nil
 }
 
 func GetMetaSchema(label string) *structpb.Struct {
 	return NewMetaSchemaFactory().BuildMetaSchema(label)
 }
 
-func GetJsonSchema(label string) *structpb.Struct {
+func GetJsonSchema(label string) ([]byte, *structpb.Struct, error) {
 	return NewJSONSchemaFactory().BuildJsonSchema(label)
 }
 
@@ -197,20 +221,18 @@ func withMax(max int, t string) map[string]interface{} {
 func withStringSchema() map[string]interface{} {
 	s, _ := Infer[string](nil)
 	prop := marshalSchema(s)
-	prop["minLength"] = withMin(3, "string")["minLength"]
-	prop["maxLength"] = withMax(5, "string")["maxLength"]
-	prop["pattern"] = ""
-	prop["format"] = ""
-	prop["default"] = ""
+	prop["minLength"] = withMin(0, "string")["minLength"]
+	prop["maxLength"] = withMax(0, "string")["maxLength"]
+	// prop["pattern"] = ""
+	// prop["format"] = ""
 	return prop
 }
 
 func withNumberSchema() map[string]interface{} {
 	s, _ := Infer[float64](nil)
 	prop := marshalSchema(s)
-	prop["minimum"] = withMin(3, "number")["minimum"]
-	prop["maximum"] = withMax(5, "number")["maximum"]
-	prop["default"] = 0
+	prop["minimum"] = withMin(0, "number")["minimum"]
+	prop["maximum"] = withMax(0, "number")["maximum"]
 	return prop
 }
 
@@ -224,6 +246,18 @@ func withDateTimeSchema() map[string]interface{} {
 	prop := marshalSchema(s)
 	prop["format"] = "date-time"
 	return prop
+}
+
+func withNumberType() map[string]interface{} {
+	return map[string]interface{}{
+		"type": "number",
+	}
+}
+
+func withStringType() map[string]interface{} {
+	return map[string]interface{}{
+		"type": "string",
+	}
 }
 
 func LegacyTypeToLabel(d []byte) string {
