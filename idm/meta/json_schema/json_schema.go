@@ -2,7 +2,6 @@ package json_schema
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -156,7 +155,7 @@ func BuildNamespacesJsonSchema(ns []NamespaceDescriptor) (*structpb.Struct, erro
 
 func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, *structpb.Struct, error) {
 	props := f.root["properties"].(map[string]interface{})
-	f.root["$id"] = fmt.Sprintf("https://schemas.pydio.com/%s", label)
+
 	switch label {
 	case "boolean":
 		f.root["title"] = "Boolean"

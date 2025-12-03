@@ -23,6 +23,7 @@ package sql
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -35,7 +36,6 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
-	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/pydio/cells/v5/idm/meta/json_schema"
 )
