@@ -163,6 +163,12 @@ func (s *Sync) Shutdown() {
 	if s.echoFilter != nil {
 		s.echoFilter.Stop()
 	}
+	if sh, ok := s.Source.(model.Shutdowner); ok {
+		_ = sh.Shutdown()
+	}
+	if sh, ok := s.Target.(model.Shutdowner); ok {
+		_ = sh.Shutdown()
+	}
 }
 
 // Run runs the sync with panic recovery
@@ -217,6 +223,9 @@ func (s *Sync) SetupEventsChan(statusChan chan model.Status, batchDone chan inte
 		// Forward internal events to sync event
 		s.watchConn = make(chan *model.EndpointStatus)
 		go func() {
+			defer func() {
+				recover()
+			}()
 			for e := range s.watchConn {
 				events <- e
 			}

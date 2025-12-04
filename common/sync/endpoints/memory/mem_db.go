@@ -25,6 +25,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -34,9 +35,16 @@ import (
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints"
 	"github.com/pydio/cells/v5/common/sync/model"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
+
+func init() {
+	endpoints.Register("mem", endpoints.OpenURLFunc(func(context.Context, *url.URL, ...*url.URL) (model.Endpoint, error) {
+		return NewMemDB(), nil
+	}))
+}
 
 type DBEvent struct {
 	Type   string

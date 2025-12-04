@@ -145,7 +145,7 @@ EXAMPLES
 					return e
 				}
 				defer sb.Close()
-				sb.SetManualCollector()
+				sb.AutoCreateBucket()
 				if capturePydioContents {
 					// Cannot use standard Capture
 					dss, _ := model2.AsDataSyncSource(source)
