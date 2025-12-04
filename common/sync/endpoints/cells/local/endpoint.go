@@ -22,6 +22,7 @@ package local
 
 import (
 	"context"
+	"net/url"
 	"path"
 	"strings"
 	"sync"
@@ -37,6 +38,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/sync/endpoints"
 	"github.com/pydio/cells/v5/common/sync/endpoints/cells"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -53,8 +55,40 @@ var (
 	_ model.MetadataReceiver = (*Local)(nil)
 )
 
+const (
+	scheme = "router"
+)
+
 func init() {
 	localRouterOnce = &sync.Once{}
+	endpoints.Register(scheme, endpoints.OpenURLFunc(func(ctx context.Context, u *url.URL, _ ...*url.URL) (model.Endpoint, error) {
+		rootPath := u.Path
+		var opts = cells.Options{
+			LocalRuntimeContext: ctx,
+		}
+		values := u.Query()
+		if values.Get("browseOnly") == "true" {
+			opts.BrowseOnly = true
+		}
+		if values.Get("initRegistry") == "true" {
+			opts.LocalInitRegistry = true
+		}
+		if values.Get("renewFolderUuids") == "true" {
+			opts.RenewFolderUuids = true
+		}
+		if metas := values.Get("metadataGlobs"); metas != "" {
+			for _, m := range strings.Split(metas, ",") {
+				gl, er := glob.Compile(m)
+				if er != nil {
+					return nil, er
+				}
+				opts.MetadataGlobs = append(opts.MetadataGlobs, gl)
+			}
+		}
+
+		return NewLocal(rootPath, opts), nil
+	}))
+
 }
 
 // Local directly connects to a Cells server running in the same network,
@@ -100,7 +134,7 @@ func NewLocal(root string, options cells.Options) *Local {
 // GetEndpointInfo returns info about this endpoint
 func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI:                   "router:///" + l.Root,
+		URI:                   scheme + ":///" + l.Root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,

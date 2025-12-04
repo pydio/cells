@@ -281,3 +281,8 @@ type HashStoreReader interface {
 	// SetRefHashStore passes a reference to a loaded snapshot
 	SetRefHashStore(source PathSyncSource)
 }
+
+type Shutdowner interface {
+	// Shutdown can be used implemented by endpoints
+	Shutdown() error
+}

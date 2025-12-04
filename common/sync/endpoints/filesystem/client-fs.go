@@ -27,6 +27,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -44,6 +45,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/sync/proc"
@@ -56,7 +58,19 @@ import (
 
 const (
 	SyncTmpPrefix = ".tmp.write."
+	scheme        = "fs"
 )
+
+func init() {
+	endpoints.Register(scheme, endpoints.OpenURLFunc(func(ctx context.Context, u *url.URL, _ ...*url.URL) (model.Endpoint, error) {
+		rootPath := u.Path
+		var opts = model.EndpointOptions{}
+		if u.Query().Get("browseOnly") == "true" {
+			opts.BrowseOnly = true
+		}
+		return NewFSClient(rootPath, opts)
+	}))
+}
 
 type Discarder struct {
 	bytes.Buffer
@@ -234,7 +248,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI:                   scheme + "://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PydioSyncHiddenFile},

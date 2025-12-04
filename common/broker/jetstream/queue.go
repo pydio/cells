@@ -59,6 +59,7 @@ func init() {
 			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&streamOpener{}))
 		}))
 	})
+	broker.RegisterAsyncQueue("nats", &streamOpener{})
 }
 
 type streamOpener struct{}
