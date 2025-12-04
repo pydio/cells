@@ -315,18 +315,25 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 
 	response := &idm.UpdateUserMetaNamespaceResponse{}
 	namespaceDAO := dao.GetNamespaceDao()
-	for _, metaNameSpace := range request.Namespaces {
-		if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
-			return nil, err
-		} else {
-			broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
-				Type:          idm.ChangeEventType_DELETE,
-				MetaNamespace: metaNameSpace,
-			})
+	if request.Operation == idm.UpdateUserMetaNamespaceRequest_DELETE {
+		for _, metaNameSpace := range request.Namespaces {
+			if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
+				return nil, err
+			} else {
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_DELETE,
+					MetaNamespace: metaNameSpace,
+				})
+			}
 		}
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
+			broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+				Type:          idm.ChangeEventType_DELETE,
+				MetaNamespace: metaNameSpace,
+			})
+
 			if err := namespaceDAO.Add(ctx, metaNameSpace); err != nil {
 				return nil, err
 			} else {

@@ -8,6 +8,8 @@ import (
 	"reflect"
 
 	"github.com/google/jsonschema-go/jsonschema"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // Type aliases
@@ -40,4 +42,66 @@ func InferBytes[T any](opts *ForOptions) ([]byte, error) {
 		return nil, err
 	}
 	return json.Marshal(s)
+}
+
+// FromJSON parses a JSON Schema document into a *Schema.
+func FromJSON(data []byte) (*Schema, error) {
+	var s Schema
+	if err := json.Unmarshal(data, &s); err != nil {
+		return nil, err
+	}
+	return &s, nil
+}
+
+func ValidateSchemaFromPbStruct(m *structpb.Struct) error {
+	if m == nil {
+		return nil
+	}
+	b, err := protojson.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return ValidateSchema(b)
+}
+
+func ValidateSchema(schemaJSON []byte) error {
+	schema, err := FromJSON(schemaJSON)
+	if err != nil {
+		return err
+	}
+
+	if _, err := schema.Resolve(nil); err != nil {
+		return err
+	}
+
+	var m map[string]any
+	if err := json.Unmarshal(schemaJSON, &m); err != nil {
+		return err
+	}
+
+	isObjectLike := false
+	if t, ok := m["type"]; ok {
+		if ts, ok := t.(string); ok && ts == "object" {
+			isObjectLike = true
+		}
+	}
+	if _, ok := m["required"]; ok {
+		isObjectLike = true
+	}
+	if _, ok := m["additionalProperties"]; ok {
+		isObjectLike = true
+	}
+
+	// If schema appears to describe an object, ensure 'properties' exists and is non-empty.
+	if isObjectLike {
+		props, ok := m["properties"]
+		if !ok {
+			return nil
+		}
+		if pm, ok := props.(map[string]any); !ok || len(pm) == 0 {
+			return nil
+		}
+	}
+
+	return nil
 }

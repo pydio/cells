@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
-
 	"github.com/pydio/cells/v5/idm/meta/json_schema"
 )
 
@@ -88,7 +87,7 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
 	u.PromptOnUpload = res.PromptOnUpload
-	s, _, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
+	s, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
 	if err == nil && s != nil {
 		schemaAsJson := datatypes.JSON(s)
 		u.JsonSchema = &schemaAsJson
@@ -96,7 +95,12 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	return u
 }
 
-func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) *MetaNamespace {
+func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) (*MetaNamespace, error) {
+	jssc := json_schema.ValidateSchemaFromPbStruct(res.JsonSchema)
+
+	if jssc != nil { // TODO move validation outside of DAO
+		return nil, jssc
+	}
 	u.Namespace = res.Namespace
 	u.Label = res.Label
 	u.Order = res.Order
@@ -106,7 +110,7 @@ func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) *MetaNamespace 
 	u.PromptOnUpload = res.PromptOnUpload
 	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
 	u.JsonSchema = js
-	return u
+	return u, nil
 }
 
 func NewNSDAO(db *gorm.DB) meta.NamespaceDAO {
@@ -154,9 +158,28 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 
 // Add inserts a namespace // Upsert
 func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
-	tx := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
-	if tx.Error != nil {
-		return nsTag(tx.Error)
+	// Update existing
+	var ex *MetaNamespace
+	tx0 := s.Session(ctx).Where(&MetaNamespace{Namespace: string(ns.Namespace)}).First(&ex)
+	if tx0.Error != nil && !errors.Is(tx0.Error, gorm.ErrRecordNotFound) {
+		return nsTag(tx0.Error)
+	}
+	if tx0.Error == nil {
+		validNs, er := (&MetaNamespace{}).FromExisting(ns)
+		if er != nil {
+			return nsTag(er)
+		}
+
+		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Updates(validNs)
+		if tx2.Error != nil {
+			return nsTag(tx2.Error)
+		}
+		return nil
+	}
+	// Insert
+	tx1 := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
+	if tx1.Error != nil {
+		return nsTag(tx1.Error)
 	}
 
 	if len(ns.Policies) > 0 {
