@@ -12,7 +12,7 @@ externalSQLDatabase:
     singular: "{{.Meta.singular}}"
     maxConnections: "100"
   tls:
-    enabled: true
+    enabled: false
     client:
       existingSecret: "my-mariadb-tls"
       cert: "tls.crt"

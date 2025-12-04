@@ -76,6 +76,12 @@ tolerations: []
 
 affinity: {}
 
+persistence:
+  enabled: false
+persistentVolumeClaimRetentionPolicy:
+  enabled: false
+
+
 # Disable integrated charts
 minio:
   enabled: false
@@ -92,16 +98,6 @@ etcd:
 minio:
   enabled: false  
 mongodb:
-  enabled: false  
-
-# 
-# vault:
-#   enabled: false
-
-
-
-
-
-
-
-
+  enabled: false 
+vault:
+  enabled: false
