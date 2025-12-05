@@ -55,7 +55,7 @@ const (
 type NamespaceDAO interface {
 	resources.DAO
 
-	Add(ctx context.Context, ns *idm.UserMetaNamespace) error
+	Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool)
 	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
 	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 	GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
