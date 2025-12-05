@@ -41,9 +41,6 @@ func JsonToProtoStruct(b *datatypes.JSON) (*structpb.Struct, error) {
 }
 
 func ProtoStructToJson(s *structpb.Struct) (*datatypes.JSON, error) {
-	if s == nil {
-		return nil, nil
-	}
 	b, err := protojson.Marshal(s)
 	if err != nil {
 		return nil, err
@@ -153,7 +150,7 @@ func BuildNamespacesJsonSchema(ns []NamespaceDescriptor) (*structpb.Struct, erro
 	return toProtoStruct(root), nil
 }
 
-func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, *structpb.Struct, error) {
+func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
 	props := f.root["properties"].(map[string]interface{})
 
 	switch label {
@@ -178,21 +175,21 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, *structpb.Str
 		props["dateTime"] = withDateTimeSchema()
 
 	default:
-		return nil, nil, nil
+		return nil, nil
 	}
 
 	b, err := json.Marshal(f.root)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return b, nil, nil
+	return b, nil
 }
 
 func GetMetaSchema(label string) *structpb.Struct {
 	return NewMetaSchemaFactory().BuildMetaSchema(label)
 }
 
-func GetJsonSchema(label string) ([]byte, *structpb.Struct, error) {
+func GetJsonSchema(label string) ([]byte, error) {
 	return NewJSONSchemaFactory().BuildJsonSchema(label)
 }
 

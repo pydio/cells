@@ -26,12 +26,17 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
+	"gorm.io/datatypes"
+
 	"github.com/pydio/cells/v5/common/proto/idm"
 	service "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/idm/meta"
+	"github.com/pydio/cells/v5/idm/meta/json_schema"
 
 	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 
@@ -51,11 +56,11 @@ func TestNSCrud(t *testing.T) {
 			So(er, ShouldBeNil)
 
 			// Insert a meta
-			err := mockDAO.Add(ctx, &idm.UserMetaNamespace{
+			err, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
 				Namespace:      "namespace",
 				Label:          "label",
 				Order:          1,
-				JsonDefinition: "{\"test\":\"value\"}",
+				JsonDefinition: "{\"type\":\"string\"}",
 			})
 			So(err, ShouldBeNil)
 
@@ -69,7 +74,7 @@ func TestNSCrud(t *testing.T) {
 			var def map[string]string
 			er = json.Unmarshal([]byte(jsonDef), &def)
 			So(er, ShouldBeNil)
-			So(def["test"], ShouldEqual, "value")
+			So(def["type"], ShouldEqual, "string")
 
 			e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace"})
 			So(e, ShouldBeNil)
@@ -141,62 +146,131 @@ func TestNSResourceRules(t *testing.T) {
 
 func TestNSNewFields(t *testing.T) {
 
-    test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
 
-        Convey("Create Meta Namespace with new fields", t, func() {
-            mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
-            So(er, ShouldBeNil)
+		Convey("Create Meta Namespace with new fields", t, func() {
+			mockDAO, err0 := manager.Resolve[meta.NamespaceDAO](ctx)
+			So(err0, ShouldBeNil)
+			tv := json_schema.LegacyTypeToLabel([]byte("{\"type\":\"string\"}"))
+			jsb, err1 := json_schema.GetJsonSchema(tv)
+			So(err1, ShouldBeNil)
+			schemaAsJson := datatypes.JSON(jsb)
+			jsStruct, err := json_schema.JsonToProtoStruct(&schemaAsJson)
+			So(err, ShouldBeNil)
+			in := &idm.UserMetaNamespace{
+				Namespace:      "namespace-newfields",
+				Label:          "label-newfields",
+				Order:          2,
+				JsonDefinition: "{\"type\":\"string\"}",
+				JsonSchema:     jsStruct,
+				PromptOnUpload: true,
+			}
 
-            in := &idm.UserMetaNamespace{
-                Namespace:      "namespace-newfields",
-                Label:          "label-newfields",
-                Order:          2,
-                JsonDefinition: "{\"k\":\"v\"}",
-                JsonSchema:     `{"type":"object"}`,
-                PromptOptions: &idm.PromptOptions{
-                    OnUpload: true,
-                },
-            }
+			// Insert a meta with new fields
+			err2, _ := mockDAO.Upsert(ctx, in)
+			So(err2, ShouldBeNil)
 
-            // Insert a meta with new fields
-            err := mockDAO.Add(ctx, in)
-            So(err, ShouldBeNil)
+			// Assert
+			result, err2 := mockDAO.List(ctx)
+			So(err2, ShouldBeNil)
 
-            // Assert
-            result, er := mockDAO.List(ctx)
-            So(er, ShouldBeNil)
+			ns, ok := result["namespace-newfields"]
+			So(ok, ShouldBeTrue)
 
-            ns, ok := result["namespace-newfields"]
-            So(ok, ShouldBeTrue)
+			// Basic fields
+			So(ns.Label, ShouldEqual, "label-newfields")
 
-            // Basic fields
-            So(ns.Label, ShouldEqual, "label-newfields")
-            
-            So(ns.JsonSchema, ShouldEqual, `{"type":"object"}`)
-            So(ns.PromptOptions, ShouldNotBeNil)
-            So(ns.PromptOptions.OnUpload, ShouldBeTrue)
+			So(ns.JsonSchema, ShouldNotBeNil)
+			So(ns.PromptOnUpload, ShouldBeTrue)
 
-            // Cleanup
-            e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace-newfields"})
-            So(e, ShouldBeNil)
-        })
-
-        Convey("List Meta Namespaces with new fields", t, func() {
-            mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
-            So(er, ShouldBeNil)
-
-            // List all namespaces
-            namespaces, err := mockDAO.List(ctx)
-            So(err, ShouldBeNil)
-
-            // Assert the new namespace is present
-            ns, ok := namespaces["namespace-newfields"]
-            So(ok, ShouldBeTrue)
-
-            So(ns.JsonSchema, ShouldEqual, `{"type":"object"}`)
-            So(ns.PromptOptions, ShouldNotBeNil)
-            So(ns.PromptOptions.OnUpload, ShouldBeTrue)
-        })
-    })
+			// Cleanup
+			err4 := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace-newfields"})
+			So(err4, ShouldBeNil)
+		})
+	})
 }
-// ...existing code...
+
+func TestNSAddUpdatesJsonSchema(t *testing.T) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
+		Convey("Add should update JsonSchema when Namespace is stored in db before update", t, func() {
+			mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
+			So(er, ShouldBeNil)
+
+			nsKey := "namespace-jsonschema-update"
+
+			// Arrange create initial namespace
+			err, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+				Namespace:      nsKey,
+				Label:          "label1",
+				Order:          1,
+				JsonDefinition: "{\"type\":\"string\"}",
+			})
+			So(err, ShouldBeNil)
+
+			// verify stored schema
+			result, er := mockDAO.List(ctx)
+			So(er, ShouldBeNil)
+			ns, ok := result[nsKey]
+			So(ok, ShouldBeTrue)
+			So(ns.JsonSchema, ShouldNotBeNil)
+
+			// update using Add
+			err1, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+				JsonDefinition: "{\"type\":\"textarea\"}",
+				Namespace:      nsKey,
+				Label:          "label2",
+				JsonSchema:     ns.JsonSchema,
+			})
+			So(err1, ShouldBeNil)
+
+			// verify stored schema
+			result2, er := mockDAO.List(ctx)
+			So(er, ShouldBeNil)
+			ns2, ok := result2[nsKey]
+			So(ok, ShouldBeTrue)
+			So(ns2.JsonSchema, ShouldNotBeNil)
+
+			// Arrange Update schema value
+			newSchemaMap := map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"newField": map[string]interface{}{
+						"type": "string",
+					},
+				},
+			}
+			newStruct, err := structpb.NewStruct(newSchemaMap)
+			So(err, ShouldBeNil)
+			ns.JsonSchema = newStruct
+			// Act - call Add to update JsonSchema
+			err2, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+				JsonDefinition: "{\"type\":\"object\"}",
+				Namespace:      nsKey,
+				Label:          "label3",
+				JsonSchema:     ns.JsonSchema,
+			})
+
+			So(err2, ShouldBeNil)
+
+			nss, err3 := mockDAO.List(ctx)
+			So(err3, ShouldBeNil)
+
+			// Assert
+			updated, ok := nss[nsKey]
+			So(ok, ShouldBeTrue)
+			So(updated.Namespace, ShouldEqual, nsKey)
+			So(updated.Label, ShouldEqual, "label3")
+			So(updated.JsonDefinition, ShouldEqual, "{\"type\":\"object\"}")
+			So(updated.Order, ShouldEqual, 1)
+
+			// Compare
+			expectedBytes, _ := protojson.Marshal(newStruct)
+			actualBytes, _ := protojson.Marshal(updated.JsonSchema)
+			So(string(actualBytes), ShouldEqual, string(expectedBytes))
+
+			// cleanup
+			e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: nsKey})
+			So(e, ShouldBeNil)
+		})
+	})
+}
