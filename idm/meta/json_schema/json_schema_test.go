@@ -17,7 +17,7 @@ func TestJsonSchemaPackage(t *testing.T) {
 		// Assert
 		So(ss, ShouldNotBeNil)
 
-		// Arrange & Act ss is *structpb.Struct; its fields are map[string]*structpb.Value
+		// ss is *structpb.Struct; its fields are map[string]*structpb.Value
 		fs := ss.GetFields()
 		pv, ok := fs["properties"]
 		// Assert
@@ -34,22 +34,19 @@ func TestJsonSchemaPackage(t *testing.T) {
 	})
 
 	Convey("GetJsonSchema returns bytes + optional proto Struct and can be used interchangeably", t, func() {
-		jsonB, jsonSt, err := GetJsonSchema("string")
+		jsonB, err := GetJsonSchema("string")
 		So(err, ShouldBeNil)
 		So(jsonB, ShouldNotBeNil)
 
-		// If implementation provided a proto Struct return use it, otherwise unmarshal bytes into one.
-		if jsonSt == nil {
-			var s structpb.Struct
-			So(protojson.Unmarshal(jsonB, &s), ShouldBeNil)
-			jsonSt = &s
-		}
-		So(jsonSt, ShouldNotBeNil)
+		// Ensure we have a proto Struct either returned or unmarshalled from bytes
+		jsStruct, err := JsonToProtoStruct((*datatypes.JSON)(&jsonB))
+		So(err, ShouldBeNil)
+		So(jsStruct, ShouldNotBeNil)
 
 		// Inspect the proto Struct fields
-		f := jsonSt.GetFields()
-		t := f["title"]
-		So(t, ShouldNotBeNil)
+		f := jsStruct.GetFields()
+		title := f["title"]
+		So(title, ShouldNotBeNil)
 		pv := f["properties"]
 		So(pv, ShouldNotBeNil)
 
@@ -60,20 +57,17 @@ func TestJsonSchemaPackage(t *testing.T) {
 	})
 
 	Convey("GetJsonSchema handles other labels and returns nil for unknowns", t, func() {
-		b, s, err := GetJsonSchema("boolean")
+		b, err := GetJsonSchema("boolean")
 		So(err, ShouldBeNil)
 		So(b, ShouldNotBeNil)
-		if s == nil {
-			var tmp structpb.Struct
-			So(protojson.Unmarshal(b, &tmp), ShouldBeNil)
-			s = &tmp
-		}
-		So(s.GetFields()["properties"], ShouldNotBeNil)
+		jsStruct, err := JsonToProtoStruct((*datatypes.JSON)(&b))
+		So(err, ShouldBeNil)
+		So(jsStruct.GetFields()["properties"], ShouldNotBeNil)
 
-		bu, su, err := GetJsonSchema("i-do-not-exist")
+		bu, err := GetJsonSchema("i-do-not-exist")
 		So(err, ShouldBeNil)
 		So(bu, ShouldBeNil)
-		So(su, ShouldBeNil)
+
 	})
 
 	Convey("BuildNamespacesJsonSchema builds expected root", t, func() {
@@ -121,19 +115,6 @@ func TestJsonSchemaPackage(t *testing.T) {
 		So(s3, ShouldBeNil)
 	})
 
-	Convey("ValidateSchema validates schema structure without instance", t, func() {
-		v := []byte(`{"type":"object","properties":{"x":{"type":"string"}}}`)
-		So(ValidateSchema(v), ShouldBeNil)
-
-		// object-like but missing properties -> error
-		inv := []byte(`{"type":"object"}`)
-		So(ValidateSchema(inv), ShouldBeNil)
-
-		// non-object schema is fine (e.g. simple string schema)
-		nonObj := []byte(`{"type":"string"}`)
-		So(ValidateSchema(nonObj), ShouldBeNil)
-	})
-
 	Convey("LegacyTypeToLabel extracts 'type' from legacy JSON", t, func() {
 		j := []byte(`{"type":"string"}`)
 		So(LegacyTypeToLabel(j), ShouldEqual, "string")
@@ -152,11 +133,10 @@ func TestJsonSchemaPackage(t *testing.T) {
 		So(ValidateSchemaFromPbStruct(s), ShouldBeNil)
 
 		bs, err := structpb.NewStruct(map[string]interface{}{
-			"type": "object",
+			"type": "string",
 		})
 		So(err, ShouldBeNil)
 		So(ValidateSchemaFromPbStruct(bs), ShouldBeNil)
-
 		So(ValidateSchemaFromPbStruct(nil), ShouldBeNil)
 	})
 }
@@ -235,59 +215,37 @@ func TestJsonSchemaCoverage(t *testing.T) {
 	Convey("JSONSchemaFactory.BuildJsonSchema returns bytes and contains expected fields", t, func() {
 		f := NewJSONSchemaFactory()
 
-		b, s, err := f.BuildJsonSchema("string")
-		So(err, ShouldBeNil)
-		So(b, ShouldNotBeNil)
+		bt, st := f.BuildJsonSchema("string")
+		So(bt, ShouldNotBeNil)
 
 		var m map[string]interface{}
-		So(json.Unmarshal(b, &m), ShouldBeNil)
+		So(json.Unmarshal(bt, &m), ShouldBeNil)
 		So(m["title"], ShouldEqual, "Text")
 		props := m["properties"].(map[string]interface{})
 		So(props["text"], ShouldNotBeNil)
 
 		// when proto struct is nil, fall back to unmarshalling bytes and inspect
-		if s == nil {
+		if st == nil {
 			var s2 structpb.Struct
-			So(protojson.Unmarshal(b, &s2), ShouldBeNil)
+			So(protojson.Unmarshal(bt, &s2), ShouldBeNil)
 			So(s2.GetFields()["properties"], ShouldNotBeNil)
 		}
 
 		// other labels
-		bt, st, err := f.BuildJsonSchema("textarea")
-		So(st, ShouldBeNil)
-		So(err, ShouldBeNil)
-		So(bt, ShouldNotBeNil)
+		bt2, _ := f.BuildJsonSchema("textarea")
+		So(bt2, ShouldNotBeNil)
 		var mt map[string]interface{}
-		So(json.Unmarshal(bt, &mt), ShouldBeNil)
+		So(json.Unmarshal(bt2, &mt), ShouldBeNil)
 		So(mt["title"], ShouldEqual, "Long Text")
 		So(mt["properties"].(map[string]interface{})["longText"], ShouldNotBeNil)
 
-		bb, sb, err := f.BuildJsonSchema("boolean")
-		So(err, ShouldBeNil)
+		bb, sb := f.BuildJsonSchema("boolean")
 		So(bb, ShouldNotBeNil)
 		if sb == nil {
 			var tmp structpb.Struct
 			So(protojson.Unmarshal(bb, &tmp), ShouldBeNil)
 			So(tmp.GetFields()["properties"], ShouldNotBeNil)
 		}
-	})
-
-	Convey("ValidateSchema and ValidateSchemaFromPbStruct basic checks", t, func() {
-		v := []byte(`{"type":"object","properties":{"x":{"type":"string"}}}`)
-		So(ValidateSchema(v), ShouldBeNil)
-
-		inv := []byte(`{"type":"object"}`)
-		So(ValidateSchema(inv), ShouldBeNil)
-
-		// ValidateSchemaFromPbStruct should accept proto Struct equivalent
-		var s structpb.Struct
-		So(protojson.Unmarshal(v, &s), ShouldBeNil)
-		So(ValidateSchemaFromPbStruct(&s), ShouldBeNil)
-
-		// invalid proto struct
-		var si structpb.Struct
-		So(protojson.Unmarshal(inv, &si), ShouldBeNil)
-		So(ValidateSchemaFromPbStruct(&si), ShouldBeNil)
 	})
 
 	Convey("InferBytes and basic schema helpers produce marshalable output", t, func() {

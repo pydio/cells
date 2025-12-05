@@ -56,7 +56,7 @@ func TestNSCrud(t *testing.T) {
 			So(er, ShouldBeNil)
 
 			// Insert a meta
-			err := mockDAO.Add(ctx, &idm.UserMetaNamespace{
+			err, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
 				Namespace:      "namespace",
 				Label:          "label",
 				Order:          1,
@@ -167,7 +167,7 @@ func TestNSNewFields(t *testing.T) {
 			}
 
 			// Insert a meta with new fields
-			err2 := mockDAO.Add(ctx, in)
+			err2, _ := mockDAO.Upsert(ctx, in)
 			So(err2, ShouldBeNil)
 
 			// Assert
@@ -199,7 +199,7 @@ func TestNSAddUpdatesJsonSchema(t *testing.T) {
 			nsKey := "namespace-jsonschema-update"
 
 			// Arrange create initial namespace
-			err := mockDAO.Add(ctx, &idm.UserMetaNamespace{
+			err, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
 				Namespace:      nsKey,
 				Label:          "label1",
 				Order:          1,
@@ -215,7 +215,7 @@ func TestNSAddUpdatesJsonSchema(t *testing.T) {
 			So(ns.JsonSchema, ShouldNotBeNil)
 
 			// update using Add
-			err1 := mockDAO.Add(ctx, &idm.UserMetaNamespace{
+			err1, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
 				JsonDefinition: "{\"type\":\"textarea\"}",
 				Namespace:      nsKey,
 				Label:          "label2",
@@ -243,7 +243,7 @@ func TestNSAddUpdatesJsonSchema(t *testing.T) {
 			So(err, ShouldBeNil)
 			ns.JsonSchema = newStruct
 			// Act - call Add to update JsonSchema
-			err2 := mockDAO.Add(ctx, &idm.UserMetaNamespace{
+			err2, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
 				JsonDefinition: "{\"type\":\"object\"}",
 				Namespace:      nsKey,
 				Label:          "label3",

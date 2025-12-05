@@ -26,7 +26,6 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/errors"
@@ -141,7 +140,7 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 	tx := s.Where(&MetaNamespace{Namespace: meta.ReservedNamespaceBookmark}).First(&bm)
 	if tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 		log.Logger(ctx).Info("creating namespace bookmark")
-		if err := s.Add(ctx, &idm.UserMetaNamespace{
+		if err, _ := s.Upsert(ctx, &idm.UserMetaNamespace{
 			Namespace: meta.ReservedNamespaceBookmark,
 			Label:     "Bookmarks",
 			Policies: []*service.ResourcePolicy{
@@ -157,40 +156,40 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 }
 
 // Add inserts a namespace // Upsert
-func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
+func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool) {
 	// Update existing
 	var ex *MetaNamespace
-	tx0 := s.Session(ctx).Where(&MetaNamespace{Namespace: string(ns.Namespace)}).First(&ex)
+	tx0 := s.Session(ctx).Where(&MetaNamespace{Namespace: ns.Namespace}).First(&ex)
 	if tx0.Error != nil && !errors.Is(tx0.Error, gorm.ErrRecordNotFound) {
-		return nsTag(tx0.Error)
+		return nsTag(tx0.Error), false
 	}
 	if tx0.Error == nil {
 		validNs, er := (&MetaNamespace{}).FromExisting(ns)
 		if er != nil {
-			return nsTag(er)
+			return nsTag(er), false
 		}
 
 		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Updates(validNs)
 		if tx2.Error != nil {
-			return nsTag(tx2.Error)
+			return nsTag(tx2.Error), false
 		}
-		return nil
+		return nil, true
 	}
 	// Insert
-	tx1 := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
+	tx1 := s.Session(ctx).Create((&MetaNamespace{}).From(ns))
 	if tx1.Error != nil {
-		return nsTag(tx1.Error)
+		return nsTag(tx1.Error), false
 	}
 
 	if len(ns.Policies) > 0 {
 		if pols, err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
-			return nsTag(err)
+			return nsTag(err), false
 		} else {
 			ns.Policies = pols
 		}
 	}
 
-	return nil
+	return nil, false
 }
 
 // Del removes a namespace
