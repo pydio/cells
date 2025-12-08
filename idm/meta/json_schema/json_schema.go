@@ -2,6 +2,7 @@ package json_schema
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -12,9 +13,10 @@ type MetaSchemaFactory struct {
 	root map[string]interface{}
 }
 
-func NewMetaSchemaFactory() *MetaSchemaFactory {
+func NewMetaSchemaFactory(label string) *MetaSchemaFactory {
 	return &MetaSchemaFactory{
 		root: map[string]interface{}{
+			"$id":        fmt.Sprint("pydio://schemas/meta-schema/" + label),
 			"type":       "object",
 			"properties": map[string]interface{}{},
 		},
@@ -107,45 +109,65 @@ func NewJSONSchemaFactory() *JSONSchemaFactory {
 			"type":                 "object",
 			"properties":           map[string]interface{}{},
 			"additionalProperties": false,
+			"required":             []interface{}{},
 		},
 	}
 }
 
 type NamespaceDescriptor struct {
-	Label      string
-	Definition []byte
+	Namespace      string
+	Label          string
+	Definition     []byte
+	PromptOnUpload bool
+	EnforceDefault bool
+	JsonSchema     *datatypes.JSON
 }
 
-func BuildNamespacesJsonSchema(ns []NamespaceDescriptor) (*structpb.Struct, error) {
-	props := map[string]interface{}{}
+func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, error) {
+	properties := map[string]interface{}{}
+	requiredSet := make(map[string]struct{})
+	var rootRequired []string
 
-	for _, n := range ns {
-		// TODO DRY
-		var def map[string]any
-		if err := json.Unmarshal(n.Definition, &def); err != nil {
-			return nil, err
+	for _, n := range mns {
+		if n.JsonSchema == nil || len(*n.JsonSchema) == 0 {
+			continue
 		}
-		lt, _ := def["type"].(string)
 
-		switch lt {
-		case "string", "textarea":
-			props[n.Label] = withStringSchema()
-		case "number", "integer", "float":
-			props[n.Label] = withNumberSchema()
-		case "boolean":
-			props[n.Label] = withBooleanSchema()
-		case "date", "datetime", "date time":
-			props[n.Label] = withDateTimeSchema()
-		default:
-			return nil, nil
+		var schema_props map[string]interface{}
+		if err := json.Unmarshal([]byte(*n.JsonSchema), &schema_props); err == nil {
+			if p, ok := schema_props["properties"]; ok && p != nil {
+				properties[n.Namespace] = p
+			}
 		}
+		entry := map[string]interface{}{}
+		if p, ok := schema_props["properties"]; ok && p != nil {
+			entry["properties"] = p
+		}
+
+		if raw, ok := schema_props["required"]; ok && raw != nil {
+			arr, ok := raw.([]interface{})
+			if ok && len(arr) > 0 {
+				if s, ok := arr[0].(string); ok && s != "" {
+					schema_props["required"] = []string{s}
+					if _, seen := requiredSet[s]; !seen {
+						requiredSet[s] = struct{}{}
+						rootRequired = append(rootRequired, s)
+					}
+				}
+			}
+		}
+
 	}
 
+	reqList := make([]interface{}, 0, len(rootRequired))
+	for _, s := range rootRequired {
+		reqList = append(reqList, s)
+	}
 	root := map[string]interface{}{
 		"type":       "object",
-		"title":      "Namespaces Json Schema",
-		"properties": props,
-		"required":   []interface{}{},
+		"title":      "user-namespaces-schema",
+		"properties": properties,
+		"required":   reqList,
 	}
 	return toProtoStruct(root), nil
 }
@@ -186,7 +208,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
 }
 
 func GetMetaSchema(label string) *structpb.Struct {
-	return NewMetaSchemaFactory().BuildMetaSchema(label)
+	return NewMetaSchemaFactory(label).BuildMetaSchema(label)
 }
 
 func GetJsonSchema(label string) ([]byte, error) {
