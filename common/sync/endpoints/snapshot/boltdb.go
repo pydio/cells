@@ -133,6 +133,7 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 
 func (s *BoltSnapshot) AutoCreateBucket() error {
 	s.manualCollector = true
+	close(s.autoBatchClose) // Disable batching
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b == nil {
 			_, er := tx.CreateBucket(bucketName)
@@ -168,7 +169,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 		s.db.Update(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
-				return errors.New("cannot find root bucket - you need to create a bucket or set manualCollector=true")
+				return errors.New("cannot find root bucket - you need to create a bucket or set createBucket=true")
 			}
 			for _, node := range s.sortByKey(creates) {
 				b.Put([]byte(node.GetPath()), s.marshal(node))
@@ -231,7 +232,14 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 }
 
 func (s *BoltSnapshot) FinishSession(ctx context.Context, sessionUuid string) error {
-	s.FlushSession(ctx, sessionUuid)
+	er := s.FlushSession(ctx, sessionUuid)
+	if er != nil {
+		return er
+	}
+	// Empty createsSession map
+	s.createsSessionLock.Lock()
+	s.createsSession = nil
+	s.createsSessionLock.Unlock()
 	return nil
 }
 
@@ -285,6 +293,19 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 		})
 		if er != nil {
 			return
+		}
+		if s.manualCollector {
+			// Do not AutoBatch
+			return s.db.Update(func(tx *bbolt.Tx) error {
+				b := tx.Bucket(bucketName)
+				if b == nil {
+					return errors.New("cannot find root bucket")
+				}
+				for _, n := range nn {
+					_ = b.Put([]byte(n.GetPath()), s.marshal(n))
+				}
+				return nil
+			})
 		}
 		for _, n := range nn {
 			s.autoBatchChan <- n
@@ -349,7 +370,9 @@ func (s *BoltSnapshot) IsEmpty() bool {
 }
 
 func (s *BoltSnapshot) Close(delete ...bool) {
-	close(s.autoBatchClose)
+	if !s.manualCollector {
+		close(s.autoBatchClose)
+	}
 	<-time.After(500 * time.Millisecond)
 	s.db.Close()
 	<-time.After(500 * time.Millisecond)
