@@ -234,20 +234,23 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 
 // Gets a JSON Schema for all namespaces with combined field props
 func (s *nsSqlImpl) GetJSONSchema(ctx context.Context) (*structpb.Struct, error) {
-	var mm []*MetaNamespace
-	tx := s.Session(ctx).Find(&mm).Where("definition IS NOT NULL AND definition != ''")
+	var mns []*MetaNamespace
+	tx := s.Session(ctx).Find(&mns).Where("definition IS NOT NULL AND definition != ''")
 	if tx.Error != nil {
 		return nil, nsTag(tx.Error)
 
 	}
-	if len(mm) == 0 {
+	if len(mns) == 0 {
 		return nil, nil
 	}
-	nss := make([]json_schema.NamespaceDescriptor, 0, len(mm))
-	for _, m := range mm {
+	nss := make([]json_schema.NamespaceDescriptor, 0, len(mns))
+	for _, m := range mns {
 		nss = append(nss, json_schema.NamespaceDescriptor{
-			Label:      m.Label,
-			Definition: m.Definition,
+			Label:          m.Label,
+			Definition:     m.Definition,
+			Namespace:      m.Namespace,
+			PromptOnUpload: m.PromptOnUpload,
+			JsonSchema:     m.JsonSchema,
 		})
 	}
 
