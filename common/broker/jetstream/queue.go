@@ -59,10 +59,13 @@ func init() {
 			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&streamOpener{}))
 		}))
 	})
-	broker.RegisterAsyncQueue("nats", &streamOpener{})
+	// For standalone queues, set useLocalConn to not re-use global nc variable
+	broker.RegisterAsyncQueue("nats", &streamOpener{useLocalConn: true})
 }
 
-type streamOpener struct{}
+type streamOpener struct {
+	useLocalConn bool
+}
 
 func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	streamName := u.Query().Get("name")
@@ -79,7 +82,7 @@ func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQue
 	hashr.Write([]byte(streamName))
 	sha := hex.EncodeToString(hashr.Sum(nil))
 	log.Logger(ctx).Debug("Open JetStream on " + streamName + " as " + sha)
-	return NewNatsQueue(ctx, u, sha)
+	return NewNatsQueue(ctx, u, sha, s.useLocalConn)
 }
 
 type Queue struct {
@@ -140,12 +143,17 @@ func (q *Queue) Consume(process func(context.Context, ...broker.Message)) error 
 func (q *Queue) Close(ctx context.Context) error {
 	if q.conn != nil {
 		q.conn.Close()
+		q.conn = nil
 	}
 	return nil
 }
 
-func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, error) {
-	if nc == nil {
+func NewNatsQueue(ctx context.Context, u *url.URL, streamName string, useLocalConn bool) (*Queue, error) {
+	var conn *nats.Conn
+	if !useLocalConn && nc != nil && !nc.IsClosed() {
+		conn = nc
+	} else {
+		// Create new conn
 		opts := []nats.Option{
 			nats.Timeout(10 * time.Second),
 		}
@@ -201,23 +209,25 @@ func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, e
 
 		u.RawQuery = ""
 
-		c, err := nats.Connect(u.String(), opts...)
+		conn, err = nats.Connect(u.String(), opts...)
 		if err != nil {
 			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...", zap.Error(err))
 			return nil, err
 		}
 
-		nc = c
+		if !useLocalConn {
+			nc = conn
+		}
 	}
 
-	js, er := jetstream.New(nc)
+	js, er := jetstream.New(conn)
 	if er != nil {
 		return nil, er
 	}
 
 	q := &Queue{
 		rootCtx:    ctx,
-		conn:       nc,
+		conn:       conn,
 		streamName: streamName,
 		js:         js,
 	}
