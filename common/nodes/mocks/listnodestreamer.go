@@ -37,18 +37,20 @@ type ListNodeStreamer struct {
 	w      *io.PipeWriter
 	r      *io.PipeReader
 	closed bool
+	ctx    context.Context
 }
 
 func (l *ListNodeStreamer) Context() context.Context {
-	return context.Background()
+	return l.ctx
 }
 
-func NewListNodeStreamer() *ListNodeStreamer {
+func NewListNodeStreamer(ctx context.Context) *ListNodeStreamer {
 	r, w := io.Pipe()
 
 	return &ListNodeStreamer{
-		w: w,
-		r: r,
+		w:   w,
+		r:   r,
+		ctx: ctx,
 	}
 }
 
