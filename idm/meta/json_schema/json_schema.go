@@ -139,13 +139,13 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 			return nil, err
 		}
 
-		p := schema_props["properties"].(map[string]interface{})
+		props := schema_props["properties"].(map[string]interface{})
 		// NOTE: Should it ever happen?? Check the format in ./json_schema_test.go:75
-		if len(p) > 1 {
+		if len(props) > 1 {
 			return nil, fmt.Errorf("namespace property has more than one definition: %s", n.Namespace)
 		}
 
-		for _, v := range p {
+		for _, v := range props {
 			properties[n.Namespace] = v
 		}
 
