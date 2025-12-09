@@ -147,10 +147,19 @@ class DropUploader extends React.Component {
         const store = Store.getInstance() ;
         store.getSessions().forEach((session) => {
             if(session.getStatus() === 'promptMeta'){
-                session.setUserMeta(data);
-                session.prepare();
+                if(data === undefined) {
+                    // Clean up all children before removing the session
+                    store.clearAll();
+                    store.removeSession(session);
+                } else {
+                    session.setUserMeta(data);
+                    session.prepare();
+                }
             }
         });
+        if(data === undefined && store.getSessions().length === 0 && this.props.onDismiss){
+            this.props.onDismiss()
+        }
     }
 
     supportsFolder(){
@@ -222,7 +231,7 @@ class DropUploader extends React.Component {
                 <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions();}}/>
                 <ClearOptionsPane configs={configs} open={showClear} anchorEl={clearAnchorEl} onDismiss={() => {this.setState({showClear: false, clearAnchorEl:null})}}/>
                 {needsConfirm && <ConfirmExists onConfirm={this.dialogSubmit.bind(this)} onCancel={this.dialogCancel.bind(this)}/>}
-                {promptNamespaces && metaLib && <ModalMetaPrompt namespaces={promptNamespaces} onDismiss={this.metaDismiss} metaLib={metaLib}/>}
+                {promptNamespaces && metaLib && <ModalMetaPrompt namespaces={promptNamespaces} onDismiss={(data) => this.metaDismiss(data)} metaLib={metaLib}/>}
             </div>
         );
     }

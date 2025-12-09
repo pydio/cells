@@ -18,28 +18,33 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React,{useCallback, useState, useRef} from 'react'
+import React, {useCallback, useState, useRef, useEffect} from 'react'
 import Pydio from 'pydio'
 import Node from 'pydio/model/node'
 import {Dialog, FlatButton} from 'material-ui'
 
 export default ({namespaces, onDismiss, metaLib}) => {
-
+    const [errorsScope, setErrorsScope] = useState('local');
     const [data, setData] = useState({})
+    const [valid, setValid] = useState(false)
     const pydio = Pydio.getInstance();
     const cancel = useCallback(()=> {
         onDismiss()
     }, [])
     const submit = useCallback(()=> {
+        if (!valid) {
+            setErrorsScope('global') 
+            return
+        }
+        
         onDismiss(data)
-    }, [data])
-
+    }, [data, valid])
 
     const {UserMetaPanelV2, MetaClient} = metaLib
     const metaPanel = useRef(null)
 
     const loader = useCallback(() => {
-        return Promise.resolve(MetaClient.getInstance().namespacesAsPanelConfig(namespaces))
+        return Promise.resolve(MetaClient.getInstance().namespacesAsPanelConfig(namespaces));
     }, [namespaces]);
 
     return (
@@ -47,25 +52,34 @@ export default ({namespaces, onDismiss, metaLib}) => {
             title={"Set Metadata"}
             actions={[
                 <FlatButton label={pydio.MessageHash[54]} onClick={cancel}/>,
-                <FlatButton label={pydio.MessageHash[48]} onClick={submit} primary={true}/>
+                <FlatButton
+                    label={pydio.MessageHash[48]}
+                    onClick={submit}
+                    primary={true}
+                />
             ]}
             modal={true}
             open={true}
             bodyStyle={{paddingBottom: 0}}
-            contentStyle={{width: 420, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
+            contentStyle={{width: 840, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
+            autoScrollBodyContent={true}
         >
-            <div>
-                <UserMetaPanelV2
-                    pydio={pydio}
-                    loader={loader}
-                    ref={metaPanel}
-                    multiple={false}
-                    node={new Node()}
-                    editMode={true}
-                    style={{fontSize: 14, minHeight:200}}
-                    onChangeUpdateData={(d) => setData(d)}
-                />
-            </div>
+            <UserMetaPanelV2
+                pydio={pydio}
+                loader={loader}
+                ref={metaPanel}
+                multiple={false}
+                node={new Node()}
+                editMode={true}
+                style={{fontSize: 14, minHeight:200}}
+                onChangeUpdateData={(d) => {
+                    setErrorsScope('local')
+                    setData(d)
+                }}
+                onFormLoaded={() => window.dispatchEvent(new Event('resize'))}
+                onValidStatusChanged={(v) => setValid(v)}
+                errorsScope={errorsScope}
+            />
         </Dialog>
     );
 

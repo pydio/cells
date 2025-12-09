@@ -66,6 +66,7 @@ module.exports = {
                     // Learn more about loaders from https://webpack.js.org/loaders/
                 ],
             },
+            resolve: {extensions: ['.js', '.jsx', '.json']},
             watch: process.env.NODE_ENV !== 'production'
         })
     }
