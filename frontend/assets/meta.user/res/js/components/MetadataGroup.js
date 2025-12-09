@@ -109,7 +109,11 @@ export const MetadataGroup = ({
             cursor: 'pointer',
             borderTop: 1
         },
-        fields: {}
+        fields: {
+            columnWidth: 250,
+            columnCount: 2,
+            columnGap: 12
+        }
     };
 
     if (offset > 0) {

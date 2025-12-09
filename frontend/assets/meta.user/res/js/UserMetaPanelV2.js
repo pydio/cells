@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, { useImperativeHandle, forwardRef } from 'react'
+import React, {useImperativeHandle, forwardRef, useEffect} from 'react'
 import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
@@ -29,17 +29,22 @@ import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
  */
 const UserMetaPanelV2 = forwardRef((props, ref) => {
     const {
+        // Define if validation is "local" on input change
+        // or "global" on form submit
+        errorsScope = 'local',
         editMode = false,
         node,
         loader,
         loadChecks,
-        onChangeUpdateData,
         autoSave,
         supportTemplates,
         multiple,
         pydio,
         style,
+        onChangeUpdateData,
         onRequestEditMode,
+        onFormLoaded,
+        onValidStatusChanged,
         additionalProps
     } = props;
 
@@ -51,23 +56,38 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         updateValue,
         getUpdateData,
         resetUpdateData,
-        onCheck
+        onCheck,
+        valid,
     } = useMetadataState({
         node,
         loader,
         loadChecks,
         onChangeUpdateData,
-        autoSave
+        autoSave,
+        errorsScope
     });
 
     // Groups expand/collapse state
     const [groupsExpanded, toggleGroup] = useGroupsExpanded();
 
+    useEffect(() => {
+        if(onFormLoaded){
+            onFormLoaded(configs)
+        }
+    }, [fields]);
+    
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         getUpdateData,
         resetUpdateData
     }), [getUpdateData, resetUpdateData]);
+
+
+    useEffect(() => {
+        if (onValidStatusChanged) {
+            onValidStatusChanged(valid)
+        }
+    }, [valid]);
 
     // Build tree structure from configs
     const groupedNS = groupConfigsByNamespace(configs, supportTemplates);

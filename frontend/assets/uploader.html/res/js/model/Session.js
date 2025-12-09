@@ -145,7 +145,7 @@ class Session extends FolderItem {
             overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
         }
 
-        if(this._promptNamespaces && !this._userMetaSet) {
+        if(this._promptNamespaces && this._promptNamespaces.length && !this._userMetaSet) {
             this.setStatus('promptMeta')
             return Promise.resolve()
         }
