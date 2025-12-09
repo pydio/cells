@@ -130,7 +130,7 @@ func loadSnapshot(ctx context.Context, client model.Endpoint, storageKey, fsPath
 		return e
 	}
 	defer tgt.Close()
-	src, e := reader.GetReaderOn(ctx, storageKey)
+	src, e := reader.GetReaderOn(ctx, storageKey, nil)
 	if e != nil {
 		return e
 	}
@@ -154,7 +154,7 @@ func writeSnapshot(client model.Endpoint, fsPath, storageKey string) error {
 		return e
 	}
 	defer src.Close()
-	writer, writeDone, writeErr, e := target.GetWriterOn(context.Background(), storageKey, stat.Size())
+	writer, writeDone, writeErr, e := target.GetWriterOn(context.Background(), storageKey, stat.Size(), nil)
 	if e != nil {
 		return e
 	}

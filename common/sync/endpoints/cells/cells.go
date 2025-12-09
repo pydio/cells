@@ -510,7 +510,7 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 }
 
 // GetWriterOn retrieves a WriteCloser wired to the S3 gateway to PUT a file.
-func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
 	if path.Base(p) == common.PydioSyncHiddenFile {
@@ -550,7 +550,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 }
 
 // GetReaderOn retrieves an io.ReadCloser from the S3 Get operation
-func (c *Abstract) GetReaderOn(ctx context.Context, p string) (out io.ReadCloser, err error) {
+func (c *Abstract) GetReaderOn(ctx context.Context, p string, node tree.N) (out io.ReadCloser, err error) {
 	n := &tree.Node{Path: c.rooted(p)}
 	ct, cli, err := c.Factory.GetObjectsClient(c.getContext(ctx))
 	if err != nil {

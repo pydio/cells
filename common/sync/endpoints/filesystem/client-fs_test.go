@@ -281,7 +281,7 @@ func TestWriteNode(t *testing.T) {
 	Convey("Test write node content and check it's written on FS", t, func() {
 		c := EmptyMockedClient()
 		r := strings.NewReader("my-content")
-		w, _, _, e := c.GetWriterOn(context.Background(), "/test", 0)
+		w, _, _, e := c.GetWriterOn(context.Background(), "/test", 0, nil)
 		So(w, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 		io.Copy(w, r)
@@ -302,7 +302,7 @@ func TestReadNode(t *testing.T) {
 
 		c := EmptyMockedClient()
 		afero.WriteFile(c.FS, "/test", []byte("my-content"), 0777)
-		r, e := c.GetReaderOn(context.Background(), "/test")
+		r, e := c.GetReaderOn(context.Background(), "/test", nil)
 		So(r, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 

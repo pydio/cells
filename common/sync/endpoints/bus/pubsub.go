@@ -3,6 +3,7 @@ package bus
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/url"
 	"strings"
 	"time"
@@ -32,6 +33,8 @@ var (
 	_ model.SessionProvider  = (*PubSubEndpoint)(nil)
 	_ model.MetadataReceiver = (*PubSubEndpoint)(nil)
 	_ model.MetadataProvider = (*PubSubEndpoint)(nil)
+	_ model.DataSyncSource   = (*DataPubSubEndpoint)(nil)
+	_ model.DataSyncTarget   = (*DataPubSubEndpoint)(nil)
 )
 
 func init() {
@@ -49,18 +52,34 @@ func init() {
 			return nil, er
 		}
 
-		em := &PubSubEndpoint{
+		pb := &PubSubEndpoint{
 			isPub:      true,
 			queueURL:   queueURL,
 			AsyncQueue: aq,
 		}
-		if err := em.parseSubEndpoints(ctx, snapshotURL); err != nil {
+		if err := pb.parseSubEndpoints(ctx, snapshotURL); err != nil {
 			return nil, err
 		}
-		if err := em.parseMetaGlobs(ctx, u); err != nil {
+		if err := pb.parseMetaGlobs(ctx, u); err != nil {
 			return nil, err
 		}
-		return em, nil
+
+		if len(compose) > 2 {
+			dataEndpoint, err := endpoints.OpenEndpoint(ctx, compose[2].String())
+			if err != nil {
+				return nil, err
+			}
+			if tgt, ok := dataEndpoint.(model.DataSyncTarget); ok {
+				return &DataPubSubEndpoint{
+					PubSubEndpoint: pb,
+					tgt:            tgt,
+				}, nil
+			} else {
+				return nil, errors.New(fmt.Sprintf("third URL %s does not open a DataSyncTarget", compose[2].String()))
+			}
+		}
+
+		return pb, nil
 	}))
 
 	// Inits a PubSubEndpoint in "sub" mode => will implement the Watcher
@@ -88,6 +107,22 @@ func init() {
 		if err := em.parseMetaGlobs(ctx, u); err != nil {
 			return nil, err
 		}
+
+		if len(compose) > 2 {
+			dataEndpoint, err := endpoints.OpenEndpoint(ctx, compose[2].String())
+			if err != nil {
+				return nil, err
+			}
+			if src, ok := dataEndpoint.(model.DataSyncSource); ok {
+				return &DataPubSubEndpoint{
+					PubSubEndpoint: em,
+					src:            src,
+				}, nil
+			} else {
+				return nil, errors.New(fmt.Sprintf("third URL %s does not open a DataSyncSource", compose[2].String()))
+			}
+		}
+
 		return em, nil
 	}))
 
@@ -110,6 +145,75 @@ type PubSubEndpoint struct {
 	sessionProvider model.SessionProvider
 	metaReceiver    model.MetadataReceiver
 	metaGlob        []glob.Glob
+}
+
+type DataPubSubEndpoint struct {
+	*PubSubEndpoint
+	src model.DataSyncSource
+	tgt model.DataSyncTarget
+}
+
+type writeWrapper struct {
+	io.WriteCloser
+	closeCallback func() error
+}
+
+func (w *writeWrapper) Close() error {
+	if er := w.WriteCloser.Close(); er != nil {
+		return er
+	}
+	return w.closeCallback()
+}
+
+type readWrapper struct {
+	io.ReadCloser
+	closeCallback func() error
+}
+
+func (d *DataPubSubEndpoint) GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+	if node == nil {
+		err = errors.New("node must not be nil")
+		return
+	}
+	if d.tgt == nil {
+		err = errors.New("endpoint DataSyncTarget must not be nil")
+		return
+	}
+	// Flat storage
+	out, writeDone, writeErr, err = d.tgt.GetWriterOn(cancel, node.GetUuid(), targetSize, node)
+	if err != nil {
+
+	}
+	// After copy is finished, call CreateNode to trigger event and index in snapshot
+	return &writeWrapper{
+		WriteCloser: out,
+		closeCallback: func() error {
+			return d.CreateNode(cancel, node, true)
+		},
+	}, writeDone, writeErr, nil
+}
+
+func (d *DataPubSubEndpoint) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
+	if node == nil {
+		err = errors.New("node must not be nil")
+		return
+	}
+	if d.src == nil {
+		err = errors.New("endpoint DataSyncSource must not be nil")
+		return
+	}
+	// Read node by Uuid
+	out, err = d.src.GetReaderOn(ctx, node.GetUuid(), node)
+	if err != nil {
+		return
+	}
+	// After copy is finished, call CreateNode to index in snapshot
+	return &readWrapper{
+		ReadCloser: out,
+		closeCallback: func() error {
+			return d.CreateNode(ctx, node, true)
+		},
+	}, nil
 }
 
 func (e *PubSubEndpoint) GetEndpointInfo() model.EndpointInfo {

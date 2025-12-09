@@ -230,7 +230,7 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 
 }
 
-func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	writeErr = make(chan error, 1)
 	writeDone = make(chan bool, 1)
@@ -250,7 +250,7 @@ func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int
 
 }
 
-func (c *Client) GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error) {
+func (c *Client) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
 
 	out, _, err = c.Oc.GetObject(ctx, c.Bucket, c.getFullPath(path), models.ReadMeta{})
 	return
@@ -492,7 +492,7 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.Ob
 			objectInfo.ETag = cs
 		} else {
 			log.Logger(c.globalContext).Debug("Storing eTag inside ChecksumMapper for " + eTag)
-			reader, e := c.GetReaderOn(ctx, node.GetPath())
+			reader, e := c.GetReaderOn(ctx, node.GetPath(), nil)
 			if e != nil {
 				return objectInfo, e
 			}
@@ -519,7 +519,7 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.Ob
 			objectInfo.ETag = checksum
 			return objectInfo, nil
 		}
-		reader, e := c.GetReaderOn(ctx, node.GetPath())
+		reader, e := c.GetReaderOn(ctx, node.GetPath(), nil)
 		if e != nil {
 			return objectInfo, e
 		}

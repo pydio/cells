@@ -498,7 +498,7 @@ func (c *FSClient) UpdateFolderUuid(ctx context.Context, node tree.N) (tree.N, e
 	return node, err
 }
 
-func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	// Ignore .pydio except for root folder .pydio
 	if filepath.Base(path) == common.PydioSyncHiddenFile && strings.Trim(path, "/") != common.PydioSyncHiddenFile {
@@ -524,7 +524,7 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 
 }
 
-func (c *FSClient) GetReaderOn(_ context.Context, path string) (out io.ReadCloser, err error) {
+func (c *FSClient) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
 
 	return c.FS.Open(c.denormalize(path))
 
