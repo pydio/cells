@@ -67,13 +67,13 @@ func marshalSchema(s *Schema) map[string]interface{} {
 func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	props := f.root["properties"].(map[string]interface{})
 	switch label {
-	case "string":
+	case "string", "textarea":
 		props["minLength"] = withNumberType()
 		props["maxLength"] = withNumberType()
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
-	case "number":
+	case "integer":
 		props["minimum"] = withNumberType()
 		props["maximum"] = withNumberType()
 		props["required"] = withBooleanType()
@@ -90,6 +90,9 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 		}
 		return toProtoStruct(f.root)
 	case "boolean":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
+	case "date", "datetime":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
@@ -203,7 +206,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
 		props[t] = withNumberSchema()
 
 	case "date", "datetime":
-		var t = fmt.Sprintf("%s-date-time", usermeta)
+		var t = fmt.Sprintf("%s-datetime", usermeta)
 		f.root["title"] = t
 		props[t] = withDateTimeSchema()
 
