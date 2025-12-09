@@ -76,9 +76,11 @@ func TestJsonSchemaPackage(t *testing.T) {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": false,
             "properties": {
-                "maxLength": 0,
-                "minLength": 0,
-                "type": "string"
+							  "usermeta-text": {
+									"maxLength": 0,
+									"minLength": 0,
+									"type": "string"
+								}
             },
             "required": ["usermeta-text"],
             "title": "usermeta-text",

@@ -134,9 +134,19 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 		}
 
 		var schema_props map[string]interface{}
-		if err := json.Unmarshal([]byte(*n.JsonSchema), &schema_props); err == nil {
-			p := schema_props["properties"].(map[string]interface{})
-			properties[n.Namespace] = p[n.Namespace]
+		err := json.Unmarshal([]byte(*n.JsonSchema), &schema_props)
+		if err != nil {
+			return nil, err
+		}
+
+		props := schema_props["properties"].(map[string]interface{})
+		// NOTE: Should it ever happen?? Check the format in ./json_schema_test.go:75
+		if len(props) > 1 {
+			return nil, fmt.Errorf("namespace property has more than one definition: %s", n.Namespace)
+		}
+
+		for _, v := range props {
+			properties[n.Namespace] = v
 		}
 
 		if raw, ok := schema_props["required"]; ok && raw != nil {
@@ -179,7 +189,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
 
 	case "textarea":
 		var t = fmt.Sprintf("%s-long-text", usermeta)
-		f.root["title"] = "Long Text"
+		f.root["title"] = t
 		props[t] = withStringSchema()
 
 	case "string":
