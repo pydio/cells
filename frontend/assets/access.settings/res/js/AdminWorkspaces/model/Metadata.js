@@ -19,11 +19,17 @@
  */
 
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
+import {
+    UserMetaServiceApi,
+    IdmUserMetaNamespace,
+    IdmUpdateUserMetaNamespaceRequest,
+    UpdateUserMetaNamespaceRequestUserMetaNsOp,
+
+} from 'cells-sdk'
 
 class Metadata {
 
-    static loadNamespaces(){
+    static loadNamespaces() {
         const api = new UserMetaServiceApi(PydioApi.getRestClient());
         return api.listUserMetaNamespace();
     }
@@ -54,15 +60,20 @@ class Metadata {
         return api.updateUserMetaNamespace(request)
     }
 
+    static getMetaSchema(fileType) {
+        const api = new UserMetaServiceApi(PydioApi.getRestClient());
+        return api.getFieldSchema(fileType);
+    }
+
     /**
      * Clear ReactMeta cache if it exists
      */
-    static clearLocalCache(){
-        try{
-            if(window.ReactMeta){
+    static clearLocalCache() {
+        try {
+            if (window.ReactMeta) {
                 ReactMeta.Renderer.getClient().clearConfigs();
             }
-        }catch (e){
+        } catch (e) {
             //console.log(e)
         }
     }
@@ -70,16 +81,16 @@ class Metadata {
 }
 
 Metadata.MetaTypes = {
-    "string":       "Text",
-    "textarea":     "Long Text",
-    "integer":      "Number",
-    "boolean":      "Boolean",
-    "date":         "Date",
-    "choice":       "Selection",
-    "tags":         "Extensible Tags",
-    "stars_rate":   "Stars Rating",
-    "css_label":    "Color Labels",
-    "json":         "JSON"
+    "string": "Text",
+    "textarea": "Long Text",
+    "integer": "Number",
+    "boolean": "Boolean",
+    "date": "Date",
+    "choice": "Selection",
+    "tags": "Extensible Tags",
+    "stars_rate": "Stars Rating",
+    "css_label": "Color Labels",
+    "json": "JSON"
 };
 
-export {Metadata as default}
+export { Metadata as default }
