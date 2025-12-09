@@ -89,7 +89,6 @@ func TestNSCrud(t *testing.T) {
 }
 
 func TestNSResourceRules(t *testing.T) {
-
 	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
 		mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
 		if er != nil {
@@ -186,6 +185,52 @@ func TestNSNewFields(t *testing.T) {
 			// Cleanup
 			err4 := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace-newfields"})
 			So(err4, ShouldBeNil)
+		})
+	})
+}
+
+func TestNSDeleteWithJsonSchema(t *testing.T) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
+		Convey("Delete namespace with JsonSchema", t, func() {
+			mockDAO, err := manager.Resolve[meta.NamespaceDAO](ctx)
+			So(err, ShouldBeNil)
+
+			beforeList, err := mockDAO.List(ctx)
+			So(err, ShouldBeNil)
+			beforeLen := len(beforeList)
+
+			nsKey := "namespace-delete-jsonschema"
+			nsLabel := "label-delete-jsonschema"
+
+			jsBytes, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel([]byte("{\"type\":\"string\"}")))
+			So(err, ShouldBeNil)
+			jsAsJSON := datatypes.JSON(jsBytes)
+			jsStruct, err := json_schema.JsonToProtoStruct(&jsAsJSON)
+			So(err, ShouldBeNil)
+
+			// Insert namespace with JsonSchema value
+			err, _ = mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+				Namespace:      nsKey,
+				Label:          nsLabel,
+				JsonDefinition: "{\"type\":\"string\"}",
+				JsonSchema:     jsStruct,
+			})
+			So(err, ShouldBeNil)
+
+			afterAdd, err := mockDAO.List(ctx)
+			So(err, ShouldBeNil)
+			So(afterAdd, ShouldHaveLength, beforeLen+1)
+			_, ok := afterAdd[nsKey]
+			So(ok, ShouldBeTrue)
+
+			err = mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: nsKey, Label: nsLabel})
+			So(err, ShouldBeNil)
+
+			afterDelete, err := mockDAO.List(ctx)
+			So(err, ShouldBeNil)
+			So(afterDelete, ShouldHaveLength, beforeLen)
+			_, ok = afterDelete[nsKey]
+			So(ok, ShouldBeFalse)
 		})
 	})
 }
