@@ -25,7 +25,7 @@ import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types'
 
 import MetaClient from "./MetaClient";
-import UserMetaPanelV2 from "./UserMetaPanelV2"
+import UserMetaPanel from "./UserMetaPanel"
 
 const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 
@@ -59,7 +59,7 @@ export default createReactClass({
 
     render(){
         return (
-            <UserMetaPanelV2
+            <UserMetaPanel
                 pydio={this.props.pydio}
                 multiple={!this.props.selection.isUnique()}
                 ref="panel"

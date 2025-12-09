@@ -154,7 +154,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search, label, muiTheme} = this.props;
+        const {editMode, search, label, errorText, muiTheme} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList, autoCompleter, knownTags = [];
@@ -173,6 +173,7 @@ class TagsCloud extends React.Component {
                     fullWidth={true}
                     hintText={Pydio.getMessages()['meta.user.10']}
                     searchText={searchText}
+                    errorText={errorText}
                     onUpdateInput={this.handleUpdateInput.bind(this)}
                     onNewRequest={this.handleNewRequest.bind(this)}
                     dataSource={this.state.dataSource}
