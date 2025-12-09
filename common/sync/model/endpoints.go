@@ -181,14 +181,14 @@ type PathSyncTarget interface {
 type DataSyncTarget interface {
 	PathSyncTarget
 	// GetWriterOn provides a writeCloser for writing content to a given path.
-	GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
+	GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
 }
 
 // DataSyncSource provides a way to read the actual content of the nodes
 type DataSyncSource interface {
 	PathSyncSource
 	// GetReaderOn provides a ReadCloser for reading content of a node located at a given path
-	GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error)
+	GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error)
 }
 
 // UuidProvider declares an endpoint to be able to load a node by its unique UUID
