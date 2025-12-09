@@ -64,10 +64,16 @@ class CardsGrid extends React.Component {
             ],
         });
 
-        import(/* webpackChunkName: 'rgl' */ 'react-grid-layout').then( (rgl) => {
-            this.setState({rgl: rgl.default})
-        });
+    }
 
+    /**
+     * Load RGL library dynamically
+     * @returns {Promise<void>}
+     */
+    async componentDidMount() {
+        const mod = await import(/* webpackChunkName: 'rgl' */ 'react-grid-layout');
+        const RGL = mod.default ?? mod;
+        this.setState({ rgl: RGL });
     }
 
     /**
