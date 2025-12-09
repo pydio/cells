@@ -1,10 +1,10 @@
-const {Externals} = require('./libdefs.js')
-const exts = Externals.reduce((o, k) => {o[k] = k;return o}, {})
+const { Externals } = require('./libdefs.js')
+const exts = Externals.reduce((o, k) => { o[k] = k; return o }, {})
 
 module.exports = {
     configLoader: (entries = {}, outputPath, CompressionPlugin) => {
         return ({
-            mode: process.env.NODE_ENV === 'production'?'production':'development',
+            mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
             entry: entries,
             output: {
                 path: outputPath,
@@ -28,7 +28,7 @@ module.exports = {
                     {
                         test: /\.(js|jsx)$/i,
                         loader: "babel-loader",
-                        options:{
+                        options: {
                             plugins: [
                                 "@babel/syntax-dynamic-import",
                                 ["@babel/plugin-proposal-decorators", { "legacy": true }]
@@ -48,7 +48,7 @@ module.exports = {
                         test: /\.(less|css)$/i,
                         use: [
                             "style-loader",
-                            {loader:"css-loader", options: {url: true}},
+                            { loader: "css-loader", options: { url: true } },
                             "less-loader"
                         ],
                     },
@@ -56,12 +56,18 @@ module.exports = {
                         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
                         type: "asset",
                     },
-
+                    {
+                        test: /\.m?js$/,
+                        resolve: {
+                            fullySpecified: false, // allow extension-less imports in ESM
+                        },
+                    },
                     // Add your rules for custom modules here
                     // Learn more about loaders from https://webpack.js.org/loaders/
                 ],
             },
             resolve: {extensions: ['.js', '.jsx', '.json']},
             watch: process.env.NODE_ENV !== 'production'
-        })}
+        })
+    }
 }

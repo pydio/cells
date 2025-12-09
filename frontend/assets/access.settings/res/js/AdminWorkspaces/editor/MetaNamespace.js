@@ -28,6 +28,7 @@ import { muiThemeable } from 'material-ui/styles'
 import { IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi } from 'cells-sdk'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
+import MetaNamespaceFieldOptions from './MetaNamespaceFieldOptions';
 const { ModernTextField, ModernAutoComplete, ThemedModernStyles } = Pydio.requireLib('hoc');
 import FuncUtils from 'pydio/util/func'
 import ResourcesManager from 'pydio/http/resources-manager'
@@ -193,7 +194,6 @@ class MetaNamespace extends React.Component {
         namespace.JsonDefinition = JSON.stringify({ ...def, groupName: v })
         this.setState({ namespace });
     }
-
     getAdditionalData(defaultValue = {}) {
         const { namespace } = this.state;
         try {
@@ -331,6 +331,9 @@ class MetaNamespace extends React.Component {
                     nameError={nameError}
                     styles={styles}
                 />
+                <MetaNamespaceFieldOptions 
+                type={"string"} 
+                ns={namespace} />
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 <Toggle
                     label={m('toggle.list-visibility')}
