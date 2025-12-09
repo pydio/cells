@@ -139,6 +139,7 @@ class MetaNamespace extends React.Component {
             selectorNewValue: '',
             PoliciesBuilder: MetaPoliciesBuilder
         };
+        this.fieldOptionsRef = React.createRef();
         ResourcesManager.loadClass('ReactMeta').then(c => {
             this.setState({ metaModule: c });
             const { policiesBuilder } = this.props;
@@ -165,7 +166,11 @@ class MetaNamespace extends React.Component {
     }
 
     save() {
-        const { namespace } = this.state;
+        let { namespace } = this.state;
+        if (this.fieldOptionsRef.current) {
+            namespace = this.fieldOptionsRef.current.getUpdatedNamespace();
+        }
+        
         Metadata.putNS(namespace).then(() => {
             this.props.onRequestClose();
             this.props.reloadList();
@@ -332,8 +337,9 @@ class MetaNamespace extends React.Component {
                     styles={styles}
                 />
                 <MetaNamespaceFieldOptions 
-                type={"string"} 
-                ns={namespace} />
+                    ns={namespace}
+                    ref={this.fieldOptionsRef}
+                />
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 <Toggle
                     label={m('toggle.list-visibility')}
