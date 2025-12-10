@@ -83,6 +83,8 @@ services: &services
           prefix: oauth2_
           singular: "true"
   pydio.rest.frontend:
+    after:
+      - pydio.grpc.user-meta
     storages:
       main:
         - type: sql
@@ -222,11 +224,16 @@ services: &services
           prefix: idm_usr_
           policies: idm_usr_meta_policies
   pydio.grpc.data.index:
+    after:
+      - pydio.grpc.jobs
     storages:
       main:
         - type: sql
           prefix: data_index_{{ .DataSource }}_
   pydio.grpc.data.sync:
+    after:
+      - pydio.grpc.data.index
+      - pydio.grpc.jobs
     storages:
       main:
         - type: sql

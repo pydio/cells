@@ -8,7 +8,6 @@ package tree
 
 import (
 	context "context"
-	errors "errors"
 	fmt "fmt"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
@@ -37,7 +36,7 @@ func (s *NodeProviderStub) Invoke(ctx context.Context, method string, args inter
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -59,7 +58,7 @@ func (s *NodeProviderStub) NewStream(ctx context.Context, desc *grpc.StreamDesc,
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeProviderStub_ListNodesStreamer struct {
@@ -80,7 +79,7 @@ func (s *NodeProviderStreamerStub) Invoke(ctx context.Context, method string, ar
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -93,7 +92,7 @@ func (s *NodeProviderStreamerStub) NewStream(ctx context.Context, desc *grpc.Str
 		go s.NodeProviderStreamerServer.ReadNodeStream(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeProviderStreamerStub_ReadNodeStreamStreamer struct {
@@ -121,7 +120,7 @@ func (s *NodeChangesStreamerStub) Invoke(ctx context.Context, method string, arg
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -143,7 +142,7 @@ func (s *NodeChangesStreamerStub) NewStream(ctx context.Context, desc *grpc.Stre
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeChangesStreamerStub_StreamChangesStreamer struct {
@@ -164,7 +163,7 @@ func (s *NodeChangesReceiverStreamerStub) Invoke(ctx context.Context, method str
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -177,7 +176,7 @@ func (s *NodeChangesReceiverStreamerStub) NewStream(ctx context.Context, desc *g
 		go s.NodeChangesReceiverStreamerServer.PostNodeChanges(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeChangesReceiverStreamerStub_PostNodeChangesStreamer struct {
@@ -226,7 +225,7 @@ func (s *NodeReceiverStub) Invoke(ctx context.Context, method string, args inter
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -234,7 +233,7 @@ func (s *NodeReceiverStub) NewStream(ctx context.Context, desc *grpc.StreamDesc,
 	fmt.Println("Serving", method)
 	switch method {
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeReceiverStreamStub struct {
@@ -246,7 +245,7 @@ func (s *NodeReceiverStreamStub) Invoke(ctx context.Context, method string, args
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -269,7 +268,7 @@ func (s *NodeReceiverStreamStub) NewStream(ctx context.Context, desc *grpc.Strea
 		go s.NodeReceiverStreamServer.DeleteNodeStream(st)
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeReceiverStreamStub_CreateNodeStreamStreamer struct {
@@ -350,7 +349,7 @@ func (s *SessionIndexerStub) Invoke(ctx context.Context, method string, args int
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -358,7 +357,7 @@ func (s *SessionIndexerStub) NewStream(ctx context.Context, desc *grpc.StreamDes
 	fmt.Println("Serving", method)
 	switch method {
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeEventsProviderStub struct {
@@ -370,7 +369,7 @@ func (s *NodeEventsProviderStub) Invoke(ctx context.Context, method string, args
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -392,7 +391,7 @@ func (s *NodeEventsProviderStub) NewStream(ctx context.Context, desc *grpc.Strea
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeEventsProviderStub_WatchNodeStreamer struct {
@@ -413,7 +412,7 @@ func (s *SearcherStub) Invoke(ctx context.Context, method string, args interface
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -435,7 +434,7 @@ func (s *SearcherStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, met
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type SearcherStub_SearchStreamer struct {
@@ -456,7 +455,7 @@ func (s *NodeContentReaderStub) Invoke(ctx context.Context, method string, args 
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -464,7 +463,7 @@ func (s *NodeContentReaderStub) NewStream(ctx context.Context, desc *grpc.Stream
 	fmt.Println("Serving", method)
 	switch method {
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeContentWriterStub struct {
@@ -476,7 +475,7 @@ func (s *NodeContentWriterStub) Invoke(ctx context.Context, method string, args 
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -484,7 +483,7 @@ func (s *NodeContentWriterStub) NewStream(ctx context.Context, desc *grpc.Stream
 	fmt.Println("Serving", method)
 	switch method {
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeVersionerStub struct {
@@ -531,7 +530,7 @@ func (s *NodeVersionerStub) Invoke(ctx context.Context, method string, args inte
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -567,7 +566,7 @@ func (s *NodeVersionerStub) NewStream(ctx context.Context, desc *grpc.StreamDesc
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type NodeVersionerStub_ListVersionsStreamer struct {
@@ -604,7 +603,7 @@ func (s *FileKeyManagerStub) Invoke(ctx context.Context, method string, args int
 			e = er
 		}
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -612,7 +611,7 @@ func (s *FileKeyManagerStub) NewStream(ctx context.Context, desc *grpc.StreamDes
 	fmt.Println("Serving", method)
 	switch method {
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type SyncChangesStub struct {
@@ -624,7 +623,7 @@ func (s *SyncChangesStub) Invoke(ctx context.Context, method string, args interf
 	var e error
 	switch method {
 	default:
-		e = errors.New(method + " not implemented")
+		e = fmt.Errorf(method + " not implemented")
 	}
 	return e
 }
@@ -651,7 +650,7 @@ func (s *SyncChangesStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, 
 		})
 		return st, nil
 	}
-	return nil, errors.New(method + "  not implemented")
+	return nil, fmt.Errorf(method + "  not implemented")
 }
 
 type SyncChangesStub_PutStreamer struct {
