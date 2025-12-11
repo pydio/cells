@@ -1,11 +1,11 @@
-# A Practical Guide for Testing and Evaluation using the new helm chart `1.0.0-beta`
+A Practical Guide for Testing and Evaluation using the new helm chart `1.0.0-beta`
 
-## 1. Introduction
+## Introduction
 
 This article walks you through deploying Pydio Cells v5 on a local Minikube cluster for testing or evaluation purposes.
 Version 5 is accompanied by the new Helm chart `1.0.0-beta`, which significantly improves modularity and flexibility.
 
-## 2. Why a New Helm Chart?
+## Why a New Helm Chart?
 
 ### Old Chart: `0.1.3`
 
@@ -15,7 +15,7 @@ Version 5 is accompanied by the new Helm chart `1.0.0-beta`, which significantly
 
 ### New Chart: `1.0.0-beta`
 
-In the new helm chart, the integrated dependencies are still supported. However, in this tuto, we focus to the deployment using external helm charts for dependencies.
+In the new helm chart, the integrated dependencies are still supported. However, in this tutorial, we focus to the deployment using external helm charts for dependencies.
 
 |Service|Purpose|Deployment|
 |-|-|-|
@@ -23,12 +23,18 @@ In the new helm chart, the integrated dependencies are still supported. However,
 |**Redis**|          Cache / KV             |Bitnami chart|
 |**MinIO**|          S3-compatible object storage   |MinIO official chart|
 |**MongoDB**|        Metadata NoSQL store   |MongoDB Community Operator|
-|**etcd**|           Service discovery      |Configuration|
+|**etcd**|           Service discovery      |Official value file|
 |**NATS**|           Message broker         |NATS official chart|
 |**Vault**|          Secret store           |HashiCorp chart|
 |**cert-manager**|   Issue TLS certs for all components|    Jetstack chart|
 
-## 3. Repository Structure
+## Prerequisites
+
+* Helm – https://helm.sh/docs/intro/install/
+* kubectl – https://kubernetes.io/docs/tasks/tools/
+* Minikube – https://minikube.sigs.k8s.io/docs/start/
+
+## Repository Structure
 
 Source: https://github.com/pydio/cells/tree/v5-dev/tools/kubernetes/examples/minikube
 
@@ -38,7 +44,7 @@ Source: https://github.com/pydio/cells/tree/v5-dev/tools/kubernetes/examples/min
       # Dependencies
       mariadb/           # MariaDB Helm chart values
       redis/             # Redis Helm chart values
-      minio/             # MinIO Helm chart values
+      s3minio/           # MinIO Helm chart values
       mongodb/           # MongoDB operator + MongoDBCommunity CR
       etcd/              # etcd manifest
       nats/              # NATS values
@@ -47,15 +53,15 @@ Source: https://github.com/pydio/cells/tree/v5-dev/tools/kubernetes/examples/min
 
 In the `cellsv5-on-minikube/cells` repository, the main `values.yaml` file of the Cells Helm chart is split into several smaller files. This approach simplifies maintenance, makes configuration easier to understand, and avoids dealing with one excessively large values.yaml file.
 
-## 4. Installation Steps
+## Installation Steps
 
-### 4.1 Start minikube
+### Start minikube
 
 ``` bash
 minikube start --cpus=4 --memory=8g
 ```
 
-### 4.2 Add Helm repositories
+### Add Helm repositories
 
 ``` bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -69,20 +75,20 @@ helm repo update
 
 ```
 
-## 4.3 Create namespace
+### Create namespace
 
 ```bash
 kubectl create namespace cells
 ```
 
-### 4.4 Install cert-manager (optional)
+### Install cert-manager (optional)
 
 ``` bash
 helm upgrade --install cert-manager jetstack/cert-manager   -n cert-manager --set installCRDs=true  --create-namespace --wait
 
 ```
 
-### 4.5 Shared secrets between cells and dependencies
+### Shared secrets between cells and dependencies
 
 ```
 # certificates (optional)
@@ -91,8 +97,8 @@ helm upgrade --install cert-manager jetstack/cert-manager   -n cert-manager --se
 # kubectl apply -n cells -f cert-manager/mariadb-cert.yaml
 
 # minio secrets
-kubectl apply -f minio/minio-root-secret.yaml -n cells
-kubectl apply -f minio/minio-user-secret.yaml -n cells
+kubectl apply -f s3minio/minio-root-secret.yaml -n cells
+kubectl apply -f s3minio/minio-user-secret.yaml -n cells
 
 # mariadb secrets
 kubectl apply -f mariadb/mariadb-secret.yaml -n cells
@@ -105,7 +111,7 @@ kubectl apply -f mongodb/mongodb-admin-secret.yaml -n cells
 kubectl apply -f vault/cells-configmap.yaml -n cells
 ```
 
-### 4.6 Deploy dependencies
+### Deploy dependencies
 
 ```bash
 # mariadb
@@ -115,7 +121,7 @@ helm upgrade --install my-mariadb bitnami/mariadb -n cells -f mariadb/values.yam
 helm upgrade --install my-redis bitnami/redis -n cells -f redis/values.yaml --wait
 
 # minio
-helm upgrade --install cells-minio minio/minio -n cells -f minio/values.yaml --wait
+helm upgrade --install cells-minio minio/minio -n cells -f s3minio/values.yaml --wait
 
 # mongodb
 helm upgrade --install mongodb-operator mongodb/community-operator -n cells --wait
@@ -131,13 +137,13 @@ helm upgrade --install nats nats/nats -f nats/values.yaml -n cells  --wait
 helm install vault hashicorp/vault -f vault/values.yaml -n cells --wait
 ```
 
-## 4.7 Deploy Pydio Cells v5
+### Deploy Pydio Cells v5
 
 ``` bash
 helm upgrade --install cells cells/cells   -n cells   --devel   -f cells/cells.yaml   -f cells/sql.yaml   -f cells/redis.yaml   -f cells/s3.yaml   -f cells/discovery.yaml   -f cells/nosql.yaml   -f cells/broker.yaml   -f cells/vault.yaml   --wait
 ```
 
-## 5 Access Cells
+## Access Cells
 
 ```bash
 kubectl -n cells port-forward svc/cells 8080:8080
@@ -145,7 +151,7 @@ kubectl -n cells port-forward svc/cells 8080:8080
 
 Then open: `http://localhost:8080`
 
-## 6 Reset cells deployment
+## Reset cells deployment
 
 Some resources won't be deleted after `helm uninstall cells -n cells`. You should remove them manually before starting a new deployment
 
@@ -165,7 +171,7 @@ kubectl exec statefulsets/etcd -n cells -it -- etcdctl del vault
 We should purge the databases in sql, no-sql before starting a new cells deployment
 
 
-## 7 Caveat
+## Caveat
 
 - Vault data is not peristed. The master key is lost after a k8s restart. In production, the deployment requires KMS service for vault unsealing process.
 - 10 minutes session timeout/upload failure issue. You may have this issue when browsing the web page through a URL different from `ReverseProxyURL` which is set in `cells/cells.yaml`.
