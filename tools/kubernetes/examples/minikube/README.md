@@ -39,8 +39,9 @@ In the new helm chart, the integrated dependencies are still supported. However,
 Source: https://github.com/pydio/cells/tree/v5-dev/tools/kubernetes/examples/minikube
 
 ```    
-    cellsv5-on-minikube/
+    minikube/
       cells/             # Cells Helm values (modular: one file per backend system)
+
       # Dependencies
       mariadb/           # MariaDB Helm chart values
       redis/             # Redis Helm chart values
@@ -51,19 +52,24 @@ Source: https://github.com/pydio/cells/tree/v5-dev/tools/kubernetes/examples/min
       cert-manager/      # CA issuer, self-signed root CA, service certificates
 ```
 
-In the `cellsv5-on-minikube/cells` repository, the main `values.yaml` file of the Cells Helm chart is split into several smaller files. This approach simplifies maintenance, makes configuration easier to understand, and avoids dealing with one excessively large values.yaml file.
+In the `minikube/cells` repository, the main `values.yaml` file of the Cells Helm chart is split into several smaller files. This approach simplifies maintenance, makes configuration easier to understand, and avoids dealing with one excessively large values.yaml file.
+
+> NOTICE: Following commands will be run from **minikube** directory
 
 ## Installation Steps
 
 ### Start minikube
 
 ``` bash
-minikube start --cpus=4 --memory=8g
+minikube start --cpus=4 --memory=16g
 ```
+
+> CAUTION: The deployment may fail due to insufficient system resources, particularly when memory is limited.
 
 ### Add Helm repositories
 
 ``` bash
+helm repo add cells https://download.pydio.com/pub/charts/helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add nats https://nats-io.github.io/k8s/helm/charts
 helm repo add mongodb https://mongodb.github.io/helm-charts
@@ -169,7 +175,6 @@ kubectl exec statefulsets/etcd -n cells -it -- etcdctl del vault
 ```
 
 We should purge the databases in sql, no-sql before starting a new cells deployment
-
 
 ## Caveat
 

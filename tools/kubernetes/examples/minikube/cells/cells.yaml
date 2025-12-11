@@ -94,9 +94,7 @@ redis:
 nats:
   enabled: false  
 etcd:
-  enabled: false  
-minio:
-  enabled: false  
+  enabled: false 
 mongodb:
   enabled: false 
 vault:
