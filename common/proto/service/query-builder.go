@@ -113,6 +113,10 @@ func (gc *wrapConverter[T]) Convert(ctx context.Context, val *anypb.Any, in T) (
 
 func (qb *queryBuilder[T]) Build(ctx context.Context, in T) (out T, e error) {
 
+	if qb == nil || qb.enquirer == nil {
+		return in, nil
+	}
+
 	var subDBs []Collector[T]
 	for _, subQ := range qb.enquirer.GetSubQueries() {
 		for _, converter := range qb.converters {

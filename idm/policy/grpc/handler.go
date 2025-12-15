@@ -175,21 +175,21 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig)
 	var bb []byte
-	if er == nil && request.Filter == "" && ka.Get("policyGroup", &bb) {
+	if er == nil && request.Filter == "" && request.GetQuery() == nil && ka.Get("policyGroup", &bb) {
 		if json.Unmarshal(bb, &response.PolicyGroups) == nil {
 			response.Total = int32(len(response.PolicyGroups))
 			return response, nil
 		}
 	}
 
-	groups, err := dao.ListPolicyGroups(ctx, request.Filter)
+	groups, err := dao.ListPolicyGroups(ctx, request.GetQuery())
 	if err != nil {
 		return nil, err
 	}
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
-	if request.Filter == "" && ka != nil {
+	if request.Filter == "" && request.GetQuery() == nil && ka != nil {
 		msg, _ := json.Marshal(groups)
 		if err = ka.Set("policyGroup", msg); err != nil {
 			log.Logger(ctx).Error("Cannot fill cache for policy groups", zap.Error(err))

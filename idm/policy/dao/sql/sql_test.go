@@ -90,7 +90,7 @@ func Test(t *testing.T) {
 			So(storedGroup, ShouldNotBeNil)
 
 			// Test: List PolicyGroups
-			groups, err := dao.ListPolicyGroups(ctx, "")
+			groups, err := dao.ListPolicyGroups(ctx, nil)
 			So(err, ShouldBeNil)
 			So(groups, ShouldHaveLength, 1)
 			So(groups[0].Policies, ShouldHaveLength, 3)
@@ -114,7 +114,7 @@ func Test(t *testing.T) {
 			So(storedGroup, ShouldNotBeNil)
 
 			// Test: List PolicyGroups
-			groups, err = dao.ListPolicyGroups(ctx, "")
+			groups, err = dao.ListPolicyGroups(ctx, nil)
 			So(err, ShouldBeNil)
 			So(groups, ShouldHaveLength, 1)
 			So(groups[0].Policies, ShouldHaveLength, 4)
@@ -126,7 +126,7 @@ func Test(t *testing.T) {
 			So(storedGroup, ShouldNotBeNil)
 
 			// Test: List PolicyGroups
-			groups, err = dao.ListPolicyGroups(ctx, "")
+			groups, err = dao.ListPolicyGroups(ctx, nil)
 			So(err, ShouldBeNil)
 			So(groups, ShouldHaveLength, 1)
 			So(groups[0].Policies, ShouldHaveLength, 1)
@@ -137,7 +137,7 @@ func Test(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			// Verify deletion
-			groups, err = dao.ListPolicyGroups(ctx, "")
+			groups, err = dao.ListPolicyGroups(ctx, nil)
 			So(err, ShouldBeNil)
 			So(groups, ShouldHaveLength, 0)
 		})
