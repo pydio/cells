@@ -12273,6 +12273,20 @@
     "/user-meta/namespace/jsonschema": {
       "get": {
         "operationId": "GetNamespaceSchema",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "FieldType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "Namespace",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
