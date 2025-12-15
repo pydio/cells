@@ -108,6 +108,10 @@ func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
 	u.UpdatedAt = time.Unix(res.UpdatedAt, 0)
 	u.RevocationKey = res.RevocationKey
 	u.SecretPair = res.SecretPair
+	if len(res.Scopes) > 0 {
+		ss, _ := json.Marshal(res.Scopes)
+		u.Scopes = string(ss)
+	}
 
 	return u
 }

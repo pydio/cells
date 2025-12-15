@@ -8,11 +8,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ory/fosite/token/jwt"
+
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/auth"
 	sql2 "github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/idm/oauth/dao/sql"
 
@@ -75,6 +78,14 @@ func TestPatHandler_Generate(t *testing.T) {
 			verifyResponse, er1 = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(er1, ShouldBeNil)
 			So(verifyResponse.Success, ShouldBeTrue)
+
+			// Check that data is correct
+			cl := &jwt.IDTokenClaims{}
+			er := jsonx.Unmarshal(verifyResponse.Data, cl)
+			So(er, ShouldBeNil)
+			So(cl.Subject, ShouldEqual, "admin-uuid")
+			So(cl.Extra, ShouldNotBeNil)
+			So(cl.Extra["scopes"], ShouldHaveLength, 3)
 
 			<-time.After(3 * time.Second)
 
