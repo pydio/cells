@@ -204,7 +204,9 @@ func (s *UserMetaHandler) GetFieldSchema(req *restful.Request, rsp *restful.Resp
 
 func (s *UserMetaHandler) GetNamespaceSchema(req *restful.Request, rsp *restful.Response) error {
 	ctx := req.Request.Context()
-	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{})
+	typeParam := req.QueryParameter("FieldType")
+	nameParam := req.QueryParameter("Namespace")
+	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: typeParam, Namespace: nameParam})
 
 	if err != nil {
 		return err

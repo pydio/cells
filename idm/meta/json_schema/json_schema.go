@@ -180,33 +180,51 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 	return toProtoStruct(root), nil
 }
 
-func (f *JSONSchemaFactory) BuildJsonSchema(label string) ([]byte, error) {
+func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, error) {
 	props := f.root["properties"].(map[string]interface{})
 	var usermeta = "usermeta"
+	if name != "" {
+		usermeta = fmt.Sprintf("usermeta-%s", name)
+	}
 
 	switch label {
 	case "boolean":
 		var t = fmt.Sprintf("%s-boolean", usermeta)
 		f.root["title"] = t
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
 		props[t] = withBooleanSchema()
 
 	case "textarea":
 		var t = fmt.Sprintf("%s-long-text", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
 
 	case "string":
 		var t = fmt.Sprintf("%s-text", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
 
 	case "integer":
 		var t = fmt.Sprintf("%s-number", usermeta)
-		f.root["title"] = "t"
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
 		props[t] = withNumberSchema()
 
 	case "date", "datetime":
 		var t = fmt.Sprintf("%s-datetime", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
 		f.root["title"] = t
 		props[t] = withDateTimeSchema()
 
@@ -226,7 +244,19 @@ func GetMetaSchema(label string) *structpb.Struct {
 }
 
 func GetJsonSchema(label string) ([]byte, error) {
-	return NewJSONSchemaFactory(label).BuildJsonSchema(label)
+	return NewJSONSchemaFactory(label).BuildJsonSchema(label, "")
+}
+
+func GetJsonSchemaSample(label string, name string) (*structpb.Struct, error) {
+	byte_schema, err := NewJSONSchemaFactory(label).BuildJsonSchema(label, name)
+	if err != nil {
+		return nil, err
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(byte_schema, &m); err != nil {
+		return nil, err
+	}
+	return toProtoStruct(m), nil
 }
 
 func withMin(min int, t string) map[string]interface{} {
@@ -257,7 +287,7 @@ func withStringSchema() map[string]interface{} {
 	// prop["minLength"] = withMin(0, "string")["minLength"]
 	// prop["maxLength"] = withMax(0, "string")["maxLength"]
 	// prop["pattern"] = ""
-	// prop["format"] = ""
+	prop["format"] = ""
 	return prop
 }
 
@@ -266,6 +296,7 @@ func withNumberSchema() map[string]interface{} {
 	prop := marshalSchema(s)
 	// prop["minimum"] = withMin(0, "number")["minimum"]
 	// prop["maximum"] = withMax(0, "number")["maximum"]
+	// prop["format"] = ""
 	return prop
 }
 

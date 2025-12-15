@@ -611,6 +611,7 @@ service UserMetaService {
     rpc GetNamespaceSchema(idm.GetNamespaceSchemaRequest) returns (idm.JsonSchemaResponse) {
         option (google.api.http) = {
             get: "/user-meta/namespace/jsonschema"
+            
         };
     }
     // List Tags for a given namespace

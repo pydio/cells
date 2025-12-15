@@ -405,8 +405,19 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 	if err != nil {
 		return nil, err
 	}
-
 	namespaceDAO := dao.GetNamespaceDao()
+
+	if req.FieldType != "" && req.Namespace != "" {
+		schema, err := namespaceDAO.GetNamespaceSchemaSample(ctx, req.FieldType, req.Namespace)
+		if err != nil {
+			return nil, err
+		}
+
+		return &idm.JsonSchemaResponse{
+			JsonSchema: schema,
+		}, nil
+	}
+
 	if schema, err := namespaceDAO.GetJSONSchema(ctx); err == nil {
 		return &idm.JsonSchemaResponse{
 			JsonSchema: schema,
