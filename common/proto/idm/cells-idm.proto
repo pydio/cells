@@ -551,7 +551,10 @@ message JsonSchemaResponse{
     google.protobuf.Struct JsonSchema = 1;
 }
 
-message GetNamespaceSchemaRequest{}
+message GetNamespaceSchemaRequest{
+    string FieldType = 1;
+    string Namespace = 2;
+}
 
 
 // Message Types for ChangeEvent
