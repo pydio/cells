@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
-import { IdmUserMetaNamespace } from 'cells-sdk'
+import { IdmUserMetaNamespace } from 'cells-sdk';
 import PropTypes from 'prop-types';
 import { Form } from '@rjsf/mantine';
 import { MantineProvider, createTheme } from '@mantine/core';
@@ -9,6 +9,7 @@ import ajvMergePatch from 'ajv-merge-patch';
 import addFormats from 'ajv-formats';
 import validator from '@rjsf/validator-ajv8';
 import Metadata from './../model/Metadata';
+import { v4 as uuidv4 } from 'uuid';
 
 
 const ajv = new Ajv();
@@ -16,7 +17,7 @@ addFormats(ajv);
 ajvMergePatch(ajv);
 export const theme = createTheme({
   components: {
-   NumberInput: {
+    NumberInput: {
       styles: () => ({
         rightSection: {
           display: 'none',
@@ -29,7 +30,7 @@ export const theme = createTheme({
         },
       }),
     },
-     Checkbox: {
+    Checkbox: {
       styles: (theme) => ({
         body: {
           alignItems: 'center',
@@ -57,14 +58,14 @@ export const theme = createTheme({
 const MetaNamespaceFieldOptions = forwardRef(({ ns }, ref) => {
   const [metaSchema, setSchema] = useState({});
   const [formData, setFormData] = useState({});
-  const updateCount = useRef(0);
+  
   
   const hasValidNs = ns && ns.JsonSchema;
   
   const metaType = hasValidNs 
     ? Object.keys(Metadata.MetaTypes).find(
-        key => Metadata.MetaTypes[key].toLowerCase() === ns.Label.toLowerCase()
-      )
+      key => Metadata.MetaTypes[key].toLowerCase() === ns.Label.toLowerCase()
+    )
     : null;
 
   useEffect(() => {
@@ -111,7 +112,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns }, ref) => {
         return ns;
       }
 
-      const id = `https://schemas.pydio.com/string/patched/${updateCount.current}`;
+      const id = `https://schemas.pydio.com/string/patched/${uuidv4()}`;
       const patchedSchema = {
         $id: id,
         $patch: {
@@ -120,8 +121,8 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns }, ref) => {
         }
       };
       
-      updateCount.current += 1;
-      const updatedJsonSchema = ajv.compile(patchedSchema);
+      
+      ajv.compile(patchedSchema);
       
       return IdmUserMetaNamespace.constructFromObject({
         ...ns,
