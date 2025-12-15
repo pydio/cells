@@ -697,7 +697,7 @@ message DeletePolicyGroupResponse{
     bool Success = 1;
 }
 message ListPolicyGroupsRequest{
-    string Filter = 1;
+    string Filter = 1 [deprecated = true];
     // repeated string Filters = 2;
     service.Query Query = 2;
 }

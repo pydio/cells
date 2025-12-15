@@ -26,10 +26,10 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"text/template"
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"github.com/valyala/fasttemplate"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
@@ -287,18 +287,24 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 		requestContextInterface[k] = v
 	}
 
-	templates := map[string]*fasttemplate.Template{}
+	templates := map[string]*template.Template{}
 
 	for _, pol := range policies {
 		replaces := map[string]*idm.PolicyCondition{}
 		for key, cond := range pol.Conditions {
-			if !strings.Contains(cond.GetJsonOptions(), "{{") {
+			if strings.Contains(cond.GetJsonOptions(), "{{") {
 				tmpl, ok := templates[cond.GetJsonOptions()]
 				if !ok {
-					tmpl = fasttemplate.New(cond.GetJsonOptions(), "{{", "}}")
+					tmpl = template.New(cond.GetJsonOptions())
 					templates[cond.GetJsonOptions()] = tmpl
 				}
-				str := tmpl.ExecuteString(requestContextInterface)
+				b := strings.Builder{}
+				err := tmpl.Execute(&b, requestContextInterface)
+				if err != nil {
+					continue
+				}
+
+				str := b.String()
 
 				replaces[key] = &idm.PolicyCondition{Type: cond.GetType(),
 					JsonOptions: str,
