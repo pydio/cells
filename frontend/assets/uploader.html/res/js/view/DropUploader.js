@@ -32,7 +32,7 @@ import ModalMetaPrompt from "./ModalMetaPrompt";
 const {Store} = UploaderModel;
 
 class DropUploader extends React.Component {
-    
+
     constructor(props){
         super(props);
         const store = Store.getInstance();
@@ -66,7 +66,7 @@ class DropUploader extends React.Component {
             Store.getInstance().stopObserving("auto_close");
         }
     }
-    
+
     onDrop(files){
         let contextNode = Pydio.getInstance().getContextHolder().getContextNode();
         Store.getInstance().handleDropEventResults(null, files, contextNode);
@@ -143,16 +143,24 @@ class DropUploader extends React.Component {
         Pydio.getInstance().getController().fireAction('upload'); // Clear
     }
 
+    /**
+     * Dismiss the metadata prompt
+     *
+     * @param {Object} data
+     * @returns {void}
+     */
     metaDismiss(data = undefined) {
         const store = Store.getInstance() ;
         store.getSessions().forEach((session) => {
+            const metaDataMap = Object.entries(data || {})
+                .reduce((acc, [k,v]) => acc.set(k, v), new Map());
             if(session.getStatus() === 'promptMeta'){
                 if(data === undefined) {
                     // Clean up all children before removing the session
                     store.clearAll();
                     store.removeSession(session);
                 } else {
-                    session.setUserMeta(data);
+                    session.setUserMeta(metaDataMap);
                     session.prepare();
                 }
             }
