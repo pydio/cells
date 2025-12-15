@@ -29,11 +29,13 @@ import (
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -179,6 +181,39 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 		if json.Unmarshal(bb, &response.PolicyGroups) == nil {
 			response.Total = int32(len(response.PolicyGroups))
 			return response, nil
+		}
+	}
+
+	// Legacy code - making sure we convert
+	if filter := request.GetFilter(); request.GetQuery() == nil && filter != "" {
+		var queries []*anypb.Any
+
+		if strings.HasPrefix(filter, "resource_group:") {
+			q, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				ResourceGroup: strings.TrimPrefix(filter, "resource_group:"),
+			})
+
+			queries = append(queries, q)
+		} else if strings.HasPrefix(filter, "uuid:") {
+			q, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				Uuid: strings.TrimPrefix(filter, "uuid:"),
+			})
+
+			queries = append(queries, q)
+		} else if strings.HasPrefix(filter, "like:") {
+			q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				Name: "%" + strings.TrimPrefix(filter, "like:") + "%",
+			})
+			q2, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				Description: "%" + strings.TrimPrefix(filter, "like:") + "%",
+			})
+
+			queries = append(queries, q1, q2)
+		}
+
+		request.Query = &service.Query{
+			SubQueries: queries,
+			Operation:  service.OperationType_OR,
 		}
 	}
 
