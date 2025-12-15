@@ -104,14 +104,18 @@ func (p *CollaboraProvider) Provides(ext string) bool {
 func (p *CollaboraProvider) Get(ctx context.Context, node *tree.Node) (*rest.PreSignedURL, error) {
 	claims, ok := claim.FromContext(ctx)
 	if !ok {
-		return nil, errors.WithMessage(errors.StatusForbidden, "sending email anonymously is forbidden")
+		return nil, errors.WithMessage(errors.StatusForbidden, "missing claims from context")
 	}
 
-	permission := "readonly" // Must be read at least by default !
+	// Must be read at least by default.
+	// Scopes expect "r" or "rw", collabora URL expects "readonly" or "edit"
+	scopePermission := "r"
+	permission := "readonly"
 	if _, ok := node.MetaStore[common.MetaFlagReadonly]; !ok {
 		permission = "edit"
+		scopePermission = "rw"
 	}
-	scope := fmt.Sprintf("node:%s:%s", node.Uuid, permission)
+	scope := fmt.Sprintf("node:%s:%s", node.Uuid, scopePermission)
 
 	patGenerateRequest := &auth.PatGenerateRequest{
 		Type:              auth.PatType_DOCUMENT,
@@ -157,7 +161,7 @@ func (p *CollaboraProvider) Get(ctx context.Context, node *tree.Node) (*rest.Pre
 
 	websocketURL := websocketScheme + "://" + p.ReqOriginalHost
 
-	url := fmt.Sprintf("%s?host=%s&WOPISrc=%s&access_token=%s&permission=%s%s", iframeUrl, websocketURL, fileSrcUrl, patGenerateResp.AccessToken, permission, langParam)
+	iFrameUrl := fmt.Sprintf("%s?host=%s&WOPISrc=%s&access_token=%s&permission=%s%s", iframeUrl, websocketURL, fileSrcUrl, patGenerateResp.AccessToken, permission, langParam)
 
-	return &rest.PreSignedURL{Url: url, ExpiresAt: int64(p.AutoRefreshWindow)}, nil
+	return &rest.PreSignedURL{Url: iFrameUrl, ExpiresAt: int64(p.AutoRefreshWindow)}, nil
 }
