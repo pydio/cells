@@ -27,6 +27,11 @@ module.exports = {
                 rules: [
                     {
                         test: /\.(js|jsx)$/i,
+                        exclude: [
+                            /__mocks__/,
+                            /\.test\./,
+                            /\.spec\./
+                        ],
                         loader: "babel-loader",
                         options: {
                             plugins: [
