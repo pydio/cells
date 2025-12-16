@@ -65,9 +65,7 @@ class StatusItem extends Observable {
     }
 
     /**
-     * Returns the user meta data
-     *
-     * @return {Map<string, string>}
+     * @returns Map
      */
     getUserMeta(){
         if(this._parent){
