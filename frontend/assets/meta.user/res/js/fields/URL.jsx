@@ -2,8 +2,7 @@
  * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * Pydio is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -17,21 +16,48 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {Fragment, useCallback} from 'react'
+import React, { Fragment, useCallback, useMemo, useRef, useEffect, useState } from 'react'
 import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
-const {ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
-import {muiThemeable} from 'material-ui/styles'
-import {FontIcon} from 'material-ui'
+const { ModernTextField, ThemedModernStyles } = Pydio.requireLib('hoc');
+import { muiThemeable } from 'material-ui/styles'
+import { FontIcon } from 'material-ui'
+import { debounce } from 'lodash'
 
 const URLIcon = ({ fontSize }) =>
     <FontIcon
         data-testid="open-in-new-icon"
         className="mdi mdi-open-in-new"
-        style={{fontSize}} />
+        style={{ fontSize }} />
 
-const URLFieldBase = ({getRealValue}) => {
+const URLLinkIcon = ({ fontSize, url, children }) => {
+    const hasMinimalValidity = /^https?:\/\//i.test(url);
+    if (!hasMinimalValidity) {
+        return null;
+    }
+
+    return (
+        <a href={url}
+            target="_blank"
+            aria-label={`Open ${url} in a new tab`}
+            rel="noopener noreferrer"
+            onClick={(e) => {
+                e.stopPropagation();
+            }}
+            style={{
+                color: 'var(--md-sys-color-primary)',
+                textDecoration: 'none'
+            }}
+        >
+            <URLIcon fontSize={fontSize} />
+            {children}
+        </a>
+    )
+
+}
+
+const URLFieldBase = ({ getRealValue }) => {
     const value = getRealValue();
 
     if (!value) {
@@ -42,11 +68,6 @@ const URLFieldBase = ({getRealValue}) => {
     let url = value;
     let displayText = value;
 
-    // If value doesn't start with http:// or https://, add https://
-    if (url && !url.match(/^https?:\/\//i)) {
-        url = 'https://' + url;
-    }
-
     // Extract display text (domain or full URL)
     try {
         const urlObj = new URL(url);
@@ -56,73 +77,80 @@ const URLFieldBase = ({getRealValue}) => {
         displayText = value;
     }
 
-    return (
-        <Fragment>
-            <a
-                href={url}
-                target="_blank"
-                title={url}
-                aria-label={`Open ${displayText} in a new tab`}
-                rel="noopener noreferrer"
-                style={{
-                    color: 'var(--md-sys-color-primary)',
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                }}
-            >
-                <URLIcon fontSize={14} />
-                {displayText}
-            </a>
-        </Fragment>
-    );
+    return <URLLinkIcon fontSize={14} url={url} children={displayText} />;
 }
 
 const URLField = asMetaField(muiThemeable()(URLFieldBase));
-export {URLField}
+export { URLField }
 
-const URLFormBase = ({value, label, errorText, search, muiTheme, supportTemplates, updateValue}) => {
+const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue }) => {
     const ModernStyles = ThemedModernStyles(muiTheme);
+    const debouncedUpdateRef = useRef(null);
+    const [localValue, setLocalValue] = useState(value || '');
+
+    useEffect(() => {
+        setLocalValue(value || '');
+    }, [value]);
+
+    const debouncedUpdate = useMemo(() => {
+        if (debouncedUpdateRef.current) {
+            debouncedUpdateRef.current.cancel();
+        }
+        debouncedUpdateRef.current = debounce((newValue) => {
+            updateValue(newValue);
+        }, 300);
+        return debouncedUpdateRef.current;
+    }, [updateValue]);
 
     const handleChange = useCallback((event, newValue) => {
-        updateValue(newValue);
-    }, [updateValue]);
+        setLocalValue(newValue);
+        debouncedUpdate(newValue);
+    }, [debouncedUpdate]);
 
     const handleKeyPress = useCallback((event) => {
         if (event.key === 'Enter') {
-            updateValue(value, true);
+            // Cancel any pending debounced update and save immediately
+            if (debouncedUpdateRef.current) {
+                debouncedUpdateRef.current.cancel();
+            }
+            updateValue(localValue, true);
         }
-    }, [value, updateValue]);
+    }, [localValue, updateValue]);
+
+    // Cleanup: cancel pending debounced calls on unmount
+    useEffect(() => {
+        return () => {
+            if (debouncedUpdateRef.current) {
+                debouncedUpdateRef.current.cancel();
+            }
+        };
+    }, []);
 
     if (supportTemplates) {
         return (
             <ModernTextField
-                value={value || ""}
+                value={localValue}
                 fullWidth={true}
                 hintText={label}
-                onChange={(event, val) => {
-                    updateValue(val);
+                onChange={(_, val) => {
+                    setLocalValue(val);
+                    debouncedUpdate(val);
                 }}
             />
         );
     }
 
     const sProps = search
-        ? {...ModernStyles.textFieldV1Search}
-        : {...ModernStyles.textFieldV2};
+        ? { ...ModernStyles.textFieldV1Search }
+        : { ...ModernStyles.textFieldV2 };
 
-    const previewUrl = value && value.match(/^https?:\/\//i) ? value : 'https://' + value;
-    const hasValue = value && value.trim() !== '';
+    const hasValue = localValue && localValue.trim() !== '';
     const hasError = !!errorText;
 
     return (
-        <div style={{position: 'relative'}}>
+        <div style={{ position: 'relative' }}>
             <ModernTextField
-                value={value || ""}
+                value={localValue}
                 fullWidth={true}
                 hintText={label || "Enter URL"}
                 errorText={errorText}
@@ -138,21 +166,7 @@ const URLFormBase = ({value, label, errorText, search, muiTheme, supportTemplate
                     top: 22,
                     cursor: 'pointer'
                 }}>
-                    <a
-                        href={previewUrl}
-                        target="_blank"
-                        aria-label={`Open ${value} in a new tab`}
-                        rel="noopener noreferrer"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                        style={{
-                            color: 'var(--md-sys-color-primary)',
-                            textDecoration: 'none'
-                        }}
-                    >
-                        <URLIcon fontSize={18} />
-                    </a>
+                    <URLLinkIcon fontSize={18} url={localValue} />
                 </div>
             )}
         </div>
@@ -160,4 +174,4 @@ const URLFormBase = ({value, label, errorText, search, muiTheme, supportTemplate
 }
 
 const URLForm = asMetaForm(muiThemeable()(URLFormBase));
-export {URLForm}
+export { URLForm }
