@@ -61,6 +61,7 @@ const URLFieldBase = ({getRealValue}) => {
             <a
                 href={url}
                 target="_blank"
+                title={url}
                 aria-label={`Open ${displayText} in a new tab`}
                 rel="noopener noreferrer"
                 style={{

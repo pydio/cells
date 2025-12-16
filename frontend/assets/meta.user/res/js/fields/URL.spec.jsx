@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, act, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { URLField, URLForm } from './URL';
 
 function createPydioMock() {
@@ -61,7 +61,7 @@ describe('URLField', () => {
             label: expectedLinkLabel,
         });
 
-        expect(link).toBeTruthy();
+        expect(link).toBeInTheDocument();
         expect(link.tagName).toBe('A');
     });
 
@@ -116,7 +116,7 @@ describe('URLField', () => {
         render(<URLField {...defaultProps} />);
         const icon = screen.getByLabelText('Open example.com in a new tab');
 
-        expect(icon).toBeTruthy();
+        expect(icon).toBeInTheDocument();
     });
 
     it('returns empty fragment when value is empty', () => {
@@ -170,21 +170,21 @@ describe('URLForm', () => {
         render(<URLForm {...defaultProps} />);
         const input = screen.getByTestId('url-input');
 
-        expect(input).toBeTruthy();
+        expect(input).toBeInTheDocument();
     });
 
     it('displays the current URL value', () => {
         render(<URLForm {...defaultProps} />);
         const input = screen.getByTestId('url-input');
         expect(input.value).toBe('https://example.com');
-        expect(screen.getByLabelText('Open https://example.com in a new tab')).toBeTruthy();
+        expect(screen.getByLabelText('Open https://example.com in a new tab')).toBeInTheDocument();
     });
 
     it('shows preview link icon when URL is valid', () => {
         render(<URLForm {...defaultProps} />);
         const icon = screen.getByLabelText('Open https://example.com in a new tab');
 
-        expect(icon).toBeTruthy();
+        expect(icon).toBeInTheDocument();
     });
 
     it('calls updateValue when input changes', () => {

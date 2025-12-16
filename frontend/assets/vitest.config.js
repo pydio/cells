@@ -30,5 +30,7 @@ export default defineConfig({
 		environment: 'jsdom',
 		// Discover both .js and .jsx test files under the repo.
 		include: ['**/*.{test,spec}.{js,jsx}'],
+    // Provide a custom vitest setup file.
+		setupFiles: ['./vitest-setup.js'],
 	},
 });
