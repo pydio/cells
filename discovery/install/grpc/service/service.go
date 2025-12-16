@@ -396,7 +396,7 @@ func (r *ConfigMapReconciler) Reconcile(ctx context.Context, req reconcile.Reque
 	// Merge with GetDefaults()
 	err = lib.MergeWithDefaultConfig(confFromFile)
 	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("Could not merge conf with defaults", err)
+		return reconcile.Result{}, fmt.Errorf("Could not merge conf with defaults: %v", err)
 	}
 
 	// Check if pre-configured DB is up and running
