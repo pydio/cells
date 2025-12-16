@@ -122,6 +122,8 @@ func RegisterIdmMocksWithData(ctx context.Context, testData *TestData) error {
 		var cc grpc2.ClientConnInterface
 		var err error
 		switch item.Name() {
+		case common.ServicePolicyGRPC:
+			cc, err = NewPolicyService(ctx, svc)
 		case common.ServiceUserGRPC:
 			cc, err = NewUsersService(ctx, svc, testData.Users...)
 		case common.ServiceRoleGRPC:

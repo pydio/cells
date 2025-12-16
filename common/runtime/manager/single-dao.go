@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/utils/propagator"
-	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (
@@ -75,11 +74,23 @@ storages:
   storage{{ $idx }}: 
     uri: {{ $dsn }}
   {{- end }}
-servers:
-  generic:
-    type: generic
+listeners:
+  bufconn:
+    type: bufconn
+    bufsize: 1048576
+connections:
+  grpc:
+    type: grpc
+    uri: passthrough://bufnet
+    listener: bufconn
     services:
-      - filter:  "true ~= .*"
+      - filter: "true ~= .*"
+servers:
+  grpc:
+    type: grpc
+    listener: bufconn
+    services:
+      - filter: "true ~= .*"
 services:
   {{- range $name, $storage := .Services }}
   {{$name}}:
@@ -185,7 +196,7 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 	ctx = propagator.With(ctx, config.ContextKey, mem)
 
 	runtime.SetRuntime(v)
-	ns := uuid.New()
+	ns := "main"
 
 	//var svc service.Service
 	for name, daoDef := range servicesWithDAO {

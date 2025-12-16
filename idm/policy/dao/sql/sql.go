@@ -305,6 +305,7 @@ func (s *sqlimpl) deleteInTransaction(ctx context.Context, tx *gorm.DB, group *i
 	// see cleanupOrphans function
 
 	tx = tx.Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
+
 	return tx.Error
 }
 
@@ -435,6 +436,74 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			cl := clause.Like{Column: "description", Value: desc}
 			db = where(cl)
 		}
+
+		count++
+	}
+
+	if len(q.GetPolicyAction()) > 0 {
+		actionTable := sql.TableNameFromModel(db, &idm.PolicyAction{})
+		actionRelTable := sql.TableNameFromModel(db, &idm.PolicyActionRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		actions := strings.Join(q.GetPolicyAction(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+actionRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+actionTable+" AS ps ON ps.id = psr.action").
+			Where("ps.template = ?", actions).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicyResource()) > 0 {
+		resourceTable := sql.TableNameFromModel(db, &idm.PolicyResource{})
+		resourceRelTable := sql.TableNameFromModel(db, &idm.PolicyResourceRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		resources := strings.Join(q.GetPolicyResource(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+resourceRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+resourceTable+" AS ps ON ps.id = psr.resource").
+			Where("ps.template = ?", resources).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
 	}
 
 	if len(q.GetPolicySubject()) > 0 {
@@ -459,7 +528,13 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 			return nil, false, tx.Error
 		}
 
-		db = where(policyGroups)
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
 
 		count++
 	}

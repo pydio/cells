@@ -175,9 +175,10 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
+	// Do we still need that here ?
 	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig)
 	var bb []byte
-	if er == nil && request.GetQuery() == nil && ka.Get("policyGroup", &bb) {
+	if er == nil && request.GetFilter() == "" && request.GetQuery() == nil && ka.Get("policyGroup", &bb) {
 		if json.Unmarshal(bb, &response.PolicyGroups) == nil {
 			response.Total = int32(len(response.PolicyGroups))
 			return response, nil
@@ -209,6 +210,8 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 			})
 
 			queries = append(queries, q1, q2)
+		} else {
+			return nil, fmt.Errorf("unknown filter: %s", filter)
 		}
 
 		request.Query = &service.Query{
@@ -224,7 +227,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
-	if request.GetQuery() == nil && ka != nil {
+	if request.GetFilter() == "" && request.GetQuery() == nil && ka != nil {
 		msg, _ := json.Marshal(groups)
 		if err = ka.Set("policyGroup", msg); err != nil {
 			log.Logger(ctx).Error("Cannot fill cache for policy groups", zap.Error(err))
@@ -235,6 +238,10 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 }
 
 func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicyGroupRequest) (*idm.StorePolicyGroupResponse, error) {
+
+	if request == nil || request.PolicyGroup == nil {
+		return nil, errors.New("invalid argument")
+	}
 
 	dao, er := manager.Resolve[policy.DAO](ctx)
 	if er != nil {
