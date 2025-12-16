@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "usermeta-url": "https://example.com",
+    "usermeta-url-no-protocol": "github.com",
+    "usermeta-url-with-path": "https://pydio.com/docs/getting-started"
+  },
+  "configs": {
+    "usermeta-url": {
+      "ns": "usermeta-url",
+      "type": "url",
+      "label": "Website URL",
+      "data": {},
+      "readonly": false,
+      "required": false
+    },
+    "usermeta-url-no-protocol": {
+      "ns": "usermeta-url-no-protocol",
+      "type": "url",
+      "label": "GitHub Profile",
+      "data": {},
+      "readonly": false,
+      "required": false
+    },
+    "usermeta-url-with-path": {
+      "ns": "usermeta-url-with-path",
+      "type": "url",
+      "label": "Documentation Link",
+      "data": {},
+      "readonly": false,
+      "required": false
+    }
+  },
+  "description": "Test fixture for URL metadata component. Use this to verify URL fields render as clickable links.",
+  "usage": {
+    "note": "This fixture can be used in tests or imported to mock URL metadata values",
+    "examples": [
+      "URL with protocol: https://example.com",
+      "URL without protocol: github.com (will be prefixed with https://)",
+      "URL with path: https://pydio.com/docs/getting-started"
+    ]
+  }
+}

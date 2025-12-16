@@ -21,6 +21,8 @@ import PydioApi from 'pydio/http/api'
 
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, RestPutUserMetaTagRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
 
+import mockUserMeta from './__fixtures__/usermeta-url.json'
+
 class MetaClient{
 
     static getInstance() {
@@ -48,7 +50,7 @@ class MetaClient{
                     let request = new IdmUpdateUserMetaRequest();
                     request.MetaDatas = [];
                     request.Operation = 'PUT';
-                    configs.forEach((cData, cName) => {
+                    configs.forEach((_, cName) => {
                         if(!values.has(cName)){
                             return;
                         }
@@ -83,7 +85,18 @@ class MetaClient{
 
     async getNamespaceSchema() {
         const api = new UserMetaServiceApi(this.client);
-        return api.getNamespaceSchema();
+        return api.getNamespaceSchema().then(ns => {
+            // TODO: remove this mock
+            ns.JsonSchema.properties = Object.entries(ns.JsonSchema.properties).reduce((acc, [key, val]) => {
+                if (key && key.includes('-url')) {
+                    const { properties } = mockUserMeta.JsonSchema;
+                    return ({ ...acc, [key]: properties["usermeta-url"] })
+                }
+                return ({ ...acc, [key]: val })
+            }, {});
+
+            return ns;
+        })
     }
 
     clearConfigs() {
@@ -93,8 +106,18 @@ class MetaClient{
     namespacesAsPanelConfig(nss) {
         let defs = {};
         let configMap = new Map();
+
+
         nss.map(ns => {
             const name = ns.Namespace;
+
+            // TODO: remove this mock
+            if (name.includes('-url')) {
+                const { JsonSchema, JsonDefinition } = mockUserMeta;
+                ns.JsonSchema = JsonSchema;
+                ns.JsonDefinition = JsonDefinition;
+            }
+
             let base = {
                 label: ns.Label,
                 indexable: ns.Indexable,
@@ -102,7 +125,7 @@ class MetaClient{
                 visible: true,
                 readonly: !ns.PoliciesContextEditable,
                 jsonSchema: ns.JsonSchema,
-                required: ns.PromptOnUpload // TODO - Temporary, make ALL prompted fields mandatory
+                required: ns.PromptOnUpload // FIXME: use ns.required.length > 0  and test
             };
             if (ns.JsonDefinition){
                 const jDef = JSON.parse(ns.JsonDefinition);
@@ -129,7 +152,6 @@ class MetaClient{
         return configMap;
     }
 
-    
 
     /**
      * @return {Promise<Map>}
