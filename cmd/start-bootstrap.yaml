@@ -226,6 +226,7 @@ services: &services
   pydio.grpc.data.index:
     after:
       - pydio.grpc.jobs
+      - pydio.grpc.data.objects
     storages:
       main:
         - type: sql
@@ -233,6 +234,7 @@ services: &services
   pydio.grpc.data.sync:
     after:
       - pydio.grpc.data.index
+      - pydio.grpc.data.objects
       - pydio.grpc.jobs
     storages:
       main:
