@@ -401,7 +401,7 @@ message TreeNode {
     option (orm.ormPolicy).enabled = true;
 
     Node Node    = 1 [(orm.orm).gorm = {embedded: true}];
-    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ",composite:name,length:128"; type: "VARCHAR(255)"; notNull: true; collate:"utf8mb4_bin"}];
+    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ",composite:name,length:128"; type: "VARCHAR(255)"; notNull: true;}];
     int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ",composite:level"; type: "SMALLINT"; notNull: true}];
     MPath MPath  = 4 [(orm.orm).gorm = {embedded: true}];
     string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(40)"; notNull: true}];

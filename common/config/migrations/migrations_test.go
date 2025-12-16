@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	configx2 "github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func PrettyPrint(v interface{}) (err error) {
@@ -38,11 +38,26 @@ func PrettyPrint(v interface{}) (err error) {
 	return
 }
 
+var (
+	testData = []byte(`{
+		"defaults": {
+			"urlInternal": "http://192.168.1.1:8080",
+			"url": "http://example.com"
+		},
+		"services": {
+			"pydio.grpc.auth": {
+			  "someKey": "SomeValue"
+			}
+		},
+		"version": "2.1.0"
+	}`)
+)
+
 func TestUpdateKeys(t *testing.T) {
 
 	// Create new config
 	conf := configx2.New(configx2.WithJSON())
-	conf.Set(data)
+	conf.Set(testData)
 
 	Convey("UpdateKeys", t, func() {
 

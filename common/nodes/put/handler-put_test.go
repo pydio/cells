@@ -63,6 +63,9 @@ func testMkFileResources() (*Handler, context.Context, *nodes.HandlerMock) {
 
 	// create dummy handler
 	h := &Handler{}
+	h.BranchFilter.OutputMethod = h.updateOutputNode
+	h.BranchFilter.InputMethod = nodes.IdentityFilterFunc
+
 	mock := nodes.NewHandlerMock()
 	h.Next = mock
 

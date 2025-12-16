@@ -48,9 +48,10 @@ func newMock() mock {
 
 func TestWatch(t *testing.T) {
 
-	m := mock{}
+	m := mock{mockMap: mockMap{}}
 
 	w := watch.NewWatcher(m)
+	m.Watcher = w
 	it, err := w.Watch()
 	if err != nil {
 		t.Fatal(err)
