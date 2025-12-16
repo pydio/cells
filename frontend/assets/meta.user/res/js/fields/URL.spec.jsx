@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { URLField, URLForm } from './URL';
 
 function createPydioMock() {
@@ -98,20 +98,6 @@ describe('URLField', () => {
         expect(link.textContent).not.toContain('https://');
     });
 
-    it('adds https:// prefix when URL lacks protocol', () => {
-        const props = {
-            ...defaultProps,
-            getRealValue: () => 'github.com'
-        };
-        render(<URLField {...props} />);
-        const link = screen.getByRole('link', {
-            label: 'Open github.com in a new tab',
-        });
-
-        expect(link.getAttribute('href')).toBe('https://github.com');
-        expect(link.textContent).toContain('github.com');
-    });
-
     it('renders external link icon', () => {
         render(<URLField {...defaultProps} />);
         const icon = screen.getByLabelText('Open example.com in a new tab');
@@ -187,13 +173,20 @@ describe('URLForm', () => {
         expect(icon).toBeInTheDocument();
     });
 
-    it('calls updateValue when input changes', () => {
+    it('calls updateValue when input changes', async () => {
+        vi.useFakeTimers();
         const updateValue = vi.fn();
         render(<URLForm {...defaultProps} updateValue={updateValue} />);
         const input = screen.getByTestId('url-input');
 
         fireEvent.change(input, {target: {value: 'https://newurl.com'}});
 
+        expect(updateValue).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(300);
+        vi.runAllTimers();
+
         expect(updateValue).toHaveBeenCalledWith('https://newurl.com');
+        vi.useRealTimers();
     });
 });

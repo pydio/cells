@@ -16,6 +16,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+/**
+ * @type {import('react')} React
+ */
 import React, { Fragment, useCallback, useMemo, useRef, useEffect, useState } from 'react'
 import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
@@ -25,22 +28,38 @@ import { muiThemeable } from 'material-ui/styles'
 import { FontIcon } from 'material-ui'
 import { debounce } from 'lodash'
 
+/**
+ * @param {{fontSize?: number}} props
+ * @returns {React.ReactElement}
+ */
 const URLIcon = ({ fontSize }) =>
     <FontIcon
         data-testid="open-in-new-icon"
         className="mdi mdi-open-in-new"
         style={{ fontSize }} />
 
-const URLLinkIcon = ({ fontSize, url, children }) => {
+/**
+ * @param {{
+ *   fontSize?: number,
+ *   url: string,
+ *   displayText?: string,
+ *   children?: React.ReactNode
+ * }} props
+ *
+ *  @returns {React.ReactElement}
+ */
+const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
     const hasMinimalValidity = /^https?:\/\//i.test(url);
     if (!hasMinimalValidity) {
         return null;
     }
 
+    const labelText = displayText || children || url;
+
     return (
         <a href={url}
             target="_blank"
-            aria-label={`Open ${url} in a new tab`}
+            aria-label={`Open ${labelText} in a new tab`}
             rel="noopener noreferrer"
             onClick={(e) => {
                 e.stopPropagation();
@@ -57,6 +76,10 @@ const URLLinkIcon = ({ fontSize, url, children }) => {
 
 }
 
+/**
+ * @param {{getRealValue: () => string}} props
+ * @returns {React.ReactElement}
+ */
 const URLFieldBase = ({ getRealValue }) => {
     const value = getRealValue();
 
@@ -77,12 +100,28 @@ const URLFieldBase = ({ getRealValue }) => {
         displayText = value;
     }
 
-    return <URLLinkIcon fontSize={14} url={url} children={displayText} />;
+    return <URLLinkIcon fontSize={14} url={url} displayText={displayText} children={displayText} />;
 }
 
+/**
+ * URL field
+ * @type {typeof URLFieldBase}
+ */
 const URLField = asMetaField(muiThemeable()(URLFieldBase));
 export { URLField }
 
+/**
+ * @param {{
+ *   value: string,
+ *   label: string,
+ *   errorText: string,
+ *   search: boolean,
+ *   muiTheme: object,
+ *   supportTemplates: boolean,
+ *   updateValue: (value: string) => void
+ * }} props
+ * @returns {React.ReactElement}
+ */
 const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue }) => {
     const ModernStyles = ThemedModernStyles(muiTheme);
     const debouncedUpdateRef = useRef(null);
@@ -166,12 +205,16 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
                     top: 22,
                     cursor: 'pointer'
                 }}>
-                    <URLLinkIcon fontSize={18} url={localValue} />
+                    <URLLinkIcon fontSize={18} url={localValue} displayText={localValue} />
                 </div>
             )}
         </div>
     );
 }
 
+/**
+ * URL form
+ * @type {typeof URLFormBase}
+ */
 const URLForm = asMetaForm(muiThemeable()(URLFormBase));
 export { URLForm }
