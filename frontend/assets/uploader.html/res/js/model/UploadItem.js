@@ -237,10 +237,9 @@ class UploadItem extends StatusItem {
             this.setProgress(0)
             return;
         }
-        let userData = undefined;
+        let userData = {};
         const um = this.getUserMeta()
-        if(um && um.size > 0){ // If is an object size doesn't exist if is map it works
-            userData ={}
+        if(um && um.size > 0){
             um.forEach((value, key)=>{
                 userData[key] = JSON.stringify(value);
             })
