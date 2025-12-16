@@ -197,11 +197,11 @@ func TestMPathLike_Build(t *testing.T) {
 				Value: mpath,
 			}
 
-			queryRegex := regexp.QuoteMeta(`SELECT * FROM "nodes" WHERE ("mpath4" LIKE $1 AND "mpath3" LIKE $2 AND "mpath2" LIKE $3 AND "mpath1" LIKE $4 AND "level" > $5)`)
+			queryRegex := regexp.QuoteMeta(`SELECT * FROM "nodes" WHERE ("mpath2" LIKE $1 AND "mpath1" LIKE $2)`)
 
 			mock.
 				ExpectQuery(queryRegex).
-				WithArgs(mpathEquals.Value.GetMPath1()+"%", mpathEquals.Value.Length()).
+				WithArgs(mpathEquals.Value.GetMPath2()+".%", mpathEquals.Value.GetMPath1()).
 				WillReturnRows(sqlmock.NewRows([]string{""}))
 
 			tx := gormDB.Where(mpathEquals).Find(&Node{})

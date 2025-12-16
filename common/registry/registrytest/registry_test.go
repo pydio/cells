@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 
+	_ "github.com/pydio/cells/v5/common/config/memory"
 	_ "github.com/pydio/cells/v5/common/config/viper"
 	_ "github.com/pydio/cells/v5/common/registry/config"
 	_ "github.com/pydio/cells/v5/common/registry/service"
@@ -130,6 +131,9 @@ func TestService(t *testing.T) {
 	}
 
 	m, err := manager.NewManager(ctx, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
 	registry.NewMetaWrapper(m.Registry(), func(m map[string]string) {
 		b, _ := json.Marshal([]map[string]string{{
 			"filter": "\"{{ .Name }} ~= .*\"",

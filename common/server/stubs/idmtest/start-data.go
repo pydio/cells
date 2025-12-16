@@ -117,10 +117,14 @@ func RegisterIdmMocksWithData(ctx context.Context, testData *TestData) error {
 		return errors.New("cannot find registry in context")
 	}
 	ii, _ := reg.List(registry.WithType(pb.ItemType_SERVICE))
+	onces := make(map[string]bool)
 	for _, item := range ii {
 		svc := item.(service.Service)
 		var cc grpc2.ClientConnInterface
 		var err error
+		if ok := onces[svc.Name()]; ok {
+			continue
+		}
 		switch item.Name() {
 		case common.ServicePolicyGRPC:
 			cc, err = NewPolicyService(ctx, svc)
@@ -140,6 +144,7 @@ func RegisterIdmMocksWithData(ctx context.Context, testData *TestData) error {
 			return err
 		}
 		grpc.RegisterMock(item.Name(), cc)
+		onces[svc.Name()] = true
 	}
 	return nil
 }

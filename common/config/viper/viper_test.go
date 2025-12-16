@@ -3,6 +3,7 @@ package viper
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -48,18 +49,22 @@ func TestFile(t *testing.T) {
 }
 
 func TestETCD(t *testing.T) {
-	u := &etcd.EtcdOpener{}
+	if etcdHost := os.Getenv("ETCD_SERVER_ADDR"); etcdHost != "" {
+		u := &etcd.EtcdOpener{}
 
-	store, err := u.Open(context.Background(), "etcd://0.0.0.0:23379/config", kv.NewStore())
-	if err != nil {
-		t.Fatal(err)
-	}
+		store, err := u.Open(context.Background(), "etcd://"+etcdHost+"/config", kv.NewStore())
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	// Define test cases
-	testSetAndGet(t, store)
+		// Define test cases
+		testSetAndGet(t, store)
 
-	if err := store.Save("test", "test"); err != nil {
-		t.Fatal(err)
+		if err := store.Save("test", "test"); err != nil {
+			t.Fatal(err)
+		}
+	} else {
+		t.Skip()
 	}
 }
 

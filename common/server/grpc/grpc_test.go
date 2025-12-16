@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	discoveryregistry "github.com/pydio/cells/v5/discovery/registry"
 
+	_ "github.com/pydio/cells/v5/common/config/memory"
 	_ "github.com/pydio/cells/v5/common/registry/config"
 )
 

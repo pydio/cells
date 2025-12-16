@@ -1,11 +1,13 @@
 package watch
 
 import (
+	"context"
 	"fmt"
 	"maps"
 	"testing"
 	"time"
 
+	diff "github.com/r3labs/diff/v3"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v5/common/utils/std"
@@ -97,15 +99,26 @@ func TestWatchSimple(t *testing.T) {
 
 	r, _ := w.Watch(WithPath("sources"))
 
+	finish, can := context.WithTimeout(context.Background(), time.Second)
 	go func() {
 		val, err := r.Next()
-		fmt.Println("val", val, err)
+		if ch, ok := val.([]diff.Change); ok && len(ch) == 3 {
+			fmt.Println("val", val, err)
+			t.Log("Received 3 changes in diff")
+			can()
+		}
 	}()
 
 	sources = append(sources, "test2", "test3", "test4")
 	m["sources"] = sources
 	w.Reset()
 
-	<-time.After(10 * time.Minute)
+	select {
+	case <-finish.Done():
+		break
+	case <-time.After(5 * time.Minute):
+		break
+
+	}
 
 }
