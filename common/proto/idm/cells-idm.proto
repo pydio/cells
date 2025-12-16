@@ -697,9 +697,25 @@ message DeletePolicyGroupResponse{
     bool Success = 1;
 }
 message ListPolicyGroupsRequest{
-    string Filter = 1;
+    string Filter = 1 [deprecated = true];
+    // repeated string Filters = 2;
+    service.Query Query = 2;
 }
 message ListPolicyGroupsResponse{
     repeated PolicyGroup PolicyGroups = 1;
     int32 Total = 2;
+}
+
+message PolicyGroupSingleQuery {
+    string ResourceGroup = 1;
+    string Uuid = 2;
+    string Name = 3;
+    string Description = 4;
+    repeated string PolicyAction = 5;
+    repeated string PolicyResource = 6;
+    repeated string PolicySubject = 7;
+    // Internal - Negate query
+    bool not = 8;
+    // Internal - Like query
+    bool like = 9;
 }

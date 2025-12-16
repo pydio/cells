@@ -21,7 +21,6 @@
 package permissions
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"path"
@@ -31,7 +30,7 @@ import (
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
@@ -39,6 +38,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -194,10 +194,24 @@ func PolicyContextFromClaims(policyContext map[string]string, ctx context.Contex
 	}
 }
 
-func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
+func loadPoliciesByResourcesTypeAndSubjects(ctx context.Context, resType string, subjects []string) ([]*idm.Policy, error) {
 
 	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
-	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + resType})
+
+	var queries []*anypb.Any
+
+	q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+		ResourceGroup: resType,
+		PolicySubject: subjects,
+	})
+
+	queries = append(queries, q1)
+
+	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Query: &service.Query{
+		SubQueries: queries,
+		Operation:  service.OperationType_OR,
+	}})
+
 	if e != nil {
 		return nil, e
 	}
@@ -209,17 +223,39 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 			break
 		}
 		for _, p := range g.Policies {
-			// THIS CHECK SHOULD BE UNNECESSARY NOW
-			//isType := false
-			//for _, res := range p.Resources {
-			//	if res.GetID() == resType {
-			//		isType = true
-			//		break
-			//	}
-			//}
-			//if isType {
 			policies = append(policies, p)
-			//}
+		}
+	}
+	return policies, nil
+}
+
+func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
+
+	var queries []*anypb.Any
+
+	q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+		ResourceGroup: resType,
+	})
+
+	queries = append(queries, q1)
+
+	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
+	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Query: &service.Query{
+		SubQueries: queries,
+		Operation:  service.OperationType_OR,
+	}})
+	if e != nil {
+		return nil, e
+	}
+	var policies []*idm.Policy
+
+	for {
+		g, er := st.Recv()
+		if er != nil {
+			break
+		}
+		for _, p := range g.Policies {
+			policies = append(policies, p)
 		}
 	}
 	return policies, nil
@@ -230,43 +266,67 @@ func ClearCachedPolicies(ctx context.Context, resType string) {
 	_ = getCheckersCache(ctx).Delete(resType)
 }
 
-func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string) (ladon.Warden, error) {
+func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string, subjects []string) (ladon.Warden, error) {
 	w := &ladon.Ladon{
 		Manager: memory.NewMemoryManager(),
 	}
 
 	ca := getCheckersCache(ctx)
 	var policies []*idm.Policy
-	if !ca.Get(resType, &policies) {
-		if p, err := loadPoliciesByResourcesType(ctx, resType); err != nil {
+	if !ca.Get(resType+","+strings.Join(subjects, ","), &policies) {
+		if p, err := loadPoliciesByResourcesTypeAndSubjects(ctx, resType, subjects); err != nil {
 			return nil, err
 		} else {
 			policies = p
-			_ = ca.Set(resType, policies)
+			_ = ca.Set(resType+","+strings.Join(subjects, ","), policies)
 		}
 	}
+
+	requestContextInterface := map[string]any{}
+	for k, v := range requestContext {
+		requestContextInterface[k] = v
+	}
+
+	templates := map[string]*template.Template{}
 
 	for _, pol := range policies {
 		replaces := map[string]*idm.PolicyCondition{}
 		for key, cond := range pol.Conditions {
-			if strings.Contains(cond.GetJsonOptions(), "{{") && requestContext != nil {
-				if tpl, er := template.New("temp").Parse(cond.GetJsonOptions()); er == nil {
-					bb := &bytes.Buffer{}
-					if e := tpl.Execute(bb, requestContext); e == nil {
-						replaces[key] = &idm.PolicyCondition{
-							Type:        cond.GetType(),
-							JsonOptions: bb.String(),
-						}
-					}
+			if strings.Contains(cond.GetJsonOptions(), "{{") {
+				tmpl, ok := templates[cond.GetJsonOptions()]
+				if !ok {
+					tmpl = template.New(cond.GetJsonOptions())
+					templates[cond.GetJsonOptions()] = tmpl
+				}
+				b := strings.Builder{}
+				err := tmpl.Execute(&b, requestContextInterface)
+				if err != nil {
+					continue
+				}
+
+				str := b.String()
+
+				replaces[key] = &idm.PolicyCondition{Type: cond.GetType(),
+					JsonOptions: str,
 				}
 			}
 		}
+
 		if len(replaces) > 0 {
-			pol = proto.Clone(pol).(*idm.Policy)
-			for k, c := range replaces {
-				pol.Conditions[k] = c
+			pol = &idm.Policy{
+				ID:           pol.ID,
+				Description:  pol.Description,
+				Subjects:     pol.Subjects,
+				Resources:    pol.Resources,
+				Actions:      pol.Actions,
+				OrmSubjects:  pol.OrmSubjects,
+				OrmResources: pol.OrmResources,
+				OrmActions:   pol.OrmActions,
+				Effect:       pol.Effect,
+				Conditions:   replaces,
 			}
 		}
+
 		_ = w.Manager.Create(ctx, converter.ProtoToLadonPolicy(pol))
 	}
 
@@ -274,7 +334,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 }
 
 func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error) {
-	checker, e := CachedPoliciesChecker(ctx, "acl", request.Context)
+	checker, e := CachedPoliciesChecker(ctx, "acl", request.Context, request.Subjects)
 	if e != nil {
 		return nil, e
 	}
@@ -300,6 +360,6 @@ func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequ
 			allow = true
 		} // Else "default deny" => continue checking
 	}
-	return &idm.PolicyEngineResponse{Allowed: allow}, nil
 
+	return &idm.PolicyEngineResponse{Allowed: allow}, nil
 }

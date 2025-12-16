@@ -83,6 +83,37 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	return ss
 }
 
+// TemplateSQLService returns a single SQL test case with the provided DAO func
+func TemplateSQLService(services map[string]map[string]map[string]any) []ServicesStorageTestCase {
+	unique := uuid.New()[:6]
+	ss := []ServicesStorageTestCase{
+		{
+			DSN:       map[string]string{"sql": sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=test_" + unique},
+			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
+			Services:  services,
+		},
+	}
+	if other := os.Getenv("CELLS_TEST_MYSQL_DSN"); other != "" {
+		for _, dsn := range strings.Split(other, ";") {
+			ss = append(ss, ServicesStorageTestCase{
+				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=test_" + unique},
+				Condition: true,
+				Services:  services,
+			})
+		}
+	}
+	if other := os.Getenv("CELLS_TEST_PGSQL_DSN"); other != "" {
+		for _, dsn := range strings.Split(other, ";") {
+			ss = append(ss, ServicesStorageTestCase{
+				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=test_" + unique},
+				Condition: true,
+				Services:  services,
+			})
+		}
+	}
+	return ss
+}
+
 // TemplateMongoEnvWithPrefix creates a StorageTestCase for MongoDB
 func TemplateMongoEnvWithPrefix(daoFunc any, prefix string) StorageTestCase {
 	return StorageTestCase{

@@ -29,10 +29,12 @@ import (
 
 	"github.com/ory/ladon"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -238,24 +240,11 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 }
 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
-func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups []*idm.PolicyGroup, e error) {
+func (s *sqlimpl) ListPolicyGroups(ctx context.Context, query service.Enquirer) (groups []*idm.PolicyGroup, e error) {
 
-	tx := s.instance(ctx)
-
-	if strings.HasPrefix(filter, "resource_group:") {
-
-		res := strings.TrimPrefix(filter, "resource_group:")
-		if resId, ok := idm.PolicyResourceGroup_value[res]; ok {
-			tx = tx.Where(&idm.PolicyGroup{ResourceGroup: idm.PolicyResourceGroup(resId)})
-		}
-	} else if strings.HasPrefix(filter, "uuid:") {
-		id := strings.TrimPrefix(filter, "uuid:")
-
-		tx = tx.Where(&idm.PolicyGroup{Uuid: id})
-	} else if strings.HasPrefix(filter, "like:") {
-		like := "%" + strings.TrimPrefix(filter, "like:") + "%"
-
-		tx = tx.Where(clause.Like{Column: "name", Value: like}).Or(clause.Like{Column: "description", Value: like})
+	tx, err := service.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	if err != nil {
+		return nil, err
 	}
 
 	tx = tx.Preload("Policies.OrmActions").Preload("Policies.OrmResources").Preload("Policies.OrmSubjects").Preload("Policies").Find(&groups)
@@ -316,6 +305,7 @@ func (s *sqlimpl) deleteInTransaction(ctx context.Context, tx *gorm.DB, group *i
 	// see cleanupOrphans function
 
 	tx = tx.Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
+
 	return tx.Error
 }
 
@@ -383,4 +373,171 @@ func (s *sqlimpl) deletePolicyById(ctx context.Context, tx *gorm.DB, id string) 
 func (s *sqlimpl) IsAllowed(ctx context.Context, r *ladon.Request) error {
 	mg := NewManager(s.instance(ctx))
 	return (&ladon.Ladon{Manager: mg}).IsAllowed(ctx, r)
+}
+
+type queryConverter idm.PolicyGroupSingleQuery
+
+func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
+
+	q := new(idm.PolicyGroupSingleQuery)
+
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
+		return nil, false, nil
+	}
+	count := 0
+
+	where := db.Where
+	if q.GetNot() {
+		where = db.Not
+	}
+
+	if res := q.GetResourceGroup(); res != "" {
+		if resId, ok := idm.PolicyResourceGroup_value[res]; ok {
+			if !q.GetLike() {
+				cl := clause.Eq{Column: "resource_group", Value: resId}
+				db = where(cl)
+			} else {
+				cl := clause.Like{Column: "resource_group", Value: resId}
+				db = where(cl)
+			}
+		}
+
+		count++
+	}
+
+	if uuid := q.GetUuid(); uuid != "" {
+		if !q.GetLike() {
+			cl := clause.Eq{Column: "uuid", Value: uuid}
+			db = where(cl)
+		} else {
+			cl := clause.Like{Column: "uuid", Value: uuid}
+			db = where(cl)
+		}
+		count++
+	}
+
+	if name := q.GetName(); name != "" {
+		if !q.GetLike() {
+			cl := clause.Eq{Column: "name", Value: name}
+			db = where(cl)
+		} else {
+			cl := clause.Like{Column: "name", Value: name}
+			db = where(cl)
+		}
+
+		count++
+	}
+
+	if desc := q.GetDescription(); desc != "" {
+		if !q.GetLike() {
+			cl := clause.Eq{Column: "description", Value: desc}
+			db = where(cl)
+		} else {
+			cl := clause.Like{Column: "description", Value: desc}
+			db = where(cl)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicyAction()) > 0 {
+		actionTable := sql.TableNameFromModel(db, &idm.PolicyAction{})
+		actionRelTable := sql.TableNameFromModel(db, &idm.PolicyActionRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		actions := strings.Join(q.GetPolicyAction(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+actionRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+actionTable+" AS ps ON ps.id = psr.action").
+			Where("ps.template = ?", actions).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicyResource()) > 0 {
+		resourceTable := sql.TableNameFromModel(db, &idm.PolicyResource{})
+		resourceRelTable := sql.TableNameFromModel(db, &idm.PolicyResourceRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		resources := strings.Join(q.GetPolicyResource(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+resourceRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+resourceTable+" AS ps ON ps.id = psr.resource").
+			Where("ps.template = ?", resources).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicySubject()) > 0 {
+		subjectTable := sql.TableNameFromModel(db, &idm.PolicySubject{})
+		subjectRelTable := sql.TableNameFromModel(db, &idm.PolicySubjectRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		subjects := strings.Join(q.GetPolicySubject(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+subjectRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+subjectTable+" AS ps ON ps.id = psr.subject").
+			Where("ps.template = ?", subjects).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	return db, count > 0, nil
 }
