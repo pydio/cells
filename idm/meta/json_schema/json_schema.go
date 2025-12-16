@@ -287,7 +287,6 @@ func withStringSchema() map[string]interface{} {
 	// prop["minLength"] = withMin(0, "string")["minLength"]
 	// prop["maxLength"] = withMax(0, "string")["maxLength"]
 	// prop["pattern"] = ""
-	prop["format"] = ""
 	return prop
 }
 
