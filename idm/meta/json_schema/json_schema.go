@@ -188,7 +188,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 	props := f.root["properties"].(map[string]interface{})
 	var usermeta = "usermeta"
 	if name != "" {
-		usermeta = fmt.Sprintf("usermeta-%s", name)
+		usermeta = name
 	}
 
 	switch label {
@@ -196,14 +196,14 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 		var t = fmt.Sprintf("%s-boolean", usermeta)
 		f.root["title"] = t
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = name
 		}
 		props[t] = withBooleanSchema()
 
 	case "textarea":
 		var t = fmt.Sprintf("%s-long-text", usermeta)
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = name
 		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
@@ -211,7 +211,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 	case "string":
 		var t = fmt.Sprintf("%s-text", usermeta)
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = name
 		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
@@ -219,7 +219,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 	case "integer":
 		var t = fmt.Sprintf("%s-number", usermeta)
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = name
 		}
 		f.root["title"] = t
 		props[t] = withNumberSchema()
@@ -227,7 +227,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 	case "date", "datetime":
 		var t = fmt.Sprintf("%s-datetime", usermeta)
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = name
 		}
 		f.root["title"] = t
 		props[t] = withDateTimeSchema()
@@ -296,9 +296,6 @@ func withMax(max int, t string) map[string]interface{} {
 func withStringSchema() map[string]interface{} {
 	s, _ := Infer[string](nil)
 	prop := marshalSchema(s)
-	// prop["minLength"] = withMin(0, "string")["minLength"]
-	// prop["maxLength"] = withMax(0, "string")["maxLength"]
-	// prop["pattern"] = ""
 	return prop
 }
 
