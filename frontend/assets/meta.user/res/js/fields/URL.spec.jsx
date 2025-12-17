@@ -12,12 +12,14 @@ function createPydioMock() {
         requireLib: vi.fn((lib) => {
             if (lib === 'hoc') {
                 return {
-                    ModernTextField: ({ value, hintText, onChange }) =>
+                    ModernTextField: ({ value, hintText, onChange, onBlur, onKeyPress }) =>
                         React.createElement('input', {
                             'data-testid': 'url-input',
                             value: value || '',
                             placeholder: hintText,
-                            onChange: (e) => onChange && onChange(e, e.target.value)
+                            onChange: (e) => onChange && onChange(e, e.target.value),
+                            onBlur: (e) => onBlur && onBlur(e),
+                            onKeyPress: (e) => onKeyPress && onKeyPress(e),
                         }),
                     ThemedModernStyles: () => ({
                         textFieldV2: { style: {}, errorStyle: {} },
@@ -71,7 +73,7 @@ describe('URLField', () => {
             label: expectedLinkLabel,
         });
 
-        expect(link.getAttribute('href')).toBe('https://example.com');
+        expect(link.getAttribute('href')).toBe('https://example.com/');
     });
 
     it('opens link in new tab (target="_blank")', () => {
@@ -129,6 +131,20 @@ describe('URLField', () => {
         expect(link.getAttribute('href')).toBe('https://pydio.com/docs/getting-started');
         expect(link.textContent).toContain('pydio.com');
     });
+
+    it('adds http scheme when missing', () => {
+        const props = {
+            ...defaultProps,
+            getRealValue: () => 'example.com'
+        };
+
+        render(<URLField {...props} />);
+        const link = screen.getByRole('link', {
+            label: 'Open example.com in a new tab',
+        });
+
+        expect(link.getAttribute('href')).toBe('http://example.com/');
+    });
 });
 
 describe('URLForm', () => {
@@ -174,19 +190,23 @@ describe('URLForm', () => {
     });
 
     it('calls updateValue when input changes', async () => {
-        vi.useFakeTimers();
         const updateValue = vi.fn();
         render(<URLForm {...defaultProps} updateValue={updateValue} />);
         const input = screen.getByTestId('url-input');
 
         fireEvent.change(input, {target: {value: 'https://newurl.com'}});
+        expect(updateValue).toHaveBeenCalledWith('https://newurl.com', false);
+    });
 
-        expect(updateValue).not.toHaveBeenCalled();
+    it('injects http scheme on blur when missing', () => {
+        const updateValue = vi.fn();
+        render(<URLForm {...defaultProps} updateValue={updateValue} value={''} />);
+        const input = screen.getByTestId('url-input');
 
-        vi.advanceTimersByTime(300);
-        vi.runAllTimers();
+        fireEvent.change(input, {target: {value: 'example.com'}});
+        fireEvent.blur(input);
 
-        expect(updateValue).toHaveBeenCalledWith('https://newurl.com');
-        vi.useRealTimers();
+        expect(updateValue).toHaveBeenCalledWith('example.com', false);
+        expect(updateValue).toHaveBeenCalledWith('http://example.com', false);
     });
 });

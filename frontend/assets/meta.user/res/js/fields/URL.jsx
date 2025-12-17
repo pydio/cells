@@ -19,15 +19,32 @@
 /**
  * @type {import('react')} React
  */
-import React, { Fragment, useCallback, useMemo, useRef, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
 const { ModernTextField, ThemedModernStyles } = Pydio.requireLib('hoc');
 import { muiThemeable } from 'material-ui/styles'
 import { FontIcon } from 'material-ui'
-import { debounce } from 'lodash'
 import { sanitizeUrl } from "@braintree/sanitize-url";
+
+/**
+ * If no scheme is provided, default to http:// to avoid relative links.
+ * Keeps existing schemes (mailto:, ftp:, etc.) untouched.
+ *
+ * @param {string} raw
+ * @returns {string}
+ */
+const ensureHttpScheme = (raw) => {
+    const trimmed = String(raw || '').trim();
+    if (!trimmed) {
+        return '';
+    }
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) {
+        return trimmed;
+    }
+    return `https://${trimmed}`;
+};
 
 /**
  * @param {{fontSize?: number}} props
@@ -50,7 +67,10 @@ const URLIcon = ({ fontSize }) =>
  *  @returns {React.ReactElement}
  */
 const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
-    const sanitizedURL = sanitizeUrl(url);
+    if (!url || !String(url).trim()) {
+        return null;
+    }
+    const sanitizedURL = sanitizeUrl(ensureHttpScheme(url));
     if (!sanitizedURL) {
         return null;
     }
@@ -83,7 +103,11 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
  */
 const URLFieldBase = ({ getRealValue }) => {
     const url = getRealValue();
-    const sanitizedURL = sanitizeUrl(url);
+    if (!url || !String(url).trim()) {
+        return <Fragment></Fragment>;
+    }
+    const normalizedURL = ensureHttpScheme(url);
+    const sanitizedURL = sanitizeUrl(normalizedURL);
 
     if (!sanitizedURL) {
         return <Fragment></Fragment>;
@@ -101,7 +125,7 @@ const URLFieldBase = ({ getRealValue }) => {
         displayText = sanitizedURL;
     }
 
-    return <URLLinkIcon fontSize={14} url={url} displayText={displayText} children={displayText} />;
+    return <URLLinkIcon fontSize={14} url={normalizedURL} displayText={displayText} children={displayText} />;
 }
 
 /**
@@ -123,48 +147,34 @@ export { URLField }
  * }} props
  * @returns {React.ReactElement}
  */
-const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue, ...rest }) => {
+const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue }) => {
     const ModernStyles = ThemedModernStyles(muiTheme);
-    const debouncedUpdateRef = useRef(null);
     const [localValue, setLocalValue] = useState(value || '');
 
     useEffect(() => {
         setLocalValue(value || '');
     }, [value]);
 
-    const debouncedUpdate = useMemo(() => {
-        if (debouncedUpdateRef.current) {
-            debouncedUpdateRef.current.cancel();
-        }
-        debouncedUpdateRef.current = debounce((newValue) => {
-            updateValue(newValue);
-        }, 300);
-        return debouncedUpdateRef.current;
-    }, [updateValue]);
-
     const handleChange = useCallback((event, newValue) => {
         setLocalValue(newValue);
-        debouncedUpdate(newValue);
-    }, [debouncedUpdate]);
+        updateValue(newValue, false);
+    }, [updateValue]);
 
-    const handleKeyPress = useCallback((event) => {
-        if (event.key === 'Enter') {
-            // Cancel any pending debounced update and save immediately
-            if (debouncedUpdateRef.current) {
-                debouncedUpdateRef.current.cancel();
-            }
-            updateValue(localValue, true);
+    const handleBlur = useCallback(() => {
+        const normalized = ensureHttpScheme(localValue);
+        if (normalized !== localValue) {
+            setLocalValue(normalized);
+            updateValue(normalized, false);
         }
     }, [localValue, updateValue]);
 
-    // Cleanup: cancel pending debounced calls on unmount
-    useEffect(() => {
-        return () => {
-            if (debouncedUpdateRef.current) {
-                debouncedUpdateRef.current.cancel();
-            }
-        };
-    }, []);
+    const handleKeyPress = useCallback((event) => {
+        if (event.key === 'Enter') {
+            const normalized = ensureHttpScheme(localValue);
+            setLocalValue(normalized);
+            updateValue(normalized, true);
+        }
+    }, [localValue, updateValue]);
 
     if (supportTemplates) {
         return (
@@ -172,9 +182,10 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
                 value={localValue}
                 fullWidth={true}
                 hintText={label}
+                onBlur={handleBlur}
                 onChange={(_, val) => {
                     setLocalValue(val);
-                    debouncedUpdate(val);
+                    updateValue(val, false);
                 }}
             />
         );
@@ -196,6 +207,7 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
                 errorText={errorText}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
+                onBlur={handleBlur}
                 {...sProps}
                 variant={search ? "v1" : "v2"}
             />
