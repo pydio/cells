@@ -27,11 +27,19 @@ import {
 
 } from 'cells-sdk'
 
-class Metadata {
+/** 
+ * @typedef {import('cells-sdk').IdmUserMetaNamespace} IdmUserMetaNamespace
+ * @typedef {import('cells-sdk').IdmUpdateUserMetaNamespaceRequest} IdmUpdateUserMetaNamespaceRequest
+ * @typedef {import('cells-sdk').UpdateUserMetaNamespaceRequestUserMetaNsOp} UpdateUserMetaNamespaceRequestUserMetaNsOp 
+*/
 
+class Metadata {
+    // Initialize Api instance statically to reuse across calls
+    static api = new UserMetaServiceApi(PydioApi.getRestClient());
+
+    //** @type {Promise<IdmUserMetaNamespace[]>} */
     static loadNamespaces() {
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
-        return api.listUserMetaNamespace();
+        return Metadata.api.listUserMetaNamespace();
     }
 
     /**
@@ -39,12 +47,12 @@ class Metadata {
      * @return {Promise}
      */
     static putNS(namespace) {
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
+        //** @type {Promise<IdmUserMetaNamespace>} */
         let request = new IdmUpdateUserMetaNamespaceRequest();
         request.Operation = UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
         request.Namespaces = [namespace];
         Metadata.clearLocalCache();
-        return api.updateUserMetaNamespace(request)
+        return Metadata.api.updateUserMetaNamespace(request)
     }
 
     /**
@@ -52,17 +60,24 @@ class Metadata {
      * @return {Promise}
      */
     static deleteNS(namespace) {
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
         let request = new IdmUpdateUserMetaNamespaceRequest();
         request.Operation = UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
         request.Namespaces = [namespace];
         Metadata.clearLocalCache();
-        return api.updateUserMetaNamespace(request)
+        return Metadata.api.updateUserMetaNamespace(request)
+    }
+    /**
+     * 
+     * @param {string} fileType 
+     * @returns {Promise<any>}
+     */
+    static getMetaSchema(fileType) {
+        //** @type {Promise<any>} */
+        return Metadata.api.getFieldSchema(fileType);
     }
 
-    static getMetaSchema(fileType) {
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
-        return api.getFieldSchema(fileType);
+    static getJsonSchemaByType(fieldType, namespace) {     
+        return Metadata.api.getNamespaceSchema({ FieldType: fieldType, Namespace: namespace });
     }
 
     /**
