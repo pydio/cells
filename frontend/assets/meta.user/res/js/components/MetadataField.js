@@ -30,6 +30,7 @@ import Renderer from "../Renderer";
 import {DateTimeField, DateTimeForm} from "../fields/DateTime";
 import BooleanForm from "../fields/BooleanForm";
 import {IntegerField, IntegerForm} from "../fields/Integer";
+import {URLField, URLForm} from "../fields/URL";
 
 const {ModernTextField} = Pydio.requireLib("hoc");
 
@@ -71,6 +72,8 @@ const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, support
             return <IntegerForm {...baseProps} supportTemplates={supportTemplates}/>;
         case 'boolean':
             return <BooleanForm {...baseProps}/>;
+        case 'url':
+            return <URLForm {...baseProps} supportTemplates={supportTemplates}/>;
         default:
             const isInteger = (type === 'integer' && !supportTemplates);
             return (
@@ -128,6 +131,9 @@ const FieldDisplay = ({fieldKey, meta, value, node}) => {
             break;
         case 'boolean':
             displayValue = value ? 'Yes' : 'No';
+            break;
+        case 'url':
+            displayValue = <URLField node={node} column={column}/>;
             break;
         default:
             break;
