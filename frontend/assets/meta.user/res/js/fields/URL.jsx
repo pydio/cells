@@ -54,7 +54,7 @@ const URLIcon = ({ fontSize }) =>
     <FontIcon
         data-testid="open-in-new-icon"
         className="mdi mdi-open-in-new"
-        style={{ fontSize }} />
+        style={{ fontSize, color: 'inherit' }} />
 
 /**
  * @param {{
@@ -86,7 +86,7 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
                 e.stopPropagation();
             }}
             style={{
-                color: 'var(--md-sys-color-secondary)',
+                color: 'inherit',
                 textDecoration: 'none'
             }}
         >
@@ -215,7 +215,7 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
                 <div style={{
                     position: 'absolute',
                     right: 8,
-                    top: 22,
+                    bottom: 10,
                     cursor: 'pointer'
                 }}>
                     <URLLinkIcon fontSize={18} url={localValue} displayText={localValue} />
