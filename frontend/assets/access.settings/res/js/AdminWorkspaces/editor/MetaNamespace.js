@@ -153,16 +153,16 @@ class MetaNamespace extends React.Component {
         return IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
     }
 
-    componentWillReceiveProps(props) {
+    componentWillReceiveProps(props) {        
         if (props.open === this.props.open) {
             return;
         }
-        const { create, namespaces } = props;
+        const { create, namespaces } = props;        
         const newNS = this.cloneNs(props.namespace);
         if (create && namespaces.length) {
             newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a, c) => Math.max(a, c), 0) + 1;
-        }
-        this.setState({ namespace: newNS });
+        }     
+        this.setState({ namespace: newNS });        
     }
 
     save() {
@@ -175,6 +175,26 @@ class MetaNamespace extends React.Component {
             this.props.onRequestClose();
             this.props.reloadList();
         })
+    }
+
+    getJsonSchema() {
+        const { namespace } = this.state;
+
+        const fieldType = JSON.parse(namespace.JsonDefinition).type;
+        if (!fieldType) return;
+        if (!namespace.Namespace) return;
+        Metadata.getJsonSchemaByType(fieldType, namespace.Namespace)
+            .then(schema => {
+                this.setState(prevState => ({
+                namespace: {
+                    ...prevState.namespace,
+                    JsonSchema: schema.JsonSchema
+                }
+            }));
+            }).catch(e => {
+                console.error(e);
+                throw e;
+            });
     }
 
     getHideValue() {
@@ -199,6 +219,7 @@ class MetaNamespace extends React.Component {
         namespace.JsonDefinition = JSON.stringify({ ...def, groupName: v })
         this.setState({ namespace });
     }
+
     getAdditionalData(defaultValue = {}) {
         const { namespace } = this.state;
         try {
@@ -329,7 +350,7 @@ class MetaNamespace extends React.Component {
                     pydio={pydio}
                     namespace={namespace}
                     forcePrefix={'usermeta-'}
-                    onChange={(ns) => this.setState({ namespace: ns })}
+                    onChange={(ns) => { this.setState({ namespace: ns }, () => { this.getJsonSchema(); }) }}
                     readonly={readonly}
                     create={create}
                     labelError={labelError}
@@ -339,6 +360,7 @@ class MetaNamespace extends React.Component {
                 <MetaNamespaceFieldOptions 
                     ns={namespace}
                     ref={this.fieldOptionsRef}
+                    fieldType={JSON.parse(namespace.JsonDefinition).type}
                 />
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 <Toggle
