@@ -85,18 +85,7 @@ class MetaClient{
 
     async getNamespaceSchema() {
         const api = new UserMetaServiceApi(this.client);
-        return api.getNamespaceSchema().then(ns => {
-            // TODO: remove this mock
-            ns.JsonSchema.properties = Object.entries(ns.JsonSchema.properties).reduce((acc, [key, val]) => {
-                if (key && key.includes('-url')) {
-                    const { properties } = mockUserMeta.JsonSchema;
-                    return ({ ...acc, [key]: properties["usermeta-url"] })
-                }
-                return ({ ...acc, [key]: val })
-            }, {});
-
-            return ns;
-        })
+        return api.getNamespaceSchema();
     }
 
     clearConfigs() {
@@ -110,13 +99,6 @@ class MetaClient{
 
         nss.map(ns => {
             const name = ns.Namespace;
-
-            // TODO: remove this mock
-            if (name.includes('-url')) {
-                const { JsonSchema, JsonDefinition } = mockUserMeta;
-                ns.JsonSchema = JsonSchema;
-                ns.JsonDefinition = JsonDefinition;
-            }
 
             let base = {
                 label: ns.Label,
