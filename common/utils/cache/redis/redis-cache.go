@@ -28,8 +28,8 @@ import (
 	"strings"
 	"time"
 
-	redisc "github.com/go-redis/cache/v8"
-	redis "github.com/go-redis/redis/v8"
+	redisc "github.com/go-redis/cache/v9"
+	redis "github.com/redis/go-redis/v9"
 
 	"github.com/pydio/cells/v5/common/crypto"
 	cache "github.com/pydio/cells/v5/common/utils/cache"

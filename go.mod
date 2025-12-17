@@ -302,6 +302,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.25.0 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.0 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.0 // indirect
+	github.com/go-redis/cache/v9 v9.0.0 // indirect
 	github.com/go-xmlfmt/xmlfmt v1.1.3 // indirect
 	github.com/gobuffalo/envy v1.10.2 // indirect
 	github.com/gobuffalo/fizz v1.14.4 // indirect
@@ -450,6 +451,7 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.57.1 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
+	github.com/redis/go-redis/v9 v9.17.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
