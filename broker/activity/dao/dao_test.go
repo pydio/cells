@@ -78,7 +78,7 @@ func init() {
 
 func waitIfCache(d activity.DAO) {
 	if _, o := d.(*activity.Cache); o {
-		<-time.After(5 * time.Second)
+		<-time.After(15 * time.Second)
 	}
 }
 
