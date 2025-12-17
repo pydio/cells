@@ -1594,6 +1594,9 @@ importers:
 
   meta.user:
     dependencies:
+      '@braintree/sanitize-url':
+        specifier: ^7.1.1
+        version: 7.1.1
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -2443,6 +2446,9 @@ packages:
     peerDependencies:
       react: ^18.0 || ^19.0 || >= 19.0.0-rc
       react-dom: ^18.0 || ^19.0 || >= 19.0.0-rc
+
+  '@braintree/sanitize-url@7.1.1':
+    resolution: {integrity: sha512-i1L7noDNxtFyL5DmZafWy1wRVhGehQmzZaz1HiN5e7iylJMSZR7ekOV7NsIqa5qBldlLrsKv4HbgFUVlQrz8Mw==}
 
   '@bufbuild/protobuf@1.10.1':
     resolution: {integrity: sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ==}
@@ -9820,6 +9826,8 @@ snapshots:
       - refractor
       - sugar-high
       - supports-color
+
+  '@braintree/sanitize-url@7.1.1': {}
 
   '@bufbuild/protobuf@1.10.1': {}
 

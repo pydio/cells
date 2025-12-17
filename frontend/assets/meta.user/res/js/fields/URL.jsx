@@ -27,6 +27,7 @@ const { ModernTextField, ThemedModernStyles } = Pydio.requireLib('hoc');
 import { muiThemeable } from 'material-ui/styles'
 import { FontIcon } from 'material-ui'
 import { debounce } from 'lodash'
+import { sanitizeUrl } from "@braintree/sanitize-url";
 
 /**
  * @param {{fontSize?: number}} props
@@ -49,15 +50,15 @@ const URLIcon = ({ fontSize }) =>
  *  @returns {React.ReactElement}
  */
 const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
-    const hasMinimalValidity = /^https?:\/\//i.test(url);
-    if (!hasMinimalValidity) {
+    const sanitizedURL = sanitizeUrl(url);
+    if (!sanitizedURL) {
         return null;
     }
 
     const labelText = displayText || children || url;
 
     return (
-        <a href={url}
+        <a href={sanitizedURL}
             target="_blank"
             aria-label={`Open ${labelText} in a new tab`}
             rel="noopener noreferrer"
@@ -65,12 +66,12 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
                 e.stopPropagation();
             }}
             style={{
-                color: 'var(--md-sys-color-primary)',
+                color: 'var(--md-sys-color-secondary)',
                 textDecoration: 'none'
             }}
         >
-            <URLIcon fontSize={fontSize} />
             {children}
+            <URLIcon fontSize={fontSize} />
         </a>
     )
 
@@ -81,23 +82,23 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
  * @returns {React.ReactElement}
  */
 const URLFieldBase = ({ getRealValue }) => {
-    const value = getRealValue();
+    const url = getRealValue();
+    const sanitizedURL = sanitizeUrl(url);
 
-    if (!value) {
+    if (!sanitizedURL) {
         return <Fragment></Fragment>;
     }
 
     // Validate URL format
-    let url = value;
-    let displayText = value;
+    let displayText = sanitizedURL;
 
     // Extract display text (domain or full URL)
     try {
-        const urlObj = new URL(url);
-        displayText = urlObj.hostname || value;
+        const urlObj = new URL(sanitizedURL);
+        displayText = urlObj.hostname || sanitizedURL;
     } catch (e) {
         // If URL parsing fails, use original value
-        displayText = value;
+        displayText = sanitizedURL;
     }
 
     return <URLLinkIcon fontSize={14} url={url} displayText={displayText} children={displayText} />;
@@ -122,7 +123,7 @@ export { URLField }
  * }} props
  * @returns {React.ReactElement}
  */
-const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue }) => {
+const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue, ...rest }) => {
     const ModernStyles = ThemedModernStyles(muiTheme);
     const debouncedUpdateRef = useRef(null);
     const [localValue, setLocalValue] = useState(value || '');
@@ -191,7 +192,7 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
             <ModernTextField
                 value={localValue}
                 fullWidth={true}
-                hintText={label || "Enter URL"}
+                hintText={label || "URL"}
                 errorText={errorText}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
