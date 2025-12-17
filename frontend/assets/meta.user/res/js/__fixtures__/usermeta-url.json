@@ -1,0 +1,38 @@
+{
+    "Indexable": true,
+    "JsonDefinition": "{\"type\":\"url\"}",
+    "JsonSchema": {
+        "$id": "https://pydio.com/url",
+        "additionalProperties": false,
+        "properties": {
+            "usermeta-url": {
+                "format": "uri",
+                "type": "string"
+            }
+        },
+        "required": [],
+        "title": "usermeta-url",
+        "type": "object"
+    },
+    "Label": "URL",
+    "Namespace": "usermeta-url",
+    "Order": 17,
+    "Policies": [
+        {
+            "Action": "READ",
+            "Effect": "allow",
+            "Resource": "usermeta-url",
+            "Subject": "*",
+            "id": "19"
+        },
+        {
+            "Action": "WRITE",
+            "Effect": "allow",
+            "Resource": "usermeta-url",
+            "Subject": "*",
+            "id": "20"
+        }
+    ],
+    "PoliciesContextEditable": true,
+    "PromptOnUpload": true
+}
