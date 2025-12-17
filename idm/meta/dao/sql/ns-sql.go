@@ -86,11 +86,8 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Definition = []byte(res.JsonDefinition)
 	u.EnforceDefault = res.EnforceDefault
 	u.PromptOnUpload = res.PromptOnUpload
-	s, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel(u.Definition))
-	if err == nil && s != nil {
-		schemaAsJson := datatypes.JSON(s)
-		u.JsonSchema = &schemaAsJson
-	}
+	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
+	u.JsonSchema = js
 	return u
 }
 

@@ -55,22 +55,16 @@ export const theme = createTheme({
   },
 });
 
-const MetaNamespaceFieldOptions = forwardRef(({ ns }, ref) => {
+const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
   const [metaSchema, setSchema] = useState({});
   const [formData, setFormData] = useState({});
-  
-  
   const hasValidNs = ns && ns.JsonSchema;
-  
-  const metaType = hasValidNs 
-    ? Object.keys(Metadata.MetaTypes).find(
-      key => Metadata.MetaTypes[key].toLowerCase() === ns.Label.toLowerCase()
-    )
-    : null;
 
+  const metaType = fieldType;
   useEffect(() => {
-    if (!metaType) return;
     
+    if (!metaType) return;
+
     (async () => {
       const res = await Metadata.getMetaSchema(metaType);
       setSchema(res.JsonSchema || {});
@@ -168,8 +162,9 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns }, ref) => {
   );
 });
 
-MetaNamespaceFieldOptions.propTypes = {
+MetaNamespaceFieldOptions.PropTypes = {
   ns: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
+  fieldType: PropTypes.string,
 };
 
 export default MetaNamespaceFieldOptions;
