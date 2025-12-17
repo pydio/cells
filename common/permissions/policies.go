@@ -283,61 +283,69 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 		}
 	}
 
-	requestContextInterface := map[string]any{}
+	contextInterface := make(map[string]any, len(requestContext))
 	for k, v := range requestContext {
-		requestContextInterface[k] = v
+		contextInterface[k] = v
 	}
 
-	templates := map[string]*template.Template{}
+	localCache := map[string]*template.Template{}
 
 	for _, pol := range policies {
-		// If there are conditions, resolve templates and replace them
-		if len(pol.GetConditions()) > 0 {
-			resolvedConditions := map[string]*idm.PolicyCondition{}
-			for key, cond := range pol.Conditions {
-				if strings.Contains(cond.GetJsonOptions(), "{{") {
-					cKey := cond.GetJsonOptions()
-					tmpl, ok := templates[cKey]
-					if !ok {
-						var err error
-						tmpl, err = template.New(cKey).Parse(cond.GetJsonOptions())
-						if err != nil {
-							log.Logger(ctx).Error("Cannot parse template", zap.Error(err))
-							continue
-						}
-						templates[cKey] = tmpl
-					}
-					b := strings.Builder{}
-					err := tmpl.Execute(&b, requestContextInterface)
-					if err != nil {
-						log.Logger(ctx).Error("Cannot execute template", zap.Error(err))
-						continue
-					}
-					resolvedConditions[key] = &idm.PolicyCondition{Type: cond.GetType(),
-						JsonOptions: b.String(),
-					}
-				} else {
-					resolvedConditions[key] = cond
-				}
-			}
-			pol = &idm.Policy{
-				ID:           pol.ID,
-				Description:  pol.Description,
-				Subjects:     pol.Subjects,
-				Resources:    pol.Resources,
-				Actions:      pol.Actions,
-				OrmSubjects:  pol.OrmSubjects,
-				OrmResources: pol.OrmResources,
-				OrmActions:   pol.OrmActions,
-				Effect:       pol.Effect,
-				Conditions:   resolvedConditions,
-			}
+		if res, er := resolveConditionsTemplates(ctx, pol, contextInterface, localCache); er != nil {
+			return nil, er
+		} else if er = w.Manager.Create(ctx, converter.ProtoToLadonPolicy(res)); er != nil {
+			return nil, er
 		}
-
-		_ = w.Manager.Create(ctx, converter.ProtoToLadonPolicy(pol))
 	}
 
 	return w, nil
+}
+
+// resolvedConditions converts Go Template to resolved version
+func resolveConditionsTemplates(ctx context.Context, pol *idm.Policy, requestContext map[string]any, cache map[string]*template.Template) (*idm.Policy, error) {
+	if len(pol.Conditions) == 0 {
+		return pol, nil
+	}
+	resolvedConditions := make(map[string]*idm.PolicyCondition, len(pol.Conditions))
+	for key, cond := range pol.Conditions {
+		if strings.Contains(cond.GetJsonOptions(), "{{") {
+			cKey := cond.GetJsonOptions()
+			tmpl, ok := cache[cKey]
+			if !ok {
+				var err error
+				tmpl, err = template.New(cKey).Parse(cond.GetJsonOptions())
+				if err != nil {
+					log.Logger(ctx).Error("Cannot parse template", zap.Error(err))
+					continue
+				}
+				cache[cKey] = tmpl
+			}
+			b := strings.Builder{}
+			err := tmpl.Execute(&b, requestContext)
+			if err != nil {
+				log.Logger(ctx).Error("Cannot execute template", zap.Error(err))
+				continue
+			}
+			resolvedConditions[key] = &idm.PolicyCondition{Type: cond.GetType(),
+				JsonOptions: b.String(),
+			}
+		} else {
+			resolvedConditions[key] = cond
+		}
+	}
+	return &idm.Policy{
+		ID:           pol.ID,
+		Description:  pol.Description,
+		Subjects:     pol.Subjects,
+		Resources:    pol.Resources,
+		Actions:      pol.Actions,
+		OrmSubjects:  pol.OrmSubjects,
+		OrmResources: pol.OrmResources,
+		OrmActions:   pol.OrmActions,
+		Effect:       pol.Effect,
+		Conditions:   resolvedConditions,
+	}, nil
+
 }
 
 func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error) {
