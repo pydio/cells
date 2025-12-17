@@ -65,7 +65,7 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 	if other := os.Getenv("CELLS_TEST_MYSQL_DSN"); other != "" {
 		for _, dsn := range strings.Split(other, ";") {
 			ss = append(ss, StorageTestCase{
-				DSN:       []string{strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=test_" + unique},
+				DSN:       []string{strings.TrimSpace(dsn) + "?parseTime=true&tls=false&hookNames=cleanTables&prefix=test_" + unique},
 				Condition: true,
 				DAO:       daoFunc,
 			})
