@@ -37,7 +37,7 @@ const MetaTypes = {
     "stars_rate":   "Stars Rating",
     "css_label":    "Color Labels",
     "json":         "JSON",
-    "url":          "URL",
+    "url":          "External URL"
 }
 
 class TypeEditor extends React.Component {
