@@ -288,6 +288,13 @@ func TestJsonSchemaCoverage(t *testing.T) {
 			So(protojson.Unmarshal(bb, &tmp), ShouldBeNil)
 			So(tmp.GetFields()["properties"], ShouldNotBeNil)
 		}
+
+		urlSchema, _ := f.BuildJsonSchema("url", "")
+		So(bt2, ShouldNotBeNil)
+		var mapURL map[string]interface{}
+		So(json.Unmarshal(urlSchema, &mapURL), ShouldBeNil)
+		So(mapURL["title"], ShouldEqual, "usermeta-url")
+		So(mapURL["properties"], ShouldNotBeNil)
 	})
 
 	Convey("InferBytes and basic schema helpers produce marshalable output", t, func() {

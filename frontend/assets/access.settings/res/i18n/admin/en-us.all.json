@@ -872,6 +872,9 @@
   "metadata.type.json": {
     "other": "JSON (internal format)"
   },
+  "metadata.type.url": {
+    "other": "URL"
+  },
   "metadata.type.date.format": {
     "other": "Format"
   },

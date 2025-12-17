@@ -73,6 +73,10 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
+	case "url":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
+
 	case "integer":
 		props["minimum"] = withNumberType()
 		props["maximum"] = withNumberType()
@@ -228,6 +232,14 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 		f.root["title"] = t
 		props[t] = withDateTimeSchema()
 
+	case "url":
+		var t = fmt.Sprintf("%s-url", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
+		props[t] = withUrlSchema()
+
 	default:
 		return nil, nil
 	}
@@ -296,6 +308,13 @@ func withNumberSchema() map[string]interface{} {
 	// prop["minimum"] = withMin(0, "number")["minimum"]
 	// prop["maximum"] = withMax(0, "number")["maximum"]
 	// prop["format"] = ""
+	return prop
+}
+
+func withUrlSchema() map[string]interface{} {
+	s, _ := Infer[string](nil)
+	prop := marshalSchema(s)
+	prop["format"] = "uri"
 	return prop
 }
 
