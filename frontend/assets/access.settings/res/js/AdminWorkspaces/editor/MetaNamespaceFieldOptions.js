@@ -77,6 +77,20 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns }, ref) => {
     })();
   }, [metaType]);
 
+  useEffect(() => {
+    if (!hasValidNs) return;
+    
+    const nsProperties = ns.JsonSchema?.properties?.[ns.Namespace] || {};
+    const isRequired = ns.JsonSchema?.required?.includes(ns.Namespace) || false;
+    
+    const initialFormData = {
+        ...nsProperties,
+        required: isRequired
+    };
+    
+    setFormData(initialFormData);
+}, [hasValidNs, ns]);
+
   useImperativeHandle(ref, () => ({
     getUpdatedNamespace: () => {
       if (!formData || Object.keys(formData).length === 0) {
