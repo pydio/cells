@@ -21,6 +21,8 @@ import PydioApi from 'pydio/http/api'
 
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, RestPutUserMetaTagRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
 
+import mockUserMeta from './__fixtures__/usermeta-url.json'
+
 class MetaClient{
 
     static getInstance() {
@@ -48,7 +50,7 @@ class MetaClient{
                     let request = new IdmUpdateUserMetaRequest();
                     request.MetaDatas = [];
                     request.Operation = 'PUT';
-                    configs.forEach((cData, cName) => {
+                    configs.forEach((_, cName) => {
                         if(!values.has(cName)){
                             return;
                         }
@@ -93,8 +95,11 @@ class MetaClient{
     namespacesAsPanelConfig(nss) {
         let defs = {};
         let configMap = new Map();
+
+
         nss.map(ns => {
             const name = ns.Namespace;
+
             let base = {
                 label: ns.Label,
                 indexable: ns.Indexable,
@@ -102,7 +107,7 @@ class MetaClient{
                 visible: true,
                 readonly: !ns.PoliciesContextEditable,
                 jsonSchema: ns.JsonSchema,
-                required: ns.PromptOnUpload // TODO - Temporary, make ALL prompted fields mandatory
+                required: ns.PromptOnUpload // FIXME: use ns.required.length > 0  and test
             };
             if (ns.JsonDefinition){
                 const jDef = JSON.parse(ns.JsonDefinition);
@@ -129,7 +134,6 @@ class MetaClient{
         return configMap;
     }
 
-    
 
     /**
      * @return {Promise<Map>}
