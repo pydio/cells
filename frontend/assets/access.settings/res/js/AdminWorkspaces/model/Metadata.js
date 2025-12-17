@@ -90,7 +90,8 @@ Metadata.MetaTypes = {
     "tags": "Extensible Tags",
     "stars_rate": "Stars Rating",
     "css_label": "Color Labels",
-    "json": "JSON"
+    "json": "JSON",
+    "url": "URL"
 };
 
 export { Metadata as default }
