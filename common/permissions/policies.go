@@ -30,6 +30,7 @@ import (
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
@@ -67,7 +68,7 @@ const (
 // var polCachePool *openurl.Pool[cache.Cache]
 var polCacheConfig = cache.Config{
 	Prefix:      "permissions/policies",
-	Eviction:    "1m",
+	Eviction:    "5m",
 	CleanWindow: "10m",
 }
 
@@ -77,8 +78,7 @@ func getCheckersCache(ctx context.Context) cache.Cache {
 	polCacheOnce.Do(func() {
 		_, _ = broker.Subscribe(context.WithoutCancel(ctx), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
 			polCache := cache_helper.MustResolveCache(ct, common.CacheTypeLocal, polCacheConfig)
-			_ = polCache.Delete("acl")
-			_ = polCache.Delete("oidc")
+			_ = polCache.Reset()
 			return nil
 		}, broker.WithCounterName("policies-cache"))
 	})
@@ -273,12 +273,13 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 
 	ca := getCheckersCache(ctx)
 	var policies []*idm.Policy
-	if !ca.Get(resType+","+strings.Join(subjects, ","), &policies) {
+	cacheKey := resType + "," + strings.Join(subjects, ",")
+	if !ca.Get(cacheKey, &policies) {
 		if p, err := loadPoliciesByResourcesTypeAndSubjects(ctx, resType, subjects); err != nil {
 			return nil, err
 		} else {
 			policies = p
-			_ = ca.Set(resType+","+strings.Join(subjects, ","), policies)
+			_ = ca.Set(cacheKey, policies)
 		}
 	}
 
@@ -290,29 +291,35 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 	templates := map[string]*template.Template{}
 
 	for _, pol := range policies {
-		replaces := map[string]*idm.PolicyCondition{}
-		for key, cond := range pol.Conditions {
-			if strings.Contains(cond.GetJsonOptions(), "{{") {
-				tmpl, ok := templates[cond.GetJsonOptions()]
-				if !ok {
-					tmpl = template.New(cond.GetJsonOptions())
-					templates[cond.GetJsonOptions()] = tmpl
-				}
-				b := strings.Builder{}
-				err := tmpl.Execute(&b, requestContextInterface)
-				if err != nil {
-					continue
-				}
-
-				str := b.String()
-
-				replaces[key] = &idm.PolicyCondition{Type: cond.GetType(),
-					JsonOptions: str,
+		// If there are conditions, resolve templates and replace them
+		if len(pol.GetConditions()) > 0 {
+			resolvedConditions := map[string]*idm.PolicyCondition{}
+			for key, cond := range pol.Conditions {
+				if strings.Contains(cond.GetJsonOptions(), "{{") {
+					cKey := cond.GetJsonOptions()
+					tmpl, ok := templates[cKey]
+					if !ok {
+						var err error
+						tmpl, err = template.New(cKey).Parse(cond.GetJsonOptions())
+						if err != nil {
+							log.Logger(ctx).Error("Cannot parse template", zap.Error(err))
+							continue
+						}
+						templates[cKey] = tmpl
+					}
+					b := strings.Builder{}
+					err := tmpl.Execute(&b, requestContextInterface)
+					if err != nil {
+						log.Logger(ctx).Error("Cannot execute template", zap.Error(err))
+						continue
+					}
+					resolvedConditions[key] = &idm.PolicyCondition{Type: cond.GetType(),
+						JsonOptions: b.String(),
+					}
+				} else {
+					resolvedConditions[key] = cond
 				}
 			}
-		}
-
-		if len(replaces) > 0 {
 			pol = &idm.Policy{
 				ID:           pol.ID,
 				Description:  pol.Description,
@@ -323,7 +330,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string, requestContext m
 				OrmResources: pol.OrmResources,
 				OrmActions:   pol.OrmActions,
 				Effect:       pol.Effect,
-				Conditions:   replaces,
+				Conditions:   resolvedConditions,
 			}
 		}
 
