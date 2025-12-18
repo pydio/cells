@@ -94,6 +94,9 @@ class Store extends Observable{
         if(refNode === null){
             refNode = session.getTargetNode();
         }
+        if(session.getStatus() !== 'ready') {
+            return
+        }
         const refRepoObject = Pydio.getInstance().user.getActiveRepositoryObject()
         const refPath = refNode.getPath()
         session.walk((item)=>{
@@ -179,6 +182,7 @@ class Store extends Observable{
         this.notify('update');
         session.observe('status', (s) => {
             if(s === 'ready'){
+                this.sessionToNodes(session);
                 const autoStart = this.getAutoStart();
                 if(autoStart && !this._processing.length && !this._pauseRequired) {
                     this.processNext();
@@ -504,6 +508,13 @@ class Store extends Observable{
      */
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null, targetRepositoryId = null){
 
+        let entries
+        if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)){
+            entries = Array.from(items).filter(item => item.kind && item.kind === 'file').map(item => {
+                return item.getAsEntry ? item.getAsEntry() : item.webkitGetAsEntry()
+            })
+        }
+
         return this.initSession(targetRepositoryId || Pydio.getInstance().user.activeRepository, targetNode).then(session => {
             this.pushSession(session);
             const filter = (refPath) => {
@@ -528,21 +539,10 @@ class Store extends Observable{
                 return session;
             }
 
-            if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
+            if (entries && entries.length) {
                 let error = (console ? console.log : function(err){alert(err); }) ;
-                let length = items.length;
                 const promises = [];
-                for (let i = 0; i < length; i++) {
-                    let entry;
-                    if(items[i].kind && items[i].kind !== 'file') {
-                        continue;
-                    }
-                    if(items[0].getAsEntry){
-                        entry = items[i].getAsEntry();
-                    }else{
-                        entry = items[i].webkitGetAsEntry();
-                    }
-
+                entries.forEach(entry => {
                     if (entry.isFile) {
 
                         promises.push(new Promise((resolve, reject) => {
@@ -577,7 +577,7 @@ class Store extends Observable{
                         }, error));
 
                     }
-                }
+                })
 
                 Promise.all(promises).then(() => {
                     return session.prepare().then(()=>{
@@ -587,17 +587,17 @@ class Store extends Observable{
                     this.notify('update')
                 }) ;
 
-            }else{
-                for(let j=0;j<files.length;j++){
-                    if(files[j].size === 0){
+            }else if (files) {
+                Array.from(files).forEach(f => {
+                    if(f.size === 0) {
                         alert(Pydio.getInstance().MessageHash['html_uploader.no-folders-support']);
                         return;
                     }
-                    if(!filter(files[j].name)){
+                    if(!filter(f.name)) {
                         return;
                     }
-                    new UploadItem(files[j], targetNode, null, session);
-                }
+                    new UploadItem(f, targetNode, null, session);
+                })
                 session.prepare().then(()=>{
                     this.notify('update')
                 }).catch((e) => {

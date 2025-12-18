@@ -27,6 +27,7 @@ export default ({namespaces, onDismiss, metaLib}) => {
     const [errorsScope, setErrorsScope] = useState('local');
     const [data, setData] = useState({})
     const [valid, setValid] = useState(false)
+    const [submitted, setSubmitted] = useState(false)
     const pydio = Pydio.getInstance();
     const cancel = useCallback(()=> {
         onDismiss()
@@ -36,8 +37,8 @@ export default ({namespaces, onDismiss, metaLib}) => {
             setErrorsScope('global') 
             return
         }
-        
         onDismiss(data)
+        setSubmitted(true)
     }, [data, valid])
 
     const {UserMetaPanelV2, MetaClient} = metaLib
@@ -46,18 +47,21 @@ export default ({namespaces, onDismiss, metaLib}) => {
     const loader = useCallback(() => {
         return Promise.resolve(MetaClient.getInstance().namespacesAsPanelConfig(namespaces));
     }, [namespaces]);
+    const actions = []
+    if(!submitted) {
+        actions.push(<FlatButton label={pydio.MessageHash[54]} onClick={cancel}/>)
+    }
+    actions.push(<FlatButton
+        label={submitted?pydio.MessageHash['html_uploader.task.status.analyse']+'...' :  pydio.MessageHash[48]}
+        onClick={submit}
+        primary={true}
+        disabled={submitted}
+    />)
 
     return (
         <Dialog
             title={"Set Metadata"}
-            actions={[
-                <FlatButton label={pydio.MessageHash[54]} onClick={cancel}/>,
-                <FlatButton
-                    label={pydio.MessageHash[48]}
-                    onClick={submit}
-                    primary={true}
-                />
-            ]}
+            actions={actions}
             modal={true}
             open={true}
             bodyStyle={{paddingBottom: 0}}
