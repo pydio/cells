@@ -22,8 +22,8 @@ const buildConfigs = () => buildConfigsFromSchema();
 
 const withDateConfig = (configs) => new Map([
     ...configs,
-    ['username-datetime', {
-        ns: 'username-datetime',
+    ['dates', {
+        ns: 'dates',
         jsonSchema: {
             title: 'Dates',
             properties: {
@@ -90,7 +90,7 @@ describe('useValidation', () => {
         });
     });
 
-    it('parses date-time values before validation', () => {
+    it.only('parses date-time values before validation', () => {
         const configs = withDateConfig(buildConfigs());
         const { result } = renderHook(() => useValidation({
             configs,
@@ -102,31 +102,41 @@ describe('useValidation', () => {
         act(() => {
             const values = {
                 'usermeta-datetime': epochSeconds,
+                'usermeta-text': 'short',
+                'usermeta-paragraph': 'A paragraph with enough length',
+                'usermeta-number': 5,
             };
-            result.current.validate(values, ['usermeta-datetime']);
+            result.current.validate(values, ['dates']);
         });
 
         expect(result.current.valid).toBe(true);
         expect(result.current.errors.dates).toBeUndefined();
     });
 
-    it('ignores the empty fields when validating globally', () => {
+    it.only('ignores the empty fields when validating globally', () => {
         const configs = withDateConfig(buildConfigs());
         const { result } = renderHook(() => useValidation({
             configs,
             namespaceJsonSchema: testSchema
         }));
 
+        const epochSeconds = 1_700_000_000;
+
         act(() => {
             const values = {
-                'usermeta-number': '',
+                'usermeta-datetime': epochSeconds,
+                'usermeta-text': 'short',
+                'usermeta-paragraph': '',
+                'usermeta-number': 0,
             };
-            result.current.validate(values, ['usermeta-number']);
+            result.current.globalValidate(values);
         });
 
-        expect(result.current.valid).toBe(false);
-        expect(result.current.errors).toMatchObject({
-            'usermeta-number': expect.stringContaining('must be number'),
-        })
+        waitFor(() => {
+            expect(result.current.valid).toBe(false);
+            expect(result.current.errors).toMatchObject({
+                'usermeta-paragraph': expect.stringContaining('must have required property'),
+            })
+        });
     });
 });

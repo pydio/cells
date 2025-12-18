@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react'
+import isEmpty from 'lodash/isEmpty'
 
-import { 
+import {
     parseValueForValidation,
     parseErrors
 } from '../utils/jsonSchema';
@@ -39,29 +40,31 @@ export const useValidation = ({configs, namespaceJsonSchema}) => {
 
         const { userMetaJsonSchemaValidator } = jsonSchemaRef.current;
         const parsedValues = Object.entries(values)
-            .filter(([ns]) => userMetaJsonSchemaValidator.schema.properties[ns])
-            .reduce((acc, [ns, val]) => ({ 
+            .filter(([ns, val]) =>
+                userMetaJsonSchemaValidator.schema.properties[ns] && !isEmpty(`${val}`)
+            )
+            .reduce((acc, [ns, val]) => ({
                 ...acc,
                 [ns]: parseValueForValidation(
                     userMetaJsonSchemaValidator.schema.properties[ns],
                     val
-                ) 
+                )
             }), {});
 
         const isValid = userMetaJsonSchemaValidator(parsedValues)
         setValid(isValid)
         if(!isValid) {
-            setGlobalErrors({ 
-                root: userMetaJsonSchemaValidator.errors, 
+            setGlobalErrors({
+                root: userMetaJsonSchemaValidator.errors,
                 ...parseErrors(userMetaJsonSchemaValidator.errors)
             });
             return false;
-        } 
+        }
         return isValid;
     }, [jsonSchemaRef.current]);
 
     useEffect(() => {
-        // NOTE: to initialize globalErrors so it shows 
+        // NOTE: to initialize globalErrors so it shows
         // them if case of submit
         globalValidate({});
     }, [globalValidate]);
