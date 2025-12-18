@@ -160,20 +160,6 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
         updateValue(newValue, false);
     }, [updateValue]);
 
-    const handleConfirm = useCallback((event, newValue) => {
-        if (search) {
-            setLocalValue(localValue);
-            updateValue(localValue, false);
-            return;
-        }
-
-        const normalized = ensureHttpScheme(localValue);
-        if (normalized !== localValue) {
-            setLocalValue(normalized);
-            updateValue(normalized, false);
-        }
-    }, [updateValue, search]);
-
     const handleConfirmValue = useCallback(() => {
         if (search) {
             setLocalValue(localValue);
