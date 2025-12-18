@@ -191,7 +191,7 @@ class MetaNamespace extends React.Component {
                         ...prevState.namespace,
                         JsonSchema: schema.JsonSchema
                     }
-                }));
+                  }));
                 });
             } catch (e) {
                 console.error(e);
