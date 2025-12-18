@@ -22,8 +22,8 @@ const buildConfigs = () => buildConfigsFromSchema();
 
 const withDateConfig = (configs) => new Map([
     ...configs,
-    ['dates', {
-        ns: 'dates',
+    ['username-datetime', {
+        ns: 'username-datetime',
         jsonSchema: {
             title: 'Dates',
             properties: {
@@ -38,9 +38,9 @@ describe('useValidation', () => {
     it('initializes globalErrors on mount for required namespaces', async () => {
         const configs = buildConfigs();
 
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         await waitFor(() => {
@@ -55,9 +55,9 @@ describe('useValidation', () => {
     it('runs global validation and reports required/global errors', () => {
         const configs = buildConfigs();
 
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         act(() => {
@@ -74,9 +74,9 @@ describe('useValidation', () => {
 
     it('validates locally per namespace and reports first property error', () => {
         const configs = buildConfigs();
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         act(() => {
@@ -92,24 +92,41 @@ describe('useValidation', () => {
 
     it('parses date-time values before validation', () => {
         const configs = withDateConfig(buildConfigs());
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         const epochSeconds = 1_700_000_000;
 
         act(() => {
             const values = {
-                dates: epochSeconds,
-                'usermeta-text': 'short',
-                'usermeta-paragraph': 'A paragraph with enough length',
-                'usermeta-number': 5,
+                'usermeta-datetime': epochSeconds,
             };
-            result.current.validate(values, ['dates']);
+            result.current.validate(values, ['usermeta-datetime']);
         });
 
         expect(result.current.valid).toBe(true);
         expect(result.current.errors.dates).toBeUndefined();
+    });
+
+    it('ignores the empty fields when validating globally', () => {
+        const configs = withDateConfig(buildConfigs());
+        const { result } = renderHook(() => useValidation({
+            configs,
+            namespaceJsonSchema: testSchema
+        }));
+
+        act(() => {
+            const values = {
+                'usermeta-number': '',
+            };
+            result.current.validate(values, ['usermeta-number']);
+        });
+
+        expect(result.current.valid).toBe(false);
+        expect(result.current.errors).toMatchObject({
+            'usermeta-number': expect.stringContaining('must be number'),
+        })
     });
 });
