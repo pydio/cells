@@ -38,9 +38,9 @@ describe('useValidation', () => {
     it('initializes globalErrors on mount for required namespaces', async () => {
         const configs = buildConfigs();
 
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         await waitFor(() => {
@@ -55,9 +55,9 @@ describe('useValidation', () => {
     it('runs global validation and reports required/global errors', () => {
         const configs = buildConfigs();
 
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         act(() => {
@@ -74,9 +74,9 @@ describe('useValidation', () => {
 
     it('validates locally per namespace and reports first property error', () => {
         const configs = buildConfigs();
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         act(() => {
@@ -92,16 +92,16 @@ describe('useValidation', () => {
 
     it('parses date-time values before validation', () => {
         const configs = withDateConfig(buildConfigs());
-        const { result } = renderHook(() => useValidation({ 
+        const { result } = renderHook(() => useValidation({
             configs,
-            namespaceJsonSchema: testSchema 
+            namespaceJsonSchema: testSchema
         }));
 
         const epochSeconds = 1_700_000_000;
 
         act(() => {
             const values = {
-                dates: epochSeconds,
+                'usermeta-datetime': epochSeconds,
                 'usermeta-text': 'short',
                 'usermeta-paragraph': 'A paragraph with enough length',
                 'usermeta-number': 5,
@@ -111,5 +111,32 @@ describe('useValidation', () => {
 
         expect(result.current.valid).toBe(true);
         expect(result.current.errors.dates).toBeUndefined();
+    });
+
+    it('ignores the empty fields when validating globally', async () => {
+        const configs = withDateConfig(buildConfigs());
+        const { result } = renderHook(() => useValidation({
+            configs,
+            namespaceJsonSchema: testSchema
+        }));
+
+        const epochSeconds = 1_700_000_000;
+
+        act(() => {
+            const values = {
+                'usermeta-datetime': epochSeconds,
+                'usermeta-text': 'short',
+                'usermeta-paragraph': '',
+                'usermeta-number': 0,
+            };
+            result.current.globalValidate(values);
+        });
+
+        await waitFor(() => {
+            expect(result.current.valid).toBe(false);
+            expect(result.current.globalErrors).toMatchObject({
+                'usermeta-paragraph': expect.stringContaining('must have required property'),
+            })
+        }, { timeout: 1000 });
     });
 });
