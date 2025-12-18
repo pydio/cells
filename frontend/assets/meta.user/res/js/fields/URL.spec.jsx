@@ -143,7 +143,7 @@ describe('URLField', () => {
             label: 'Open example.com in a new tab',
         });
 
-        expect(link.getAttribute('href')).toBe('http://example.com/');
+        expect(link.getAttribute('href')).toBe('https://example.com/');
     });
 });
 
@@ -204,9 +204,25 @@ describe('URLForm', () => {
         const input = screen.getByTestId('url-input');
 
         fireEvent.change(input, {target: {value: 'example.com'}});
+
+        expect(updateValue).toHaveBeenCalledWith('example.com', false);
+        fireEvent.blur(input);
+
+        expect(updateValue).toHaveBeenCalledWith('https://example.com', false);
+    });
+
+    it('do not inject https when in search mode', () => {
+        const props = {...defaultProps, search: true};
+
+        const updateValue = vi.fn();
+        render(<URLForm {...props} updateValue={updateValue} value={''} />);
+        const input = screen.getByTestId('url-input');
+
+        fireEvent.change(input, {target: {value: 'example.com'}});
+
+        expect(updateValue).toHaveBeenCalledWith('example.com', false);
         fireEvent.blur(input);
 
         expect(updateValue).toHaveBeenCalledWith('example.com', false);
-        expect(updateValue).toHaveBeenCalledWith('http://example.com', false);
     });
 });
