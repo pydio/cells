@@ -37,7 +37,9 @@ const ajv = new Ajv();
 addFormats(ajv);
 ajvMergePatch(ajv);
 export const theme = createTheme({
+  backgroundColor: '#f6f6f8',
   components: {
+
     NumberInput: {
       styles: () => ({
         rightSection: {
@@ -48,19 +50,19 @@ export const theme = createTheme({
         },
         input: {
           paddingRight: '0 !important',
+          paddingLeft: '8px',
         },
       }),
     },
     Checkbox: {
       styles: (theme) => ({
         body: {
-          alignItems: 'center',
+          alignItems: 'center',          
           gap: theme.spacing.xs,
         },
         input: {
           borderColor: theme.colors.gray[5],
           '&:checked': {
-            backgroundColor: theme.colors.blue[6],
             borderColor: theme.colors.blue[6],
           },
         },
@@ -70,15 +72,27 @@ export const theme = createTheme({
         },
       }),
     },
+    other: {
+    formBackground: '#f6f6f8',
+  },
   },
 });
-
+const FIELD_TYPES_WITH_SCHEMA_PROPERTIES = ["string", "textarea", "integer"];
 const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
   const [metaSchema, setSchema] = useState({});
   const [formData, setFormData] = useState({});
   const hasValidNs = ns && ns.JsonSchema;
+  const uiSchema = {
+    required: {
+      "ui:widget": "hidden"
+    }
+  };
+
 
   const metaType = fieldType;
+  if(!FIELD_TYPES_WITH_SCHEMA_PROPERTIES.includes(metaType)) {
+    return null;
+  }
   useEffect(() => {
     
     if (!metaType) return;
@@ -110,7 +124,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
       }
 
       let withOps = [];
-      if (metaType && ["string", "textarea", "integer"].includes(metaType)) {
+      if (metaType && FIELD_TYPES_WITH_SCHEMA_PROPERTIES.includes(metaType)) {
         withOps = Object.entries(formData)
           .filter(([k]) => k !== "required")
           .map(([k, v]) => ({
@@ -120,19 +134,6 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
           }));
       }
       
-      if (formData.required === true) {
-        withOps.push({
-          op: "add",
-          path: "/required",
-          value: [`${ns.Namespace}`]
-        });
-      } else if ((!formData.required && ns.JsonSchema.required?.length > 0) || formData.required === false) {
-        withOps.push({
-          op: "remove",
-          path: "/required",
-          value: [`${ns.Namespace}`]
-        });
-      }
       
       if (withOps.length === 0) {
         return ns;
@@ -165,16 +166,29 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
 
   return (
     <React.Fragment>
-      <p>Field validation</p>
+      <p style={{
+        marginTop: '10px',
+        fontWeight: '500',
+        fontSize: '12px',
+      }}>Field Validation</p>
       <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
+        <div style={{ 
+          backgroundColor: 'rgb(246 246 248)', 
+          padding: '20px', 
+          borderRadius: '4px 4px 0px 0px',
+          marginTop: '10px'
+        }}>
         <Form
           schema={metaSchema}
+          uiSchema={uiSchema}
           validator={validator}
           formData={formData}
           onChange={handleChange}
         >
+          
           <React.Fragment />
         </Form>
+        </div>
       </MantineProvider>
     </React.Fragment>
   );
@@ -182,7 +196,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
 
 MetaNamespaceFieldOptions.PropTypes = {
   ns: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
-  fieldType: PropTypes.string,
+  fieldType: PropTypes.string.isRequired,
 };
 
 export default MetaNamespaceFieldOptions;

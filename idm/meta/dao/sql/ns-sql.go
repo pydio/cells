@@ -166,7 +166,7 @@ func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (erro
 			return nsTag(er), false
 		}
 
-		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Updates(validNs)
+		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Select("*").Updates(validNs)
 		if tx2.Error != nil {
 			return nsTag(tx2.Error), false
 		}

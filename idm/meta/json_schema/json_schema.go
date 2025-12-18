@@ -68,8 +68,8 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	props := f.root["properties"].(map[string]interface{})
 	switch label {
 	case "string", "textarea":
-		props["minLength"] = withNumberType()
-		props["maxLength"] = withNumberType()
+		props["minLength"] = withNumberType("Minimum Length")
+		props["maxLength"] = withNumberType("Maximum Length")
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
@@ -78,28 +78,37 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 		return toProtoStruct(f.root)
 
 	case "integer":
-		props["minimum"] = withNumberType()
-		props["maximum"] = withNumberType()
+		props["minimum"] = withNumberType("Minimum Value")
+		props["maximum"] = withNumberType("Maximum Value")
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
 	case "array":
-		props["items"] = map[string]interface{}{
-			"type": withBooleanSchema(),
-		}
-		props["minItems"] = withNumberSchema()
-		props["maxItems"] = withNumberSchema()
-		props["uniqueItems"] = map[string]interface{}{
-			"type": "boolean",
-		}
+		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 	case "boolean":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
 	case "date", "datetime":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
+	case "choice":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
+	case "stars_rate":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
+	case "css_label":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
+	case "tags":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
+	case "json":
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
 	default:
 		return nil
 	}
@@ -240,6 +249,34 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 		f.root["title"] = t
 		props[t] = withUrlSchema()
 
+	case "choice":
+		var t = fmt.Sprintf("%s-choice", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
+		props[t] = withStringSchema()
+	case "stars_rate":
+		var t = fmt.Sprintf("%s-stars_rate", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
+		props[t] = withNumberSchema()
+	case "css_label":
+		var t = fmt.Sprintf("%s-css_label", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
+		props[t] = withStringSchema()
+	case "tags":
+		var t = fmt.Sprintf("%s-tags", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
+		props[t] = withStringSchema()
 	default:
 		return nil, nil
 	}
@@ -275,10 +312,12 @@ func withMin(min int, t string) map[string]interface{} {
 	if t == "string" {
 		return map[string]interface{}{
 			"minLength": min,
+			"title":     "minimum length",
 		}
 	}
 	return map[string]interface{}{
 		"minimum": min,
+		"title":   "minimum",
 	}
 }
 
@@ -286,10 +325,12 @@ func withMax(max int, t string) map[string]interface{} {
 	if t == "string" {
 		return map[string]interface{}{
 			"maxLength": max,
+			"title":     "maximum length",
 		}
 	}
 	return map[string]interface{}{
 		"maximum": max,
+		"title":   "maximum",
 	}
 }
 
@@ -315,6 +356,18 @@ func withUrlSchema() map[string]interface{} {
 	return prop
 }
 
+func withObjectSchema() map[string]interface{} {
+	s, _ := Infer[map[string]interface{}](nil)
+	prop := marshalSchema(s)
+	return prop
+}
+
+func withArraySchema() map[string]interface{} {
+	s, _ := Infer[[]interface{}](nil)
+	prop := marshalSchema(s)
+	return prop
+}
+
 func withBooleanSchema() map[string]interface{} {
 	s, _ := Infer[bool](nil)
 	return marshalSchema(s)
@@ -327,21 +380,24 @@ func withDateTimeSchema() map[string]interface{} {
 	return prop
 }
 
-func withNumberType() map[string]interface{} {
+func withNumberType(title string) map[string]interface{} {
 	return map[string]interface{}{
-		"type": "number",
+		"type":  "number",
+		"title": title,
 	}
 }
 
-func withStringType() map[string]interface{} {
+func withStringType(title string) map[string]interface{} {
 	return map[string]interface{}{
-		"type": "string",
+		"type":  "string",
+		"title": title,
 	}
 }
 
 func withBooleanType() map[string]interface{} {
 	return map[string]interface{}{
-		"type": "boolean",
+		"type":  "boolean",
+		"title": "Required",
 	}
 }
 
