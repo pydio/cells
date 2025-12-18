@@ -395,7 +395,8 @@ class MetaNamespace extends React.Component {
                     labelPosition={"left"}
                     toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
                     onToggle={(e, v) => { 
-                        !!namespace.PromptOnUpload ? namespace.PromptOnUpload = v : namespace.PromptOnUpload = v; this.setState({ namespace }) 
+                        namespace.PromptOnUpload = v;
+                        this.setState({ namespace }) 
                         if (v === false) {
                             this.toggleRequired(namespace)
                         }
