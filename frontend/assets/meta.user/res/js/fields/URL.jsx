@@ -160,20 +160,36 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
         updateValue(newValue, false);
     }, [updateValue]);
 
-    const handleBlur = useCallback(() => {
+    const handleConfirm = useCallback((event, newValue) => {
+        if (search) {
+            setLocalValue(localValue);
+            updateValue(localValue, false);
+            return;
+        }
+
         const normalized = ensureHttpScheme(localValue);
         if (normalized !== localValue) {
             setLocalValue(normalized);
             updateValue(normalized, false);
         }
-    }, [localValue, updateValue]);
+    }, [updateValue, search]);
+
+    const handleConfirmValue = useCallback(() => {
+        if (search) {
+            setLocalValue(localValue);
+            updateValue(localValue, false);
+            return;
+        }
+
+        const normalized = ensureHttpScheme(localValue);
+        if (normalized !== localValue) {
+            setLocalValue(normalized);
+            updateValue(normalized, false);
+        }
+    }, [updateValue, localValue, search]);
 
     const handleKeyPress = useCallback((event) => {
-        if (event.key === 'Enter') {
-            const normalized = ensureHttpScheme(localValue);
-            setLocalValue(normalized);
-            updateValue(normalized, true);
-        }
+        if (event.key === 'Enter') handleConfirmValue()
     }, [localValue, updateValue]);
 
     if (supportTemplates) {
@@ -182,7 +198,7 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
                 value={localValue}
                 fullWidth={true}
                 hintText={label}
-                onBlur={handleBlur}
+                onBlur={handleConfirmValue}
                 onChange={(_, val) => {
                     setLocalValue(val);
                     updateValue(val, false);
@@ -207,7 +223,7 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
                 errorText={errorText}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
-                onBlur={handleBlur}
+                onBlur={handleConfirmValue}
                 {...sProps}
                 variant={search ? "v1" : "v2"}
             />
