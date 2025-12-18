@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react'
-import { isEmpty } from 'lodash'
 
 import {
     parseValueForValidation,
@@ -41,7 +40,7 @@ export const useValidation = ({configs, namespaceJsonSchema}) => {
         const { userMetaJsonSchemaValidator } = jsonSchemaRef.current;
         const parsedValues = Object.entries(values)
             .filter(([ns, val]) =>
-                userMetaJsonSchemaValidator.schema.properties[ns] && !isEmpty(`${val}`)
+                userMetaJsonSchemaValidator.schema.properties[ns] && (`${val}`).trim().length > 0
             )
             .reduce((acc, [ns, val]) => ({
                 ...acc,

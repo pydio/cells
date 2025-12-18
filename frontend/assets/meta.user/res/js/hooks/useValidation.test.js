@@ -113,7 +113,7 @@ describe('useValidation', () => {
         expect(result.current.errors.dates).toBeUndefined();
     });
 
-    it('ignores the empty fields when validating globally', () => {
+    it('ignores the empty fields when validating globally', async () => {
         const configs = withDateConfig(buildConfigs());
         const { result } = renderHook(() => useValidation({
             configs,
@@ -132,11 +132,11 @@ describe('useValidation', () => {
             result.current.globalValidate(values);
         });
 
-        waitFor(() => {
+        await waitFor(() => {
             expect(result.current.valid).toBe(false);
-            expect(result.current.errors).toMatchObject({
+            expect(result.current.globalErrors).toMatchObject({
                 'usermeta-paragraph': expect.stringContaining('must have required property'),
             })
-        });
+        }, { timeout: 1000 });
     });
 });
