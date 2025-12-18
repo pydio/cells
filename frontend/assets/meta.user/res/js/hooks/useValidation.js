@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react'
-import isEmpty from 'lodash/isEmpty'
+import { isEmpty } from 'lodash'
 
 import {
     parseValueForValidation,

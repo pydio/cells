@@ -90,7 +90,7 @@ describe('useValidation', () => {
         });
     });
 
-    it.only('parses date-time values before validation', () => {
+    it('parses date-time values before validation', () => {
         const configs = withDateConfig(buildConfigs());
         const { result } = renderHook(() => useValidation({
             configs,
@@ -113,7 +113,7 @@ describe('useValidation', () => {
         expect(result.current.errors.dates).toBeUndefined();
     });
 
-    it.only('ignores the empty fields when validating globally', () => {
+    it('ignores the empty fields when validating globally', () => {
         const configs = withDateConfig(buildConfigs());
         const { result } = renderHook(() => useValidation({
             configs,
