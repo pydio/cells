@@ -118,7 +118,7 @@ class TypeEditor extends React.Component {
         const comps = {}
         comps.label = (
             <ModernTextField
-                floatingLabelText={m('type')}
+                floatingLabelText={m('label')}
                 value={namespace.Label}
                 onChange={(e,v) => {this.updateLabel(v)}}
                 fullWidth={true}
