@@ -179,22 +179,25 @@ class MetaNamespace extends React.Component {
 
     getJsonSchema() {
         const { namespace } = this.state;
-
-        const fieldType = JSON.parse(namespace.JsonDefinition).type;
-        if (!fieldType) return;
-        if (!namespace.Namespace) return;
-        Metadata.getJsonSchemaByType(fieldType, namespace.Namespace)
-            .then(schema => {
-                this.setState(prevState => ({
-                namespace: {
-                    ...prevState.namespace,
-                    JsonSchema: schema.JsonSchema
-                }
-            }));
-            }).catch(e => {
+        if(namespace.JsonDefinition?.length > 0) {
+            try {
+                const fieldType = JSON.parse(namespace?.JsonDefinition).type;
+                if (!fieldType) return;
+                if (!namespace.Namespace) return;
+                Metadata.getJsonSchemaByType(fieldType, namespace.Namespace)
+                    .then(schema => {
+                        this.setState(prevState => ({
+                        namespace: {
+                            ...prevState.namespace,
+                            JsonSchema: schema.JsonSchema
+                        }
+                    }));
+                });
+            } catch (e) {
                 console.error(e);
                 throw e;
-            });
+            }
+        }
     }
 
     getHideValue() {
@@ -263,6 +266,16 @@ class MetaNamespace extends React.Component {
         });
     }
 
+    toggleRequired(namespace){     
+        if(!namespace.JsonSchema.required ||  namespace.JsonSchema.required.length === 0) {
+            namespace.JsonSchema.required = [];
+            namespace?.JsonSchema?.required?.push(namespace.Namespace)
+        } else if(namespace.JsonSchema.required && namespace.JsonSchema.required.length > 0) {
+            namespace.JsonSchema.required.pop();
+        }
+        this.setState({ namespace })
+    }
+
     render() {
         const { create, namespaces, pydio, readonly, muiTheme } = this.props;
         const { namespace, m, PoliciesBuilder, metaModule } = this.state;
@@ -278,9 +291,13 @@ class MetaNamespace extends React.Component {
         } else {
             title = m('editor.title.create');
         }
-        let type = 'string';
+        let type = '';
         if (namespace.JsonDefinition) {
-            type = JSON.parse(namespace.JsonDefinition).type;
+            try {
+                type = JSON.parse(namespace.JsonDefinition).type || '';
+            } catch (e) {
+                type = '';
+            }
         }
 
         let invalid = false, nameError, labelError;
@@ -302,7 +319,12 @@ class MetaNamespace extends React.Component {
             }
         }
 
-        const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
+        if (!type) {
+            invalid = true;
+        }
+
+                const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
+
 
         let adminRead, adminWrite;
         if (namespace.Policies) {
@@ -357,12 +379,47 @@ class MetaNamespace extends React.Component {
                     nameError={nameError}
                     styles={styles}
                 />
-                <MetaNamespaceFieldOptions 
-                    ns={namespace}
-                    ref={this.fieldOptionsRef}
-                    fieldType={JSON.parse(namespace.JsonDefinition).type}
-                />
+                {
+                    namespace?.Namespace?.toString().length > 0 && 
+                    namespace.JsonDefinition?.toString().length > 0 && 
+                    <MetaNamespaceFieldOptions 
+                        ns={namespace}
+                        ref={this.fieldOptionsRef}
+                        fieldType={JSON.parse(namespace.JsonDefinition).type}
+                    />
+                }
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
+                <Toggle
+                    label={'Prompt Metadata tagging on Upload'}
+                    disabled={readonly}
+                    labelPosition={"left"}
+                    toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
+                    onToggle={(e, v) => { 
+                        namespace.PromptOnUpload = v;
+                        this.setState({ namespace }) 
+                        if (v === false) {
+                            this.toggleRequired(namespace)
+                        }
+                    }}
+                    {...ModernStyles.toggleFieldV2}
+                />
+                <Toggle
+                    label={"Required"}
+                    disabled={!namespace?.PromptOnUpload || false}
+                    labelPosition={"left"}
+                    toggled={namespace?.JsonSchema?.required?.length > 0}
+                    onToggle={() => this.toggleRequired(namespace)}
+                    {...ModernStyles.toggleFieldV2}
+                />
+                <Toggle
+                    label={m('toggle.list-visibility')}
+                    disabled={readonly}
+                    labelPosition={"left"}
+                    toggled={!this.getHideValue()}
+                    onToggle={(e, v) => { this.setHideValue(!v) }}
+                    {...ModernStyles.toggleFieldV2}
+                />
+
                 <Toggle
                     label={m('toggle.list-visibility')}
                     disabled={readonly}
@@ -387,14 +444,6 @@ class MetaNamespace extends React.Component {
                         pydio={pydio}
                     />
                 }
-                <Toggle
-                    label={'Prompt Metadata tagging on Upload'}
-                    disabled={readonly}
-                    labelPosition={"left"}
-                    toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
-                    onToggle={(e, v) => { !!namespace.PromptOnUpload ? namespace.PromptOnUpload = v : namespace.PromptOnUpload = v; this.setState({ namespace }) }}
-                    {...ModernStyles.toggleFieldV2}
-                />
                 <div style={styles.section}>{m('order')}</div>
                 <ModernTextField
                     floatingLabelText={m('order')}
