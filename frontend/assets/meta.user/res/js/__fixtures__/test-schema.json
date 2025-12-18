@@ -18,11 +18,16 @@
       "type": "number",
       "title": "Number",
       "maximum": 10
+    },
+    "usermeta-datetime": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [
     "usermeta-number",
     "usermeta-paragraph",
-    "usermeta-text"
+    "usermeta-text",
+    "usermeta-datetime"
   ]
 }
