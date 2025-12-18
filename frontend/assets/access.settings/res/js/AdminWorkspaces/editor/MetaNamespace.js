@@ -183,15 +183,15 @@ class MetaNamespace extends React.Component {
             try {
                 const fieldType = JSON.parse(namespace?.JsonDefinition).type;
                 if (!fieldType) return;
-            if (!namespace.Namespace) return;
-            Metadata.getJsonSchemaByType(fieldType, namespace.Namespace)
-                .then(schema => {
-                    this.setState(prevState => ({
-                    namespace: {
-                        ...prevState.namespace,
-                        JsonSchema: schema.JsonSchema
-                    }
-                  }));
+                if (!namespace.Namespace) return;
+                Metadata.getJsonSchemaByType(fieldType, namespace.Namespace)
+                    .then(schema => {
+                        this.setState(prevState => ({
+                        namespace: {
+                            ...prevState.namespace,
+                            JsonSchema: schema.JsonSchema
+                        }
+                    }));
                 });
             } catch (e) {
                 console.error(e);
