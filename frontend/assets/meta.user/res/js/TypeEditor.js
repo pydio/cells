@@ -111,14 +111,14 @@ class TypeEditor extends React.Component {
         if(!m){
             m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
         }
-        let type = 'string';
-        if(namespace.JsonDefinition){
-            type = JSON.parse(namespace.JsonDefinition).type;
-        }
+          let type = '';  // Changed from 'string' to empty string
+            if(namespace.JsonDefinition){
+                type = JSON.parse(namespace.JsonDefinition).type || '';
+            }
         const comps = {}
         comps.label = (
             <ModernTextField
-                floatingLabelText={m('label')}
+                floatingLabelText={m('type')}
                 value={namespace.Label}
                 onChange={(e,v) => {this.updateLabel(v)}}
                 fullWidth={true}
@@ -145,7 +145,7 @@ class TypeEditor extends React.Component {
             <Fragment>
                 <ModernSelectField
                     hintText={m('type')}
-                    value={type}
+                    value={type || null}
                     onChange={(e,i,v) => this.updateType(v)}
                     disabled={readonly}
                     fullWidth={true}

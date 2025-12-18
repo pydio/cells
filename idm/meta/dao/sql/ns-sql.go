@@ -22,6 +22,7 @@ package sql
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/datatypes"
@@ -165,8 +166,8 @@ func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (erro
 		if er != nil {
 			return nsTag(er), false
 		}
-
-		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Updates(validNs)
+		fmt.Println(validNs)
+		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Select("*").Updates(validNs)
 		if tx2.Error != nil {
 			return nsTag(tx2.Error), false
 		}
