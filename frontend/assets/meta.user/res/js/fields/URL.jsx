@@ -97,12 +97,7 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
 
 }
 
-/**
- * @param {{getRealValue: () => string}} props
- * @returns {React.ReactElement}
- */
-const URLFieldBase = ({ getRealValue }) => {
-    const url = getRealValue();
+const formatURL = (url) => {
     if (!url || !String(url).trim()) {
         return <Fragment></Fragment>;
     }
@@ -114,16 +109,30 @@ const URLFieldBase = ({ getRealValue }) => {
     }
 
     // Validate URL format
-    let displayText = sanitizedURL;
+    let displayURL = sanitizedURL;
 
     // Extract display text (domain or full URL)
     try {
         const urlObj = new URL(sanitizedURL);
-        displayText = urlObj.hostname || sanitizedURL;
+        displayURL = urlObj.hostname || sanitizedURL;
     } catch (e) {
         // If URL parsing fails, use original value
-        displayText = sanitizedURL;
+        displayURL = sanitizedURL;
     }
+
+    return {
+        normalizedURL,
+        displayURL,
+    }
+}
+
+/**
+ * @param {{getRealValue: () => string}} props
+ * @returns {React.ReactElement}
+ */
+const URLFieldBase = ({ getRealValue }) => {
+    const url = getRealValue();
+    const { normalizedURL, displayURL: displayText } = formatURL(url);
 
     return <URLLinkIcon fontSize={14} url={normalizedURL} displayText={displayText} children={displayText} />;
 }
@@ -134,6 +143,38 @@ const URLFieldBase = ({ getRealValue }) => {
  */
 const URLField = asMetaField(muiThemeable()(URLFieldBase));
 export { URLField }
+
+/**
+ * @param {{
+ *   parent: string
+ * }} ctx
+ * @returns {typeof URLFieldBase|typeof URLSimpleTextBase}
+ **/
+export const getURLDisplayByContext = (ctx) => {
+    if (ctx.parent === 'search-options') {
+        return URLSimpleText;
+    }
+
+    return URLField;
+}
+
+/**
+ * @param {{getRealValue: () => string}} props
+ * @returns {React.ReactElement}
+ */
+const URLSimpleTextBase = ({ getRealValue }) => {
+    const url = getRealValue();
+    const { displayURL } = formatURL(url);
+
+    return <span data-testid="url-text">{displayURL}</span>;
+}
+
+/**
+ * URL field
+ * @type {typeof URLSimpleTextBase}
+ */
+const URLSimpleText = asMetaField(muiThemeable()(URLSimpleTextBase));
+export { URLSimpleText }
 
 /**
  * @param {{

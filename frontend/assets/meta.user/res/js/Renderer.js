@@ -31,7 +31,7 @@ import TagsCloud from "./fields/TagsCloud";
 import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 import {IntegerField, IntegerForm} from "./fields/Integer";
-import {URLField, URLForm} from "./fields/URL";
+import {getURLDisplayByContext, URLForm} from "./fields/URL";
 
 export default class Renderer{
 
@@ -107,11 +107,12 @@ export default class Renderer{
         return <IntegerField node={node} column={column} inline={true}/>;
     }
 
-    static renderURL(node, column) {
+    static renderURL(node, column, ctx) {
         if(!node.getMetadata().get(column.name)){
             return null;
         }
-        return <URLField node={node} column={column}/>;
+        const UrlComponent = getURLDisplayByContext(ctx || {});
+        return <UrlComponent node={node} column={column}/>;
     }
 
     static formPanelStars(props){
