@@ -126,7 +126,8 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                                 v.blockRenderer = (value) => {
                                     const n = new Node()
                                     n.getMetadata().set(v.namespace, value)
-                                    return o.renderComponent(n, {name:v.namespace})
+                                    const context = { parent: 'search-options' }
+                                    return o.renderComponent(n, {name:v.namespace}, context)
                                 }
                             }
                             options.indexedMeta.push(v)
