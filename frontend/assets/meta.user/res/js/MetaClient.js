@@ -21,8 +21,6 @@ import PydioApi from 'pydio/http/api'
 
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, RestPutUserMetaTagRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
 
-import mockUserMeta from './__fixtures__/usermeta-url.json'
-
 class MetaClient{
 
     static getInstance() {
@@ -100,14 +98,15 @@ class MetaClient{
         nss.map(ns => {
             const name = ns.Namespace;
 
+            const { JsonSchema = {} } = ns;
             let base = {
                 label: ns.Label,
                 indexable: ns.Indexable,
                 order: ns.Order,
                 visible: true,
                 readonly: !ns.PoliciesContextEditable,
-                jsonSchema: ns.JsonSchema,
-                required: ns.PromptOnUpload // FIXME: use ns.required.length > 0  and test
+                jsonSchema: JsonSchema,
+                required: JsonSchema.required && JsonSchema.required.length > 0
             };
             if (ns.JsonDefinition){
                 const jDef = JSON.parse(ns.JsonDefinition);
