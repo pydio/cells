@@ -111,9 +111,9 @@ class TypeEditor extends React.Component {
         if(!m){
             m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
         }
-          let type = '';  // Changed from 'string' to empty string
+          let type = '';
             if(namespace.JsonDefinition){
-                type = JSON.parse(namespace.JsonDefinition).type || '';
+                type = JSON.parse(namespace.JsonDefinition).type || 'string';
             }
         const comps = {}
         comps.label = (
