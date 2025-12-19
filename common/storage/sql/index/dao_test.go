@@ -50,12 +50,12 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/cache/gocache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	"github.com/pydio/cells/v5/common/utils/slug"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v5/common/utils/cache/bigcache"
-	"github.com/pydio/cells/v5/common/utils/cache/gocache"
-	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	_ "github.com/pydio/cells/v5/common/utils/cache/redis"
 
 	. "github.com/smartystreets/goconvey/convey"
