@@ -348,13 +348,13 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 }
 
 // RunServicesTests initialize a runtime and run the tests cases with correct DAOs in context
-func RunServicesTests(testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
+func RunServicesTests(ns string, testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
 	for _, tc := range testCases {
 		if !tc.Condition {
 			continue
 		}
 		runner := func(t *testing.T) {
-			ctx, err := manager.MockServicesToContextDAO(context.Background(), tc.DSN, tc.Services)
+			ctx, err := manager.MockServicesToContextDAO(t.Context(), ns, tc.DSN, tc.Services)
 			if err != nil {
 				panic(err)
 			}
