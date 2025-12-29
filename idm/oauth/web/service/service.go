@@ -48,7 +48,9 @@ import (
 
 func init() {
 
-	routing.RegisterRoute(common.RouteOIDC, "OpenID Connect service", common.DefaultRouteOIDC)
+	routing.RegisterRoute(common.RouteOIDC, "OpenID Connect service", common.DefaultRouteOIDC, routing.WithDefaultCorsResolver(func(ctx context.Context) *cors.Options {
+		return resolveOIDCCors(ctx, false)
+	}))
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
@@ -134,40 +136,17 @@ func init() {
 				handler := TokenMethodWrapper(ctx, handlerFunc)
 				handler = middleware.WebIncomingContextMiddleware(ctx, "/oidc", service.ContextKey, o.Server, handler)
 
-				conf := config.Get(ctx, "services/"+common.ServiceWebNamespace_+common.ServiceOAuth+"/cors/public")
+				corsOptions := resolveOIDCCors(ctx, true)
+				// Add logger on corsOptions
 				zl := zap.New(log.Logger(ctx).Core())
 				zsl, err := zap.NewStdLogAt(zl, zapcore.DebugLevel)
 				if err != nil {
 					log.Logger(ctx).Warn("error setting stdlog", zap.Error(err))
+				} else {
+					corsOptions.Logger = zsl
 				}
 
-				corsOptions := cors.Options{
-					AllowedOrigins:       []string{"*"}, // Replaced by AllowOriginVaryRequestFunc in case allowed origins are set
-					AllowedMethods:       conf.Val("allowedMethods").Default([]string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete}).StringArray(),
-					AllowedHeaders:       conf.Val("allowedHeaders").Default([]string{"Authorization", "Content-Type"}).StringArray(),
-					ExposedHeaders:       conf.Val("exposedHeaders").Default([]string{"Content-Type"}).StringArray(),
-					MaxAge:               conf.Val("maxAge").Default(30).Int(),
-					AllowCredentials:     conf.Val("allowCredentials").Default(true).Bool(),
-					AllowPrivateNetwork:  conf.Val("allowPrivateNetwork").Default(false).Bool(),
-					OptionsPassthrough:   conf.Val("optionsPassthrough").Default(false).Bool(),
-					OptionsSuccessStatus: conf.Val("optionsSuccessStatus").Default(http.StatusNoContent).Int(),
-					Debug:                conf.Val("debug").Default(false).Bool(),
-					Logger:               zsl,
-				}
-
-				allowedOrigins := conf.Val("allowedOrigins").StringArray()
-				if len(allowedOrigins) > 0 {
-					corsOptions.AllowOriginVaryRequestFunc = func(_ *http.Request, origin string) (bool, []string) {
-						for _, allowedOrigin := range allowedOrigins {
-							if origin == allowedOrigin {
-								return true, []string{}
-							}
-						}
-						return false, []string{}
-					}
-				}
-
-				serveMux.Route(common.RouteOIDC).Handle("/", cors.New(corsOptions).Handler(handler), routing.WithStripPrefix())
+				serveMux.Route(common.RouteOIDC).Handle("/", cors.New(*corsOptions).Handler(handler), routing.WithStripPrefix())
 				return nil
 			}),
 			service.WithHTTPStop(func(ctx context.Context, mux routing.RouteRegistrar) error {
@@ -176,6 +155,42 @@ func init() {
 			}),
 		)
 	})
+}
+
+// resolveOIDCCors generates a *cors.Options based on service config.
+// If varyFunc is true, use AllowOriginVaryRequestFunc, otherwise just update AllowedOrigins field
+func resolveOIDCCors(ctx context.Context, varyFunc bool) *cors.Options {
+	conf := config.Get(ctx, "services/"+common.ServiceWebNamespace_+common.ServiceOAuth+"/cors/public")
+	def := routing.DefaultCORS()
+	corsOptions := &cors.Options{
+		AllowedOrigins:       []string{"*"}, // Replaced by AllowOriginVaryRequestFunc in case allowed origins are set
+		AllowedMethods:       conf.Val("allowedMethods").Default(def.AllowedMethods).StringArray(),
+		AllowedHeaders:       conf.Val("allowedHeaders").Default(def.AllowedHeaders).StringArray(),
+		ExposedHeaders:       conf.Val("exposedHeaders").Default(def.ExposedHeaders).StringArray(),
+		MaxAge:               conf.Val("maxAge").Default(def.MaxAge).Int(),
+		AllowCredentials:     conf.Val("allowCredentials").Default(def.AllowCredentials).Bool(),
+		AllowPrivateNetwork:  conf.Val("allowPrivateNetwork").Default(def.AllowPrivateNetwork).Bool(),
+		OptionsPassthrough:   conf.Val("optionsPassthrough").Default(def.OptionsPassthrough).Bool(),
+		OptionsSuccessStatus: conf.Val("optionsSuccessStatus").Default(def.OptionsSuccessStatus).Int(),
+		Debug:                conf.Val("debug").Default(def.Debug).Bool(),
+	}
+
+	allowedOrigins := conf.Val("allowedOrigins").StringArray()
+	if len(allowedOrigins) > 0 {
+		if varyFunc {
+			corsOptions.AllowOriginVaryRequestFunc = func(_ *http.Request, origin string) (bool, []string) {
+				for _, allowedOrigin := range allowedOrigins {
+					if origin == allowedOrigin {
+						return true, []string{}
+					}
+				}
+				return false, []string{}
+			}
+		} else {
+			corsOptions.AllowedOrigins = allowedOrigins
+		}
+	}
+	return corsOptions
 }
 
 func TokenMethodWrapper(ctx context.Context, handler http.Handler) http.Handler {

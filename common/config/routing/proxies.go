@@ -21,9 +21,11 @@
 package routing
 
 import (
+	"context"
 	"net/url"
 	"strings"
 
+	"github.com/rs/cors"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
@@ -36,11 +38,13 @@ type ActiveRoute struct {
 	RewriteRules []any
 	Upstreams    []any
 	WebSocket    bool
+	CorsOptions  any
 }
 
 type ActiveProxy struct {
 	*install.ProxyConfig
-	Routes []*ActiveRoute
+	Routes      []*ActiveRoute
+	CorsOptions *cors.Options
 
 	// Resolved values
 	TLS string
@@ -89,9 +93,12 @@ func (s *ActiveProxy) Redirects() map[string]string {
 
 // ResolveProxy is used with custom resolvers to resolve a proxyConfig to a runtime-usable configuration.
 // Resolvers are implemented by proxies to write correct configuration files
-func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rewriteResolver RewritesResolver, upstreamResolver UpstreamsResolver) (*ActiveProxy, error) {
+func ResolveProxy(ctx context.Context, proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rewriteResolver RewritesResolver, upstreamResolver UpstreamsResolver) (*ActiveProxy, error) {
 	site := &ActiveProxy{
 		ProxyConfig: proto.Clone(proxyConfig).(*install.ProxyConfig),
+	}
+	if proxyConfig.CorsOptions != nil {
+		site.CorsOptions = asCORSOptions(proxyConfig.CorsOptions)
 	}
 	var setExternalHost string
 	if proxyConfig.ReverseProxyURL != "" {
@@ -113,6 +120,12 @@ func ResolveProxy(proxyConfig *install.ProxyConfig, tlsResolver TLSResolver, rew
 		if !site.HasRouting() || rule.Accept() {
 			cr := &ActiveRoute{
 				Path: route.GetURI() + "*",
+			}
+			// Apply CorsOptions at route level, either from ProxyConfig, or route default
+			if rule.CorsOptions != nil {
+				cr.CorsOptions = asCORSOptions(rule.CorsOptions)
+			} else {
+				cr.CorsOptions = route.DefaultCors(ctx) // Resolve declared ones (if they are not set)
 			}
 			for _, hm := range proxyConfig.GetHeaderMods() {
 				cr.HeaderMods = append(cr.HeaderMods, hm)
