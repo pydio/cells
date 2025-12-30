@@ -28,8 +28,9 @@ export const padFileDropHandler = (editor, e, outside = false) => {
             console.log("Dropped over block:",e.dataTransfer.items.length, blockId);
         }
         const ctxNode = Pydio.getInstance().getContextNode()
-        const session = Store.getInstance().handleDropEventResults(e.dataTransfer.items, e.dataTransfer.files, ctxNode)
-        editor.insertBlocks([{type:DroppedMonitorSpecType, props:{sessionUuid: session.getUuid()}}], block, 'after')
+        Store.getInstance().handleDropEventResults(e.dataTransfer.items, e.dataTransfer.files, ctxNode).then((session) => {
+            editor.insertBlocks([{type:DroppedMonitorSpecType, props:{sessionUuid: session.getUuid()}}], block, 'after')
+        })
     })
 =======
             const block = editor.getBlock(blockId)
