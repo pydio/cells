@@ -209,7 +209,7 @@ func init() {
 func TestShareLinks(t *testing.T) {
 	sql.TestPrintQueries = true
 
-	test.RunServicesTests(testcases, t, func(ctx context.Context) {
+	test.RunServicesTests(uuid.New(), testcases, t, func(ctx context.Context) {
 
 		sd, er := idmtest.GetStartData()
 		fmt.Println(er)

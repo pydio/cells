@@ -31,6 +31,7 @@ import (
 	_ "github.com/pydio/cells/v5/common/storage/config"
 	_ "github.com/pydio/cells/v5/common/storage/mongodb"
 	_ "github.com/pydio/cells/v5/common/storage/sql"
+	_ "github.com/pydio/cells/v5/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 )
 
@@ -249,7 +250,7 @@ func RunGenericTests[T Testable](testcases []T, t *testing.T, f func(ctx context
 }
 
 func RunTests(t *testing.T, init func(context.Context), f func(context.Context)) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
@@ -277,14 +278,14 @@ func RunTests(t *testing.T, init func(context.Context), f func(context.Context))
 
 	mgr.ServeAll()
 
-	log.SetLoggerInit(func(ctx context.Context) (*zap.Logger, []io.Closer) {
+	/*log.SetLoggerInit(func(ctx context.Context) (*zap.Logger, []io.Closer) {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.OutputPaths = []string{"stdout"}
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 		z, _ := cfg.Build()
 
 		return z, nil
-	}, nil)
+	}, nil)*/
 
 	t.Run("Testing with server", func(t *testing.T) {
 		f(ctx)
@@ -348,13 +349,13 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 }
 
 // RunServicesTests initialize a runtime and run the tests cases with correct DAOs in context
-func RunServicesTests(testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
+func RunServicesTests(ns string, testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
 	for _, tc := range testCases {
 		if !tc.Condition {
 			continue
 		}
 		runner := func(t *testing.T) {
-			ctx, err := manager.MockServicesToContextDAO(context.Background(), tc.DSN, tc.Services)
+			ctx, err := manager.MockServicesToContextDAO(t.Context(), ns, tc.DSN, tc.Services)
 			if err != nil {
 				panic(err)
 			}

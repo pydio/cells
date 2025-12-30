@@ -9,13 +9,14 @@ import (
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/uuid"
-	"github.com/pydio/cells/v5/idm/policy/dao/sql"
+
+	_ "github.com/pydio/cells/v5/idm/policy/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	testcases = test.TemplateSQLService(map[string]map[string]map[string]any{common.ServicePolicyGRPC: {"sql": {"func": sql.NewDAO}}})
+	testcases = test.TemplateSQLService((map[string]map[string]map[string]any{}))
 )
 
 type Case[Req any, Resp any] struct {
@@ -71,7 +72,7 @@ func isFalse(t *testing.T, b bool) {
 }
 
 func TestPolicyGroup(t *testing.T) {
-	test.RunServicesTests(testcases, t, func(ctx context.Context) {
+	test.RunServicesTests("main", testcases, t, func(ctx context.Context) {
 		const id = "test-policy"
 
 		conn := grpc.ResolveConn(ctx, common.ServicePolicyGRPC)

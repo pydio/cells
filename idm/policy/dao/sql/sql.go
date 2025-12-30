@@ -167,7 +167,6 @@ END`)
 }
 
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-
 	if err := s.instance(ctx).AutoMigrate(&idm.PolicyAction{}, &idm.PolicyResource{}, &idm.PolicySubject{}, &idm.Policy{}, &idm.PolicyGroup{}); err != nil {
 		return err
 	}
