@@ -22,6 +22,7 @@ import {createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuContro
 import SearchApi from 'pydio/http/search-api';
 import Pydio from 'pydio'
 import {SingleNode} from "../blocks/SingleNode";
+import {DroppedMonitor} from "../blocks/DroppedMonitor";
 import uuid4 from 'uuid4'
 import React from "react";
 import {insertOrUpdateBlock} from "@blocknote/core";
@@ -33,6 +34,7 @@ const api = new SearchApi(Pydio.getInstance())
 export const NodeRefSpecType = 'nodeRef'
 export const NodeBlockSpecType = 'nodeBlock'
 export const ChildrenListSpecType = 'childrenList'
+export const DroppedMonitorSpecType = 'droppedMonitor'
 
 export const NodeRef = createReactInlineContentSpec(
     {
@@ -51,6 +53,19 @@ export const NodeRef = createReactInlineContentSpec(
         render: (props) => <SingleNode {...props} inline={true} {...props.inlineContent.props}/>,
     }
 );
+
+export const DroppedMonitorSpec = createReactBlockSpec(
+    {
+        type: DroppedMonitorSpecType,
+        propSchema: {
+            sessionUuid: { default: ''}
+        },
+        content: "none",
+    },
+    {
+        render: (props) => <DroppedMonitor {...props} editor={props.editor} block={props.block}/>,
+    }
+)
 
 export const  pasteHandler= ({ event, editor, defaultPasteHandler }) => {
     const text = event.clipboardData?.getData("text/plain") || "";
@@ -168,7 +183,8 @@ export const insertChildrenList = (editor) => ({
 
 export const nodeBlockSpecs = {
     childrenList: ChildrenList,
-    nodeBlock: NodeBlock
+    nodeBlock: NodeBlock,
+    droppedMonitor: DroppedMonitorSpec,
 }
 
 export const nodeInlineSpecs = {

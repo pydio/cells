@@ -25,6 +25,7 @@ import FolderItem from './FolderItem'
 import StatusItem from './StatusItem'
 import PromisePool from 'es6-promise-pool'
 import {TreeServiceApi, RestGetBulkMetaRequest} from 'cells-sdk'
+import uuid4 from 'uuid4'
 
 const UsePool = true;
 
@@ -32,10 +33,15 @@ class Session extends FolderItem {
 
     constructor(repositoryId, targetNode) {
         super('/', targetNode);
+        this._uuid = uuid4()
         this._repositoryId = repositoryId;
         this._status = StatusItem.StatusAnalyze;
         delete this.children.pg[this.getId()];
         this._analyzeStatus = ''
+    }
+
+    getUuid() {
+        return this._uuid;
     }
 
     getAnalyzeStatus() {
