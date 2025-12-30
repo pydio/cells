@@ -161,7 +161,7 @@ func init() {
 // If varyFunc is true, use AllowOriginVaryRequestFunc, otherwise just update AllowedOrigins field
 func resolveOIDCCors(ctx context.Context, varyFunc bool) *cors.Options {
 	conf := config.Get(ctx, "services/"+common.ServiceWebNamespace_+common.ServiceOAuth+"/cors/public")
-	def := routing.DefaultCORS()
+	def := routing.DefaultCors()
 	corsOptions := &cors.Options{
 		AllowedOrigins:       []string{"*"}, // Replaced by AllowOriginVaryRequestFunc in case allowed origins are set
 		AllowedMethods:       conf.Val("allowedMethods").Default(def.AllowedMethods).StringArray(),

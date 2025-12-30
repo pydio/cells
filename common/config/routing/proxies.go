@@ -98,7 +98,7 @@ func ResolveProxy(ctx context.Context, proxyConfig *install.ProxyConfig, tlsReso
 		ProxyConfig: proto.Clone(proxyConfig).(*install.ProxyConfig),
 	}
 	if proxyConfig.CorsOptions != nil {
-		site.CorsOptions = asCORSOptions(proxyConfig.CorsOptions)
+		site.CorsOptions = asCorsOptions(proxyConfig.CorsOptions)
 	}
 	var setExternalHost string
 	if proxyConfig.ReverseProxyURL != "" {
@@ -123,7 +123,7 @@ func ResolveProxy(ctx context.Context, proxyConfig *install.ProxyConfig, tlsReso
 			}
 			// Apply CorsOptions at route level, either from ProxyConfig, or route default
 			if rule.CorsOptions != nil {
-				cr.CorsOptions = asCORSOptions(rule.CorsOptions)
+				cr.CorsOptions = asCorsOptions(rule.CorsOptions)
 			} else {
 				cr.CorsOptions = route.DefaultCors(ctx) // Resolve declared ones (if they are not set)
 			}

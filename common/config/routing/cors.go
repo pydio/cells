@@ -28,8 +28,8 @@ import (
 	"github.com/pydio/cells/v5/common/proto/install"
 )
 
-// DefaultCORS returns a preset cors.Options with open defaults, except for AllowedOrigins
-func DefaultCORS() *cors.Options {
+// DefaultCors returns a preset cors.Options with open defaults, except for AllowedOrigins
+func DefaultCors() *cors.Options {
 	return &cors.Options{
 		// AllowedOrigin must be always set
 		AllowedMethods:       []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete},
@@ -44,8 +44,8 @@ func DefaultCORS() *cors.Options {
 	}
 }
 
-// asCORSOptions transforms an install.CorsOptions to *cors.Options
-func asCORSOptions(co *install.CorsOptions) *cors.Options {
+// asCorsOptions transforms an install.CorsOptions to *cors.Options
+func asCorsOptions(co *install.CorsOptions) *cors.Options {
 	return &cors.Options{
 		AllowedOrigins:       co.AllowedOrigins,
 		AllowedMethods:       co.AllowedMethods,
