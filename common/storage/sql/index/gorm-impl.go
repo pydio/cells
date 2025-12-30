@@ -1161,7 +1161,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 				Path:  path.Clean(path.Join(currentNode.GetNode().GetPath(), currentName)),
 			})
 		} else {
-			currentNode.GetNode().SetMTime(time.Now().Unix())
+			if currentNode.GetNode().GetMTime() <= 0 {
+				currentNode.GetNode().SetMTime(time.Now().Unix())
+			}
 		}
 
 		if currentNode.GetNode().GetUuid() == "" {

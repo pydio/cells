@@ -1056,16 +1056,17 @@ func TestOrdering(t *testing.T) {
 
 			Convey("Create Nodes", t, func() {
 				size := 36
-				for _, pa := range arborescence {
+				for k, pa := range arborescence {
 					t.Logf("Adding node %s", pa)
-					if testTime {
-						<-time.After(1 * time.Second)
-					}
+					/*if testTime {
+						<-time.After(10 * time.Millisecond)
+					}*/
 					nodeType := tree.NodeType_COLLECTION
 					if strings.HasSuffix(pa, ".txt") {
 						nodeType = tree.NodeType_LEAF
 					}
-					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Size: int64(size), Type: nodeType})
+					// Adding the nodes - making sure the delay for the mtime is different between them to test ordering
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Size: int64(size), Type: nodeType, MTime: time.Now().Unix() + int64(k*1000)})
 					So(err, ShouldBeNil)
 					size--
 				}
