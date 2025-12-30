@@ -31,7 +31,9 @@
     "@blocknote/core": "0.31.1",
     "@blocknote/mantine": "0.31.1",
     "@blocknote/react": "0.31.1",
-    "@mantine/core": "^7.17.5",
+    "@mantine/core": "^6.0.0",
+    "axios": "^1.13.2",
+    "cells-sdk-ts": "0.1.1-alpha14",
     "react-icons": "^5.5.0",
     "uuid4": "1.1.4"
   }

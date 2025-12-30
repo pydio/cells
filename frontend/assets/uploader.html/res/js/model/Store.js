@@ -196,6 +196,10 @@ class Store extends Observable{
         this.notify('update');
     }
 
+    sessionByUuid(uuid) {
+        return this._sessions.find(s => s.getUuid() === uuid)
+    }
+
     log(){}
 
     hasQueue(){

@@ -155,6 +155,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', paddingTop: 20, userSelect:"inherit", ...style}}
              onClick={(e) => e.stopPropagation()}
              onKeyUp={(e) => e.stopPropagation()}
+             onDrop={(e) => padFileDropHandler(editor, e, true)}
         >
             {main}
         </div>
