@@ -397,6 +397,20 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		} else {
 			e = er
 		}
+	case "/idm.UserMetaService/GetFieldSchema":
+		resp, er := s.UserMetaServiceServer.GetFieldSchema(ctx, args.(*GetFieldSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetNamespaceSchema":
+		resp, er := s.UserMetaServiceServer.GetNamespaceSchema(ctx, args.(*GetNamespaceSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = errors.New(method + " not implemented")
 	}
