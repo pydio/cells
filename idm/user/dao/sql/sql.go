@@ -23,6 +23,7 @@ package sql
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 	"unicode"
@@ -173,7 +174,12 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 					return nil, nil, wrap(er)
 				}
 				pathTo := nodeTo.GetMPath()
-				created = append(created, cc...)
+				for _, c := range cc {
+					// Exclude moving node, it is NOT a create
+					if c.GetNode().GetPath() != targetPath {
+						created = append(created, cc...)
+					}
+				}
 				// Delete target before moving to it
 				_ = s.indexDAO.DelNode(ctx, nodeTo)
 				log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", existing), zap.Any("to", nodeTo))
@@ -185,6 +191,9 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 				} else {
 					reload.GetNode().SetPath(targetPath)
 					nodeToUserOrGroup(reload, user)
+					if user.Attributes == nil {
+						user.Attributes = map[string]string{}
+					}
 					user.Attributes["original_group"] = sourcePath
 				}
 			} else {
@@ -222,42 +231,6 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 			created = append(created, cc...)
 		}
 	}
-
-	//var needsUpdate bool
-	//if !user.IsGroup && len(created) == 0 && node.GetNode().GetEtag() != "" {
-	//	// This is an explicit password update
-	//	log.Logger(context.Background()).Debug("User update w/ password")
-	//	needsUpdate = true
-	//} else if !user.IsGroup && len(created) > 0 && user.Password == "" {
-	//	// User has been created with an empty password! Generate a random strong one now
-	//	log.Logger(context.Background()).Warn("Generating random password for new user")
-	//	needsUpdate = true
-	//	node.GetNode().SetEtag(hasher.CreateHash(string(auth.RandStringBytes(20))))
-	//}
-	//
-	//if needsUpdate {
-	//	updateNode := &user_model.User{}
-	//	updateNode.SetMPath(mPath)
-	//	if mPath.Length() <= 1 {
-	//		// This should never happen, it will delete the root!
-	//		return nil, createdNodes, fmt.Errorf("interrupting, about to delNode a unique MPath (%s)", mPath.String())
-	//	}
-	//	if err := s.indexDAO.DelNode(ctx, updateNode); err != nil {
-	//		return nil, createdNodes, err
-	//	}
-	//	newMPath, _, err := s.indexDAO.Path(ctx, node, &user_model.User{}, true)
-	//	if err != nil {
-	//		return nil, createdNodes, err
-	//	}
-	//	mPath = newMPath
-	//}
-	//if user.Uuid == "" {
-	//	foundOrCreatedNode, err := s.indexDAO.GetNode(ctx, mPath)
-	//	if err != nil {
-	//		return nil, createdNodes, err
-	//	}
-	//	user.Uuid = foundOrCreatedNode.GetNode().GetUuid()
-	//}
 
 	// Remove existing attributes and roles, replace with new ones using a transaction
 	if user.GroupLabel != "" {
@@ -332,11 +305,6 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 		nodeToUserOrGroup(n, cu)
 		createdNodes = append(createdNodes, cu)
 	}
-
-	// TODO ?
-	//if movedOriginalPath != "" {
-	//	user.Attributes["original_group"] = movedOriginalPath
-	//}
 
 	return user, createdNodes, nil
 }
@@ -467,6 +435,18 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer, users *[]i
 		return wrap(er)
 	}
 
+	// Set sorting options
+	sortField := "name"
+	if query.GetSortField() != "" && slices.Contains([]string{"name", "mtime"}, query.GetSortField()) {
+		sortField = query.GetSortField()
+	}
+	sortDesc := "ASC"
+	if query.GetSortDesc() {
+		sortDesc = "DESC"
+	}
+	db = db.Order(sortField + " " + sortDesc)
+
+	// Run query
 	tx := db.WithContext(ctx).Find(&rows)
 
 	if tx.Error != nil {

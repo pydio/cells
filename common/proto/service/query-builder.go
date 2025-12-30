@@ -36,6 +36,8 @@ type Enquirer interface {
 	GetLimit() int64
 	GetGroupBy() int32
 	GetResourcePolicyQuery() *ResourcePolicyQuery
+	GetSortField() string
+	GetSortDesc() bool
 
 	fmt.Stringer
 }
