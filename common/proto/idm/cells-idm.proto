@@ -495,6 +495,22 @@ message UpdateUserMetaResponse{
     // List of metadatas
     repeated UserMeta MetaDatas = 3;
 }
+
+// Dedicated event published after UpdateUserMeta operation
+message UpdateUserMetaEvent{
+    // Contextual metadata / headers
+    map<string,string> EventMetadata = 1;
+
+    enum UserMetaOp {
+        PUT = 0;
+        DELETE = 1;
+    }
+    // Type of operation to apply (PUT / DELETE)
+    UserMetaOp Operation = 2;
+    // Metadata to update or delete
+    UserMeta UserMeta = 3;
+}
+
 // Request for searching UserMeta by NodeUuid or by Namespace
 message SearchUserMetaRequest{
     // Look for meta by their unique identifier

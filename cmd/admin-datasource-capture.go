@@ -145,7 +145,7 @@ EXAMPLES
 					return e
 				}
 				defer sb.Close()
-				sb.SetManualCollector()
+				sb.AutoCreateBucket()
 				if capturePydioContents {
 					// Cannot use standard Capture
 					dss, _ := model2.AsDataSyncSource(source)
@@ -205,7 +205,7 @@ func walkSourceToDB(ctx context.Context, source model2.Endpoint, db model2.PathS
 	ds := dataSyncSource != nil
 	if er := source.(model2.PathSyncSource).Walk(ctx, func(path string, node tree.N, err error) error {
 		if ds && capturePydioContents && node.IsLeaf() && strings.HasSuffix(path, "/"+common.PydioSyncHiddenFile) {
-			if r, e := dataSyncSource.GetReaderOn(ctx, path); e == nil {
+			if r, e := dataSyncSource.GetReaderOn(ctx, path, nil); e == nil {
 				if bb, er := io.ReadAll(r); er == nil {
 					node.SetRawMetadata(map[string]string{"captured_content": "\"" + string(bb) + "\""})
 				}
