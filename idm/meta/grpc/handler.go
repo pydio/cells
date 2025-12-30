@@ -42,6 +42,7 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/meta"
+	"github.com/pydio/cells/v5/idm/meta/json_schema"
 )
 
 // Handler definition.
@@ -328,20 +329,28 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 
 	response := &idm.UpdateUserMetaNamespaceResponse{}
 	namespaceDAO := dao.GetNamespaceDao()
-	for _, metaNameSpace := range request.Namespaces {
-		if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
-			return nil, err
-		} else {
-			broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
-				Type:          idm.ChangeEventType_DELETE,
-				MetaNamespace: metaNameSpace,
-			})
+	if request.Operation == idm.UpdateUserMetaNamespaceRequest_DELETE {
+		for _, metaNameSpace := range request.Namespaces {
+			if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
+				return nil, err
+			} else {
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_DELETE,
+					MetaNamespace: metaNameSpace,
+				})
+			}
 		}
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
-			if err := namespaceDAO.Add(ctx, metaNameSpace); err != nil {
+
+			if err, ups := namespaceDAO.Upsert(ctx, metaNameSpace); err != nil {
 				return nil, err
+			} else if ups {
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_UPDATE,
+					MetaNamespace: metaNameSpace,
+				})
 			} else {
 				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 					Type:          idm.ChangeEventType_CREATE,
@@ -381,6 +390,41 @@ func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginReq
 	}
 
 	return resources.ModifyLogin(ctx, dao, req)
+}
+
+func (h *Handler) GetFieldSchema(ctx context.Context, req *idm.GetFieldSchemaRequest) (*idm.JsonSchemaResponse, error) {
+	schema := json_schema.GetMetaSchema(req.FieldType)
+	return &idm.JsonSchemaResponse{
+		JsonSchema: schema,
+	}, nil
+}
+
+func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceSchemaRequest) (*idm.JsonSchemaResponse, error) {
+
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	namespaceDAO := dao.GetNamespaceDao()
+
+	if req.FieldType != "" && req.Namespace != "" {
+		schema, err := namespaceDAO.GetNamespaceSchemaSample(ctx, req.FieldType, req.Namespace)
+		if err != nil {
+			return nil, err
+		}
+
+		return &idm.JsonSchemaResponse{
+			JsonSchema: schema,
+		}, nil
+	}
+
+	if schema, err := namespaceDAO.GetJSONSchema(ctx); err == nil {
+		return &idm.JsonSchemaResponse{
+			JsonSchema: schema,
+		}, nil
+	} else {
+		return nil, err
+	}
 }
 
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {

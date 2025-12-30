@@ -27,9 +27,10 @@ import asMetaForm from "../hoc/asMetaForm";
 class BooleanForm extends React.Component {
 
     render() {
-        const {updateValue, value, search, muiTheme} = this.props;
+        const {updateValue, value, search, errorText, muiTheme} = this.props;
         const ModernStyles = ThemedModernStyles(muiTheme)
         let sProps = {...ModernStyles.toggleFieldV1Search}
+        const errStyle = {...ModernStyles.textFieldV2.errorStyle, fontSize: 12, lineHeight: '12px', color: 'var(--md-sys-color-error)'}
         let label = value ? 'Yes' : 'No'
         if(!search) {
             sProps = {...ModernStyles.toggleFieldV2}
@@ -46,8 +47,15 @@ class BooleanForm extends React.Component {
                 {...sProps}
             />
         );
-        if(search){
+        if(search) {
             return toggle
+        } else if (errorText) {
+            return (
+                <div style={{margin:'12px 0 6px', position:'relative'}}>
+                    {toggle}
+                    <div style={errStyle}>{errorText}</div>
+                </div>
+            )
         } else {
             return <div style={{margin:'12px 0 6px'}}>{toggle}</div>
         }

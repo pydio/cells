@@ -191,6 +191,29 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 
 }
 
+func (s *UserMetaHandler) GetFieldSchema(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+	fieldType := req.PathParameter("FieldType")
+	schema, err := s.ServiceClient(ctx).GetFieldSchema(ctx, &idm.GetFieldSchemaRequest{FieldType: fieldType})
+
+	if err != nil {
+		return err
+	}
+	return rsp.WriteEntity(schema)
+}
+
+func (s *UserMetaHandler) GetNamespaceSchema(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+	typeParam := req.QueryParameter("FieldType")
+	nameParam := req.QueryParameter("Namespace")
+	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: typeParam, Namespace: nameParam})
+
+	if err != nil {
+		return err
+	}
+	return rsp.WriteEntity(schema)
+}
+
 func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Response) error {
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()

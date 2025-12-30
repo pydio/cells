@@ -97,7 +97,7 @@ func init() {
 }
 
 func defaultMetas(ctx context.Context, dao meta.DAO) error {
-	err := dao.GetNamespaceDao().Add(ctx, &idm.UserMetaNamespace{
+	err, _ := dao.GetNamespaceDao().Upsert(ctx, &idm.UserMetaNamespace{
 		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
 		Indexable:      true,

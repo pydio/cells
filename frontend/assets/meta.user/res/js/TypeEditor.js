@@ -36,7 +36,8 @@ const MetaTypes = {
     "tags":         "Extensible Tags",
     "stars_rate":   "Stars Rating",
     "css_label":    "Color Labels",
-    "json":         "JSON"
+    "json":         "JSON",
+    "url":          "External URL"
 }
 
 class TypeEditor extends React.Component {
@@ -110,10 +111,10 @@ class TypeEditor extends React.Component {
         if(!m){
             m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
         }
-        let type = 'string';
-        if(namespace.JsonDefinition){
-            type = JSON.parse(namespace.JsonDefinition).type;
-        }
+          let type = '';
+            if(namespace.JsonDefinition){
+                type = JSON.parse(namespace.JsonDefinition).type || 'string';
+            }
         const comps = {}
         comps.label = (
             <ModernTextField
@@ -144,7 +145,7 @@ class TypeEditor extends React.Component {
             <Fragment>
                 <ModernSelectField
                     hintText={m('type')}
-                    value={type}
+                    value={type || null}
                     onChange={(e,i,v) => this.updateType(v)}
                     disabled={readonly}
                     fullWidth={true}

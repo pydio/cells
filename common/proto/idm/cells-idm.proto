@@ -6,6 +6,8 @@ import "orm.proto";
 import "cells-setter.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/descriptor.proto";
+import "google/protobuf/struct.proto";
+
 
 package idm;
 
@@ -443,6 +445,8 @@ service UserMetaService {
     rpc SearchUserMeta(SearchUserMetaRequest) returns (stream SearchUserMetaResponse) {}
     rpc UpdateUserMetaNamespace(UpdateUserMetaNamespaceRequest) returns (UpdateUserMetaNamespaceResponse){}
     rpc ListUserMetaNamespace(ListUserMetaNamespaceRequest) returns (stream ListUserMetaNamespaceResponse){}
+    rpc GetFieldSchema(GetFieldSchemaRequest) returns (JsonSchemaResponse) {}
+    rpc GetNamespaceSchema(GetNamespaceSchemaRequest) returns (JsonSchemaResponse) {}
 }
 
 // Piece of metadata attached to a node
@@ -478,7 +482,14 @@ message UserMetaNamespace{
     repeated service.ResourcePolicy Policies = 6;
     // Context-resolved to quickly check if this meta is editable or not
     bool PoliciesContextEditable = 7;
+    // Prompt options for this namespace
+    bool PromptOnUpload = 8;
+    // JSON Schema for validating metadata values
+	google.protobuf.Struct JsonSchema = 9;
+    // Use default value from JsonSchema to enforce defaults 
+    bool EnforceDefault = 10;
 }
+
 // Request for modifying UserMeta
 message UpdateUserMetaRequest{
     enum UserMetaOp {
@@ -547,6 +558,20 @@ message ListUserMetaNamespaceRequest{}
 message ListUserMetaNamespaceResponse{
     UserMetaNamespace UserMetaNamespace = 1;
 }
+
+message GetFieldSchemaRequest{
+    string FieldType = 1;
+}
+
+message JsonSchemaResponse{
+    google.protobuf.Struct JsonSchema = 1;
+}
+
+message GetNamespaceSchemaRequest{
+    string FieldType = 1;
+    string Namespace = 2;
+}
+
 
 // Message Types for ChangeEvent
 enum ChangeEventType {

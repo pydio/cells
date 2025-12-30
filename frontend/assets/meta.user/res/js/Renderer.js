@@ -31,6 +31,7 @@ import TagsCloud from "./fields/TagsCloud";
 import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 import {IntegerField, IntegerForm} from "./fields/Integer";
+import {getURLDisplayByContext, URLForm} from "./fields/URL";
 
 export default class Renderer{
 
@@ -106,6 +107,14 @@ export default class Renderer{
         return <IntegerField node={node} column={column} inline={true}/>;
     }
 
+    static renderURL(node, column, ctx) {
+        if(!node.getMetadata().get(column.name)){
+            return null;
+        }
+        const UrlComponent = getURLDisplayByContext(ctx || {});
+        return <UrlComponent node={node} column={column}/>;
+    }
+
     static formPanelStars(props){
         return <StarsForm {...props} search={true}/>;
     }
@@ -169,6 +178,10 @@ export default class Renderer{
         return <IntegerForm {...props} search={true}/>
     }
 
+    static formPanelURL(props) {
+        return <URLForm {...props} search={true}/>
+    }
+
     /**
      * Return renderer for a given metadata type
      * @param type
@@ -190,6 +203,8 @@ export default class Renderer{
                 return Renderer.formPanelBoolean
             case 'date':
                 return Renderer.formPanelDate
+            case 'url':
+                return Renderer.formPanelURL
             default:
                 return null
         }
@@ -223,6 +238,9 @@ export default class Renderer{
                 break
             case 'date':
                 out = {renderComponent: Renderer.renderDate, sortType: 'number'}
+                break
+            case 'url':
+                out = {renderComponent: Renderer.renderURL, sortType: 'string'}
                 break
             default:
                 return {}

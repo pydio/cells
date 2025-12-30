@@ -164,7 +164,7 @@ class DateTimeForm extends Component {
     }
 
     render() {
-        const {supportTemplates, search, updateValue, value, label, muiTheme} = this.props;
+        const {supportTemplates, search, updateValue, value, label, errorText, muiTheme} = this.props;
         const ModernStyles = ThemedModernStyles(muiTheme)
 
         if(supportTemplates) {
@@ -204,6 +204,7 @@ class DateTimeForm extends Component {
                         value={vDate}
                         onChange={(e,d) => this.updateDate(d, format)}
                         autoOk={format === 'date'}
+                        errorText={errorText}
                     />
                 </div>
             )
@@ -219,6 +220,7 @@ class DateTimeForm extends Component {
                         hintText={search ? "Time" : null}
                         {...sProps}
                         dialogStyle={{zIndex: 5000}}
+                        dialogBodyStyle={{backgroundColor:'var(--md-sys-color-surface)'}}
                         fullWidth={true}
                         value={vDate}
                         onChange={(e,d) => this.updateTime(d)}

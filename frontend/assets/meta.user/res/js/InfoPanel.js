@@ -58,7 +58,7 @@ export default class InfoPanel extends React.Component{
         let values = this.panel.current.getUpdateData();
         const {node} = this.props;
         return MetaClient.getInstance().saveMeta([node], values).then(() => {
-            //this.panel.current.resetUpdateData(); // Reset
+            //this.panel.current.resetUpdateData(); // Reset is triggered by this._nodeObserver
         });
     }
 

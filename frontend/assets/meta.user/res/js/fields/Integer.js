@@ -67,7 +67,7 @@ class IntegerForm extends React.Component{
     }
 
     render() {
-        const {supportTemplates, search, updateValue: propsUpdateValue, label} = this.props;
+        const {supportTemplates, search, updateValue: propsUpdateValue, label, errorText} = this.props;
         // Disable autoSubmit
         const updateValue = (v) => {
             propsUpdateValue(v, false);
@@ -96,6 +96,7 @@ class IntegerForm extends React.Component{
                     value={value}
                     fullWidth={true}
                     hintText={label}
+                    errorText={errorText}
                     type={type}
                     onChange={change}
                     underlineShow={!hideUnderline}

@@ -31,6 +31,7 @@ import (
 	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 var Drivers = service.StorageDrivers{}
@@ -54,7 +55,9 @@ const (
 type NamespaceDAO interface {
 	resources.DAO
 
-	Add(ctx context.Context, ns *idm.UserMetaNamespace) error
+	Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool)
 	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
 	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
+	GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
+	GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string) (*structpb.Struct, error)
 }

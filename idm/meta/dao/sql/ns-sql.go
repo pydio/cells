@@ -23,8 +23,9 @@ package sql
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/structpb"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/errors"
@@ -34,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
+	"github.com/pydio/cells/v5/idm/meta/json_schema"
 )
 
 var (
@@ -45,11 +47,14 @@ func nsTag(err error) error {
 }
 
 type MetaNamespace struct {
-	Namespace  string `gorm:"primaryKey;column:namespace;type:varchar(255)"`
-	Label      string `gorm:"column:label;type:varchar(255)"`
-	Order      int32  `gorm:"column:ns_order;"`
-	Indexable  bool   `gorm:"column:indexable;"`
-	Definition []byte `gorm:"column:definition;"`
+	Namespace      string          `gorm:"primaryKey;column:namespace;type:varchar(255)"`
+	Label          string          `gorm:"column:label;type:varchar(255)"`
+	Order          int32           `gorm:"column:ns_order;"`
+	Indexable      bool            `gorm:"column:indexable;"`
+	Definition     []byte          `gorm:"column:definition;"`
+	PromptOnUpload bool            `gorm:"column:prompt_on_upload;type:boolean;nullable"`
+	EnforceDefault bool            `gorm:"column:enforce_default;type:boolean;nullable"`
+	JsonSchema     *datatypes.JSON `gorm:"column:json_schema"`
 }
 
 func (*MetaNamespace) TableName(namer schema.Namer) string {
@@ -62,6 +67,14 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.Order = u.Order
 	res.Indexable = u.Indexable
 	res.JsonDefinition = string(u.Definition)
+	res.EnforceDefault = u.EnforceDefault
+	res.PromptOnUpload = u.PromptOnUpload
+	schema, err := json_schema.JsonToProtoStruct(u.JsonSchema)
+	if err != nil {
+		res.JsonSchema = nil
+	}
+	res.JsonSchema = schema
+
 	return res
 }
 
@@ -71,8 +84,29 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.Order = res.Order
 	u.Indexable = res.Indexable
 	u.Definition = []byte(res.JsonDefinition)
-
+	u.EnforceDefault = res.EnforceDefault
+	u.PromptOnUpload = res.PromptOnUpload
+	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
+	u.JsonSchema = js
 	return u
+}
+
+func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) (*MetaNamespace, error) {
+	jssc := json_schema.ValidateSchemaFromPbStruct(res.JsonSchema)
+
+	if jssc != nil { // TODO move validation outside of DAO
+		return nil, jssc
+	}
+	u.Namespace = res.Namespace
+	u.Label = res.Label
+	u.Order = res.Order
+	u.Indexable = res.Indexable
+	u.Definition = []byte(res.JsonDefinition)
+	u.EnforceDefault = res.EnforceDefault
+	u.PromptOnUpload = res.PromptOnUpload
+	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
+	u.JsonSchema = js
+	return u, nil
 }
 
 func NewNSDAO(db *gorm.DB) meta.NamespaceDAO {
@@ -103,7 +137,7 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 	tx := s.Where(&MetaNamespace{Namespace: meta.ReservedNamespaceBookmark}).First(&bm)
 	if tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 		log.Logger(ctx).Info("creating namespace bookmark")
-		if err := s.Add(ctx, &idm.UserMetaNamespace{
+		if err, _ := s.Upsert(ctx, &idm.UserMetaNamespace{
 			Namespace: meta.ReservedNamespaceBookmark,
 			Label:     "Bookmarks",
 			Policies: []*service.ResourcePolicy{
@@ -118,27 +152,49 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 	return nil
 }
 
-// Add inserts a namespace
-func (s *nsSqlImpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
-	tx := s.Session(ctx).Clauses(clause.OnConflict{UpdateAll: true}).Create((&MetaNamespace{}).From(ns))
-	if tx.Error != nil {
-		return nsTag(tx.Error)
+// Add inserts a namespace // Upsert
+func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool) {
+	// Update existing
+	var ex *MetaNamespace
+	tx0 := s.Session(ctx).Where(&MetaNamespace{Namespace: ns.Namespace}).First(&ex)
+	if tx0.Error != nil && !errors.Is(tx0.Error, gorm.ErrRecordNotFound) {
+		return nsTag(tx0.Error), false
+	}
+	if tx0.Error == nil {
+		validNs, er := (&MetaNamespace{}).FromExisting(ns)
+		if er != nil {
+			return nsTag(er), false
+		}
+
+		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Select("*").Updates(validNs)
+		if tx2.Error != nil {
+			return nsTag(tx2.Error), false
+		}
+		return nil, true
+	}
+	// Insert
+	tx1 := s.Session(ctx).Create((&MetaNamespace{}).From(ns))
+	if tx1.Error != nil {
+		return nsTag(tx1.Error), false
 	}
 
 	if len(ns.Policies) > 0 {
 		if pols, err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
-			return nsTag(err)
+			return nsTag(err), false
 		} else {
 			ns.Policies = pols
 		}
 	}
 
-	return nil
+	return nil, false
 }
 
 // Del removes a namespace
 func (s *nsSqlImpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error) {
-	tx := s.Session(ctx).Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
+	whereClause := (&MetaNamespace{}).From(ns)
+	whereClause.JsonSchema = nil
+
+	tx := s.Session(ctx).Where(whereClause).Delete(&MetaNamespace{})
 	if tx.Error != nil {
 		return nsTag(tx.Error)
 	}
@@ -174,4 +230,46 @@ func (s *nsSqlImpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace
 	}
 
 	return res, nil
+}
+
+// Gets a JSON Schema for all namespaces with combined field props
+func (s *nsSqlImpl) GetJSONSchema(ctx context.Context) (*structpb.Struct, error) {
+	var mns []*MetaNamespace
+	tx := s.Session(ctx).
+		Where(
+			"definition IS NOT NULL AND definition != '' AND prompt_on_upload = ?",
+			true,
+		).Find(&mns)
+	if tx.Error != nil {
+		return nil, nsTag(tx.Error)
+	}
+
+	if len(mns) == 0 {
+		return nil, nil
+	}
+
+	nss := make([]json_schema.NamespaceDescriptor, 0, len(mns))
+	for _, m := range mns {
+		nss = append(nss, json_schema.NamespaceDescriptor{
+			Label:          m.Label,
+			Definition:     m.Definition,
+			Namespace:      m.Namespace,
+			PromptOnUpload: m.PromptOnUpload,
+			JsonSchema:     m.JsonSchema,
+		})
+	}
+
+	schema, err := json_schema.BuildNamespacesJsonSchema(nss)
+	if err != nil {
+		return nil, err
+	}
+	return schema, nil
+}
+
+func (s *nsSqlImpl) GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string) (*structpb.Struct, error) {
+	pbSchema, err := json_schema.GetJsonSchemaSample(fieldType, namespace)
+	if err != nil {
+		return nil, err
+	}
+	return pbSchema, nil
 }

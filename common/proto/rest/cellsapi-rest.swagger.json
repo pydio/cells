@@ -1250,6 +1250,14 @@
       },
       "type": "object"
     },
+    "idmJsonSchemaResponse": {
+      "properties": {
+        "JsonSchema": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "idmListPolicyGroupsRequest": {
       "properties": {
         "Filter": {
@@ -1743,6 +1751,10 @@
     },
     "idmUserMetaNamespace": {
       "properties": {
+        "EnforceDefault": {
+          "title": "Use default value from JsonSchema to enforce defaults",
+          "type": "boolean"
+        },
         "Indexable": {
           "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",
           "type": "boolean"
@@ -1750,6 +1762,10 @@
         "JsonDefinition": {
           "title": "Json-encoded type to provide accurate interface for edition",
           "type": "string"
+        },
+        "JsonSchema": {
+          "title": "JSON Schema for validating metadata values",
+          "type": "object"
         },
         "Label": {
           "title": "Human-readable Label",
@@ -1774,6 +1790,10 @@
         },
         "PoliciesContextEditable": {
           "title": "Context-resolved to quickly check if this meta is editable or not",
+          "type": "boolean"
+        },
+        "PromptOnUpload": {
+          "title": "Prompt options for this namespace",
           "type": "boolean"
         }
       },
@@ -3726,6 +3746,14 @@
         }
       },
       "type": "object"
+    },
+    "protobufNullValue": {
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value.",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "type": "string"
     },
     "registryActionType": {
       "default": "ANY",
@@ -12188,6 +12216,110 @@
           }
         },
         "summary": "Admin: update namespaces",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/namespace/discovery/field/{FieldType}": {
+      "get": {
+        "operationId": "GetFieldSchema",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "FieldType",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmJsonSchemaResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Get Json Schema for a given field type",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/namespace/jsonschema": {
+      "get": {
+        "operationId": "GetNamespaceSchema",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "FieldType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "Namespace",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmJsonSchemaResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Get Json Schema for UserMeta namespace",
         "tags": [
           "UserMetaService"
         ]
