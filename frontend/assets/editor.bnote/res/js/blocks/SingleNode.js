@@ -29,6 +29,7 @@ import {BlockMenu} from "./BlockMenu";
 import {useLoadSingleNode} from "../hooks/useLoadSingleNode";
 import {useSingleNodeActions} from "../hooks/useSingleNodeActions";
 import {useSingleNodeDisplay} from "../hooks/useSingleNodeDisplay";
+import {HiOutlineExternalLink} from "react-icons/hi";
 
 
 const Preview = ({node, rich, border, filePreviewStyle, onUpdateRatio, menuGroups = []}) => {
@@ -120,6 +121,9 @@ const SingleNode = (props) => {
     }, [node, dataModel])
 
 
+    const metaPageName = Pydio.getInstance().getPluginConfigs('editor.bnote').get('BNOTE_KNOWLEDGE_BASE')
+    const isPage = node && node.getMetadata().get(metaPageName)
+
     const previewStyle = {width: 24, height: 24,display: 'flex', alignItems:'center', justifyContent:'center', fontSize: 16}
     let backgroundColor, color
     if(node && selection.indexOf(node) > -1) {
@@ -192,7 +196,8 @@ const SingleNode = (props) => {
                     <HoverCard.Dropdown><Preview border={true} node={node} rich={false}/></HoverCard.Dropdown>
                 </HoverCard>
             }
-            <BlockMenu groups={[actions,displayMenu]} settingsStyle={{marginRight:8}}/>
+            {isPage && <HiOutlineExternalLink onClick={() => {Pydio.getInstance().goTo(node)}} style={{marginRight:5, opacity:0.75, marginTop:-1}}/>}
+            {!isPage && <BlockMenu groups={[actions,displayMenu]} settingsStyle={{marginRight:8}}/>}
         </span>
     )
 }
