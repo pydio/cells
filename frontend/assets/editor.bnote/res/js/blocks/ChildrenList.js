@@ -20,7 +20,7 @@
 
 import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import {MdSort} from "react-icons/md";
-import {Paper} from '@mantine/core'
+import {Paper, MantineProvider} from '@mantine/core'
 import Pydio from 'pydio'
 import {BlockMenu} from "./BlockMenu";
 import DataModel from 'pydio/model/data-model'
@@ -29,6 +29,7 @@ import {useResolveSingleNode} from "../hooks/useLoadSingleNode";
 import {useSingleNodeActions} from "../hooks/useSingleNodeActions";
 import {useSingleNodeDisplay} from "../hooks/useSingleNodeDisplay";
 import {PydioContext} from "../hooks/context";
+import { muiThemeable } from 'material-ui/styles'
 
 import './styles/ChildrenListStyles.less'
 
@@ -38,7 +39,7 @@ const {useSorting} = Pydio.requireLib('components');
 
 const { ModernSimpleList } = Pydio.requireLib('components')
 
-export const ModernList = ({editor, block}) => {
+export const ModernList = muiThemeable() (({editor, block, muiTheme}) => {
 
     const pydio = Pydio.getInstance()
     const {nodeUuid, path} = block.props
@@ -196,57 +197,58 @@ export const ModernList = ({editor, block}) => {
     }
 
     return (
-        <Paper className={"disable-outline"} radius={'md'} withBorder={true} p={'md'} style={{lineHeight:'1.3em', width:'100%'}} {...hoverProps}>
-            <div style={{display:'flex'}}>
-                <h3 style={{flex: 1, fontSize:'1.1em', fontWeight:600, marginBottom: 10}}>
-                    <span style={{marginRight:6}} className={'mdi mdi-folder-open-outline'}/>️
-                    <span style={{marginRight:6, flex:1}}>
-                        {resolvedNode && resolvedNode.getLabel() || path || 'Table of Contents'}
-                        <span
-                            className={'mdi mdi-reload'}
-                            style={{marginLeft:6, fontSize: 12, cursor:'pointer', ...hoverMoreStyle}}
-                            onClick={()=>{dataModel.requireContextChange(contextNode, true)}}
-                        />
+        <MantineProvider theme={{ colorScheme: muiTheme.darkMode? "dark":'light'}} inherit>
+            <Paper className={"small-outline"} radius={'md'} withBorder={true} p={'md'} style={{lineHeight:'1.3em', width:'100%'}} {...hoverProps}>
+                <div style={{display:'flex'}}>
+                    <h3 style={{flex: 1, fontSize:'1.1em', fontWeight:600, marginBottom: 10}}>
+                        <span style={{marginRight:6}} className={'mdi mdi-folder-open-outline'}/>️
+                        <span style={{marginRight:6, flex:1}}>
+                            {resolvedNode && resolvedNode.getLabel() || path || 'Table of Contents'}
+                            <span
+                                className={'mdi mdi-reload'}
+                                style={{marginLeft:6, fontSize: 12, cursor:'pointer', ...hoverMoreStyle}}
+                                onClick={()=>{dataModel.requireContextChange(contextNode, true)}}
+                            />
+                        </span>
+                    </h3>
+                    <span style={{fontSize:'1rem'}}>
+                        <BlockMenu groups={menuGroups} settingsStyle={{...hoverMoreStyle}}/>
                     </span>
-                </h3>
-                <span style={{fontSize:'1rem'}}>
-                    <BlockMenu groups={menuGroups} settingsStyle={{...hoverMoreStyle}}/>
-                </span>
-            </div>
-            {error && <div>{path && 'Cannot load ' + path + ': '}{error.message}</div>}
-            {contextNode &&
-                <ModernSimpleList
-                    pydio={pydio}
-                    node={contextNode}
-                    dataModel={dataModel}
-                    observeNodeReload={true}
-                    className={classes.join(' ')}
-                    //style={style}
-                    displayMode={display}
-                    usePlaceHolder={false}
-                    skipParentNavigation={true}
+                </div>
+                {error && <div>{path && 'Cannot load ' + path + ': '}{error.message}</div>}
+                {contextNode &&
+                    <ModernSimpleList
+                        pydio={pydio}
+                        node={contextNode}
+                        dataModel={dataModel}
+                        observeNodeReload={true}
+                        className={classes.join(' ')}
+                        //style={style}
+                        displayMode={display}
+                        usePlaceHolder={false}
+                        skipParentNavigation={true}
 
-                    tableKeys={columns}
-                    sortingInfo={currentSortingInfo}
-                    handleSortChange={handleSortChange}
+                        tableKeys={columns}
+                        sortingInfo={currentSortingInfo}
+                        handleSortChange={handleSortChange}
 
-                    additionalAttrs={additionalAttrs}
+                        additionalAttrs={additionalAttrs}
 
-                    entryRenderIcon={entryRenderIcon}
-                    entryRenderParentIcon={entryRenderIcon}
-                    entryRenderFirstLine={(node)=> node.getLabel()}
-                    entryRenderSecondLine={display=== 'list' ? entryRenderSecondLine : null}
-                    entryRenderActions={display !== 'detail' && !path ? entryRenderActions : null}
-                    tableEntryRenderCell={(node) => (
-                        <span>
-                        {entryRenderIcon(node)}
-                            {node.getLabel()}
-                    </span>
-                    )}
-                />
-            }
-        </Paper>
-
+                        entryRenderIcon={entryRenderIcon}
+                        entryRenderParentIcon={entryRenderIcon}
+                        entryRenderFirstLine={(node)=> node.getLabel()}
+                        entryRenderSecondLine={display=== 'list' ? entryRenderSecondLine : null}
+                        entryRenderActions={display !== 'detail' && !path ? entryRenderActions : null}
+                        tableEntryRenderCell={(node) => (
+                            <span>
+                            {entryRenderIcon(node)}
+                                {node.getLabel()}
+                        </span>
+                        )}
+                    />
+                }
+            </Paper>
+        </MantineProvider>
     )
 
-}
+})
