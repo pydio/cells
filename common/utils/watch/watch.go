@@ -117,7 +117,6 @@ func (w *watcher[T]) Flush() {
 			snapSettings := w.snap.Get()
 
 			patch, err := diff.Diff(snapSettings, settings, diff.CustomValueDiffers(CustomValueDiffers...), diff.DisableStructValues(), diff.AllowTypeMismatch(true)) // , diff.CustomValueDiffers(config.CustomValueDiffers...))
-
 			if err != nil {
 				continue
 			}
