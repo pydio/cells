@@ -40,12 +40,13 @@ import {
     pasteHandler
 } from "./specs/NodeRef";
 import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
+import {insertSubPageItem} from "./specs/SubPage";
 import {SideMenuButton} from "./SideMenuButton";
 import ContextMenuModel from 'pydio/model/context-menu'
 import {headerBlockSpecs, HeaderSpecType} from "./specs/Header";
 import {findExistingHeader} from "./hooks/useNodeTitle";
-import {padFileDropHandler} from "./hooks/padFileDropHandler";
 
+import {padFileDropHandler} from "./hooks/padFileDropHandler";
 import './pad-styles.less'
 
 const schema = BlockNoteSchema.create({
@@ -69,6 +70,7 @@ const getCustomSlashMenuItems = (
     ...getDefaultReactSlashMenuItems(editor),
     insertChildrenList(editor),
     insertAlertItem(editor),
+    insertSubPageItem(editor),
 ];
 
 export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {

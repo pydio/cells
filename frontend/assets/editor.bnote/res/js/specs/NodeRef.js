@@ -58,12 +58,13 @@ export const DroppedMonitorSpec = createReactBlockSpec(
     {
         type: DroppedMonitorSpecType,
         propSchema: {
-            sessionUuid: { default: ''}
+            sessionUuid: { default: ''},
+            blockId: { default: null },
         },
         content: "none",
     },
     {
-        render: (props) => <DroppedMonitor {...props} editor={props.editor} block={props.block}/>,
+        render: (props) => <DroppedMonitor {...props} editor={props.editor} block={props.block} blockId={props.block.id}/>,
     }
 )
 
