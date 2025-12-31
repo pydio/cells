@@ -237,8 +237,8 @@ CACHE URL COMPLÈTE
 {{- $authParams := .authParams -}}
 {{- $host := (.host | default (include "cells.cache.host" .context)) -}}
 {{- $port := (.port | default (include "cells.cache.port" .context)) -}}
-{{- $params := (.params | default ((include "cells.cache.params" .context) | fromJson)) -}}
-{{- $tlsParams := (.tlsParams | default ((include "cells.cache.tls.params" .context) | fromJson) | default) -}}
+{{- $params := (merge ((include "cells.cache.params" .context) | fromJson) (.params | default)) -}}
+{{- $tlsParams := (merge ((include "cells.cache.tls.params" .context) | fromJson) (.tlsParams | default)) -}}
 {{- with .context -}}
 {{- printf "%s://%s%s:%s/%s%s"
     $scheme
