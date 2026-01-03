@@ -27,7 +27,7 @@ import DOMUtils from "pydio/util/dom";
 
 const {SimpleList, NodeListCustomProvider} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
-const {UnifiedSearchForm, Facets, SearchSorter, FilePreview, AdvancedChips, SearchStatusButton} = Pydio.requireLib('workspaces');
+const {UnifiedSearchForm, Facets, SearchSorter, FilePreview, AdvancedAsChips, SearchStatusButton} = Pydio.requireLib('workspaces');
 const {withSearch} = Pydio.requireLib('hoc')
 
 class HomeSearchForm extends Component{
@@ -222,23 +222,23 @@ class HomeSearchForm extends Component{
                                 searchTools={searchTools}
                                 onRequestOpen={()=>onFocusChange(true)}
                                 onRequestClose={()=>onFocusChange(false)}
+                                advancedPopover={false}
                             />
                             {loading && <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>}
                         </Paper>
-                        {fullScreen &&
-                            <AdvancedChips
-                                appendUnstyled={<SearchStatusButton
-                                    pydio={pydio}
-                                    searchTools={searchTools}
-                                    moreOnly={true}
-                                    style={{...searchMoreStyles.button, ...searchMoreStyles.label, ...searchMoreStyles.fixed}}
-                                    buttonStyle={searchMoreStyles.button}
-                                    buttonLabelStyle={searchMoreStyles.label}
-                                />}
+                        {fullScreen && <AdvancedAsChips
+                            pydio={pydio}
+                            searchTools={searchTools}
+                            containerStyle={{width: '100%', paddingTop:10}}
+                            appendUnstyled={<SearchStatusButton
+                                pydio={pydio}
                                 searchTools={searchTools}
-                                containerStyle={{width: '100%', paddingTop: 11, marginBottom: -4}}
-                            />
-                        }
+                                moreOnly={true}
+                                style={{...searchMoreStyles.button, ...searchMoreStyles.label, ...searchMoreStyles.fixed}}
+                                buttonStyle={searchMoreStyles.button}
+                                buttonLabelStyle={searchMoreStyles.label}
+                            />}
+                        />}
                     </Paper>
                     {fullScreen &&
                         <div className={"layout-fill"} style={{width: '100%', display:'flex'}}>

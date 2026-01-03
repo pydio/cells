@@ -154,7 +154,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search, label, errorText, muiTheme} = this.props;
+        const {editMode, search, label, errorText, muiTheme, mode} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList, autoCompleter, knownTags = [];
@@ -163,7 +163,7 @@ class TagsCloud extends React.Component {
             knownTags = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag)
             tagsList = knownTags.map(tag => this.renderChip(tag));
         }
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
 
         if (editMode) {
             const Component = search ? AutoComplete : ModernAutoComplete

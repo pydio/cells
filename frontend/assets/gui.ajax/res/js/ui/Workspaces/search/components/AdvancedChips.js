@@ -20,6 +20,7 @@
 import React from 'react'
 import Renderer from "./Renderer";
 import {muiThemeable} from "material-ui/styles";
+import {chipsStyles} from "./AdvancedChipsStyles";
 
 class AdvancedChips extends React.Component{
 
@@ -35,35 +36,7 @@ class AdvancedChips extends React.Component{
 
         const advanced = advancedValues()
         const {indexedMeta} = this.state;
-
-        const styles = {
-            container:{
-                display:'flex',
-                flexWrap: 'wrap',
-                ...containerStyle
-            },
-            tag: {
-                borderRadius: 20,
-                background: muiTheme.palette.mui3['surface-variant'],
-                color: muiTheme.palette.mui3['on-surface-variant'],
-                display: 'flex',
-                alignItems: 'center',
-                padding: showRemove?'2px 5px 2px 11px':'2px 10px',
-                marginRight: 5, marginBottom: 5,
-                ...tagStyle
-            },
-            tagRemove: {
-                backgroundColor: muiTheme.darkMode?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.1)',
-                cursor: 'pointer',
-                height: 16, width: 16, lineHeight: '17px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                color: 'white',
-                marginLeft: 7
-            }
-        }
+        const styles = chipsStyles(muiTheme, containerStyle, tagStyle, showRemove);
 
         let blocks = advanced.map(a => {
             const cc = []

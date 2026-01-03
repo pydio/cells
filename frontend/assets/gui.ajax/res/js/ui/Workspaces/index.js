@@ -34,6 +34,7 @@ import AdvancedChips from "./search/components/AdvancedChips"
 import {SearchStatusButton} from "./search/components/SearchStatusButton"
 import Facets from './search/components/Facets'
 import SearchSorter from './search/components/SearchSorter'
+import {AdvancedAsChips} from "./search/components/AdvancedAsChips";
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
@@ -41,18 +42,17 @@ import WorkspacePickerDialog from './wslist/WorkspacePickerDialog'
 import LeftPanel from './leftnav/LeftPanel'
 import UserWidget from './leftnav/UserWidget'
 import TourGuide from './views/TourGuide'
-import MasterLayout from './views/MasterLayout'
 
+import MasterLayout from './views/MasterLayout'
 import InfoPanel from './detailpanes/InfoPanel'
 import InfoPanelCard from './detailpanes/InfoPanelCard'
-import {MultiColumnContext} from './detailpanes/MultiColumnPanel'
 
+import {MultiColumnContext} from './detailpanes/MultiColumnPanel'
 import GenericInfoCard from './detailpanes/GenericInfoCard'
 import FileInfoCard from './detailpanes/FileInfoCard'
 import {CellChatInfoCard} from './views/CellChat'
 
 import {Editor} from './editor/components/editor'
-
 import {MUITour, WelcomeMUITour, ThemeTogglerCard} from './views/WelcomeMuiTour'
 import {Scheme} from './views/WelcomeTour'
 
@@ -66,6 +66,7 @@ const classes = {
     Breadcrumb,
     UnifiedSearchForm,
     AdvancedChips,
+    AdvancedAsChips,
     SearchStatusButton,
     FilePreview,
     FSTemplate,
