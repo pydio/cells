@@ -281,7 +281,7 @@ class MetaNamespace extends React.Component {
         const { namespace, m, PoliciesBuilder, metaModule } = this.state;
         const ModernStyles = ThemedModernStyles(muiTheme)
         const configs = this.props.pydio.getPluginConfigs('access.settings');
-        const USERMETA_PROMPT_FF = configs.get('USERMETA_NAMESPACE_PROMPT') || false;
+        const USERMETA_PROMPT_FF = Boolean(configs.get('USERMETA_NAMESPACE_PROMPT'));
 
         if (!metaModule) {
             return null;
