@@ -36,6 +36,8 @@ import (
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+
+	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 )
 
 var (

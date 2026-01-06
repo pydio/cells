@@ -31,6 +31,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
 	ggrpc "google.golang.org/grpc"
 
@@ -84,7 +85,7 @@ func init() {
 
 	span.AddEvent("start")
 
-	testMemRegistry, err = registry.OpenRegistry(context.Background(), "mem://")
+	testMemRegistry, err = registry.OpenRegistry(context.Background(), "mem://?cache="+uuid.NewString())
 	if err != nil {
 		testSkipMem = true
 	}

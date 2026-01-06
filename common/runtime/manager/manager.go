@@ -160,6 +160,8 @@ func NewManager(ctx context.Context, namespace string, r ...runtime.Runtime) (Ma
 
 	m.ctx = propagator.With(m.ctx, ContextKey, m)
 
+	runtime.Init(m.ctx, "system")
+
 	bootstrap, err := NewBootstrap(m.ctx)
 	if err != nil {
 		return nil, err
@@ -172,7 +174,7 @@ func NewManager(ctx context.Context, namespace string, r ...runtime.Runtime) (Ma
 		localRuntime = r[0]
 	}
 
-	runtime.Init(m.ctx, "system")
+	// runtime.Init(m.ctx, "system")
 
 	base := localRuntime.GetString(runtime.KeyBootstrapRoot)
 	m.base = base

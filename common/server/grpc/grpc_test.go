@@ -269,18 +269,23 @@ func TestGetServiceInfo(t *testing.T) {
 				duration := 1 * time.Second
 				ticker := time.NewTicker(10 * time.Millisecond)
 				defer ticker.Stop()
+				// Cancelling context
+				defer cancel()
 
-				for range ticker.C {
-					// Check if the total duration has elapsed
-					if time.Since(start) >= duration {
-						break
+				for {
+					select {
+					case <-ticker.C:
+						// Check if the total duration has elapsed
+						if time.Since(start) >= duration {
+							return
+						}
+
+						t.Log("Geting service info ", grpcServer.GetServiceInfo())
+					case <-t.Context().Done():
+						return
 					}
-
-					t.Log("Geting service info ", grpcServer.GetServiceInfo())
 				}
 
-				// Cancelling context
-				cancel()
 			}()
 		}
 	})
