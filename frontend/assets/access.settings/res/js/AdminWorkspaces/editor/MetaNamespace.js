@@ -280,6 +280,8 @@ class MetaNamespace extends React.Component {
         const { create, namespaces, pydio, readonly, muiTheme } = this.props;
         const { namespace, m, PoliciesBuilder, metaModule } = this.state;
         const ModernStyles = ThemedModernStyles(muiTheme)
+        const configs = this.props.pydio.getPluginConfigs('access.settings');
+        const USERMETA_PROMPT_FF = configs.get('USERMETA_NAMESPACE_PROMPT') || false;
 
         if (!metaModule) {
             return null;
@@ -379,17 +381,17 @@ class MetaNamespace extends React.Component {
                     nameError={nameError}
                     styles={styles}
                 />
-                {
+                {USERMETA_PROMPT_FF && (
                     namespace?.Namespace?.toString().length > 0 && 
-                    namespace.JsonDefinition?.toString().length > 0 && 
+                    namespace.JsonDefinition?.toString().length > 0 && (
                     <MetaNamespaceFieldOptions 
                         ns={namespace}
                         ref={this.fieldOptionsRef}
                         fieldType={JSON.parse(namespace.JsonDefinition).type}
                     />
-                }
+                ))}
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
-                <Toggle
+                {USERMETA_PROMPT_FF && <Toggle
                     label={'Prompt Metadata tagging on Upload'}
                     disabled={readonly}
                     labelPosition={"left"}
@@ -402,7 +404,8 @@ class MetaNamespace extends React.Component {
                         }
                     }}
                     {...ModernStyles.toggleFieldV2}
-                />
+                />}
+                {USERMETA_PROMPT_FF &&
                 <Toggle
                     label={"Required"}
                     disabled={!namespace?.PromptOnUpload || false}
@@ -410,15 +413,7 @@ class MetaNamespace extends React.Component {
                     toggled={namespace?.JsonSchema?.required?.length > 0}
                     onToggle={() => this.toggleRequired(namespace)}
                     {...ModernStyles.toggleFieldV2}
-                />
-                <Toggle
-                    label={m('toggle.list-visibility')}
-                    disabled={readonly}
-                    labelPosition={"left"}
-                    toggled={!this.getHideValue()}
-                    onToggle={(e, v) => { this.setHideValue(!v) }}
-                    {...ModernStyles.toggleFieldV2}
-                />
+                /> }
 
                 <Toggle
                     label={m('toggle.list-visibility')}
