@@ -116,14 +116,14 @@ class Viewer extends Component {
                 Key:'pydio-thumbstore/' + pdfPreview
             }
         }
-        const distViewerPath = 'plug/editor.pdfjs/res/dist/pdfjs/web'
-        const viewerPage = "viewer.html"
+        const viewerURL = new URL('plug/editor.pdfjs/res/dist/pdfjs/web/viewer.html', window.location.origin)
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
+            viewerURL.searchParams.set('file', pdfUrl)
             this.setState({
                 pdfUrl: pdfUrl,
                 crtPage: 1,
                 lastKnownHeight:150,
-                url: `${distViewerPath}/${viewerPage}?file=${encodeURIComponent(pdfUrl)}`
+                url: viewerURL.toString()
             })
         })
 
@@ -144,7 +144,7 @@ class Viewer extends Component {
 
         #info_panel .mimefont-container.with-editor-badge{
             position:relative;
-            min-height: ${lastKnownHeight}px; 
+            min-height: ${lastKnownHeight}px;
             height:auto !important;
             max-height:320px;
         }
