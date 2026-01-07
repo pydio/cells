@@ -185,19 +185,19 @@ spec:
               if [ -d /var/certs/ca ]; then
                 for i in /var/certs/ca/*/*; do
                   echo "Importing ca certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i);
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i) 2>/dev/null || true;
                 done
               fi
               if [ -d /var/certs/server ]; then
                 for i in /var/certs/server/*/*; do
                   echo "Importing client certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i);
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i) 2>/dev/null || true;
                 done
               fi
               if [ -d /var/certs/client ]; then
                 for i in /var/certs/client/*/*; do
                   echo "Importing client certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i);
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i) 2>/dev/null || true;
                 done
               fi
           env:
