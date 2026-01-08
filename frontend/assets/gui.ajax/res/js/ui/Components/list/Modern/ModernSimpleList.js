@@ -99,7 +99,7 @@ const ModernSimpleList = (props) => {
     const showLoading = isLoading && (!node || (typeof node.isLoaded === 'function' ? !node.isLoaded() : true));
     if (showLoading && !error) {
         return (
-            <div className={className}>
+            <div className={className} {...additionalAttrs}>
                 <PlaceHolders
                     displayMode={displayMode}
                     tableKeys={displayMode==='detail' && tableKeys}

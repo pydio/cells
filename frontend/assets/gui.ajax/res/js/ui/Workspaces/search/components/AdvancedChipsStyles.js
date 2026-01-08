@@ -38,7 +38,7 @@ export const chipsStyles = (muiTheme, containerStyle = {}, tagStyle = {}, showRe
             ...tagStyle
         },
         tagField: {
-            borderRadius: 20,
+            borderRadius: 8,
             border: '1px dashed var(--md-sys-color-outline-variant)',
             color: 'var(--md-sys-color-on-surface-variant)',
             display: 'flex',
@@ -60,8 +60,6 @@ export const chipsStyles = (muiTheme, containerStyle = {}, tagStyle = {}, showRe
             transition: DOMUtils.getBeziersTransition()
         },
         tagHide: {
-//            backgroundColor: muiTheme.darkMode?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.1)',
-//            color: 'white',
             cursor: 'pointer',
             height: 16, width: 16, lineHeight: '17px',
             display: 'flex',
@@ -99,6 +97,11 @@ export const chipsStyles = (muiTheme, containerStyle = {}, tagStyle = {}, showRe
         },
         popoverBlockStyle: {
             margin: '0 12px 8px',
+        },
+        verticalDivider: {
+            borderRight: '1px solid var(--md-sys-color-surface-variant)',
+            margin: '0px 8px 0px 3px',
+            height: '26px',
         }
     }
 }

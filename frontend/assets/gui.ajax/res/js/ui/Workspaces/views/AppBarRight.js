@@ -25,7 +25,7 @@ const {Toolbar} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onUpdateSearchView, onToggleRightPanel, displayMode}) => {
+const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton, searchIconCallback, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onUpdateSearchView, onToggleRightPanel, displayMode}) => {
 
     const {breakpoint = 'md'} = muiTheme;
     const smallScreen = (breakpoint==='s'|| breakpoint==='xs')
@@ -50,7 +50,7 @@ const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton,
                     iconClassName={"mdi mdi-magnify"}
                     style={styles.buttonsStyle}
                     iconStyle={styles.buttonsIconStyle}
-                    onClick={()=>{setValues(values)}}
+                    onClick={searchIconCallback ? searchIconCallback : ()=>{setValues(values)}}
                     tooltip={pydio.MessageHash['87']}
                 />
             }

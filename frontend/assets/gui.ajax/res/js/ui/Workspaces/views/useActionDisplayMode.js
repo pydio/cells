@@ -90,7 +90,7 @@ const useActionDisplayMode = ({fixedDisplayMode, preferencePrefix = 'FSTemplate.
 
     }, [displayMode])
 
-    return {displayMode, buildAction}
+    return {displayMode, buildAction, buildDisplayModeItems}
 
 }
 

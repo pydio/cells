@@ -142,7 +142,7 @@ function UnifiedSearchForm (props){
         onRequestOpen();
     }
 
-    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, additionalRightButton, closeButton, advancedPopover = true} = props;
+    const {style, active, searchTools, autoFocus, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, additionalRightButton, closeButton, advancedPopover = true} = props;
     const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
 
     if(uniqueSearchScope) {
@@ -310,6 +310,7 @@ function UnifiedSearchForm (props){
                     return (
                         <TextField
                             {...params}
+                            autoFocus={autoFocus}
                             variant={"standard"}
                             fullWidth={true}
                             inputRef={textfieldRef}

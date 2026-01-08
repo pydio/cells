@@ -55,7 +55,7 @@ const SearchConstants = {
 export {SearchConstants};
 
 
-export default function withSearch(Component, historyIdentifier, defaultScope){
+export default function withSearch(Component, historyIdentifier, defaultScope, bindToContextNode = true){
 
     return class WithSearch extends React.Component {
 
@@ -185,12 +185,14 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             const searchRootNode = dataModel.getSearchNode();
             searchRootNode.getMetadata().set('search_values', values);
             searchRootNode.getMetadata().set('active_facets', activeFacets);
-            if(dataModel.getContextNode() !== searchRootNode){
-                searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+            if(bindToContextNode) {
+                if(dataModel.getContextNode() !== searchRootNode){
+                    searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                }
+                searchRootNode.observeOnce("loaded", ()=> {
+                    dataModel.setContextNode(searchRootNode, true);
+                })
             }
-            searchRootNode.observeOnce("loaded", ()=> {
-                dataModel.setContextNode(searchRootNode, true);
-            })
             searchRootNode.setChildren([]);
             searchRootNode.setLoaded(false);
             let {scope, ...searchValues} = values;
@@ -253,11 +255,13 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             }
             if(Object.keys(other).length > 0 && deepEqual(values, newValues) && !refreshPreviousContext) {
                 console.info('Do not re-run the search as values have not changed yet')
-                const searchRootNode = dataModel.getSearchNode();
-                if(dataModel.getContextNode() !== searchRootNode){
-                    searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                if(bindToContextNode) {
+                    const searchRootNode = dataModel.getSearchNode();
+                    if(dataModel.getContextNode() !== searchRootNode){
+                        searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                    }
+                    dataModel.setContextNode(searchRootNode, true);
                 }
-                dataModel.setContextNode(searchRootNode, true);
                 if(onUpdateSearch){
                     onUpdateSearch({values: newValues});
                 }

@@ -26,6 +26,7 @@ import FastSearch from "../search/FastSearch";
 import {muiThemeable} from 'material-ui/styles'
 import {ThemeProvider} from "@mui/material/styles";
 import RailPanel from "../leftnav/RailPanel";
+import {ModalSearch} from "../search/ModalSearch";
 
 const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
 const {ContextMenu} = Pydio.requireLib('components');
@@ -79,6 +80,7 @@ class MasterLayout extends React.Component{
             <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>{children}</div>,
             <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>,
             <FastSearch/>,
+            <ModalSearch pydio={pydio}/>,
             <style type={"text/css"} dangerouslySetInnerHTML={{__html:localStyle}} />
         ]
 

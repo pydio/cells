@@ -489,8 +489,8 @@ class FSTemplate extends React.Component {
                                 sortingInfo={displayMode!=='detail'&&displayMode!=='masonry'?sortingInfo:null}
 
                                 searchIconButton={true}
+                                searchIconCallback={() => document.dispatchEvent(new Event('pydioOpenSearch'))}
                                 searchTools={searchTools}
-                                onUpdateSearchView={(u) => u?this.setSearchView():this.unsetSearchView()}
 
                                 showChatTab={showChatTab}
                                 chatOpen={chatOpen}
