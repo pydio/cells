@@ -61,7 +61,7 @@ const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton,
                     toolbars={["display_toolbar"]}
                     renderingType="icon-font"
                     mergeItemsAsOneMenu={true}
-                    mergedMenuIcom={"mdi mdi-settings"}
+                    mergedMenuIcom={"mdi mdi-cog-outline"}
                     mergedMenuTitle={pydio.MessageHash['151']}
                     buttonStyle={styles.buttonsIconStyle}
                     flatButtonStyle={styles.buttonsStyle}
@@ -70,7 +70,7 @@ const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton,
             <div style={{display:'flex', paddingRight: 10}}>
                 {showInfoPanel &&
                     <IconButton
-                        iconClassName={"mdi mdi-information"}
+                        iconClassName={"mdi mdi-information-outline"}
                         style={infoPanelOpen ? styles.activeButtonStyle : styles.buttonsStyle}
                         iconStyle={infoPanelOpen ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                         onClick={()=>{onToggleRightPanel('info-panel')}}
@@ -79,7 +79,7 @@ const AppBarRight = ({pydio, muiTheme, styles, containerStyle, searchIconButton,
                 }
                 {!searchView && showChatTab &&
                     <IconButton
-                        iconClassName={chatOpen ? "mdi mdi-message-bulleted-off" : "mdi mdi-message-text"}
+                        iconClassName={chatOpen ? "mdi mdi-message-bulleted-off" : "mdi mdi-message-text-outline"}
                         style={styles.buttonsStyle}
                         iconStyle={styles.buttonsIconStyle}
                         onClick={()=>{onToggleRightPanel('chat')}}

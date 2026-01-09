@@ -18,15 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback, useEffect, useState, useMemo} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import UnifiedSearchForm from "./components/UnifiedSearchForm";
 import Pydio from 'pydio'
 const {withSearch} = Pydio.requireLib('hoc')
-import Modal from '@mui/material/Modal';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import {Modal, Paper, IconButton, Menu, MenuItem, ListSubheader, Divider, Dialog, DialogTitle, DialogContent,
+    DialogActions, Button
+} from "@mui/material";
 import {SearchStatusButton} from "./components/SearchStatusButton";
 import {AdvancedAsChips} from "./components/AdvancedAsChips";
 import {previewEntryRenderIcon, previewTableEntryRenderCell} from "../views/FilePreview";
@@ -37,15 +35,21 @@ import {useColumnsFromRegistry} from "../../HOCs/hooks";
 import {useEmptyErrorStatesProps} from "../views/useEmptyErrorStatesProps";
 import {useActionDisplayMode} from "../views/useActionDisplayMode";
 const {ModernSimpleList} = Pydio.requireLib('components');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 
 export const ModalSearch = withSearch( ({pydio, searchTools}) => {
 
     const [open, setOpen] = useState(false)
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [menuOpen, setMenuOpen] = React.useState(false);
+    const [displayMenuAnchor, setDisplayMenuAnchor] = React.useState(null);
+    const [displayMenuOpen, setDisplayMenuOpen] = React.useState(false);
 
-    const {displayMode, buildDisplayModeItems} = useActionDisplayMode({})
+    const [savedMenuAnchor, setSavedMenuAnchor] = React.useState(null);
+    const [savedMenuOpen, setSavedMenuOpen] = React.useState(false);
+    const [showSaveSearchField, setShowSaveSearchField] = React.useState(false);
+    const [saveSearchLabel, setSaveSearchLabel] = React.useState('');
+
+    const {displayMode, buildDisplayModeItems} = useActionDisplayMode({preferencePrefix:'ModalSearch.FilesList'})
 
     useEffect(()=>{
         const listener = e => {
@@ -157,6 +161,8 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
         }
     }
 
+    const {saveSearch, clearSavedSearch, savedSearches = [], setValues, sortField, sortDesc, setSortField} = searchTools
+
     let dMode = displayMode;
     let className = 'modern-list vertical-layout layout-fill files-list main-files-list';
     // Override display Mode
@@ -246,18 +252,56 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                     <div style={{flex: 1}}>Tip: Use <kbd>Ctrl+k</kbd> or <kbd>Cmd+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close.</div>
                     <div style={{fontSize: 16}}>
                         <IconButton onClick={()=>submitSearch()} className={'mdi mdi-refresh'} size={'small'} aria-label={"Reload search"}/>
-                        <IconButton onClick={(e)=>{setMenuOpen(true); setAnchorEl(e.currentTarget)}} className={'mdi mdi-settings'} size={'small'}/>
-                        <Menu open={menuOpen}
-                              slotProps={{paper:{style:{borderRadius:4}}}}
-                              anchorEl={anchorEl}
+                        <IconButton onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}} className={'mdi mdi-content-save'} size={'small'}/>
+                        <Menu
+                            open={savedMenuOpen}
+                            slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
+                            anchorEl={savedMenuAnchor}
+                            anchorOrigin={{vertical:'top', horizontal:'right'}}
+                            transformOrigin={{vertical:'bottom', horizontal:'right'}}
+                            onClose={()=>{setSavedMenuOpen(false)}}
+                        >
+                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>Saved Queries</ListSubheader>
+                            {savedSearches.map(i => {
+                                const {searchID, searchLABEL, searchSORTING, ...savedValues} = i
+                                return <MenuItem
+                                    key={searchID}
+                                    style={{padding:'4px 6px 4px 6px', fontSize:13, fontWeight:400, display:'flex'}}
+                                    onClick={()=>{
+                                        setSavedMenuOpen(false);
+                                        setValues(savedValues);
+                                        if(searchSORTING && searchSORTING.sortField) {
+                                            setSortField(searchSORTING.sortField, searchSORTING.sortDesc);
+                                        }
+                                    }}>
+                                    <span className={"mdi mdi-magnify"} style={{opacity:0.43, marginRight:8}}/>
+                                    <span style={{flex: 1}}>{searchLABEL}</span>
+                                    <span className={"mdi mdi-close"} style={{opacity:0.23, marginLeft:8, cursor:'pointer'}} onClick={(e) => {clearSavedSearch(searchID); e.stopPropagation()}}/>
+                                </MenuItem>
+                                }
+                            )}
+                            <Divider/>
+                            <MenuItem
+                                style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
+                                onClick={()=>{setShowSaveSearchField(true)}}
+                            >
+                                <div><span className={"mdi mdi-content-save"} style={{opacity:0.43, marginRight:8}}/> Save current query...</div>
+                            </MenuItem>
+                        </Menu>
+                        <IconButton onClick={(e)=>{setDisplayMenuOpen(true); setDisplayMenuAnchor(e.currentTarget)}} className={'mdi mdi-cog-outline'} size={'small'}/>
+                        <Menu open={displayMenuOpen}
+                              slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
+                              anchorEl={displayMenuAnchor}
                               anchorOrigin={{vertical:'top', horizontal:'right'}}
                               transformOrigin={{vertical:'bottom', horizontal:'right'}}
-                              onClose={()=>{setMenuOpen(false)}}
+                              onClose={()=>{setDisplayMenuOpen(false)}}
                         >
+                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{pydio.MessageHash['151']}</ListSubheader>
                             {displayMenuItems.map(i =>
                                 <MenuItem
-                                    style={{padding:'4px 8px', fontSize:14, fontWeight:400}}
-                                    onClick={()=>{setMenuOpen(false);i.callback();}}>{i.name}
+                                    style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
+                                    onClick={()=>{setDisplayMenuOpen(false);i.callback();}}>
+                                    <span className={i.icon_class} style={{opacity:0.43, marginRight:8}}/> {i.name}
                                 </MenuItem>
                             )}
                         </Menu>
@@ -265,6 +309,32 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                     <div>
                     </div>
                 </div>
+                <Dialog open={showSaveSearchField} PaperProps={{sx:{borderRadius:'8px'}}} onClose={() => setShowSaveSearchField(false)}>
+                    <DialogTitle style={{padding: 20, fontSize:15}}>Save query</DialogTitle>
+                    <DialogContent style={{padding: '0 20px'}}>
+                        <ModernTextField
+                            focusOnMount={true}
+                            fullWidth={true}
+                            hintText={"Save query..."}
+                            value={saveSearchLabel}
+                            onChange={(e, v)=>setSaveSearchLabel(v)}
+                            onKeyDown={(e)=>{
+                            if (e.key === 'Enter' && saveSearchLabel) {
+                                saveSearch(saveSearchLabel, {sortField, sortDesc})
+                                setShowSaveSearchField(false)
+                                setSavedMenuOpen(false);
+                            }
+                        }}/>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={()=>setShowSaveSearchField(false)}>Cancel</Button>
+                        <Button type="submit" onClick={()=>{
+                            saveSearch(saveSearchLabel, {sortField, sortDesc})
+                            setShowSaveSearchField(false)
+                            setSavedMenuOpen(false);
+                        }}>Save</Button>
+                    </DialogActions>
+                </Dialog>
             </Paper>
         </Modal>
     )

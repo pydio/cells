@@ -436,9 +436,12 @@ class FSTemplate extends React.Component {
                     displayMode={displayMode}
                     headerHeight={headerHeight}
                     sortingInfo={displayMode!=='detail'&&displayMode!=='masonry'?sortingInfo:null}
+                    searchIconButton={true}
+                    searchIconCallback={() => document.dispatchEvent(new Event('pydioOpenSearch'))}
+                    searchTools={searchTools}
+                    // Should be removed
                     searchView={searchView}
                     searchViewTransition={searchViewTransition}
-                    searchTools={searchTools}
                     onUpdateSearchView={(u) => u?this.setSearchView():this.unsetSearchView()}
 
                     showChatTab={showChatTab}

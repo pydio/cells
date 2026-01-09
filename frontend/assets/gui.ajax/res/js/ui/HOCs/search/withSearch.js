@@ -451,9 +451,9 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
             })
         }
 
-        pushSavedSearches(label){
+        pushSavedSearches(label, sortingInfo = undefined){
             const {values, savedSearches = []} = this.state;
-            const newValues = {...values, searchLABEL:label, searchID: values.searchID || uuid()};
+            const newValues = {...values, searchLABEL:label, searchSORTING:sortingInfo, searchID: values.searchID || uuid()};
             const newSaved = [...savedSearches.filter(vv => vv.searchID !== newValues.searchID), newValues]
             this.getSaveKey().then(key => {
                 this.setState({savedSearches: newSaved}, () => {
