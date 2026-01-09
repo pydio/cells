@@ -21,6 +21,9 @@ spec:
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-inject-token: "true"
       {{- end }}
+      {{- if .Values.externalVault.enabled -}}        
+      {{- toYaml .Values.externalVault.annotations | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
@@ -45,18 +48,21 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
-            {{- include "cells.discovery.envvar" . | nindent 12 -}}
-            {{- include "cells.broker.envvar" . | nindent 12 -}}
-            {{- include "cells.cache.envvar" . | nindent 12 -}}
-            {{- include "cells.vault.envvar" . | nindent 12 -}}
-            {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.database.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.vault.auth.envvar" . | nindent 12 }}
+                  {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
+                  {{- include "cells.discovery.envvar" . | nindent 12 -}}
+                  {{- include "cells.broker.envvar" . | nindent 12 -}}
+                  {{- include "cells.cache.envvar" . | nindent 12 -}}
+                  {{- include "cells.vault.envvar" . | nindent 12 -}}
+                  {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
+                  {{- include "cells.database.auth.envvar" . | nindent 12 -}}
+                  {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
+                  {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
+                  {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
+                  {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
+                  {{- include "cells.vault.auth.envvar" . | nindent 12 }}
+            {{- if .Values.extraControllerEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraControllerEnvVars "context" $) | nindent 12 -}}
+            {{- end }}
           {{- if .Values.image.local }}
           image: "{{ .Values.image.repository }}"
           {{- else }}
@@ -76,6 +82,9 @@ spec:
               name: {{ include "cells.fullname" . }}-controller
             - name: install
               mountPath: /var/cells-install
+            {{- if not (empty .Values.extraControllerVolumeMounts) -}}
+            {{- toYaml .Values.extraControllerVolumeMounts | nindent 12 }}
+            {{- end }}
       volumes:
         - configMap:
             name: {{ include "cells.fullname" . }}-controller
@@ -83,3 +92,14 @@ spec:
         - name: install
           configMap:
             name: {{ include "cells.fullname" . }}
+        {{- if (include "cells.vault.tls.enabled" .) }}
+        - name: vault-ca-certs
+          secret:
+            secretName: {{ include "cells.vault.tls.ca.existingSecret" . }}
+        - name: vault-client-certs
+          secret:
+            secretName: {{ include "cells.vault.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if .Values.extraControllerVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraControllerVolumes "context" $) | nindent 8 }}
+        {{- end }}

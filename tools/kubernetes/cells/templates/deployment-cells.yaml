@@ -71,7 +71,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            {{- if .Values.debug -}}
+            {{- if .Values.debug }}
             - name: CELLS_LOG
               value: debug
             {{- else }}
@@ -93,6 +93,10 @@ spec:
             {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
             {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
             {{- include "cells.vault.auth.envvar" . | nindent 12 -}}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            - name: VAULT_CACERT
+              value: /etc/ssl/certs/vault-ca.crt
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12}}
             {{- end }}
@@ -122,6 +126,12 @@ spec:
               mountPath: /etc/ssl/certs/ca-local-root.crt
               subPath: tls.crt
               readOnly: false
+            {{- end }}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            - name: vault-ca-certs
+              mountPath: /etc/ssl/certs/vault-ca.crt
+              subPath: ca.crt
+              readOnly: true
             {{- end }}
             {{- if not (empty .Values.extraVolumeMounts) -}}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
@@ -203,10 +213,18 @@ spec:
           env:
             {{- if (include "cells.vault.enabled" .) }}
             - name: CELLS_CERTS_STORE
-              value: {{ include "cells.vault.url" (list . "/caddycerts") }}
+              value: {{ include "cells.vault.url" (list . "/caddycerts?") }}
             {{- else }}
             - name: CELLS_CERTS_STORE
               value: file:///var/cells/certs
+            {{- end }}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
+            - name: VAULT_CACERT
+              value: "/var/certs/ca/vault/ca.crt"
+            - name: SSL_CERT_FILE
+              value: "/var/certs/ca/vault/ca.crt"
+            {{- end }}
             {{- end }}
           volumeMounts:
             - name: install
@@ -325,11 +343,19 @@ spec:
             {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
             {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
             {{- include "cells.vault.auth.envvar" . | nindent 12 }}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            - name: VAULT_CACERT
+              value: /var/certs/ca/vault/ca.crt
+            {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/cells
             - name: install
               mountPath: /var/cells-install
+            {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
+            - name: vault-ca-certs
+              mountPath: /var/certs/ca/vault
+            {{- end }}
         {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.initContainers "context" .) | nindent 8 }}
         {{- end }}
