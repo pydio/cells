@@ -34,11 +34,12 @@ import {useActionExtensionsPin} from "../views/useActionExtensionsPin";
 import {useColumnsFromRegistry} from "../../HOCs/hooks";
 import {useEmptyErrorStatesProps} from "../views/useEmptyErrorStatesProps";
 import {useActionDisplayMode} from "../views/useActionDisplayMode";
+import {useModalHandleClick, useModalSearchActions} from "./components/useModalSearchActions";
 const {ModernSimpleList} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 
-export const ModalSearch = withSearch( ({pydio, searchTools}) => {
+export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
 
     const [open, setOpen] = useState(false)
     const [displayMenuAnchor, setDisplayMenuAnchor] = React.useState(null);
@@ -138,11 +139,11 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
             alignItems:'center',
         }
     }
-    const dataModel = pydio.getContextHolder()
 
     const {columns} = useColumnsFromRegistry({pydio})
     const {computeLabel} = useActionExtensionsPin({})
-    const entryRenderActions = useRichMetaActions({pydio,dataModel,displayMode,customRenderProps:{},searchResults: true})
+    const entryRenderActions = useModalSearchActions({pydio, dataModel, displayMode, requestClose:()=>setOpen(false)})
+    const entryHandleClicks = useModalHandleClick({pydio, dataModel, displayMode, requestClose:()=>setOpen(false)})
     const entryRenderSecondLine = useRichMetaLine({pydio, columns:columns, searchResults:true, searchScope:'all', requestCloseOnGoto: () => setOpen(false)});
     const tableEntryRenderCell = useCallback((node) => {
         return previewTableEntryRenderCell(node, computeLabel);
@@ -180,7 +181,10 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
         }
         className = "modern-list vertical-layout layout-fill masonry-grid "+"masonry-size-"+cWidth
     }
+    const m = useCallback((id)=>pydio.MessageHash[id] || id, [])
 
+    let statusBarString = m('ajax_gui.modalsearch.opentip.'+(navigator.platform.startsWith("Mac")?'cmd':'ctrl'))
+    statusBarString = <span dangerouslySetInnerHTML={{__html:statusBarString}}/>
 
     return (
         <Modal
@@ -238,6 +242,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                     entryRenderFirstLine={(node)=> computeLabel(node)}
                     entryRenderSecondLine={displayMode === 'list' ? entryRenderSecondLine : null}
                     entryRenderActions={entryRenderActions}
+                    entryHandleClicks={entryHandleClicks}
                     emptyStateProps={emptyStateProps}
                     tableEntryRenderCell={tableEntryRenderCell}
                     errorStateProps={errorStateProps}
@@ -249,7 +254,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                      */
                 />
                 <div style={styles.statusBar}>
-                    <div style={{flex: 1}}>Tip: Use <kbd>Ctrl+k</kbd> or <kbd>Cmd+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close.</div>
+                    <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
                     <div style={{fontSize: 16}}>
                         <IconButton onClick={()=>submitSearch()} className={'mdi mdi-refresh'} size={'small'} aria-label={"Reload search"}/>
                         <IconButton onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}} className={'mdi mdi-content-save'} size={'small'}/>
@@ -261,7 +266,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                             transformOrigin={{vertical:'bottom', horizontal:'right'}}
                             onClose={()=>{setSavedMenuOpen(false)}}
                         >
-                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>Saved Queries</ListSubheader>
+                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{m('searchengine.complete.group.saved')}</ListSubheader>
                             {savedSearches.map(i => {
                                 const {searchID, searchLABEL, searchSORTING, ...savedValues} = i
                                 return <MenuItem
@@ -285,7 +290,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                                 style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
                                 onClick={()=>{setShowSaveSearchField(true)}}
                             >
-                                <div><span className={"mdi mdi-content-save"} style={{opacity:0.43, marginRight:8}}/> Save current query...</div>
+                                <div><span className={"mdi mdi-content-save"} style={{opacity:0.43, marginRight:8}}/> {m('searchengine.query.action.save-new')}</div>
                             </MenuItem>
                         </Menu>
                         <IconButton onClick={(e)=>{setDisplayMenuOpen(true); setDisplayMenuAnchor(e.currentTarget)}} className={'mdi mdi-cog-outline'} size={'small'}/>
@@ -296,7 +301,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                               transformOrigin={{vertical:'bottom', horizontal:'right'}}
                               onClose={()=>{setDisplayMenuOpen(false)}}
                         >
-                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{pydio.MessageHash['151']}</ListSubheader>
+                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{m('151')}</ListSubheader>
                             {displayMenuItems.map(i =>
                                 <MenuItem
                                     style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
@@ -309,13 +314,15 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                     <div>
                     </div>
                 </div>
-                <Dialog open={showSaveSearchField} PaperProps={{sx:{borderRadius:'8px'}}} onClose={() => setShowSaveSearchField(false)}>
-                    <DialogTitle style={{padding: 20, fontSize:15}}>Save query</DialogTitle>
-                    <DialogContent style={{padding: '0 20px'}}>
+                <Dialog open={showSaveSearchField} PaperProps={{style:{background:'var(--md-sys-color-surface-5)'}}} onClose={() => setShowSaveSearchField(false)}>
+                    <DialogTitle style={{padding: 20, paddingBottom:10, fontSize:22}}>{m('searchengine.query.action.save-new')}</DialogTitle>
+                    <DialogContent style={{padding: '0 20px 20px', minWidth:320}}>
+                        <div style={{opacity:0.73}}>{m('searchengine.query.action.save-legend')}</div>
                         <ModernTextField
                             focusOnMount={true}
                             fullWidth={true}
-                            hintText={"Save query..."}
+                            variant={"v2"}
+                            floatingLabelText={m('searchengine.query.save-label')}
                             value={saveSearchLabel}
                             onChange={(e, v)=>setSaveSearchLabel(v)}
                             onKeyDown={(e)=>{
@@ -327,12 +334,12 @@ export const ModalSearch = withSearch( ({pydio, searchTools}) => {
                         }}/>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={()=>setShowSaveSearchField(false)}>Cancel</Button>
-                        <Button type="submit" onClick={()=>{
+                        <Button style={{fontWeight:500}} onClick={()=>setShowSaveSearchField(false)}>{m('54')}</Button>
+                        <Button style={{fontWeight:500, color:('var(--md-sys-color-primary)')}} type="submit" onClick={()=>{
                             saveSearch(saveSearchLabel, {sortField, sortDesc})
                             setShowSaveSearchField(false)
                             setSavedMenuOpen(false);
-                        }}>Save</Button>
+                        }}>{m('searchengine.query.action.save')}</Button>
                     </DialogActions>
                 </Dialog>
             </Paper>

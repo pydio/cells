@@ -107,7 +107,7 @@ export default class Renderer {
         switch (type) {
             case 'scope':
                 if(value === 'previous_context'){
-                    label = 'Folder'
+                    label = m('ajax_gui.search.chip.scope.folder')
                     const previous = pydio.getContextHolder().getSearchNode().getMetadata().get('previous_context')
                     displayValue = PathUtils.getBasename(previous)
                     if(!displayValue){
@@ -117,11 +117,11 @@ export default class Renderer {
                     let r;
                     pydio.user.getRepositoriesList().forEach(re => {if(re.getSlug()+'/' === value) r = re})
                     if (r){
-                        label = 'Inside'
+                        label = m('ajax_gui.search.chip.scope.ws')
                         displayValue = r.getLabel();
                     }
                 } else {
-                    label = 'All Workspaces'
+                    label = m('ajax_gui.search.chip.scope.all')
                 }
                 break
             case 'mime':

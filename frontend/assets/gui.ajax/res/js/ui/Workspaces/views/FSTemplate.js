@@ -21,7 +21,7 @@
 import React, {createRef} from 'react';
 import Pydio from 'pydio';
 import {debounce} from 'lodash'
-const {withSearch} = Pydio.requireLib('hoc')
+const {withSearch, emptyDataModel} = Pydio.requireLib('hoc')
 const {PromptValidators} = Pydio.requireLib('boot')
 import Action from 'pydio/model/action'
 import {muiThemeable} from 'material-ui/styles'
@@ -37,6 +37,7 @@ import {MUITour} from "./WelcomeMuiTour";
 import {MultiColumnPanel} from "../detailpanes/MultiColumnPanel";
 import genUuid from 'uuid4'
 import AppBarRight from "./AppBarRight";
+import {ModalSearch} from "../search/ModalSearch";
 
 const CurrentTemplateKey = 'FSTemplate'
 const TemplatesKey = 'FSTemplatePresets'
@@ -49,7 +50,8 @@ class FSTemplate extends React.Component {
             ...this.stateFromPrefs(),
             drawerOpen: false,
             searchFormState: {},
-            searchView: false
+            searchView: false,
+            modalSearchDM: emptyDataModel(),
         };
         this.parentRef = createRef()
     }
@@ -332,7 +334,7 @@ class FSTemplate extends React.Component {
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
-        const {searchViewTransition} = this.state;
+        const {searchViewTransition, modalSearchDM} = this.state;
 
         let headerHeight = 72;
 
@@ -530,7 +532,7 @@ class FSTemplate extends React.Component {
                     />
                 }
                 <EditionPanel {...props}/>
-
+                <ModalSearch pydio={pydio} dataModel={modalSearchDM}/>
             </MasterLayout>
         );
 

@@ -109,6 +109,9 @@ function useIsVisible(ref) {
 const ModernMasonryEntry = withNodeListenerEntry(({width, data, setInlineEditionAnchor}) => {
 
     const {node, isParent, handleItemClick, handleItemDoubleClick, entryRenderIcon, entryRenderActions, entryRenderFirstLine, selection} = data;
+
+    const [hover, setHover] = useState(false);
+
     // ratio may be modified by exif orientation
     let {ratio, src} = usePreview(node);
     const selected = selection.get(node)
@@ -162,6 +165,7 @@ const ModernMasonryEntry = withNodeListenerEntry(({width, data, setInlineEdition
     if(isParent) {
         label = parentLabel
     }
+    const entryState = {hover, selected};
 
     return (
         <ModernListEntry
@@ -172,11 +176,12 @@ const ModernMasonryEntry = withNodeListenerEntry(({width, data, setInlineEdition
             onClick={(event) => handleItemClick(data, event)}
             onDoubleClick={(event) => handleItemDoubleClick(data, event)}
             selected={selected}
+            onUpdateHover={(h) => setHover(h)}
         >
             {src && <VisibleImage className={"masonry-image"} src={src} alt={node.getPath()} style={{width:width, ...rotateStyle}}/>}
             {isParent && <div className={"mimefont-container"}><div className={"mimefont mdi mdi-chevron-left"}/></div>}
             {!isParent && !src && entryRenderIcon(node)}
-            {!isParent && entryRenderActions && <div style={{position:'absolute', top: 0, left: 0}}>{entryRenderActions(node)}</div>}
+            {!isParent && entryRenderActions && <div style={{position:'absolute', top: 0, left: 0}}>{entryRenderActions(node, entryState)}</div>}
             {src && <div className={'masonry-label-overlay'} style={{position:'absolute', bottom: 0, left: 0, right: 0, height: 50}}/>}
             <div className={'masonry-label'} ref={renameRef} style={{display:(selected||!src)?'block':'none',...labelStyle}}>{label}</div>
         </ModernListEntry>
