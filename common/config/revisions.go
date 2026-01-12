@@ -121,11 +121,3 @@ func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 
 	return v.wrappedStore.Save(ctxUser, ctxMessage)
 }
-
-func (v *versionStore) Lock() {
-	v.wrappedStore.Lock()
-}
-
-func (v *versionStore) Unlock() {
-	v.wrappedStore.Unlock()
-}

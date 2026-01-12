@@ -160,6 +160,8 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 type configRegistry struct {
 	store config.Store
 
+	lock *sync.RWMutex
+
 	cache            []registry.Item
 	broadcastersLock *sync.RWMutex
 	broadcasters     map[string]broadcaster
@@ -183,6 +185,7 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 
 	c := &configRegistry{
 		store:            store,
+		lock:             &sync.RWMutex{},
 		cache:            []registry.Item{},
 		broadcastersLock: &sync.RWMutex{},
 		broadcasters:     make(map[string]broadcaster),
@@ -235,35 +238,35 @@ func (c *configRegistry) watch() error {
 func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bcType pb.ItemType, keyName string, actionType pb.ActionType) error {
 	values := res.Val(keyName)
 	val := values.Val(getFromItemType(bcType))
-	if val.Get() != nil {
+	//if val.Get() != nil {
 
-		itemsMap := map[string]interface{}{}
-		if err := val.Scan(&itemsMap); err != nil {
-			log.Error("Error while scanning registry watch event to sync map", zap.Error(err))
-			return err
-		}
+	itemsMap := map[string]interface{}{}
+	if err := val.Scan(&itemsMap); err != nil {
+		log.Error("Error while scanning registry watch event to sync map", zap.Error(err))
+		return err
+	}
 
-		var items []registry.Item
-		for k, v := range itemsMap {
-			switch item := v.(type) {
-			case *pb.Item:
-				items = append(items, util.ToItem(item))
-			case *registry.Item:
-				items = append(items, *item)
-			case registry.Item:
+	var items []registry.Item
+	for k, v := range itemsMap {
+		switch item := v.(type) {
+		case *pb.Item:
+			items = append(items, util.ToItem(item))
+		case *registry.Item:
+			items = append(items, *item)
+		case registry.Item:
+			items = append(items, item)
+		default:
+			// For updates mainly, we may receive only parts of the item, so retrieving the full item in the registry
+			if item, err := c.Get(k, registry.WithType(bcType)); err == nil {
 				items = append(items, item)
-			default:
-				// For updates mainly, we may receive only parts of the item, so retrieving the full item in the registry
-				if item, err := c.Get(k, registry.WithType(bcType)); err == nil {
-					items = append(items, item)
-				}
 			}
 		}
-
-		go func() {
-			bc.Ch <- registry.NewResult(actionType, items)
-		}()
 	}
+
+	go func() {
+		bc.Ch <- registry.NewResult(actionType, items)
+	}()
+	//}
 	return nil
 }
 
@@ -348,8 +351,8 @@ func getFromItemType(itemType pb.ItemType) string {
 }
 
 func (c *configRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	c.store.Lock()
-	defer c.store.Unlock()
+	c.lock.Lock()
+	defer c.lock.Unlock()
 
 	// If byName is active and we are re-registering a service
 	// with the same name, deregister the previous one.
@@ -380,8 +383,8 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 }
 
 func (c *configRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
-	c.store.Lock()
-	defer c.store.Unlock()
+	c.lock.Lock()
+	defer c.lock.Unlock()
 
 	if err := c.store.Val(getType(item)).Val(item.ID()).Del(); err != nil {
 		return err
@@ -473,10 +476,11 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			continue
 		}
 
-		rawItems, ok := store.Default(map[string]any{}).Interface().(map[string]any)
-		if !ok {
+		c.lock.RLock()
+		rawItems := store.Default(map[string]any{}).Map()
+		/*if !ok {
 			continue
-		}
+		}*/
 
 		for _, rawItem := range rawItems {
 			var item registry.Item
@@ -524,6 +528,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 
 			res = append(res, item)
 		}
+		c.lock.RUnlock()
 	}
 
 	return res, nil

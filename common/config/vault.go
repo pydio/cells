@@ -44,16 +44,6 @@ func NewVault(vaultStore, configStore Store) Store {
 	}
 }
 
-func (v *vault) Lock() {
-	v.config.Lock()
-	v.vault.Lock()
-}
-
-func (v *vault) Unlock() {
-	v.config.Unlock()
-	v.vault.Unlock()
-}
-
 func (v *vault) Close(ctx context.Context) error {
 	if err := v.config.Close(ctx); err != nil {
 		return err

@@ -213,7 +213,7 @@ func SkipTestStore_Watch(t *testing.T) {
 			}()
 
 			select {
-			case <-time.After(603 * time.Second):
+			case <-time.After(60 * time.Second):
 				assert.Fail(t, "Watch timing out")
 			case res := <-ch:
 				assert.Equal(t, tt.expected, res.(configx.Values).Val(tt.expectedPath).Get())

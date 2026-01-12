@@ -3,9 +3,7 @@ package configx
 import (
 	"context"
 	"fmt"
-	"maps"
 	"reflect"
-	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -230,7 +228,7 @@ func (c storer) Set(data any) error {
 		}
 	}
 
-	if merged, err := merge(*c.v, current); err != nil {
+	if merged, err := c.merge(*c.v, current); err != nil {
 		return err
 	} else {
 		*c.v = merged
@@ -271,7 +269,7 @@ func (c storer) Del() error {
 	return nil
 }
 
-func merge(dst any, src any) (any, error) {
+func (c storer) merge(dst any, src any) (any, error) {
 	if dst == nil {
 		return src, nil
 	}
@@ -290,10 +288,11 @@ func merge(dst any, src any) (any, error) {
 			return src, nil
 		}
 
-		s := slices.Clone(dstV)
+		s := make([]any, len(dstV))
+		// slices.Clone(dstV)
 		for k, v := range dstV {
 			if len(srcV) > k {
-				if merged, err := merge(v, srcV[k]); err != nil {
+				if merged, err := c.merge(v, srcV[k]); err != nil {
 					return nil, err
 				} else {
 					s[k] = merged
@@ -320,10 +319,17 @@ func merge(dst any, src any) (any, error) {
 			return src, nil
 		}
 
+		// Create new map
+		m := make(map[any]any, len(dstV)+len(srcV))
+
+		// Copy existing dst values
+		for k, v := range dstV {
+			m[k] = v
+		}
+
 		// Merging those that are both in dst and in src
-		m := maps.Clone(dstV)
 		for k, v := range srcV {
-			if merged, err := merge(dstV[k], v); err != nil {
+			if merged, err := c.merge(dstV[k], v); err != nil {
 				return nil, err
 			} else {
 				m[k] = merged
@@ -345,10 +351,17 @@ func merge(dst any, src any) (any, error) {
 			return src, nil
 		}
 
+		// Create new map
+		m := make(map[any]any, len(dstV)+len(srcV))
+
+		// Copy existing dst values
+		for k, v := range dstV {
+			m[k] = v
+		}
+
 		// Merging those that are both in dst and in src
-		m := maps.Clone(dstV)
 		for k, v := range srcV {
-			if merged, err := merge(dstV[k], v); err != nil {
+			if merged, err := c.merge(dstV[k], v); err != nil {
 				return nil, err
 			} else {
 				m[k] = merged

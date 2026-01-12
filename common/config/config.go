@@ -59,7 +59,6 @@ type Store interface {
 	Close(ctx context.Context) error
 	Done() <-chan struct{}
 	Saver
-	sync.Locker
 }
 
 type DistributedStore interface {

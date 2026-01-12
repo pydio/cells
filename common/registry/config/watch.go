@@ -165,7 +165,6 @@ func (r *receiverWithStoreChangesOnly) Next() (any, error) {
 	}
 
 	for _, op := range changes {
-		//fmt.Println("On", op.Path)
 		switch op.Type {
 		case diff.CREATE:
 			if len(op.Path) > r.level {

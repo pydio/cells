@@ -70,7 +70,7 @@ type watcher[T Cloneable] struct {
 	timer   *time.Timer
 	timeout time.Duration
 
-	snap         T
+	snap         any
 	snapInitOnce sync.Once
 }
 
@@ -94,7 +94,8 @@ func (w *watcher[T]) Reset() {
 
 func (w *watcher[T]) Flush() {
 	w.snapInitOnce.Do(func() {
-		w.snap = w.object.Clone()
+		clone := w.object.Clone()
+		w.snap = clone.Get()
 	})
 
 	// Waiting for first call to start the timeout
@@ -114,14 +115,15 @@ func (w *watcher[T]) Flush() {
 				continue
 			}
 
-			snapSettings := w.snap.Get()
+			snapSettings := w.snap
 
 			patch, err := diff.Diff(snapSettings, settings, diff.CustomValueDiffers(CustomValueDiffers...), diff.DisableStructValues(), diff.AllowTypeMismatch(true)) // , diff.CustomValueDiffers(config.CustomValueDiffers...))
 			if err != nil {
 				continue
 			}
 
-			w.snap = w.object.Clone()
+			clone := w.object.Clone()
+			w.snap = clone.Get()
 
 			for _, op := range patch {
 				var updated []*receiver

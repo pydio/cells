@@ -228,7 +228,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		ch := doRegister(context.Background(), m, &itemsSentToRegisterIds)
 
 		go func() {
-			timer := time.NewTimer(1 * time.Second)
+			timer := time.NewTimer(2 * time.Second)
 			resCh := make(chan registry.Result)
 			go func() {
 				for {
@@ -253,7 +253,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						done = true
 
-						timer.Reset(1 * time.Second)
+						timer.Reset(2 * time.Second)
 
 						switch res.Action() {
 						case pb.ActionType_CREATE:
@@ -270,8 +270,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 								deletedItemIds = append(deletedItemIds, item.ID())
 							}
 						}
-
-						//fmt.Println("List ", len(createdItemIds), len(updatedItemIds), len(deletedItemIds))
 					}
 				}
 			}()
@@ -330,71 +328,71 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		if numUpdates > 0 {
 			for i := 0; i < numUpdates; i++ {
 				if numNodes > 0 {
-					go func() {
+					//go func() {
 
-						idx := rand.Int() % numNodes
-						node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
-						if err != nil {
-							return
-						}
+					idx := rand.Int() % numNodes
+					node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
+					if err != nil {
+						return
+					}
 
-						meta := node.Metadata()
-						meta[registry.MetaStatusKey] = "whatever"
-						meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta := node.Metadata()
+					meta[registry.MetaStatusKey] = "whatever"
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 
-						if ms, ok := node.(registry.MetaSetter); ok {
-							ms.SetMetadata(meta)
+					if ms, ok := node.(registry.MetaSetter); ok {
+						ms.SetMetadata(meta)
 
-							ch <- ms.(registry.Item)
-						}
-					}()
+						ch <- ms.(registry.Item)
+					}
+					//}()
 				}
 
 				if numServers > 0 {
 					//wg.Add(1)
-					go func() {
-						//defer wg.Done()
+					//go func() {
+					//defer wg.Done()
 
-						idx := rand.Int() % numServers
-						srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
-						if err != nil {
-							return
-						}
+					idx := rand.Int() % numServers
+					srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
+					if err != nil {
+						return
+					}
 
-						meta := srv.Metadata()
-						meta[registry.MetaStatusKey] = "whatever"
-						meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta := srv.Metadata()
+					meta[registry.MetaStatusKey] = "whatever"
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 
-						if ms, ok := srv.(registry.MetaSetter); ok {
-							ms.SetMetadata(meta)
+					if ms, ok := srv.(registry.MetaSetter); ok {
+						ms.SetMetadata(meta)
 
-							ch <- ms.(registry.Item)
-						}
+						ch <- ms.(registry.Item)
+					}
 
-					}()
+					//}()
 				}
 
 				if numServices > 0 {
 					//wg.Add(1)
-					go func() {
-						//defer wg.Done()
+					//go func() {
+					//defer wg.Done()
 
-						idx := rand.Int() % numServices
-						svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
-						if err != nil {
-							return
-						}
+					idx := rand.Int() % numServices
+					svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
+					if err != nil {
+						return
+					}
 
-						meta := svc.Metadata()
-						meta[registry.MetaStatusKey] = "whatever"
-						meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta := svc.Metadata()
+					meta[registry.MetaStatusKey] = "whatever"
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 
-						if ms, ok := svc.(registry.MetaSetter); ok {
-							ms.SetMetadata(meta)
-							ch <- ms.(registry.Item)
-						}
+					if ms, ok := svc.(registry.MetaSetter); ok {
+						ms.SetMetadata(meta)
+						ch <- ms.(registry.Item)
+					}
 
-					}()
+					//}()
 				}
 			}
 
