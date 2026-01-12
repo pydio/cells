@@ -164,8 +164,8 @@ class DateTimeForm extends Component {
     }
 
     render() {
-        const {supportTemplates, search, updateValue, value, label, errorText, muiTheme} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const {supportTemplates, search, updateValue, value, label, errorText, muiTheme, mode} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
 
         if(supportTemplates) {
             return (

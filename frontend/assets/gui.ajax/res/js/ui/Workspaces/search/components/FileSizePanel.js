@@ -20,9 +20,11 @@
 
 import React, {Fragment} from 'react';
 import Pydio from 'pydio';
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import {MenuItem} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles';
+import {chipsStyles} from "./AdvancedChipsStyles";
 
 class SearchFileSizePanel extends React.Component {
 
@@ -96,18 +98,25 @@ class SearchFileSizePanel extends React.Component {
 
     render() {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
-        const {getMessage} = this.props;
+        const {getMessage, mode, muiTheme} = this.props;
         let {from, to, fromUnit, toUnit, fromInt, toInt} = this.propsToState(this.props)
-        const line1inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: 0}
-        const line2inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: ModernStyles.v1SearchRadiusLeft}
+        let line1inputStyle, line2inputStyle, textV1Search = {}, selectV1Search = {};
+        let blockStyle={display:'flex'};
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
+        textV1Search = {...ModernStyles.textFieldV1Search}
+        selectV1Search = {...ModernStyles.selectFieldV1Search}
+        line1inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: 0}
+        line2inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: ModernStyles.v1SearchRadiusLeft}
 
-        const blockStyle={display:'flex'};
+        if(mode === 'popover') {
+            blockStyle = {...blockStyle, ...chipsStyles({}).popoverBlockStyle}
+        }
         return (
             <Fragment>
                 <div style={blockStyle}>
                     <div style={{flex: 2, marginRight: 4}}>
                         <ModernTextField
-                            {...ModernStyles.textFieldV1Search}
+                            {...textV1Search}
                             inputStyle={line1inputStyle}
                             type={"number"}
                             hintText={getMessage(613)}
@@ -123,7 +132,7 @@ class SearchFileSizePanel extends React.Component {
                     </div>
                     <div style={{marginLeft: 4, flex: 1}}>
                         <ModernSelectField
-                            {...ModernStyles.selectFieldV1Search}
+                            {...selectV1Search}
                             value={fromUnit}
                             onChange={(e,i,v) => {
                                 if(from && toInt && Math.round(this.multiple(to, v)) > toInt) {
@@ -144,7 +153,7 @@ class SearchFileSizePanel extends React.Component {
                 <div style={blockStyle}>
                     <div style={{flex: 2, marginRight: 4}}>
                         <ModernTextField
-                            {...ModernStyles.textFieldV1Search}
+                            {...textV1Search}
                             inputStyle={line2inputStyle}
                             fullWidth={true}
                             type={"number"}
@@ -160,7 +169,7 @@ class SearchFileSizePanel extends React.Component {
                     </div>
                     <div style={{marginLeft: 4, flex: 1}}>
                         <ModernSelectField
-                            {...ModernStyles.selectFieldV1Search}
+                            {...selectV1Search}
                             fullWidth={true}
                             value={toUnit}
                             onChange={(e,i,v) => {
@@ -183,5 +192,5 @@ class SearchFileSizePanel extends React.Component {
     }
 }
 
-SearchFileSizePanel = PydioContextConsumer(SearchFileSizePanel);
+SearchFileSizePanel = PydioContextConsumer(muiThemeable()(SearchFileSizePanel));
 export default SearchFileSizePanel

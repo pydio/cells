@@ -27,8 +27,8 @@ import asMetaForm from "../hoc/asMetaForm";
 class BooleanForm extends React.Component {
 
     render() {
-        const {updateValue, value, search, errorText, muiTheme} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const {updateValue, value, search, errorText, muiTheme, mode} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
         let sProps = {...ModernStyles.toggleFieldV1Search}
         const errStyle = {...ModernStyles.textFieldV2.errorStyle, fontSize: 12, lineHeight: '12px', color: 'var(--md-sys-color-error)'}
         let label = value ? 'Yes' : 'No'
