@@ -50,14 +50,14 @@ class SelectorForm extends React.Component{
 
     render(){
         const {stepper, labels={}, keys = []} = this.state;
-        const {value, label, updateValue, errorText, search, muiTheme} = this.props;
+        const {value, label, updateValue, errorText, search, muiTheme, mode} = this.props;
         let menuItems;
         if(this.state.menuItems === undefined){
             menuItems = [...this.props.menuItems]
         } else {
             menuItems = [...this.state.menuItems]
         }
-        const ModernStyles = ThemedModernStyles(muiTheme);
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)});
         const {fillBlockV2Right, fillBlockV2Left, selectFieldV1Search, selectFieldV2} = ModernStyles;
         menuItems.unshift(<MenuItem value={''} primaryText=""/>);
         const selectProps = search ? {variant: "v1",...selectFieldV1Search} : {variant: "v2"}
