@@ -3,9 +3,10 @@ import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
 const {InputIntegerBytes} = Pydio.requireLib('form');
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 import {LinearProgress, MenuItem} from 'material-ui'
 import MetaClient from "../MetaClient";
+import {muiThemeable} from 'material-ui/styles';
 
 class IntegerField extends React.Component{
     render() {
@@ -67,11 +68,12 @@ class IntegerForm extends React.Component{
     }
 
     render() {
-        const {supportTemplates, search, updateValue: propsUpdateValue, label, errorText} = this.props;
+        const {supportTemplates, search, muiTheme, mode, updateValue: propsUpdateValue, label, errorText} = this.props;
         // Disable autoSubmit
         const updateValue = (v) => {
             propsUpdateValue(v, false);
         }
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)});
 
         const {format = 'general'} = this.state;
         let {value} = this.props;
@@ -163,5 +165,5 @@ class IntegerForm extends React.Component{
 
     }
 }
-IntegerForm = asMetaForm(IntegerForm)
+IntegerForm = muiThemeable()(asMetaForm(IntegerForm))
 export {IntegerForm}

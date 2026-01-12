@@ -27,8 +27,8 @@ import {muiThemeable} from 'material-ui/styles'
 class StarsFormPanel extends React.Component {
 
     render(){
-        const {updateValue, value = 0, search, label, errorText, muiTheme} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const {updateValue, value = 0, search, label, errorText, muiTheme, mode} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
         let stars = [-1,0,1,2,3,4].map((v) => {
             const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
             const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});
