@@ -97,7 +97,7 @@ func TestManagerConnection(t *testing.T) {
 				service.Context(ctx),
 				service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
 					st := kv.NewStore()
-					w := watch.NewWatcher[*kv.Store](st)
+					w := watch.NewWatcher[*kv.Store](st, nil)
 					pb.RegisterConfigServer(registrar, &testHandler{
 						store:   st,
 						watcher: w,

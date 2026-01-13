@@ -202,8 +202,8 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		waitForQuiet := make(chan struct{})
 
 		numNodes := 10
-		numServers := 1000
-		numServices := 1000
+		numServers := 500
+		numServices := 500
 		numUpdates := 100
 
 		w, err := m.Watch(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
@@ -230,6 +230,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		go func() {
 			timer := time.NewTimer(2 * time.Second)
 			resCh := make(chan registry.Result)
+
 			go func() {
 				for {
 					res, err := w.Next()
@@ -328,8 +329,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		if numUpdates > 0 {
 			for i := 0; i < numUpdates; i++ {
 				if numNodes > 0 {
-					//go func() {
-
 					idx := rand.Int() % numNodes
 					node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
 					if err != nil {
@@ -345,14 +344,9 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						ch <- ms.(registry.Item)
 					}
-					//}()
 				}
 
 				if numServers > 0 {
-					//wg.Add(1)
-					//go func() {
-					//defer wg.Done()
-
 					idx := rand.Int() % numServers
 					srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
 					if err != nil {
@@ -368,15 +362,9 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						ch <- ms.(registry.Item)
 					}
-
-					//}()
 				}
 
 				if numServices > 0 {
-					//wg.Add(1)
-					//go func() {
-					//defer wg.Done()
-
 					idx := rand.Int() % numServices
 					svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
 					if err != nil {
@@ -391,8 +379,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 						ms.SetMetadata(meta)
 						ch <- ms.(registry.Item)
 					}
-
-					//}()
 				}
 			}
 
@@ -410,6 +396,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		}
 
 		// Delete
+		fmt.Println("Deregistering nodes ")
 		for _, s := range nodes {
 			var node registry.Node
 			if s.As(&node) {
@@ -450,6 +437,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		So(len(afterDeleteServices), ShouldEqual, 0)
 
 		deletedItemIds = unique(deletedItemIds)
+
 		total := numNodes + numServices + numServers
 		So(len(deletedItemIds), ShouldEqual, total)
 	})

@@ -113,6 +113,14 @@ func (m *viperClone) Empty() {
 	m.viper = viper.New()
 }
 
+func (m *viperClone) RLock() {
+	m.lock.RLock()
+}
+
+func (m *viperClone) RUnlock() {
+	m.lock.RUnlock()
+}
+
 type viperStore struct {
 	v Viper
 	watch.Watcher

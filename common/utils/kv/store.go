@@ -122,3 +122,11 @@ func (m *Store) Save(string, string) error { return nil }
 func (m *Store) Flush() {}
 
 func (m *Store) Reset() {}
+
+func (m *Store) RLock() {
+	m.lock.RLock()
+}
+
+func (m *Store) RUnlock() {
+	m.lock.RUnlock()
+}

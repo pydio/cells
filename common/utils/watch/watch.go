@@ -30,6 +30,8 @@ type Watchable[T Cloneable] interface {
 type Cloneable interface {
 	Get() any
 	Empty()
+	RLock()
+	RUnlock()
 }
 
 type Caller interface {
@@ -79,7 +81,7 @@ func NewWatcher[T Cloneable](object Watchable[T]) Watcher {
 		object:          object,
 		receiversLocker: new(sync.RWMutex),
 		reset:           make(chan bool),
-		timeout:         50 * time.Millisecond,
+		timeout:         200 * time.Millisecond,
 		snapInitOnce:    sync.Once{},
 	}
 
@@ -110,19 +112,25 @@ func (w *watcher[T]) Flush() {
 		case <-w.reset:
 			w.timer.Reset(w.timeout)
 		case <-w.timer.C:
+
 			settings := w.object.Get()
 			if settings == nil {
 				continue
 			}
 
+			w.object.RLock()
 			snapSettings := w.snap
 
 			patch, err := diff.Diff(snapSettings, settings, diff.CustomValueDiffers(CustomValueDiffers...), diff.DisableStructValues(), diff.AllowTypeMismatch(true)) // , diff.CustomValueDiffers(config.CustomValueDiffers...))
+			w.object.RUnlock()
 			if err != nil {
 				continue
 			}
 
+			w.object.RLock()
 			clone := w.object.Clone()
+			w.object.RUnlock()
+
 			w.snap = clone.Get()
 
 			for _, op := range patch {
