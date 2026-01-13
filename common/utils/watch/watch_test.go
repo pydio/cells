@@ -61,6 +61,10 @@ func (m *mockWatchType) Empty() {
 	m.viper = viper.New()
 }
 
+func (m *mockWatchType) RLock() {}
+
+func (m *mockWatchType) RUnlock() {}
+
 func TestWatch(t *testing.T) {
 	v := viper.New()
 
@@ -120,6 +124,10 @@ func (m *mockSimpleWatchType) Get() any {
 func (m *mockSimpleWatchType) Empty() {
 	m.m = map[string]any{}
 }
+
+func (m *mockSimpleWatchType) RLock() {}
+
+func (m *mockSimpleWatchType) RUnlock() {}
 
 func TestWatchSimple(t *testing.T) {
 	sources := []string{"test1"}
