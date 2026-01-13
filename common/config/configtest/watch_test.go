@@ -28,7 +28,7 @@ import (
 	"golang.org/x/exp/maps"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 
 	_ "github.com/pydio/cells/v5/common/config/memory"
 
@@ -50,7 +50,7 @@ func testWatch(t *testing.T, store config.Store) {
 						return
 					}
 
-					fmt.Println(string(res.(configx.Values).Bytes()))
+					fmt.Println(string(res.(kv.Values).Bytes()))
 					wg.Done()
 				}
 			}()

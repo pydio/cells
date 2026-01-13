@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -109,7 +108,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		opts := configx.Options{}
+		opts := kv.Options{}
 		WithJSONItem()(&opts)
 
 		var store config.Store
@@ -210,7 +209,7 @@ func (c *configRegistry) watch() error {
 			return err
 		}
 
-		cv := res.(configx.Values)
+		cv := res.(kv.Values)
 
 		c.broadcastersLock.RLock()
 		bcs := c.broadcasters
@@ -235,7 +234,7 @@ func (c *configRegistry) watch() error {
 	return nil
 }
 
-func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bcType pb.ItemType, keyName string, actionType pb.ActionType) error {
+func (c *configRegistry) scanAndBroadcast(res kv.Values, bc broadcaster, bcType pb.ItemType, keyName string, actionType pb.ActionType) error {
 	values := res.Val(keyName)
 	val := values.Val(getFromItemType(bcType))
 	//if val.Get() != nil {
@@ -446,7 +445,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 	}
 
 	for _, itemType := range o.Types {
-		var store configx.Values
+		var store kv.Values
 		switch itemType {
 		case pb.ItemType_NODE:
 			store = c.store.Val("node")

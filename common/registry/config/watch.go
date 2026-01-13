@@ -8,7 +8,6 @@ import (
 	diff "github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -27,21 +26,21 @@ func newStoreWithWatcher(store config.Store, watcher watch.Watcher) config.Store
 	return s
 }
 
-func (m storeWithWatcher) Context(ctx context.Context) configx.Values {
+func (m storeWithWatcher) Context(ctx context.Context) kv.Values {
 	return storeWithWatcherValues{
 		Values: m.Store.Context(ctx),
 		w:      m.w,
 	}
 }
 
-func (m storeWithWatcher) Default(d any) configx.Values {
+func (m storeWithWatcher) Default(d any) kv.Values {
 	return storeWithWatcherValues{
 		Values: m.Store.Default(d),
 		w:      m.w,
 	}
 }
 
-func (m storeWithWatcher) Val(path ...string) configx.Values {
+func (m storeWithWatcher) Val(path ...string) kv.Values {
 	return storeWithWatcherValues{
 		Values: m.Store.Val(path...),
 		w:      m.w,
@@ -74,25 +73,25 @@ func (m storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, erro
 }
 
 type storeWithWatcherValues struct {
-	configx.Values
+	kv.Values
 	w watch.Watcher
 }
 
-func (m storeWithWatcherValues) Context(ctx context.Context) configx.Values {
+func (m storeWithWatcherValues) Context(ctx context.Context) kv.Values {
 	return storeWithWatcherValues{
 		Values: m.Values.Context(ctx),
 		w:      m.w,
 	}
 }
 
-func (m storeWithWatcherValues) Default(d any) configx.Values {
+func (m storeWithWatcherValues) Default(d any) kv.Values {
 	return storeWithWatcherValues{
 		Values: m.Values.Default(d),
 		w:      m.w,
 	}
 }
 
-func (m storeWithWatcherValues) Val(path ...string) configx.Values {
+func (m storeWithWatcherValues) Val(path ...string) kv.Values {
 	return storeWithWatcherValues{
 		Values: m.Values.Val(path...),
 		w:      m.w,
@@ -121,7 +120,7 @@ func (m storeWithWatcherValues) Del() error {
 
 type receiverWithStore struct {
 	watch.Receiver
-	configx.Values
+	kv.Values
 }
 
 func (r *receiverWithStore) Next() (any, error) {
@@ -147,7 +146,7 @@ func (r *receiverWithStore) Next() (any, error) {
 type receiverWithStoreChangesOnly struct {
 	level int
 	watch.Receiver
-	configx.Values
+	kv.Values
 }
 
 func (r *receiverWithStoreChangesOnly) Next() (any, error) {

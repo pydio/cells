@@ -6,9 +6,93 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
+
+func TestMerge(t *testing.T) {
+	a := []any{0, map[string]any{"1": 1}, 3, []any{}, []any{-1, 5}}
+	b := []any{nil, 1, 2, 3, []any{4, nil, 6}}
+
+	c, err := merge(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.IsType(t, c, a)
+
+}
+
+func TestMergeDelete(t *testing.T) {
+	a := map[string]any{"1": 1}
+	b := map[string]any{"1": nil}
+
+	c, err := merge(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.IsType(t, c, a)
+}
+
+func TestMergeSlices(t *testing.T) {
+	a := []any{0, nil, 3, 3, []any{-1, 5}}
+	b := []any{nil, 1, 2, nil, []any{4, nil, 6}}
+
+	c, err := merge(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.IsType(t, c, a)
+}
+
+func TestMergeMaps(t *testing.T) {
+	a := map[string]any{
+		"0": 0,
+		"2": map[string]any{
+			"4": "0",
+			"5": "5",
+		},
+	}
+
+	b := map[string]any{
+		"1": "1",
+		"2": map[string]any{
+			"3": "3",
+			"4": "4",
+			"6": "6",
+		},
+	}
+
+	c, err := merge(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.IsType(t, c, a)
+}
+
+func TestCopy(t *testing.T) {
+
+	a := map[string]any{
+		"test": map[string]any{
+			"test0": "test0_1",
+		},
+	}
+
+	b := map[string]any{
+		"test": map[string]any{
+			"test1": "test0_1",
+		},
+	}
+
+	c, err := merge(a, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.IsType(t, c, a)
+}
 
 func TestMemory(t *testing.T) {
 	store := NewStore()
@@ -216,7 +300,7 @@ func SkipTestStore_Watch(t *testing.T) {
 			case <-time.After(60 * time.Second):
 				assert.Fail(t, "Watch timing out")
 			case res := <-ch:
-				assert.Equal(t, tt.expected, res.(configx.Values).Val(tt.expectedPath).Get())
+				assert.Equal(t, tt.expected, res.(Values).Val(tt.expectedPath).Get())
 			}
 
 			w.Stop()

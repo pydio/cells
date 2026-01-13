@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 
 	_ "embed"
@@ -76,7 +77,7 @@ type model struct {
 	crtButtons   []tview.Primitive
 	configsView  *tview.TreeView
 
-	cfg         configx.Values
+	cfg         kv.Values
 	items       []item
 	edges       []item
 	types       []item
@@ -427,7 +428,7 @@ func (m *model) initConfigView() {
 	m.populateTreeNode(root, []string{}, m.cfg)
 }
 
-func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.Values) {
+func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val kv.Values) {
 	defer func() {
 		recover()
 	}()
@@ -440,7 +441,7 @@ func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.
 		for k, i := range sl {
 			c := tview.NewTreeNode(strconv.Itoa(k))
 			var ref interface{}
-			if conf, o := i.(configx.Values); o {
+			if conf, o := i.(kv.Values); o {
 				ref = conf.Interface()
 			} else {
 				ref = i
@@ -448,7 +449,7 @@ func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.
 			c.SetExpanded(false).SetSelectable(true).SetReference(ref)
 			children[c.GetText()] = c
 			childrenKeys = append(childrenKeys, c.GetText())
-			m.populateTreeNode(c, append(pa, strconv.Itoa(k)), configx.New(configx.WithInitData(i)))
+			m.populateTreeNode(c, append(pa, strconv.Itoa(k)), configx.New(kv.WithInitData(i)))
 		}
 	} else if e := val.Scan(&mi); e == nil {
 		for k := range mi {

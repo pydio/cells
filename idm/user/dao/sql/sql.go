@@ -45,7 +45,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql/index"
 	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/idm/user"
 	user_model "github.com/pydio/cells/v5/idm/user/dao/sql/model"
 )
@@ -103,7 +103,7 @@ type sqlimpl struct {
 var _ user.DAO = (*sqlimpl)(nil)
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options kv.Values) error {
 
 	if options.Val("loginCI").Default(false).Bool() {
 		s.loginCI = true

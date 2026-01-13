@@ -17,7 +17,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sc"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 // NewCookieDAO creates an encrypted cookies carried along with requests
@@ -85,7 +85,7 @@ type cookiesImpl struct {
 	storeFactory   func(u *url.URL, keyPairs ...[]byte) (sessions.Store, error)
 }
 
-func (s *cookiesImpl) Init(ctx context.Context, values configx.Values) error {
+func (s *cookiesImpl) Init(ctx context.Context, values kv.Values) error {
 	s.sessionStores = make(map[string]sessions.Store)
 	if k, e := utils.LoadKey(ctx); e != nil {
 		return e

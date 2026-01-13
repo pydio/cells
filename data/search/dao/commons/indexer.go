@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
@@ -41,7 +41,7 @@ var (
 	BatchSize = 2000
 )
 
-type QueryCodecProvider func(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex
+type QueryCodecProvider func(values kv.Values, metaProvider *meta.NsProvider) indexer.IndexCodex
 
 var (
 	batchPool     *openurl.Pool[indexer.Batch]
@@ -79,7 +79,7 @@ func (s *Server) getPooledNsProvider(ctx context.Context) *meta.NsProvider {
 	return ns
 }
 
-func (s *Server) getIndexerConfig(ctx context.Context) configx.Values {
+func (s *Server) getIndexerConfig(ctx context.Context) kv.Values {
 	svcName := runtime.GetServiceName(ctx)
 	return config.Get(ctx, "services", svcName)
 }

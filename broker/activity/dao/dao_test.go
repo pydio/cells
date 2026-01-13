@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
@@ -53,7 +54,7 @@ import (
 )
 
 var (
-	conf configx.Values
+	conf kv.Values
 	ctx  = context.Background()
 )
 

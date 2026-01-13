@@ -43,8 +43,8 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filesystem"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -91,7 +91,7 @@ func newBleveIndexer(ctx context.Context, conf *BleveConfig) (*Indexer, error) {
 	return idx, nil
 }
 
-func (s *Indexer) Init(ctx context.Context, conf configx.Values) error {
+func (s *Indexer) Init(ctx context.Context, conf kv.Values) error {
 	return nil
 }
 
@@ -835,7 +835,7 @@ func (s *Indexer) openOneIndex(ctx context.Context, fullPath string, mappingName
 	if openErr != nil {
 		indexMapping := bleve.NewIndexMapping()
 		if s.codec != nil {
-			var val configx.Values
+			var val kv.Values
 			if s.serviceConfigs != nil {
 				val = s.serviceConfigs.Val("services", runtime.GetServiceName(ctx))
 			}

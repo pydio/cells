@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v5/broker/chat"
 	proto "github.com/pydio/cells/v5/common/proto/chat"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -68,7 +68,7 @@ type mongoImpl struct {
 	db *mongodb.Database
 }
 
-func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
+func (m *mongoImpl) Init(ctx context.Context, values kv.Values) error {
 	if e := mongoModel.Init(ctx, m.db); e != nil {
 		return e
 	}

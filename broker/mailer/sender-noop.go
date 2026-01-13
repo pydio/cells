@@ -23,6 +23,7 @@ package mailer
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +34,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 type NoOpSender struct {
@@ -42,7 +42,7 @@ type NoOpSender struct {
 	dumpFolder string
 }
 
-func (n *NoOpSender) Configure(ctx context.Context, conf configx.Values) error {
+func (n *NoOpSender) Configure(ctx context.Context, conf kv.Values) error {
 	dump := conf.Val("dump").Bool()
 	if dump && conf.Val("dumpFolder").String() != "" {
 		sD, _ := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceMailer)

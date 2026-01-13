@@ -3,22 +3,22 @@ package config
 import (
 	"context"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 // storeWithEncrypter embeds Viper to extend its behavior
 type storeWithEncrypter struct {
 	Store
 
-	configx.Encrypter
-	configx.Decrypter
+	kv.Encrypter
+	kv.Decrypter
 }
 
 func (s storeWithEncrypter) Set(data any) error {
 	return s.Val().Set(data)
 }
 
-func (s storeWithEncrypter) Context(ctx context.Context) configx.Values {
+func (s storeWithEncrypter) Context(ctx context.Context) kv.Values {
 	return storeWithEncrypterValues{
 		Values:    s.Store.Context(ctx),
 		Encrypter: s.Encrypter,
@@ -26,7 +26,7 @@ func (s storeWithEncrypter) Context(ctx context.Context) configx.Values {
 	}
 }
 
-func (s storeWithEncrypter) Default(d any) configx.Values {
+func (s storeWithEncrypter) Default(d any) kv.Values {
 	return storeWithEncrypterValues{
 		Values:    s.Store.Default(d),
 		Encrypter: s.Encrypter,
@@ -34,7 +34,7 @@ func (s storeWithEncrypter) Default(d any) configx.Values {
 	}
 }
 
-func (s storeWithEncrypter) Val(path ...string) configx.Values {
+func (s storeWithEncrypter) Val(path ...string) kv.Values {
 	return storeWithEncrypterValues{
 		Values:    s.Store.Val(path...),
 		Encrypter: s.Encrypter,
@@ -43,13 +43,13 @@ func (s storeWithEncrypter) Val(path ...string) configx.Values {
 }
 
 type storeWithEncrypterValues struct {
-	configx.Values
+	kv.Values
 
-	configx.Encrypter
-	configx.Decrypter
+	kv.Encrypter
+	kv.Decrypter
 }
 
-func (s storeWithEncrypterValues) Context(ctx context.Context) configx.Values {
+func (s storeWithEncrypterValues) Context(ctx context.Context) kv.Values {
 	return storeWithEncrypterValues{
 		Values:    s.Values.Context(ctx),
 		Encrypter: s.Encrypter,
@@ -57,7 +57,7 @@ func (s storeWithEncrypterValues) Context(ctx context.Context) configx.Values {
 	}
 }
 
-func (s storeWithEncrypterValues) Default(d any) configx.Values {
+func (s storeWithEncrypterValues) Default(d any) kv.Values {
 	return storeWithEncrypterValues{
 		Values:    s.Values.Default(d),
 		Encrypter: s.Encrypter,
@@ -65,7 +65,7 @@ func (s storeWithEncrypterValues) Default(d any) configx.Values {
 	}
 }
 
-func (s storeWithEncrypterValues) Val(path ...string) configx.Values {
+func (s storeWithEncrypterValues) Val(path ...string) kv.Values {
 	return storeWithEncrypterValues{
 		Values:    s.Values.Val(path...),
 		Encrypter: s.Encrypter,

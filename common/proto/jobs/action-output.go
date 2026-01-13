@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type actionOutputLogArray []*ActionOutput
@@ -40,17 +41,17 @@ func (a actionOutputLogArray) MarshalLogArray(encoder zapcore.ArrayEncoder) erro
 	return nil
 }
 
-// JsonAsValues loads JsonBody into a configx.Values type to ease golang templating
-func (m *ActionOutput) JsonAsValues() configx.Values {
-	v := configx.New(configx.WithJSON())
+// JsonAsValues loads JsonBody into a kv.Values type to ease golang templating
+func (m *ActionOutput) JsonAsValues() kv.Values {
+	v := configx.New(kv.WithJSON())
 	v.Set(m.JsonBody)
 	return v
 }
 
 // JsonAsValue loads JsonBody into a configx.Value type to ease golang templating
 // TODO - Recheck Jobs using this, it's now equivalent to JsonAsValues()
-func (m *ActionOutput) JsonAsValue() configx.Values {
-	v := configx.New(configx.WithJSON())
+func (m *ActionOutput) JsonAsValue() kv.Values {
+	v := configx.New(kv.WithJSON())
 	v.Set(m.JsonBody)
 	return v
 }

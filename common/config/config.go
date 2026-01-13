@@ -25,7 +25,6 @@ import (
 	"sync"
 
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -53,7 +52,7 @@ func init() {
 
 // Store defines the functionality a config must provide
 type Store interface {
-	configx.Storer
+	kv.Storer
 	watch.Watcher
 	As(out any) bool
 	Close(ctx context.Context) error
@@ -131,7 +130,7 @@ func WatchCombined(ctx context.Context, paths [][]string, opts ...watch.WatchOpt
 }
 
 // Get access to the underlying structure at a certain path
-func Get(ctx context.Context, path ...string) configx.Values {
+func Get(ctx context.Context, path ...string) kv.Values {
 	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")
 
 	store, err := storePool.Get(ctx)
@@ -180,7 +179,7 @@ func Del(ctx context.Context, path ...string) {
 
 // GetAndWatch applies a callback on a current value, then watch for its changes and re-apply
 // TODO : watcher should be cancellable with context
-func GetAndWatch(ctx context.Context, store Store, configPath []string, callback func(values configx.Values)) {
+func GetAndWatch(ctx context.Context, store Store, configPath []string, callback func(values kv.Values)) {
 	if store == nil {
 		// get store from context
 		var err error
@@ -210,7 +209,7 @@ func GetAndWatch(ctx context.Context, store Store, configPath []string, callback
 				break
 			}
 			if event != nil {
-				if val, ok := event.(configx.Values); ok {
+				if val, ok := event.(kv.Values); ok {
 					callback(val)
 				}
 			}
@@ -219,14 +218,14 @@ func GetAndWatch(ctx context.Context, store Store, configPath []string, callback
 	}()
 }
 
-func NewStore(opt ...configx.Option) (st Store) {
-	opts := configx.Options{}
+func NewStore(opt ...kv.Option) (st Store) {
+	opts := kv.Options{}
 	for _, o := range opt {
 		o(&opts)
 	}
 
 	s := kv.NewStore()
-	w := watch.NewWatcher[kv.Store](s)
+	w := watch.NewWatcher[*kv.Store](s)
 
 	st = newStoreWithWatcher(s, w)
 
