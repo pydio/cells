@@ -78,6 +78,7 @@ let LoginDialogMixin = {
         return {
             globalParameters: pydio.Parameters,
             authParameters: pydio.getPluginConfigs('auth'),
+            pluginParameters: pydio.getPluginConfigs('core.authfront'),
             errorId: null,
             loginLanguage: sessionStorage.getItem('loginLanguage') || undefined
         };
@@ -157,7 +158,12 @@ let LoginPasswordDialog = createReactClass({
     },
 
     useBlur(){
-        return true;
+        return !this.getClassName();
+    },
+
+    getClassName() {
+        const {globalParameters, pluginParameters} = this.state;
+        return globalParameters.get('PASSWORD_AUTH_ONLY') ? pluginParameters.get('LOGIN_DIALOG_CUSTOM_CLASSNAME_PWD') : pluginParameters.get('LOGIN_DIALOG_CUSTOM_CLASSNAME')
     },
 
     dialogBodyStyle(){
@@ -189,7 +195,9 @@ let LoginPasswordDialog = createReactClass({
                     key="enter"
                     disabled={loading}
                     label={pydio.MessageHash[617]}
-                    onClick={() => this.submit()}/>
+                    onClick={() => this.submit()}
+                    className={"loginButtonSubmit"}
+                />
             );
 
         }
@@ -201,7 +209,7 @@ let LoginPasswordDialog = createReactClass({
                 </DarkThemeContainer>
             );
             buttons.push(enterButton);
-            return [<div style={{display:'flex',alignItems:'center'}}>{buttons}</div>];
+            return [<div className={"loginButtonsContainer"} style={{display:'flex',alignItems:'center'}}>{buttons}</div>];
         }else{
             return [enterButton];
         }
@@ -274,10 +282,10 @@ let LoginPasswordDialog = createReactClass({
 
         return (
             <DarkThemeContainer>
-                {logoUrl && <div style={logoStyle}></div>}
-                <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
+                {logoUrl && <div className={"loginLogo"} style={logoStyle}></div>}
+                <div className="dialogLegend loginTitle" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {loginTitle}
-                    <div style={{position:'absolute', bottom: 9, left:24}}>
+                    <div className={"loginLanguagePicker"} style={{position:'absolute', bottom: 9, left:24}}>
                         <LanguagePicker
                             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                             targetOrigin={{horizontal: 'left', vertical: 'bottom'}}
@@ -285,28 +293,34 @@ let LoginPasswordDialog = createReactClass({
                         />
                     </div>
                 </div>
-                {loginLegend && <div>{loginLegend}</div>}
+                {loginLegend && <div className={"loginLegend"}>{loginLegend}</div>}
                 {errorMessage}
                 {additionalComponentsTop}
-                <form autoComplete={secureLoginForm?"off":"on"}>
+                <form autoComplete={secureLoginForm?"off":"on"} className={"loginForm"}>
                     {!passwordOnly && <TextField
-                        className="blurDialogTextField"
+                        className="blurDialogTextField loginInputLogin"
                         autoComplete={secureLoginForm?"off":"on"}
                         floatingLabelText={pydio.MessageHash[181]}
                         ref="login"
                         onKeyDown={this.submitOnEnterKey}
                         fullWidth={true}
                         id="application-login"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
                     />}
                     <TextField
                         id="application-password"
-                        className="blurDialogTextField"
+                        className="blurDialogTextField loginInputPassword"
                         autoComplete={secureLoginForm?"off":"on"}
                         type="password"
                         floatingLabelText={pydio.MessageHash[182]}
+                        floatingLabelFixed={!!this.getClassName()}
+                        hintText={this.getClassName()?pydio.MessageHash[182]:null}
                         ref="password"
                         onKeyDown={this.submitOnEnterKey}
                         fullWidth={true}
+                        autoFocus={passwordOnly}
                     />
                 </form>
                 {additionalComponentsBottom}
