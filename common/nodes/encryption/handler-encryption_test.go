@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
@@ -151,6 +152,9 @@ func TestHandler_GetPut_Encrypted(t *testing.T) {
 			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
 			_, e := handler.PutObject(ctx, &node, strings.NewReader(data), reqData)
 			So(e, ShouldBeNil)
+
+			// Wait for the stub to finish - TODO we should use actual service instead of stubs
+			<-time.After(time.Second * 1)
 		})
 
 		Convey("Test Get Object w. encryption", t, func() {
