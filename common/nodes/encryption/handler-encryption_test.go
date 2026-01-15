@@ -79,6 +79,9 @@ func TestHandler_GetObject(t *testing.T) {
 
 		reqData := &models.PutRequestData{}
 		_, e := handler.PutObject(ctx, &tree.Node{Path: "test2"}, strings.NewReader(""), reqData)
+		// Wait for the stub to finish - TODO we should use actual service instead of stubs
+		<-time.After(time.Second * 1)
+
 		So(e, ShouldBeNil)
 		So(mock.Nodes["in"], ShouldNotBeNil)
 		So(mock.Nodes["in"].Path, ShouldEqual, "test2")
@@ -308,6 +311,9 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 			node := tree.Node{Path: "encTest", Uuid: "encTest"}
 			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test")
 			_, e := handler.PutObject(ctx, &node, file, reqData)
+			// Wait for the stub to finish - TODO we should use actual service instead of stubs
+			<-time.After(time.Second * 1)
+
 			_ = file.Close()
 			So(e, ShouldBeNil)
 		})
