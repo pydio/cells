@@ -1,46 +1,4 @@
-# Changes between v4.9.92-alpha16 and v4.9.92-alpha17
+# Changes between v4.9.92-alpha19 and v4.9.92-alpha20
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.9.92-alpha16...v4.9.92-alpha17)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.9.92-alpha19...v4.9.92-alpha20)
 
-- [#6b72852](https://github.com/pydio/cells/commit/6b728523e36eeea05ee32d1da999f47f7397774e): fix(broker): unit tests
-- [#a23a543](https://github.com/pydio/cells/commit/a23a543e9f4fd2c374a75396b5b4f921f6762503): fix(policy): unit tests
-- [#5868653](https://github.com/pydio/cells/commit/586865348877fa3b201587ff58d2074555a3e63a): feat: upgrading redis to universal client
-- [#e312411](https://github.com/pydio/cells/commit/e312411e6739691fb96b628070ffd316665dfe84): fix(tests): revert changes in test storage
-- [#8bbac0e](https://github.com/pydio/cells/commit/8bbac0e1a6345765af4cffc74c83c24caca938df): fix(tests): try to force disable tls in tests (2)
-- [#e569888](https://github.com/pydio/cells/commit/e5698881faddadb464fb1486c0521369bb00b6ae): fix(tests): try to force disable tls in tests
-- [#234aaac](https://github.com/pydio/cells/commit/234aaac5f2a95c5da90294370ee3695ce3d23e08): fix(tests): lengthen waitIfCache in activity tests
-- [#cb1e7ec](https://github.com/pydio/cells/commit/cb1e7ec18fccf3dc3a7c7b2fff555f3d655d3310): fix(tests): fixing unit tests
-- [#686e15c](https://github.com/pydio/cells/commit/686e15c64a298a920e6e9ba7fd65f061293b243c): fix(policies): add unit test
-- [#a1401fd](https://github.com/pydio/cells/commit/a1401fd9bc1b919b44f52d61d2764737d7b05724): fix(policies): fix last changes on policies caching and template resolution
-- [#d8e8fc4](https://github.com/pydio/cells/commit/d8e8fc4ac1b8fc015c19a861d28aad78362445bb): fix: service ordering
-- [#96ec984](https://github.com/pydio/cells/commit/96ec9843a5ee72005d469080d60c8dcb627edfbd): fix(policies): restriction of policies by subject (#736)
-- [#b1f9626](https://github.com/pydio/cells/commit/b1f9626a22d186d75375ddaca7b3960846f0da93): chore(deps): mod update
-- [#7651ba9](https://github.com/pydio/cells/commit/7651ba91856fc8a3abc8dc1fcb5a83c62361360a): fix(pat): WPB-22423 scopes are not properly stored in PAT
-- [#df93101](https://github.com/pydio/cells/commit/df931011656afdd64d36cfd75cf04d03e15937f2): chore: minikube deployment
-- [#0fc362e](https://github.com/pydio/cells/commit/0fc362e13d7ed73ed29ff5026b9cc658d2d62ea9): chore: update minikup deployment
-- [#16aabf8](https://github.com/pydio/cells/commit/16aabf88dea3133b1b69e012d5d12649e6015b10): fix: performance improvements
-- [#d5894e1](https://github.com/pydio/cells/commit/d5894e1f858a171144ffc4added2369c9957148d): fix: performance improvements
-- [#cf6f224](https://github.com/pydio/cells/commit/cf6f2248d855b46ea48c07bd773ef1f0b9448d5f): fix: performance improvements
-- [#645c6e4](https://github.com/pydio/cells/commit/645c6e4216ed9b6a62bbbea65ed6578b276744b2): fix: adding notNull tags to gorm instead of within types
-- [#93b29e7](https://github.com/pydio/cells/commit/93b29e7b0ce5196bfc417fba1b5b3653d934255c): chore(ux): fix minor compilation errors in gui.ajax and ModernComponents error styles. (#725)
-- [#4e611d0](https://github.com/pydio/cells/commit/4e611d07b569f1450f9d23c0412c9be74aca3ea5): docs: update minikube deployment documentation
-- [#4039a2d](https://github.com/pydio/cells/commit/4039a2d5858aa7b978dda171e820bf79589f7884): chore(deps): go mod tidy on cells-fuse
-- [#b06335e](https://github.com/pydio/cells/commit/b06335e3efe1f114949c42f38e00887a6f540ca3): docs: deploy cells in minikube
-- [#5dd850a](https://github.com/pydio/cells/commit/5dd850ace61cfc0023388fd653d0c733c06329c8): feat: adapt Make targets
-- [#746f5f8](https://github.com/pydio/cells/commit/746f5f809d6343e986db5875c34e4650584043fe): feat(rest): WPB-22016 - adds EditorURLsKeys field and return available list (#719)
-- [#debe0bc](https://github.com/pydio/cells/commit/debe0bcb5244343736cfd397184660dbf026a78d): chore(deps): update dependencies
-- [#835a190](https://github.com/pydio/cells/commit/835a19092cb800d46557f008bad1c214ce1578c1): chore(deps): update dependencies
-- [#b2229e7](https://github.com/pydio/cells/commit/b2229e7c8e101cb4e340e60acc3aaa3cc75c6bbc): feat: WPB21998 - adds WithPresignedURLs flag for `/versions` (#718)
-- [#dc0d81b](https://github.com/pydio/cells/commit/dc0d81b49827d399e7591801f8d05f90364e9262): fix: telemetry logger tracing
-- [#1acf1cd](https://github.com/pydio/cells/commit/1acf1cd9e98b50602bffc4a79c665ba4a34b0bcf): chore: chart version to 1.0.0-beta.17a
-- [#1392733](https://github.com/pydio/cells/commit/13927335132259300bda93baa69dc7ee1dbeafa9): Feat/api change editors urls (#711)
-- [#4642f56](https://github.com/pydio/cells/commit/4642f56f0ddba99de0935ee531ee3a21a27bf6b2): chore(openapi): checks for openapi-generator-cli existence on generation (#708)
-- [#a48bf11](https://github.com/pydio/cells/commit/a48bf110ce7a72c56a480b0a5f003d509ddc4604): chore(deps): update dependencies
-- [#c438683](https://github.com/pydio/cells/commit/c438683bb37040d0a1487c711281447764c86e4d): chore(deps): update dependencies
-- [#b87c457](https://github.com/pydio/cells/commit/b87c4570db6f5b648e0a237f9425fee5431a9af2): Update dependabot.yml
-- [#ce6d8ff](https://github.com/pydio/cells/commit/ce6d8ffc2345ae0987637901b6599120ba6dc815): chore: allow defining baseURL for collabora integration (#707)
-- [#afc968e](https://github.com/pydio/cells/commit/afc968e6199730bf6198fc9231831aba24639624): chore: helm charts 1.0.0-beta.17
-- [#ef1c589](https://github.com/pydio/cells/commit/ef1c5898509d9b93b45ff8b5885953c1b008dab1): chore(infra): WPB-21672 adds Collabora Online support to kubernetes (#706)
-- [#2b5e2a4](https://github.com/pydio/cells/commit/2b5e2a4d1c051baa9e4de96b778c49a58f6ef32c): chore(docstore): centralise all docstore "store ids"
-- [#dca189d](https://github.com/pydio/cells/commit/dca189df3a9fba86f0a6427cbd75fe7737bee773): chore(eslint): adding eslint config (#698)
-- [#f0f7429](https://github.com/pydio/cells/commit/f0f7429a42a4ac0b7941e302ca6a325718a176ab): chore: helm chart 16

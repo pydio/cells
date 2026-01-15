@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/service"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 const (
@@ -42,12 +42,12 @@ const (
 var Drivers = service.StorageDrivers{}
 
 type Sender interface {
-	Configure(ctx context.Context, conf configx.Values) error
+	Configure(ctx context.Context, conf kv.Values) error
 	Send(ctx context.Context, email *mailer.Mail) error
 	Check(ctx context.Context) error
 }
 
-func GetSender(ctx context.Context, t string, conf configx.Values) (Sender, error) {
+func GetSender(ctx context.Context, t string, conf kv.Values) (Sender, error) {
 
 	var sender Sender
 

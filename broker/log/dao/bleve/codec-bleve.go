@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/log"
 	bleve2 "github.com/pydio/cells/v5/common/storage/bleve"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 func init() {
@@ -109,7 +109,7 @@ func (b *BleveCodec) BuildQuery(qu interface{}, offset, limit int32, sortFields 
 	return req, nil, nil
 }
 
-func (b *BleveCodec) GetModel(_ configx.Values) (interface{}, bool) {
+func (b *BleveCodec) GetModel(_ kv.Values) (interface{}, bool) {
 	// Exclude JSONZaps from indexing
 	logMapping := bleve.NewDocumentMapping()
 	logMapping.AddFieldMapping(&mapping.FieldMapping{

@@ -42,6 +42,7 @@ import (
 	pb "github.com/pydio/cells/v5/common/proto/config"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -78,7 +79,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) 
 type remote struct {
 	ctx            context.Context
 	cli            pb.ConfigClient
-	values         configx.Values
+	values         kv.Values
 	id             string
 	path           []string
 	internalLocker *sync.RWMutex
@@ -105,7 +106,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 		path:           strings.Split(path, "/"),
 		internalLocker: &sync.RWMutex{},
 		externalLocker: &sync.RWMutex{},
-		values: configx.New(configx.WithStorer(&values{
+		values: configx.New(kv.WithStorer(&values{
 			ctx: ctx,
 			cli: cli,
 			id:  id,
@@ -136,7 +137,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 					break
 				}
 
-				c := configx.New(configx.WithJSON())
+				c := configx.New(kv.WithJSON())
 				c.Set(rsp.GetValue().GetData())
 
 				r.internalLocker.RLock()
@@ -158,19 +159,19 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 	return r
 }
 
-func (r *remote) Context(ctx context.Context) configx.Values {
+func (r *remote) Context(ctx context.Context) kv.Values {
 	return r.values.Context(ctx)
 }
 
-func (r *remote) Val(path ...string) configx.Values {
+func (r *remote) Val(path ...string) kv.Values {
 	return r.values.Val(path...)
 }
 
-func (r *remote) Default(data any) configx.Values {
+func (r *remote) Default(data any) kv.Values {
 	return r.values.Default(data)
 }
 
-func (r *remote) Options() *configx.Options {
+func (r *remote) Options() *kv.Options {
 	return r.values.Options()
 }
 
@@ -299,7 +300,7 @@ func (r *receiver) Next() (interface{}, error) {
 
 			r.value = v
 
-			ret := configx.New(configx.WithJSON())
+			ret := configx.New(kv.WithJSON())
 			if err := ret.Set(v); err != nil {
 				return nil, err
 			}
@@ -328,16 +329,16 @@ func (v *values) Walk(f func(i int, v any) any) error {
 	return nil
 }
 
-func (v *values) Context(ctx context.Context) configx.Values {
-	return configx.New(configx.WithStorer(&values{ctx: ctx, cli: v.cli, id: v.id, k: v.k, d: v.d}))
+func (v *values) Context(ctx context.Context) kv.Values {
+	return configx.New(kv.WithStorer(&values{ctx: ctx, cli: v.cli, id: v.id, k: v.k, d: v.d}))
 }
 
-func (v *values) Default(data any) configx.Values {
-	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: v.k, d: data}))
+func (v *values) Default(data any) kv.Values {
+	return configx.New(kv.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: v.k, d: data}))
 }
 
-func (v *values) Options() *configx.Options {
-	c := configx.New(configx.WithJSON())
+func (v *values) Options() *kv.Options {
+	c := configx.New(kv.WithJSON())
 	return c.Options()
 }
 
@@ -345,8 +346,8 @@ func (v *values) Key() []string {
 	return v.k
 }
 
-func (v *values) Val(path ...string) configx.Values {
-	return configx.New(configx.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: std.StringToKeys(append(v.k, path...)...), d: v.d}))
+func (v *values) Val(path ...string) kv.Values {
+	return configx.New(kv.WithStorer(&values{ctx: v.ctx, cli: v.cli, id: v.id, k: std.StringToKeys(append(v.k, path...)...), d: v.d}))
 }
 
 func (v *values) Get() any {

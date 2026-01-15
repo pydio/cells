@@ -3,9 +3,7 @@ package configx
 import (
 	"context"
 	"fmt"
-	"maps"
 	"reflect"
-	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -13,56 +11,22 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 )
-
-type Values interface {
-	Storer
-	Caster
-}
-
-type Storer interface {
-	Context(ctx context.Context) Values
-	Options() *Options
-	Key() []string
-	Val(path ...string) Values
-	Default(def any) Values
-	Get() any
-	Set(value any) error
-	Del() error
-}
-
-type Caster interface {
-	Bool() bool
-	Bytes() []byte
-	Interface() interface{}
-	Int() int
-	Int64() int64
-	Duration() time.Duration
-	String() string
-	StringMap() map[string]string
-	StringArray() []string
-	Slice() []interface{}
-	Map() map[string]interface{}
-	Scanner
-}
-
-type Scanner interface {
-	Scan(out any, options ...Option) error
-}
 
 type storer struct {
 	v    *any
 	d    any
 	k    []string // Reference to current key
-	opts *Options
+	opts *kv.Options
 
 	mutex   *sync.RWMutex
 	rLocked bool
 }
 
-func New(opts ...Option) (ret Values) {
-	options := &Options{}
+func New(opts ...kv.Option) (ret kv.Values) {
+	options := &kv.Options{}
 
 	for _, o := range opts {
 		o(options)
@@ -71,8 +35,8 @@ func New(opts ...Option) (ret Values) {
 	if st := options.Storer; st != nil {
 		ret = caster{Storer: st}
 	} else {
-		var v any
-		ret = caster{Storer: storer{v: &v, opts: options}}
+		store := kv.NewStore(opts...)
+		ret = caster{Storer: store}
 	}
 
 	if enc, dec := options.Encrypter, options.Decrypter; enc != nil && dec != nil {
@@ -133,7 +97,7 @@ func Walk(keys []string, current any, fn func(i int, v any) (bool, error)) error
 	return nil
 }
 
-func (c storer) Context(ctx context.Context) Values {
+func (c storer) Context(ctx context.Context) kv.Values {
 	opts := c.opts
 	opts.Context = ctx
 
@@ -147,7 +111,7 @@ func (c storer) Context(ctx context.Context) Values {
 	}
 }
 
-func (c storer) Val(s ...string) Values {
+func (c storer) Val(s ...string) kv.Values {
 	return caster{
 		storer{
 			v:     c.v,
@@ -158,7 +122,7 @@ func (c storer) Val(s ...string) Values {
 	}
 }
 
-func (c storer) Default(d any) Values {
+func (c storer) Default(d any) kv.Values {
 	return caster{
 		storer{
 			v:     c.v,
@@ -174,7 +138,7 @@ func (c storer) Key() []string {
 	return c.k
 }
 
-func (c storer) Options() *Options {
+func (c storer) Options() *kv.Options {
 	return c.opts
 }
 
@@ -230,7 +194,7 @@ func (c storer) Set(data any) error {
 		}
 	}
 
-	if merged, err := merge(*c.v, current); err != nil {
+	if merged, err := c.merge(*c.v, current); err != nil {
 		return err
 	} else {
 		*c.v = merged
@@ -271,7 +235,7 @@ func (c storer) Del() error {
 	return nil
 }
 
-func merge(dst any, src any) (any, error) {
+func (c storer) merge(dst any, src any) (any, error) {
 	if dst == nil {
 		return src, nil
 	}
@@ -290,10 +254,11 @@ func merge(dst any, src any) (any, error) {
 			return src, nil
 		}
 
-		s := slices.Clone(dstV)
+		s := make([]any, len(dstV))
+		// slices.Clone(dstV)
 		for k, v := range dstV {
 			if len(srcV) > k {
-				if merged, err := merge(v, srcV[k]); err != nil {
+				if merged, err := c.merge(v, srcV[k]); err != nil {
 					return nil, err
 				} else {
 					s[k] = merged
@@ -320,10 +285,17 @@ func merge(dst any, src any) (any, error) {
 			return src, nil
 		}
 
+		// Create new map
+		m := make(map[any]any, len(dstV)+len(srcV))
+
+		// Copy existing dst values
+		for k, v := range dstV {
+			m[k] = v
+		}
+
 		// Merging those that are both in dst and in src
-		m := maps.Clone(dstV)
 		for k, v := range srcV {
-			if merged, err := merge(dstV[k], v); err != nil {
+			if merged, err := c.merge(dstV[k], v); err != nil {
 				return nil, err
 			} else {
 				m[k] = merged
@@ -345,10 +317,17 @@ func merge(dst any, src any) (any, error) {
 			return src, nil
 		}
 
+		// Create new map
+		m := make(map[any]any, len(dstV)+len(srcV))
+
+		// Copy existing dst values
+		for k, v := range dstV {
+			m[k] = v
+		}
+
 		// Merging those that are both in dst and in src
-		m := maps.Clone(dstV)
 		for k, v := range srcV {
-			if merged, err := merge(dstV[k], v); err != nil {
+			if merged, err := c.merge(dstV[k], v); err != nil {
 				return nil, err
 			} else {
 				m[k] = merged
@@ -363,10 +342,10 @@ func merge(dst any, src any) (any, error) {
 	return current, nil
 }
 
-var _ Values = (*caster)(nil)
+var _ kv.Values = (*caster)(nil)
 
 type caster struct {
-	Storer
+	kv.Storer
 }
 
 func (c caster) Bool() bool {
@@ -479,14 +458,14 @@ func (c caster) Map() map[string]interface{} {
 	return r
 }
 
-func (c caster) Scan(out any, options ...Option) error {
+func (c caster) Scan(out any, options ...kv.Option) error {
 
 	v := c.Get()
 	if v == nil {
 		return nil
 	}
 
-	var opts Options
+	var opts kv.Options
 	for _, o := range options {
 		o(&opts)
 	}

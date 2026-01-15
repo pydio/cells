@@ -3,13 +3,13 @@ package config
 import (
 	"context"
 	"encoding/json"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/pydio/cells/v5/common/crypto"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
@@ -74,18 +74,18 @@ func OpenStore(ctx context.Context, urlstr string) (Store, error) {
 		return nil, err
 	}
 
-	opts := configx.Options{}
+	opts := kv.Options{}
 
 	encode := u.Query().Get("encode")
 	switch encode {
 	case "string":
-		configx.WithString()(&opts)
+		kv.WithString()(&opts)
 	case "yaml":
-		configx.WithYAML()(&opts)
+		kv.WithYAML()(&opts)
 	case "json":
-		configx.WithJSON()(&opts)
+		kv.WithJSON()(&opts)
 	default:
-		configx.WithJSON()(&opts)
+		kv.WithJSON()(&opts)
 	}
 
 	var st Store

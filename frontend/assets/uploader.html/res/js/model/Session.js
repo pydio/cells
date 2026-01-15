@@ -25,8 +25,8 @@ import FolderItem from './FolderItem'
 import StatusItem from './StatusItem'
 import PromisePool from 'es6-promise-pool'
 import {TreeServiceApi, RestGetBulkMetaRequest} from 'cells-sdk'
-import Configs from "./Configs";
 import uuid4 from 'uuid4'
+import Configs from "./Configs";
 
 const UsePool = true;
 

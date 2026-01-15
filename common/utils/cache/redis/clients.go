@@ -49,6 +49,13 @@ func NewClient(ctx context.Context, u *url.URL, tc *tls.Config) (redis.Universal
 	user := u.User.Username()
 	pwd, _ := u.User.Password()
 
+	addrs, ok := u.Query()["replicasAddr"]
+	if ok {
+		for _, addr := range addrs {
+			hosts = append(hosts, strings.Split(addr, ",")...)
+		}
+	}
+
 	oo := &redis.UniversalOptions{
 		Addrs:    hosts,
 		Username: user,

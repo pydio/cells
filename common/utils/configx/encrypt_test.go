@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type mockEncDec struct {
@@ -16,19 +18,14 @@ func (*mockEncDec) Encrypt(data []byte) (string, error) {
 func (*mockEncDec) Decrypt(data string) ([]byte, error) {
 	return []byte(strings.TrimPrefix(data, "encrypted: ")), nil
 }
+
 func TestWithEncrypt(t *testing.T) {
 	m := &mockEncDec{}
-	jr := &jsonReader{}
-	jw := &jsonWriter{}
-	e := &marshaller{
-		Values: &encrypter{
-			Values:    New(),
-			Encrypter: m,
-			Decrypter: m,
-		},
-		Marshaller:  jw,
-		Unmarshaler: jr,
-	}
+	e := New(
+		kv.WithJSON(),
+		kv.WithEncrypt(m),
+		kv.WithDecrypt(m),
+	)
 
 	if err := e.Set([]byte(`{
 		"key": "val"

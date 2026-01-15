@@ -22,6 +22,7 @@ package migrations
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"testing"
 
 	configx2 "github.com/pydio/cells/v5/common/utils/configx"
@@ -56,7 +57,7 @@ var (
 func TestUpdateKeys(t *testing.T) {
 
 	// Create new config
-	conf := configx2.New(configx2.WithJSON())
+	conf := configx2.New(kv.WithJSON())
 	conf.Set(testData)
 
 	Convey("UpdateKeys", t, func() {

@@ -28,14 +28,14 @@ import (
 	"github.com/pydio/cells/v5/common/proto/log"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	log2 "github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type IndexRepository struct {
 	indexer.Indexer
 }
 
-func (s *IndexRepository) Init(ctx context.Context, conf configx.Values) error {
+func (s *IndexRepository) Init(ctx context.Context, conf kv.Values) error {
 	return s.Indexer.Init(ctx, conf)
 }
 

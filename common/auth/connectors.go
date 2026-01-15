@@ -28,10 +28,10 @@ import (
 
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
-type ConnectorScanner func(context.Context, configx.Scanner) ([]ConnectorConfig, error)
+type ConnectorScanner func(context.Context, kv.Scanner) ([]ConnectorConfig, error)
 
 type ConnectorConfig interface {
 	ID() string
@@ -64,7 +64,7 @@ func SetConnectorScanner(scanner ConnectorScanner) {
 }
 
 // ScanConnectors uses the internal connectorScanner to read configurations
-func ScanConnectors(ctx context.Context, values configx.Values) ([]ConnectorConfig, error) {
+func ScanConnectors(ctx context.Context, values kv.Values) ([]ConnectorConfig, error) {
 	return connectorScanner(ctx, values)
 }
 

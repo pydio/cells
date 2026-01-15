@@ -55,6 +55,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filesystem"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/net"
 )
 
@@ -64,7 +65,7 @@ func init() {
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
-func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
+func LoadUpdates(ctx context.Context, conf kv.Values, request *update.UpdateRequest) ([]*update.Package, error) {
 	if conf.Val("disableChecks").Default(false).Bool() {
 		log.Logger(ctx).Info("Skipping update checks according to configurations - Returning empty list")
 		// Return silently
@@ -180,7 +181,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 // ApplyUpdate uses the info of an update.Package to download the binary and replace
 // the current running binary. A restart is necessary afterward.
 // The dryRun option will download the binary and just put it in the /tmp folder
-func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dryRun bool, pgChan chan float64, doneChan chan bool, errorChan chan error) {
+func ApplyUpdate(ctx context.Context, p *update.Package, conf kv.Values, dryRun bool, pgChan chan float64, doneChan chan bool, errorChan chan error) {
 
 	defer func() {
 		close(doneChan)

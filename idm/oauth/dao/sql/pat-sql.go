@@ -31,8 +31,8 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/proto/auth"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/idm/oauth"
 )
 
@@ -122,7 +122,7 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options kv.Values) error {
 	s.instance = func() *gorm.DB {
 		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Model(&PersonalToken{})
 	}

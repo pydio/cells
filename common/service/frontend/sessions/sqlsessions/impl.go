@@ -20,7 +20,7 @@ import (
 	"github.com/pydio/cells/v5/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
@@ -91,7 +91,7 @@ func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
 }
 
 // Init handler for the SQL DAO
-func (h *Impl) Init(ctx context.Context, options configx.Values) error {
+func (h *Impl) Init(ctx context.Context, options kv.Values) error {
 	keys, er := utils.LoadKey(ctx)
 	if er != nil {
 		return er

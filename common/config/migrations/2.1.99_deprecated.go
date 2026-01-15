@@ -29,7 +29,7 @@ func init() {
 	add(v, getMigration(updateSourceKeys))
 }
 
-func updateStaticClients(config configx.Values) error {
+func updateStaticClients(config kv.Values) error {
 
 	oauthSrv := common.ServiceWebNamespace_ + common.ServiceOAuth
 	external := config.Val("defaults/url").String()
@@ -113,7 +113,7 @@ func updateStaticClients(config configx.Values) error {
 	return nil
 }
 
-func updateDatabaseDefault(config configx.Values) error {
+func updateDatabaseDefault(config kv.Values) error {
 	def := config.Val("defaults/database")
 
 	if v := def.StringMap(); len(v) > 0 {
@@ -128,7 +128,7 @@ func updateDatabaseDefault(config configx.Values) error {
 	return nil
 }
 
-func updateSites(config configx.Values) error {
+func updateSites(config kv.Values) error {
 
 	urlInternal := config.Val("defaults", "urlInternal").String()
 	urlExternal := config.Val("defaults", "url").String()
@@ -193,7 +193,7 @@ func updateSites(config configx.Values) error {
 	return nil
 }
 
-func updateSourceKeys(config configx.Values) error {
+func updateSourceKeys(config kv.Values) error {
 
 	// fmt.Println("[Configs] Upgrading source keys")
 	asSlice := func(s string) (sl []string, er error) {

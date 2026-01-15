@@ -23,6 +23,7 @@ package mailer
 import (
 	"context"
 	"crypto/tls"
+	"github.com/pydio/cells/v5/common/utils/kv"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -31,7 +32,6 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 type Smtp struct {
@@ -44,7 +44,7 @@ type Smtp struct {
 	UseSSL             bool
 }
 
-func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
+func (gm *Smtp) Configure(ctx context.Context, conf kv.Values) error {
 
 	gm.User = conf.Val("user").String()
 	if gm.User == "" {

@@ -308,7 +308,7 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 			label = caser.String(scheme)
 		}
 		runner := func(t *testing.T) {
-			ctx, err := manager.DSNtoContextDAO(context.Background(), tc.DSN, tc.DAO)
+			ctx, err := manager.DSNtoContextDAO(t.Context(), tc.DSN, tc.DAO)
 			if err != nil {
 				panic(err)
 			}

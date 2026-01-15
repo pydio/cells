@@ -305,14 +305,6 @@
       ],
       "type": "string"
     },
-    "UpdateUserMetaRequestUserMetaOp": {
-      "default": "PUT",
-      "enum": [
-        "PUT",
-        "DELETE"
-      ],
-      "type": "string"
-    },
     "UserServicePutRolesBody": {
       "properties": {
         "Attributes": {
@@ -1262,6 +1254,10 @@
       "properties": {
         "Filter": {
           "type": "string"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "repeated string Filters = 2;"
         }
       },
       "type": "object"
@@ -1624,12 +1620,20 @@
           "type": "array"
         },
         "Operation": {
-          "$ref": "#/definitions/UpdateUserMetaRequestUserMetaOp",
+          "$ref": "#/definitions/idmUpdateUserMetaRequestUserMetaOp",
           "title": "Type of operation to apply (PUT / DELETE)"
         }
       },
       "title": "Request for modifying UserMeta",
       "type": "object"
+    },
+    "idmUpdateUserMetaRequestUserMetaOp": {
+      "default": "PUT",
+      "enum": [
+        "PUT",
+        "DELETE"
+      ],
+      "type": "string"
     },
     "idmUpdateUserMetaResponse": {
       "properties": {
@@ -1991,6 +1995,52 @@
       },
       "type": "object"
     },
+    "installCorsOptions": {
+      "properties": {
+        "AllowCredentials": {
+          "type": "boolean"
+        },
+        "AllowPrivateNetwork": {
+          "type": "boolean"
+        },
+        "AllowedHeaders": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "AllowedMethods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "AllowedOrigins": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ExposedHeaders": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "MaxAge": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "OptionsPassthrough": {
+          "type": "boolean"
+        },
+        "OptionsSuccessStatus": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "installGetAgreementResponse": {
       "properties": {
         "Text": {
@@ -2246,6 +2296,10 @@
           "title": "Hash dynamically computed from Binds and ReverseProxyURL",
           "type": "string"
         },
+        "CorsOptions": {
+          "$ref": "#/definitions/installCorsOptions",
+          "title": "CorsOptions - Optional CorsOptions to be applied for this site - will override global ENV"
+        },
         "HeaderMods": {
           "items": {
             "$ref": "#/definitions/installHeaderMod",
@@ -2296,6 +2350,10 @@
         "Action": {
           "description": "Action can be Rewrite, Redirect, etc...",
           "type": "string"
+        },
+        "CorsOptions": {
+          "$ref": "#/definitions/installCorsOptions",
+          "title": "CorsOptions - Optional CorsOptions to be applied for this site - will override site or global options"
         },
         "Effect": {
           "$ref": "#/definitions/installRuleEffect",
@@ -7447,7 +7505,7 @@
             "type": "string"
           },
           {
-            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "List of key values describing storage configuration",
             "in": "query",
             "name": "StorageConfiguration",
             "required": false,
@@ -7657,7 +7715,7 @@
             "type": "string"
           },
           {
-            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "List of key values describing storage configuration",
             "in": "query",
             "name": "StorageConfiguration",
             "required": false,
@@ -12674,7 +12732,7 @@
             "type": "string"
           },
           {
-            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "A free list of attributes",
             "in": "query",
             "name": "Attributes",
             "required": false,
@@ -12786,7 +12844,7 @@
             "type": "string"
           },
           {
-            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "A free list of attributes",
             "in": "query",
             "name": "Attributes",
             "required": false,

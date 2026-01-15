@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 )
 
@@ -15,13 +15,13 @@ import (
 // eg. for a url mem://?pools=(urlencoded:rp=file:///tmp/example.json)
 // it will open the config file:///tmp/example.json every time the reference pool rp is mentionned
 // in the mem:// wrappedStore
-func ReferencePoolOptionsFromURL(ctx context.Context, u *url.URL) (opts []configx.Option) {
+func ReferencePoolOptionsFromURL(ctx context.Context, u *url.URL) (opts []kv.Option) {
 	if pools := u.Query().Get("pools"); pools != "" {
 		rps := strings.Split(pools, "&")
 		for _, rp := range rps {
-			kv := strings.SplitN(rp, "=", 2)
+			val := strings.SplitN(rp, "=", 2)
 
-			rp, _ := openurl.OpenPool(ctx, []string{kv[1]}, func(ctx context.Context, u string) (configx.Values, error) {
+			rp, _ := openurl.OpenPool(ctx, []string{val[1]}, func(ctx context.Context, u string) (kv.Values, error) {
 				st, err := OpenStore(ctx, u)
 				if err != nil {
 					return nil, err
@@ -30,7 +30,7 @@ func ReferencePoolOptionsFromURL(ctx context.Context, u *url.URL) (opts []config
 				return st.Val(), nil
 			})
 
-			opts = append(opts, configx.WithReferencePool(kv[0], rp))
+			opts = append(opts, kv.WithReferencePool(val[0], rp))
 		}
 	}
 

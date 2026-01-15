@@ -27,6 +27,7 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/watch"
@@ -408,7 +409,7 @@ var json = `{
 }`
 
 type MockStore struct {
-	configx.Values
+	kv.Values
 }
 
 func (m *MockStore) As(out any) bool {
@@ -461,7 +462,7 @@ func (r *Receiver) Stop() {
 }
 
 func RegisterMockConfig(ctx context.Context) (context.Context, error) {
-	cfg := configx.New(configx.WithJSON())
+	cfg := configx.New(kv.WithJSON())
 	er := cfg.Set([]byte(json))
 	if er != nil {
 		return ctx, er

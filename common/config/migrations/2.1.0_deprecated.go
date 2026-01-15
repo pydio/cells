@@ -28,13 +28,13 @@ func init() {
 	add(v, getMigration(movePydioConnectors))
 }
 
-func moveConnectors(config configx.Values) error {
+func moveConnectors(config kv.Values) error {
 	return UpdateKeys(config, map[string]string{
 		"services/pydio.grpc.auth/dex/connectors": "services/" + common.ServiceWebNamespace_ + common.ServiceOAuth + "/connectors",
 	})
 }
 
-func movePydioConnectors(config configx.Values) error {
+func movePydioConnectors(config kv.Values) error {
 
 	var c interface{}
 	var connectors []map[string]interface{}

@@ -37,8 +37,8 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
@@ -71,7 +71,7 @@ type Cache struct {
 	batchTimeout time.Duration
 }
 
-func (c *Cache) Init(ctx context.Context, options configx.Values) error {
+func (c *Cache) Init(ctx context.Context, options kv.Values) error {
 	if ip, ok := c.DAO.(manager.InitProvider); ok {
 		return ip.Init(ctx, options)
 	}

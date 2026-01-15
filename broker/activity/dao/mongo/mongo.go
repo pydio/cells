@@ -37,7 +37,7 @@ import (
 	proto "github.com/pydio/cells/v5/common/proto/activity"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -107,7 +107,7 @@ type docActivityProjection struct {
 	AcId string `bson:"ac_id"`
 }
 
-func (m *mongoimpl) Init(ctx context.Context, values configx.Values) error {
+func (m *mongoimpl) Init(ctx context.Context, values kv.Values) error {
 	return model.Init(ctx, m.Database)
 }
 

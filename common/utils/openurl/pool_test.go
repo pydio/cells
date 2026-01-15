@@ -29,6 +29,10 @@ func (m mockMap) Empty() {
 	m = map[string]string{}
 }
 
+func (m mockMap) RLock() {}
+
+func (m mockMap) RUnlock() {}
+
 type mock struct {
 	mockMap
 

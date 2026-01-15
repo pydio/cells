@@ -21,6 +21,9 @@ type Cloneable[T any] interface {
 func Clone[T any](input T) T {
 	// Get the type of the input
 	t := reflect.TypeOf(input)
+	if t == nil {
+		return input
+	}
 
 	// Ensure the input is a struct or pointer to a struct
 	if t.Kind() == reflect.Ptr {

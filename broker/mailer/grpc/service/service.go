@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 var (
@@ -72,7 +72,7 @@ func init() {
 
 				handler := grpc2.NewHandler(Name)
 				_ = runtime.MultiContextManager().Iterate(c, func(ctx context.Context, s string) error {
-					config.GetAndWatch(ctx, nil, []string{"services", Name}, func(values configx.Values) {
+					config.GetAndWatch(ctx, nil, []string{"services", Name}, func(values kv.Values) {
 						if er := handler.CheckSender(ctx, values); er == nil {
 							log.Logger(ctx).Info("Enabling mailer status for " + s)
 						} else {

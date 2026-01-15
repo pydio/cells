@@ -261,11 +261,11 @@ require (
 	github.com/disintegration/gift v1.1.2 // indirect
 	github.com/djherbis/atime v1.0.0 // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
-	github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4 // indirect
-	github.com/dsoprea/go-iptc v0.0.0-20200609062250-162ae6b44feb // indirect
+	github.com/dsoprea/go-exif/v2 v2.0.0-20230826092837-6579e82b732d // indirect
+	github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 // indirect
 	github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd // indirect
-	github.com/dsoprea/go-photoshop-info-format v0.0.0-20200609050348-3db9b63b202c // indirect
-	github.com/dsoprea/go-utility v0.0.0-20200711062821-fab8125e9bdf // indirect
+	github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d // indirect
+	github.com/dsoprea/go-utility v0.0.0-20221003172846-a3e1774ef349 // indirect
 	github.com/dsoprea/go-utility/v2 v2.0.0-20221003172846-a3e1774ef349 // indirect
 	github.com/dswarbrick/smart v0.0.0-20190505152634-909a45200d6d // indirect
 	github.com/ecordell/optgen v0.0.9 // indirect
@@ -278,7 +278,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
-	github.com/go-errors/errors v1.4.2 // indirect
+	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-faker/faker/v4 v4.6.2 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
@@ -464,7 +464,7 @@ require (
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.12 // indirect
-	github.com/shoenig/go-m1cpu v0.1.6 // indirect
+	github.com/shoenig/go-m1cpu v0.1.7 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
