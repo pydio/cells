@@ -99,15 +99,9 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.23.2
 	github.com/pydio/caddyvault v1.0.3
-<<<<<<< HEAD
 	github.com/pydio/go/v2 v2.0.1
 	github.com/r3labs/diff/v3 v3.0.2
 	github.com/redis/go-redis/v9 v9.17.2
-=======
-	github.com/pydio/cells/v4 v4.4.15
-	github.com/pydio/go/v2 v2.0.0
-	github.com/r3labs/diff/v3 v3.0.1
->>>>>>> 8ffb283ee (feat(new namespace): WPB-21836 Adding initial model changes (#709))
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/rjeczalik/notify v0.9.3
 	github.com/robertkrimen/otto v0.5.1
@@ -283,13 +277,8 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
-<<<<<<< HEAD
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
-	github.com/go-errors/errors v1.4.2 // indirect
-=======
-	github.com/go-chi/chi/v5 v5.2.2 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
->>>>>>> 8ffb283ee (feat(new namespace): WPB-21836 Adding initial model changes (#709))
 	github.com/go-faker/faker/v4 v4.6.2 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
@@ -312,17 +301,10 @@ require (
 	github.com/go-openapi/swag/loading v0.25.4 // indirect
 	github.com/go-openapi/swag/mangling v0.25.1 // indirect
 	github.com/go-openapi/swag/netutils v0.25.0 // indirect
-<<<<<<< HEAD
 	github.com/go-openapi/swag/stringutils v0.25.4 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.4 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.4 // indirect
 	github.com/go-xmlfmt/xmlfmt v1.1.3 // indirect
-=======
-	github.com/go-openapi/swag/stringutils v0.25.0 // indirect
-	github.com/go-openapi/swag/typeutils v0.25.0 // indirect
-	github.com/go-openapi/swag/yamlutils v0.25.0 // indirect
-	github.com/go-xmlfmt/xmlfmt v1.1.2 // indirect
->>>>>>> 8ffb283ee (feat(new namespace): WPB-21836 Adding initial model changes (#709))
 	github.com/gobuffalo/envy v1.10.2 // indirect
 	github.com/gobuffalo/fizz v1.14.4 // indirect
 	github.com/gobuffalo/flect v1.0.3 // indirect
@@ -350,7 +332,6 @@ require (
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/go-tpm v0.9.7 // indirect
 	github.com/google/go-tspi v0.3.0 // indirect
-	github.com/google/jsonschema-go v0.3.0 // indirect
 	github.com/google/pprof v0.0.0-20250923004556-9e5a51aed1e8 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect

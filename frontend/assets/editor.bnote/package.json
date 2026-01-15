@@ -34,11 +34,7 @@
     "@blocknote/react": "0.31.1",
     "@mantine/core": "^6.0.0",
     "axios": "^1.13.2",
-<<<<<<< HEAD
-    "cells-sdk-ts": "0.1.1-alpha14",
-=======
     "cells-sdk-ts": "github:pydio/cells-sdk-ts#v5-dev",
->>>>>>> 2262ffccd (feat(meta): initiate a dialog prompting for metadata at upload time.)
     "react-icons": "^5.5.0",
     "uuid4": "1.1.4"
   }
