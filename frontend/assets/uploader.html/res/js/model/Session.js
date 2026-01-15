@@ -25,11 +25,8 @@ import FolderItem from './FolderItem'
 import StatusItem from './StatusItem'
 import PromisePool from 'es6-promise-pool'
 import {TreeServiceApi, RestGetBulkMetaRequest} from 'cells-sdk'
-<<<<<<< HEAD
 import uuid4 from 'uuid4'
-=======
 import Configs from "./Configs";
->>>>>>> 2262ffccd (feat(meta): initiate a dialog prompting for metadata at upload time.)
 
 const UsePool = true;
 
