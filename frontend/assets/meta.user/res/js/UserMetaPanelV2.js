@@ -22,6 +22,17 @@ import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
 import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
+import '@mantine/core/styles.css';
+import {MantineProvider} from '@mantine/core'
+import {muiThemeable} from 'material-ui/styles'
+
+const ThemedGroup = muiThemeable() (({children, muiTheme}) => {
+    return (
+    <MantineProvider forceColorScheme={muiTheme.darkMode?'dark':'light'}>
+        {children}
+    </MantineProvider>
+    )
+});
 
 /**
  * Main component for displaying and editing metadata fields
@@ -101,27 +112,29 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
     }
 
     return (
-        <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
-            {legend}
-            <MetadataGroup
-                current=""
-                tree={tree}
-                offset={-1}
-                node={node}
-                editMode={editMode}
-                multiple={multiple}
-                updateMeta={updateMeta}
-                fields={fields}
-                updateValue={updateValue}
-                onCheck={onCheck}
-                supportTemplates={supportTemplates}
-                additionalProps={additionalProps}
-                groupsExpanded={groupsExpanded}
-                onToggleGroup={toggleGroup}
-                pydio={pydio}
-                onRequestEditMode={onRequestEditMode}
-            />
-        </div>
+        <ThemedGroup>
+            <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
+                {legend}
+                <MetadataGroup
+                    current=""
+                    tree={tree}
+                    offset={-1}
+                    node={node}
+                    editMode={editMode}
+                    multiple={multiple}
+                    updateMeta={updateMeta}
+                    fields={fields}
+                    updateValue={updateValue}
+                    onCheck={onCheck}
+                    supportTemplates={supportTemplates}
+                    additionalProps={additionalProps}
+                    groupsExpanded={groupsExpanded}
+                    onToggleGroup={toggleGroup}
+                    pydio={pydio}
+                    onRequestEditMode={onRequestEditMode}
+                />
+            </div>
+        </ThemedGroup>
     );
 });
 

@@ -22,6 +22,7 @@ import Pydio from 'pydio'
 import MetaClient from "./MetaClient";
 import UserMetaPanel from './UserMetaPanel'
 import {FlatButton} from 'material-ui';
+import UserMetaPanelV2 from "./UserMetaPanelV2";
 const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
 export default class InfoPanel extends React.Component{
@@ -105,7 +106,7 @@ export default class InfoPanel extends React.Component{
                 icon="mdi mdi-tag-multiple-outline" iconColor="#00ACC1"
                 popoverPanel={popoverPanel}
             >
-                <UserMetaPanel
+                <UserMetaPanelV2
                     ref={this.panel}
                     node={this.props.node}
                     editMode={!readOnly}

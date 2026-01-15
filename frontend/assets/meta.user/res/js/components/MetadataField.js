@@ -31,6 +31,8 @@ import {DateTimeField, DateTimeForm} from "../fields/DateTime";
 import BooleanForm from "../fields/BooleanForm";
 import {IntegerField, IntegerForm} from "../fields/Integer";
 import {URLField, URLForm} from "../fields/URL";
+import {TextInput} from "../fieldsv2/TextInput";
+import {Selector} from "../fieldsv2/Select"
 
 const {ModernTextField} = Pydio.requireLib("hoc");
 
@@ -47,10 +49,12 @@ const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, support
     let baseProps = {
         fieldname: fieldKey,
         label,
+        readonly,
         value,
         configs: configsForGroup,
         onValueChange: updateValue,
         errorText,
+        meta
     };
 
     if (additionalProps && additionalProps[type]) {
@@ -61,7 +65,8 @@ const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, support
         case 'stars_rate':
             return <StarsForm {...baseProps}/>;
         case 'choice':
-            return Renderer.formPanelSelectorFilter(baseProps, configsForGroup);
+            //return Renderer.formPanelSelectorFilter(baseProps, configsForGroup);
+            return <Selector {...baseProps} configs={configsForGroup}/>;
         case 'css_label':
             return Renderer.formPanelCssLabels(baseProps, configsForGroup);
         case 'tags':
@@ -75,30 +80,7 @@ const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, support
         case 'url':
             return <URLForm {...baseProps} supportTemplates={supportTemplates}/>;
         default:
-            const isInteger = (type === 'integer' && !supportTemplates);
-            return (
-                <ModernTextField
-                    value={value || ""}
-                    variant={"v2"}
-                    fullWidth={true}
-                    disabled={readonly}
-                    floatingLabelText={label}
-                    multiLine={type === 'textarea' || type === 'json'}
-                    type={isInteger ? "number" : null}
-                    errorText={errorText}
-                    onChange={(event, value) => {
-                        if (isInteger) {
-                            value = parseInt(value);
-                        }
-                        updateValue(fieldKey, value);
-                    }}
-                    onKeyPress={(event) => {
-                        if (event.key === 'Enter' && type !== 'textarea' && type !== 'json') {
-                            updateValue(fieldKey, value, true);
-                        }
-                    }}
-                />
-            );
+            return <TextInput {...baseProps} supportTemplates={supportTemplates}/>;
     }
 };
 
