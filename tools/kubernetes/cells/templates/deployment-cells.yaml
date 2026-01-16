@@ -71,7 +71,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            {{- if .Values.debug -}}
+            {{- if .Values.debug }}
             - name: CELLS_LOG
               value: debug
             {{- else }}
@@ -93,6 +93,10 @@ spec:
             {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
             {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
             {{- include "cells.vault.auth.envvar" . | nindent 12 -}}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            - name: VAULT_CACERT
+              value: /etc/ssl/certs/vault-ca.crt
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12}}
             {{- end }}
@@ -122,6 +126,12 @@ spec:
               mountPath: /etc/ssl/certs/ca-local-root.crt
               subPath: tls.crt
               readOnly: false
+            {{- end }}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            - name: vault-ca-certs
+              mountPath: /etc/ssl/certs/vault-ca.crt
+              subPath: ca.crt
+              readOnly: true
             {{- end }}
             {{- if not (empty .Values.extraVolumeMounts) -}}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
@@ -185,28 +195,36 @@ spec:
               if [ -d /var/certs/ca ]; then
                 for i in /var/certs/ca/*/*; do
                   echo "Importing ca certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i);
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i) 2>/dev/null || true;
                 done
               fi
               if [ -d /var/certs/server ]; then
                 for i in /var/certs/server/*/*; do
                   echo "Importing client certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i);
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i) 2>/dev/null || true;
                 done
               fi
               if [ -d /var/certs/client ]; then
                 for i in /var/certs/client/*/*; do
                   echo "Importing client certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i);
+                  cells admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i) 2>/dev/null || true;
                 done
               fi
           env:
             {{- if (include "cells.vault.enabled" .) }}
             - name: CELLS_CERTS_STORE
-              value: {{ include "cells.vault.url" (list . "/caddycerts") }}
+              value: {{ include "cells.vault.url" (list . "/caddycerts?") }}
             {{- else }}
             - name: CELLS_CERTS_STORE
               value: file:///var/cells/certs
+            {{- end }}
+            {{- if include "cells.vault.tls.enabled" . }}
+            {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
+            - name: VAULT_CACERT
+              value: "/var/certs/ca/vault/ca.crt"
+            - name: SSL_CERT_FILE
+              value: "/var/certs/ca/vault/ca.crt"
+            {{- end }}
             {{- end }}
           volumeMounts:
             - name: install
@@ -325,11 +343,21 @@ spec:
             {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
             {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
             {{- include "cells.vault.auth.envvar" . | nindent 12 }}
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            - name: VAULT_CACERT
+              value: /var/certs/ca/vault/ca.crt
+            {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/cells
             - name: install
               mountPath: /var/cells-install
+            {{- if (include "cells.vault.tls.enabled" .) }}
+            {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
+            - name: vault-ca-certs
+              mountPath: /var/certs/ca/vault
+            {{- end }}
+            {{- end }}
         {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.initContainers "context" .) | nindent 8 }}
         {{- end }}
@@ -415,151 +443,3 @@ spec:
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
----
-{{ if .Values.convertTools.enabled }}
-apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
-kind: Deployment
-metadata:
-  name: {{ include "cells.fullname" . }}-convert-tools
-  labels:
-    {{- include "cells.labels" . | nindent 4 }}
-spec:
-  {{- if gt (.Values.convertTools.replicaCount | int) 1 }}
-  replicas: {{ .Values.convertTools.replicaCount }}
-  {{- end }}
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
-      app.kubernetes.io/instance: {{ .Release.Name }}
-  template:
-    metadata:
-      annotations:
-      {{- with .Values.convertTools.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-      {{- end}}
-      labels:
-        app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
-        app.kubernetes.io/instance: {{ .Release.Name }}
-    spec:
-      {{- with .Values.convertTools.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "cells.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.convertTools.podSecurityContext | nindent 8 }}
-      {{- with .Values.convertTools.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.convertTools.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.convertTools.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      containers:
-        - name: {{ include "cells.name" . }}-convert-tools
-          securityContext:
-            {{- toYaml .Values.convertTools.securityContext | nindent 12 }}
-          {{- if .Values.convertTools.image.local }}
-          image: "{{ .Values.convertTools.image.repository }}"
-          {{- else }}
-          image: "{{ .Values.convertTools.image.repository }}:{{ .Values.convertTools.image.tag }}"
-          {{- end }}
-          imagePullPolicy: {{ .Values.convertTools.image.pullPolicy }}
-          ports:
-            - name: converter
-              containerPort: {{ .Values.convertTools.service.port }}
-              protocol: TCP
-          resources:
-            {{- toYaml .Values.convertTools.resources | nindent 12 }}
-{{- end }}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "cells.fullname" . }}-controller
-  labels:
-    {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" .) | nindent 4 }}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: {{ include "cells.fullname" . }}-controller
-  template:
-    metadata:
-      labels:
-        app: {{ include "cells.fullname" . }}-controller
-      annotations:
-      {{- if (include "cells.vault.enabled" .) }}
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: {{ include "cells.serviceAccountName" . }}
-        vault.hashicorp.com/service: "http://{{ include "cells.vault.host" . }}:{{ include "cells.vault.port" . }}"
-        vault.hashicorp.com/agent-init-first: "true"
-        vault.hashicorp.com/agent-inject-token: "true"
-      {{- end }}
-    spec:
-      serviceAccountName: {{ include "cells.serviceAccountName" . }}
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      containers:
-        - env:
-            - name: CELLS_BOOTSTRAP_FILE
-              value: /var/cells-bootstrap/bootstrap.yaml
-            - name: CELLS_START_K8S_MANAGER
-              value: "true"
-            - name: CELLS_START_K8S_MANAGER_SECRET
-              value: {{ include "cells.auth.secretName" . }}
-            - name: CELLS_START_K8S_MANAGER_CONFIGMAP
-              value: {{ include "cells.fullname" .}}
-            - name: CELLS_WORKING_DIR
-              value: /var/cells
-            - name: CELLS_LOG_DIR
-              value: /var/log/cells
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
-            {{- include "cells.discovery.envvar" . | nindent 12 -}}
-            {{- include "cells.broker.envvar" . | nindent 12 -}}
-            {{- include "cells.cache.envvar" . | nindent 12 -}}
-            {{- include "cells.vault.envvar" . | nindent 12 -}}
-            {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.database.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
-            {{- include "cells.vault.auth.envvar" . | nindent 12 }}
-          {{- if .Values.image.local }}
-          image: "{{ .Values.image.repository }}"
-          {{- else }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- end }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: [ "/bin/sh" ]
-          args:
-            [ '-c', 'source /var/cells-install/source && cells start' ]
-          name: {{ include "cells.fullname" . }}-controller
-          ports:
-            - containerPort: 9000
-              name: grpc
-              protocol: TCP
-          volumeMounts:
-            - mountPath: /var/cells-bootstrap
-              name: {{ include "cells.fullname" . }}-controller
-            - name: install
-              mountPath: /var/cells-install
-      volumes:
-        - configMap:
-            name: {{ include "cells.fullname" . }}-controller
-          name: {{ include "cells.fullname" . }}-controller
-        - name: install
-          configMap:
-            name: {{ include "cells.fullname" . }}
