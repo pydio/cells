@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2026. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 package wopi
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,7 +33,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -42,7 +40,12 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
-type File struct {
+type SettingsURL struct {
+	Url   string `json:"url"`
+	Stamp string `json:"stamp"`
+}
+
+type FileInfo struct {
 	BaseFileName     string
 	OwnerId          string
 	Size             int64
@@ -51,7 +54,106 @@ type File struct {
 	UserFriendlyName string
 	UserCanWrite     bool
 	LastModifiedTime string
-	PydioPath        string
+
+	UserCanRename bool `json:"UserCanRename,omitempty"`
+
+	// DisablePrint disables print functionality in Collabora Online (COOL) backend. If true, HidePrintOption is assumed to be true.
+	DisablePrint bool `json:"DisablePrint,omitempty"`
+	// PostMessageOrigin is a string for the domain the host page sends/receives PostMessages from, we only listen to
+	// messages from this domain.
+	PostMessageOrigin string `json:"PostMessageOrigin,omitempty"`
+	// SupportsRename indicates if the integration supports renaming the document with the RenameFile operation.
+	// Default is false. Starting with 24.04.13, when set to false, the UI buttons and menu to rename the document are hidden.
+	SupportsRename bool `json:"SupportsRename,omitempty"`
+	// UserCanNotWriteRelative is a boolean flag indicating that the user cannot Save-As on this server. If omitted it is set to true
+	UserCanNotWriteRelative bool `json:"UserCanNotWriteRelative,omitempty"`
+	// TemplateSource : if the ID of file (like the wopi/files/ID) can be a non-existing file. In that case, the file
+	// will be created from a template when the template (eg. an OTT file) is specified as TemplateSource in the CheckFileInfo response.
+	//The TemplateSource is supposed to be an URL like https://somewhere/accessible/file.ott that is accessible by the Online.
+	TemplateSource string `json:"TemplateSource,omitempty"`
+
+	// IsAdminUser should be true when the user has administrator rights in the integration, and false otherwise.
+	// Some functionality of Collabora Online, such as update check and server audit are supposed to be shown to administrators only.
+	IsAdminUser bool `json:"IsAdminUser,omitempty"`
+	// IsAnonymousUser It should be true when the user is not authenticated in the integration, and false otherwise.
+	// Some functionality of Collabora Online is supposed to be shown to authenticated users only.
+	IsAnonymousUser bool `json:"IsAnonymousUser,omitempty"`
+	// EnableInsertRemoteImage  If set to true, this will enable the insertion of images chosen from the WOPI storage.
+	// A UI_InsertGraphic postMessage will be sent to the WOPI host to request the UI to select the file.
+	EnableInsertRemoteImage bool `json:"EnableInsertRemoteImage,omitempty"`
+	// EnableRemoteLinkPicker If set to true, this will enable the insertion of link chosen from the WOPI host.
+	// A UI_PickLink postMessage will be send to the WOPI host to request the UI to select the link.
+	EnableRemoteLinkPicker bool `json:"EnableRemoteLinkPicker,omitempty"`
+	// EnableInsertRemoteFile If set to true, this will enable the insertion of files (e.g., multimedia) chosen from the WOPI storage.
+	// A UI_InsertFile postMessage will be sent to the WOPI host to request the UI to select the file.
+	EnableInsertRemoteFile bool `json:"EnableInsertRemoteFile,omitempty"`
+	// EnableRemoteAIContent If set to true, this will enable the UI to insert AI generated content provided by the WOPI host.
+	// A UI_InsertAIContent postMessage will be sent to the WOPI host to request the UI to select the content.
+	EnableRemoteAIContent bool `json:"EnableRemoteAIContent,omitempty"`
+	// DisableInsertLocalImage If set to true, this will disable the insertion of image/multimedia chosen from the local device. If
+	// EnableInsertRemoteImage is not set to true, then inserting image files is not possible.
+	DisableInsertLocalImage bool `json:"DisableInsertLocalImage,omitempty"`
+	// HidePrintOption If set to true, hides the print option from the file menu bar in the UI.
+	HidePrintOption bool `json:"HidePrintOption,omitempty"`
+	// HideSaveOption If set to true, hides the save button from the toolbar and file menubar in the UI.
+	HideSaveOption bool `json:"HideSaveOption,omitempty"`
+	//HideExportOption Hides Download as option in the file menubar.
+	HideExportOption bool `json:"HideExportOption,omitempty"`
+	//DisableExport Disables export functionality in backend. If set to true, HideExportOption is assumed to be true.
+	DisableExport bool `json:"DisableExport,omitempty"`
+	// DisableCopy Disables copying from the document in COOL backend. Pasting into the document would still be possible.
+	// However, it is still possible to do an “internal” cut/copy/paste.
+	DisableCopy bool `json:"DisableCopy,omitempty"`
+	// DisableInactiveMessages disables displaying of the explanation text on the overlay when the document becomes
+	// inactive or killed. With this, the JS integration must provide the user with appropriate message when it gets
+	// Session_Closed or User_Idle postMessages.
+	DisableInactiveMessages bool `json:"DisableInactiveMessages,omitempty"`
+	// UserCanOnlyComment If set to true, a specific feature-restricted mode is activated, which is similar to read-only mode,
+	// but the user can only add comments to the document. This implies UserCanWrite.
+	UserCanOnlyComment bool `json:"UserCanOnlyComment,omitempty"`
+	// UserCanOnlyManageRedlines If set to true, a specific feature-restricted mode is activated, which is similar to read-only mode,
+	// but allows the user to see and manage tracked changes: accept / reject / comment on them. This implies UserCanWrite.
+	UserCanOnlyManageRedlines bool `json:"UserCanOnlyManageRedlines,omitempty"`
+	// DownloadAsPostMessage Indicates that the integration wants to handle the downloading of pdf for printing or svg for
+	// slideshows or exported document, because it cannot rely on browser’s support for downloading.
+	// When this is set to true, the user’s eg. Print action will trigger a postMessage called Download_As, with the following JSON in the Values:
+	//{ Type: 'print'|'slideshow'|'export', URL: ...url you use for the actual downloading... }
+	DownloadAsPostMessage bool `json:"DownloadAsPostMessage,omitempty"`
+	// SaveAsPostmessage - Similar to download as, doctype extensions can be provided for save-as. In this case the new file is loaded
+	// in the integration instead of downloaded. {format: '<extension>' }
+	// To achieve this, args: {format: '<extension>' } parameter needs to be sent inside UI_SaveAs.
+	// The integration should provide dialog with filename, there the extension will be set after the filename. The remaining work is already handled by save-as.
+	SaveAsPostmessage bool `json:"SaveAsPostMessage,omitempty"`
+	// EnableOwnerTermination if set to true, it allows the document owner (the one with OwnerId =UserId) to send a closedocument message.
+	EnableOwnerTermination bool `json:"EnableOwnerTermination,omitempty"`
+
+	// UserExtraInfo is a JSON object that contains additional info about the user, for example the avatar image.
+	// Example keys are 'avatar' or 'mail'
+	UserExtraInfo map[string]interface{} `json:"UserExtraInfo,omitempty"`
+	// UserPrivateInfo is a JSON object that contains additional info about the user, but unlike the UserExtraInfo it is not shared among the views in collaborative editing sessions.
+	// When the SignatureCert, SignatureKey and SignatureCa keys in UserPrivateInfo are specified, the document signing functionality gets enabled in Collabora Online’s user interface.
+	UserPrivateInfo map[string]interface{} `json:"UserPrivateInfo,omitempty"`
+	// ServerPrivateInfo is a JSON object that contains credentials, but unlike UserPrivateInfo, it is meant to be per-server, not per-user.
+	// When the ESignatureBaseUrl, ESignatureClientId and ESignatureSecret keys in ServerPrivateInfo are specified, the electronic signing functionality for PDF files gets enabled in Collabora Online’s user interface (the Insert menu has an Electronic signature menu item).
+	ServerPrivateInfo map[string]interface{} `json:"ServerPrivateInfo,omitempty"`
+
+	// UserSettings provides a URL to fetch the user’s personal settings using the settings iframe.
+	// This must be integrated with the Settings iframe feature (https://sdk.collaboraonline.com/docs/advanced_integration.html?highlight=checkfileinfo#setup-settings-iframe)
+	// The URL should include required parameters, as documented in Fetch settings.
+	// The stamp should reflect the last update time of the settings (commonly a timestamp or hash). It should only change when the settings have been modified. If the stamp changes without actual updates, Collabora Online will unnecessarily re-fetch the settings from your WOPI host.
+	// Example: {
+	//  "url": "<base_url>/wopi/settings?access_token=<token>&type=userconfig&fileId=-1",
+	//  "stamp": "<valid_stamp>"
+	// }
+	UserSettings *SettingsURL `json:"UserSettings,omitempty"`
+
+	// SharedSettings is used to provide shared or system-wide settings (commonly managed by administrators). The format is similar to UserSettings and should follow the same structure.
+	SharedSettings *SettingsURL `json:"SharedSettings,omitempty"`
+
+	// WatermarkText If set to a non-empty string, is used for rendering a watermark-like text on each tile of the document.
+	WatermarkText string `json:"WatermarkText,omitempty"`
+
+	PydioPath string
 }
 
 func getNodeInfos(w http.ResponseWriter, r *http.Request) {
@@ -66,10 +168,17 @@ func getNodeInfos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f := buildFileFromNode(r.Context(), n)
+	f, err := GetFileInfoResponseBuilder().Build(r.Context(), n, nil)
+	if err != nil {
+		log.Logger(r.Context()).Error("cannot find node from request", zap.Error(err))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
 	data, _ := json.Marshal(f)
-	w.Write(data)
+	if _, er := w.Write(data); er != nil {
+		log.Logger(r.Context()).Error("error writing response in CheckFileInfo API", zap.Error(er))
+	}
 }
 
 func download(w http.ResponseWriter, r *http.Request) {
@@ -162,38 +271,6 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"LastModifiedTime": n.GetModTime().Format(time.RFC3339),
 	})
-}
-
-func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
-
-	f := File{
-		BaseFileName:     n.GetStringMeta(common.MetaNamespaceNodeName),
-		OwnerId:          "pydio", // TODO get an ownerID?
-		Size:             n.GetSize(),
-		Version:          fmt.Sprintf("%d", n.GetModTime().Unix()),
-		LastModifiedTime: n.GetModTime().Format(time.RFC3339),
-		PydioPath:        n.Path,
-	}
-
-	// Find user info in claims, if any
-	if claims, ok := claim.FromContext(ctx); ok {
-		f.UserId = claims.Name
-		if claims.DisplayName == "" {
-			f.UserFriendlyName = claims.Name
-		} else {
-			f.UserFriendlyName = claims.DisplayName
-		}
-		pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
-		if pydioReadOnly == "true" {
-			f.UserCanWrite = false
-		} else {
-			f.UserCanWrite = true
-		}
-	} else {
-		log.Logger(ctx).Debug("No Claims Found", zap.Any("ctx", ctx))
-	}
-
-	return &f
 }
 
 // findNodeFromRequest retrieves a node from the repository using the node id
