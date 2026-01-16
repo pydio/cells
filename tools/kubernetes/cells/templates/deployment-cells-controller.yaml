@@ -21,7 +21,7 @@ spec:
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-inject-token: "true"
       {{- end }}
-      {{- if .Values.externalVault.enabled -}}        
+      {{- if and .Values.externalVault.enabled (not (empty .Values.externalVault.annotations)) -}}
       {{- toYaml .Values.externalVault.annotations | nindent 8 }}
       {{- end }}
     spec:

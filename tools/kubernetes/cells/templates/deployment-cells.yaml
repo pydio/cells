@@ -218,7 +218,7 @@ spec:
             - name: CELLS_CERTS_STORE
               value: file:///var/cells/certs
             {{- end }}
-            {{- if (include "cells.vault.tls.enabled" .) }}
+            {{- if include "cells.vault.tls.enabled" . }}
             {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
             - name: VAULT_CACERT
               value: "/var/certs/ca/vault/ca.crt"
@@ -352,9 +352,11 @@ spec:
               mountPath: /var/cells
             - name: install
               mountPath: /var/cells-install
+            {{- if (include "cells.vault.tls.enabled" .) }}
             {{- if (not (empty (include "cells.vault.tls.ca.existingSecret" .))) }}
             - name: vault-ca-certs
               mountPath: /var/certs/ca/vault
+            {{- end }}
             {{- end }}
         {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.initContainers "context" .) | nindent 8 }}
