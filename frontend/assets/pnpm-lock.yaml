@@ -16,7 +16,7 @@ importers:
         version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.0
-        version: 16.3.1(@testing-library/dom@10.4.1)(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.3.1(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vitejs/plugin-react':
         specifier: ^5.0.4
         version: 5.1.2(vite@7.3.1(@types/node@25.0.8)(less@4.5.1)(terser@5.44.1))
@@ -137,13 +137,13 @@ importers:
     dependencies:
       '@mantine/core':
         specifier: ^8.3.9
-        version: 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@rjsf/core':
         specifier: ^6.1.2
         version: 6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)
       '@rjsf/mantine':
         specifier: ^6.1.2
-        version: 6.2.4(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/dates@8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(@rjsf/core@6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1))(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)
+        version: 6.2.4(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/dates@8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(@rjsf/core@6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1))(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)
       '@rjsf/utils':
         specifier: ^6.1.2
         version: 6.2.4(react@18.3.1)
@@ -176,7 +176,7 @@ importers:
         version: 1.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-json-view:
         specifier: ^1.21.3
-        version: 1.21.3(@types/react@19.2.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.21.3(@types/react@18.3.27)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-redux:
         specifier: ^7.1.3
         version: 7.2.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1597,6 +1597,12 @@ importers:
       '@braintree/sanitize-url':
         specifier: ^7.1.1
         version: 7.1.1
+      '@mantine/core':
+        specifier: ^8.3.9
+        version: 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/dates':
+        specifier: ^8.3.12
+        version: 8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -1616,6 +1622,15 @@ importers:
       '@babel/preset-react':
         specifier: ^7.14.5
         version: 7.28.5(@babel/core@7.28.6)
+      '@babel/preset-typescript':
+        specifier: ^7.24.0
+        version: 7.28.5(@babel/core@7.28.6)
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.2.0
+        version: 18.3.7(@types/react@18.3.27)
       assemble-less:
         specifier: ~0.7.0
         version: 0.7.0
@@ -1643,6 +1658,9 @@ importers:
       style-loader:
         specifier: ^3.3.1
         version: 3.3.4(webpack@5.104.1)
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
       webpack:
         specifier: '>=5.76.0'
         version: 5.104.1(webpack-cli@5.1.4)
@@ -2036,6 +2054,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+  '@babel/plugin-syntax-typescript@7.28.6':
+    resolution: {integrity: sha512-+nDNmQye7nlnuuHDboPbGm00Vqg3oO8niRRL27/4LYHUsHYh0zJ1xWOz0uRwNFmM1Avzk8wZbc6rdiYhomzv/A==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
   '@babel/plugin-syntax-unicode-sets-regex@7.18.6':
     resolution: {integrity: sha512-727YkEAPwSIQTv5im8QHz3upqp92JTWhidIC81Tdx4VJYIte/VndKf1qKrfnnhPLiPghStWfvC/iFaMCQu7Nqg==}
     engines: {node: '>=6.9.0'}
@@ -2360,6 +2384,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+  '@babel/plugin-transform-typescript@7.28.6':
+    resolution: {integrity: sha512-0YWL2RFxOqEm9Efk5PvreamxPME8OyY0wM5wh5lHjF+VtVhdneCWGzZeSqzOfiobVqQaNCd2z0tQvnI9DaPWPw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
   '@babel/plugin-transform-unicode-escapes@7.27.1':
     resolution: {integrity: sha512-Ysg4v6AmF26k9vpfFuTZg8HRfVWzsh1kVfowA23y9j/Gu6dOuahdUVhkLqpObp3JIv27MLSii6noRnuKN8H0Mg==}
     engines: {node: '>=6.9.0'}
@@ -2397,6 +2427,12 @@ packages:
 
   '@babel/preset-react@7.28.5':
     resolution: {integrity: sha512-Z3J8vhRq7CeLjdC58jLv4lnZ5RKFUJWqH5emvxmv9Hv3BD1T9R/Im713R4MTKwvFaV74ejZ3sM01LyEKk4ugNQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
+  '@babel/preset-typescript@7.28.5':
+    resolution: {integrity: sha512-+bQy5WOI2V6LJZpPVxY+yp66XdZ2yifu0Mc1aP5CQKgjn4QM5IN2i5fAZ4xKop47pr8rpVhiAeu+nDQa12C8+g==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -2938,7 +2974,7 @@ packages:
   '@mui/base@5.0.0-alpha.122':
     resolution: {integrity: sha512-IgZEFQyHa39J1+Q3tekVdhPuUm1fr3icddaNLmiAIeYTVXmR7KR5FhBAIL0P+4shlPq0liUPGlXryoTm0iCeFg==}
     engines: {node: '>=12.0.0'}
-    deprecated: This package has been replaced by @base-ui/react
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
@@ -3638,6 +3674,11 @@ packages:
   '@types/raf-schd@4.0.3':
     resolution: {integrity: sha512-dXFOLpls9K3eXBupCtMhvtbPtWVAkwa5tkqdMj1uVwYBYdPu2kVX1mGVp2qFpfeNNub85B0vzFfxA4URA0TnPA==}
 
+  '@types/react-dom@18.3.7':
+    resolution: {integrity: sha512-MEe3UeoENYVFXzoXEWsvcpg6ZvlrFNlOQ7EOsvhI3CfAXwzPfO8Qwuxd40nepsYKqyyVQnTdEfv68q91yLcKrQ==}
+    peerDependencies:
+      '@types/react': ^18.0.0
+
   '@types/react-redux@7.1.34':
     resolution: {integrity: sha512-GdFaVjEbYv4Fthm2ZLvj1VSCedV7TqE5y1kNwnjSdBOTXuRSgowux6J8TAct15T3CKBr63UMk+2CO7ilRhyrAQ==}
 
@@ -3645,6 +3686,9 @@ packages:
     resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
     peerDependencies:
       '@types/react': '*'
+
+  '@types/react@18.3.27':
+    resolution: {integrity: sha512-cisd7gxkzjBKU2GgdYrTdtQx1SORymWyaAFhaxQPK9bYO9ot3Y5OikQRvY0VYQtvwjeQnizCINJAenh/V7MK2w==}
 
   '@types/react@19.2.8':
     resolution: {integrity: sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==}
@@ -8427,6 +8471,11 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ua-parser-js@0.7.41:
     resolution: {integrity: sha512-O3oYyCMPYgNNHuO7Jjk3uacJWZF8loBgwrfd/5LE/HyZ3lUIOdniQ7DNXJcIgZbwioZxk0fLfI4EVnetdiX5jg==}
     hasBin: true
@@ -9181,6 +9230,11 @@ snapshots:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-syntax-typescript@7.28.6(@babel/core@7.28.6)':
+    dependencies:
+      '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+
   '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9536,6 +9590,17 @@ snapshots:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-typescript@7.28.6(@babel/core@7.28.6)':
+    dependencies:
+      '@babel/core': 7.28.6
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-create-class-features-plugin': 7.28.6(@babel/core@7.28.6)
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
+      '@babel/plugin-syntax-typescript': 7.28.6(@babel/core@7.28.6)
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/plugin-transform-unicode-escapes@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9651,6 +9716,17 @@ snapshots:
       '@babel/plugin-transform-react-jsx': 7.28.6(@babel/core@7.28.6)
       '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.28.6)
       '@babel/plugin-transform-react-pure-annotations': 7.27.1(@babel/core@7.28.6)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/preset-typescript@7.28.5(@babel/core@7.28.6)':
+    dependencies:
+      '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-validator-option': 7.27.1
+      '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.28.6)
+      '@babel/plugin-transform-modules-commonjs': 7.28.6(@babel/core@7.28.6)
+      '@babel/plugin-transform-typescript': 7.28.6(@babel/core@7.28.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -10203,7 +10279,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/hooks': 7.17.8(react@18.3.1)
@@ -10211,15 +10287,15 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-number-format: 5.4.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-remove-scroll: 2.7.2(@types/react@19.2.8)(react@18.3.1)
-      react-textarea-autosize: 8.5.9(@types/react@19.2.8)(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@18.3.27)(react@18.3.1)
+      react-textarea-autosize: 8.5.9(@types/react@18.3.27)(react@18.3.1)
       type-fest: 4.41.0
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/dates@8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/dates@8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@mantine/core': 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/core': 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/hooks': 7.17.8(react@18.3.1)
       clsx: 2.1.1
       dayjs: 1.11.19
@@ -10536,10 +10612,10 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
 
-  '@rjsf/mantine@6.2.4(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/dates@8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(@rjsf/core@6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1))(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)':
+  '@rjsf/mantine@6.2.4(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/dates@8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(@rjsf/core@6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1))(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@mantine/core': 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mantine/dates': 8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/core': 8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/dates': 8.3.12(@mantine/core@8.3.12(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.17.8(react@18.3.1))(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/hooks': 7.17.8(react@18.3.1)
       '@rjsf/core': 6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)
       '@rjsf/utils': 6.2.4(react@18.3.1)
@@ -10704,7 +10780,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/react@16.3.1(@testing-library/dom@10.4.1)(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.3.1(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@testing-library/dom': 10.4.1
@@ -10712,6 +10788,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:
       '@types/react': 19.2.8
+      '@types/react-dom': 18.3.7(@types/react@19.2.8)
 
   '@tiptap/core@2.27.2(@tiptap/pm@2.27.2)':
     dependencies:
@@ -10883,9 +10960,9 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
-  '@types/hoist-non-react-statics@3.3.7(@types/react@19.2.8)':
+  '@types/hoist-non-react-statics@3.3.7(@types/react@18.3.27)':
     dependencies:
-      '@types/react': 19.2.8
+      '@types/react': 18.3.27
       hoist-non-react-statics: 3.3.2
 
   '@types/istanbul-lib-coverage@2.0.6': {}
@@ -10927,16 +11004,30 @@ snapshots:
 
   '@types/raf-schd@4.0.3': {}
 
+  '@types/react-dom@18.3.7(@types/react@18.3.27)':
+    dependencies:
+      '@types/react': 18.3.27
+
+  '@types/react-dom@18.3.7(@types/react@19.2.8)':
+    dependencies:
+      '@types/react': 19.2.8
+    optional: true
+
   '@types/react-redux@7.1.34':
     dependencies:
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.8)
-      '@types/react': 19.2.8
+      '@types/hoist-non-react-statics': 3.3.7(@types/react@18.3.27)
+      '@types/react': 18.3.27
       hoist-non-react-statics: 3.3.2
       redux: 4.2.1
 
   '@types/react-transition-group@4.4.12(@types/react@19.2.8)':
     dependencies:
       '@types/react': 19.2.8
+
+  '@types/react@18.3.27':
+    dependencies:
+      '@types/prop-types': 15.7.15
+      csstype: 3.2.3
 
   '@types/react@19.2.8':
     dependencies:
@@ -15609,14 +15700,14 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       scroll: 2.0.3
 
-  react-json-view@1.21.3(@types/react@19.2.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-json-view@1.21.3(@types/react@18.3.27)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       flux: 4.0.4(encoding@0.1.13)(react@18.3.1)
       react: 18.3.1
       react-base16-styling: 0.6.0
       react-dom: 18.3.1(react@18.3.1)
       react-lifecycles-compat: 3.0.4
-      react-textarea-autosize: 8.5.9(@types/react@19.2.8)(react@18.3.1)
+      react-textarea-autosize: 8.5.9(@types/react@18.3.27)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - encoding
@@ -15711,6 +15802,14 @@ snapshots:
 
   react-refresh@0.18.0: {}
 
+  react-remove-scroll-bar@2.3.8(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-style-singleton: 2.2.3(@types/react@18.3.27)(react@18.3.1)
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.27
+
   react-remove-scroll-bar@2.3.8(@types/react@19.2.8)(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -15718,6 +15817,17 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.8
+
+  react-remove-scroll@2.7.2(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-remove-scroll-bar: 2.3.8(@types/react@18.3.27)(react@18.3.1)
+      react-style-singleton: 2.2.3(@types/react@18.3.27)(react@18.3.1)
+      tslib: 2.8.1
+      use-callback-ref: 1.3.3(@types/react@18.3.27)(react@18.3.1)
+      use-sidecar: 1.1.3(@types/react@18.3.27)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.27
 
   react-remove-scroll@2.7.2(@types/react@19.2.8)(react@18.3.1):
     dependencies:
@@ -15783,6 +15893,14 @@ snapshots:
 
   react-string-replace@1.1.1: {}
 
+  react-style-singleton@2.2.3(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      get-nonce: 1.0.1
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.27
+
   react-style-singleton@2.2.3(@types/react@19.2.8)(react@18.3.1):
     dependencies:
       get-nonce: 1.0.1
@@ -15815,6 +15933,15 @@ snapshots:
       react: 18.3.1
       use-composed-ref: 1.4.0(@types/react@19.2.8)(react@18.3.1)
       use-latest: 1.3.0(@types/react@19.2.8)(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
+  react-textarea-autosize@8.5.9(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      '@babel/runtime': 7.28.6
+      react: 18.3.1
+      use-composed-ref: 1.4.0(@types/react@18.3.27)(react@18.3.1)
+      use-latest: 1.3.0(@types/react@18.3.27)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
 
@@ -16863,6 +16990,8 @@ snapshots:
 
   typedarray@0.0.6: {}
 
+  typescript@5.9.3: {}
+
   ua-parser-js@0.7.41: {}
 
   ua-parser-js@1.0.41: {}
@@ -16975,6 +17104,13 @@ snapshots:
       punycode: 1.4.1
       qs: 6.14.1
 
+  use-callback-ref@1.3.3(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.27
+
   use-callback-ref@1.3.3(@types/react@19.2.8)(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -16982,11 +17118,23 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
+  use-composed-ref@1.4.0(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.27
+
   use-composed-ref@1.4.0(@types/react@19.2.8)(react@18.3.1):
     dependencies:
       react: 18.3.1
     optionalDependencies:
       '@types/react': 19.2.8
+
+  use-isomorphic-layout-effect@1.2.1(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.27
 
   use-isomorphic-layout-effect@1.2.1(@types/react@19.2.8)(react@18.3.1):
     dependencies:
@@ -16994,12 +17142,27 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
+  use-latest@1.3.0(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      use-isomorphic-layout-effect: 1.2.1(@types/react@18.3.27)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.27
+
   use-latest@1.3.0(@types/react@19.2.8)(react@18.3.1):
     dependencies:
       react: 18.3.1
       use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.8)(react@18.3.1)
     optionalDependencies:
       '@types/react': 19.2.8
+
+  use-sidecar@1.1.3(@types/react@18.3.27)(react@18.3.1):
+    dependencies:
+      detect-node-es: 1.1.0
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.27
 
   use-sidecar@1.1.3(@types/react@19.2.8)(react@18.3.1):
     dependencies:

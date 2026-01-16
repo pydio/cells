@@ -11,6 +11,7 @@
 		<global_param name="USERMETA_DRAFT_API" type="boolean" label="CONF_MESSAGE[Enable Draft API]" description="CONF_MESSAGE[Enable support Draft-Mode for resource creations. Versioning must be enabled on the underlying datasource.]" default="false" expose="true"/>
 		<global_param name="USERMETA_DRAFT_NAMESPACE" type="string" label="CONF_MESSAGE[Draft API Namespace]" description="CONF_MESSAGE[Boolean namespace (usermeta-XXX) to be used as a storage for Draft Mode (Draft API must be enabled).]" default="" expose="false"/>
         <global_param name="USERMETA_PROMPT_APPLIES_FOLDERS" type="boolean" label="CONF_MESSAGE[Prompt Meta Applies to Folders]" description="CONF_MESSAGE[When declaring meta at resource creation, apply to folders similarly to files]" default="false" expose="true"/>
+        <global_param name="USERMETA_FEATURE_NEWMETA" type="boolean" label="CONF_MESSAGE[Switch to new Metadata Panel]" description="CONF_MESSAGE[Switch metadata panel to new forms components]" default="false" expose="true"/>
 	</server_settings>
 	<registry_contributions>
 		<client_configs>

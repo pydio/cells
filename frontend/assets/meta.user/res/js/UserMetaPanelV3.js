@@ -22,12 +22,38 @@ import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
 import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
+import '@mantine/core/styles.css';
+import {MantineProvider, createTheme, Input} from '@mantine/core'
+import {muiThemeable} from 'material-ui/styles'
+
+const ThemedGroup = muiThemeable() (({children, muiTheme}) => {
+    const theme = createTheme({
+        components: {
+            Input: Input.extend({
+                defaultProps: {
+                    size: 'md',
+                    radius: 'lg',
+                },
+            }),
+            InputWrapper: Input.Wrapper.extend({
+                styles: {
+                    root: {marginBottom: 8},
+                },
+            }),
+        },
+    });
+    return (
+    <MantineProvider forceColorScheme={muiTheme.darkMode?'dark':'light'} theme={theme}>
+        {children}
+    </MantineProvider>
+    )
+});
 
 /**
  * Main component for displaying and editing metadata fields
  * Refactored version with better separation of concerns
  */
-const UserMetaPanelV2 = forwardRef((props, ref) => {
+const UserMetaPanelV3 = forwardRef((props, ref) => {
     const {
         // Define if validation is "local" on input change
         // or "global" on form submit
@@ -101,28 +127,30 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
     }
 
     return (
-        <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
-            {legend}
-            <MetadataGroup
-                current=""
-                tree={tree}
-                offset={-1}
-                node={node}
-                editMode={editMode}
-                multiple={multiple}
-                updateMeta={updateMeta}
-                fields={fields}
-                updateValue={updateValue}
-                onCheck={onCheck}
-                supportTemplates={supportTemplates}
-                additionalProps={additionalProps}
-                groupsExpanded={groupsExpanded}
-                onToggleGroup={toggleGroup}
-                pydio={pydio}
-                onRequestEditMode={onRequestEditMode}
-            />
-        </div>
+        <ThemedGroup>
+            <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
+                {legend}
+                <MetadataGroup
+                    current=""
+                    tree={tree}
+                    offset={-1}
+                    node={node}
+                    editMode={editMode}
+                    multiple={multiple}
+                    updateMeta={updateMeta}
+                    fields={fields}
+                    updateValue={updateValue}
+                    onCheck={onCheck}
+                    supportTemplates={supportTemplates}
+                    additionalProps={additionalProps}
+                    groupsExpanded={groupsExpanded}
+                    onToggleGroup={toggleGroup}
+                    pydio={pydio}
+                    onRequestEditMode={onRequestEditMode}
+                />
+            </div>
+        </ThemedGroup>
     );
 });
 
-export default UserMetaPanelV2;
+export default UserMetaPanelV3;

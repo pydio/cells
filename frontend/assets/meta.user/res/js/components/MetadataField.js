@@ -23,7 +23,7 @@ import Pydio from 'pydio';
 import {Checkbox} from 'material-ui';
 import StarsForm from "../fields/StarsForm";
 import StarsField from "../fields/StarsField";
-import CssLabelsField from "../fields/CssLabelsField";
+import CssLabelsField, {getCssLabels} from "../fields/CssLabelsField";
 import SelectorField from "../fields/SelectorField";
 import TagsCloud from "../fields/TagsCloud";
 import Renderer from "../Renderer";
@@ -33,6 +33,12 @@ import {IntegerField, IntegerForm} from "../fields/Integer";
 import {URLField, URLForm} from "../fields/URL";
 import {TextInput} from "../fieldsv2/TextInput";
 import {Selector} from "../fieldsv2/Select"
+import {RatingInput} from "../fieldsv2/RatingInput";
+import {SwitchInput} from "../fieldsv2/SwitchInput";
+import {NumbersInput} from "../fieldsv2/NumbersInput";
+import {DateTimeInput} from "../fieldsv2/DateTimeInput";
+import {URLInput} from "../fieldsv2/URLInput";
+import {TagsCloudInput} from "../fieldsv2/TagsCloudInput";
 
 const {ModernTextField} = Pydio.requireLib("hoc");
 
@@ -63,22 +69,28 @@ const FieldEdit = ({fieldKey, meta, value, updateValue, configsForGroup, support
 
     switch (type) {
         case 'stars_rate':
-            return <StarsForm {...baseProps}/>;
+            return <RatingInput {...baseProps}/>;
         case 'choice':
-            //return Renderer.formPanelSelectorFilter(baseProps, configsForGroup);
             return <Selector {...baseProps} configs={configsForGroup}/>;
         case 'css_label':
-            return Renderer.formPanelCssLabels(baseProps, configsForGroup);
+            const cssLabels = getCssLabels();
+            const cssMeta = {
+                ...meta,
+                data:{
+                    items: Object.keys(cssLabels).map((id) => {return {...cssLabels[id], key:id, value: cssLabels[id].label}})
+                },
+            }
+            return <Selector {...baseProps} meta={cssMeta} configs={configsForGroup}/>;
         case 'tags':
-            return Renderer.formPanelTags(baseProps, configsForGroup);
+            return <TagsCloudInput {...baseProps} configs={configsForGroup}/>;
         case 'date':
-            return <DateTimeForm type={type} {...baseProps} supportTemplates={supportTemplates}/>;
+            return <DateTimeInput type={type} {...baseProps} supportTemplates={supportTemplates}/>;
         case 'integer':
-            return <IntegerForm {...baseProps} supportTemplates={supportTemplates}/>;
+            return <NumbersInput {...baseProps} supportTemplates={supportTemplates}/>;
         case 'boolean':
-            return <BooleanForm {...baseProps}/>;
+            return <SwitchInput {...baseProps}/>;
         case 'url':
-            return <URLForm {...baseProps} supportTemplates={supportTemplates}/>;
+            return <URLInput {...baseProps} supportTemplates={supportTemplates}/>;
         default:
             return <TextInput {...baseProps} supportTemplates={supportTemplates}/>;
     }
@@ -170,7 +182,7 @@ export const MetadataField = ({
             );
         }
 
-        return <div key={fieldKey}>{field}</div>;
+        return field;
     }
 
     return (
