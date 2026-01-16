@@ -155,7 +155,17 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 			return nil, err
 		}
 
-		props := schema_props["properties"].(map[string]interface{})
+		// Check if properties field exists and is not nil
+		propsRaw, ok := schema_props["properties"]
+		if !ok || propsRaw == nil {
+			continue
+		}
+
+		props, ok := propsRaw.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("namespace %s: properties field is not a map", n.Namespace)
+		}
+
 		// NOTE: Should it ever happen?? Check the format in ./json_schema_test.go:75
 		if len(props) > 1 {
 			return nil, fmt.Errorf("namespace property has more than one definition: %s", n.Namespace)
