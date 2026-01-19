@@ -22,6 +22,42 @@ import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
 import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
+import '@mantine/core/styles.css';
+import './components/TogglableField.css';
+import {MantineProvider, createTheme, Input, TextInput, NumberInput, JsonInput, Textarea, Select, TagsInput} from '@mantine/core'
+import {DateTimePicker} from '@mantine/dates'
+import {muiThemeable} from 'material-ui/styles'
+
+const ThemedGroup = muiThemeable() (({children, muiTheme}) => {
+    const extension = {
+        defaultProps: {
+            size: 'sm',
+            radius: 'md',
+        },
+    }
+    const theme = createTheme({
+        components: {
+            Input: Input.extend(extension),
+            TextInput: TextInput.extend(extension),
+            NumberInput: NumberInput.extend(extension),
+            Textarea: Textarea.extend(extension),
+            JsonInput: JsonInput.extend(extension),
+            Select: Select.extend(extension),
+            TagsInput: TagsInput.extend(extension),
+            DateTimePicker: DateTimePicker.extend(extension),
+            InputWrapper: Input.Wrapper.extend({
+                styles: {
+                    root: {marginBottom: 8},
+                },
+            }),
+        },
+    });
+    return (
+    <MantineProvider forceColorScheme={muiTheme.darkMode?'dark':'light'} theme={theme}>
+        {children}
+    </MantineProvider>
+    )
+});
 
 /**
  * Main component for displaying and editing metadata fields
@@ -36,16 +72,18 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         node,
         loader,
         loadChecks,
-        autoSave,
         supportTemplates,
         multiple,
         pydio,
         style,
         onChangeUpdateData,
+        autoSave,
+        saving,
         onRequestEditMode,
         onFormLoaded,
         onValidStatusChanged,
-        additionalProps
+        additionalProps,
+        useTogglableFields
     } = props;
 
     // State management
@@ -101,27 +139,32 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
     }
 
     return (
-        <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
-            {legend}
-            <MetadataGroup
-                current=""
-                tree={tree}
-                offset={-1}
-                node={node}
-                editMode={editMode}
-                multiple={multiple}
-                updateMeta={updateMeta}
-                fields={fields}
-                updateValue={updateValue}
-                onCheck={onCheck}
-                supportTemplates={supportTemplates}
-                additionalProps={additionalProps}
-                groupsExpanded={groupsExpanded}
-                onToggleGroup={toggleGroup}
-                pydio={pydio}
-                onRequestEditMode={onRequestEditMode}
-            />
-        </div>
+        <ThemedGroup>
+            <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
+                {legend}
+                <MetadataGroup
+                    current=""
+                    tree={tree}
+                    offset={-1}
+                    node={node}
+                    editMode={editMode}
+                    multiple={multiple}
+                    updateMeta={updateMeta}
+                    fields={fields}
+                    updateValue={updateValue}
+                    onCheck={onCheck}
+                    supportTemplates={supportTemplates}
+                    additionalProps={additionalProps}
+                    groupsExpanded={groupsExpanded}
+                    onToggleGroup={toggleGroup}
+                    pydio={pydio}
+                    onRequestEditMode={onRequestEditMode}
+                    useTogglableFields={useTogglableFields}
+                    autoSave={autoSave}
+                    saving={saving}
+                />
+            </div>
+        </ThemedGroup>
     );
 });
 

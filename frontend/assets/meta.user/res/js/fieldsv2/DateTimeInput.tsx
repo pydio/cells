@@ -22,20 +22,32 @@ import React from 'react'
 import {DateTimePicker} from '@mantine/dates'
 import {MetaInputProps} from "./MetaInputProps";
 import '@mantine/dates/styles.css'
+import {PopoverProps} from "@mantine/core";
 
-export const DateTimeInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, errorText, supportTemplates, additionalProps}) => {
+export const DateTimeInput: React.FC<MetaInputProps> = ({fieldname, label, required, readonly, value, meta, onValueChange, requestToggleClose, errorText, supportTemplates, additionalProps}) => {
     const props = {
         label,
         disabled: readonly,
         error: errorText,
+        required: required,
+    }
+
+    const popoverProps : PopoverProps = {withinPortal: false}
+    if(requestToggleClose && !readonly) {
+        popoverProps.opened = true
+        popoverProps.onClose= requestToggleClose
     }
 
     return <DateTimePicker
         {...props}
+        radius={"md"}
         value={value ? new Date(parseFloat(value)*1000) : null}
         onChange={(v) => {
             const d = new Date(v).getTime()/1000;
             onValueChange(fieldname, d, true)
         }}
+
+        autoFocus={!!requestToggleClose}
+        popoverProps={popoverProps}
     />
 }

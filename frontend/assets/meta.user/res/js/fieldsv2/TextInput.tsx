@@ -22,14 +22,16 @@ import React from 'react'
 import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
 import {MetaInputProps} from "./MetaInputProps";
 
-export const TextInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, errorText, supportTemplates, additionalProps}) => {
+export const TextInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, errorText, requestToggleClose, supportTemplates, additionalProps}) => {
     const {type} = meta;
     const props = {
         label,
         value:value||'',
         disabled: readonly,
         error: errorText,
-    }
+        autoFocus:!!requestToggleClose,
+        onBlur:requestToggleClose
+}
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onValueChange(fieldname, e.target.value)
     const onChangeString = (value: string) => onValueChange(fieldname, value)
 
@@ -39,7 +41,7 @@ export const TextInput: React.FC<MetaInputProps> = ({fieldname, label, readonly,
         }
     }
     const ctrlEnter = (event: React.KeyboardEvent) => {
-        if(event.key === 'Enter' && event.metaKey){
+        if(event.key === 'Enter' && event.ctrlKey){
             onValueChange(fieldname, value, true);
         }
     }

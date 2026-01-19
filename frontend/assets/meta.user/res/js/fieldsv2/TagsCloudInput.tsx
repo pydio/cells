@@ -18,20 +18,37 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {TagsInput} from '@mantine/core'
 import {MetaInputProps} from "./MetaInputProps";
+import MetaClient from "../MetaClient";
 
-export const TagsCloudInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, errorText, supportTemplates, additionalProps}) => {
+export const TagsCloudInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, requestToggleClose, errorText, supportTemplates, additionalProps}) => {
+
+    const [data, setData] = useState<string[]>([]);
     const props = {
         label,
         disabled: readonly,
         error: errorText,
     }
-    const data= value ? value.split(',') : []
+    useEffect(()=>{
+        MetaClient.getInstance().listTags(fieldname).then(tags => {
+            setData(tags.filter(t => t))
+        });
+    }, [fieldname])
+
+    const valueData= value ? value.split(',') : []
     const onChange = (values: string[]) => {
         onValueChange(fieldname, values.join(','), true)
     }
 
-    return <TagsInput {...props} value={data} data={data} onChange={onChange} />
+    return <TagsInput
+        {...props}
+        value={valueData}
+        data={data}
+        onChange={onChange}
+        comboboxProps={{withinPortal: false}}
+        autoFocus={!!requestToggleClose}
+        onBlur={requestToggleClose}
+    />
  }

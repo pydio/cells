@@ -29,7 +29,7 @@ interface RenderOptionProps {
     checked: boolean;
 }
 
-export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onValueChange, errorText, search, meta, mode}) => {
+export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onValueChange, requestToggleClose, errorText, search, meta, readonly, mode}) => {
 
     const {data:{items=[], steps=false}} = meta;
     const handleColors = items.find(i => !!i.color)
@@ -78,14 +78,20 @@ export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onV
             label={label}
             value={value}
             error={errorText}
+            disabled={readonly}
             onChange={v => onValueChange(fieldname, v, true)}
             data={items.map(i => {return {value: i.key, label: i.value}})}
+            allowDeselect={false}
             leftSection={leftSection}
             leftSectionPointerEvents="all"
             rightSectionPointerEvents="all"
             rightSection={rightSection}
+            comboboxProps={{ withinPortal: false }}
             styles={leftSection?{input:{paddingLeft: 30}}:undefined}
             renderOption={handleColors?renderOptions:undefined}
+            defaultDropdownOpened={!!requestToggleClose}
+            onDropdownClose={requestToggleClose}
+            onBlur={requestToggleClose}
         />
     )
 }

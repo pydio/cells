@@ -17,113 +17,101 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {createRef} from 'react'
+import React, {useRef, useEffect, useState, useCallback} from 'react'
 import Pydio from 'pydio'
 import MetaClient from "./MetaClient";
 import {FlatButton} from 'material-ui';
 import UserMetaPanel from './UserMetaPanel'
-import UserMetaPanelV3 from "./UserMetaPanelV3";
+import UserMetaPanelV2 from "./UserMetaPanelV2";
 const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
-export default class InfoPanel extends React.Component{
+const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
 
-    constructor(props){
-        super(props);
-        this.panel = createRef();
+    const panel = useRef(null);
+    const [updateData, setUpdateData] = useState(null);
+    const [valid, setValid] = useState(true);
+    const [saving, setSaving] = useState(false);
 
-        this.state = {};
-        this._nodeObserver = () => {
-            this.panel.current && this.panel.current.resetUpdateData();
-            this.forceUpdate();
-        };
-        if(props.node){
-            props.node.observe('node_replaced', this._nodeObserver)
+    const _nodeObserver = () => {
+        panel.current && panel.current.resetUpdateData();
+        // this.forceUpdate();/// ?
+    }
+    useEffect(() => {
+        node.observe('node_replaced', _nodeObserver);
+        return () => {
+            node.stopObserving('node_replaced', _nodeObserver);
         }
-    }
+    }, [node, panel.current])
 
-    componentWillReceiveProps(newProps){
-        if (newProps.node === this.props.node) {
-            return
+
+    const saveMeta = useCallback(() => {
+        if(!updateData || !valid){
+            return Promise.resolve()
         }
-        this.panel.current && this.panel.current.resetUpdateData();
-        this.props.node && this.props.node.stopObserving('node_replaced', this._nodeObserver)
-        newProps.node && newProps.node.observe('node_replaced', this._nodeObserver)
-
-    }
-
-    componentWillUnmount(){
-        this.props.node && this.props.node.stopObserving('node_replaced', this._nodeObserver)
-    }
-
-    saveMeta(){
-        let values = this.panel.current.getUpdateData();
-        const {node} = this.props;
-        return MetaClient.getInstance().saveMeta([node], values).then(() => {
-            //this.panel.current.resetUpdateData(); // Reset is triggered by this._nodeObserver
+        setSaving(true);
+        return MetaClient.getInstance().saveMeta([node], updateData).then(()=> {
+            setSaving(false);
+        }).catch(e => {
+            setSaving(false);
         });
-    }
+    }, [updateData, valid, node])
 
-    onChangeUpdateData(updateData){
-        this.setState({updateData})
-    }
 
-    render(){
-        let actions = [];
-        const {pydio, node, popoverPanel, ...infoProps} = this.props;
-        const {MessageHash} = pydio;
-        const values = this.panel.current  ? this.panel.current.getUpdateData() : new Map();
-        const readOnly = node.getMetadata().get('node_readonly') === 'true';
-        let hasAction = false;
+    let actions = [];
+    const {MessageHash} = pydio;
 
-        if(!readOnly && values.size > 0) {
-            hasAction = true
-            actions.push(
-                <FlatButton
-                    key="edit"
-                    label={MessageHash['meta.user.15']}
-                    onClick={()=>{this.saveMeta()}}
-                />
-            );
-        }
-        let style = {}
-        if(popoverPanel) {
-            style = {...style,
-                maxHeight: '80vh',
-                overflowY: 'auto'
-            }
-        }
-        if(!hasAction) {
-            style = {...style, paddingBottom: 16}
-        }
-
-        let MetaComponent = UserMetaPanel
-        if(pydio.getPluginConfigs('meta.user').get('USERMETA_FEATURE_NEWMETA')){
-            MetaComponent = UserMetaPanelV3
-        }
-
-        return (
-            <InfoPanelCard
-                {...infoProps}
-                identifier={"meta-user"}
-                style={this.props.style}
-                title={this.props.pydio.MessageHash['meta.user.1']}
-                actions={actions.length ? actions : null}
-                icon="mdi mdi-tag-multiple-outline" iconColor="#00ACC1"
-                popoverPanel={popoverPanel}
-            >
-                <MetaComponent
-                    ref={this.panel}
-                    node={this.props.node}
-                    editMode={!readOnly}
-                    pydio={this.props.pydio}
-                    onChangeUpdateData={(d) => {this.onChangeUpdateData(d)}}
-                    autoSave={()=>{
-                        this.saveMeta();
-                    }}
-                    style={style}
-                />
-            </InfoPanelCard>
+    const readOnly = node.getMetadata().get('node_readonly') === 'true';
+    let hasAction = false;
+    if(!readOnly && updateData && updateData.size > 0) {
+        hasAction = true
+        actions.push(
+            <FlatButton
+                key="edit"
+                label={MessageHash['meta.user.15']}
+                onClick={saveMeta}
+            />
         );
     }
+    let panelStyle = {}
+    if(popoverPanel) {
+        panelStyle = {...panelStyle,
+            maxHeight: '80vh',
+            overflowY: 'auto'
+        }
+    }
+    if(!hasAction) {
+        panelStyle = {...panelStyle, paddingBottom: 16}
+    }
 
+    let MetaComponent = UserMetaPanel
+    if(pydio.getPluginConfigs('meta.user').get('USERMETA_FEATURE_NEWMETA')){
+        MetaComponent = UserMetaPanelV2
+    }
+
+    return (
+        <InfoPanelCard
+            {...infoProps}
+            identifier={"meta-user"}
+            style={style}
+            title={MessageHash['meta.user.1']}
+            actions={actions.length ? actions : null}
+            icon="mdi mdi-tag-multiple-outline" iconColor="#00ACC1"
+            popoverPanel={popoverPanel}
+        >
+            <MetaComponent
+                ref={panel}
+                node={node}
+                editMode={!readOnly}
+                pydio={pydio}
+                onChangeUpdateData={(d) => {setUpdateData(d)}}
+                onValidStatusChanged={(v) => {setValid(v)}}
+                saving={saving}
+                autoSave={saveMeta}
+                style={panelStyle}
+                useTogglableFields={true}
+            />
+        </InfoPanelCard>
+    );
 }
+
+export default InfoPanel

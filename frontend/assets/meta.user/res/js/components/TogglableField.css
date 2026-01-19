@@ -1,0 +1,19 @@
+.panelCard .panelContent .infoPanelRow.togglable.no-value {
+    display: inherit;
+}
+
+.panelCard .panelContent .infoPanelRow.togglable.no-value .infoPanelValue {}
+
+.infoPanelRow.togglable .infoPanelValue {
+    background: var(--md-sys-color-surface-3);
+    min-height: 35px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 7px 12px;
+}
+
+.infoPanelRow.togglable .infoPanelLabel {
+    margin-bottom: 2px;
+}

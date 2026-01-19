@@ -22,7 +22,7 @@ import React from 'react';
 import Pydio from 'pydio';
 import {muiThemeable} from 'material-ui/styles';
 import {MetadataField} from './MetadataField';
-
+import {TogglableField} from './TogglableField';
 const {EmptyStateView} = Pydio.requireLib('components');
 
 const StyledDiv = muiThemeable()(({style, children, muiTheme, ...other}) => {
@@ -52,7 +52,10 @@ export const MetadataGroup = ({
     groupsExpanded,
     onToggleGroup,
     pydio,
-    onRequestEditMode
+    onRequestEditMode,
+    useTogglableFields,
+    autoSave,
+    saving,
 }) => {
     const metadata = node.getMetadata();
     const elements = [];
@@ -77,9 +80,13 @@ export const MetadataGroup = ({
         if (!editMode && value) {
             nonEmptyDataCount++;
         }
+        let Component = MetadataField
+        if(useTogglableFields) {
+            Component = TogglableField
+        }
 
         elements.push(
-            <MetadataField
+            <Component
                 key={key}
                 fieldKey={key}
                 meta={meta}
@@ -93,6 +100,8 @@ export const MetadataGroup = ({
                 configsForGroup={configsForGroup}
                 supportTemplates={supportTemplates}
                 additionalProps={additionalProps}
+                autoSave={autoSave}
+                saving={saving}
             />
         );
     });
@@ -172,6 +181,7 @@ export const MetadataGroup = ({
                         onToggleGroup={onToggleGroup}
                         pydio={pydio}
                         onRequestEditMode={onRequestEditMode}
+                        saving={saving}
                     />
                 )}
             </React.Fragment>

@@ -22,7 +22,7 @@ import React from 'react'
 import {TextInput} from '@mantine/core'
 import {MetaInputProps} from "./MetaInputProps";
 
-export const URLInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, errorText, supportTemplates, additionalProps}) => {
+export const URLInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, requestToggleClose, errorText, supportTemplates, additionalProps}) => {
     const props = {
         label,
         value,
@@ -36,5 +36,12 @@ export const URLInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, 
         }
     }
 
-    return <TextInput {...props} onChange={onChangeEvent} onKeyPress={simpleEnter} rightSection={<span className={'mdi mdi-open-in-new'}/>}/>
+    return <TextInput
+        {...props}
+        onChange={onChangeEvent}
+        onKeyPress={simpleEnter}
+        rightSection={<span className={'mdi mdi-open-in-new'}/>}
+        autoFocus={!!requestToggleClose}
+        onBlur={requestToggleClose}
+    />
  }

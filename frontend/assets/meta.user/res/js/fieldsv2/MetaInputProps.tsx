@@ -19,17 +19,26 @@
  */
 
 export interface MetaInputProps {
+
+    meta: NamespaceMeta;
+
     fieldname: string;
     value: any;
     label: string;
     readonly?: boolean;
-    onValueChange: (fieldname: string, value: string|boolean|number, immediate?: boolean) => void;
+    required?: boolean;
     errorText?: string;
+    onValueChange: (fieldname: string, value: string|boolean|number, immediate?: boolean) => void;
+
+    // If field is "togglable"
+    requestToggleClose:() => void;
+
+    // Display Context
     supportTemplates?: boolean;
-    additionalProps?: Record<string, any>;
     search?: boolean;
     mode?: string;
-    meta: SelectMeta;
+
+    additionalProps?: Record<string, any>;
 }
 
 export interface SelectItem {
@@ -39,10 +48,11 @@ export interface SelectItem {
 }
 
 
-export interface SelectMeta {
+export interface NamespaceMeta {
     type?: 'text' | 'textarea' | 'json';
-    data: {
+    data?: {
         items?: SelectItem[];
         steps?: boolean;
+        format?: string;
     };
 }

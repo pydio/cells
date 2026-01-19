@@ -154,7 +154,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search, label, errorText, muiTheme, mode} = this.props;
+        const {editMode, search, label, errorText, muiTheme, mode, containerStyle = {}} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList, autoCompleter, knownTags = [];
@@ -187,12 +187,10 @@ class TagsCloud extends React.Component {
                     {...otherProps}
                 />
             );
-        } else {
-            autoCompleter = <div></div>
         }
 
         return (
-            <div style={search?{marginBottom: 8}:{}}>
+            <div style={search?{marginBottom: 8}:{...containerStyle}}>
                 {autoCompleter}
                 {tagsList && <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>}
             </div>

@@ -24,21 +24,23 @@ import {MetaInputProps} from "./MetaInputProps";
 
 export const SwitchInput:React.FC<MetaInputProps> = (props: MetaInputProps) => {
 
-    const {label, value, fieldname, errorText, readonly, onValueChange} = props;
+    const {label, value, fieldname, errorText, readonly, onValueChange, requestToggleClose} = props;
 
     return (
         <Input.Wrapper
             label={label}
             error={errorText}
         >
-            <div style={{display: 'flex', alignItems: 'center'}}>
+            <Input component={"div"} onBlur={requestToggleClose}>
+            <div style={{display: 'flex', alignItems: 'center', height:'100%'}} onBlur={requestToggleClose}>
                 <Switch
                     label={label}
                     checked={value}
                     onChange={(e) => onValueChange(fieldname, e.currentTarget.checked, true)}
-                    readOnly={readonly}
+                    disabled={readonly}
                 />
             </div>
+            </Input>
         </Input.Wrapper>
     )
 }

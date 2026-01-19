@@ -24,27 +24,31 @@ import {MetaInputProps} from "./MetaInputProps";
 
 export const RatingInput:React.FC<MetaInputProps> = (props: MetaInputProps) => {
 
-    const {label, value, fieldname, errorText, readonly, onValueChange} = props;
+    const {label, value, fieldname, errorText, readonly, onValueChange, requestToggleClose} = props;
 
     return (
         <Input.Wrapper
             label={label}
             error={errorText}
         >
-            <div style={{display: 'flex', alignItems: 'center'}}>
-                {!readonly &&
-                    <span
-                        className={'mdi mdi-star-off-outline'}
-                        style={{fontSize: 19, marginRight: 5, cursor: 'pointer'}}
-                        onClick={() => {onValueChange(fieldname, '', true)}}
-                    />
-                }
+            <Input
+                component={"div"}
+                disabled={readonly}
+            >
+            <div style={{display: 'flex', alignItems: 'center'}} onBlur={requestToggleClose}>
+                <span
+                    className={'mdi mdi-star-off-outline'}
+                    style={{fontSize: 19, marginRight: 5, cursor: 'pointer'}}
+                    onClick={() => {!readonly? onValueChange(fieldname, '', true):null}}
+                />
                 <Rating
+                    className={""}
                     value={parseInt(value)||0}
                     onChange={(n) => onValueChange(fieldname, n, true)}
-                    readOnly={readonly}
+                    readOnly={false}
                 />
             </div>
+            </Input>
         </Input.Wrapper>
     )
 }
