@@ -163,6 +163,8 @@ tls:
       duration: 2160h
       renewBefore: 360h
 
+useCaddyProxy: true
+
 ingress:
   ## @param ingress.enabled Enable ingress controller resource for Cells
   ##

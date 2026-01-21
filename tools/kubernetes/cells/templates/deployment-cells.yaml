@@ -142,41 +142,51 @@ spec:
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" .) | nindent 8 }}
         {{- end }}
       initContainers:
-        {{- if (include "cells.database.enabled" .) }}
-        - name: wait-for-database
-          image: busybox
-          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.database.host" . | quote }} {{ include "cells.database.port" . | quote }}; do echo waiting for database; sleep .5; done' ]
-        {{- end }}
-        {{- if (include "cells.nosql.enabled" .) }}
-        - name: wait-for-nosql
-          image: busybox
-          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.nosql.host" . | quote }} {{ include "cells.nosql.port" . | quote }}; do echo waiting for nosql; sleep .5; done' ]
-        {{- end }}
-        {{- if (include "cells.discovery.enabled" .) }}
-        - name: wait-for-discovery
-          image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.discovery.host" . | quote }} {{ include "cells.discovery.port" . | quote }}; do echo waiting for discovery; sleep .5; done']
-        {{- end }}
-        {{- if (include "cells.cache.enabled" .) }}
-        - name: wait-for-cache
-          image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.cache.host" . | quote }} {{ include "cells.cache.port" . | quote }}; do echo waiting for cache; sleep .5; done']
-        {{- end }}
-        {{- if (include "cells.broker.enabled" .) }}
-        - name: wait-for-broker
-          image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }}; do echo waiting for broker; sleep .5; done']
-        {{- end }}
-        {{- if and (include "cells.s3.enabled" .) .Values.externalS3.useCustomURL }}
-        - name: wait-for-s3
-          image: busybox
-          command: [ "sh", "-c", 'until nc -zw2 {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }}; do echo waiting for s3; sleep .5; done' ]
-        {{- end }}
-        {{- if (include "cells.vault.enabled" .) }}
-        - name: wait-for-vault
-          image: busybox
-          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }}; do echo waiting for vault; sleep .5; done']
-        {{- end }}
+        - name: wait-for-deps
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+
+              wait_tcp() {
+                name="$1"; host="$2"; port="$3"; timeout="${4:-120}"
+                echo "==> waiting for $name ($host:$port) up to ${timeout}s"
+                end=$(( $(date +%s) + timeout ))
+                until nc -zw2 "$host" "$port"; do
+                  [ "$(date +%s)" -ge "$end" ] && echo "timeout waiting for $name" && exit 1
+                  sleep 1
+                done
+                echo "==> $name OK"
+              }
+
+              # Run in parallel
+              {{- if (include "cells.database.enabled" .) }}
+              wait_tcp database  {{ include "cells.database.host" . | quote }} {{ include "cells.database.port" . | quote }} 120 &
+              {{- end }}
+              {{- if (include "cells.nosql.enabled" .) }}
+              wait_tcp nosql  {{ include "cells.nosql.host" . | quote }} {{ include "cells.nosql.port" . | quote }} 120 &
+              {{- end }}
+              {{- if (include "cells.discovery.enabled" .) }}
+              wait_tcp discovery  {{ include "cells.discovery.host" . | quote }} {{ include "cells.discovery.port" . | quote }} 120 &
+              {{- end }}
+              {{- if (include "cells.cache.enabled" .) }}
+              wait_tcp cache  {{ include "cells.cache.host" . | quote }} {{ include "cells.cache.port" . | quote }} 120 &
+              {{- end }}
+              {{- if (include "cells.broker.enabled" .) }}
+              wait_tcp broker  {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }} 120 &
+              {{- end }}
+              {{- if (include "cells.s3.enabled" .) }}
+              wait_tcp s3  {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }} 120 &
+              {{- end }}
+              {{- if (include "cells.vault.enabled" .) }}
+              wait_tcp vault  {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }} 120 &
+              {{- end }}
+
+              # Wait for all; if any fails, the script exits non-zero
+              wait
+              
         - name: install-certs
           {{- if .Values.image.local }}
           image: "{{ .Values.image.repository }}"

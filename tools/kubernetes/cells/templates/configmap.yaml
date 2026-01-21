@@ -97,10 +97,20 @@ data:
       http:
         type: tcp
         bind: 0.0.0.0
+        {{ if .Values.useCaddyProxy }}
         port: 8032
+        {{ else }}
+        port: {{ .Values.service.port }}
+        {{ end }}
+      httpadmin:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8081
     servers:
+      {{ if .Values.useCaddyProxy }}
       proxy:
         type: caddy+proxy
+      {{ end }}
       http:
         type: http
         listener: http
