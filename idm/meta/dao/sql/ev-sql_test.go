@@ -279,7 +279,7 @@ func TestEntityValueDAO_LinkMetaToValues(t *testing.T) {
 				EntityUuid: createdEntity.Uuid,
 			})
 
-			metaUUID := "550e8400-e29b-41d4-a716-446655440005"
+			metaUUID := uuid.New().String()
 			valueUUIDs := []string{value1.Uuid, value2.Uuid}
 
 			err = dao.LinkMetaToValues(ctx, metaUUID, valueUUIDs)
@@ -310,7 +310,7 @@ func TestEntityValueDAO_LinkMetaToValues(t *testing.T) {
 				EntityUuid: createdEntity.Uuid,
 			})
 
-			metaUUID := "550e8400-e29b-41d4-a716-446655440007"
+			metaUUID := uuid.New().String()
 
 			// Link once
 			err = dao.LinkMetaToValues(ctx, metaUUID, []string{value1.Uuid})
@@ -342,7 +342,7 @@ func TestEntityValueDAO_LinkMetaToValues(t *testing.T) {
 		})
 
 		Convey("Link Meta with Invalid Value UUID", t, func() {
-			validMetaUUID := "550e8400-e29b-41d4-a716-446655440000"
+			validMetaUUID := uuid.New().String()
 
 			// Try to link with invalid value UUID
 			err := dao.LinkMetaToValues(ctx, validMetaUUID, []string{"invalid-uuid"})
@@ -359,7 +359,7 @@ func TestEntityValueDAO_LinkMetaToValues(t *testing.T) {
 				EntityUuid: createdEntity.Uuid,
 			})
 
-			validMetaUUID := "550e8400-e29b-41d4-a716-446655440000"
+			validMetaUUID := uuid.New().String()
 
 			// Try to link with one valid and one invalid value UUID
 			err = dao.LinkMetaToValues(ctx, validMetaUUID, []string{value1.Uuid, "invalid-uuid"})
@@ -394,7 +394,7 @@ func TestEntityValueDAO_UnlinkMetaFromValues(t *testing.T) {
 				EntityUuid: createdEntity.Uuid,
 			})
 
-			metaUUID := "550e8400-e29b-41d4-a716-446655440008"
+			metaUUID := uuid.New().String()
 			dao.LinkMetaToValues(ctx, metaUUID, []string{value1.Uuid, value2.Uuid, value3.Uuid})
 
 			// Verify all linked
@@ -417,7 +417,7 @@ func TestEntityValueDAO_UnlinkMetaFromValues(t *testing.T) {
 		})
 
 		Convey("Unlink Meta from Empty Values", t, func() {
-			validMetaUUID := "550e8400-e29b-41d4-a716-446655440000"
+			validMetaUUID := uuid.New().String()
 			err := dao.UnlinkMetaFromValues(ctx, validMetaUUID, []string{})
 			So(err, ShouldBeNil)
 		})
@@ -438,7 +438,7 @@ func TestEntityValueDAO_UnlinkMetaFromValues(t *testing.T) {
 		})
 
 		Convey("Unlink Meta with Invalid Value UUID", t, func() {
-			validMetaUUID := "550e8400-e29b-41d4-a716-446655440000"
+			validMetaUUID := uuid.New().String()
 
 			// Try to unlink with invalid value UUID
 			err := dao.UnlinkMetaFromValues(ctx, validMetaUUID, []string{"invalid-uuid"})
@@ -455,7 +455,7 @@ func TestEntityValueDAO_UnlinkMetaFromValues(t *testing.T) {
 				EntityUuid: createdEntity.Uuid,
 			})
 
-			validMetaUUID := "550e8400-e29b-41d4-a716-446655440000"
+			validMetaUUID := uuid.New().String()
 
 			// Try to unlink with one valid and one invalid value UUID
 			err = dao.UnlinkMetaFromValues(ctx, validMetaUUID, []string{value1.Uuid, "invalid-uuid"})
@@ -486,7 +486,7 @@ func TestEntityValueDAO_GetMetaEntityValues(t *testing.T) {
 				EntityUuid: createdEntity.Uuid,
 			})
 
-			metaUUID := "550e8400-e29b-41d4-a716-446655440009"
+			metaUUID := uuid.New().String()
 			dao.LinkMetaToValues(ctx, metaUUID, []string{value1.Uuid, value2.Uuid})
 
 			// Get meta entity values
@@ -555,7 +555,7 @@ func TestEntityValueDAO_CreateEntityValueAndLink(t *testing.T) {
 			createdEntity, err := dao.CreateEntity(ctx, entity)
 			So(err, ShouldBeNil)
 
-			metaUUID := "550e8400-e29b-41d4-a716-446655440002"
+			metaUUID := uuid.New().String()
 			createdValues, err := dao.CreateEntityValueAndLink(ctx, metaUUID, createdEntity.Uuid, []string{})
 
 			So(err, ShouldBeNil)
