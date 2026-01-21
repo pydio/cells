@@ -81,7 +81,7 @@ type MetaValueEntity struct {
 }
 
 func (*MetaValueEntity) TableName(namer schema.Namer) string {
-	return namer.TableName("meta_value_entities")
+	return namer.TableName("meta_values")
 }
 
 func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
