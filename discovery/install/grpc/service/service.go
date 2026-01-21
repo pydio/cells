@@ -82,7 +82,7 @@ func init() {
 
 					mgr, err := manager.New(ctrl.GetConfigOrDie(), manager.Options{
 						BaseContext: func() context.Context {
-							return ctx
+							return propagator.ForkContext(ctx, context.Background())
 						},
 						Scheme: scheme,
 						Cache: cache.Options{
@@ -186,10 +186,12 @@ func init() {
 					zl := zap.New(log.Logger(ctx).Core())
 
 					ctrl.SetLogger(zapr.NewLogger(zl))
-					if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-						fmt.Println("Problem running manager", err)
-						os.Exit(1)
-					}
+					go func() {
+						if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+							fmt.Println("Problem running manager", err)
+							os.Exit(1)
+						}
+					}()
 				}
 
 				return nil
