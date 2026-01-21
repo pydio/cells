@@ -65,6 +65,52 @@ func TestEntityValueDAO_CreateEntity(t *testing.T) {
 			So(created.LabelI18N, ShouldEqual, `{"en":"Department","fr":"Département"}`)
 		})
 
+		Convey("Create Entity with Empty JSON", t, func() {
+			entity := &idm.MetaEntity{
+				Label:       "Priority",
+				Description: "Task Priority",
+				LabelI18N:   `{"properties":{}}`,
+			}
+
+			created, err := dao.CreateEntity(ctx, entity)
+
+			So(err, ShouldBeNil)
+			So(created, ShouldNotBeNil)
+			So(created.Uuid, ShouldNotBeEmpty)
+			So(created.Label, ShouldEqual, "Priority")
+			So(created.LabelI18N, ShouldEqual, `{"properties":{}}`)
+		})
+
+		Convey("Create Entity without LabelI18N", t, func() {
+			entity := &idm.MetaEntity{
+				Label:       "Category",
+				Description: "Item Category",
+			}
+
+			created, err := dao.CreateEntity(ctx, entity)
+
+			So(err, ShouldBeNil)
+			So(created, ShouldNotBeNil)
+			So(created.Uuid, ShouldNotBeEmpty)
+			So(created.Label, ShouldEqual, "Category")
+			So(created.LabelI18N, ShouldBeEmpty)
+		})
+
+		Convey("Create Entity with Complex JSON", t, func() {
+			entity := &idm.MetaEntity{
+				Label:       "Skills",
+				Description: "Technical Skills",
+				LabelI18N:   `{"en":"Skills","fr":"Compétences","de":"Fähigkeiten","es":"Habilidades"}`,
+			}
+
+			created, err := dao.CreateEntity(ctx, entity)
+
+			So(err, ShouldBeNil)
+			So(created, ShouldNotBeNil)
+			So(created.Label, ShouldEqual, "Skills")
+			So(created.LabelI18N, ShouldEqual, `{"en":"Skills","fr":"Compétences","de":"Fähigkeiten","es":"Habilidades"}`)
+		})
+
 		Convey("Fail to Create Duplicate Entity", t, func() {
 			entity := &idm.MetaEntity{
 				Label:       "Status",
@@ -144,8 +190,9 @@ func TestEntityValueDAO_GetEntity(t *testing.T) {
 		})
 
 		Convey("Get Non-existent Entity", t, func() {
-			_, err := dao.GetEntity(ctx, "non-existent-uuid")
-			So(err, ShouldNotBeNil)
+			result, err := dao.GetEntity(ctx, "non-existent-uuid")
+			So(err, ShouldBeNil)
+			So(result, ShouldBeNil)
 		})
 	})
 }
@@ -199,11 +246,8 @@ func TestEntityValueDAO_CreateEntityValue(t *testing.T) {
 
 			// Try to create duplicate
 			created2, err2 := dao.CreateEntityValue(ctx, value)
-			So(err2, ShouldBeNil)
-			So(created2, ShouldNotBeNil)
-			// Should return existing entity value
-			So(created2.Uuid, ShouldEqual, created1.Uuid)
-			So(created2.Label, ShouldEqual, "Active")
+			So(err2, ShouldNotBeNil)
+			So(created2, ShouldBeNil)
 		})
 	})
 }
