@@ -59,6 +59,7 @@ func NewDAO(db *gorm.DB) meta.DAO {
 		Abstract:     sql.NewAbstract(db),
 		resourcesDAO: resources2.NewDAO(db),
 		nsDAO:        NewNSDAO(db),
+		evDAO:        NewEntityValueDAO(db),
 	}
 }
 
@@ -67,6 +68,7 @@ type sqlimpl struct {
 	*sql.Abstract
 	resourcesDAO
 	nsDAO meta.NamespaceDAO
+	evDAO meta.EntityValueDAO
 }
 
 type Meta struct {
@@ -113,6 +115,10 @@ func (s *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
 	return s.nsDAO
 }
 
+func (s *sqlimpl) GetEntityValueDao() meta.EntityValueDAO {
+	return s.evDAO
+}
+
 func (s *sqlimpl) Migrate(ctx context.Context) error {
 	if err := s.Session(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
 		return err
@@ -123,6 +129,10 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 	}
 
 	if err := s.nsDAO.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := s.evDAO.Migrate(ctx); err != nil {
 		return err
 	}
 

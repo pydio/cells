@@ -490,6 +490,21 @@ message UserMetaNamespace{
     bool EnforceDefault = 10;
 }
 
+// MetaEntity represents a metadata entity (e.g., "Department", "Project")
+message MetaEntity {
+    string Uuid = 1;
+    string Label = 2;
+    string Description = 3;
+    string LabelI18N = 4;
+}
+
+// EntityValue represents a value for an entity (e.g., "Engineering", "Sales")
+message EntityValue {
+    string Uuid = 1;
+    string Label = 2;
+    string EntityUuid = 3;
+}
+
 // Request for modifying UserMeta
 message UpdateUserMetaRequest{
     enum UserMetaOp {
@@ -760,3 +775,4 @@ message PolicyGroupSingleQuery {
     // Internal - Like query
     bool like = 9;
 }
+

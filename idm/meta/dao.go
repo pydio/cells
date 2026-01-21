@@ -40,6 +40,7 @@ var Drivers = service.StorageDrivers{}
 type DAO interface {
 	resources.DAO
 	GetNamespaceDao() NamespaceDAO
+	GetEntityValueDao() EntityValueDAO
 
 	Migrate(ctx context.Context) error
 	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
@@ -60,4 +61,28 @@ type NamespaceDAO interface {
 	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 	GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
 	GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string) (*structpb.Struct, error)
+}
+
+// EntityValueDAO interface for managing meta entities and their values
+type EntityValueDAO interface {
+	resources.DAO
+
+	Migrate(ctx context.Context) error
+
+	// Entity operations
+	CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error)
+	SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error)
+	GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error)
+
+	// Entity Value operations
+	CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error)
+	GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error)
+
+	// Link operations
+	LinkMetaToValues(ctx context.Context, metaUuid string, valueUuids []string) error
+	UnlinkMetaFromValues(ctx context.Context, metaUuid string, valueUuids []string) error
+	GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error)
+
+	// Combined operations
+	CreateEntityValueAndLink(ctx context.Context, metaUuid string, entityUuid string, labels []string) ([]*idm.EntityValue, error)
 }
