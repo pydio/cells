@@ -157,27 +157,29 @@ type FileInfo struct {
 }
 
 func getNodeInfos(w http.ResponseWriter, r *http.Request) {
-	log.Logger(r.Context()).Debug("WOPI BACKEND - GetNode INFO", zap.Any("vars", mux.Vars(r)))
+	ctx := r.Context()
+
+	log.Logger(ctx).Debug("[wopi] - GetNode INFO", zap.Any("vars", mux.Vars(r)))
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	n, err := findNodeFromRequest(r)
 	if err != nil {
-		log.Logger(r.Context()).Error("cannot find node from request", zap.Error(err))
+		log.Logger(ctx).Error("cannot find node from request", zap.Error(err))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	f, err := GetFileInfoResponseBuilder().Build(r.Context(), n, nil)
+	f, err := GetFileInfoResponseBuilder().Build(ctx, n, r)
 	if err != nil {
-		log.Logger(r.Context()).Error("cannot find node from request", zap.Error(err))
+		log.Logger(ctx).Error("cannot build node from request", zap.Error(err))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	data, _ := json.Marshal(f)
 	if _, er := w.Write(data); er != nil {
-		log.Logger(r.Context()).Error("error writing response in CheckFileInfo API", zap.Error(er))
+		log.Logger(ctx).Error("error writing response in CheckFileInfo API", zap.Error(er))
 	}
 }
 

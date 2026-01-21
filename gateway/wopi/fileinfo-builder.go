@@ -36,13 +36,10 @@ type FileInfoResponseBuilder interface {
 }
 
 var (
-	responseBuilder FileInfoResponseBuilder
+	responseBuilder FileInfoResponseBuilder = &BaseFileInfoResponseBuilder{OwnerID: "pydio"}
 )
 
-func init() {
-	SetFileInfoResponseBuilder(&BaseFileInfoResponseBuilder{OwnerID: "pydio"})
-}
-
+// SetFileInfoResponseBuilder is a hook for replace the default info response builder
 func SetFileInfoResponseBuilder(b FileInfoResponseBuilder) {
 	responseBuilder = b
 }
@@ -85,5 +82,4 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	}
 
 	return f, nil
-
 }
