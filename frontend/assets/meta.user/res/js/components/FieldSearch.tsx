@@ -24,31 +24,27 @@ import {TextInput} from "../fieldsv2/TextInput";
 import {Selector} from "../fieldsv2/Select"
 import {RatingInput} from "../fieldsv2/RatingInput";
 import {SwitchInput} from "../fieldsv2/SwitchInput";
-import {NumbersInput} from "../fieldsv2/NumbersInput";
-import {DateTimeInput} from "../fieldsv2/DateTimeInput";
-import {URLInput} from "../fieldsv2/URLInput";
 import {TagsCloudInput} from "../fieldsv2/TagsCloudInput";
 import {InputProps, Items} from "../fieldsv2/CommonInputProps";
 import MetaClient from "../MetaClient";
 import {NamespaceMeta} from "./MetaSpec";
+import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
+import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
 
-export interface FieldEditProps {
+export interface FieldSearchProps {
     name:string,
     meta:NamespaceMeta,
-    saving: boolean,
     value:any,
-    updateValue:(f:string, v:any, submit?:boolean) => void,
-    supportTemplates?:boolean,
-    requestToggleClose?:() => void,
+    updateValue:(f:string, v:any) => void,
 }
 
 /**
  * Renders a single metadata field in edit mode
  */
-export const FieldEdit: React.FC<FieldEditProps> = ({name, meta, saving, value, updateValue, supportTemplates, requestToggleClose}) => {
+export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, updateValue}) => {
 
     const localChange = useCallback((value:any, submit?: boolean) => {
-        updateValue(name, value, submit);
+        updateValue(name, value);
     }, [name])
 
     const localDataLoader = useCallback((filter?:string) => {
@@ -61,21 +57,21 @@ export const FieldEdit: React.FC<FieldEditProps> = ({name, meta, saving, value, 
 
     let baseProps:InputProps = {
         name,
-        label,
+        placeholder: label, // use label as placeholder
         required,
-        disabled: readonly || saving,
+        disabled: readonly,
         value,
         onChange: localChange,
         errorText,
-        requestToggleClose,
     };
 
     switch (type) {
         case 'stars_rate':
             return <RatingInput {...baseProps}/>;
         case 'choice':
-            const {data:{items=[], steps=false}} = meta;
-            return <Selector {...baseProps} items={items} stepper={steps} />;
+            // Do not use stepper
+            const {data:{items=[]}} = meta;
+            return <Selector {...baseProps} items={items}/>;
         case 'css_label':
             const cssLabels = getCssLabels();
             const cssItems:Items[] = Object.keys(cssLabels).map((id) => {return {...cssLabels[id], key:id, value: cssLabels[id].label}})
@@ -83,13 +79,13 @@ export const FieldEdit: React.FC<FieldEditProps> = ({name, meta, saving, value, 
         case 'tags':
             return <TagsCloudInput {...baseProps} data={[]} dataLoader={localDataLoader}/>;
         case 'date':
-            return <DateTimeInput {...baseProps}/>;
+            return <DateTimeInputSearch {...baseProps}/>;
         case 'integer':
-            return <NumbersInput {...baseProps}/>;
+            return <NumbersInputSearch {...baseProps}/>;
         case 'boolean':
             return <SwitchInput {...baseProps}/>;
         case 'url':
-            return <URLInput {...baseProps}/>;
+            return <TextInput {...baseProps}/>;
         default:
             return <TextInput {...baseProps} subType={type}/>;
     }

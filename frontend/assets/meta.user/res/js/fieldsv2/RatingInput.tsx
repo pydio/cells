@@ -20,31 +20,32 @@
 
 import React from 'react'
 import {Input, Rating} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
+import {InputProps} from "./CommonInputProps";
 
-export const RatingInput:React.FC<MetaInputProps> = (props: MetaInputProps) => {
+export const RatingInput:React.FC<InputProps> = (props: InputProps) => {
 
-    const {label, value, fieldname, errorText, readonly, onValueChange, requestToggleClose} = props;
+    const {label, description, value, errorText, disabled, onChange, requestToggleClose} = props;
 
     return (
         <Input.Wrapper
             label={label}
             error={errorText}
+            description={description}
         >
             <Input
                 component={"div"}
-                disabled={readonly}
+                disabled={disabled}
             >
             <div style={{display: 'flex', alignItems: 'center'}} onBlur={requestToggleClose}>
                 <span
                     className={'mdi mdi-star-off-outline'}
                     style={{fontSize: 19, marginRight: 5, cursor: 'pointer'}}
-                    onClick={() => {!readonly? onValueChange(fieldname, '', true):null}}
+                    onClick={() => {!disabled? onChange( '', true):null}}
                 />
                 <Rating
                     className={""}
                     value={parseInt(value)||0}
-                    onChange={(n) => onValueChange(fieldname, n, true)}
+                    onChange={(n) => onChange(n, true)}
                     readOnly={false}
                 />
             </div>

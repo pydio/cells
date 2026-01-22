@@ -20,33 +20,36 @@
 
 import React, {useEffect, useState} from 'react'
 import {TagsInput} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
-import MetaClient from "../MetaClient";
+import {StringItemsInputProps} from "./CommonInputProps";
 
-export const TagsCloudInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, requestToggleClose, errorText, supportTemplates, additionalProps}) => {
+export const TagsCloudInput: React.FC<StringItemsInputProps> = ({name, label, description, placeholder, disabled, value, onChange, data, dataLoader, requestToggleClose, errorText}) => {
 
-    const [data, setData] = useState<string[]>([]);
+    const [items, setItems] = useState<string[]>(data);
+
     const props = {
         label,
-        disabled: readonly,
+        disabled,
+        description,
+        placeholder,
         error: errorText,
     }
+
     useEffect(()=>{
-        MetaClient.getInstance().listTags(fieldname).then(tags => {
-            setData(tags.filter(t => t))
-        });
-    }, [fieldname])
+        if(dataLoader) {
+            dataLoader().then(ss => setItems(ss));
+        }
+    }, [name])
 
     const valueData= value ? value.split(',') : []
-    const onChange = (values: string[]) => {
-        onValueChange(fieldname, values.join(','), true)
+    const onChangeJoin = (values: string[]) => {
+        onChange(values.join(','), true)
     }
 
     return <TagsInput
         {...props}
         value={valueData}
-        data={data}
-        onChange={onChange}
+        data={items}
+        onChange={onChangeJoin}
         comboboxProps={{withinPortal: false}}
         autoFocus={!!requestToggleClose}
         onBlur={requestToggleClose}

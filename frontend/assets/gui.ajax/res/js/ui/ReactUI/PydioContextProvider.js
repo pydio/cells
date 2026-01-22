@@ -26,7 +26,7 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import {saveState, loadState} from './localStorage';
 
-const { EditorReducers } = Pydio.requireLib('hoc');
+const { EditorReducers, PydioMantineProvider } = Pydio.requireLib('hoc');
 
 const store = createStore(
     EditorReducers,
@@ -48,13 +48,12 @@ try{
     MainProvider = DND.DragDropContext(Backend)(MainProvider);
 }catch(e){}
 
-
 export default function(PydioComponent, pydio, themeBuilder){
 
     class Wrapped extends Component{
 
         static get displayName() {
-            return `WithPydioContext(${Component.displayName||Component.name||'Component'})`
+            return `WithPydioContext(${PydioComponent.displayName||PydioComponent.name||'Component'})`
         }
 
 
@@ -89,7 +88,9 @@ export default function(PydioComponent, pydio, themeBuilder){
             return (
                 <MainProvider muiTheme={theme}>
                     <Provider store={store}>
-                        <PydioComponent {...this.props}/>
+                        <PydioMantineProvider presetTheme={theme}>
+                            <PydioComponent {...this.props}/>
+                        </PydioMantineProvider>
                     </Provider>
                 </MainProvider>
             );

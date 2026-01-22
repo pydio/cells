@@ -190,7 +190,7 @@ export const AdvancedAsChips = muiThemeable()((props) => {
                 targetOrigin={{horizontal: 'left', vertical: 'top'}}
                 useLayerForClickAway={false}
                 onRequestClose={()=>setPopoverOpen(false)}
-                style={{width:260, borderRadius:12, zIndex:2000, marginTop: 5, background:'var(--md-sys-color-surface-1)'}}
+                style={{width:260, borderRadius:12, zIndex:2000, marginTop: 5, background:'var(--md-sys-color-surface-1)', overflow:'visible'}}
                 zDepth={2}
             >
                 {popoverField && <div style={styles.popoverTitle}>{popoverField.label}</div>}

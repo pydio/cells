@@ -109,10 +109,10 @@ export const MetadataGroup = ({
     // Styles for headers and fields
     const styles = {
         header: {
-            fontSize: 14,
-            fontWeight: 500,
+            fontSize: 18,
+            fontWeight: 400,
             paddingTop: 10,
-            paddingBottom: 10,
+            paddingBottom: 24,
             display: 'flex',
             alignItems: 'center',
             cursor: 'pointer',
@@ -158,7 +158,7 @@ export const MetadataGroup = ({
                     <StyledDiv style={sHead} className={'nsgroup-header'} onClick={() => onToggleGroup(gPath)}>
                         <span
                             className={"mdi mdi-chevron-" + (open ? "down" : "right")}
-                            style={{fontSize: 18, color: '#ccc'}}
+                            style={{fontSize: 18, color: 'var(--md-sys-color-outline-variant)', marginLeft: -8, marginRight: 4}}
                         />
                         <span> {gName}</span>
                     </StyledDiv>
@@ -181,7 +181,9 @@ export const MetadataGroup = ({
                         onToggleGroup={onToggleGroup}
                         pydio={pydio}
                         onRequestEditMode={onRequestEditMode}
+                        autoSave={autoSave}
                         saving={saving}
+                        useTogglableFields={useTogglableFields}
                     />
                 )}
             </React.Fragment>

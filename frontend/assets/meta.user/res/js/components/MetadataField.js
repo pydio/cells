@@ -46,7 +46,7 @@ export const MetadataField = ({
     if (editMode) {
         const field = (
             <FieldEdit
-                fieldKey={fieldKey}
+                name={fieldKey}
                 meta={meta}
                 value={value}
                 updateValue={updateValue}

@@ -45,7 +45,7 @@ const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
 
 
     const saveMeta = useCallback(() => {
-        if(!updateData || !valid){
+        if(!updateData){
             return Promise.resolve()
         }
         setSaving(true);
@@ -54,7 +54,7 @@ const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
         }).catch(e => {
             setSaving(false);
         });
-    }, [updateData, valid, node])
+    }, [updateData, node])
 
 
     let actions = [];
@@ -69,6 +69,7 @@ const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
                 key="edit"
                 label={MessageHash['meta.user.15']}
                 onClick={saveMeta}
+                disabled={!valid}
             />
         );
     }
@@ -100,6 +101,7 @@ const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
         >
             <MetaComponent
                 ref={panel}
+                className={"infoPanelFlexRow"}
                 node={node}
                 editMode={!readOnly}
                 pydio={pydio}

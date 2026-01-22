@@ -4,6 +4,10 @@
 
 .panelCard .panelContent .infoPanelRow.togglable.no-value .infoPanelValue {}
 
+.panelCard .panelContent .infoPanelRow.togglable{
+    padding-bottom: 10px;
+}
+
 .infoPanelRow.togglable .infoPanelValue {
     background: var(--md-sys-color-surface-3);
     min-height: 35px;
@@ -15,5 +19,34 @@
 }
 
 .infoPanelRow.togglable .infoPanelLabel {
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+}
+
+.panelCard .panelContent {
+    container-type: inline-size;
+}
+
+@container (min-width: 280px) and (max-width: 540px) {
+    .panelCard .panelContent .infoPanelFlexRow .infoPanelRow,
+    .panelCard .panelContent .infoPanelFlexRow .infoPanelRow.togglable.no-value,
+    .panelCard .panelContent .infoPanelFlexRow .mantine-InputWrapper-root {
+        display: flex;
+        align-items: start;
+    }
+
+    .panelCard .panelContent .infoPanelFlexRow .infoPanelRow .infoPanelValue,
+    .panelCard .panelContent .infoPanelFlexRow .mantine-Input-wrapper {
+        flex: 1;
+    }
+
+    .panelCard .panelContent .infoPanelFlexRow .infoPanelLabel,
+    .panelCard .panelContent .infoPanelFlexRow .mantine-InputWrapper-label {
+        min-width: 100px;
+        width: 30%;
+        padding: 10px 4px 10px 0;
+        margin-bottom: inherit;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

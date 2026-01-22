@@ -144,8 +144,8 @@ class TagsCloud extends React.Component {
 
     renderChip(tag) {
         const {color, backgroundColor} = colorsFromString(tag);
-        const chipStyle = {margin:2, borderRadius:'4px 16px 16px 4px'};
-        const labelStyle = {color, fontWeight: 500, paddingLeft: 10, paddingRight: 16};
+        const chipStyle = {margin:2, borderRadius:16};
+        const labelStyle = {color, paddingLeft: 10, paddingRight: 16, fontSize: 15};
         if (this.props.editMode) {
             return ( <Chip key={tag} backgroundColor={backgroundColor} labelStyle={labelStyle} style={chipStyle} onRequestDelete={this.handleRequestDelete.bind(this, tag)}>{tag}</Chip> );
         } else {

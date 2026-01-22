@@ -29,6 +29,10 @@ const ResourcesManager = require('pydio/http/resources-manager');
 import PydioContextProvider from './PydioContextProvider'
 import ThemeBuilder from "./ThemeBuilder";
 import moment from './Moment'
+// Ensure dates/styles this is loaded AFTER the core/styles
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+
 
 export default class Builder{
 

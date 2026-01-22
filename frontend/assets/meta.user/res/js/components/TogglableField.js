@@ -44,29 +44,20 @@ export const TogglableField = ({
   }) => {
 
     const [editing, setEditing] = useState(false);
-    const [savePending, setSavePending] = useState(false);
 
-    useEffect(() => {
-        if(savePending && editing && !saving) {
-            setSavePending(false);
-            setEditing(false);
-        }
-    }, [saving]);
-
-    if (editing || savePending) {
+    if (editing) {
         return <FieldEdit
-            fieldKey={fieldKey}
+            name={fieldKey}
             meta={meta}
             value={value}
             updateValue={(key, value, submit) => {
                 updateValue(key, value, submit);
                 if(submit) {
-                    setSavePending(true);
+                    setEditing(false);
                 }
             }}
-            saving={savePending}
             requestToggleClose={()=> {
-                setSavePending(true);
+                setEditing(false);
                 autoSave && autoSave()
             }}
             configsForGroup={configsForGroup}

@@ -20,13 +20,13 @@
 
 import React from 'react'
 import {NumberInput} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
+import {InputProps} from "./CommonInputProps";
 
-export const NumbersInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, requestToggleClose, onValueChange, errorText, supportTemplates, additionalProps}) => {
+export const NumbersInput: React.FC<InputProps> = ({label, description, placeholder, disabled, value, requestToggleClose, onChange, errorText}) => {
     const props = {
         label,
         value: value || '',
-        disabled: readonly,
+        disabled,
         error: errorText,
     }
 
@@ -34,15 +34,19 @@ export const NumbersInput: React.FC<MetaInputProps> = ({fieldname, label, readon
 
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
-            onValueChange(fieldname, value, true);
+            onChange(value, true);
         }
     }
 
     return <NumberInput
         {...props}
-        onChange={(v) => onValueChange(fieldname, v, false)}
+        onChange={(v) => onChange(v)}
         onKeyPress={simpleEnter}
         autoFocus={!!requestToggleClose}
         onBlur={requestToggleClose}
+        thousandSeparator=" "
+        prefix="€"
+        description={description}
+        placeholder={placeholder}
     />
 }

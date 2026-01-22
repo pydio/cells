@@ -20,19 +20,21 @@
 
 import React from 'react'
 import {TextInput} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
+import {InputProps} from "./CommonInputProps";
 
-export const URLInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, requestToggleClose, errorText, supportTemplates, additionalProps}) => {
+export const URLInput: React.FC<InputProps> = ({label, description, placeholder, disabled, value, onChange, requestToggleClose, errorText}) => {
     const props = {
         label,
+        description,
+        placeholder,
         value,
-        disabled: readonly,
+        disabled,
         error: errorText,
     }
-    const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onValueChange(fieldname, e.target.value)
+    const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
-            onValueChange(fieldname, value, true);
+            onChange(value, true);
         }
     }
 

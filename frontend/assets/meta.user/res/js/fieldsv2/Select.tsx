@@ -19,7 +19,7 @@
  */
 import React, {useCallback} from 'react'
 import {Select} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
+import {ItemsInputProps, InputProps} from "./CommonInputProps";
 
 interface RenderOptionProps {
     option: {
@@ -29,9 +29,13 @@ interface RenderOptionProps {
     checked: boolean;
 }
 
-export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onValueChange, requestToggleClose, errorText, search, meta, readonly, mode}) => {
+export interface SelectInputProps extends InputProps, ItemsInputProps {
+    stepper?: boolean;
+}
 
-    const {data:{items=[], steps=false}} = meta;
+export const Selector: React.FC<SelectInputProps> = ({value, label, description, placeholder, onChange, items, requestToggleClose, errorText, disabled, stepper}) => {
+
+    //const {data:{items=[], steps=false}} = meta;
     const handleColors = items.find(i => !!i.color)
 
     const renderOptions = useCallback(({option, checked}: RenderOptionProps) => {
@@ -50,7 +54,7 @@ export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onV
         }
     }
 
-    if(steps && !search){
+    if(stepper){
         const pos = items.indexOf(crtItem!)
         if(pos > 0) {
             const prevLabel = items[pos-1].value
@@ -58,7 +62,7 @@ export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onV
                 className={"mdi mdi-chevron-left"}
                 style={{fontSize:11, cursor:"pointer"}}
                 title={prevLabel}
-                onClick={() => {onValueChange(fieldname, items[pos-1].key, true)}}
+                onClick={() => {onChange(items[pos-1].key, true)}}
             />
         }
         if(pos < items.length -1) {
@@ -67,7 +71,7 @@ export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onV
                 className={"mdi mdi-chevron-right"}
                 style={{fontSize:11, cursor:"pointer"}}
                 title={nextLabel}
-                onClick={() => {onValueChange(fieldname, items[pos+1].key, true)}}
+                onClick={() => {onChange(items[pos+1].key, true)}}
             />
         }
     }
@@ -76,10 +80,12 @@ export const Selector: React.FC<MetaInputProps> = ({fieldname, value, label, onV
     return (
         <Select
             label={label}
+            description={description}
+            placeholder={placeholder}
             value={value}
             error={errorText}
-            disabled={readonly}
-            onChange={v => onValueChange(fieldname, v, true)}
+            disabled={disabled}
+            onChange={v => onChange(v, true)}
             data={items.map(i => {return {value: i.key, label: i.value}})}
             allowDeselect={false}
             leftSection={leftSection}

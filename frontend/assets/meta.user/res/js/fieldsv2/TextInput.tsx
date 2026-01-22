@@ -20,37 +20,40 @@
 
 import React from 'react'
 import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
+import {InputProps} from "./CommonInputProps";
 
-export const TextInput: React.FC<MetaInputProps> = ({fieldname, label, readonly, value, meta, onValueChange, errorText, requestToggleClose, supportTemplates, additionalProps}) => {
-    const {type} = meta;
+export const TextInput: React.FC<InputProps> = ({label, description, placeholder, subType, disabled, value, onChange, errorText, requestToggleClose}) => {
     const props = {
         label,
+        description,
+        placeholder,
         value:value||'',
-        disabled: readonly,
+        disabled,
         error: errorText,
         autoFocus:!!requestToggleClose,
         onBlur:requestToggleClose
 }
-    const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onValueChange(fieldname, e.target.value)
-    const onChangeString = (value: string) => onValueChange(fieldname, value)
+    const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
+    const onChangeString = (value: string) => onChange(value)
 
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
-            onValueChange(fieldname, value, true);
+            onChange(value, true);
         }
     }
     const ctrlEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter' && event.ctrlKey){
-            onValueChange(fieldname, value, true);
+            onChange(value, true);
         }
     }
 
-    if(type === 'json') {
-        return <JsonInput {...props} onChange={onChangeString} onKeyPress={ctrlEnter} autosize minRows={3} maxRows={10}/>
-    } else if(type === 'textarea'){
-        return <Textarea {...props} onChange={onChangeEvent} onKeyPress={ctrlEnter} autosize minRows={3} maxRows={5}/>
-    } else {
-        return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={simpleEnter}/>
+
+    switch (subType) {
+        case 'textarea':
+            return <Textarea {...props} onChange={onChangeEvent} onKeyPress={ctrlEnter} autosize minRows={3} maxRows={5}/>
+        case 'json':
+            return <JsonInput {...props} onChange={onChangeString} onKeyPress={ctrlEnter} autosize minRows={3} maxRows={10}/>
+        default:
+            return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={simpleEnter}/>
     }
 }

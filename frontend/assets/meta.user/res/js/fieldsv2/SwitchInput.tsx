@@ -20,15 +20,16 @@
 
 import React from 'react'
 import {Input, Switch} from '@mantine/core'
-import {MetaInputProps} from "./MetaInputProps";
+import {InputProps} from "./CommonInputProps";
 
-export const SwitchInput:React.FC<MetaInputProps> = (props: MetaInputProps) => {
+export const SwitchInput:React.FC<InputProps> = (props: InputProps) => {
 
-    const {label, value, fieldname, errorText, readonly, onValueChange, requestToggleClose} = props;
+    const {label, description, value, errorText, disabled, onChange, requestToggleClose} = props;
 
     return (
         <Input.Wrapper
             label={label}
+            description={description}
             error={errorText}
         >
             <Input component={"div"} onBlur={requestToggleClose}>
@@ -36,8 +37,8 @@ export const SwitchInput:React.FC<MetaInputProps> = (props: MetaInputProps) => {
                 <Switch
                     label={label}
                     checked={value}
-                    onChange={(e) => onValueChange(fieldname, e.currentTarget.checked, true)}
-                    disabled={readonly}
+                    onChange={(e) => onChange(e.currentTarget.checked, true)}
+                    disabled={disabled}
                 />
             </div>
             </Input>
