@@ -21,7 +21,6 @@ import React, {useRef, useEffect, useState, useCallback} from 'react'
 import Pydio from 'pydio'
 import MetaClient from "./MetaClient";
 import {FlatButton} from 'material-ui';
-import UserMetaPanel from './UserMetaPanel'
 import UserMetaPanelV2 from "./UserMetaPanelV2";
 const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
@@ -84,11 +83,6 @@ const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
         panelStyle = {...panelStyle, paddingBottom: 16}
     }
 
-    let MetaComponent = UserMetaPanel
-    if(pydio.getPluginConfigs('meta.user').get('USERMETA_FEATURE_NEWMETA')){
-        MetaComponent = UserMetaPanelV2
-    }
-
     return (
         <InfoPanelCard
             {...infoProps}
@@ -99,7 +93,7 @@ const InfoPanel = ({pydio, node, popoverPanel, style, ...infoProps}) => {
             icon="mdi mdi-tag-multiple-outline" iconColor="#00ACC1"
             popoverPanel={popoverPanel}
         >
-            <MetaComponent
+            <UserMetaPanelV2
                 ref={panel}
                 className={"infoPanelFlexRow"}
                 node={node}

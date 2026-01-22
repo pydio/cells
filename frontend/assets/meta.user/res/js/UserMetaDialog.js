@@ -23,7 +23,6 @@ import Node from 'pydio/model/node'
 import DataModel from 'pydio/model/data-model'
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types'
-import UserMetaPanel from './UserMetaPanel'
 import UserMetaPanelV2 from "./UserMetaPanelV2";
 import MetaClient from "./MetaClient";
 const {PydioMantineProvider} = Pydio.requireLib('hoc');
@@ -59,14 +58,9 @@ export default createReactClass({
     },
 
     render(){
-        let MetaComponent = UserMetaPanel
-        if(Pydio.getInstance().getPluginConfigs('meta.user').get('USERMETA_FEATURE_NEWMETA')){
-            MetaComponent = UserMetaPanelV2
-        }
-
         return (
             <PydioMantineProvider>
-                <MetaComponent
+                <UserMetaPanelV2
                     pydio={this.props.pydio}
                     multiple={!this.props.selection.isUnique()}
                     ref="panel"

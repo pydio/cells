@@ -56,7 +56,6 @@ export const AdvancedChipsSorter = ({searchTools, requestClose}) => {
     ];
 
     let value = sortField;
-    console.log(sortField, sortDesc);
     if(sortField && sortDesc){
         value = '-' + value;
     }
