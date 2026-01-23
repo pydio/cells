@@ -21,7 +21,8 @@
 import React, {useCallback} from 'react'
 import {InputProps} from "./CommonInputProps";
 import {DateTimePicker} from '@mantine/dates'
-import {Button, Menu, PopoverProps} from "@mantine/core";
+import {PopoverProps} from "@mantine/core";
+import {DateRangeModifiers, LeftSectionMenu} from "./SearchModifiers";
 
 export const DateTimeInputSearch: React.FC<InputProps> = ({label, description, placeholder, required, disabled, value, onChange, requestToggleClose, errorText}) => {
     const props = {
@@ -75,22 +76,7 @@ export const DateTimeInputSearch: React.FC<InputProps> = ({label, description, p
         }
     }, [vDate])
 
-
-    const menu = (
-        <Menu withinPortal={false}>
-            <Menu.Target>
-                <Button style={{padding:0, height:26, width:26}} variant={"subtle"} size={"sm"}>{searchComp || '='}</Button>
-            </Menu.Target>
-            <Menu.Dropdown>
-                <Menu.Item  onClick={() => updateSearchComparator('')}>=</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('>=')}>&gt;=</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('<=')}>&lt;=</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('>')}>&gt;</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('<')}>&lt;</Menu.Item>
-            </Menu.Dropdown>
-        </Menu>
-    )
-
+    const menu = <LeftSectionMenu items={DateRangeModifiers} value={searchComp} onChange={updateSearchComparator}/>
 
     return <DateTimePicker
         {...props}

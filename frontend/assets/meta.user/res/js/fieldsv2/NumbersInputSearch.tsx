@@ -19,8 +19,9 @@
  */
 
 import React, {useCallback} from 'react'
-import {NumberInput, Menu, Button} from '@mantine/core'
+import {NumberInput} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
+import {LeftSectionMenu, NumberRangeModifiers} from "./SearchModifiers";
 
 export const NumbersInputSearch: React.FC<InputProps> = ({label, description, placeholder, disabled, value, requestToggleClose, onChange, errorText}) => {
     const props = {
@@ -59,20 +60,7 @@ export const NumbersInputSearch: React.FC<InputProps> = ({label, description, pl
         onChange(comp+''+value, true);
     }, [value])
 
-    const menu = (
-        <Menu withinPortal={false}>
-            <Menu.Target>
-                <Button style={{padding:0, height:26, width:26}} variant={"subtle"} size={"sm"}>{searchComp || '='}</Button>
-            </Menu.Target>
-            <Menu.Dropdown>
-                <Menu.Item  onClick={() => updateSearchComparator('')}>=</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('>=')}>&gt;=</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('<=')}>&lt;=</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('>')}>&gt;</Menu.Item>
-                <Menu.Item onClick={() => updateSearchComparator('<')}>&lt;</Menu.Item>
-            </Menu.Dropdown>
-        </Menu>
-    )
+    const menu = <LeftSectionMenu items={NumberRangeModifiers} value={searchComp} onChange={updateSearchComparator}/>
 
     return (
             <NumberInput
