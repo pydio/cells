@@ -30,6 +30,7 @@ import MetaClient from "../MetaClient";
 import {NamespaceMeta} from "./MetaSpec";
 import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
 import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
+import {TextInputSearch} from "../fieldsv2/TextInputSearch";
 
 export interface FieldSearchProps {
     name:string,
@@ -87,7 +88,7 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
         case 'url':
             return <TextInput {...baseProps}/>;
         default:
-            return <TextInput {...baseProps} subType={type}/>;
+            return <TextInputSearch {...baseProps} subType={type}/>;
     }
 };
 

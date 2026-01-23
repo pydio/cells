@@ -33,7 +33,7 @@ export const AdvancedPlusMenu = ({pydio, requestClose, displayed, setDisplayed, 
     }, [indexedMetadata, displayed])
 
     return (
-        <Menu listStyle={poStyles.popoverMenuStyle} desktop={true}>
+        <Menu style={poStyles.popoverMenuRootStyle} listStyle={poStyles.popoverMenuStyle} desktop={true} autoWidth={false}>
             {hidden.map(field => {
                 return <MenuItem key={field.name} primaryText={field.label} onClick={() => {toggle(field.name)}}/>
             })}

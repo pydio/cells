@@ -63,7 +63,9 @@ export const AdvancedChipsSorter = ({searchTools, requestClose}) => {
 
     return (
         <Menu
+            style={poStyles.popoverMenuRootStyle}
             listStyle={poStyles.popoverMenuStyle}
+            autoWidth={false}
             desktop={true}
             value={value}
             onChange={(e,v) => {

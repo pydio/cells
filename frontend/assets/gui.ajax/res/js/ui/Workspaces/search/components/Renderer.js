@@ -47,7 +47,14 @@ export default class Renderer {
                 if(mode === 'popover') {
                     const poStyles = chipsStyles({})
                     return (
-                        <Menu listStyle={{...poStyles.popoverMenuStyle}} desktop={true} value={values[name]} onChange={(e,v) => onChangeValues({...values,[name]:v})}>
+                        <Menu
+                            autoWidth={false}
+                            style={poStyles.popoverMenuRootStyle}
+                            listStyle={{...poStyles.popoverMenuStyle}}
+                            desktop={true}
+                            value={values[name]}
+                            onChange={(e,v) => onChangeValues({...values,[name]:v})}
+                        >
                             <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
                             <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
                             <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>

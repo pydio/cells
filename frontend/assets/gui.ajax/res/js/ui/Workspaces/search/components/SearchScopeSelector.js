@@ -121,6 +121,8 @@ class SearchScopeSelector extends Component {
                     value={value}
                     desktop={true}
                     onChange={(e,v) => {onChange(v)}}
+                    autoWidth={false}
+                    style={poStyles.popoverMenuRootStyle}
                     listStyle={{...poStyles.popoverMenuStyle}}
                 >{items}</Menu>
             )

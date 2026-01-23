@@ -25,12 +25,23 @@ import {Menu, MenuItem, Divider} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import {chipsStyles} from "./AdvancedChipsStyles";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
+import {TextInput} from '@mantine/core'
+import {debounce} from 'lodash'
 
 class FileFormatPanel extends Component {
 
     constructor(props) {
         super(props);
         this.state = this.propsToState(props)
+
+        this._setExtDebounced = debounce(() => {
+            const {pendingExt} = this.state;
+            this.setState({ext:pendingExt})
+        }, 500)
+    }
+
+    setPendingExt(ext) {
+        this.setState({pendingExt:ext}, () => this._setExtDebounced())
     }
 
     propsToState(props) {
@@ -54,7 +65,7 @@ class FileFormatPanel extends Component {
                 ext = val
             }
         }
-        return {selector, ext}
+        return {selector, ext, pendingExt: ext}
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
@@ -64,7 +75,7 @@ class FileFormatPanel extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState === this.state) {
+        if (prevState.ext === this.state.ext && prevState.selector === this.state.selector) {
             return;
         }
         const {searchTools:{SearchConstants}} = this.props;
@@ -89,7 +100,7 @@ class FileFormatPanel extends Component {
     render() {
 
         const {inputStyle, getMessage, mode, muiTheme, compact = false, searchTools:{SearchConstants}} = this.props;
-        const {ext, selector = ''} = this.state;
+        const {ext, selector = '', pendingExt = ''} = this.state;
         const mm = Pydio.getMessages()
         const mimeMessages = (id) => mm[SearchConstants.MimeGroupsMessage(id)]
         const modernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)});
@@ -110,11 +121,17 @@ class FileFormatPanel extends Component {
             <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
         )
 
+        console.log(ext, pendingExt)
+
         if (mode === 'popover') {
             const poStyles = chipsStyles(muiTheme)
             return (
                 <Fragment>
                     <Menu
+                        initiallyKeyboardFocused={false}
+                        disableAutoFocus={true}
+                        autoWidth={false}
+                        style={poStyles.popoverMenuRootStyle}
                         listStyle={(selector==='extension') ? {...poStyles.popoverMenuStyleNoBottom}:{...poStyles.popoverMenuStyle}}
                         desktop={true}
                         value={selector}
@@ -123,15 +140,11 @@ class FileFormatPanel extends Component {
 
                     {selector === 'extension' &&
                         <div style={poStyles.popoverBlockStyle}>
-                            <ModernTextField
-                                {...modernStyles.textFieldV1Search}
-                                focusOnMount={true}
-                                fullWidth={true}
-                                style={{...inputStyle}}
-                                className="mui-text-field"
-                                hintText={getMessage(500)}
-                                value={ext || ""}
-                                onChange={(e, v) => this.setState({ext: v})} // TODO Debounce change
+                            <TextInput
+                                autoFocus={true}
+                                placeholder={getMessage(500)}
+                                value={pendingExt}
+                                onChange={(event) => this.setPendingExt(event.target.value)}
                             />
                         </div>
                     }

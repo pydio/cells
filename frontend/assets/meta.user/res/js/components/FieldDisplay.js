@@ -18,27 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState} from 'react';
-import Pydio from 'pydio';
-import {Checkbox} from 'material-ui';
-import StarsForm from "../fields/StarsForm";
+import React from 'react';
 import StarsField from "../fields/StarsField";
-import CssLabelsField, {getCssLabels} from "../fields/CssLabelsField";
+import CssLabelsField from "../fields/CssLabelsField";
 import SelectorField from "../fields/SelectorField";
 import TagsCloud from "../fields/TagsCloud";
-import Renderer from "../Renderer";
-import {DateTimeField, DateTimeForm} from "../fields/DateTime";
-import BooleanForm from "../fields/BooleanForm";
-import {IntegerField, IntegerForm} from "../fields/Integer";
-import {URLField, URLForm} from "../fields/URL";
-import {TextInput} from "../fieldsv2/TextInput";
-import {Selector} from "../fieldsv2/Select"
-import {RatingInput} from "../fieldsv2/RatingInput";
-import {SwitchInput} from "../fieldsv2/SwitchInput";
-import {NumbersInput} from "../fieldsv2/NumbersInput";
-import {DateTimeInput} from "../fieldsv2/DateTimeInput";
-import {URLInput} from "../fieldsv2/URLInput";
-import {TagsCloudInput} from "../fieldsv2/TagsCloudInput";
+import {DateTimeField} from "../fields/DateTime";
+import {IntegerField} from "../fields/Integer";
+import {URLField} from "../fields/URL";
 
 
 /**
