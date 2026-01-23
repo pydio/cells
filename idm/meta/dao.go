@@ -79,10 +79,6 @@ type EntityValueDAO interface {
 	GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error)
 
 	// Link operations
-	LinkMetaToValues(ctx context.Context, metaUuid string, valueUuids []string) error
-	UnlinkMetaFromValues(ctx context.Context, metaUuid string, valueUuids []string) error
+	LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) error
 	GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error)
-
-	// Combined operations
-	CreateEntityValueAndLink(ctx context.Context, metaUuid string, entityUuid string, labels []string) ([]*idm.EntityValue, error)
 }
