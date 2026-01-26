@@ -25,6 +25,7 @@ const {ModernSelectField, ThemedModernStyles, DatePicker} = Pydio.requireLib('ho
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import {Menu, MenuItem, Divider} from 'material-ui';
 import {chipsStyles} from "./AdvancedChipsStyles";
+import {DatePickerInput} from '@mantine/dates';
 
 class SearchDatePanel extends React.Component {
 
@@ -86,7 +87,7 @@ class SearchDatePanel extends React.Component {
 
             if (value === 'custom') {
                 if(!startDate) {
-                    startDate = new Date(0);
+                    startDate = new Date();
                 }
                 if(!endDate) {
                     // Next year
@@ -159,6 +160,10 @@ class SearchDatePanel extends React.Component {
                     <DatePickerFeed pydio={this.props.pydio} modernStyles={ModernStyles}>
                         {items =>
                             <Menu
+                                initiallyKeyboardFocused={false}
+                                disableAutoFocus={false}
+                                autoWidth={false}
+                                style={poStyles.popoverMenuRootStyle}
                                 listStyle={value==='custom'?{...poStyles.popoverMenuStyleNoBottom}:{...poStyles.popoverMenuStyle}}
                                 desktop={true}
                                 value={value}
@@ -169,36 +174,22 @@ class SearchDatePanel extends React.Component {
                         }
                     </DatePickerFeed>
                     {value === 'custom' &&
-                        <div style={{...poStyles.popoverBlockStyle, ...datePickerGroup, ...inputStyle, flexDirection:'column'}}>
-                            <div style={{...datePicker, marginRight: 2}}>
-                                <DatePicker
-                                    {...ModernStyles.textFieldV1Search}
-                                    fullWidth={true}
-                                    value={startDate}
-                                    onChange={(e, date) => this.setState({startDate: date})}
-                                    hintText={getMessage(491)}
-                                    autoOk={true}
-                                    maxDate={endDate || today}
-                                    defaultDate={startDate}
-                                    container={"inline"}
-                                />
-                                <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({startDate: null})} />
-                            </div>
-                            <div style={{...datePicker, marginLeft: 2}}>
-                                <DatePicker
-                                    {...ModernStyles.textFieldV1Search}
-                                    fullWidth={true}
-                                    value={endDate}
-                                    onChange={(e, date) => this.setState({endDate: date})}
-                                    hintText={getMessage(492)}
-                                    autoOk={true}
-                                    minDate={startDate}
-                                    maxDate={today}
-                                    defaultDate={endDate}
-                                    container={"inline"}
-                                />
-                                <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({endDate: null})} />
-                            </div>
+                        <div style={{...poStyles.popoverBlockStyle, ...inputStyle, flexDirection:'column'}}>
+                            <DatePickerInput
+                                autoFocus={true}
+                                placeholder={getMessage('612')}
+                                value={[startDate, endDate]}
+                                onChange={([start, end]) => {
+                                    if(!start && !end) {
+                                        this.setState({value: null, startDate:null, endDate:null});
+                                    }
+                                    this.setState({startDate: new Date(start), endDate: end ? new Date(end) : null});
+                                }}
+                                type={"range"}
+                                clearable={true}
+                                allowSingleDateInRange={true}
+                                popoverProps={{withinPortal: false}}
+                            />
                         </div>
                     }
                 </Fragment>

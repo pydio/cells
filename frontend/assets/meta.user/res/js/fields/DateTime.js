@@ -37,7 +37,19 @@ class DateTimeField extends Component {
             format = fieldConfig.data.format || format;
             display = fieldConfig.data.display || display;
         }
-        const value = getRealValue();
+        let value = getRealValue();
+        if(!value) {
+            return null;
+        }
+        let comparator = ''
+        if(value && value.indexOf && (value.indexOf('<')===0||value.indexOf('>')===0)){
+            comparator = value.substring(0, 1)
+            value = value.substring(1);
+            if(value.indexOf('=') === 0){
+                comparator += '='
+                value = value.substring(1);
+            }
+        }
         let mDate = new Date(parseFloat(value)*1000);
         if(isNaN(mDate.getTime())){
             return <Fragment>[Invalid Date]</Fragment>
@@ -48,13 +60,13 @@ class DateTimeField extends Component {
         }
         switch (format){
             case 'date':
-                return <Fragment>{mom.format('ll')}</Fragment>
+                return <Fragment>{comparator}{mom.format('ll')}</Fragment>
             case 'date-time':
-                return <Fragment>{mom.format('llll')}</Fragment>
+                return <Fragment>{comparator}{mom.format('llll')}</Fragment>
             case 'time':
-                return <Fragment>{mom.format('LT')}</Fragment>
+                return <Fragment>{comparator}{mom.format('LT')}</Fragment>
             default:
-                return <Fragment>{mom.format('llll')}</Fragment>
+                return <Fragment>{comparator}{mom.format('llll')}</Fragment>
         }
     }
 }

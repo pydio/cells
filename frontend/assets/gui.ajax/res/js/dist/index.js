@@ -51,6 +51,8 @@ import QRCodeReact from 'qrcode.react'
 import ReactMarkdown from 'react-markdown'
 import RemarkGFM from 'remark-gfm'
 import RemarkEmoji from 'remark-emoji'
+import * as MantineCore from '@mantine/core'
+import * as MantineDate from '@mantine/dates'
 
 // Temporary backward compat, last cleaning @TODO
 window.React = React
@@ -117,6 +119,10 @@ if(originalRequire) {
                 return RemarkGFM
             case 'remark-emoji':
                 return RemarkEmoji
+            case '@mantine/core':
+                return MantineCore
+            case '@mantine/dates':
+                return MantineDate
             default:
                 break;
         }

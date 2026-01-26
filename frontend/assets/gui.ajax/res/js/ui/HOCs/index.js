@@ -43,6 +43,7 @@ import emptyDataModel from './search/emptyDataModel'
 import * as hooks from './hooks'
 import * as AdditionalIcons from './material/AdditionalIcons'
 import {listFontIcons, colorsFromString} from './graphics/tools'
+import {PydioMantineProvider} from "./mantine/PydioMantineProvider";
 
 
 const PydioHOCs = {
@@ -74,6 +75,7 @@ const PydioHOCs = {
     SearchConstants,
     ...Modern,
     ThemedContainers,
+    PydioMantineProvider,
     DatePicker: ThemedContainers.DatePicker,
     TimePicker: ThemedContainers.TimePicker,
     AdditionalIcons,

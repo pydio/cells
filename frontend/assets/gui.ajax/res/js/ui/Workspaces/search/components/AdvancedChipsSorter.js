@@ -56,7 +56,6 @@ export const AdvancedChipsSorter = ({searchTools, requestClose}) => {
     ];
 
     let value = sortField;
-    console.log(sortField, sortDesc);
     if(sortField && sortDesc){
         value = '-' + value;
     }
@@ -64,7 +63,9 @@ export const AdvancedChipsSorter = ({searchTools, requestClose}) => {
 
     return (
         <Menu
+            style={poStyles.popoverMenuRootStyle}
             listStyle={poStyles.popoverMenuStyle}
+            autoWidth={false}
             desktop={true}
             value={value}
             onChange={(e,v) => {
