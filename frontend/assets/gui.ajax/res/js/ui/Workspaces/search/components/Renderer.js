@@ -228,7 +228,7 @@ export const renderField = (pydio, searchTools, mode='form', val, onChange) => {
             mode
         });
         if(mode === 'popover') {
-            return <div style={chipsStyles({}).popoverBlockStyle}>{block}</div>
+            return <div style={chipsStyles({}).popoverFieldStyle}>{block}</div>
         } else {
             return block
         }

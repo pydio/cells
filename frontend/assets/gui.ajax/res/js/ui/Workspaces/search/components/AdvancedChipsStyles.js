@@ -98,6 +98,9 @@ export const chipsStyles = (muiTheme, containerStyle = {}, tagStyle = {}, showRe
         popoverBlockStyle: {
             margin: '0 12px 8px',
         },
+        popoverFieldStyle: {
+            margin: '8px 12px',
+        },
         verticalDivider: {
             borderRight: '1px solid var(--md-sys-color-surface-variant)',
             margin: '0px 8px 0px 3px',

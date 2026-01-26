@@ -29,12 +29,13 @@ const starsStyle = {
 
 class StarsField extends React.Component{
     render(){
-        const {getRealValue, size} = this.props;
+        const {getRealValue, size, containerStyle} = this.props;
         let value = getRealValue() || 0;
         let stars = [0,1,2,3,4].map(function(v){
             return <span key={"star-" + v} className={"mdi mdi-star" + (value > v ? '' : '-outline')}></span>;
         });
-        const style = size === 'small' ? {color: starsStyle.color} : starsStyle;
+        let contStyle=containerStyle||{};
+        const style = size === 'small' || containerStyle ? {color: starsStyle.color, ...contStyle} : starsStyle;
         return <span style={style}>{stars}</span>;
     }
 }

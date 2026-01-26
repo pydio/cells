@@ -23,9 +23,9 @@ import Node from 'pydio/model/node'
 import DataModel from 'pydio/model/data-model'
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types'
-
+import UserMetaPanelV2 from "./UserMetaPanelV2";
 import MetaClient from "./MetaClient";
-import UserMetaPanel from "./UserMetaPanel"
+const {PydioMantineProvider} = Pydio.requireLib('hoc');
 
 const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 
@@ -59,14 +59,16 @@ export default createReactClass({
 
     render(){
         return (
-            <UserMetaPanel
-                pydio={this.props.pydio}
-                multiple={!this.props.selection.isUnique()}
-                ref="panel"
-                node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
-                editMode={true}
-                style={{fontSize: 14}}
-            />
+            <PydioMantineProvider>
+                <UserMetaPanelV2
+                    pydio={this.props.pydio}
+                    multiple={!this.props.selection.isUnique()}
+                    ref="panel"
+                    node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
+                    editMode={true}
+                    style={{fontSize: 14}}
+                />
+            </PydioMantineProvider>
         );
     },
 });

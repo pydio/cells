@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+//@ts-ignore
 import Pydio from 'pydio'
+//@ts-ignore
 import {MenuItem} from 'material-ui'
 import StarsField from "./fields/StarsField";
 import SelectorField from "./fields/SelectorField";
@@ -32,6 +34,9 @@ import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 import {IntegerField, IntegerForm} from "./fields/Integer";
 import {getURLDisplayByContext, URLForm} from "./fields/URL";
+import {TagsCloudInput} from "./fieldsv2/TagsCloudInput";
+import {FieldSearch, FieldSearchProps} from "./components/FieldSearch";
+import {NamespaceMeta} from "./components/MetaSpec";
 
 export default class Renderer{
 
@@ -72,13 +77,13 @@ export default class Renderer{
             backgroundColor: '#E1BEE7',
             borderRadius: 6,
             height: 22,
-            lineHeight: '22px',
+            lineHeight: '20px',
             padding: '0 6px',
             color: '#9C27B0',
-            fontWeight: 500,
             fontSize: 12,
             marginLeft: 2,
-            marginRight: 6
+            marginRight: 2,
+            border: '1px solid var(--md-sys-color-inline-tags-border)',
         };
         const value = node.getMetadata().get(column.name);
         if(!value || !value.split) {
@@ -112,6 +117,7 @@ export default class Renderer{
             return null;
         }
         const UrlComponent = getURLDisplayByContext(ctx || {});
+        //@ts-ignore
         return <UrlComponent node={node} column={column}/>;
     }
 
@@ -188,26 +194,19 @@ export default class Renderer{
      * @return {(function(*): *)|*|(function(*, *): *)}
      */
     static typeFormRenderer(type) {
-        switch (type) {
-            case 'stars_rate':
-                return Renderer.formPanelStars
-            case 'css_label':
-                return Renderer.formPanelCssLabels
-            case 'choice':
-                return Renderer.formPanelSelectorFilter
-            case 'tags':
-                return Renderer.formPanelTags
-            case 'integer':
-                return Renderer.formPanelInteger
-            case 'boolean':
-                return Renderer.formPanelBoolean
-            case 'date':
-                return Renderer.formPanelDate
-            case 'url':
-                return Renderer.formPanelURL
-            default:
-                return null
+        const fSearchRenderer = (props:{fieldname:string, value:any, onChange:({})=>void}, configs:Map<string, NamespaceMeta>) => {
+            const fieldProps: FieldSearchProps = {
+                name: props.fieldname,
+                value: props.value,
+                updateValue:(f,v) => {
+                    const searchValues = {['ajxp_meta_'+f]:v}
+                    props.onChange(searchValues);
+                },
+                meta:configs.get(props.fieldname)
+            }
+            return <FieldSearch {...fieldProps}/>;
         }
+        return fSearchRenderer
     }
 
     /**

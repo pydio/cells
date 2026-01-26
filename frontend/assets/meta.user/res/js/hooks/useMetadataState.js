@@ -84,18 +84,18 @@ export const useMetadataState = ({
         });
     }, [loader, node, loadChecks]);
 
-    // Trigger autoSave after updateMeta state has been updated
-    useEffect(() => {
-        if (pendingSubmitRef.current && autoSave) {
-            pendingSubmitRef.current = false;
-            autoSave();
-        }
-    }, [updateMeta, autoSave]);
-
     const {validate, valid, errors, globalErrors, globalValidate} = useValidation({
         configs,
         namespaceJsonSchema
     });
+
+    // Trigger autoSave after updateMeta state has been updated
+    useEffect(() => {
+        if (pendingSubmitRef.current && autoSave && valid) {
+            pendingSubmitRef.current = false;
+            autoSave();
+        }
+    }, [updateMeta, autoSave, valid]);
 
     useEffect(() => {
         const newConfigs = new Map(configs);

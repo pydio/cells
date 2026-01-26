@@ -22,6 +22,7 @@ import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
 import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
+import './components/TogglableField.css';
 
 /**
  * Main component for displaying and editing metadata fields
@@ -36,16 +37,19 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         node,
         loader,
         loadChecks,
-        autoSave,
         supportTemplates,
         multiple,
         pydio,
         style,
         onChangeUpdateData,
+        autoSave,
+        saving,
         onRequestEditMode,
         onFormLoaded,
         onValidStatusChanged,
-        additionalProps
+        additionalProps,
+        useTogglableFields,
+        className
     } = props;
 
     // State management
@@ -101,7 +105,7 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
     }
 
     return (
-        <div style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
+        <div className={className} style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
             {legend}
             <MetadataGroup
                 current=""
@@ -120,6 +124,9 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
                 onToggleGroup={toggleGroup}
                 pydio={pydio}
                 onRequestEditMode={onRequestEditMode}
+                useTogglableFields={useTogglableFields}
+                autoSave={autoSave}
+                saving={saving}
             />
         </div>
     );
