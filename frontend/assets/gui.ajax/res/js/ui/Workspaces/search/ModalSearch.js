@@ -21,14 +21,13 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import UnifiedSearchForm from "./components/UnifiedSearchForm";
 import Pydio from 'pydio'
-const {withSearch} = Pydio.requireLib('hoc')
+
 import {Modal, Paper, IconButton, Menu, MenuItem, ListSubheader, Divider, Dialog, DialogTitle, DialogContent,
     DialogActions, Button
 } from "@mui/material";
 import {SearchStatusButton} from "./components/SearchStatusButton";
 import {AdvancedAsChips} from "./components/AdvancedAsChips";
 import {previewEntryRenderIcon, previewTableEntryRenderCell} from "../views/FilePreview";
-import {useRichMetaActions} from "../views/useRichMetaActions";
 import {useRichMetaLine} from "../views/useRichMetaLine";
 import {useActionExtensionsPin} from "../views/useActionExtensionsPin";
 import {useColumnsFromRegistry} from "../../HOCs/hooks";
@@ -36,7 +35,7 @@ import {useEmptyErrorStatesProps} from "../views/useEmptyErrorStatesProps";
 import {useActionDisplayMode} from "../views/useActionDisplayMode";
 import {useModalHandleClick, useModalSearchActions} from "./components/useModalSearchActions";
 const {ModernSimpleList} = Pydio.requireLib('components');
-const {ModernTextField} = Pydio.requireLib('hoc');
+const {PydioMantineProvider, ModernTextField, withSearch} = Pydio.requireLib('hoc');
 
 
 export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
@@ -194,155 +193,157 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
             disableEnforceFocus
         >
             <Paper elevation={10} sx={styles.sxs.mainPaper} tabIndex={10000}>
-                <UnifiedSearchForm
-                    active={false}
-                    preventOpen={false}
-                    autoFocus={true}
-                    pydio={pydio}
-                    formStyles={styles.searchForm}
-                    searchTools={searchTools}
-                    onRequestOpen={()=>{}}
-                    onRequestClose={()=>setOpen(false)}
-                    advancedPopover={false}
-                />
-                <AdvancedAsChips
-                    pydio={pydio}
-                    searchTools={searchTools}
-                    containerStyle={styles.chipsStyles}
-                    appendUnstyled={<SearchStatusButton
+                <PydioMantineProvider>
+                    <UnifiedSearchForm
+                        active={false}
+                        preventOpen={false}
+                        autoFocus={true}
+                        pydio={pydio}
+                        formStyles={styles.searchForm}
+                        searchTools={searchTools}
+                        onRequestOpen={()=>{}}
+                        onRequestClose={()=>setOpen(false)}
+                        advancedPopover={false}
+                    />
+                    <AdvancedAsChips
                         pydio={pydio}
                         searchTools={searchTools}
-                        moreOnly={true}
-                        style={{...styles.searchMoreStyles.button, ...styles.searchMoreStyles.label, ...styles.searchMoreStyles.fixed}}
-                        buttonStyle={styles.searchMoreStyles.button}
-                        buttonLabelStyle={styles.searchMoreStyles.label}
-                    />}
-                />
-                <ModernSimpleList
-                    pydio={pydio}
-                    node={dataModel.getSearchNode()}
-                    dataModel={dataModel}
-                    observeNodeReload={true}
-                    className={className}
-                    displayMode={dMode}
-                    additionalAttrs={{
-                        style:{
-                            backgroundColor: 'var(--md-sys-color-surface)',
-                            color: 'var(--md-sys-color-on-surface)',
-                            borderRadius: '0',
-                        }}}
-                    usePlaceHolder={true}
+                        containerStyle={styles.chipsStyles}
+                        appendUnstyled={<SearchStatusButton
+                            pydio={pydio}
+                            searchTools={searchTools}
+                            moreOnly={true}
+                            style={{...styles.searchMoreStyles.button, ...styles.searchMoreStyles.label, ...styles.searchMoreStyles.fixed}}
+                            buttonStyle={styles.searchMoreStyles.button}
+                            buttonLabelStyle={styles.searchMoreStyles.label}
+                        />}
+                    />
+                    <ModernSimpleList
+                        pydio={pydio}
+                        node={dataModel.getSearchNode()}
+                        dataModel={dataModel}
+                        observeNodeReload={true}
+                        className={className}
+                        displayMode={dMode}
+                        additionalAttrs={{
+                            style:{
+                                backgroundColor: 'var(--md-sys-color-surface)',
+                                color: 'var(--md-sys-color-on-surface)',
+                                borderRadius: '0',
+                            }}}
+                        usePlaceHolder={true}
 
-                    tableKeys={columns}
-                    sortingInfo={null}
-                    handleSortChange={()=>{}}
+                        tableKeys={columns}
+                        sortingInfo={null}
+                        handleSortChange={()=>{}}
 
-                    entryRenderIcon={entryRenderIcon}
-                    entryRenderParentIcon={entryRenderIcon}
-                    entryRenderFirstLine={(node)=> computeLabel(node)}
-                    entryRenderSecondLine={displayMode === 'list' ? entryRenderSecondLine : null}
-                    entryRenderActions={entryRenderActions}
-                    entryHandleClicks={entryHandleClicks}
-                    emptyStateProps={emptyStateProps}
-                    tableEntryRenderCell={tableEntryRenderCell}
-                    errorStateProps={errorStateProps}
+                        entryRenderIcon={entryRenderIcon}
+                        entryRenderParentIcon={entryRenderIcon}
+                        entryRenderFirstLine={(node)=> computeLabel(node)}
+                        entryRenderSecondLine={displayMode === 'list' ? entryRenderSecondLine : null}
+                        entryRenderActions={entryRenderActions}
+                        entryHandleClicks={entryHandleClicks}
+                        emptyStateProps={emptyStateProps}
+                        tableEntryRenderCell={tableEntryRenderCell}
+                        errorStateProps={errorStateProps}
 
-                    /*
-                    entriesProps={dMode === 'grid' ? {selectedAsBorder: true, noHover: true}:{}}
-                    customToolbar={<CellsMessageToolbar pydio={pydio}/>}
-                    {...groupProps}
-                     */
-                />
-                <div style={styles.statusBar}>
-                    <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
-                    <div style={{fontSize: 16}}>
-                        <IconButton onClick={()=>submitSearch()} className={'mdi mdi-refresh'} size={'small'} aria-label={"Reload search"}/>
-                        <IconButton onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}} className={'mdi mdi-content-save'} size={'small'}/>
-                        <Menu
-                            open={savedMenuOpen}
-                            slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
-                            anchorEl={savedMenuAnchor}
-                            anchorOrigin={{vertical:'top', horizontal:'right'}}
-                            transformOrigin={{vertical:'bottom', horizontal:'right'}}
-                            onClose={()=>{setSavedMenuOpen(false)}}
-                        >
-                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{m('searchengine.complete.group.saved')}</ListSubheader>
-                            {savedSearches.map(i => {
-                                const {searchID, searchLABEL, searchSORTING, ...savedValues} = i
-                                return <MenuItem
-                                    key={searchID}
-                                    style={{padding:'4px 6px 4px 6px', fontSize:13, fontWeight:400, display:'flex'}}
-                                    onClick={()=>{
-                                        setSavedMenuOpen(false);
-                                        setValues(savedValues);
-                                        if(searchSORTING && searchSORTING.sortField) {
-                                            setSortField(searchSORTING.sortField, searchSORTING.sortDesc);
-                                        }
-                                    }}>
-                                    <span className={"mdi mdi-magnify"} style={{opacity:0.43, marginRight:8}}/>
-                                    <span style={{flex: 1}}>{searchLABEL}</span>
-                                    <span className={"mdi mdi-close"} style={{opacity:0.23, marginLeft:8, cursor:'pointer'}} onClick={(e) => {clearSavedSearch(searchID); e.stopPropagation()}}/>
-                                </MenuItem>
-                                }
-                            )}
-                            <Divider/>
-                            <MenuItem
-                                style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
-                                onClick={()=>{setShowSaveSearchField(true)}}
+                        /*
+                        entriesProps={dMode === 'grid' ? {selectedAsBorder: true, noHover: true}:{}}
+                        customToolbar={<CellsMessageToolbar pydio={pydio}/>}
+                        {...groupProps}
+                         */
+                    />
+                    <div style={styles.statusBar}>
+                        <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
+                        <div style={{fontSize: 16}}>
+                            <IconButton onClick={()=>submitSearch()} className={'mdi mdi-refresh'} size={'small'} aria-label={"Reload search"}/>
+                            <IconButton onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}} className={'mdi mdi-content-save'} size={'small'}/>
+                            <Menu
+                                open={savedMenuOpen}
+                                slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
+                                anchorEl={savedMenuAnchor}
+                                anchorOrigin={{vertical:'top', horizontal:'right'}}
+                                transformOrigin={{vertical:'bottom', horizontal:'right'}}
+                                onClose={()=>{setSavedMenuOpen(false)}}
                             >
-                                <div><span className={"mdi mdi-content-save"} style={{opacity:0.43, marginRight:8}}/> {m('searchengine.query.action.save-new')}</div>
-                            </MenuItem>
-                        </Menu>
-                        <IconButton onClick={(e)=>{setDisplayMenuOpen(true); setDisplayMenuAnchor(e.currentTarget)}} className={'mdi mdi-cog-outline'} size={'small'}/>
-                        <Menu open={displayMenuOpen}
-                              slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
-                              anchorEl={displayMenuAnchor}
-                              anchorOrigin={{vertical:'top', horizontal:'right'}}
-                              transformOrigin={{vertical:'bottom', horizontal:'right'}}
-                              onClose={()=>{setDisplayMenuOpen(false)}}
-                        >
-                            <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{m('151')}</ListSubheader>
-                            {displayMenuItems.map(i =>
+                                <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{m('searchengine.complete.group.saved')}</ListSubheader>
+                                {savedSearches.map(i => {
+                                    const {searchID, searchLABEL, searchSORTING, ...savedValues} = i
+                                    return <MenuItem
+                                        key={searchID}
+                                        style={{padding:'4px 6px 4px 6px', fontSize:13, fontWeight:400, display:'flex'}}
+                                        onClick={()=>{
+                                            setSavedMenuOpen(false);
+                                            setValues(savedValues);
+                                            if(searchSORTING && searchSORTING.sortField) {
+                                                setSortField(searchSORTING.sortField, searchSORTING.sortDesc);
+                                            }
+                                        }}>
+                                        <span className={"mdi mdi-magnify"} style={{opacity:0.43, marginRight:8}}/>
+                                        <span style={{flex: 1}}>{searchLABEL}</span>
+                                        <span className={"mdi mdi-close"} style={{opacity:0.23, marginLeft:8, cursor:'pointer'}} onClick={(e) => {clearSavedSearch(searchID); e.stopPropagation()}}/>
+                                    </MenuItem>
+                                    }
+                                )}
+                                <Divider/>
                                 <MenuItem
                                     style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
-                                    onClick={()=>{setDisplayMenuOpen(false);i.callback();}}>
-                                    <span className={i.icon_class} style={{opacity:0.43, marginRight:8}}/> {i.name}
+                                    onClick={()=>{setShowSaveSearchField(true)}}
+                                >
+                                    <div><span className={"mdi mdi-content-save"} style={{opacity:0.43, marginRight:8}}/> {m('searchengine.query.action.save-new')}</div>
                                 </MenuItem>
-                            )}
-                        </Menu>
+                            </Menu>
+                            <IconButton onClick={(e)=>{setDisplayMenuOpen(true); setDisplayMenuAnchor(e.currentTarget)}} className={'mdi mdi-cog-outline'} size={'small'}/>
+                            <Menu open={displayMenuOpen}
+                                  slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
+                                  anchorEl={displayMenuAnchor}
+                                  anchorOrigin={{vertical:'top', horizontal:'right'}}
+                                  transformOrigin={{vertical:'bottom', horizontal:'right'}}
+                                  onClose={()=>{setDisplayMenuOpen(false)}}
+                            >
+                                <ListSubheader style={{padding:'10px 12px 4px 6px', lineHeight:'inherit', background:'transparent'}}>{m('151')}</ListSubheader>
+                                {displayMenuItems.map(i =>
+                                    <MenuItem
+                                        style={{padding:'4px 12px 4px 6px', fontSize:13, fontWeight:400}}
+                                        onClick={()=>{setDisplayMenuOpen(false);i.callback();}}>
+                                        <span className={i.icon_class} style={{opacity:0.43, marginRight:8}}/> {i.name}
+                                    </MenuItem>
+                                )}
+                            </Menu>
+                        </div>
+                        <div>
+                        </div>
                     </div>
-                    <div>
-                    </div>
-                </div>
-                <Dialog open={showSaveSearchField} PaperProps={{style:{background:'var(--md-sys-color-surface-5)'}}} onClose={() => setShowSaveSearchField(false)}>
-                    <DialogTitle style={{padding: 20, paddingBottom:10, fontSize:22}}>{m('searchengine.query.action.save-new')}</DialogTitle>
-                    <DialogContent style={{padding: '0 20px 20px', minWidth:320}}>
-                        <div style={{opacity:0.73}}>{m('searchengine.query.action.save-legend')}</div>
-                        <ModernTextField
-                            focusOnMount={true}
-                            fullWidth={true}
-                            variant={"v2"}
-                            floatingLabelText={m('searchengine.query.save-label')}
-                            value={saveSearchLabel}
-                            onChange={(e, v)=>setSaveSearchLabel(v)}
-                            onKeyDown={(e)=>{
-                            if (e.key === 'Enter' && saveSearchLabel) {
-                                saveSearch(saveSearchLabel, {sortField, sortDesc})
-                                setShowSaveSearchField(false)
-                                setSavedMenuOpen(false);
-                            }
-                        }}/>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button style={{fontWeight:500}} onClick={()=>setShowSaveSearchField(false)}>{m('54')}</Button>
-                        <Button style={{fontWeight:500, color:('var(--md-sys-color-primary)')}} type="submit" onClick={()=>{
-                            saveSearch(saveSearchLabel, {sortField, sortDesc})
-                            setShowSaveSearchField(false)
-                            setSavedMenuOpen(false);
-                        }}>{m('searchengine.query.action.save')}</Button>
-                    </DialogActions>
-                </Dialog>
-            </Paper>
+                        <Dialog open={showSaveSearchField} PaperProps={{style:{background:'var(--md-sys-color-surface-5)'}}} onClose={() => setShowSaveSearchField(false)}>
+                            <DialogTitle style={{padding: 20, paddingBottom:10, fontSize:22}}>{m('searchengine.query.action.save-new')}</DialogTitle>
+                            <DialogContent style={{padding: '0 20px 20px', minWidth:320}}>
+                                <div style={{opacity:0.73}}>{m('searchengine.query.action.save-legend')}</div>
+                                <ModernTextField
+                                    focusOnMount={true}
+                                    fullWidth={true}
+                                    variant={"v2"}
+                                    floatingLabelText={m('searchengine.query.save-label')}
+                                    value={saveSearchLabel}
+                                    onChange={(e, v)=>setSaveSearchLabel(v)}
+                                    onKeyDown={(e)=>{
+                                    if (e.key === 'Enter' && saveSearchLabel) {
+                                        saveSearch(saveSearchLabel, {sortField, sortDesc})
+                                        setShowSaveSearchField(false)
+                                        setSavedMenuOpen(false);
+                                    }
+                                }}/>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button style={{fontWeight:500}} onClick={()=>setShowSaveSearchField(false)}>{m('54')}</Button>
+                                <Button style={{fontWeight:500, color:('var(--md-sys-color-primary)')}} type="submit" onClick={()=>{
+                                    saveSearch(saveSearchLabel, {sortField, sortDesc})
+                                    setShowSaveSearchField(false)
+                                    setSavedMenuOpen(false);
+                                }}>{m('searchengine.query.action.save')}</Button>
+                            </DialogActions>
+                        </Dialog>
+                    </PydioMantineProvider>
+                </Paper>
         </Modal>
     )
 

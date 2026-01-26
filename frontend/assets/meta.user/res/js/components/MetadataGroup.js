@@ -22,7 +22,7 @@ import React from 'react';
 import Pydio from 'pydio';
 import {muiThemeable} from 'material-ui/styles';
 import {MetadataField} from './MetadataField';
-
+import {TogglableField} from './TogglableField';
 const {EmptyStateView} = Pydio.requireLib('components');
 
 const StyledDiv = muiThemeable()(({style, children, muiTheme, ...other}) => {
@@ -52,7 +52,10 @@ export const MetadataGroup = ({
     groupsExpanded,
     onToggleGroup,
     pydio,
-    onRequestEditMode
+    onRequestEditMode,
+    useTogglableFields,
+    autoSave,
+    saving,
 }) => {
     const metadata = node.getMetadata();
     const elements = [];
@@ -77,9 +80,13 @@ export const MetadataGroup = ({
         if (!editMode && value) {
             nonEmptyDataCount++;
         }
+        let Component = MetadataField
+        if(useTogglableFields) {
+            Component = TogglableField
+        }
 
         elements.push(
-            <MetadataField
+            <Component
                 key={key}
                 fieldKey={key}
                 meta={meta}
@@ -93,6 +100,8 @@ export const MetadataGroup = ({
                 configsForGroup={configsForGroup}
                 supportTemplates={supportTemplates}
                 additionalProps={additionalProps}
+                autoSave={autoSave}
+                saving={saving}
             />
         );
     });
@@ -100,10 +109,10 @@ export const MetadataGroup = ({
     // Styles for headers and fields
     const styles = {
         header: {
-            fontSize: 14,
-            fontWeight: 500,
+            fontSize: 18,
+            fontWeight: 400,
             paddingTop: 10,
-            paddingBottom: 10,
+            paddingBottom: 24,
             display: 'flex',
             alignItems: 'center',
             cursor: 'pointer',
@@ -149,7 +158,7 @@ export const MetadataGroup = ({
                     <StyledDiv style={sHead} className={'nsgroup-header'} onClick={() => onToggleGroup(gPath)}>
                         <span
                             className={"mdi mdi-chevron-" + (open ? "down" : "right")}
-                            style={{fontSize: 18, color: '#ccc'}}
+                            style={{fontSize: 18, color: 'var(--md-sys-color-outline-variant)', marginLeft: -8, marginRight: 4}}
                         />
                         <span> {gName}</span>
                     </StyledDiv>
@@ -172,6 +181,9 @@ export const MetadataGroup = ({
                         onToggleGroup={onToggleGroup}
                         pydio={pydio}
                         onRequestEditMode={onRequestEditMode}
+                        autoSave={autoSave}
+                        saving={saving}
+                        useTogglableFields={useTogglableFields}
                     />
                 )}
             </React.Fragment>

@@ -26,7 +26,7 @@ module.exports = {
             module: {
                 rules: [
                     {
-                        test: /\.(js|jsx)$/i,
+                        test: /\.(js|jsx|ts|tsx)$/i,
                         exclude: [
                             /__mocks__/,
                             /\.test\./,
@@ -39,6 +39,7 @@ module.exports = {
                                 ["@babel/plugin-proposal-decorators", { "legacy": true }]
                             ],
                             presets: [
+                                ["@babel/preset-typescript"],
                                 ["@babel/preset-react"],
                                 [
                                     "@babel/preset-env",
@@ -71,7 +72,7 @@ module.exports = {
                     // Learn more about loaders from https://webpack.js.org/loaders/
                 ],
             },
-            resolve: {extensions: ['.js', '.jsx', '.json']},
+            resolve: {extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']},
             watch: process.env.NODE_ENV !== 'production'
         })
     }

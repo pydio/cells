@@ -1,6 +1,7 @@
 import React from 'react'
 import {Popover, Paper, IconButton, DatePicker, TimePicker} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
+import {PydioMantineProvider} from '../mantine/PydioMantineProvider'
 
 const ThemedPaper = muiThemeable()((props) => {
     const {style={}, muiTheme, ...other} = props;
@@ -29,8 +30,14 @@ const ThemedPopover = muiThemeable()((props) => {
             </div>
         )
     }
+    let className = 'themed-popover'
+    if(style.overflow === 'visible') {
+        className += ' themed-popover-visible-overflow'
+    }
     return (
-        <Popover {...other} style={{...muiTheme.menuContainer, ...style}} className={"themed-popover"}>{titleBlock}{children}</Popover>
+        <Popover {...other} style={{...muiTheme.menuContainer, ...style}} className={className}>
+            <PydioMantineProvider presetTheme={muiTheme}>{titleBlock}{children}</PydioMantineProvider>
+        </Popover>
     );
 })
 

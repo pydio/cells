@@ -18,13 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Fragment} from 'react';
+import React from 'react';
 import Pydio from 'pydio';
-const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
-const {PydioContextConsumer} = Pydio.requireLib('boot');
-import {MenuItem} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles';
 import {chipsStyles} from "./AdvancedChipsStyles";
+
+import {Button, Menu, NumberInput} from '@mantine/core'
+
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 
 class SearchFileSizePanel extends React.Component {
 
@@ -46,13 +47,13 @@ class SearchFileSizePanel extends React.Component {
             const {size, unit} = this.roundFileSize(values[name].from)
             s.fromInt = parseInt(values[name].from)
             s.from = size;
-            s.fromUnit = unit
+            s.fromUnit = unit || 'k'
         }
         if(values[name] && values[name].to) {
             const {size, unit} = this.roundFileSize(values[name].to)
             s.toInt = parseInt(values[name].to)
             s.to = size;
-            s.toUnit = unit;
+            s.toUnit = unit || 'k';
         }
         return s
     }
@@ -96,98 +97,85 @@ class SearchFileSizePanel extends React.Component {
         return {size, unit};
     }
 
+    unitPicker(sizeUnit, value, onChange) {
+        const items = [
+            {value:'', label:sizeUnit},
+            {value:'k', label:'k'+sizeUnit},
+            {value:'M', label:'M'+sizeUnit},
+            {value:'G', label:'G'+sizeUnit},
+            {value:'T', label:'T'+sizeUnit},
+        ]
+        const current = items.find((i) => i.value === value) || items[0];
+
+        return (
+            <Menu withinPortal={false} zIndex={1000} position={'bottom-end'}>
+                <Menu.Target>
+                    <Button style={{padding:0, height:26, width:30, marginRight: 4}} variant={"filled"} size={"sm"}>{current.label}</Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                    {items.map(item => (
+                        <Menu.Item onClick={()=>onChange(item.value)}>{item.label}</Menu.Item>)
+                    )}
+                </Menu.Dropdown>
+            </Menu>
+        )
+    }
+
     render() {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
-        const {getMessage, mode, muiTheme} = this.props;
+        const {getMessage, mode} = this.props;
         let {from, to, fromUnit, toUnit, fromInt, toInt} = this.propsToState(this.props)
-        let line1inputStyle, line2inputStyle, textV1Search = {}, selectV1Search = {};
-        let blockStyle={display:'flex'};
-        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
-        textV1Search = {...ModernStyles.textFieldV1Search}
-        selectV1Search = {...ModernStyles.selectFieldV1Search}
-        line1inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: 0}
-        line2inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: ModernStyles.v1SearchRadiusLeft}
+        let blockStyle={paddingTop:10};
 
         if(mode === 'popover') {
             blockStyle = {...blockStyle, ...chipsStyles({}).popoverBlockStyle}
         }
+
+        const startUnitPicker = this.unitPicker(sizeUnit, fromUnit, (v) => {
+            if(from && toInt && Math.round(this.multiple(to, v)) > toInt) {
+                v = toUnit
+            }
+            this.update({fromUnit: v})
+        });
+
+        const endUnitPicker = this.unitPicker(sizeUnit, toUnit, (v) => {
+            if(to && fromInt && Math.round(this.multiple(from, v)) < fromInt) {
+                v = fromUnit
+            }
+            this.update({toUnit: v})
+        });
+
         return (
-            <Fragment>
-                <div style={blockStyle}>
-                    <div style={{flex: 2, marginRight: 4}}>
-                        <ModernTextField
-                            {...textV1Search}
-                            inputStyle={line1inputStyle}
-                            type={"number"}
-                            hintText={getMessage(613)}
-                            fullWidth={true}
-                            value={from || ''}
-                            onChange={(e,v) => {
-                                if(v && toInt && Math.round(this.multiple(v, fromUnit)) > toInt) {
-                                    v = to
-                                }
-                                this.update({from:v || 0})
-                            }}
-                        />
-                    </div>
-                    <div style={{marginLeft: 4, flex: 1}}>
-                        <ModernSelectField
-                            {...selectV1Search}
-                            value={fromUnit}
-                            onChange={(e,i,v) => {
-                                if(from && toInt && Math.round(this.multiple(to, v)) > toInt) {
-                                    v = toUnit
-                                }
-                                this.update({fromUnit: v})
-                            }}
-                            fullWidth={true}
-                        >
-                            <MenuItem value={''} primaryText={sizeUnit}/>
-                            <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
-                            <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
-                            <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
-                            <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
-                        </ModernSelectField>
-                    </div>
-                </div>
-                <div style={blockStyle}>
-                    <div style={{flex: 2, marginRight: 4}}>
-                        <ModernTextField
-                            {...textV1Search}
-                            inputStyle={line2inputStyle}
-                            fullWidth={true}
-                            type={"number"}
-                            hintText={getMessage(614)}
-                            value={to || ''}
-                            onChange={(e,v) => {
-                                if(v && fromInt && Math.round(this.multiple(v, toUnit)) < fromInt) {
-                                    v = from
-                                }
-                                this.update({to:v || 0})
-                            }}
-                        />
-                    </div>
-                    <div style={{marginLeft: 4, flex: 1}}>
-                        <ModernSelectField
-                            {...selectV1Search}
-                            fullWidth={true}
-                            value={toUnit}
-                            onChange={(e,i,v) => {
-                                if(to && fromInt && Math.round(this.multiple(from, v)) < fromInt) {
-                                    v = fromUnit
-                                }
-                                this.update({toUnit: v})
-                            }}
-                        >
-                            <MenuItem value={''} primaryText={sizeUnit}/>
-                            <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
-                            <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
-                            <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
-                            <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
-                        </ModernSelectField>
-                    </div>
-                </div>
-            </Fragment>
+            <div style={blockStyle}>
+                <NumberInput
+                    rightSection={from && startUnitPicker}
+                    rightSectionWidth={30}
+                    value={from || ''}
+                    placeholder={getMessage(613)}
+                    useDecimal={false}
+                    clearable={true}
+                    onChange={(v)=> {
+                        if(v && toInt && Math.round(this.multiple(v, fromUnit)) > toInt) {
+                            v = to
+                        }
+                        this.update({from:v || 0})
+                    }}
+                />
+                <NumberInput
+                    value={to || ''}
+                    placeholder={getMessage(614)}
+                    useDecimal={false}
+                    clearable={true}
+                    rightSection={to && endUnitPicker}
+                    rightSectionWidth={30}
+                    onChange={(v)=> {
+                        if(v && fromInt && Math.round(this.multiple(v, toUnit)) < fromInt) {
+                            v = from
+                        }
+                        this.update({to:v || 0})
+                    }}
+                />
+            </div>
         );
     }
 }

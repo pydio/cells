@@ -29,7 +29,6 @@ const goToNode = (e, pydio, node, requestClose) => {
 
 const useModalSearchActions = ({dataModel, pydio, displayMode, requestClose=()=>{}}) => {
     return useCallback((node, entryState) => {
-        console.log(node, entryState)
         if(entryState && !(entryState.hover || entryState.selected)) {
             return null
         }

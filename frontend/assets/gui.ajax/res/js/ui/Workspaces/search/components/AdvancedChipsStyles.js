@@ -85,7 +85,21 @@ export const chipsStyles = (muiTheme, containerStyle = {}, tagStyle = {}, showRe
             fontSize: 14,
             fontWeight: 500,
         },
+        popoverStyle:{
+            width:260,
+            borderRadius:12,
+            zIndex:2000,
+            marginTop: 5,
+            background:'var(--md-sys-color-surface-1)',
+            overflow:'visible'
+        },
+        popoverMenuRootStyle: {
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+        },
         popoverMenuStyle: {
+            width: 260,
             background:'transparent',
             paddingTop: 4,
             paddingBottom: 8
@@ -97,6 +111,9 @@ export const chipsStyles = (muiTheme, containerStyle = {}, tagStyle = {}, showRe
         },
         popoverBlockStyle: {
             margin: '0 12px 8px',
+        },
+        popoverFieldStyle: {
+            margin: '8px 12px',
         },
         verticalDivider: {
             borderRight: '1px solid var(--md-sys-color-surface-variant)',

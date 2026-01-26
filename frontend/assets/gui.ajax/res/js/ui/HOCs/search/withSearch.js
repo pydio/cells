@@ -119,7 +119,8 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
                     configs.forEach((v,k) => {
                         if(v.indexable) {
                             v.namespace = k
-                            v.renderer = Renderer.typeFormRenderer(v.type)
+                            const renderer = Renderer.typeFormRenderer(v.type)
+                            v.renderer = (pp, cfg) => renderer(pp, configs) // inject configs
                             const o = Renderer.typeColumnRenderer(v.type)
                             if(o && o.renderComponent) {
                                 // create simpler signature

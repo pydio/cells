@@ -18,10 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback, useState, useRef, useEffect} from 'react'
+import React, {useCallback, useState, useRef} from 'react'
 import Pydio from 'pydio'
 import Node from 'pydio/model/node'
 import {Dialog, FlatButton} from 'material-ui'
+const {PydioMantineProvider} = Pydio.requireLib('hoc');
 
 export default ({namespaces, onDismiss, metaLib}) => {
     const [errorsScope, setErrorsScope] = useState('local');
@@ -68,22 +69,24 @@ export default ({namespaces, onDismiss, metaLib}) => {
             contentStyle={{width: 840, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
             autoScrollBodyContent={true}
         >
-            <UserMetaPanelV2
-                pydio={pydio}
-                loader={loader}
-                ref={metaPanel}
-                multiple={false}
-                node={new Node()}
-                editMode={true}
-                style={{fontSize: 14, minHeight:200}}
-                onChangeUpdateData={(d) => {
-                    setErrorsScope('local')
-                    setData(d)
-                }}
-                onFormLoaded={() => window.dispatchEvent(new Event('resize'))}
-                onValidStatusChanged={(v) => setValid(v)}
-                errorsScope={errorsScope}
-            />
+            <PydioMantineProvider>
+                <UserMetaPanelV2
+                    pydio={pydio}
+                    loader={loader}
+                    ref={metaPanel}
+                    multiple={false}
+                    node={new Node()}
+                    editMode={true}
+                    style={{fontSize: 14, minHeight:200}}
+                    onChangeUpdateData={(d) => {
+                        setErrorsScope('local')
+                        setData(d)
+                    }}
+                    onFormLoaded={() => window.dispatchEvent(new Event('resize'))}
+                    onValidStatusChanged={(v) => setValid(v)}
+                    errorsScope={errorsScope}
+                />
+            </PydioMantineProvider>
         </Dialog>
     );
 
