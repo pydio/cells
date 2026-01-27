@@ -24,7 +24,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
@@ -45,10 +44,9 @@ func evTagError(err error) error {
 }
 
 type Entities struct {
-	UUID        string          `gorm:"primaryKey;column:uuid;type:varchar(255);notNull"`
-	Label       string          `gorm:"column:label;type:varchar(100);notNull"`
-	Description string          `gorm:"column:description;type:varchar(255)"`
-	LabelI18n   *datatypes.JSON `gorm:"column:label_i18n;type:json"`
+	UUID        string `gorm:"primaryKey;column:uuid;type:varchar(255);notNull"`
+	Label       string `gorm:"column:label;type:varchar(100);notNull"`
+	Description string `gorm:"column:description;type:varchar(255)"`
 
 	Values []EntityValues `gorm:"foreignKey:EntityUUID;references:UUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
@@ -76,7 +74,7 @@ type MetaValuesRel struct {
 }
 
 func (*MetaValuesRel) TableName(namer schema.Namer) string {
-	return "idm_usr_meta_values_rel"
+	return namer.TableName("meta_values_rel")
 }
 
 func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
@@ -99,9 +97,6 @@ func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 	res.Uuid = u.UUID
 	res.Label = u.Label
 	res.Description = u.Description
-	if u.LabelI18n != nil {
-		res.LabelI18N = u.LabelI18n.String()
-	}
 
 	return res
 }
@@ -113,10 +108,6 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 	}
 	u.Label = res.Label
 	u.Description = res.Description
-	if res.LabelI18N != "" {
-		json := datatypes.JSON(res.LabelI18N)
-		u.LabelI18n = &json
-	}
 
 	return u
 }
