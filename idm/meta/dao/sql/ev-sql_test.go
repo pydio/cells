@@ -31,8 +31,6 @@ import (
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/idm/meta"
 
-	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
-
 	. "github.com/smartystreets/goconvey/convey"
 )
 

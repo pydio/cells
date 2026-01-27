@@ -80,18 +80,18 @@ func (*MetaValuesRel) TableName(namer schema.Namer) string {
 }
 
 func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
-	return &tagsSqlImpl{
+	return &evSqlImpl{
 		Abstract: sql.NewAbstract(db),
 		DAO:      resources.NewDAO(db),
 	}
 }
 
-type tagsSqlImpl struct {
+type evSqlImpl struct {
 	*sql.Abstract
 	resources.DAO
 }
 
-func (s *tagsSqlImpl) Migrate(ctx context.Context) error {
+func (s *evSqlImpl) Migrate(ctx context.Context) error {
 	return s.Session(ctx).AutoMigrate(&Entities{}, &EntityValues{})
 }
 
@@ -121,20 +121,17 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 	return u
 }
 
-func (s *tagsSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
+func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
 	res := (&Entities{}).FromEntity(entity)
 	tx := s.Session(ctx).Create(res)
 	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrDuplicatedKey) {
-			return nil, evTagError(tx.Error)
-		}
 		return nil, evTagError(tx.Error)
 	}
 
 	return res.AsEntity(&idm.MetaEntity{}), nil
 }
 
-func (s *tagsSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
+func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
 	createdEntities := make([]*idm.MetaEntity, 0, len(entities))
 
 	for _, entity := range entities {
@@ -148,7 +145,7 @@ func (s *tagsSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntit
 	return createdEntities, nil
 }
 
-func (s *tagsSqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
+func (s *evSqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
 	var model Entities
 	tx := s.Session(ctx).Where(&Entities{UUID: entityUuid}).First(&model)
 	if tx.Error != nil {
@@ -177,7 +174,7 @@ func (u *EntityValues) FromEntityValue(res *idm.EntityValue) *EntityValues {
 	return u
 }
 
-func (s *tagsSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error) {
+func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error) {
 	model := (&EntityValues{}).FromEntityValue(value)
 
 	tx := s.Session(ctx).Create(model)
@@ -188,7 +185,7 @@ func (s *tagsSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityVa
 	return model.AsEntityValue(&idm.EntityValue{}), nil
 }
 
-func (s *tagsSqlImpl) GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error) {
+func (s *evSqlImpl) GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error) {
 	var models []*EntityValues
 	tx := s.Session(ctx).Where(&EntityValues{EntityUUID: entityUuid}).Find(&models)
 	if tx.Error != nil {
@@ -203,7 +200,7 @@ func (s *tagsSqlImpl) GetEntityValues(ctx context.Context, entityUuid string) ([
 	return values, nil
 }
 
-func (s *tagsSqlImpl) validateUUIDs(uuids ...string) error {
+func (s *evSqlImpl) validateUUIDs(uuids ...string) error {
 	for _, u := range uuids {
 		if _, err := uuid.Parse(u); err != nil {
 			return evTagError(errors.New("invalid uuid: " + u))
@@ -212,7 +209,7 @@ func (s *tagsSqlImpl) validateUUIDs(uuids ...string) error {
 	return nil
 }
 
-func (s *tagsSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) error {
+func (s *evSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) error {
 	if err := s.validateUUIDs(metaUuid, valueUuid); err != nil {
 		return err
 	}
@@ -230,7 +227,7 @@ func (s *tagsSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueU
 	return nil
 }
 
-func (s *tagsSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error) {
+func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error) {
 	var models []*EntityValues
 
 	tx := s.Session(ctx).
