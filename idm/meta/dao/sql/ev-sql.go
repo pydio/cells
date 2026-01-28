@@ -61,7 +61,7 @@ type EntityValues struct {
 	EntityUUID string `gorm:"column:entity_uuid;type:varchar(255);notNull"`
 
 	Entity *Entities `gorm:"foreignKey:EntityUUID;references:UUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Metas  []Meta    `gorm:"many2many:idm_usr_meta_values_rel;joinForeignKey:EValueUUID;JoinReferences:MetaUUID"`
+	Metas  []Meta    `gorm:"many2many:meta_values_rel;joinForeignKey:EValueUUID;JoinReferences:MetaUUID"`
 }
 
 func (*EntityValues) TableName(namer schema.Namer) string {
@@ -74,10 +74,11 @@ type MetaValuesRel struct {
 }
 
 func (*MetaValuesRel) TableName(namer schema.Namer) string {
-	return namer.TableName("meta_values_rel")
+	return namer.JoinTableName("meta_values_rel")
 }
 
 func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
+
 	return &evSqlImpl{
 		Abstract: sql.NewAbstract(db),
 		DAO:      resources.NewDAO(db),

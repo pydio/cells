@@ -43,7 +43,6 @@ var (
 	fixtureEntityCity = &idm.MetaEntity{
 		Label:       "City",
 		Description: "City labels",
-		LabelI18N:   `{"en":"City", "fr":"Ville"}`,
 	}
 
 	fixtureEntitySimple = &idm.MetaEntity{
@@ -93,7 +92,6 @@ func TestEntityCrud(t *testing.T) {
 			So(created.Uuid, ShouldNotBeEmpty)
 			So(created.Label, ShouldEqual, fixtureEntityCity.Label)
 			So(created.Description, ShouldEqual, fixtureEntityCity.Description)
-			// So(created.LabelI18N, ShouldEqual, fixtureEntityCity.LabelI18N)
 		})
 
 		Convey("Get Entity", t, func() {

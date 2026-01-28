@@ -3247,7 +3247,6 @@ type MetaEntity struct {
 	Uuid          string                 `protobuf:"bytes,1,opt,name=Uuid,proto3" json:"Uuid,omitempty"`
 	Label         string                 `protobuf:"bytes,2,opt,name=Label,proto3" json:"Label,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=Description,proto3" json:"Description,omitempty"`
-	LabelI18N     string                 `protobuf:"bytes,4,opt,name=LabelI18N,proto3" json:"LabelI18N,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3299,13 +3298,6 @@ func (x *MetaEntity) GetLabel() string {
 func (x *MetaEntity) GetDescription() string {
 	if x != nil {
 		return x.Description
-	}
-	return ""
-}
-
-func (x *MetaEntity) GetLabelI18N() string {
-	if x != nil {
-		return x.LabelI18N
 	}
 	return ""
 }
@@ -5534,13 +5526,12 @@ const file_cells_idm_proto_rawDesc = "" +
 	"JsonSchema\x18\t \x01(\v2\x17.google.protobuf.StructR\n" +
 	"JsonSchema\x12&\n" +
 	"\x0eEnforceDefault\x18\n" +
-	" \x01(\bR\x0eEnforceDefault\"v\n" +
+	" \x01(\bR\x0eEnforceDefault\"X\n" +
 	"\n" +
 	"MetaEntity\x12\x12\n" +
 	"\x04Uuid\x18\x01 \x01(\tR\x04Uuid\x12\x14\n" +
 	"\x05Label\x18\x02 \x01(\tR\x05Label\x12 \n" +
-	"\vDescription\x18\x03 \x01(\tR\vDescription\x12\x1c\n" +
-	"\tLabelI18N\x18\x04 \x01(\tR\tLabelI18N\"W\n" +
+	"\vDescription\x18\x03 \x01(\tR\vDescription\"W\n" +
 	"\vEntityValue\x12\x12\n" +
 	"\x04Uuid\x18\x01 \x01(\tR\x04Uuid\x12\x14\n" +
 	"\x05Label\x18\x02 \x01(\tR\x05Label\x12\x1e\n" +

@@ -495,7 +495,6 @@ message MetaEntity {
     string Uuid = 1;
     string Label = 2;
     string Description = 3;
-    string LabelI18N = 4;
 }
 
 // EntityValue represents a value for an entity (e.g., "Engineering", "Sales")
