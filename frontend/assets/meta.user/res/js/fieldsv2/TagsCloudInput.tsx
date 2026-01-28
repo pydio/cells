@@ -18,40 +18,60 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useEffect, useState} from 'react'
-import {TagsInput} from '@mantine/core'
-import {StringItemsInputProps} from "./CommonInputProps";
+import React, { useEffect, useState } from 'react'
+import { TagsInput } from '@mantine/core'
+import { StringItemsInputProps } from "./CommonInputProps";
+// import { useMetadataContext } from '../context'
 
-export const TagsCloudInput: React.FC<StringItemsInputProps> = ({name, label, description, placeholder, disabled, value, onChange, data, dataLoader, requestToggleClose, errorText}) => {
+export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
+    name,
+    label,
+    description,
+    placeholder,
+    disabled,
+    dataLoader,
+    requestToggleClose,
+    errorText,
+    value,
+    onCommitChange,
+}) => {
+    const [localValue, setLocalValue] = useState([]);
+    const [items, setItems] = useState<string[]>([]);
 
-    const [items, setItems] = useState<string[]>(data);
+    useEffect(() => {
+        setLocalValue(value)
+    }, [value])
 
     const props = {
         label,
-        disabled,
+        disabled: disabled,
         description,
         placeholder,
         error: errorText,
     }
 
-    useEffect(()=>{
-        if(dataLoader) {
+    useEffect(() => {
+        if (dataLoader) {
             dataLoader().then(ss => setItems(ss));
         }
     }, [name])
 
-    const valueData= value ? value.split(',') : []
     const onChangeJoin = (values: string[]) => {
-        onChange(values.join(','), true)
+        const joined = values.join(',')
+        setLocalValue(joined.split(',').filter(v => v))
     }
 
     return <TagsInput
         {...props}
-        value={valueData}
+        value={localValue}
         data={items}
         onChange={onChangeJoin}
-        comboboxProps={{withinPortal: false}}
+        comboboxProps={{ withinPortal: false }}
         autoFocus={!!requestToggleClose}
-        onBlur={requestToggleClose}
+        onBlur={(e) => {
+            const { value } = e.target;
+            const consolidated = [...localValue, value].filter(v => v).join(',');
+            onCommitChange(consolidated)
+        }}
     />
- }
+}

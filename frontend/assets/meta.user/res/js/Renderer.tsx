@@ -37,6 +37,8 @@ import {getURLDisplayByContext, URLForm} from "./fields/URL";
 import {TagsCloudInput} from "./fieldsv2/TagsCloudInput";
 import {FieldSearch, FieldSearchProps} from "./components/FieldSearch";
 import {NamespaceMeta} from "./components/MetaSpec";
+const { metadata } = Pydio.requireLib('hoc');
+const useMetadataContext = metadata.useMetadataContext;
 
 export default class Renderer{
 

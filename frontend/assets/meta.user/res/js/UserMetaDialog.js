@@ -25,7 +25,11 @@ import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types'
 import UserMetaPanelV2 from "./UserMetaPanelV2";
 import MetaClient from "./MetaClient";
-const {PydioMantineProvider} = Pydio.requireLib('hoc');
+const {
+    PydioMantineProvider,
+    metadata
+} = Pydio.requireLib('hoc');
+const MetadataContextProvider = metadata.MetadataContextProvider;
 
 const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 
@@ -60,14 +64,20 @@ export default createReactClass({
     render(){
         return (
             <PydioMantineProvider>
-                <UserMetaPanelV2
-                    pydio={this.props.pydio}
-                    multiple={!this.props.selection.isUnique()}
-                    ref="panel"
+                <MetadataContextProvider
                     node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
-                    editMode={true}
-                    style={{fontSize: 14}}
-                />
+                    saveMeta={this.submit}
+                    saving={false}
+                >
+                    <UserMetaPanelV2
+                        pydio={this.props.pydio}
+                        multiple={!this.props.selection.isUnique()}
+                        ref="panel"
+                        node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
+                        editMode={true}
+                        style={{fontSize: 14}}
+                    />
+                </MetadataContextProvider>
             </PydioMantineProvider>
         );
     },

@@ -31,8 +31,13 @@ export interface InputProps {
 
     value?: any;
     onChange: (value: string|boolean|number, submit?: boolean) => void;
+    onBlur?: (e: any) => void;
 
     requestToggleClose?: () => void;
+    onCommitChange?: (values: unknown) => void;
+
+    prefix?: string;
+    suffix?: string;
 }
 
 export interface Items {

@@ -29,36 +29,36 @@ export const TogglableField = ({
       fieldKey,
       meta,
       node,
-      value,
       updateValue,
-      autoSave,
-      saving,
       configsForGroup,
       supportTemplates,
       additionalProps,
-    // Not used
-       editMode,
-       multiple,
-       checked, onCheck,
-
+      context,
   }) => {
 
-    const [editing, setEditing] = useState(false);
+    const { state, actions } = context;
+    const value = state.formState.get(fieldKey)
 
-    if (editing) {
+    if (state.editingTag === fieldKey) {
         return <FieldEdit
+            context={context}
             name={fieldKey}
             meta={meta}
             value={value}
             updateValue={(key, value, submit) => {
                 updateValue(key, value, submit);
                 if(submit) {
-                    setEditing(false);
+                    actions.setShouldSave(true)
+                    actions.setEditingTag('none')
                 }
+
+                const nextFormState = new Map(state.formState)
+                nextFormState.set(name, value)
+                actions.setFormState(nextFormState)
             }}
             requestToggleClose={()=> {
-                setEditing(false);
-                autoSave && autoSave()
+                actions.setEditingTag('none')
+                actions.setShouldSave(true)
             }}
             configsForGroup={configsForGroup}
             supportTemplates={supportTemplates}
@@ -73,7 +73,9 @@ export const TogglableField = ({
             meta={meta}
             value={value}
             node={node}
-            onValueClick={() => setEditing(true)}
+            onValueClick={() => {
+                actions.setEditingTag(fieldKey)
+            }}
         />
     );
 };

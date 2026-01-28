@@ -31,6 +31,7 @@ import {NamespaceMeta} from "./MetaSpec";
 import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
 import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
 import {TextInputSearch} from "../fieldsv2/TextInputSearch";
+import { useMetadataContext } from '../context';
 
 export interface FieldSearchProps {
     name:string,
@@ -43,9 +44,11 @@ export interface FieldSearchProps {
  * Renders a single metadata field in edit mode
  */
 export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, updateValue}) => {
+    const { state, actions } = useMetadataContext();
 
     const localChange = useCallback((value:any, submit?: boolean) => {
         updateValue(name, value);
+        actions.setFormState(new Map(state.formState).set(name, value))
     }, [name])
 
     const localDataLoader = useCallback((filter?:string) => {
@@ -78,7 +81,25 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
             const cssItems:Items[] = Object.keys(cssLabels).map((id) => {return {...cssLabels[id], key:id, value: cssLabels[id].label}})
             return <Selector {...baseProps} items={cssItems}/>;
         case 'tags':
-            return <TagsCloudInput {...baseProps} data={[]} dataLoader={localDataLoader}/>;
+            const valueData = state.formState.get(name) ? state.formState.get(name).split(',') : []
+            const disabled = state.saving || state.shouldSave;
+            const onCommitChange = (values) => {
+                const nextFormState = new Map(state.formState)
+                nextFormState.set(name, values)
+                actions.setFormState(nextFormState)
+                actions.setShouldSave(true)
+                actions.setEditingTag('none')
+                localChange(values)
+            }
+
+            return <TagsCloudInput
+                {...baseProps}
+                value={valueData}
+                disabled={disabled}
+                onCommitChange={onCommitChange}
+                data={[]}
+                dataLoader={localDataLoader}
+            />;
         case 'date':
             return <DateTimeInputSearch {...baseProps}/>;
         case 'integer':

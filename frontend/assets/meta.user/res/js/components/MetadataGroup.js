@@ -24,6 +24,8 @@ import {muiThemeable} from 'material-ui/styles';
 import {MetadataField} from './MetadataField';
 import {TogglableField} from './TogglableField';
 const {EmptyStateView} = Pydio.requireLib('components');
+const { metadata } = Pydio.requireLib('hoc');
+const useMetadataContext = metadata.useMetadataContext;
 
 const StyledDiv = muiThemeable()(({style, children, muiTheme, ...other}) => {
     let cs = {...style};
@@ -57,6 +59,7 @@ export const MetadataGroup = ({
     autoSave,
     saving,
 }) => {
+    const context = useMetadataContext();
     const metadata = node.getMetadata();
     const elements = [];
     let nonEmptyDataCount = 0;
@@ -87,6 +90,7 @@ export const MetadataGroup = ({
 
         elements.push(
             <Component
+                context={context}
                 key={key}
                 fieldKey={key}
                 meta={meta}

@@ -28,6 +28,7 @@ import {FieldDisplay} from './FieldDisplay';
  * Main component that handles a metadata field in edit or display mode
  */
 export const MetadataField = ({
+    context,
     fieldKey,
     meta,
     node,
@@ -46,6 +47,7 @@ export const MetadataField = ({
     if (editMode) {
         const field = (
             <FieldEdit
+                context={context}
                 name={fieldKey}
                 meta={meta}
                 value={value}
