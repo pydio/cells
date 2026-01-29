@@ -447,20 +447,6 @@ service UserMetaService {
     rpc ListUserMetaNamespace(ListUserMetaNamespaceRequest) returns (stream ListUserMetaNamespaceResponse){}
     rpc GetFieldSchema(GetFieldSchemaRequest) returns (JsonSchemaResponse) {}
     rpc GetNamespaceSchema(GetNamespaceSchemaRequest) returns (JsonSchemaResponse) {}
-    rpc GetEntityValues(GetMetaEntityValuesRequest) returns (MetaEntityValueResponse) {}
-    rpc DeleteEntityValues(GetMetaEntityValuesRequest) returns (DeleteEntityValuesResponse) {}
-}
-
-message DeleteEntityValuesResponse{
-    int64 RowsDeleted = 1;
-}
-
-message GetMetaEntityValuesRequest{
-    string EntityUuid = 1;
-}
-
-message MetaEntityValueResponse{
-    repeated EntityValue EntityValue = 1;
 }
 
 // Piece of metadata attached to a node
