@@ -1755,9 +1755,17 @@
     },
     "idmUserMetaNamespace": {
       "properties": {
+        "Description": {
+          "title": "Human-readable Description",
+          "type": "string"
+        },
         "EnforceDefault": {
           "title": "Use default value from JsonSchema to enforce defaults",
           "type": "boolean"
+        },
+        "FieldType": {
+          "title": "Namespace Type  \"boolean\", \"choice\", \"css_label\", \"date\", \"integer\", \"json\", \"multi_value\", \"stars_rate\", \"string\", \"tag_cloud\", \"tags\", \"textarea\", \"url\"",
+          "type": "string"
         },
         "Indexable": {
           "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",

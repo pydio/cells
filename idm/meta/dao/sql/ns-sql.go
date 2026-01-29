@@ -55,6 +55,8 @@ type MetaNamespace struct {
 	PromptOnUpload bool            `gorm:"column:prompt_on_upload;type:boolean;nullable"`
 	EnforceDefault bool            `gorm:"column:enforce_default;type:boolean;nullable"`
 	JsonSchema     *datatypes.JSON `gorm:"column:json_schema"`
+	Description    string          `gorm:"column:description;type:varchar(255)"`
+	FieldType      string          `gorm:"column:field_type;type:varchar(255)"`
 }
 
 func (*MetaNamespace) TableName(namer schema.Namer) string {
@@ -74,6 +76,8 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 		res.JsonSchema = nil
 	}
 	res.JsonSchema = schema
+	res.Description = u.Description
+	res.FieldType = u.FieldType
 
 	return res
 }
@@ -88,6 +92,8 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.PromptOnUpload = res.PromptOnUpload
 	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
 	u.JsonSchema = js
+	u.Description = res.Description
+	u.FieldType = res.FieldType
 	return u
 }
 
@@ -106,6 +112,8 @@ func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) (*MetaNamespace
 	u.PromptOnUpload = res.PromptOnUpload
 	var js, _ = json_schema.ProtoStructToJson(res.JsonSchema)
 	u.JsonSchema = js
+	u.Description = res.Description
+	u.FieldType = res.FieldType
 	return u, nil
 }
 

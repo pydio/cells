@@ -77,8 +77,8 @@ export const theme = createTheme({
   },
   },
 });
-const FIELD_TYPES_WITH_SCHEMA_PROPERTIES = ["string", "textarea", "integer"];
-const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
+const FIELD_TYPES_WITH_SCHEMA_PROPERTIES = ["string", "textarea", "integer", "tag_cloud", "choice"];
+const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref) => {
   const [metaSchema, setSchema] = useState({});
   const [formData, setFormData] = useState({});
   const hasValidNs = ns && ns.JsonSchema;
@@ -122,8 +122,9 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
       if (!formData || Object.keys(formData).length === 0) {
         return ns;
       }
-
+ 
       let withOps = [];
+      
       if (metaType && FIELD_TYPES_WITH_SCHEMA_PROPERTIES.includes(metaType)) {
         withOps = Object.entries(formData)
           .filter(([k]) => k !== "required")
@@ -134,11 +135,33 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
           }));
       }
       
+      if (metaType === 'tag_cloud' && Array.isArray(tagValues) && tagValues.length > 0) {        
+        withOps.push({
+          op:  'add',
+          path: `/properties/${ns.Namespace}/items`,
+          value: {
+            type: 'string',
+            enum: tagValues,
+          }
+        });
+      }
+
+      if (metaType === 'choice') {
+        const vals = tagValues.map(v => v.value);
+        withOps.push({
+          op:  'add',
+          path: `/properties/${ns.Namespace}/items`,
+          value: {
+            type: 'string',
+            enum: vals,
+          }
+        });
+      }
       
       if (withOps.length === 0) {
         return ns;
       }
-
+ 
       const id = `https://schemas.pydio.com/string/patched/${uuidv4()}`;
       const patchedSchema = {
         $id: id,
@@ -148,15 +171,19 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType }, ref) => {
         }
       };
       
+      try {
+        ajv.compile(patchedSchema);
+      } catch (e) {
+        console.error("Invalid patched schema:", e);
+      }
       
-      ajv.compile(patchedSchema);
-      
+
       return IdmUserMetaNamespace.constructFromObject({
         ...ns,
         JsonSchema: ns.JsonSchema,
       });
     }
-  }), [ns, formData, metaType]);
+  }), [ns, formData, metaType, tagValues]);
 
   if (!hasValidNs) return null;
 

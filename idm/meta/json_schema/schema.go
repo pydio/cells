@@ -21,6 +21,29 @@ type (
 	Loader         = jsonschema.Loader
 )
 
+const (
+	// FormatEmail represents the email format validation
+	FormatEmail               = "email"
+	FormatDateTime            = "date-time"
+	FormatDate                = "date"
+	FormatTime                = "time"
+	FormatURI                 = "uri"
+	FormatURIRef              = "uri-reference"
+	FormatUUID                = "uuid"
+	FormatHostname            = "hostname"
+	FormatIPv4                = "ipv4"
+	FormatIPv6                = "ipv6"
+	FormatRegex               = "regex"
+	FormatIdnEmail            = "idn-email"
+	FormatIdnHostname         = "idn-hostname"
+	FormatIRI                 = "iri"
+	FormatIRIRef              = "iri-reference"
+	FormatURITemplate         = "uri-template"
+	FormatJSONPointer         = "json-pointer"
+	FormatRelativeJSONPointer = "relative-json-pointer"
+	FormatDuration            = "duration"
+)
+
 // ---------------------------------------------------------------------------
 // Schema inference helpers
 // ---------------------------------------------------------------------------
@@ -51,6 +74,15 @@ func FromJSON(data []byte) (*Schema, error) {
 		return nil, err
 	}
 	return &s, nil
+}
+
+// Array of strings
+func ArrayOfStrings(items []string) *Schema {
+	return &Schema{
+		Type:        "array",
+		Items:       &Schema{Type: "string"},
+		UniqueItems: true,
+	}
 }
 
 func ValidateSchemaFromPbStruct(m *structpb.Struct) error {
@@ -104,4 +136,16 @@ func ValidateSchema(schemaJSON []byte) error {
 	}
 
 	return nil
+}
+
+func IsUUID(id string) bool {
+	schema := &Schema{
+		Type:   "string",
+		Format: FormatUUID,
+	}
+	resolved, err := schema.Resolve(nil)
+	if err != nil {
+		return false
+	}
+	return resolved.Validate(id) == nil
 }

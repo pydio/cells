@@ -1169,6 +1169,8 @@ const (
 	UserMetaService_ListUserMetaNamespace_FullMethodName   = "/idm.UserMetaService/ListUserMetaNamespace"
 	UserMetaService_GetFieldSchema_FullMethodName          = "/idm.UserMetaService/GetFieldSchema"
 	UserMetaService_GetNamespaceSchema_FullMethodName      = "/idm.UserMetaService/GetNamespaceSchema"
+	UserMetaService_GetEntityValues_FullMethodName         = "/idm.UserMetaService/GetEntityValues"
+	UserMetaService_DeleteEntityValues_FullMethodName      = "/idm.UserMetaService/DeleteEntityValues"
 )
 
 // UserMetaServiceClient is the client API for UserMetaService service.
@@ -1184,6 +1186,8 @@ type UserMetaServiceClient interface {
 	ListUserMetaNamespace(ctx context.Context, in *ListUserMetaNamespaceRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ListUserMetaNamespaceResponse], error)
 	GetFieldSchema(ctx context.Context, in *GetFieldSchemaRequest, opts ...grpc.CallOption) (*JsonSchemaResponse, error)
 	GetNamespaceSchema(ctx context.Context, in *GetNamespaceSchemaRequest, opts ...grpc.CallOption) (*JsonSchemaResponse, error)
+	GetEntityValues(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*MetaEntityValueResponse, error)
+	DeleteEntityValues(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*DeleteEntityValuesResponse, error)
 }
 
 type userMetaServiceClient struct {
@@ -1272,6 +1276,26 @@ func (c *userMetaServiceClient) GetNamespaceSchema(ctx context.Context, in *GetN
 	return out, nil
 }
 
+func (c *userMetaServiceClient) GetEntityValues(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*MetaEntityValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MetaEntityValueResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_GetEntityValues_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) DeleteEntityValues(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*DeleteEntityValuesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteEntityValuesResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_DeleteEntityValues_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserMetaServiceServer is the server API for UserMetaService service.
 // All implementations must embed UnimplementedUserMetaServiceServer
 // for forward compatibility.
@@ -1285,6 +1309,8 @@ type UserMetaServiceServer interface {
 	ListUserMetaNamespace(*ListUserMetaNamespaceRequest, grpc.ServerStreamingServer[ListUserMetaNamespaceResponse]) error
 	GetFieldSchema(context.Context, *GetFieldSchemaRequest) (*JsonSchemaResponse, error)
 	GetNamespaceSchema(context.Context, *GetNamespaceSchemaRequest) (*JsonSchemaResponse, error)
+	GetEntityValues(context.Context, *GetMetaEntityValuesRequest) (*MetaEntityValueResponse, error)
+	DeleteEntityValues(context.Context, *GetMetaEntityValuesRequest) (*DeleteEntityValuesResponse, error)
 	mustEmbedUnimplementedUserMetaServiceServer()
 }
 
@@ -1312,6 +1338,12 @@ func (UnimplementedUserMetaServiceServer) GetFieldSchema(context.Context, *GetFi
 }
 func (UnimplementedUserMetaServiceServer) GetNamespaceSchema(context.Context, *GetNamespaceSchemaRequest) (*JsonSchemaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNamespaceSchema not implemented")
+}
+func (UnimplementedUserMetaServiceServer) GetEntityValues(context.Context, *GetMetaEntityValuesRequest) (*MetaEntityValueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntityValues not implemented")
+}
+func (UnimplementedUserMetaServiceServer) DeleteEntityValues(context.Context, *GetMetaEntityValuesRequest) (*DeleteEntityValuesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteEntityValues not implemented")
 }
 func (UnimplementedUserMetaServiceServer) mustEmbedUnimplementedUserMetaServiceServer() {}
 func (UnimplementedUserMetaServiceServer) testEmbeddedByValue()                         {}
@@ -1428,6 +1460,42 @@ func _UserMetaService_GetNamespaceSchema_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserMetaService_GetEntityValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMetaEntityValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).GetEntityValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_GetEntityValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).GetEntityValues(ctx, req.(*GetMetaEntityValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserMetaService_DeleteEntityValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMetaEntityValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).DeleteEntityValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_DeleteEntityValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).DeleteEntityValues(ctx, req.(*GetMetaEntityValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserMetaService_ServiceDesc is the grpc.ServiceDesc for UserMetaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1450,6 +1518,14 @@ var UserMetaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNamespaceSchema",
 			Handler:    _UserMetaService_GetNamespaceSchema_Handler,
+		},
+		{
+			MethodName: "GetEntityValues",
+			Handler:    _UserMetaService_GetEntityValues_Handler,
+		},
+		{
+			MethodName: "DeleteEntityValues",
+			Handler:    _UserMetaService_DeleteEntityValues_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
