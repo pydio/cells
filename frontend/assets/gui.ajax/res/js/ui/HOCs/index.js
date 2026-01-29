@@ -45,6 +45,7 @@ import * as AdditionalIcons from './material/AdditionalIcons'
 import {listFontIcons, colorsFromString} from './graphics/tools'
 import {PydioMantineProvider} from "./mantine/PydioMantineProvider";
 
+
 const PydioHOCs = {
     EditorActions: actions,
     EditorReducers: reducers,
