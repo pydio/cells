@@ -25,5 +25,16 @@ import InfoPanel from './InfoPanel'
 import UserMetaDialog from './UserMetaDialog'
 import MetaClient from "./MetaClient";
 import TypeEditor from "./TypeEditor"
+import { MetadataContextProvider }  from "./context/metadata";
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel, UserMetaPanelV2, MetaClient, TypeEditor}
+export {
+    Renderer,
+    InfoPanel,
+    Callbacks,
+    UserMetaDialog,
+    UserMetaPanel,
+    UserMetaPanelV2,
+    MetaClient,
+    TypeEditor,
+    MetadataContextProvider,
+}

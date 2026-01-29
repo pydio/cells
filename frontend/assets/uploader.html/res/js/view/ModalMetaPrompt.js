@@ -35,14 +35,14 @@ export default ({namespaces, onDismiss, metaLib}) => {
     }, [])
     const submit = useCallback(()=> {
         if (!valid) {
-            setErrorsScope('global') 
+            setErrorsScope('global')
             return
         }
         onDismiss(data)
         setSubmitted(true)
     }, [data, valid])
 
-    const {UserMetaPanelV2, MetaClient} = metaLib
+    const {UserMetaPanelV2, MetaClient, MetadataContextProvider} = metaLib
     const metaPanel = useRef(null)
 
     const loader = useCallback(() => {
@@ -69,24 +69,26 @@ export default ({namespaces, onDismiss, metaLib}) => {
             contentStyle={{width: 840, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
             autoScrollBodyContent={true}
         >
-            <PydioMantineProvider>
-                <UserMetaPanelV2
-                    pydio={pydio}
-                    loader={loader}
-                    ref={metaPanel}
-                    multiple={false}
-                    node={new Node()}
-                    editMode={true}
-                    style={{fontSize: 14, minHeight:200}}
-                    onChangeUpdateData={(d) => {
-                        setErrorsScope('local')
-                        setData(d)
-                    }}
-                    onFormLoaded={() => window.dispatchEvent(new Event('resize'))}
-                    onValidStatusChanged={(v) => setValid(v)}
-                    errorsScope={errorsScope}
-                />
-            </PydioMantineProvider>
+            <MetadataContextProvider node={new Node()}>
+                <PydioMantineProvider>
+                    <UserMetaPanelV2
+                        pydio={pydio}
+                        loader={loader}
+                        ref={metaPanel}
+                        multiple={false}
+                        node={new Node()}
+                        editMode={true}
+                        style={{fontSize: 14, minHeight:200}}
+                        onChangeUpdateData={(d) => {
+                            setErrorsScope('local')
+                            setData(d)
+                        }}
+                        onFormLoaded={() => window.dispatchEvent(new Event('resize'))}
+                        onValidStatusChanged={(v) => setValid(v)}
+                        errorsScope={errorsScope}
+                    />
+                </PydioMantineProvider>
+            </MetadataContextProvider>
         </Dialog>
     );
 
