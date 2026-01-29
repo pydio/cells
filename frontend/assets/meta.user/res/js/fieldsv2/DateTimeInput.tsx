@@ -24,6 +24,7 @@ import {DateTimePicker} from '@mantine/dates'
 import {PopoverProps} from "@mantine/core";
 
 export const DateTimeInput: React.FC<InputProps> = ({label, description, placeholder, required, disabled, value, onChange, requestToggleClose, errorText}) => {
+    const [opened, setOpened] = React.useState(true);
     const props = {
         label,
         disabled,
@@ -33,8 +34,10 @@ export const DateTimeInput: React.FC<InputProps> = ({label, description, placeho
 
     const popoverProps : PopoverProps = {withinPortal: false}
     if(requestToggleClose && !disabled) {
-        popoverProps.opened = true
-        popoverProps.onClose= requestToggleClose
+        popoverProps.onClose = () => {
+            setOpened(false)
+            requestToggleClose()
+        };
     }
 
     return <DateTimePicker

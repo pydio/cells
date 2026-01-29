@@ -79,7 +79,7 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
             onFormLoaded(configs)
         }
     }, [fields]);
-    
+
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         getUpdateData,

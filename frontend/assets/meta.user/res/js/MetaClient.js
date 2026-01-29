@@ -72,8 +72,8 @@ class MetaClient{
                     });
                     proms.push(api.updateUserMeta(request));
                 });
-                Promise.all(proms).then(() => {
-                    resolve();
+                Promise.all(proms).then((res) => {
+                    resolve(res);
                 }).catch(e => {
                     reject(e);
                 });
