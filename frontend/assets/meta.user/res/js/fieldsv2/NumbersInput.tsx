@@ -19,10 +19,22 @@
  */
 
 import React from 'react'
-import {NumberInput} from '@mantine/core'
-import {InputProps} from "./CommonInputProps";
+import { NumberInput } from '@mantine/core'
+import { InputProps } from "./CommonInputProps";
 
-export const NumbersInput: React.FC<InputProps> = ({label, description, placeholder, disabled, value, requestToggleClose, onChange, errorText}) => {
+export const NumbersInput: React.FC<InputProps> = ({
+    label,
+    description,
+    placeholder,
+    disabled,
+    value,
+    requestToggleClose,
+    onChange,
+    errorText,
+
+    prefix,
+    suffix,
+}) => {
     const props = {
         label,
         value: value || '',
@@ -30,10 +42,8 @@ export const NumbersInput: React.FC<InputProps> = ({label, description, placehol
         error: errorText,
     }
 
-//    const format = meta.data?.format || 'general'
-
     const simpleEnter = (event: React.KeyboardEvent) => {
-        if(event.key === 'Enter'){
+        if (event.key === 'Enter') {
             onChange(value, true);
         }
     }
@@ -45,8 +55,10 @@ export const NumbersInput: React.FC<InputProps> = ({label, description, placehol
         autoFocus={!!requestToggleClose}
         onBlur={requestToggleClose}
         thousandSeparator=" "
-        prefix="€"
+        prefix={prefix}
+        suffix={suffix}
         description={description}
         placeholder={placeholder}
+        disabled={disabled}
     />
 }

@@ -24,15 +24,20 @@ import CssLabelsField from "../fields/CssLabelsField";
 import SelectorField from "../fields/SelectorField";
 import TagsCloud from "../fields/TagsCloud";
 import {DateTimeField} from "../fields/DateTime";
-import {IntegerField} from "../fields/Integer";
 import {URLField} from "../fields/URL";
+import { getNumberPrefix, getNumberSuffix } from "../formatters/numbers";
 
+const NumberDisplay = ({ value, format }) => {
+    if (!value) return null;
+
+    return <span>{`${getNumberPrefix(format)}${value || ''}${getNumberSuffix(format)}`}</span>;
+}
 
 /**
  * Renders a single metadata field in display mode
  */
 export const FieldDisplay = ({fieldKey, meta, value, node, className, onValueClick}) => {
-    const {label, type} = meta;
+    const {label, type, data} = meta;
     const column = {name: fieldKey};
     let displayValue = value;
 
@@ -53,7 +58,7 @@ export const FieldDisplay = ({fieldKey, meta, value, node, className, onValueCli
             displayValue = <DateTimeField node={node} column={column} type={type}/>;
             break;
         case 'integer':
-            displayValue = <IntegerField node={node} column={column}/>;
+            displayValue = <NumberDisplay value={value} format={(data || {}).format} />;
             break;
         case 'boolean':
             displayValue = value ? 'Yes' : 'No';
