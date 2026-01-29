@@ -157,6 +157,11 @@ class MetaNamespace extends React.Component {
         if (props.open === this.props.open) {
             return;
         }
+
+        if (props.open && !this.state.types) {
+           this.getTypes();
+        }
+
         const { create, namespaces } = props;        
         const newNS = this.cloneNs(props.namespace);
         if (create && namespaces.length) {
@@ -177,6 +182,14 @@ class MetaNamespace extends React.Component {
         })
     }
 
+    getTypes() {
+        this.setState({loading: true});
+        Metadata.getMetaSchema('types').then(res => {
+            const types = res.JsonSchema || [];
+            this.setState({loading: false, types: types});
+        });
+    }
+
     getJsonSchema() {
         const { namespace } = this.state;
         if(namespace.JsonDefinition?.length > 0) {
@@ -184,7 +197,7 @@ class MetaNamespace extends React.Component {
                 const fieldType = JSON.parse(namespace?.JsonDefinition).type;
                 if (!fieldType) return;
                 if (!namespace.Namespace) return;
-                Metadata.getJsonSchemaByType(fieldType, namespace.Namespace)
+                Metadata.getJsonSchemaByType(fieldType, (namespace.Namespace).split('-').pop())
                     .then(schema => {
                         this.setState(prevState => ({
                         namespace: {
@@ -238,6 +251,18 @@ class MetaNamespace extends React.Component {
             return add;
         } catch (e) { }
         return defaultValue;
+    }
+
+    getCommaSeparatedEntities () {
+        const { namespace } = this.state;
+        try {
+            const parsed = JSON.parse(namespace.JsonDefinition || '{}');
+            const entityStr = parsed && parsed.data && parsed.data.entity;
+            if (!entityStr || typeof entityStr !== 'string') return [];
+            return entityStr.split(',').map(s => s.trim()).filter(Boolean);
+        } catch (e) {
+            return [];
+        }
     }
 
     // Append data key
@@ -297,6 +322,7 @@ class MetaNamespace extends React.Component {
         if (namespace.JsonDefinition) {
             try {
                 type = JSON.parse(namespace.JsonDefinition).type || '';
+                namespace.FieldType = type;
             } catch (e) {
                 type = '';
             }
@@ -325,7 +351,7 @@ class MetaNamespace extends React.Component {
             invalid = true;
         }
 
-                const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
+        const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
 
 
         let adminRead, adminWrite;
@@ -373,6 +399,7 @@ class MetaNamespace extends React.Component {
                     m={m}
                     pydio={pydio}
                     namespace={namespace}
+                    metaTypes={this.state.types}
                     forcePrefix={'usermeta-'}
                     onChange={(ns) => { this.setState({ namespace: ns }, () => { this.getJsonSchema(); }) }}
                     readonly={readonly}
@@ -381,6 +408,25 @@ class MetaNamespace extends React.Component {
                     nameError={nameError}
                     styles={styles}
                 />
+                <ModernTextField
+                    floatingLabelText={m('description')}
+                    value={namespace.Description || ''}
+                    onChange={(e, v) => { namespace.Description = v; this.setState({ namespace }) }}
+                    fullWidth={true}
+                    readOnly={readonly}
+                    variant={"v2"}
+                />
+                {type === 'tag_cloud' && (
+                    <ModernTextField
+                        floatingLabelText={m('tag_cloud.entity')}
+                        value={this.getAdditionalData({ entity: '' }).entity || ''}
+                        onChange={(e, v) => { this.setAdditionalDataKey('entity', v) }}
+                        fullWidth={true}
+                        readOnly={readonly}
+                        variant={"v2"}
+                        hintText={m('tag_cloud.entity.hint')}
+                    />
+                )}
                 {USERMETA_PROMPT_FF && (
                     namespace?.Namespace?.toString().length > 0 && 
                     namespace.JsonDefinition?.toString().length > 0 && (
@@ -388,6 +434,7 @@ class MetaNamespace extends React.Component {
                         ns={namespace}
                         ref={this.fieldOptionsRef}
                         fieldType={JSON.parse(namespace.JsonDefinition).type}
+                        tagValues={type === 'tag_cloud' ? this.getCommaSeparatedEntities() : this.getAdditionalData({ items: [] }).items}
                     />
                 ))}
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>

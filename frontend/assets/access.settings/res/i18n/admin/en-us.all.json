@@ -869,6 +869,21 @@
   "metadata.type.choice": {
     "other": "Select from values"
   },
+  "metadata.type.multi_value": {
+    "other": "Multi Value select"
+  },
+  "metadata.type.tag_cloud": {
+    "other": "Tag Cloud"
+  },
+  "metadata.type.tag_cloud.values": {
+    "other": "Tag Cloud values"
+  },
+  "metadata.tag_cloud.entity.hint": {
+    "other": "Comma-separated list of possible tags"
+  },
+  "metadata.tag_cloud.entity": {
+    "other": "Values"
+  },
   "metadata.type.json": {
     "other": "JSON (internal format)"
   },

@@ -16,6 +16,7 @@ class MetadataBoard extends React.Component{
         this.state = {
             loading: false,
             namespaces: [],
+            types: [],
             m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id
         };
     }
@@ -177,6 +178,7 @@ class MetadataBoard extends React.Component{
         return (
 
             <div className="main-layout-nav-to-stack workspaces-board">
+                {/* WIZARD: Comment out MetaNamespace and uncomment NewMetaNamespace to use the wizard */}
                 <MetaNamespace
                     pydio={pydio}
                     open={dialogOpen}
@@ -188,6 +190,19 @@ class MetadataBoard extends React.Component{
                     readonly={!accessByName('Create')}
                     policiesBuilder={policiesBuilder}
                 />
+
+                {/* WIZARD: When using wizard, keep MetaNamespace for editing existing namespaces */}
+                {dialogOpen && !create && <MetaNamespace
+                    pydio={pydio}
+                    open={dialogOpen}
+                    create={create}
+                    namespace={selectedNamespace}
+                    onRequestClose={() => this.close()}
+                    reloadList={() => this.load()}
+                    namespaces={namespaces}
+                    readonly={!accessByName('Create')}
+                    policiesBuilder={policiesBuilder}
+                />}
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header
                         title={title}
