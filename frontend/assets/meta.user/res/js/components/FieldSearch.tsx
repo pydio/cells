@@ -31,7 +31,7 @@ import {NamespaceMeta} from "./MetaSpec";
 import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
 import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
 import {TextInputSearch} from "../fieldsv2/TextInputSearch";
-import { useMetadataContext } from '../context';
+import { useMetadataContext } from '../context/metadata';
 
 export interface FieldSearchProps {
     name:string,

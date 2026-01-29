@@ -31,7 +31,7 @@ import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
 import { InputProps, Items } from "../fieldsv2/CommonInputProps";
 import MetaClient from "../MetaClient";
 import { NamespaceMeta } from "./MetaSpec";
-import { getNumberPrefix, getNumberSuffix, NumberFormat } from "../formatters/numbers";
+import { getNumberPrefix, getNumberSuffix } from "../formatters/numbers";
 
 export interface FieldEditProps {
     context: any,

@@ -25,11 +25,9 @@ import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types'
 import UserMetaPanelV2 from "./UserMetaPanelV2";
 import MetaClient from "./MetaClient";
-const {
-    PydioMantineProvider,
-    metadata
-} = Pydio.requireLib('hoc');
-const MetadataContextProvider = metadata.MetadataContextProvider;
+import { MetadataContextProvider } from './context/metadata.tsx';
+
+const { PydioMantineProvider } = Pydio.requireLib('hoc');
 
 const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 

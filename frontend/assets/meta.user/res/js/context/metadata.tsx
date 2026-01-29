@@ -1,6 +1,48 @@
 import * as React from 'react'
 
-const initialState = {
+type MetadataState = {
+    node: any
+    saving: boolean
+    valid: boolean
+    formState: Map<any, any>
+    fields: Record<string, boolean>
+    namespaceJsonSchema: any
+    validators: Record<string, any>
+    shouldSave: boolean
+    editingTag: string
+}
+
+type Action =
+    | { type: 'set_node'; node: any }
+    | { type: 'set_saving'; saving: boolean }
+    | { type: 'set_valid'; valid: boolean }
+    | { type: 'set_form_state'; formState: Map<any, any> }
+    | { type: 'set_fields'; fields: Record<string, boolean> }
+    | { type: 'set_namespace_schema'; namespaceJsonSchema: any }
+    | { type: 'set_validators'; validators: Record<string, any> }
+    | { type: 'merge_state'; value: Partial<MetadataState> }
+    | { type: 'set_should_save'; shouldSave: boolean }
+    | { type: 'set_editing_tag'; editingTag: string }
+
+type Actions = {
+    setSaving: (saving: boolean) => void
+    setValid: (valid: boolean) => void
+    setFormState: (formState: Map<any, any>) => void
+    setFields: (fields: Record<string, boolean>) => void
+    setNamespaceJsonSchema: (namespaceJsonSchema: any) => void
+    setValidators: (validators: Record<string, any>) => void
+    mergeState: (nextValue: Partial<MetadataState>) => void
+    setShouldSave: (shouldSave: boolean) => void
+    setEditingTag: (editingTag: string) => void
+}
+
+type ContextValue = {
+    state: MetadataState
+    dispatch: React.Dispatch<Action>
+    actions: Actions
+}
+
+const initialState: MetadataState = {
     node: null,
     saving: false,
     valid: true,
@@ -12,7 +54,7 @@ const initialState = {
     editingTag: 'none',
 }
 
-const reducer = (state, action) => {
+const reducer = (state: MetadataState, action: Action): MetadataState => {
     switch (action.type) {
         case 'set_node':
             return { ...state, node: action.node }
@@ -41,9 +83,9 @@ const reducer = (state, action) => {
 
 const noop = () => {}
 
-const defaultContext = {
+const defaultContext: ContextValue = {
     state: initialState,
-    dispatch: noop,
+    dispatch: noop as React.Dispatch<Action>,
     actions: {
         setSaving: noop,
         setValid: noop,
@@ -57,7 +99,7 @@ const defaultContext = {
     }
 }
 
-export const MetadataContext = React.createContext(defaultContext)
+export const MetadataContext = React.createContext<ContextValue>(defaultContext)
 
 export const MetadataContextProvider = ({
     node,
@@ -74,7 +116,7 @@ export const MetadataContextProvider = ({
     const actions = React.useMemo(() => ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
         setValid: (valid) => dispatch({ type: 'set_valid', valid }),
-        setFormState: (formState) => {
+        setFormState: (formState: Map<string, any>) => {
             dispatch({ type: 'set_form_state', formState })
         },
         setFields: (fields) => dispatch({ type: 'set_fields', fields }),

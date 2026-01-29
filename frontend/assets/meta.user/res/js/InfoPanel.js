@@ -23,8 +23,7 @@ import MetaClient from "./MetaClient";
 import { FlatButton } from 'material-ui';
 import UserMetaPanelV2 from "./UserMetaPanelV2";
 const { InfoPanelCard } = Pydio.requireLib('workspaces')
-const { metadata } = Pydio.requireLib('hoc');
-const MetadataContextProvider = metadata.MetadataContextProvider;
+import { MetadataContextProvider } from './context/metadata.tsx';
 
 const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
     const panel = useRef(null);

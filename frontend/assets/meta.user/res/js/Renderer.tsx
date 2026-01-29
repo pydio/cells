@@ -34,11 +34,8 @@ import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 import {IntegerField, IntegerForm} from "./fields/Integer";
 import {getURLDisplayByContext, URLForm} from "./fields/URL";
-import {TagsCloudInput} from "./fieldsv2/TagsCloudInput";
 import {FieldSearch, FieldSearchProps} from "./components/FieldSearch";
 import {NamespaceMeta} from "./components/MetaSpec";
-const { metadata } = Pydio.requireLib('hoc');
-const useMetadataContext = metadata.useMetadataContext;
 
 export default class Renderer{
 

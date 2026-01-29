@@ -21,7 +21,6 @@
 import React, { useEffect, useState } from 'react'
 import { TagsInput } from '@mantine/core'
 import { StringItemsInputProps } from "./CommonInputProps";
-// import { useMetadataContext } from '../context'
 
 export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     name,

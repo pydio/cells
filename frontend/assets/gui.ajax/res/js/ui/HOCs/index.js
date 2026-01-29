@@ -44,8 +44,6 @@ import * as hooks from './hooks'
 import * as AdditionalIcons from './material/AdditionalIcons'
 import {listFontIcons, colorsFromString} from './graphics/tools'
 import {PydioMantineProvider} from "./mantine/PydioMantineProvider";
-import * as metadata from "./metadata/MetadataContext";
-
 
 const PydioHOCs = {
     EditorActions: actions,
@@ -77,7 +75,6 @@ const PydioHOCs = {
     ...Modern,
     ThemedContainers,
     PydioMantineProvider,
-    metadata,
     DatePicker: ThemedContainers.DatePicker,
     TimePicker: ThemedContainers.TimePicker,
     AdditionalIcons,
