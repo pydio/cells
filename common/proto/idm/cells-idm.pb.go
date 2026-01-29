@@ -3137,8 +3137,12 @@ type UserMetaNamespace struct {
 	JsonSchema *structpb.Struct `protobuf:"bytes,9,opt,name=JsonSchema,proto3" json:"JsonSchema,omitempty"`
 	// Use default value from JsonSchema to enforce defaults
 	EnforceDefault bool `protobuf:"varint,10,opt,name=EnforceDefault,proto3" json:"EnforceDefault,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Human-readable Description
+	Description string `protobuf:"bytes,11,opt,name=Description,proto3" json:"Description,omitempty"`
+	// Namespace Type  "boolean", "choice", "css_label", "date", "integer", "json", "multi_value", "stars_rate", "string", "tag_cloud", "tags", "textarea", "url"
+	FieldType     string `protobuf:"bytes,12,opt,name=FieldType,proto3" json:"FieldType,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserMetaNamespace) Reset() {
@@ -3239,6 +3243,20 @@ func (x *UserMetaNamespace) GetEnforceDefault() bool {
 		return x.EnforceDefault
 	}
 	return false
+}
+
+func (x *UserMetaNamespace) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UserMetaNamespace) GetFieldType() string {
+	if x != nil {
+		return x.FieldType
+	}
+	return ""
 }
 
 // MetaEntity represents a metadata entity (e.g., "Department", "Project")
@@ -5512,7 +5530,7 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\bPolicies\x18\x05 \x03(\v2\x17.service.ResourcePolicyR\bPolicies\x128\n" +
 	"\x17PoliciesContextEditable\x18\x06 \x01(\bR\x17PoliciesContextEditable\x12.\n" +
 	"\fResolvedNode\x18\a \x01(\v2\n" +
-	".tree.NodeR\fResolvedNode\"\x9b\x03\n" +
+	".tree.NodeR\fResolvedNode\"\xdb\x03\n" +
 	"\x11UserMetaNamespace\x12\x1c\n" +
 	"\tNamespace\x18\x01 \x01(\tR\tNamespace\x12\x14\n" +
 	"\x05Label\x18\x02 \x01(\tR\x05Label\x12\x14\n" +
@@ -5526,7 +5544,9 @@ const file_cells_idm_proto_rawDesc = "" +
 	"JsonSchema\x18\t \x01(\v2\x17.google.protobuf.StructR\n" +
 	"JsonSchema\x12&\n" +
 	"\x0eEnforceDefault\x18\n" +
-	" \x01(\bR\x0eEnforceDefault\"X\n" +
+	" \x01(\bR\x0eEnforceDefault\x12 \n" +
+	"\vDescription\x18\v \x01(\tR\vDescription\x12\x1c\n" +
+	"\tFieldType\x18\f \x01(\tR\tFieldType\"X\n" +
 	"\n" +
 	"MetaEntity\x12\x12\n" +
 	"\x04Uuid\x18\x01 \x01(\tR\x04Uuid\x12\x14\n" +

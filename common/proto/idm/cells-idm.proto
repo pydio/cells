@@ -488,6 +488,10 @@ message UserMetaNamespace{
 	google.protobuf.Struct JsonSchema = 9;
     // Use default value from JsonSchema to enforce defaults 
     bool EnforceDefault = 10;
+    // Human-readable Description
+    string Description = 11;
+    // Namespace Type  "boolean", "choice", "css_label", "date", "integer", "json", "multi_value", "stars_rate", "string", "tag_cloud", "tags", "textarea", "url"
+    string FieldType = 12;
 }
 
 // MetaEntity represents a metadata entity (e.g., "Department", "Project")

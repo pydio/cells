@@ -77,6 +77,11 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
+	case "tag_cloud":
+		// props["minLength"] = withNumberType("Minimum Length")
+		// props["maxLength"] = withNumberType("Maximum Length")
+		props["required"] = withBooleanType()
+		return toProtoStruct(f.root)
 	case "integer":
 		props["minimum"] = withNumberType("Minimum Value")
 		props["maximum"] = withNumberType("Maximum Value")
@@ -86,6 +91,7 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	case "array":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
 	case "boolean":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
@@ -97,18 +103,40 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	case "choice":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
 	case "stars_rate":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
 	case "css_label":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
 	case "tags":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
 	case "json":
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
+
+	case "types":
+		return toProtoStruct(map[string]interface{}{
+			"string":      "Text",
+			"textarea":    "Long Text",
+			"integer":     "Number",
+			"boolean":     "Boolean",
+			"date":        "Date",
+			"choice":      "Selection",
+			"tags":        "Extensible Tags",
+			"tag_cloud":   "Tag Cloud",
+			"multi_value": "Multi Value Selection",
+			"stars_rate":  "Stars Rating",
+			"css_label":   "Color Labels",
+			"json":        "JSON",
+			"url":         "External URL",
+		})
+
 	default:
 		return nil
 	}
@@ -121,11 +149,11 @@ type JSONSchemaFactory struct {
 func NewJSONSchemaFactory(label string) *JSONSchemaFactory {
 	return &JSONSchemaFactory{
 		root: map[string]interface{}{
-			"$id":                  fmt.Sprintf("https://pydio.com/%s", label),
-			"type":                 "object",
-			"properties":           map[string]interface{}{},
-			"additionalProperties": false,
-			"required":             []interface{}{},
+			"$id":        fmt.Sprintf("https://pydio.com/%s", label),
+			"type":       "object",
+			"properties": map[string]interface{}{},
+			// "additionalProperties": false,
+			"required": []interface{}{},
 		},
 	}
 }
@@ -260,12 +288,12 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 		props[t] = withUrlSchema()
 
 	case "choice":
-		var t = fmt.Sprintf("%s-choice", usermeta)
+		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
 			t = fmt.Sprintf("usermeta-%s", name)
 		}
 		f.root["title"] = t
-		props[t] = withStringSchema()
+		props[t] = withArraySchema()
 	case "stars_rate":
 		var t = fmt.Sprintf("%s-stars_rate", usermeta)
 		if name != "" {
@@ -287,6 +315,13 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
+	case "tag_cloud":
+		var t = fmt.Sprintf("%s-tags", usermeta)
+		if name != "" {
+			t = fmt.Sprintf("usermeta-%s", name)
+		}
+		f.root["title"] = t
+		props[t] = withArraySchema()
 	default:
 		return nil, nil
 	}
@@ -373,8 +408,10 @@ func withObjectSchema() map[string]interface{} {
 }
 
 func withArraySchema() map[string]interface{} {
-	s, _ := Infer[[]interface{}](nil)
+	// Create a slice type for string enums
+	s := ArrayOfStrings([]string{})
 	prop := marshalSchema(s)
+	// Add additional array-specific constraints
 	return prop
 }
 
