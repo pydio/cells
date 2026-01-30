@@ -50,7 +50,7 @@ export const NumbersInput: React.FC<InputProps> = ({
 
     return <NumberInput
         {...props}
-        onChange={(v) => onChange(v)}
+        onChange={(e) => onChange(e)}
         onKeyPress={simpleEnter}
         autoFocus={!!requestToggleClose}
         onBlur={requestToggleClose}

@@ -18,42 +18,42 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback, useState, useRef} from 'react'
+import React, { useCallback, useState, useRef } from 'react'
 import Pydio from 'pydio'
 import Node from 'pydio/model/node'
-import {Dialog, FlatButton} from 'material-ui'
-const {PydioMantineProvider} = Pydio.requireLib('hoc');
+import { Dialog, FlatButton } from 'material-ui'
+const { PydioMantineProvider } = Pydio.requireLib('hoc');
 
-export default ({namespaces, onDismiss, metaLib}) => {
+export default ({ namespaces, onDismiss, metaLib }) => {
     const [errorsScope, setErrorsScope] = useState('local');
     const [data, setData] = useState({})
     const [valid, setValid] = useState(false)
     const [submitted, setSubmitted] = useState(false)
+    const [node, setNode] = useState(new Node())
     const pydio = Pydio.getInstance();
-    const cancel = useCallback(()=> {
+    const cancel = useCallback(() => {
         onDismiss()
     }, [])
-    const submit = useCallback(()=> {
-        if (!valid) {
-            setErrorsScope('global')
-            return
-        }
+    const submit = useCallback(() => {
+        if (!valid) return
+
         onDismiss(data)
         setSubmitted(true)
+        setNode(new Node())
     }, [data, valid])
 
-    const {UserMetaPanelV2, MetaClient, MetadataContextProvider} = metaLib
+    const { UserMetaPanelV2, MetaClient, MetadataContextProvider } = metaLib
     const metaPanel = useRef(null)
 
     const loader = useCallback(() => {
         return Promise.resolve(MetaClient.getInstance().namespacesAsPanelConfig(namespaces));
     }, [namespaces]);
     const actions = []
-    if(!submitted) {
-        actions.push(<FlatButton label={pydio.MessageHash[54]} onClick={cancel}/>)
+    if (!submitted) {
+        actions.push(<FlatButton label={pydio.MessageHash[54]} onClick={cancel} />)
     }
     actions.push(<FlatButton
-        label={submitted?pydio.MessageHash['html_uploader.task.status.analyse']+'...' :  pydio.MessageHash[48]}
+        label={submitted ? pydio.MessageHash['html_uploader.task.status.analyse'] + '...' : pydio.MessageHash[48]}
         onClick={submit}
         primary={true}
         disabled={submitted}
@@ -65,11 +65,18 @@ export default ({namespaces, onDismiss, metaLib}) => {
             actions={actions}
             modal={true}
             open={true}
-            bodyStyle={{paddingBottom: 0}}
-            contentStyle={{width: 840, maxWidth:'100%', background: 'var(--md-sys-color-surface-3)', borderRadius:20}}
+            bodyStyle={{ paddingBottom: 0 }}
+            contentStyle={{ width: 840, maxWidth: '100%', background: 'var(--md-sys-color-surface-3)', borderRadius: 20 }}
             autoScrollBodyContent={true}
         >
-            <MetadataContextProvider node={new Node()}>
+            <MetadataContextProvider
+                node={node}
+                loadJsonSchema={loader}
+                onDataChanged={(data, isValid) => {
+                    setData(data)
+                    setValid(isValid)
+                }}
+            >
                 <PydioMantineProvider>
                     <UserMetaPanelV2
                         pydio={pydio}
@@ -78,7 +85,7 @@ export default ({namespaces, onDismiss, metaLib}) => {
                         multiple={false}
                         node={new Node()}
                         editMode={true}
-                        style={{fontSize: 14, minHeight:200}}
+                        style={{ fontSize: 14, minHeight: 200 }}
                         onChangeUpdateData={(d) => {
                             setErrorsScope('local')
                             setData(d)
@@ -91,5 +98,4 @@ export default ({namespaces, onDismiss, metaLib}) => {
             </MetadataContextProvider>
         </Dialog>
     );
-
 }
