@@ -26,6 +26,7 @@ import { RatingInput } from "../fieldsv2/RatingInput";
 import { SwitchInput } from "../fieldsv2/SwitchInput";
 import { NumbersInput } from "../fieldsv2/NumbersInput";
 import { DateTimeInput } from "../fieldsv2/DateTimeInput";
+import { DateInput } from "../fieldsv2/DateInput";
 import { TimeInput } from "../fieldsv2/TimeInput";
 import { URLInput } from "../fieldsv2/URLInput";
 import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
@@ -114,6 +115,11 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         case 'date':
             if (formatType === 'time') {
                 return <TimeInput
+                    {...baseProps}
+                />;
+            }
+            if (formatType === 'date') {
+                return <DateInput
                     {...baseProps}
                 />;
             }
