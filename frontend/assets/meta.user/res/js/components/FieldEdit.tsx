@@ -26,6 +26,7 @@ import { RatingInput } from "../fieldsv2/RatingInput";
 import { SwitchInput } from "../fieldsv2/SwitchInput";
 import { NumbersInput } from "../fieldsv2/NumbersInput";
 import { DateTimeInput } from "../fieldsv2/DateTimeInput";
+import { TimeInput } from "../fieldsv2/TimeInput";
 import { URLInput } from "../fieldsv2/URLInput";
 import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
 import { InputProps, Items } from "../fieldsv2/CommonInputProps";
@@ -64,6 +65,7 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     }, [name, ])
 
     const formatType = data?.format as NumberFormat;
+    console.log('(FieldEdit:67) - @@@@@@ formatType: ', formatType);
 
     const value = state.formState.get(name)
     const errorText = state.errors?.[name];
@@ -114,6 +116,11 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
                 dataLoader={localDataLoader}
             />;
         case 'date':
+            if (formatType === 'time') {
+                return <TimeInput
+                    {...baseProps}
+                />;
+            }
             return <DateTimeInput
                 {...baseProps}
             />;
