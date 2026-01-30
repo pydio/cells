@@ -26,6 +26,7 @@ import {
     UpdateUserMetaNamespaceRequestUserMetaNsOp,
 
 } from 'cells-sdk'
+import Form from '@rjsf/mantine';
 
 /** 
  * @typedef {import('cells-sdk').IdmUserMetaNamespace} IdmUserMetaNamespace
@@ -76,8 +77,8 @@ class Metadata {
         return Metadata.api.getFieldSchema(fileType);
     }
 
-    static getJsonSchemaByType(fieldType, namespace) {     
-        return Metadata.api.getNamespaceSchema({ FieldType: fieldType, Namespace: namespace });
+    static getJsonSchemaByType(fieldType, namespace, format = '') {     
+        return Metadata.api.getNamespaceSchema({ FieldType: fieldType, Namespace: namespace, Format: format });
     }
 
     /**

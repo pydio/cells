@@ -206,7 +206,8 @@ func (s *UserMetaHandler) GetNamespaceSchema(req *restful.Request, rsp *restful.
 	ctx := req.Request.Context()
 	typeParam := req.QueryParameter("FieldType")
 	nameParam := req.QueryParameter("Namespace")
-	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: typeParam, Namespace: nameParam})
+	formatParam := req.QueryParameter("Format")
+	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: typeParam, Namespace: nameParam, Format: formatParam})
 
 	if err != nil {
 		return err

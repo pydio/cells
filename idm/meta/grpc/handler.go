@@ -375,6 +375,7 @@ func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceReques
 	}
 
 	namespaceDAO := dao.GetNamespaceDao()
+	//TODO how to prefil MultiValue Choices with Entities and Values?
 	if results, err := namespaceDAO.List(ctx); err == nil {
 		for _, result := range results {
 			stream.Send(&idm.ListUserMetaNamespaceResponse{UserMetaNamespace: result})
@@ -407,8 +408,8 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 	}
 	namespaceDAO := dao.GetNamespaceDao()
 
-	if req.FieldType != "" && req.Namespace != "" {
-		schema, err := namespaceDAO.GetNamespaceSchemaSample(ctx, req.FieldType, req.Namespace)
+	if req.FieldType != "" && req.Namespace != "" && req.Format != "" {
+		schema, err := namespaceDAO.GetNamespaceSchemaSample(ctx, req.FieldType, req.Namespace, req.Format)
 		if err != nil {
 			return nil, err
 		}
