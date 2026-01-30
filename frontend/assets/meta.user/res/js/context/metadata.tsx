@@ -1,112 +1,161 @@
 import * as React from 'react'
+import MetaClient, { PydioNode } from "../MetaClient";
 
-type MetadataState = {
-    node: any
-    saving: boolean
-    valid: boolean
-    formState: Map<any, any>
-    fields: Record<string, boolean>
-    namespaceJsonSchema: any
-    validators: Record<string, any>
-    shouldSave: boolean
-    editingTag: string
+import Ajv, { JSONSchemaType, ValidateFunction } from "ajv";
+import addFormats from 'ajv-formats'
+
+interface MetadataState {
+    node: PydioNode | null;
+    saving: boolean;
+    formState: Map<string, any>;
+    fields: {[key: string]: any};
+    namespaceJsonSchema: JSONSchemaType<any> | null;
+    jsonSchema: JSONSchemaType<any> | null;
+    shouldSave: boolean;
+    editingTag: string;
+    errors: {[key: string]: string};
 }
 
-type Action =
-    | { type: 'set_node'; node: any }
+type MetadataAction =
+    | { type: 'set_node'; node: PydioNode | null }
     | { type: 'set_saving'; saving: boolean }
-    | { type: 'set_valid'; valid: boolean }
-    | { type: 'set_form_state'; formState: Map<any, any> }
-    | { type: 'set_fields'; fields: Record<string, boolean> }
-    | { type: 'set_namespace_schema'; namespaceJsonSchema: any }
-    | { type: 'set_validators'; validators: Record<string, any> }
-    | { type: 'merge_state'; value: Partial<MetadataState> }
+    | { type: 'set_form_state'; formState: Map<string, any> }
+    | { type: 'set_fields'; fields: {[key: string]: any} }
+    | { type: 'set_namespace_schema'; namespaceJsonSchema: JSONSchemaType<any> | null }
     | { type: 'set_should_save'; shouldSave: boolean }
     | { type: 'set_editing_tag'; editingTag: string }
+    | { type: 'set_json_schema'; jsonSchema: JSONSchemaType<any> | null }
+    | { type: 'set_errors'; errors: {[key: string]: string} };
 
-type Actions = {
-    setSaving: (saving: boolean) => void
-    setValid: (valid: boolean) => void
-    setFormState: (formState: Map<any, any>) => void
-    setFields: (fields: Record<string, boolean>) => void
-    setNamespaceJsonSchema: (namespaceJsonSchema: any) => void
-    setValidators: (validators: Record<string, any>) => void
-    mergeState: (nextValue: Partial<MetadataState>) => void
-    setShouldSave: (shouldSave: boolean) => void
-    setEditingTag: (editingTag: string) => void
+interface MetadataActions {
+    setNamespaceJsonSchema: (namespaceJsonSchema: JSONSchemaType<any> | null) => void;
+    setSaving: (saving: boolean) => void;
+    setFormState: (formState: Map<string, any>) => void;
+    setShouldSave: (shouldSave: boolean) => void;
+    setFields: (fields: {[key: string]: any}) => void;
+    setEditingTag: (editingTag: string) => void;
+    setJsonSchema: (jsonSchema: JSONSchemaType<any> | null) => void;
 }
 
-type ContextValue = {
-    state: MetadataState
-    dispatch: React.Dispatch<Action>
-    actions: Actions
+interface MetadataContextType {
+    state: MetadataState;
+    dispatch: React.Dispatch<MetadataAction>;
+    actions: MetadataActions;
 }
+
+const ajv = new Ajv({allErrors: true});
+addFormats(ajv)
 
 const initialState: MetadataState = {
     node: null,
     saving: false,
-    valid: true,
     formState: new Map(),
     fields: {},
     namespaceJsonSchema: null,
-    validators: {},
+    jsonSchema: null,
     shouldSave: false,
     editingTag: 'none',
+    errors: {}
 }
 
-const reducer = (state: MetadataState, action: Action): MetadataState => {
+const reducer = (state: MetadataState, action: MetadataAction): MetadataState => {
     switch (action.type) {
         case 'set_node':
             return { ...state, node: action.node }
         case 'set_saving':
             return { ...state, saving: action.saving }
-        case 'set_valid':
-            return { ...state, valid: action.valid }
         case 'set_form_state':
             return { ...state, formState: action.formState }
         case 'set_fields':
             return { ...state, fields: action.fields }
         case 'set_namespace_schema':
             return { ...state, namespaceJsonSchema: action.namespaceJsonSchema }
-        case 'set_validators':
-            return { ...state, validators: action.validators }
-        case 'merge_state':
-            return { ...state, ...(action.value || {}) }
         case 'set_should_save':
             return { ...state, shouldSave: action.shouldSave }
         case 'set_editing_tag':
             return { ...state, editingTag: action.editingTag }
+        case 'set_json_schema':
+            return { ...state, jsonSchema: action.jsonSchema }
+        case 'set_errors':
+            return { ...state, errors: action.errors }
         default:
             return state
     }
 }
 
-const noop = () => {}
+const noop = (...args: any[]) => {}
 
-const defaultContext: ContextValue = {
+const defaultContext: MetadataContextType = {
     state: initialState,
-    dispatch: noop as React.Dispatch<Action>,
+    dispatch: noop as React.Dispatch<MetadataAction>,
     actions: {
         setSaving: noop,
-        setValid: noop,
         setFormState: noop,
         setFields: noop,
         setNamespaceJsonSchema: noop,
-        setValidators: noop,
-        mergeState: noop,
         setShouldSave: noop,
-        setEditingTag: noop
+        setEditingTag: noop,
+        setJsonSchema: noop
     }
 }
 
-export const MetadataContext = React.createContext<ContextValue>(defaultContext)
+export const MetadataContext = React.createContext(defaultContext)
+
+const mapErrors = (errors: any[]) => {
+    if (!errors) return new Map()
+
+    return errors.reduce((acc: {[key: string]: string}, e: any) => {
+        if (!e.schemaPath.includes('#required') && e.params.missingProperty) {
+            const key = e.params.missingProperty.replace('/', '')
+            return { ...acc, [key]: e.message }
+        }
+        const key = e.instancePath.replace('/', '')
+        return { ...acc, [key]: e.message }
+    }, {})
+}
+
+const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema: JSONSchemaType<any> | null) => {
+    if (!jsonSchema) return formState
+
+    const { properties } = jsonSchema
+    const entries = {}
+    formState.forEach((v, k) => {
+        if (properties[k]?.format === 'time') {
+            const date = new Date(parseFloat(v) * 1000).toISOString();
+            const [hours, minutes, seconds] = date.split('T')[1].split(':');
+            console.log('(metadata:127) - @@@@@@ hours: ', hours);
+            console.log('(metadata:127) - @@@@@@ minutes: ', minutes);
+            entries[k] = `${hours}:${minutes}:${seconds}`;
+            return
+        }
+
+        if (properties[k]?.format === 'date-time' || properties[k]?.format === 'date') {
+            entries[k] = new Date(parseFloat(v) * 1000).toISOString()
+            return
+        }
+
+        entries[k] = v
+    })
+
+    return entries
+}
 
 export const MetadataContextProvider = ({
     node,
     saveMeta,
     value,
-    children
+    onDataChanged,
+    savePartialy,
+    children,
+}: {
+    node: PydioNode;
+    saveMeta: (formData: Map<string, any>) => Promise<any>;
+    value: any;
+    onDataChanged: (formData: Map<string, any>, isValid: boolean) => void;
+    savePartialy: boolean;
+    children: React.ReactNode;
 }) => {
+    const validatorRef = React.useRef<ValidateFunction<any> | null>(null);
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
         node,
@@ -114,19 +163,62 @@ export const MetadataContextProvider = ({
     })
 
     const actions = React.useMemo(() => ({
-        setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
-        setValid: (valid) => dispatch({ type: 'set_valid', valid }),
-        setFormState: (formState: Map<string, any>) => {
-            dispatch({ type: 'set_form_state', formState })
-        },
-        setFields: (fields) => dispatch({ type: 'set_fields', fields }),
         setNamespaceJsonSchema: (namespaceJsonSchema) =>
             dispatch({ type: 'set_namespace_schema', namespaceJsonSchema }),
-        setValidators: (validators) => dispatch({ type: 'set_validators', validators }),
-        mergeState: (nextValue) => dispatch({ type: 'merge_state', value: nextValue }),
-        setShouldSave: (shouldSave) => dispatch({ type: 'set_should_save', shouldSave }),
-        setEditingTag: (editingTag) => dispatch({ type: 'set_editing_tag', editingTag })
+
+        setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
+
+        setFormState: (formState) => {
+            let isValid = true;
+            if (validatorRef.current) {
+                console.log('(metadata:165) - @@@@@@ setFormState');
+                isValid = validatorRef.current(
+                    formatSpecialCasesForValidation(
+                        formState,
+                        validatorRef.current.schema
+                    )
+                )
+                const errors = mapErrors(validatorRef.current.errors)
+                dispatch({ type: 'set_errors', errors })
+            }
+
+            dispatch({ type: 'set_form_state', formState })
+
+            if (onDataChanged) onDataChanged(formState, isValid)
+        },
+
+        setShouldSave: (shouldSave) => {
+            if (!savePartialy) return
+
+            dispatch({ type: 'set_should_save', shouldSave })
+        },
+
+        setFields: (fields) => dispatch({ type: 'set_fields', fields }),
+        setEditingTag: (editingTag) => dispatch({ type: 'set_editing_tag', editingTag }),
+        setJsonSchema: (jsonSchema) => dispatch({ type: 'set_json_schema', jsonSchema })
     }), [])
+
+    React.useEffect(() => {
+        if (!state.jsonSchema) return
+
+        validatorRef.current = ajv.compile(state.jsonSchema)
+        actions.setFormState(state.formState)
+    }, [state.jsonSchema]);
+
+    React.useEffect(() => {
+        if (!node) return
+
+        MetaClient
+            .getInstance()
+            .getNamespaceSchema()
+            .then(ns => {
+                if (!ns) return
+                actions.setJsonSchema(ns.JsonSchema)
+            })
+
+        actions.setFormState(new Map())
+    }, [node]);
+
 
     React.useEffect(() => {
         if(state.saving) return;
@@ -137,21 +229,30 @@ export const MetadataContextProvider = ({
 
 
     React.useEffect(() => {
+        if (Object.keys(state.errors).length > 0) return;
+
+        if (validatorRef.current) {
+            console.log('(metadata:226) - @@@@@@  validatorRef.current: ',  validatorRef.current);
+            validatorRef.current(
+                formatSpecialCasesForValidation(
+                    state.formState,
+                    validatorRef.current.schema
+                )
+            )
+            const errors = mapErrors(validatorRef.current.errors)
+            dispatch({ type: 'set_errors', errors })
+        }
+
         if (state.shouldSave && saveMeta) {
             actions.setSaving(true)
-            saveMeta(state.formState).then((res) => {
-                actions.setSaving(false)
-                actions.setShouldSave(false)
-                node.replaceMetadata(state.formState, true);
-            })
+            saveMeta(state.formState)
+                .then(() => {
+                    actions.setSaving(false)
+                    actions.setShouldSave(false)
+                    node.replaceMetadata(state.formState, true);
+                })
         }
     }, [state.shouldSave])
-
-    React.useEffect(() => {
-        if (value) {
-            dispatch({ type: 'merge_state', value })
-        }
-    }, [value])
 
     const contextValue = React.useMemo(() => ({
         state,

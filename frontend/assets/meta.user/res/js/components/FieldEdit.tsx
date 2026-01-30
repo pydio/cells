@@ -26,6 +26,8 @@ import { RatingInput } from "../fieldsv2/RatingInput";
 import { SwitchInput } from "../fieldsv2/SwitchInput";
 import { NumbersInput } from "../fieldsv2/NumbersInput";
 import { DateTimeInput } from "../fieldsv2/DateTimeInput";
+import { DateInput } from "../fieldsv2/DateInput";
+import { TimeInput } from "../fieldsv2/TimeInput";
 import { URLInput } from "../fieldsv2/URLInput";
 import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
 import { InputProps, Items } from "../fieldsv2/CommonInputProps";
@@ -41,7 +43,7 @@ export interface FieldEditProps {
     value: any,
     updateValue: (f: string, v: any, submit?: boolean) => void,
     supportTemplates?: boolean,
-    requestToggleClose?: () => void,
+    requestToggleClose?: (data?: any) => void,
 }
 
 /**
@@ -49,22 +51,23 @@ export interface FieldEditProps {
  */
 export const FieldEdit: React.FC<FieldEditProps> = ({
     context,
-    name, meta, saving, value, updateValue, supportTemplates, requestToggleClose }) => {
+    name,
+    meta,
+    saving,
+}) => {
     const { state, actions } = context;
-
-    const localChange = useCallback((value: any) => {
-        updateValue(name, value)
-        actions.setFormState(new Map(state.formState).set(name, value))
-    }, [name])
+    const { type, readonly, required, label, data } = meta;
 
     const localDataLoader = useCallback((filter?: string) => {
         return MetaClient.getInstance().listTags(name).then(tags => {
             return tags.filter(t => t)
         });
-    }, [name])
+    }, [name, ])
 
-    const { type, readonly, required, errorText, label, data } = meta;
     const formatType = data?.format as NumberFormat;
+
+    const value = state.formState.get(name)
+    const errorText = state.errors?.[name];
 
     let baseProps: InputProps = {
         name,
@@ -72,15 +75,20 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         required,
         disabled: readonly || saving,
         value,
-        onChange: localChange,
+        onChange: (v) => {
+            actions.setFormState(state.formState.set(name, v))
+        },
         errorText,
-        requestToggleClose,
+        requestToggleClose: () => {
+            actions.setShouldSave(true)
+            actions.setEditingTag('none')
+        },
     };
 
-    const onCommitChange = (values) => {
-        const nextFormState = new Map(state.formState)
-        nextFormState.set(name, values)
-        actions.setFormState(nextFormState)
+    const onCommitChange = (v) => {
+        if (state.errors[name]) return
+
+        actions.setFormState(state.formState.set(name, v))
         actions.setShouldSave(true)
         actions.setEditingTag('none')
     }
@@ -96,26 +104,28 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             const cssItems: Items[] = Object.keys(cssLabels).map((id) => { return { ...cssLabels[id], key: id, value: cssLabels[id].label } })
             return <Selector {...baseProps} items={cssItems} />;
         case 'tags':
-            const valueData = state.formState.get(name) ? state.formState.get(name).split(',') : []
-            const disabled = state.saving || state.shouldSave;
-
             return <TagsCloudInput
                 {...baseProps}
-                value={valueData}
-                disabled={disabled}
+                value={state.formState.get(name)}
+                disabled={state.saving || state.shouldSave}
                 onCommitChange={onCommitChange}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
         case 'date':
+            if (formatType === 'time') {
+                return <TimeInput
+                    {...baseProps}
+                />;
+            }
+            if (formatType === 'date') {
+                return <DateInput
+                    {...baseProps}
+                />;
+            }
             return <DateTimeInput
-            {...baseProps}
-            requestToggleClose={() => {
-                actions.setShouldSave(true)
-                actions.setEditingTag('none')
-                requestToggleClose()
-            }}
-        />;
+                {...baseProps}
+            />;
         case 'integer':
             return <NumbersInput
                 {...baseProps}

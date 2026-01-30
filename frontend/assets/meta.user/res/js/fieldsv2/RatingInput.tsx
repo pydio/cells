@@ -21,6 +21,7 @@
 import React from 'react'
 import {Input, Rating} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
+import './RatingInput.css';
 
 export const RatingInput:React.FC<InputProps> = (props: InputProps) => {
 
@@ -28,6 +29,8 @@ export const RatingInput:React.FC<InputProps> = (props: InputProps) => {
 
     return (
         <Input.Wrapper
+            className="rating-input-grid"
+            data-testid="rating-input"
             label={label}
             error={errorText}
             description={description}
@@ -36,19 +39,19 @@ export const RatingInput:React.FC<InputProps> = (props: InputProps) => {
                 component={"div"}
                 disabled={disabled}
             >
-            <div style={{display: 'flex', alignItems: 'center'}} onBlur={requestToggleClose}>
-                <span
-                    className={'mdi mdi-star-off-outline'}
-                    style={{fontSize: 19, marginRight: 5, cursor: 'pointer'}}
-                    onClick={() => {!disabled? onChange( '', true):null}}
-                />
-                <Rating
-                    className={""}
-                    value={parseInt(value)||0}
-                    onChange={(n) => onChange(n, true)}
-                    readOnly={false}
-                />
-            </div>
+                <div style={{display: 'flex', alignItems: 'center'}} onBlur={requestToggleClose}>
+                    <span
+                        className={'mdi mdi-star-off-outline'}
+                        style={{fontSize: 19, marginRight: 5, cursor: 'pointer'}}
+                        onClick={() => {!disabled? onChange( '', true):null}}
+                    />
+                    <Rating
+                        className={""}
+                        value={parseInt(value)||0}
+                        onChange={(n) => onChange(n, true)}
+                        readOnly={false}
+                    />
+                </div>
             </Input>
         </Input.Wrapper>
     )

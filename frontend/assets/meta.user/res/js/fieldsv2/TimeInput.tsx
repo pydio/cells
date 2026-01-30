@@ -20,13 +20,37 @@
 
 import React from 'react'
 import {InputProps} from "./CommonInputProps";
-import {DateTimePicker} from '@mantine/dates'
+import {TimePicker} from '@mantine/dates'
 import {PopoverProps} from "@mantine/core";
 
-export const DateTimeInput: React.FC<InputProps> = ({
+const timestampToDate = (timestamp: number) => {
+    if (!timestamp) return '';
+
+    const date = new Date(timestamp * 1000)
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    console.log('(TimeInput:34) - @@@@@@ hours: ', hours);
+    console.log('(TimeInput:34) - @@@@@@ minutes: ', minutes);
+    return `${hours}:${minutes}`;
+}
+
+const dateToTimestamp = (time: string) => {
+    if (!time) return '';
+
+    const [hours, minutes] = time.split(':');
+    console.log('(TimeInput:41) - @@@@@@ hours: ', hours);
+    console.log('(TimeInput:41) - @@@@@@ minutes: ', minutes);
+    const timestamp = new Date();
+    timestamp.setHours(parseInt(hours));
+    timestamp.setMinutes(parseInt(minutes));
+
+    return timestamp.getTime() / 1000;
+}
+
+export const TimeInput: React.FC<InputProps> = ({
     label,
     description,
-    placeholder,
     required,
     disabled,
     value,
@@ -48,16 +72,14 @@ export const DateTimeInput: React.FC<InputProps> = ({
         };
     }
 
-    return <DateTimePicker
+    return <TimePicker
         {...props}
         radius={"md"}
-        value={value ? new Date(parseFloat(value)*1000) : null}
+        value={timestampToDate(value)}
         onChange={(v) => {
-            const d = new Date(v).getTime()/1000;
-            onChange(d, true);
+            onChange(dateToTimestamp(v), true);
         }}
         description={description}
-        placeholder={placeholder}
         autoFocus={!!requestToggleClose}
         popoverProps={popoverProps}
     />

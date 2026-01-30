@@ -153,7 +153,7 @@ class MetaNamespace extends React.Component {
         return IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
     }
 
-    componentWillReceiveProps(props) {        
+    componentWillReceiveProps(props) {
         if (props.open === this.props.open) {
             return;
         }
@@ -162,12 +162,12 @@ class MetaNamespace extends React.Component {
            this.getTypes();
         }
 
-        const { create, namespaces } = props;        
+        const { create, namespaces } = props;
         const newNS = this.cloneNs(props.namespace);
         if (create && namespaces.length) {
             newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a, c) => Math.max(a, c), 0) + 1;
-        }     
-        this.setState({ namespace: newNS });        
+        }
+        this.setState({ namespace: newNS });
     }
 
     save() {
@@ -175,7 +175,7 @@ class MetaNamespace extends React.Component {
         if (this.fieldOptionsRef.current) {
             namespace = this.fieldOptionsRef.current.getUpdatedNamespace();
         }
-        
+
         Metadata.putNS(namespace).then(() => {
             this.props.onRequestClose();
             this.props.reloadList();
@@ -198,7 +198,9 @@ class MetaNamespace extends React.Component {
                 const data = JSON.parse(namespace?.JsonDefinition).data || '';
                 if (!fieldType) return;
                 if (!namespace.Namespace) return;
-                Metadata.getJsonSchemaByType(fieldType, (namespace.Namespace), data.format)
+
+                let format = data?.format?.toString().lengh > 0 ? data.format : '';
+                Metadata.getJsonSchemaByType(fieldType, (namespace.Namespace), format)
                     .then(schema => {
                         this.setState(prevState => ({
                         namespace: {
@@ -292,7 +294,7 @@ class MetaNamespace extends React.Component {
         });
     }
 
-    toggleRequired(namespace){     
+    toggleRequired(namespace){
         if(!namespace.JsonSchema.required ||  namespace.JsonSchema.required.length === 0) {
             namespace.JsonSchema.required = [];
             namespace?.JsonSchema?.required?.push(namespace.Namespace)
@@ -429,9 +431,9 @@ class MetaNamespace extends React.Component {
                     />
                 )}
                 {USERMETA_PROMPT_FF && (
-                    namespace?.Namespace?.toString().length > 0 && 
+                    namespace?.Namespace?.toString().length > 0 &&
                     namespace.JsonDefinition?.toString().length > 0 && (
-                    <MetaNamespaceFieldOptions 
+                    <MetaNamespaceFieldOptions
                         ns={namespace}
                         ref={this.fieldOptionsRef}
                         fieldType={JSON.parse(namespace.JsonDefinition).type}
@@ -444,9 +446,9 @@ class MetaNamespace extends React.Component {
                     disabled={readonly}
                     labelPosition={"left"}
                     toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
-                    onToggle={(e, v) => { 
+                    onToggle={(e, v) => {
                         namespace.PromptOnUpload = v;
-                        this.setState({ namespace }) 
+                        this.setState({ namespace })
                         if (v === false) {
                             this.toggleRequired(namespace)
                         }

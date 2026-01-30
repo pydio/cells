@@ -15,6 +15,7 @@ export interface LeftSectionMenuProps {
     onChange: (value: string) => void,
 }
 
+// FIXME: Move to a common place see: .
 export const NumberRangeModifiers: LeftSectionMenuItem[] = [
     {value: '', className:'mdi mdi-equal', label:'Equals', default:true},
     {value: '>=', className:'mdi mdi-greater-than-or-equal', label:'Greater than'},
