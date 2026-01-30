@@ -1,0 +1,47 @@
+/* RatingInput grid layout */
+.rating-input-grid.mantine-InputWrapper-root {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "label input"
+    "label error";
+  align-items: center;
+  gap: 0 16px;
+}
+
+.rating-input-grid .mantine-InputWrapper-label {
+  grid-area: label;
+  margin-right: 0;
+  align-self: start;
+  padding-top: 8px; /* vertical alignment with input */
+}
+
+.rating-input-grid .mantine-InputWrapper-error {
+  grid-area: error;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--mantine-color-error);
+}
+
+.rating-input-grid .mantine-Input-wrapper {
+  grid-area: input;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rating-input-grid.mantine-InputWrapper-root {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "label"
+      "input"
+      "error";
+    gap: 8px;
+  }
+  
+  .rating-input-grid .mantine-InputWrapper-label {
+    padding-top: 0;
+    margin-bottom: 4px;
+  }
+}
