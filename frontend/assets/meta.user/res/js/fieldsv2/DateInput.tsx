@@ -19,46 +19,46 @@
  */
 
 import React from 'react'
-import { NumberInput } from '@mantine/core'
-import { InputProps } from "./CommonInputProps";
+import {InputProps} from "./CommonInputProps";
+import {DatePickerInput} from '@mantine/dates'
+import {PopoverProps} from "@mantine/core";
 
-export const NumbersInput: React.FC<InputProps> = ({
+export const DateInput: React.FC<InputProps> = ({
     label,
     description,
     placeholder,
+    required,
     disabled,
     value,
     requestToggleClose,
     onChange,
-    errorText,
-
-    prefix,
-    suffix,
+    errorText
 }) => {
     const props = {
         label,
-        value: value || '',
         disabled,
         error: errorText,
+        required: required,
     }
 
-    const simpleEnter = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            onChange(value, true);
-        }
+    const popoverProps : PopoverProps = {withinPortal: false}
+    if(requestToggleClose && !disabled) {
+        popoverProps.onClose = () => {
+            requestToggleClose();
+        };
     }
 
-    return <NumberInput
+    return <DatePickerInput
         {...props}
-        onChange={(e) => onChange(e)}
-        onKeyPress={simpleEnter}
-        autoFocus={!!requestToggleClose}
-        onBlur={requestToggleClose}
-        thousandSeparator=" "
-        prefix={prefix}
-        suffix={suffix}
+        radius={"md"}
+        value={value ? new Date(parseFloat(value)*1000) : null}
+        onChange={(v) => {
+            const d = new Date(v).getTime()/1000;
+            onChange(d, true);
+        }}
         description={description}
         placeholder={placeholder}
-        disabled={disabled}
+        autoFocus={!!requestToggleClose}
+        popoverProps={popoverProps}
     />
 }

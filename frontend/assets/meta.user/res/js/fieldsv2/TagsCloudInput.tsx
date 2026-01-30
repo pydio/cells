@@ -22,6 +22,14 @@ import React, { useEffect, useState } from 'react'
 import { TagsInput } from '@mantine/core'
 import { StringItemsInputProps } from "./CommonInputProps";
 
+const formatValueStringToArray = (value: string) => {
+    return (value || '').split(',').filter((tag) => tag.trim());
+}
+
+const formatValueArrayToString = (value: string[]) => {
+    return value.filter(v => v).join(',')
+}
+
 export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     name,
     label,
@@ -34,12 +42,9 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     value,
     onCommitChange,
 }) => {
-    const [localValue, setLocalValue] = useState([]);
-    const [items, setItems] = useState<string[]>([]);
 
-    useEffect(() => {
-        setLocalValue(value)
-    }, [value])
+    const [localValue, setLocalValue] = useState(formatValueStringToArray(value));
+    const [items, setItems] = useState<string[]>([]);
 
     const props = {
         label,
@@ -69,8 +74,7 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         autoFocus={!!requestToggleClose}
         onBlur={(e) => {
             const { value } = e.target;
-            const consolidated = [...localValue, value].filter(v => v).join(',');
-            onCommitChange(consolidated)
+            onCommitChange(formatValueArrayToString([...localValue, value]));
         }}
     />
 }
