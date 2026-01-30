@@ -30,6 +30,8 @@ const timestampToDate = (timestamp: number) => {
     const hours = date.getHours();
     const minutes = date.getMinutes();
 
+    console.log('(TimeInput:34) - @@@@@@ hours: ', hours);
+    console.log('(TimeInput:34) - @@@@@@ minutes: ', minutes);
     return `${hours}:${minutes}`;
 }
 
@@ -37,6 +39,8 @@ const dateToTimestamp = (time: string) => {
     if (!time) return '';
 
     const [hours, minutes] = time.split(':');
+    console.log('(TimeInput:41) - @@@@@@ hours: ', hours);
+    console.log('(TimeInput:41) - @@@@@@ minutes: ', minutes);
     const timestamp = new Date();
     timestamp.setHours(parseInt(hours));
     timestamp.setMinutes(parseInt(minutes));

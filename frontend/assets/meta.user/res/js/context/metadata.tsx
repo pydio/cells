@@ -16,7 +16,7 @@ interface MetadataState {
     errors: {[key: string]: string};
 }
 
-type MetadataAction = 
+type MetadataAction =
     | { type: 'set_node'; node: PydioNode | null }
     | { type: 'set_saving'; saving: boolean }
     | { type: 'set_form_state'; formState: Map<string, any> }
@@ -120,7 +120,16 @@ const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema
     const { properties } = jsonSchema
     const entries = {}
     formState.forEach((v, k) => {
-        if (properties[k]?.format === 'date-time') {
+        if (properties[k]?.format === 'time') {
+            const date = new Date(parseFloat(v) * 1000).toISOString();
+            const [hours, minutes, seconds] = date.split('T')[1].split(':');
+            console.log('(metadata:127) - @@@@@@ hours: ', hours);
+            console.log('(metadata:127) - @@@@@@ minutes: ', minutes);
+            entries[k] = `${hours}:${minutes}:${seconds}`;
+            return
+        }
+
+        if (properties[k]?.format === 'date-time' || properties[k]?.format === 'date') {
             entries[k] = new Date(parseFloat(v) * 1000).toISOString()
             return
         }
@@ -162,6 +171,7 @@ export const MetadataContextProvider = ({
         setFormState: (formState) => {
             let isValid = true;
             if (validatorRef.current) {
+                console.log('(metadata:165) - @@@@@@ setFormState');
                 isValid = validatorRef.current(
                     formatSpecialCasesForValidation(
                         formState,
@@ -222,6 +232,7 @@ export const MetadataContextProvider = ({
         if (Object.keys(state.errors).length > 0) return;
 
         if (validatorRef.current) {
+            console.log('(metadata:226) - @@@@@@  validatorRef.current: ',  validatorRef.current);
             validatorRef.current(
                 formatSpecialCasesForValidation(
                     state.formState,
