@@ -25,7 +25,10 @@ import InfoPanel from './InfoPanel'
 import UserMetaDialog from './UserMetaDialog'
 import MetaClient from "./MetaClient";
 import TypeEditor from "./TypeEditor"
-import { MetadataContextProvider }  from "./context/metadata";
+import {
+    MetadataContextProvider,
+    useMetadataContext
+}  from "./context/metadata";
 
 export {
     Renderer,
@@ -37,4 +40,5 @@ export {
     MetaClient,
     TypeEditor,
     MetadataContextProvider,
+    useMetadataContext,
 }

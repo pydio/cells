@@ -39,7 +39,8 @@ export const TogglableField = ({
     const { state, actions } = context;
     const value = state.formState.get(fieldKey)
 
-    if (state.editingTag === fieldKey) {
+    const shouldStayInEditMode = state.errors[fieldKey]
+    if (state.editingTag === fieldKey || shouldStayInEditMode) {
         return <FieldEdit
             context={context}
             name={fieldKey}
@@ -52,13 +53,11 @@ export const TogglableField = ({
                     actions.setEditingTag('none')
                 }
 
-                const nextFormState = new Map(state.formState)
-                nextFormState.set(name, value)
-                actions.setFormState(nextFormState)
+                actions.setFormState(state.formState.set(key, value))
             }}
             requestToggleClose={()=> {
-                actions.setEditingTag('none')
                 actions.setShouldSave(true)
+                actions.setEditingTag('none')
             }}
             configsForGroup={configsForGroup}
             supportTemplates={supportTemplates}

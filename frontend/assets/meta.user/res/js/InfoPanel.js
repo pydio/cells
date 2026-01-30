@@ -82,6 +82,7 @@ const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
             node={node}
             saveMeta={saveMeta}
             saving={saving}
+            savePartialy={true}
         >
             <InfoPanelCard
                 {...infoProps}

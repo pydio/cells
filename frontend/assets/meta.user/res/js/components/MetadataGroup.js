@@ -57,8 +57,9 @@ export const MetadataGroup = ({
     useTogglableFields,
     autoSave,
     saving,
+    metadataContext,
 }) => {
-    const context = useMetadataContext();
+    const context = metadataContext || useMetadataContext();
     const metadata = node.getMetadata();
     const elements = [];
     let nonEmptyDataCount = 0;
