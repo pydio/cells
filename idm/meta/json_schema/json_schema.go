@@ -231,7 +231,7 @@ func BuildNamespacesJsonSchema(mns []NamespaceDescriptor) (*structpb.Struct, err
 	return toProtoStruct(root), nil
 }
 
-func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, error) {
+func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format string) ([]byte, error) {
 	props := f.root["properties"].(map[string]interface{})
 	var usermeta = "usermeta"
 	if name != "" {
@@ -277,7 +277,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string) ([]byte, 
 			t = name
 		}
 		f.root["title"] = t
-		props[t] = withDateTimeSchema()
+		props[t] = withDateTimeSchema(format)
 
 	case "url":
 		var t = fmt.Sprintf("%s-url", usermeta)
@@ -337,12 +337,12 @@ func GetMetaSchema(label string) *structpb.Struct {
 	return NewMetaSchemaFactory(label).BuildMetaSchema(label)
 }
 
-func GetJsonSchema(label string) ([]byte, error) {
-	return NewJSONSchemaFactory(label).BuildJsonSchema(label, "")
+func GetJsonSchema(label string, format string) ([]byte, error) {
+	return NewJSONSchemaFactory(label).BuildJsonSchema(label, "", format)
 }
 
-func GetJsonSchemaSample(label string, name string) (*structpb.Struct, error) {
-	byte_schema, err := NewJSONSchemaFactory(label).BuildJsonSchema(label, name)
+func GetJsonSchemaSample(label string, name string, format string) (*structpb.Struct, error) {
+	byte_schema, err := NewJSONSchemaFactory(label).BuildJsonSchema(label, name, format)
 	if err != nil {
 		return nil, err
 	}
@@ -391,6 +391,13 @@ func withNumberSchema() map[string]interface{} {
 	// prop["minimum"] = withMin(0, "number")["minimum"]
 	// prop["maximum"] = withMax(0, "number")["maximum"]
 	// prop["format"] = ""
+	// if format != "" {
+	// 	if format == "general" {
+	// 		prop["format"] = "float"
+	// 	} else if format == "bytesize" {
+
+	// 	}
+	// }
 	return prop
 }
 
@@ -420,10 +427,21 @@ func withBooleanSchema() map[string]interface{} {
 	return marshalSchema(s)
 }
 
-func withDateTimeSchema() map[string]interface{} {
+func withDateTimeSchema(format string) map[string]interface{} {
 	s, _ := Infer[string](nil)
 	prop := marshalSchema(s)
-	prop["format"] = "date-time"
+	if format == "date" {
+		prop["format"] = FormatDate
+		return prop
+	} else if format == "datetime" {
+		prop["format"] = FormatDateTime
+		return prop
+	} else if format == "time" {
+		prop["format"] = FormatTime
+		return prop
+	}
+
+	prop["format"] = FormatDateTime
 	return prop
 }
 
