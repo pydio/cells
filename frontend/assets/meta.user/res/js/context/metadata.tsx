@@ -20,16 +20,12 @@ const initialState = {
 }
 
 const reducer = (state, action) => {
-    console.log('(metadata:17) - @@@@@@  state.action: ',  action);
-    console.log('(metadata:19) - @@@@@@  state.formState: ', state.formState);
-    console.log('(metadata:25) - @@@@@@  state.errors: ', state.errors);
     switch (action.type) {
         case 'set_node':
             return { ...state, node: action.node }
         case 'set_saving':
             return { ...state, saving: action.saving }
         case 'set_form_state':
-            console.log('(metadata:25) - @@@@@@  action.formState: ',  action.formState);
             return { ...state, formState: action.formState }
         case 'set_fields':
             return { ...state, fields: action.fields }
@@ -94,7 +90,6 @@ const formatSpecialCasesForValidation = (formState, jsonSchema) => {
         entries[k] = v
     })
 
-    console.log('(metadata:97) - @@@@@@ entries: ', entries);
     return entries
 }
 
@@ -120,9 +115,7 @@ export const MetadataContextProvider = ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
 
         setFormState: (formState) => {
-            console.log('(metadata:123) - @@@@@@ formState: ', formState);
             let isValid = true;
-            console.log('(metadata:121) - @@@@@@ validatorRef.current: ', validatorRef.current);
             if (validatorRef.current) {
                 isValid = validatorRef.current(
                     formatSpecialCasesForValidation(
@@ -176,7 +169,6 @@ export const MetadataContextProvider = ({
         if(state.saving) return;
 
         const metadata = node.getMetadata()
-        console.log('(metadata:189) - @@@@@@ metadata: ', metadata);
         actions.setFormState(metadata)
     }, [node.getPath(), state.saving]);
 

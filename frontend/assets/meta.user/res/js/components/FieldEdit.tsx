@@ -53,7 +53,6 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     name,
     meta,
     saving,
-    requestToggleClose,
 }) => {
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
@@ -65,7 +64,6 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     }, [name, ])
 
     const formatType = data?.format as NumberFormat;
-    console.log('(FieldEdit:67) - @@@@@@ formatType: ', formatType);
 
     const value = state.formState.get(name)
     const errorText = state.errors?.[name];
@@ -77,7 +75,6 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         disabled: readonly || saving,
         value,
         onChange: (v) => {
-            console.log('(FieldEdit:78) - @@@@@@ state.formState: ', state.formState);
             actions.setFormState(state.formState.set(name, v))
         },
         errorText,
@@ -90,7 +87,6 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     const onCommitChange = (v) => {
         if (state.errors[name]) return
 
-        console.log('(FieldEdit:88) - @@@@@@ state.formState: ', state.formState);
         actions.setFormState(state.formState.set(name, v))
         actions.setShouldSave(true)
         actions.setEditingTag('none')
