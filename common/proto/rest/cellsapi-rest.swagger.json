@@ -12351,6 +12351,12 @@
             "name": "Namespace",
             "required": false,
             "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "Format",
+            "required": false,
+            "type": "string"
           }
         ],
         "responses": {

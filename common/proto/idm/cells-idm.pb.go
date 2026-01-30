@@ -3945,6 +3945,7 @@ type GetNamespaceSchemaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FieldType     string                 `protobuf:"bytes,1,opt,name=FieldType,proto3" json:"FieldType,omitempty"`
 	Namespace     string                 `protobuf:"bytes,2,opt,name=Namespace,proto3" json:"Namespace,omitempty"`
+	Format        string                 `protobuf:"bytes,3,opt,name=Format,proto3" json:"Format,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3989,6 +3990,13 @@ func (x *GetNamespaceSchemaRequest) GetFieldType() string {
 func (x *GetNamespaceSchemaRequest) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
+	}
+	return ""
+}
+
+func (x *GetNamespaceSchemaRequest) GetFormat() string {
+	if x != nil {
+		return x.Format
 	}
 	return ""
 }
@@ -5609,10 +5617,11 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\x12JsonSchemaResponse\x127\n" +
 	"\n" +
 	"JsonSchema\x18\x01 \x01(\v2\x17.google.protobuf.StructR\n" +
-	"JsonSchema\"W\n" +
+	"JsonSchema\"o\n" +
 	"\x19GetNamespaceSchemaRequest\x12\x1c\n" +
 	"\tFieldType\x18\x01 \x01(\tR\tFieldType\x12\x1c\n" +
-	"\tNamespace\x18\x02 \x01(\tR\tNamespace\"\x97\x03\n" +
+	"\tNamespace\x18\x02 \x01(\tR\tNamespace\x12\x16\n" +
+	"\x06Format\x18\x03 \x01(\tR\x06Format\"\x97\x03\n" +
 	"\vChangeEvent\x12\x17\n" +
 	"\bjsonType\x18\x01 \x01(\tR\x05@type\x12(\n" +
 	"\x04Type\x18\x02 \x01(\x0e2\x14.idm.ChangeEventTypeR\x04Type\x12\x1d\n" +

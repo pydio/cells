@@ -195,9 +195,10 @@ class MetaNamespace extends React.Component {
         if(namespace.JsonDefinition?.length > 0) {
             try {
                 const fieldType = JSON.parse(namespace?.JsonDefinition).type;
+                const data = JSON.parse(namespace?.JsonDefinition).data || '';
                 if (!fieldType) return;
                 if (!namespace.Namespace) return;
-                Metadata.getJsonSchemaByType(fieldType, (namespace.Namespace))
+                Metadata.getJsonSchemaByType(fieldType, (namespace.Namespace), data.format)
                     .then(schema => {
                         this.setState(prevState => ({
                         namespace: {

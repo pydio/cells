@@ -274,8 +274,8 @@ func (s *nsSqlImpl) GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
 	return schema, nil
 }
 
-func (s *nsSqlImpl) GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string) (*structpb.Struct, error) {
-	pbSchema, err := json_schema.GetJsonSchemaSample(fieldType, namespace)
+func (s *nsSqlImpl) GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string, format string) (*structpb.Struct, error) {
+	pbSchema, err := json_schema.GetJsonSchemaSample(fieldType, namespace, format)
 	if err != nil {
 		return nil, err
 	}
