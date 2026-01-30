@@ -31,6 +31,7 @@ import {NamespaceMeta} from "./MetaSpec";
 import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
 import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
 import {TextInputSearch} from "../fieldsv2/TextInputSearch";
+import { TimeInputSearch } from '../fieldsv2/TimeInputSearch';
 
 export interface FieldSearchProps {
     name:string,
@@ -53,7 +54,9 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
         });
     }, [name])
 
-    const {type, readonly, required, errorText, label} = meta;
+    const {type, readonly, required, errorText, label, data} = meta;
+
+    const formatType = data?.format as NumberFormat;
 
     let baseProps:InputProps = {
         name,
@@ -82,6 +85,9 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
         case 'tags':
             return <TagsCloudInput {...baseProps} data={[]} dataLoader={localDataLoader}/>;
         case 'date':
+            if (formatType === 'time') {
+                return <TimeInputSearch {...baseProps}/>;
+            }
             return <DateTimeInputSearch {...baseProps}/>;
         case 'integer':
             return <NumbersInputSearch {...baseProps}/>;
