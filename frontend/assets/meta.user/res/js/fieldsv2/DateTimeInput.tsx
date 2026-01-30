@@ -44,7 +44,6 @@ export const DateTimeInput: React.FC<InputProps> = ({
     const popoverProps : PopoverProps = {withinPortal: false}
     if(requestToggleClose && !disabled) {
         popoverProps.onClose = () => {
-            console.log('(DateTimeInput:48) - @@@@@@ value: ', value);
             requestToggleClose();
         };
     }
@@ -54,7 +53,6 @@ export const DateTimeInput: React.FC<InputProps> = ({
         radius={"md"}
         value={value ? new Date(parseFloat(value)*1000) : null}
         onChange={(v) => {
-            console.log('(DateTimeInput:57) - @@@@@@ v: ', v);
             const d = new Date(v).getTime()/1000;
             onChange(d, true);
         }}
