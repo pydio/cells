@@ -1,25 +1,64 @@
 import * as React from 'react'
-import MetaClient from "../MetaClient";
+import MetaClient, { PydioNode } from "../MetaClient";
 
-import Ajv from "ajv";
+import Ajv, { JSONSchemaType, ValidateFunction } from "ajv";
 import addFormats from 'ajv-formats'
+
+interface MetadataState {
+    node: PydioNode | null;
+    saving: boolean;
+    formState: Map<string, any>;
+    fields: {[key: string]: any};
+    namespaceJsonSchema: JSONSchemaType<any> | null;
+    jsonSchema: JSONSchemaType<any> | null;
+    shouldSave: boolean;
+    editingTag: string;
+    errors: {[key: string]: string};
+}
+
+type MetadataAction = 
+    | { type: 'set_node'; node: PydioNode | null }
+    | { type: 'set_saving'; saving: boolean }
+    | { type: 'set_form_state'; formState: Map<string, any> }
+    | { type: 'set_fields'; fields: {[key: string]: any} }
+    | { type: 'set_namespace_schema'; namespaceJsonSchema: JSONSchemaType<any> | null }
+    | { type: 'set_should_save'; shouldSave: boolean }
+    | { type: 'set_editing_tag'; editingTag: string }
+    | { type: 'set_json_schema'; jsonSchema: JSONSchemaType<any> | null }
+    | { type: 'set_errors'; errors: {[key: string]: string} };
+
+interface MetadataActions {
+    setNamespaceJsonSchema: (namespaceJsonSchema: JSONSchemaType<any> | null) => void;
+    setSaving: (saving: boolean) => void;
+    setFormState: (formState: Map<string, any>) => void;
+    setShouldSave: (shouldSave: boolean) => void;
+    setFields: (fields: {[key: string]: any}) => void;
+    setEditingTag: (editingTag: string) => void;
+    setJsonSchema: (jsonSchema: JSONSchemaType<any> | null) => void;
+}
+
+interface MetadataContextType {
+    state: MetadataState;
+    dispatch: React.Dispatch<MetadataAction>;
+    actions: MetadataActions;
+}
 
 const ajv = new Ajv({allErrors: true});
 addFormats(ajv)
 
-const initialState = {
+const initialState: MetadataState = {
     node: null,
     saving: false,
     formState: new Map(),
     fields: {},
     namespaceJsonSchema: null,
+    jsonSchema: null,
     shouldSave: false,
     editingTag: 'none',
-    setJsonSchema: null,
     errors: {}
 }
 
-const reducer = (state, action) => {
+const reducer = (state: MetadataState, action: MetadataAction): MetadataState => {
     switch (action.type) {
         case 'set_node':
             return { ...state, node: action.node }
@@ -44,17 +83,16 @@ const reducer = (state, action) => {
     }
 }
 
-const noop = (...args) => {}
+const noop = (...args: any[]) => {}
 
-const defaultContext = {
+const defaultContext: MetadataContextType = {
     state: initialState,
-    dispatch: noop,
+    dispatch: noop as React.Dispatch<MetadataAction>,
     actions: {
         setSaving: noop,
         setFormState: noop,
         setFields: noop,
         setNamespaceJsonSchema: noop,
-        setValidators: noop,
         setShouldSave: noop,
         setEditingTag: noop,
         setJsonSchema: noop
@@ -63,10 +101,10 @@ const defaultContext = {
 
 export const MetadataContext = React.createContext(defaultContext)
 
-const mapErrors = (errors) => {
+const mapErrors = (errors: any[]) => {
     if (!errors) return new Map()
 
-    return errors.reduce((acc, e) => {
+    return errors.reduce((acc: {[key: string]: string}, e: any) => {
         if (!e.schemaPath.includes('#required') && e.params.missingProperty) {
             const key = e.params.missingProperty.replace('/', '')
             return { ...acc, [key]: e.message }
@@ -76,7 +114,7 @@ const mapErrors = (errors) => {
     }, {})
 }
 
-const formatSpecialCasesForValidation = (formState, jsonSchema) => {
+const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema: JSONSchemaType<any> | null) => {
     if (!jsonSchema) return formState
 
     const { properties } = jsonSchema
@@ -97,11 +135,18 @@ export const MetadataContextProvider = ({
     node,
     saveMeta,
     value,
-    onDataChanged, // Necessary for components outside Modal (portal stuff)
-    savePartialy, // Define if should save on partial form changes
+    onDataChanged,
+    savePartialy,
     children,
+}: {
+    node: PydioNode;
+    saveMeta: (formData: Map<string, any>) => Promise<any>;
+    value: any;
+    onDataChanged: (formData: Map<string, any>, isValid: boolean) => void;
+    savePartialy: boolean;
+    children: React.ReactNode;
 }) => {
-    const validatorRef = React.useRef(null);
+    const validatorRef = React.useRef<ValidateFunction<any> | null>(null);
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
         node,
