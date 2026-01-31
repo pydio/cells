@@ -27,8 +27,18 @@ const goToNode = (e, pydio, node, requestClose) => {
     requestClose()
 }
 
-const useModalSearchActions = ({dataModel, pydio, displayMode, requestClose=()=>{}}) => {
+const useModalSearchActions = ({dataModel, pydio, displayMode, requestClose=()=>{}, onSelectNode=null}) => {
     return useCallback((node, entryState) => {
+        let applyNode;
+        if(onSelectNode) {
+            applyNode = (e, node) => {
+                onSelectNode(node);
+                requestClose();
+            }
+        } else {
+            applyNode = (e, node) => goToNode(e, pydio, node, requestClose)
+        }
+
         if(entryState && !(entryState.hover || entryState.selected)) {
             return null
         }
@@ -66,18 +76,23 @@ const useModalSearchActions = ({dataModel, pydio, displayMode, requestClose=()=>
                 tooltip={pydio.MessageHash['action.goto.label']}
                 tooltipPosition={tooltipPosition}
                 iconClassName="mdi mdi-arrow-left-bottom"
-                onClick={(e) => goToNode(e, pydio, node, requestClose)}
+                onClick={(e) => applyNode(e, node)}
             />
         )
         return (<>{elements}</>)
-    }, [dataModel, displayMode]);
+    }, [dataModel, displayMode, onSelectNode, requestClose]);
 }
 
-const useModalHandleClick = ({dataModel, pydio, displayMode, requestClose}) => {
+const useModalHandleClick = ({dataModel, pydio, displayMode, requestClose, onSelectNode = null}) => {
     return {
         handleItemDoubleClick: (item, event) => {
             const {node} = item
             event.stopPropagation();
+            if(onSelectNode) {
+                onSelectNode(node)
+                requestClose();
+                return
+            }
             if(node.isLeaf()) {
                 previewNode(event, pydio, node)
             } else {
