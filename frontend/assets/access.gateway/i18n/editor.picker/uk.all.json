@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "Виберіть інший..."
   },
   "2": {
     "other": "Choose another editor"
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "Вибрати інший редактор, щоб відкрити цей файл"
   },
   "4": {
     "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
