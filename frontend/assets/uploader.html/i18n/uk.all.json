@@ -72,7 +72,7 @@
     "other": "Preparing files for upload"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Обробка %s елементів..."
   },
   "task.message.analyse-one": {
     "other": "Analyzing one item"
@@ -87,7 +87,7 @@
     "other": "Upload paused"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Завантаження файлів"
   },
   "task.message.upload-progress": {
     "other": "Uploading %s%"
@@ -108,7 +108,7 @@
     "other": "browse files"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "виберіть теки"
   },
   "dialog.title": {
     "other": "Transfers"
