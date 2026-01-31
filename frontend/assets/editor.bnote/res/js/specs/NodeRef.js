@@ -18,22 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuController} from "@blocknote/react";
-import SearchApi from 'pydio/http/search-api';
-import Pydio from 'pydio'
+import {createReactBlockSpec, createReactInlineContentSpec} from "@blocknote/react";
 import {SingleNode} from "../blocks/SingleNode";
 import {DroppedMonitor} from "../blocks/DroppedMonitor";
 import uuid4 from 'uuid4'
 import React from "react";
 import {insertOrUpdateBlock} from "@blocknote/core";
-import {RiFolderOpenFill} from "react-icons/ri";
-import {ModernList} from "../blocks/ChildrenList";
-
-const api = new SearchApi(Pydio.getInstance())
+import {RiFileFill, RiFolderOpenFill} from "react-icons/ri";
+import {ChildrenList as ChildrenListBlock} from "../blocks/ChildrenList";
+import {ResultsList as ResultsListBlock} from "../blocks/ResultsList";
+const {withSearch, emptyDataModel} = Pydio.requireLib('hoc')
 
 export const NodeRefSpecType = 'nodeRef'
 export const NodeBlockSpecType = 'nodeBlock'
 export const ChildrenListSpecType = 'childrenList'
+export const ResultsListSpecType = 'resultsList'
 export const DroppedMonitorSpecType = 'droppedMonitor'
 
 export const NodeRef = createReactInlineContentSpec(
@@ -111,7 +110,7 @@ export const NodeBlock = createReactBlockSpec(
     }
 );
 
-// Inline listing block.
+// Listing block.
 export const ChildrenList = createReactBlockSpec(
     {
         type: ChildrenListSpecType,
@@ -128,45 +127,46 @@ export const ChildrenList = createReactBlockSpec(
     },
     {
         render: (props) => {
-            return <ModernList editor={props.editor} block={props.block}/>
+            return <ChildrenListBlock editor={props.editor} block={props.block}/>
         },
     }
 );
 
-export const getNodesMenuItems = (editor, query) => {
-    return api.search({basename:query}, 'all', 10, true).then(res => {
-        const {Results} = res;
-        return Results.map(node => {
-            const label = node.getLabel()
-            return     {
-                title: <span>{node.getMetadata().get('repository_display')} - {node.getPath()}</span>,
-                onItemClick: () => {
-                    editor.insertInlineContent([
-                        {
-                            type: NodeRefSpecType,
-                            props: {
-                                inlineId: uuid4(),
-                                label,
-                                nodeUuid: node.getMetadata().get('uuid'),
-                                path: node.getPath(),
-                                repositoryId:node.getMetadata().get('repository_id')
-                            } },
-                        " ", // add a space after the mention
-                    ]);
-                }
+// Listing block.
+export const ResultsList = createReactBlockSpec(
+    {
+        type: ResultsListSpecType,
+        propSchema: {
+            display: {
+                default: 'compact',
+                values: ['compact', 'list', 'grid', 'detail', 'masonry-160']
+            },
+            searchValues: {
+                default: {}
+            },
+            sortInfo: {
+                default: {field:'', desc: false}
             }
+        },
+        content: "none",
+    },
+    {
+        render: (props) => {
+            const dm = emptyDataModel();
+            return (
+                <ResultsListBlock
+                    editor={props.editor}
+                    dataModel={dm}
+                    block={props.block}
+                />)
+        },
+    }
+);
 
-        })
-    })
-}
 
-export const NodesSuggestionMenu = ({editor}) => <SuggestionMenuController
-    triggerCharacter={"%"}
-    getItems={(query) => getNodesMenuItems(editor, query)}
-    minQueryLength={0}
-/>
 // Custom Slash Menu item to insert a block after the current one.
 export const insertChildrenList = (editor) => ({
+    key:'toc',
     title: "Table of Contents",
     onItemClick: () =>
         // If the block containing the text caret is empty, `insertOrUpdateBlock`
@@ -177,15 +177,80 @@ export const insertChildrenList = (editor) => ({
             props: {display: 'compact'},
         }),
     aliases: ["toc", "contents", "co"],
-    group: "Others",
+    group: "Advanced",
     icon: <RiFolderOpenFill size={18}/>,
     subtext: "Display current folder contents",
+});
+
+// Custom Slash Menu item to insert a block after the current one.
+export const insertResultsList = (editor) => ({
+    key:'search',
+    title: "Search Results",
+    onItemClick: () => {
+        const event = new CustomEvent('pydioOpenSelector', {
+            detail: {
+                openValues: {
+                    basenameOrContent:'*',
+                },
+                openSort: {field: 'mtime', desc: true},
+                onSelectSearch: (searchValues, sortField, sortDesc) => {
+                    console.log(searchValues, sortField, sortDesc)
+                    insertOrUpdateBlock(editor, {
+                        type: ResultsListSpecType,
+                        props: {
+                            display: 'compact',
+                            searchValues,
+                            sortInfo: {field:sortField, desc: sortDesc}
+                        },
+                    })
+                },
+                onSelectCancel: () => {}
+            }
+        });
+        document.dispatchEvent(event);
+    },
+    aliases: ["search", "results", "s"],
+    group: "Advanced",
+    icon: <RiFolderOpenFill size={18}/>,
+    subtext: "Display a search results list",
+});
+
+// Custom Slash Menu item to insert a block after the current one.
+export const insertNodePickerBlock = (editor) => ({
+    key:'node',
+    title: "File or Folder",
+    onItemClick: () => {
+        const event = new CustomEvent('pydioOpenSearch', {
+            detail: {
+                openValues: {
+                    basenameOrContent:'*',
+                },
+                openSort: {field: 'mtime', desc: true},
+                onSelectNode: (node) => {
+                    const newProps = {
+                        inlineId: uuid4(),
+                        nodeUuid: node.getMetadata().get('uuid'),
+                        path: node.getPath(),
+                        repositoryId:node.getMetadata().get('repository_id')
+                    }
+                    editor.insertInlineContent([{type: NodeRefSpecType, props: newProps}], {updateSelection: true});
+                },
+                onSelectCancel: () => console.log('CANCELLED'),
+            }
+        })
+        document.dispatchEvent(event)
+    },
+    aliases: ["file", "folder", "f"],
+    group: "Advanced",
+    icon: <RiFileFill size={18}/>,
+    subtext: "Insert a file or folder",
 });
 
 export const nodeBlockSpecs = {
     childrenList: ChildrenList,
     nodeBlock: NodeBlock,
     droppedMonitor: DroppedMonitorSpec,
+    resultsList: ResultsList,
 }
 
 export const nodeInlineSpecs = {
