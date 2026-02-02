@@ -22,11 +22,11 @@ import {createReactBlockSpec, createReactInlineContentSpec} from "@blocknote/rea
 import {SingleNode} from "../blocks/SingleNode";
 import {DroppedMonitor} from "../blocks/DroppedMonitor";
 import uuid4 from 'uuid4'
-import React from "react";
+import React, {useMemo} from "react";
 import {RiFileFill, RiFolderOpenFill} from "react-icons/ri";
 import {ChildrenList as ChildrenListBlock} from "../blocks/ChildrenList";
 import {ResultsList as ResultsListBlock} from "../blocks/ResultsList";
-const {withSearch, emptyDataModel} = Pydio.requireLib('hoc')
+const {emptyDataModel} = Pydio.requireLib('hoc')
 
 export const NodeRefSpecType = 'nodeRef'
 export const NodeBlockSpecType = 'nodeBlock'
@@ -151,7 +151,7 @@ export const ResultsList = createReactBlockSpec(
     },
     {
         render: (props) => {
-            const dm = emptyDataModel();
+            const dm = useMemo(() => emptyDataModel(), []);
             return (
                 <ResultsListBlock
                     editor={props.editor}
@@ -196,7 +196,6 @@ export const insertResultsList = (editor) => ({
                 },
                 openSort: {field: 'mtime', desc: true},
                 onSelectSearch: (searchValues, sortField, sortDesc) => {
-                    console.log(searchValues, sortField, sortDesc)
                     const currentBlock = editor.getTextCursorPosition().block;
                     editor.insertBlocks(
                         [{
@@ -204,7 +203,7 @@ export const insertResultsList = (editor) => ({
                             props: {
                                 display: 'compact',
                                 searchValues,
-                                sortInfo: {field:sortField, desc: sortDesc}
+                                sortInfo: {field: sortField, desc: sortDesc}
                             },
                         }],
                         currentBlock,
@@ -238,7 +237,7 @@ export const insertNodePickerBlock = (editor) => ({
                         inlineId: uuid4(),
                         nodeUuid: node.getMetadata().get('uuid'),
                         path: node.getPath(),
-                        repositoryId:node.getMetadata().get('repository_id')
+                        repositoryId: node.getMetadata().get('repository_id')
                     }
                     editor.insertInlineContent([{type: NodeRefSpecType, props: newProps}], {updateSelection: true});
                 },

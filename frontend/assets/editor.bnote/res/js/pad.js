@@ -32,7 +32,7 @@ import {
 import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { en } from '@blocknote/core/locales'
-//import {codeBlock} from "@blocknote/code-block";
+
 import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
 import {
     nodeBlockSpecs,
