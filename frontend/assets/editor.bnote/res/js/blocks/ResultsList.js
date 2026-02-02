@@ -23,7 +23,6 @@ import Pydio from 'pydio'
 
 import './styles/ChildrenListStyles.less'
 import {FilesList} from './FilesList'
-import {insertOrUpdateBlock} from "@blocknote/core";
 import {ResultsListSpecType} from "../specs/NodeRef";
 import {MdOpenInBrowser} from "react-icons/md";
 const {withSearch} = Pydio.requireLib('hoc')

@@ -23,7 +23,6 @@ import {SingleNode} from "../blocks/SingleNode";
 import {DroppedMonitor} from "../blocks/DroppedMonitor";
 import uuid4 from 'uuid4'
 import React from "react";
-import {insertOrUpdateBlock} from "@blocknote/core";
 import {RiFileFill, RiFolderOpenFill} from "react-icons/ri";
 import {ChildrenList as ChildrenListBlock} from "../blocks/ChildrenList";
 import {ResultsList as ResultsListBlock} from "../blocks/ResultsList";
@@ -168,14 +167,17 @@ export const ResultsList = createReactBlockSpec(
 export const insertChildrenList = (editor) => ({
     key:'toc',
     title: "Table of Contents",
-    onItemClick: () =>
-        // If the block containing the text caret is empty, `insertOrUpdateBlock`
-        // changes its type to the provided block. Otherwise, it inserts the new
-        // block below and moves the text caret to it.
-        insertOrUpdateBlock(editor, {
-            type: ChildrenListSpecType,
-            props: {display: 'compact'},
-        }),
+    onItemClick: () => {
+        const currentBlock = editor.getTextCursorPosition().block;
+        editor.insertBlocks(
+            [{
+                type: ChildrenListSpecType,
+                props: {display: 'compact'},
+            }],
+            currentBlock,
+            "after"
+        );
+    },
     aliases: ["toc", "contents", "co"],
     group: "Advanced",
     icon: <RiFolderOpenFill size={18}/>,
@@ -195,14 +197,19 @@ export const insertResultsList = (editor) => ({
                 openSort: {field: 'mtime', desc: true},
                 onSelectSearch: (searchValues, sortField, sortDesc) => {
                     console.log(searchValues, sortField, sortDesc)
-                    insertOrUpdateBlock(editor, {
-                        type: ResultsListSpecType,
-                        props: {
-                            display: 'compact',
-                            searchValues,
-                            sortInfo: {field:sortField, desc: sortDesc}
-                        },
-                    })
+                    const currentBlock = editor.getTextCursorPosition().block;
+                    editor.insertBlocks(
+                        [{
+                            type: ResultsListSpecType,
+                            props: {
+                                display: 'compact',
+                                searchValues,
+                                sortInfo: {field:sortField, desc: sortDesc}
+                            },
+                        }],
+                        currentBlock,
+                        "after"
+                    );
                 },
                 onSelectCancel: () => {}
             }
@@ -247,10 +254,10 @@ export const insertNodePickerBlock = (editor) => ({
 });
 
 export const nodeBlockSpecs = {
-    childrenList: ChildrenList,
-    nodeBlock: NodeBlock,
-    droppedMonitor: DroppedMonitorSpec,
-    resultsList: ResultsList,
+    childrenList: ChildrenList(),
+    nodeBlock: NodeBlock(),
+    droppedMonitor: DroppedMonitorSpec(),
+    resultsList: ResultsList(),
 }
 
 export const nodeInlineSpecs = {

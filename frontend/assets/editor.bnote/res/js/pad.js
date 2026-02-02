@@ -29,9 +29,10 @@ import {
     SideMenu,
     SideMenuController,
 } from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { en } from '@blocknote/core/locales'
-import {codeBlock} from "@blocknote/code-block";
+//import {codeBlock} from "@blocknote/code-block";
 import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
 import {
     nodeBlockSpecs,
@@ -99,8 +100,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
             }
         },
-        pasteHandler:pasteHandler,
-        codeBlock,
+        pasteHandler: pasteHandler,
         setIdAttribute:true
     });
 
@@ -137,15 +137,15 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 editor={editor}
                 theme={darkMode?"dark":"light"}
                 sideMenu={false}
+                slashMenu={false}
                 onClick={(e) => ContextMenuModel.getInstance().close()}
                 onDrop={(e) => padFileDropHandler(editor, e)}
             >
                 <SideMenuController
                     sideMenu={(props) => (
-                        <SideMenu {...props} blockDragStart={()=>{}} blockDragEnd={()=>{}}>
-                            {/* Button which removes the hovered block. */}
+                        <SideMenu {...props}>
                             <AddBlockButton {...props} />
-                            <SideMenuButton {...props} />
+                            <SideMenuButton />
                         </SideMenu>
                     )}
                 />
