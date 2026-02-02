@@ -21,7 +21,7 @@
 import React, { useEffect, useState } from 'react'
 import { TagsInput } from '@mantine/core'
 import { StringItemsInputProps } from "./CommonInputProps";
-import PropTypes from 'prop-types';
+
 /**
  * @typedef {Object} TagsCloudInputProps
  * @property {string} name
@@ -78,8 +78,12 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     }, [name])
 
     const onChangeJoin = (values: string[]) => {
-        const joined = values.join(',')
-        setLocalValue(joined.split(',').filter(v => v))
+        if(values.length > 0 ) {
+            const joined = values.join(',')
+            setLocalValue(joined.split(',').filter(v => v))
+        } else {
+            setLocalValue([])
+        }
     }
 
     return <TagsInput
@@ -94,17 +98,4 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
             onCommitChange(formatValueArrayToString([...localValue, value]));
         }}
     />
-}
-
-TagsCloudInput.propTypes = {
-    name: PropTypes.string,
-    label: PropTypes.string,
-    description: PropTypes.string,
-    placeholder: PropTypes.string,
-    disabled: PropTypes.bool,
-    dataLoader: PropTypes.func,
-    requestToggleClose: PropTypes.bool,
-    errorText: PropTypes.string,
-    value: PropTypes.string,
-    onCommitChange: PropTypes.func,
 }

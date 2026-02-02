@@ -271,10 +271,10 @@ class MetaNamespace extends React.Component {
         try {
             const parsed = JSON.parse(namespace.JsonDefinition || '{}');
             const entityStr = parsed && parsed.data && parsed.data.entity;
-            if (!entityStr || typeof entityStr !== 'string') return [];
-            return entityStr.split(',').map(s => s.trim()).filter(Boolean);
+            if (!entityStr || typeof entityStr !== 'string') return '';
+            return entityStr;
         } catch (e) {
-            return [];
+            return '';
         }
     }
 
