@@ -25,6 +25,7 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import { Dialog, FlatButton, Toggle } from 'material-ui'
 import { muiThemeable } from 'material-ui/styles'
+import { MantineProvider } from '@mantine/core';
 import { IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi } from 'cells-sdk'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
@@ -256,6 +257,15 @@ class MetaNamespace extends React.Component {
         return defaultValue;
     }
 
+    setEntityValues(valueStr) {
+        const { namespace } = this.state;
+        const def = JSON.parse(namespace.JsonDefinition);
+        const entityValues = valueStr.split(',').map(s => s.trim()).filter(Boolean);
+        const data = { ...def.data, entity: entityValues };
+        namespace.JsonDefinition = JSON.stringify({ ...def, data })
+        this.setState({ namespace });    
+    }
+
     getCommaSeparatedEntities () {
         const { namespace } = this.state;
         try {
@@ -314,7 +324,7 @@ class MetaNamespace extends React.Component {
         if (!metaModule) {
             return null;
         }
-        const { TypeEditor } = metaModule;
+        const { TypeEditor, TagsCloudInput } = metaModule;
         let title;
         if (namespace.Label) {
             title = namespace.Label;
@@ -419,16 +429,16 @@ class MetaNamespace extends React.Component {
                     readOnly={readonly}
                     variant={"v2"}
                 />
-                {type === 'tag_cloud' && (
-                    <ModernTextField
-                        floatingLabelText={m('tag_cloud.entity')}
-                        value={this.getAdditionalData({ entity: '' }).entity || ''}
-                        onChange={(e, v) => { this.setAdditionalDataKey('entity', v) }}
-                        fullWidth={true}
-                        readOnly={readonly}
-                        variant={"v2"}
-                        hintText={m('tag_cloud.entity.hint')}
-                    />
+                {(type === 'tag_cloud' || type === 'auto_complete') && (
+                    <MantineProvider>
+                        <TagsCloudInput
+                            label={m('tag_cloud.entity')}
+                            disabled={false}
+                            value={this.getCommaSeparatedEntities()}
+                            onCommitChange={(v) => this.setEntityValues(v)} 
+                            hintText={m('tag_cloud.entity.hint')}
+                        />
+                    </MantineProvider>
                 )}
                 {USERMETA_PROMPT_FF && (
                     namespace?.Namespace?.toString().length > 0 &&
@@ -512,7 +522,6 @@ class MetaNamespace extends React.Component {
                     menuProps={{ maxHeight: 300, overflowY: 'auto' }}
                 />
             </Dialog>
-
         );
     }
 

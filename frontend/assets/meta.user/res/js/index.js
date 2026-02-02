@@ -29,6 +29,8 @@ import {
     MetadataContextProvider,
     useMetadataContext
 }  from "./context/metadata";
+import { TagsCloudInput } from './fieldsv2/TagsCloudInput'
+import { MetadataContextProvider }  from "./context/metadata";
 
 export {
     Renderer,
@@ -39,6 +41,7 @@ export {
     UserMetaPanelV2,
     MetaClient,
     TypeEditor,
+    TagsCloudInput,
     MetadataContextProvider,
     useMetadataContext,
 }

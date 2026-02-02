@@ -22,7 +22,9 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"path"
+	"slices"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -40,6 +42,25 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
 )
+
+var ns_with_ev = []string{"tag_cloud", "choice", "auto_complete"}
+
+type jsonDefinition struct {
+	Entity struct {
+		EntityID string `json:"entity_id"`
+		Entity   string `json:"entity"`
+	} `json:"entity"`
+	Data struct {
+		Items []struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+			Color string `json:"color,omitempty"`
+		} `json:"items"`
+		Steps bool `json:"steps"`
+	} `json:"data"`
+	GroupName string `json:"groupName"`
+	Type      string `json:"type"`
+}
 
 func NewUserMetaHandler() *UserMetaHandler {
 	return &UserMetaHandler{
@@ -161,15 +182,104 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		if _, e := ns.UnmarshallDefinition(); e != nil {
 			return errors.WithMessagef(errors.UnmarshalError, "invalid json definition for namespace: %s, %v", ns.Namespace, e)
 		}
+		if input.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
+			if ns.FieldType != "" {
+				var def jsonDefinition
+				if err := json.Unmarshal([]byte(ns.JsonDefinition), &def); err != nil {
+					return errors.WithMessagef(errors.UnmarshalError, "unable to parse json definition to check existing entity_id for namespace %s: %v", ns.Namespace, err)
+				}
+				if def.Entity.EntityID == "" {
+					// Set description
+					var desc = ""
+					if ns.Description != "" {
+						desc = ns.Description
+					} else {
+						desc = "Entity for " + ns.FieldType + " namespace"
+					}
+					// Its somewhat dangerous to create before namespace has been created but its more efficient than doing it after
+					entity, err := s.ServiceClient(ctx).CreateEntity(ctx, &idm.CreateEntityRequest{
+						Entity: &idm.MetaEntity{
+							Label:       "ns-entity-" + ns.Namespace,
+							Description: desc,
+						},
+					})
+					if err != nil {
+						return err
+					}
+
+					if slices.Contains(ns_with_ev, ns.FieldType) {
+						// Create empty entity values
+						var evs []*idm.EntityValue
+						items, ei := parseItems(ns.JsonDefinition)
+						if ei == nil {
+							if len(items) > 0 {
+								for _, item := range items {
+									evs = append(evs, &idm.EntityValue{
+										EntityUuid: entity.Entity.Uuid,
+										Label:      item,
+									})
+								}
+							}
+						}
+						entities, et := parseEntities(ns.JsonDefinition)
+						if et == nil {
+							if len(entities) > 0 {
+								for _, ent := range entities {
+									evs = append(evs, &idm.EntityValue{
+										EntityUuid: entity.Entity.Uuid,
+										Label:      ent,
+									})
+								}
+							}
+						}
+
+						_, err := s.ServiceClient(ctx).CreateEntityValues(ctx, &idm.CreateEntityValueRequest{
+							EntityValue: evs,
+						})
+						if err != nil {
+							return err
+						}
+					}
+					def.Entity.EntityID = entity.Entity.Uuid
+
+					updatedJsDef, err := json.Marshal(def)
+					if err != nil {
+						return errors.WithMessagef(errors.UnmarshalError, "unable to marshal updated json definition to add entity_id for namespace %s: %v", ns.Namespace, err)
+					}
+					ns.JsonDefinition = string(updatedJsDef)
+				}
+			}
+		}
 	}
 
 	response, err := s.ServiceClient(ctx).UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
+		for _, ns := range input.Namespaces {
+			if ns.FieldType != "" {
+				entityID, err := parseEntityId(ns.JsonDefinition)
+				if err != nil {
+					return err
+				}
+				if _, err := s.DeleteEntityValues(ctx, entityID); err != nil {
+					return err
+				}
+			}
+		}
 		return err
-	} else {
-		return rsp.WriteEntity(response)
+	} else if input.Operation == idm.UpdateUserMetaNamespaceRequest_DELETE {
+		for _, ns := range input.Namespaces {
+			if ns.FieldType != "" {
+				entityID, err := parseEntityId(ns.JsonDefinition)
+				if err != nil {
+					return err
+				}
+				if _, err := s.DeleteEntityValues(ctx, entityID); err != nil {
+					return err
+				}
+			}
+		}
 	}
-
+	return rsp.WriteEntity(response)
 }
 
 func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restful.Response) error {
@@ -226,6 +336,26 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	if _, ok := nss[ns]; !ok { // ns not found or filtered by policies
 		return errors.WithMessagef(errors.StatusNotFound, "namespace %s does not exist", ns)
 	}
+	if slices.Contains(ns_with_ev, nss[ns].FieldType) {
+		jsDef := nss[ns].JsonDefinition
+
+		entityID, err := parseEntityId(jsDef)
+		if err != nil {
+			return err
+		}
+		entityValues, err := s.GetEntityValues(ctx, entityID)
+		if err != nil {
+			return err
+		}
+		tags := []string{}
+		for _, ev := range entityValues {
+			tags = append(tags, ev.Label)
+		}
+		return rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
+			Tags: tags,
+		})
+	}
+
 	tags, _ := s.TagValuesHandler().ListTags(ctx, ns)
 	return rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,
@@ -305,4 +435,48 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 func (s *UserMetaHandler) PoliciesForMeta(ctx context.Context, resourceId string, resourceClient interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
 
 	return
+}
+
+func parseItems(jsonDef string) ([]string, error) {
+	var def struct {
+		Data struct {
+			Items []struct {
+				Key   string `json:"key"`
+				Value string `json:"value"`
+				Color string `json:"color,omitempty"`
+			} `json:"items"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(jsonDef), &def); err != nil {
+		return nil, err
+	}
+	var items []string
+	for _, item := range def.Data.Items {
+		items = append(items, item.Value)
+	}
+	return items, nil
+}
+
+func parseEntities(jsonDef string) ([]string, error) {
+	var def struct {
+		Data struct {
+			Entity []string `json:"entity"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(jsonDef), &def); err != nil {
+		return nil, err
+	}
+	return def.Data.Entity, nil
+}
+
+func parseEntityId(jsonDef string) (string, error) {
+	var def struct {
+		Entity struct {
+			EntityID string `json:"entity_id"`
+		} `json:"entity"`
+	}
+	if err := json.Unmarshal([]byte(jsonDef), &def); err != nil {
+		return "", err
+	}
+	return def.Entity.EntityID, nil
 }

@@ -411,6 +411,34 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		} else {
 			e = er
 		}
+	case "/idm.UserMetaService/GetEntityValues":
+		resp, er := s.UserMetaServiceServer.GetEntityValues(ctx, args.(*GetMetaEntityValuesRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/DeleteEntityValues":
+		resp, er := s.UserMetaServiceServer.DeleteEntityValues(ctx, args.(*GetMetaEntityValuesRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/CreateEntity":
+		resp, er := s.UserMetaServiceServer.CreateEntity(ctx, args.(*CreateEntityRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/CreateEntityValues":
+		resp, er := s.UserMetaServiceServer.CreateEntityValues(ctx, args.(*CreateEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = errors.New(method + " not implemented")
 	}

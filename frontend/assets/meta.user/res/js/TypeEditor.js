@@ -27,17 +27,20 @@ import {muiThemeable} from 'material-ui/styles'
 const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const MetaTypes = {
-    "string":       "Text",
-    "textarea":     "Long Text",
-    "integer":      "Number",
-    "boolean":      "Boolean",
-    "date":         "Date",
-    "choice":       "Selection",
-    "tags":         "Extensible Tags",
-    "stars_rate":   "Stars Rating",
-    "css_label":    "Color Labels",
-    "json":         "JSON",
-    "url":          "External URL"
+    "boolean": "Boolean",
+    "choice": "Selection",
+    "css_label": "Color Labels",
+    "date": "Date",
+    "integer": "Number",
+    "json": "JSON",
+    "multi_value": "Multi Value Selection",
+    "stars_rate": "Stars Rating",
+    "string": "Text",
+    "tag_cloud": "Tag Cloud",
+    "tags": "Extensible Tags",
+    "textarea": "Long Text",
+    "url": "External URL",
+    "auto_complete": "Auto complete"
 }
 
 class TypeEditor extends React.Component {

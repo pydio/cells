@@ -85,9 +85,12 @@ type UserMetaClient interface {
 	ServiceClient(ctx context.Context) idm.UserMetaServiceClient
 	DraftMetaNamespace(ctx context.Context, ctxWorkspace *idm.Workspace) (string, bool)
 	TagValuesHandler() TagsValuesClient
-
+	GetEntityValues(ctx context.Context, entityID string) ([]*idm.EntityValue, error)
 	IsContextEditable(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy) bool
 	MatchPolicies(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy, action serviceproto.ResourcePolicyAction, subjects ...string) bool
+	DeleteEntityValues(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error)
+	CreateEntity(ctx context.Context, input *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error)
+	CreateEntityValues(ctx context.Context, input *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error)
 }
 
 type umClient struct {
@@ -352,6 +355,47 @@ func (u *umClient) TagValuesHandler() TagsValuesClient {
 // PoliciesForMeta is an empty handler for PolicyChecker
 func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
 	return
+}
+
+func (u *umClient) GetEntityValues(ctx context.Context, entityID string) ([]*idm.EntityValue, error) {
+	req := &idm.GetMetaEntityValuesRequest{
+		EntityUuid: entityID,
+	}
+	resp, err := u.ServiceClient(ctx).GetEntityValues(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.EntityValue, nil
+}
+
+func (u *umClient) DeleteEntityValues(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
+	req := &idm.GetMetaEntityValuesRequest{
+		EntityUuid: entityID,
+	}
+	resp, err := u.ServiceClient(ctx).DeleteEntityValues(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (u *umClient) CreateEntity(ctx context.Context, input *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
+	req := input
+	resp, err := u.ServiceClient(ctx).CreateEntity(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+
+}
+
+func (u *umClient) CreateEntityValues(ctx context.Context, input *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
+	req := input
+	resp, err := u.ServiceClient(ctx).CreateEntityValues(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // fromNodeMeta matches allowed namespaces from incoming node Metadata
