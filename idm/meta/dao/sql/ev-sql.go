@@ -103,7 +103,6 @@ func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 }
 
 func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
-	u.UUID = res.Uuid
 	if u.UUID == "" {
 		u.UUID = uuid.New().String()
 	}
@@ -115,6 +114,14 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 
 func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
 	res := (&Entities{}).FromEntity(entity)
+	// //check if entity with the same label exists
+	// var existing Entities
+	// tx := s.Session(ctx).Where("label = ?", res.Label).First(&existing)
+	// if tx.Error == nil {
+	// 	// if a row exists with the same label
+	// 	return nil, evTagError(errors.New("entity with the same label already exists"))
+	// }
+
 	tx := s.Session(ctx).Create(res)
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
@@ -177,6 +184,24 @@ func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValu
 	return model.AsEntityValue(&idm.EntityValue{}), nil
 }
 
+func (s *evSqlImpl) CreateEntityValues(ctx context.Context, values []*idm.EntityValue) ([]*idm.EntityValue, error) {
+	if len(values) == 0 {
+		return []*idm.EntityValue{}, nil
+	}
+
+	createdValues := make([]*idm.EntityValue, 0, len(values))
+
+	for _, value := range values {
+		created, err := s.CreateEntityValue(ctx, value)
+		if err != nil {
+			return nil, err
+		}
+		createdValues = append(createdValues, created)
+	}
+
+	return createdValues, nil
+}
+
 func (s *evSqlImpl) GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error) {
 	var models []*EntityValues
 	tx := s.Session(ctx).Where(&EntityValues{EntityUUID: entityUuid}).Find(&models)
@@ -194,6 +219,9 @@ func (s *evSqlImpl) GetEntityValues(ctx context.Context, entityUuid string) ([]*
 
 func (s *evSqlImpl) validateUUIDs(uuids ...string) error {
 	for _, u := range uuids {
+		if u == "" {
+			return evTagError(errors.New("uuid cannot be empty"))
+		}
 		if _, err := uuid.Parse(u); err != nil {
 			return evTagError(errors.New("invalid uuid: " + u))
 		}
@@ -237,4 +265,33 @@ func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([
 	}
 
 	return values, nil
+}
+
+func (s *evSqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
+	if err := s.validateUUIDs(entityID); err != nil {
+		return nil, err
+	}
+
+	subQuery := s.Session(ctx).Model(&EntityValues{}).Select("uuid").Where("entity_uuid = ?", entityID)
+
+	tx := s.Session(ctx).Where("e_value_uuid IN (?)", subQuery).Delete(&MetaValuesRel{})
+	if tx.Error != nil {
+		return nil, evTagError(tx.Error)
+	}
+
+	EntityValuesModel := &EntityValues{}
+	tx = s.Session(ctx).Where(&EntityValues{EntityUUID: entityID}).Delete(EntityValuesModel)
+	if tx.Error != nil {
+		return nil, evTagError(tx.Error)
+	}
+
+	EntitiesModel := &Entities{}
+	tx = s.Session(ctx).Where(&Entities{UUID: entityID}).Delete(EntitiesModel)
+	if tx.Error != nil {
+		return nil, evTagError(tx.Error)
+	}
+
+	return &idm.DeleteEntityValuesResponse{
+		RowsDeleted: tx.RowsAffected,
+	}, nil
 }

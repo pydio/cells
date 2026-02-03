@@ -122,19 +122,20 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 
 	case "types":
 		return toProtoStruct(map[string]interface{}{
-			"string":      "Text",
-			"textarea":    "Long Text",
-			"integer":     "Number",
-			"boolean":     "Boolean",
-			"date":        "Date",
-			"choice":      "Selection",
-			"tags":        "Extensible Tags",
-			"tag_cloud":   "Tag Cloud",
-			"multi_value": "Multi Value Selection",
-			"stars_rate":  "Stars Rating",
-			"css_label":   "Color Labels",
-			"json":        "JSON",
-			"url":         "External URL",
+			"string":        "Text",
+			"textarea":      "Long Text",
+			"integer":       "Number",
+			"boolean":       "Boolean",
+			"date":          "Date",
+			"choice":        "Selection",
+			"tags":          "Extensible Tags",
+			"tag_cloud":     "Tag Cloud",
+			"multi_value":   "Multi Value Selection",
+			"stars_rate":    "Stars Rating",
+			"css_label":     "Color Labels",
+			"json":          "JSON",
+			"url":           "External URL",
+			"auto_complete": "Auto Complete",
 		})
 
 	default:
@@ -290,7 +291,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 	case "choice":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = fmt.Sprintf(name)
 		}
 		f.root["title"] = t
 		props[t] = withArraySchema()

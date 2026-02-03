@@ -408,7 +408,7 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 	}
 	namespaceDAO := dao.GetNamespaceDao()
 
-	if req.FieldType != "" && req.Namespace != "" && req.Format != "" {
+	if req.FieldType != "" && req.Namespace != "" {
 		schema, err := namespaceDAO.GetNamespaceSchemaSample(ctx, req.FieldType, req.Namespace, req.Format)
 		if err != nil {
 			return nil, err
@@ -426,6 +426,72 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 	} else {
 		return nil, err
 	}
+}
+
+func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.MetaEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	entityDAO := dao.GetEntityValueDao()
+
+	values, err := entityDAO.GetEntityValues(ctx, req.EntityUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.MetaEntityValueResponse{
+		EntityValue: values,
+	}, nil
+}
+
+func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+
+	resp, err := evDAO.DeleteEntity(ctx, req.EntityUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+
+	entity, err := evDAO.CreateEntity(ctx, req.Entity)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.CreateEntityResponse{
+		Entity: entity,
+	}, nil
+}
+
+func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+
+	values, err := evDAO.CreateEntityValues(ctx, req.EntityValue)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.CreateEntityValueResponse{
+		EntityValue: values,
+	}, nil
 }
 
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {

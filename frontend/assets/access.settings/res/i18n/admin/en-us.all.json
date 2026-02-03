@@ -863,6 +863,9 @@
   "metadata.type.css_label": {
     "other": "Color Labels"
   },
+  "metadata.type.auto_complete" :{
+    "other": "Auto Complete"
+  },
   "metadata.type.tags": {
     "other": "Extensible Tags"
   },
