@@ -156,6 +156,34 @@ func TestEntityValueCrud(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(values, ShouldHaveLength, 2)
 		})
+
+		Convey("Delete Entity values and meta relations", func() {
+			createdEntity, err := createTestEntity(ctx, mockDAO, "Link Entity")
+			So(err, ShouldBeNil)
+
+			value1, err := createTestEntityValue(ctx, mockDAO, "Value 1", createdEntity.Uuid)
+			So(err, ShouldBeNil)
+
+			value2, err := createTestEntityValue(ctx, mockDAO, "Value 2", createdEntity.Uuid)
+			So(err, ShouldBeNil)
+
+			metaWithId, err := createTestMeta(ctx, "test-node", "test-namespace")
+			So(err, ShouldBeNil)
+
+			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value1.Uuid)
+			So(err, ShouldBeNil)
+
+			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value2.Uuid)
+			So(err, ShouldBeNil)
+
+			//delete all the entitites, values
+
+			deletedRows, err := mockDAO.DeleteEntity(ctx, createdEntity.Uuid)
+
+			So(err, ShouldBeNil)
+			So(deletedRows, ShouldNotBeEmpty)
+
+		})
 	})
 }
 
