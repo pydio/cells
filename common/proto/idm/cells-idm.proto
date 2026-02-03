@@ -448,7 +448,7 @@ service UserMetaService {
     rpc GetFieldSchema(GetFieldSchemaRequest) returns (JsonSchemaResponse) {}
     rpc GetNamespaceSchema(GetNamespaceSchemaRequest) returns (JsonSchemaResponse) {}
     rpc GetEntityValues(GetMetaEntityValuesRequest) returns (MetaEntityValueResponse) {}
-    rpc DeleteEntityValuesData(GetMetaEntityValuesRequest) returns (DeleteEntityValuesResponse) {}
+    rpc DeleteEntity(GetMetaEntityValuesRequest) returns (DeleteEntityValuesResponse) {}
     rpc CreateEntity(CreateEntityRequest) returns (CreateEntityResponse) {}
     rpc CreateEntityValues(CreateEntityValueRequest) returns (CreateEntityValueResponse) {}
 }

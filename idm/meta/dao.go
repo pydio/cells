@@ -78,7 +78,7 @@ type EntityValueDAO interface {
 	CreateEntityValues(ctx context.Context, values []*idm.EntityValue) ([]*idm.EntityValue, error)
 	CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error)
 	GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error)
-	DeleteEntityValuesData(ctx context.Context, entityUuid string) (*idm.DeleteEntityValuesResponse, error)
+	DeleteEntity(ctx context.Context, entityUuid string) (*idm.DeleteEntityValuesResponse, error)
 
 	// Link operations
 	LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) error

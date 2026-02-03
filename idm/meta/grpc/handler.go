@@ -445,14 +445,14 @@ func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityVal
 	}, nil
 }
 
-func (h *Handler) DeleteEntityValuesData(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
+func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
 	dao, err := manager.Resolve[meta.DAO](ctx)
 	if err != nil {
 		return nil, err
 	}
 	evDAO := dao.GetEntityValueDao()
 
-	resp, err := evDAO.DeleteEntityValuesData(ctx, req.EntityUuid)
+	resp, err := evDAO.DeleteEntity(ctx, req.EntityUuid)
 	if err != nil {
 		return nil, err
 	}

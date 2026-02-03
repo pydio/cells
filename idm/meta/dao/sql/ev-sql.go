@@ -267,7 +267,7 @@ func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([
 	return values, nil
 }
 
-func (s *evSqlImpl) DeleteEntityValuesData(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
+func (s *evSqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
 	if err := s.validateUUIDs(entityID); err != nil {
 		return nil, err
 	}

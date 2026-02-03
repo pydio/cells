@@ -52,7 +52,6 @@ type MetaNsDef struct {
 	Type   string `json:"type,omitempty"`
 	Entity struct {
 		EntityID string `json:"entity_id,omitempty"`
-		Entity   string `json:"entity,omitempty"`
 	} `json:"entity,omitempty"`
 	Data struct {
 		Items []struct {
@@ -60,8 +59,8 @@ type MetaNsDef struct {
 			Value string `json:"value"`
 			Color string `json:"color,omitempty"`
 		} `json:"items,omitempty"`
-		Steps  bool     `json:"steps,omitempty"`
-		Entity []string `json:"entity,omitempty"`
+		Steps       bool     `json:"steps,omitempty"`
+		EntityItems []string `json:"entityItems,omitempty"`
 	} `json:"data,omitempty"`
 	GroupName string `json:"groupName,omitempty"`
 	Steps     bool   `json:"steps,omitempty"`
@@ -124,7 +123,7 @@ func (d *MetaNsDef) GetItems() []string {
 }
 
 func (d *MetaNsDef) GetEntities() []string {
-	return d.Data.Entity
+	return d.Data.EntityItems
 }
 
 func (d *MetaNsDef) GetEntityId() string {
@@ -138,7 +137,7 @@ func (d *MetaNsDef) SetEntityId(entityID string) {
 func (m *UserMetaNamespace) UnmarshallDefinition() (MetaNamespaceDefinition, error) {
 	var fullDef MetaNsDef
 	if e := json.Unmarshal([]byte(m.JsonDefinition), &fullDef); e == nil {
-		if fullDef.Entity.EntityID != "" || len(fullDef.Data.Items) > 0 || len(fullDef.Data.Entity) > 0 {
+		if fullDef.Entity.EntityID != "" || len(fullDef.Data.Items) > 0 || len(fullDef.Data.EntityItems) > 0 {
 			return &fullDef, nil
 		}
 	}

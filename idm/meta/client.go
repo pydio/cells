@@ -88,7 +88,7 @@ type UserMetaClient interface {
 	GetEntityValues(ctx context.Context, entityID string) ([]*idm.EntityValue, error)
 	IsContextEditable(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy) bool
 	MatchPolicies(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy, action serviceproto.ResourcePolicyAction, subjects ...string) bool
-	DeleteEntityValuesData(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error)
+	DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error)
 	CreateEntity(ctx context.Context, input *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error)
 	CreateEntityValues(ctx context.Context, input *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error)
 }
@@ -368,11 +368,11 @@ func (u *umClient) GetEntityValues(ctx context.Context, entityID string) ([]*idm
 	return resp.EntityValue, nil
 }
 
-func (u *umClient) DeleteEntityValuesData(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
+func (u *umClient) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
 	req := &idm.GetMetaEntityValuesRequest{
 		EntityUuid: entityID,
 	}
-	resp, err := u.ServiceClient(ctx).DeleteEntityValuesData(ctx, req)
+	resp, err := u.ServiceClient(ctx).DeleteEntity(ctx, req)
 	if err != nil {
 		return nil, err
 	}

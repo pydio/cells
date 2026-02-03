@@ -244,7 +244,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 				if entityID == "" {
 					continue
 				}
-				if _, err := s.DeleteEntityValuesData(ctx, entityID); err != nil {
+				if _, err := s.DeleteEntity(ctx, entityID); err != nil {
 					return err
 				}
 			}
@@ -259,7 +259,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 				if entityID == "" {
 					continue
 				}
-				if _, err := s.DeleteEntityValuesData(ctx, entityID); err != nil {
+				if _, err := s.DeleteEntity(ctx, entityID); err != nil {
 					return err
 				}
 			}

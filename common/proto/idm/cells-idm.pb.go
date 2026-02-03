@@ -6193,7 +6193,7 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\tSearchACL\x12\x15.idm.SearchACLRequest\x1a\x16.idm.SearchACLResponse\"\x000\x01\x12@\n" +
 	"\tStreamACL\x12\x15.idm.SearchACLRequest\x1a\x16.idm.SearchACLResponse\"\x00(\x010\x01\x12?\n" +
 	"\n" +
-	"RestoreACL\x12\x16.idm.RestoreACLRequest\x1a\x17.idm.RestoreACLResponse\"\x002\xe3\x06\n" +
+	"RestoreACL\x12\x16.idm.RestoreACLRequest\x1a\x17.idm.RestoreACLResponse\"\x002\xd9\x06\n" +
 	"\x0fUserMetaService\x12K\n" +
 	"\x0eUpdateUserMeta\x12\x1a.idm.UpdateUserMetaRequest\x1a\x1b.idm.UpdateUserMetaResponse\"\x00\x12M\n" +
 	"\x0eSearchUserMeta\x12\x1a.idm.SearchUserMetaRequest\x1a\x1b.idm.SearchUserMetaResponse\"\x000\x01\x12f\n" +
@@ -6201,8 +6201,8 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\x15ListUserMetaNamespace\x12!.idm.ListUserMetaNamespaceRequest\x1a\".idm.ListUserMetaNamespaceResponse\"\x000\x01\x12G\n" +
 	"\x0eGetFieldSchema\x12\x1a.idm.GetFieldSchemaRequest\x1a\x17.idm.JsonSchemaResponse\"\x00\x12O\n" +
 	"\x12GetNamespaceSchema\x12\x1e.idm.GetNamespaceSchemaRequest\x1a\x17.idm.JsonSchemaResponse\"\x00\x12R\n" +
-	"\x0fGetEntityValues\x12\x1f.idm.GetMetaEntityValuesRequest\x1a\x1c.idm.MetaEntityValueResponse\"\x00\x12\\\n" +
-	"\x16DeleteEntityValuesData\x12\x1f.idm.GetMetaEntityValuesRequest\x1a\x1f.idm.DeleteEntityValuesResponse\"\x00\x12E\n" +
+	"\x0fGetEntityValues\x12\x1f.idm.GetMetaEntityValuesRequest\x1a\x1c.idm.MetaEntityValueResponse\"\x00\x12R\n" +
+	"\fDeleteEntity\x12\x1f.idm.GetMetaEntityValuesRequest\x1a\x1f.idm.DeleteEntityValuesResponse\"\x00\x12E\n" +
 	"\fCreateEntity\x12\x18.idm.CreateEntityRequest\x1a\x19.idm.CreateEntityResponse\"\x00\x12U\n" +
 	"\x12CreateEntityValues\x12\x1d.idm.CreateEntityValueRequest\x1a\x1e.idm.CreateEntityValueResponse\"\x002\x9f\x03\n" +
 	"\x13PolicyEngineService\x12B\n" +
@@ -6445,7 +6445,7 @@ var file_cells_idm_proto_depIdxs = []int32{
 	70,  // 108: idm.UserMetaService.GetFieldSchema:input_type -> idm.GetFieldSchemaRequest
 	72,  // 109: idm.UserMetaService.GetNamespaceSchema:input_type -> idm.GetNamespaceSchemaRequest
 	55,  // 110: idm.UserMetaService.GetEntityValues:input_type -> idm.GetMetaEntityValuesRequest
-	55,  // 111: idm.UserMetaService.DeleteEntityValuesData:input_type -> idm.GetMetaEntityValuesRequest
+	55,  // 111: idm.UserMetaService.DeleteEntity:input_type -> idm.GetMetaEntityValuesRequest
 	52,  // 112: idm.UserMetaService.CreateEntity:input_type -> idm.CreateEntityRequest
 	50,  // 113: idm.UserMetaService.CreateEntityValues:input_type -> idm.CreateEntityValueRequest
 	74,  // 114: idm.PolicyEngineService.IsAllowed:input_type -> idm.PolicyEngineRequest
@@ -6482,7 +6482,7 @@ var file_cells_idm_proto_depIdxs = []int32{
 	71,  // 145: idm.UserMetaService.GetFieldSchema:output_type -> idm.JsonSchemaResponse
 	71,  // 146: idm.UserMetaService.GetNamespaceSchema:output_type -> idm.JsonSchemaResponse
 	56,  // 147: idm.UserMetaService.GetEntityValues:output_type -> idm.MetaEntityValueResponse
-	54,  // 148: idm.UserMetaService.DeleteEntityValuesData:output_type -> idm.DeleteEntityValuesResponse
+	54,  // 148: idm.UserMetaService.DeleteEntity:output_type -> idm.DeleteEntityValuesResponse
 	53,  // 149: idm.UserMetaService.CreateEntity:output_type -> idm.CreateEntityResponse
 	51,  // 150: idm.UserMetaService.CreateEntityValues:output_type -> idm.CreateEntityValueResponse
 	75,  // 151: idm.PolicyEngineService.IsAllowed:output_type -> idm.PolicyEngineResponse

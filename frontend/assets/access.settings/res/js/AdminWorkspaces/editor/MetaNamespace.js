@@ -261,7 +261,7 @@ class MetaNamespace extends React.Component {
         const { namespace } = this.state;
         const def = JSON.parse(namespace.JsonDefinition);
         const entityValues = valueStr.split(',').map(s => s.trim()).filter(Boolean);
-        const data = { ...def.data, entity: entityValues };
+        const data = { ...def.data, entityItems: entityValues };
         namespace.JsonDefinition = JSON.stringify({ ...def, data })
         this.setState({ namespace });    
     }
