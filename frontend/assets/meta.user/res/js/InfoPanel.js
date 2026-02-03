@@ -49,6 +49,12 @@ const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
             });
     }, [node, setSaving, setUpdateData])
 
+    const submitMetadata = useCallback(() => {
+        saveMeta(updateData)
+        setUpdateData(null)
+    }, [saveMeta, updateData])
+
+
     let actions = [];
     const { MessageHash } = pydio;
 
@@ -60,7 +66,7 @@ const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
             <FlatButton
                 key="edit"
                 label={MessageHash['meta.user.15']}
-                onClick={saveMeta}
+                onClick={submitMetadata}
                 disabled={!valid}
             />
         );
@@ -82,7 +88,10 @@ const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
             node={node}
             saveMeta={saveMeta}
             saving={saving}
-            savePartialy={true}
+            onDataChanged={(data, isValid) => {
+                setUpdateData(data)
+                setValid(isValid)
+            }}
         >
             <InfoPanelCard
                 {...infoProps}
@@ -102,7 +111,6 @@ const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
                     onChangeUpdateData={setUpdateData}
                     onValidStatusChanged={(v) => { setValid(v) }}
                     saving={saving}
-                    autoSave={saveMeta}
                     style={panelStyle}
                     useTogglableFields={true}
                 />

@@ -4,10 +4,6 @@
 
 .panelCard .panelContent .infoPanelRow.togglable.no-value .infoPanelValue {}
 
-.panelCard .panelContent .infoPanelRow.togglable{
-    padding-bottom: 10px;
-}
-
 .infoPanelRow.togglable .infoPanelValue {
     background: var(--md-sys-color-surface-3);
     min-height: 35px;
@@ -30,7 +26,7 @@
     .panelCard .panelContent .infoPanelFlexRow .infoPanelRow,
     .panelCard .panelContent .infoPanelFlexRow .infoPanelRow.togglable.no-value,
     .panelCard .panelContent .infoPanelFlexRow .mantine-InputWrapper-root {
-        display: flex;
+        display: block;
         align-items: start;
     }
 
@@ -43,8 +39,8 @@
     .panelCard .panelContent .infoPanelFlexRow .mantine-InputWrapper-label {
         min-width: 100px;
         width: 30%;
-        padding: 10px 4px 10px 0;
-        margin-bottom: inherit;
+        padding: 2px 2px 2px 0;
+        margin-bottom: 2px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

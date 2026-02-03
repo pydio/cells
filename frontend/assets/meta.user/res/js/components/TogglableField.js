@@ -26,6 +26,7 @@ import {FieldDisplay} from './FieldDisplay';
  * Main component that handles a metadata field in edit or display mode
  */
 export const TogglableField = ({
+      context,
       fieldKey,
       meta,
       node,
@@ -33,48 +34,50 @@ export const TogglableField = ({
       configsForGroup,
       supportTemplates,
       additionalProps,
-      context,
+      isEditing,
+      setFieldBeingEditted,
   }) => {
 
     const { state, actions } = context;
     const value = state.formState.get(fieldKey)
 
-    const shouldStayInEditMode = state.errors[fieldKey]
-    if (state.editingTag === fieldKey || shouldStayInEditMode) {
-        return <FieldEdit
-            context={context}
-            name={fieldKey}
-            meta={meta}
-            value={value}
-            updateValue={(key, value, submit) => {
-                updateValue(key, value, submit);
-                if(submit) {
-                    actions.setShouldSave(true)
-                    actions.setEditingTag('none')
-                }
+    // FIXME: Let's enable the togglable forms in a second step
+    // if (isEditing || state.errors[fieldKey]) {
+    return <FieldEdit
+        context={context}
+        name={fieldKey}
+        meta={meta}
+        value={value}
+        updateValue={(key, value, submit) => {
+            updateValue(key, value, submit);
+            actions.setFormState(state.formState.set(key, value))
+            setFieldBeingEditted('none')
 
-                actions.setFormState(state.formState.set(key, value))
-            }}
-            requestToggleClose={()=> {
+            if(submit) {
                 actions.setShouldSave(true)
-                actions.setEditingTag('none')
-            }}
-            configsForGroup={configsForGroup}
-            supportTemplates={supportTemplates}
-            additionalProps={additionalProps}
-        />;
-    }
+                setFieldBeingEditted('none')
+            }
+        }}
+        requestToggleClose={()=> {
+            actions.setShouldSave(true)
+            setFieldBeingEditted('none')
+        }}
+        configsForGroup={configsForGroup}
+        supportTemplates={supportTemplates}
+        additionalProps={additionalProps}
+    />;
 
-    return (
-        <FieldDisplay
-            className={"togglable"}
-            fieldKey={fieldKey}
-            meta={meta}
-            value={value}
-            node={node}
-            onValueClick={() => {
-                actions.setEditingTag(fieldKey)
-            }}
-        />
-    );
+    // return (
+    //     <FieldDisplay
+    //         className={"togglable"}
+    //         fieldKey={fieldKey}
+    //         meta={meta}
+    //         value={value}
+    //         node={node}
+    //         onValueClick={() => {
+    //             console.log('(TogglableField:78) - @@@@@@ fieldKey: ', fieldKey);
+    //             setFieldBeingEditted(fieldKey)
+    //         }}
+    //     />
+    // );
 };

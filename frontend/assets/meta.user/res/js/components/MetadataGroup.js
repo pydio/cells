@@ -55,12 +55,12 @@ export const MetadataGroup = ({
     pydio,
     onRequestEditMode,
     useTogglableFields,
-    autoSave,
     saving,
     metadataContext,
 }) => {
     const context = metadataContext || useMetadataContext();
     const metadata = node.getMetadata();
+    const [fieldBeingEditted, setFieldBeingEditted] = React.useState('none');
     const elements = [];
     let nonEmptyDataCount = 0;
 
@@ -83,31 +83,43 @@ export const MetadataGroup = ({
         if (!editMode && value) {
             nonEmptyDataCount++;
         }
-        let Component = MetadataField
-        if(useTogglableFields) {
-            Component = TogglableField
-        }
 
-        elements.push(
-            <Component
-                context={context}
-                key={key}
-                fieldKey={key}
-                meta={meta}
-                node={node}
-                editMode={editMode}
-                multiple={multiple}
-                value={value}
-                checked={fields[key] || false}
-                updateValue={updateValue}
-                onCheck={onCheck}
-                configsForGroup={configsForGroup}
-                supportTemplates={supportTemplates}
-                additionalProps={additionalProps}
-                autoSave={autoSave}
-                saving={saving}
-            />
-        );
+        if(useTogglableFields) {
+            elements.push(
+                <TogglableField
+                    key={key}
+                    fieldKey={key}
+                    context={context}
+                    meta={meta}
+                    node={node}
+                    updateValue={updateValue}
+                    configsForGroup={configsForGroup}
+                    supportTemplates={supportTemplates}
+                    additionalProps={additionalProps}
+                    isEditing={fieldBeingEditted === key}
+                    setFieldBeingEditted={setFieldBeingEditted}
+                />
+            );
+        } else {
+            elements.push(
+                <MetadataField
+                    key={key}
+                    context={context}
+                    fieldKey={key}
+                    meta={meta}
+                    node={node}
+                    editMode={editMode}
+                    multiple={multiple}
+                    value={value}
+                    checked={fields[key] || false}
+                    updateValue={updateValue}
+                    onCheck={onCheck}
+                    configsForGroup={configsForGroup}
+                    supportTemplates={supportTemplates}
+                    additionalProps={additionalProps}
+                />
+            );
+        }
     });
 
     // Styles for headers and fields
@@ -185,7 +197,6 @@ export const MetadataGroup = ({
                         onToggleGroup={onToggleGroup}
                         pydio={pydio}
                         onRequestEditMode={onRequestEditMode}
-                        autoSave={autoSave}
                         saving={saving}
                         useTogglableFields={useTogglableFields}
                     />
