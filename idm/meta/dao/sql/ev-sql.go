@@ -267,13 +267,14 @@ func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([
 	return values, nil
 }
 
-func (s *evSqlImpl) DeleteEntityValues(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
+func (s *evSqlImpl) DeleteEntityValuesData(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
 	if err := s.validateUUIDs(entityID); err != nil {
 		return nil, err
 	}
-	MetaValuesRelsModel := &MetaValuesRel{}
 
-	tx := s.Session(ctx).Where("e_value_uuid IN (SELECT uuid FROM idm_usr_meta_entity_values WHERE entity_uuid = ?)", entityID).Delete(MetaValuesRelsModel)
+	subQuery := s.Session(ctx).Model(&EntityValues{}).Select("uuid").Where("entity_uuid = ?", entityID)
+
+	tx := s.Session(ctx).Where("e_value_uuid IN (?)", subQuery).Delete(&MetaValuesRel{})
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
 	}

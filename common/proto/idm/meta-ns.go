@@ -85,6 +85,7 @@ func (d *metaNsDef) DefaultHide() bool {
 	return d.Hide
 }
 
+// legacy to be removed
 func (d *metaNsDef) GetEntityId() string {
 	return ""
 }

@@ -418,8 +418,8 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		} else {
 			e = er
 		}
-	case "/idm.UserMetaService/DeleteEntityValues":
-		resp, er := s.UserMetaServiceServer.DeleteEntityValues(ctx, args.(*GetMetaEntityValuesRequest))
+	case "/idm.UserMetaService/DeleteEntityValuesData":
+		resp, er := s.UserMetaServiceServer.DeleteEntityValuesData(ctx, args.(*GetMetaEntityValuesRequest))
 		if er == nil {
 			e = stubs.AssignToInterface(resp, reply)
 		} else {
