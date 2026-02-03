@@ -54,6 +54,9 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     name,
     meta,
     saving,
+    // FIXME: Toggleable fields are disabled
+    // updateValue,
+    // requestToggleClose,
 }) => {
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
@@ -79,18 +82,19 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             actions.setFormState(state.formState.set(name, v))
         },
         errorText,
-        requestToggleClose: () => {
-            actions.setShouldSave(true)
-            actions.setEditingTag('none')
-        },
+        requestToggleClose: () => {} // FIXME: Toggleable fields are disabled
+        // requestToggleClose: () => {
+        //     // NOTE: means this isnot a toggleable field
+        //     if (!requestToggleClose) return
+        //
+        //     requestToggleClose()
+        // },
     };
 
     const onCommitChange = (v) => {
         if (state.errors[name]) return
 
         actions.setFormState(state.formState.set(name, v))
-        actions.setShouldSave(true)
-        actions.setEditingTag('none')
     }
 
     switch (type) {
@@ -106,7 +110,7 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         case 'tags':
             return <TagsCloudInput
                 {...baseProps}
-                value={state.formState.get(name)}
+                value={state.formState.get(name) || ""}
                 disabled={state.saving || state.shouldSave}
                 onCommitChange={onCommitChange}
                 data={[]}

@@ -1,5 +1,8 @@
 import * as React from 'react'
-import MetaClient, { PydioNode } from "../MetaClient";
+import MetaClient from "../MetaClient";
+
+// FIXME: Properly type this
+type PydioNode = unknown;
 
 import Ajv, { JSONSchemaType, ValidateFunction } from "ajv";
 import addFormats from 'ajv-formats'
@@ -23,7 +26,6 @@ type MetadataAction =
     | { type: 'set_fields'; fields: {[key: string]: any} }
     | { type: 'set_namespace_schema'; namespaceJsonSchema: JSONSchemaType<any> | null }
     | { type: 'set_should_save'; shouldSave: boolean }
-    | { type: 'set_editing_tag'; editingTag: string }
     | { type: 'set_json_schema'; jsonSchema: JSONSchemaType<any> | null }
     | { type: 'set_errors'; errors: {[key: string]: string} };
 
@@ -33,7 +35,6 @@ interface MetadataActions {
     setFormState: (formState: Map<string, any>) => void;
     setShouldSave: (shouldSave: boolean) => void;
     setFields: (fields: {[key: string]: any}) => void;
-    setEditingTag: (editingTag: string) => void;
     setJsonSchema: (jsonSchema: JSONSchemaType<any> | null) => void;
 }
 
@@ -72,8 +73,6 @@ const reducer = (state: MetadataState, action: MetadataAction): MetadataState =>
             return { ...state, namespaceJsonSchema: action.namespaceJsonSchema }
         case 'set_should_save':
             return { ...state, shouldSave: action.shouldSave }
-        case 'set_editing_tag':
-            return { ...state, editingTag: action.editingTag }
         case 'set_json_schema':
             return { ...state, jsonSchema: action.jsonSchema }
         case 'set_errors':
@@ -94,7 +93,6 @@ const defaultContext: MetadataContextType = {
         setFields: noop,
         setNamespaceJsonSchema: noop,
         setShouldSave: noop,
-        setEditingTag: noop,
         setJsonSchema: noop
     }
 }
@@ -123,8 +121,6 @@ const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema
         if (properties[k]?.format === 'time') {
             const date = new Date(parseFloat(v) * 1000).toISOString();
             const [hours, minutes, seconds] = date.split('T')[1].split(':');
-            console.log('(metadata:127) - @@@@@@ hours: ', hours);
-            console.log('(metadata:127) - @@@@@@ minutes: ', minutes);
             entries[k] = `${hours}:${minutes}:${seconds}`;
             return
         }
@@ -140,21 +136,23 @@ const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema
     return entries
 }
 
+type MetadataContextProviderProps = {
+    node: PydioNode;
+    saveMeta: (formData: Map<string, any>) => Promise<any>;
+    value: any;
+    onDataChanged: (formData: Map<string, any>, isValid: boolean) => void;
+    savePartially: boolean;
+    children: React.ReactNode;
+}
+
 export const MetadataContextProvider = ({
     node,
     saveMeta,
     value,
     onDataChanged,
-    savePartialy,
+    savePartially = false,
     children,
-}: {
-    node: PydioNode;
-    saveMeta: (formData: Map<string, any>) => Promise<any>;
-    value: any;
-    onDataChanged: (formData: Map<string, any>, isValid: boolean) => void;
-    savePartialy: boolean;
-    children: React.ReactNode;
-}) => {
+}: MetadataContextProviderProps) => {
     const validatorRef = React.useRef<ValidateFunction<any> | null>(null);
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
@@ -169,9 +167,8 @@ export const MetadataContextProvider = ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
 
         setFormState: (formState) => {
-            let isValid = true;
+            let isValid = false;
             if (validatorRef.current) {
-                console.log('(metadata:165) - @@@@@@ setFormState');
                 isValid = validatorRef.current(
                     formatSpecialCasesForValidation(
                         formState,
@@ -184,19 +181,16 @@ export const MetadataContextProvider = ({
 
             dispatch({ type: 'set_form_state', formState })
 
+            // NOTE: For parents that require holding state because we can't
+            // wrap them with a provider.
+            // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
             if (onDataChanged) onDataChanged(formState, isValid)
         },
 
-        setShouldSave: (shouldSave) => {
-            if (!savePartialy) return
-
-            dispatch({ type: 'set_should_save', shouldSave })
-        },
-
+        setShouldSave: (shouldSave) => dispatch({ type: 'set_should_save', shouldSave }),
         setFields: (fields) => dispatch({ type: 'set_fields', fields }),
-        setEditingTag: (editingTag) => dispatch({ type: 'set_editing_tag', editingTag }),
         setJsonSchema: (jsonSchema) => dispatch({ type: 'set_json_schema', jsonSchema })
-    }), [])
+    }), []);
 
     React.useEffect(() => {
         if (!state.jsonSchema) return
@@ -216,7 +210,7 @@ export const MetadataContextProvider = ({
                 actions.setJsonSchema(ns.JsonSchema)
             })
 
-        actions.setFormState(new Map())
+        actions.setFormState(new Map(node.getMetadata()))
     }, [node]);
 
 
@@ -228,12 +222,12 @@ export const MetadataContextProvider = ({
     }, [node.getPath(), state.saving]);
 
 
+    // NOTE: here is the final validation and save of the metadata
     React.useEffect(() => {
-        if (Object.keys(state.errors).length > 0) return;
+        if (!state.shouldSave) return;
 
         if (validatorRef.current) {
-            console.log('(metadata:226) - @@@@@@  validatorRef.current: ',  validatorRef.current);
-            validatorRef.current(
+            let isValid = validatorRef.current(
                 formatSpecialCasesForValidation(
                     state.formState,
                     validatorRef.current.schema
@@ -241,6 +235,10 @@ export const MetadataContextProvider = ({
             )
             const errors = mapErrors(validatorRef.current.errors)
             dispatch({ type: 'set_errors', errors })
+
+            // NOTE: savePartialy is only for the mutiple node selection for now
+            // see: frontend/assets/meta.user/res/js/UserMetaDialog.js
+            if (!savePartially && !isValid) return;
         }
 
         if (state.shouldSave && saveMeta) {
