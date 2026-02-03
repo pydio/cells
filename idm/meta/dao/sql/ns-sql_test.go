@@ -151,7 +151,7 @@ func TestNSNewFields(t *testing.T) {
 			mockDAO, err0 := manager.Resolve[meta.NamespaceDAO](ctx)
 			So(err0, ShouldBeNil)
 			tv := json_schema.LegacyTypeToLabel([]byte("{\"type\":\"string\"}"))
-			jsb, err1 := json_schema.GetJsonSchema(tv)
+			jsb, err1 := json_schema.GetJsonSchema(tv, "")
 			So(err1, ShouldBeNil)
 			schemaAsJson := datatypes.JSON(jsb)
 			jsStruct, err := json_schema.JsonToProtoStruct(&schemaAsJson)
@@ -202,7 +202,7 @@ func TestNSDeleteWithJsonSchema(t *testing.T) {
 			nsKey := "namespace-delete-jsonschema"
 			nsLabel := "label-delete-jsonschema"
 
-			jsBytes, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel([]byte("{\"type\":\"string\"}")))
+			jsBytes, err := json_schema.GetJsonSchema(json_schema.LegacyTypeToLabel([]byte("{\"type\":\"string\"}")), "")
 			So(err, ShouldBeNil)
 			jsAsJSON := datatypes.JSON(jsBytes)
 			jsStruct, err := json_schema.JsonToProtoStruct(&jsAsJSON)

@@ -22,6 +22,20 @@ import React, { useEffect, useState } from 'react'
 import { TagsInput } from '@mantine/core'
 import { StringItemsInputProps } from "./CommonInputProps";
 
+/**
+ * @typedef {Object} TagsCloudInputProps
+ * @property {string} name
+ * @property {string} label
+ * @property {string} description
+ * @property {string} placeholder
+ * @property {boolean} disabled
+ * @property {function} dataLoader
+ * @property {boolean} requestToggleClose
+ * @property {string} errorText
+ * @property {string} value
+ * @property {function} onCommitChange
+ */
+
 const formatValueStringToArray = (value: string) => {
     return (value || '').split(',').filter((tag) => tag.trim());
 }
@@ -30,6 +44,9 @@ const formatValueArrayToString = (value: string[]) => {
     return value.filter(v => v).join(',')
 }
 
+/**
+ * @param {TagsCloudInputProps} props
+ */
 export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     name,
     label,
