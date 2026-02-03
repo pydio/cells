@@ -37,7 +37,7 @@ const NumberDisplay = ({ value, format }) => {
  * Renders a single metadata field in display mode
  */
 export const FieldDisplay = ({fieldKey, meta, value, node, className, onValueClick}) => {
-    const {label, type, data} = meta;
+    const {label, type, data, description} = meta;
     const column = {name: fieldKey};
     let displayValue = value;
 
@@ -51,6 +51,8 @@ export const FieldDisplay = ({fieldKey, meta, value, node, className, onValueCli
         case 'css_label':
             displayValue = <CssLabelsField node={node} column={column}/>;
             break;
+        case 'tag_cloud' || 'auto_complete':
+            displayValue = <TagsCloud node={node} column={column} containerStyle={{margin:'-7px 0'}}/>;
         case 'tags':
             displayValue = <TagsCloud node={node} column={column} containerStyle={{margin:'-7px 0'}}/>;
             break;

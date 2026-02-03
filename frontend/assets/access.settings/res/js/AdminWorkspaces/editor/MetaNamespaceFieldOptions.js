@@ -77,7 +77,7 @@ export const theme = createTheme({
   },
   },
 });
-const FIELD_TYPES_WITH_SCHEMA_PROPERTIES = ["string", "textarea", "integer", "tag_cloud", "choice"];
+const FIELD_TYPES_WITH_SCHEMA_PROPERTIES = ["string", "textarea", "integer", "tag_cloud", "choice", "auto_complete"];
 const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref) => {
   const [metaSchema, setSchema] = useState({});
   const [formData, setFormData] = useState({});
@@ -135,7 +135,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
           }));
       }
       
-      if (metaType === 'tag_cloud' && Array.isArray(tagValues) && tagValues.length > 0) {        
+      if (metaType === 'tag_cloud' || metaType === 'auto_complete' && Array.isArray(tagValues) && tagValues.length > 0) {        
         withOps.push({
           op:  'add',
           path: `/properties/${ns.Namespace}/items`,
@@ -224,6 +224,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
 MetaNamespaceFieldOptions.PropTypes = {
   ns: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
   fieldType: PropTypes.string.isRequired,
+  tagValues: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default MetaNamespaceFieldOptions;
