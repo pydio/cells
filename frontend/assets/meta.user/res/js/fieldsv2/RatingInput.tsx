@@ -21,7 +21,6 @@
 import React from 'react'
 import {Input, Rating} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
-import './RatingInput.css';
 
 export const RatingInput:React.FC<InputProps> = (props: InputProps) => {
 

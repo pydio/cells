@@ -60,7 +60,6 @@ const initialState: MetadataState = {
 }
 
 const reducer = (state: MetadataState, action: MetadataAction): MetadataState => {
-
     switch (action.type) {
         case 'set_node':
             return { ...state, node: action.node }
@@ -108,8 +107,9 @@ const mapErrors = (errors: any[]) => {
             const key = e.params.missingProperty.replace('/', '')
             return { ...acc, [key]: e.message }
         }
-        const key = e.instancePath.replace('/', '')
-        return { ...acc, [key]: e.message }
+
+        const [, type,] = e.instancePath.split('/')
+        return { ...acc, [type]: e.message }
     }, {})
 }
 
@@ -130,9 +130,6 @@ const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema
             entries[k] = new Date(parseFloat(v) * 1000).toISOString()
             return
         }
-
-        console.log({k, v, format: properties[k]})
-
 
         entries[k] = v
     })
@@ -177,7 +174,7 @@ export const MetadataContextProvider = ({
                     formatSpecialCasesForValidation(
                         formState,
                         validatorRef.current.schema
-                        
+
                     )
                 )
                 const errors = mapErrors(validatorRef.current.errors)

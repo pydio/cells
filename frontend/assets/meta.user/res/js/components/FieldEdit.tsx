@@ -30,6 +30,7 @@ import { DateInput } from "../fieldsv2/DateInput";
 import { TimeInput } from "../fieldsv2/TimeInput";
 import { URLInput } from "../fieldsv2/URLInput";
 import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
+import { AutoCompleteInput } from "../fieldsv2/AutoCompleteInput";
 import { InputProps, Items } from "../fieldsv2/CommonInputProps";
 import MetaClient from "../MetaClient";
 import { NamespaceMeta } from "./MetaSpec";
@@ -80,23 +81,17 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         disabled: readonly || saving,
         value,
         onChange: (v) => {
-            console.log({v})
             actions.setFormState(state.formState.set(name, v))
         },
         errorText,
-        requestToggleClose: () => {} // FIXME: Toggleable fields are disabled
+        requestToggleClose: () => {},
+        // FIXME: Toggleable fields are disabled
         // requestToggleClose: () => {
         //     // NOTE: means this isnot a toggleable field
         //     if (!requestToggleClose) return
         //
         //     requestToggleClose()
         // },
-    };
-
-    const something = (v) => {  
-        const arr = v.split(',').filter(tag => tag.trim());
-        console.log({arr})
-        return arr;
     };
 
     const onCommitChange = (v) => {
@@ -106,7 +101,7 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
 
         actions.setFormState(state.formState.set(name, v))
     }
-    console.log({type})
+
     switch (type) {
         case 'stars_rate':
             return <RatingInput {...baseProps} />;
@@ -118,11 +113,15 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             const cssItems: Items[] = Object.keys(cssLabels).map((id) => { return { ...cssLabels[id], key: id, value: cssLabels[id].label } })
             return <Selector {...baseProps} items={cssItems} />;
         case 'auto_complete':
-            return <TagsCloudInput
+            return <AutoCompleteInput
                 {...baseProps}
                 value={state.formState.get(name) || ""}
                 disabled={state.saving || state.shouldSave}
-                onCommitChange={(v) => onCommitChange(something(v))}
+                onCommitChange={(v) => {
+                    // FIXME: Why this is an array?
+                    // AutoComplete is only one value selected
+                    onCommitChange([v])
+                }}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
@@ -131,7 +130,7 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
                 {...baseProps}
                 value={state.formState.get(name) || ""}
                 disabled={state.saving || state.shouldSave}
-                onCommitChange={(v) => onCommitChange(something(v))}
+                onCommitChange={(v) => onCommitChange(v)}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
