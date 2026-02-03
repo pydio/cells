@@ -44,19 +44,23 @@ export default createReactClass({
         SubmitButtonProviderMixin
     ],
 
-    saveMeta(){
-        let values = this.refs.panel.getUpdateData();
-        let params = {};
-        values.forEach(function(v, k){
-            params[k] = v;
-        });
-        return MetaClient.getInstance().saveMeta(this.props.selection.getSelectedNodes(), values);
+    saveMeta(metadata){
+        return MetaClient
+            .getInstance()
+            .saveMeta(this.props.selection.getSelectedNodes(), metadata);
     },
 
     submit(){
-        this.saveMeta().then(() => {
+        this.saveMeta(this.formMetadata).then(() => {
             this.dismiss();
         });
+    },
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.selection !== this.props.selection) {
+            // FIXME: Store the form state without re-rendering.
+            this.formMetadata = new Map();
+        }
     },
 
     render(){
@@ -64,8 +68,10 @@ export default createReactClass({
             <PydioMantineProvider>
                 <MetadataContextProvider
                     node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
-                    saveMeta={this.submit}
+                    saveMeta={(metadata) => this.saveMeta(metadata)}
                     saving={false}
+                    savePartialy={!this.props.selection.isUnique()}
+                    onDataChanged={(metadata) => this.formMetadata = metadata}
                 >
                     <UserMetaPanelV2
                         pydio={this.props.pydio}

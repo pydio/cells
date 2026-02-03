@@ -52,20 +52,20 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     label,
     description,
     placeholder,
-    disabled,
     dataLoader,
-    requestToggleClose,
     errorText,
     value,
     onCommitChange,
 }) => {
-
-    const [localValue, setLocalValue] = useState(formatValueStringToArray(value));
+    const [localValue, setLocalValue] = useState([]);
     const [items, setItems] = useState<string[]>([]);
+
+    React.useEffect(() => {
+        setLocalValue(formatValueStringToArray(value));
+    }, [value]);
 
     const props = {
         label,
-        disabled: disabled,
         description,
         placeholder,
         error: errorText,
@@ -78,12 +78,8 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     }, [name])
 
     const onChangeJoin = (values: string[]) => {
-        if(values.length > 0 ) {
-            const joined = values.join(',')
-            setLocalValue(joined.split(',').filter(v => v))
-        } else {
-            setLocalValue([])
-        }
+        setLocalValue(values.filter(v => v))
+        onCommitChange(formatValueArrayToString(values));
     }
 
     return <TagsInput
@@ -92,9 +88,19 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         data={items}
         onChange={onChangeJoin}
         comboboxProps={{ withinPortal: false }}
-        autoFocus={!!requestToggleClose}
+        onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            const { key, target } = e;
+            const { value } = target;
+            if(key === 'Enter'){
+                onCommitChange(formatValueArrayToString([...localValue, value]));
+            }
+            if (key === ',') {
+                onCommitChange(formatValueArrayToString([...localValue, value]));
+            }
+        }}
         onBlur={(e) => {
             const { value } = e.target;
+            console.log('(TagsCloudInput:76) - @@@@@@ localValue: ', localValue);
             onCommitChange(formatValueArrayToString([...localValue, value]));
         }}
     />
