@@ -95,10 +95,6 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     };
 
     const onCommitChange = (v) => {
-        console.log(state.errors)
-        actions.setFormState(state.formState.set(name, v))
-        if (state.errors[name]) return
-
         actions.setFormState(state.formState.set(name, v))
     }
 
