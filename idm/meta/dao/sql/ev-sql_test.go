@@ -178,7 +178,7 @@ func TestEntityValueCrud(t *testing.T) {
 
 			//delete all the entitites, values
 
-			deletedRows, err := mockDAO.DeleteEntityValuesData(ctx, createdEntity.Uuid)
+			deletedRows, err := mockDAO.DeleteEntity(ctx, createdEntity.Uuid)
 
 			So(err, ShouldBeNil)
 			So(deletedRows, ShouldNotBeEmpty)
