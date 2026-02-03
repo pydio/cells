@@ -37,6 +37,8 @@ import { StringItemsInputProps } from "./CommonInputProps";
  */
 
 const formatValueStringToArray = (value: string) => {
+    if(!value) { return []; }
+    if(Array.isArray(value)) { return value.join(','); }
     return (value || '').split(',').filter((tag) => tag.trim());
 }
 
@@ -100,7 +102,8 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         }}
         onBlur={(e) => {
             const { value } = e.target;
-            console.log('(TagsCloudInput:76) - @@@@@@ localValue: ', localValue);
+            // console.log('(TagsCloudInput:76) - @@@@@@ localValue: ', localValue);
+            
             onCommitChange(formatValueArrayToString([...localValue, value]));
         }}
     />

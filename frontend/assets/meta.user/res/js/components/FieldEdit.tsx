@@ -76,9 +76,11 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         name,
         label,
         required,
+        description: meta.description,
         disabled: readonly || saving,
         value,
         onChange: (v) => {
+            console.log({v})
             actions.setFormState(state.formState.set(name, v))
         },
         errorText,
@@ -91,12 +93,20 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         // },
     };
 
+    const something = (v) => {  
+        const arr = v.split(',').filter(tag => tag.trim());
+        console.log({arr})
+        return arr;
+    };
+
     const onCommitChange = (v) => {
+        console.log(state.errors)
+        actions.setFormState(state.formState.set(name, v))
         if (state.errors[name]) return
 
         actions.setFormState(state.formState.set(name, v))
     }
-
+    console.log({type})
     switch (type) {
         case 'stars_rate':
             return <RatingInput {...baseProps} />;
@@ -107,6 +117,24 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             const cssLabels = getCssLabels();
             const cssItems: Items[] = Object.keys(cssLabels).map((id) => { return { ...cssLabels[id], key: id, value: cssLabels[id].label } })
             return <Selector {...baseProps} items={cssItems} />;
+        case 'auto_complete':
+            return <TagsCloudInput
+                {...baseProps}
+                value={state.formState.get(name) || ""}
+                disabled={state.saving || state.shouldSave}
+                onCommitChange={(v) => onCommitChange(something(v))}
+                data={[]}
+                dataLoader={localDataLoader}
+            />;
+        case 'tag_cloud':
+            return <TagsCloudInput
+                {...baseProps}
+                value={state.formState.get(name) || ""}
+                disabled={state.saving || state.shouldSave}
+                onCommitChange={(v) => onCommitChange(something(v))}
+                data={[]}
+                dataLoader={localDataLoader}
+            />;
         case 'tags':
             return <TagsCloudInput
                 {...baseProps}
