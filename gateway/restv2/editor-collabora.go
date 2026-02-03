@@ -20,6 +20,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
+	"github.com/pydio/cells/v5/common/utils/i18n/languages"
 )
 
 // EditorProvider interface for editor URL providers
@@ -63,6 +64,8 @@ type CollaboraProvider struct {
 	LibreOfficeCodeVersion string
 	ReqOriginalScheme      string
 	ReqOriginalHost        string
+	ReqOriginalLanguage    string
+	ReqOriginalLocale      string
 	Issuer                 string
 	AutoRefreshWindow      int32
 }
@@ -83,6 +86,9 @@ func GetCollaboraProvider(ctx context.Context, req *restful.Request) (EditorProv
 	} else {
 		refresh = int32(d.Seconds())
 	}
+
+	reqOriginalLanguage, reqOriginalUILocale := languages.DetectLocale(req.Request)
+
 	return &CollaboraProvider{
 		SupportedExt:           collaboraSupportedExt,
 		ReqOriginalScheme:      "https",
@@ -91,6 +97,8 @@ func GetCollaboraProvider(ctx context.Context, req *restful.Request) (EditorProv
 		Issuer:                 req.Request.URL.String(),
 		LibreOfficeCodeVersion: libreOfficeCodeVersion,
 		LibreOfficeBaseURL:     libreOfficeBaseURL,
+		ReqOriginalLanguage:    reqOriginalLanguage,
+		ReqOriginalLocale:      reqOriginalUILocale,
 	}, true
 }
 
@@ -151,7 +159,7 @@ func (p *CollaboraProvider) Get(ctx context.Context, node *tree.Node) (*rest.Pre
 		websocketScheme = "ws"
 	}
 
-	langParam := ""
+	lang := p.ReqOriginalLanguage
 	//	let lang = pydio.user.getPreference('lang')
 	//	if(lang !== 'zh-cn' &&  lang.split) {
 	//		lang = lang.split('-')[0]
@@ -159,9 +167,14 @@ func (p *CollaboraProvider) Get(ctx context.Context, node *tree.Node) (*rest.Pre
 	//	langParam = `&lang=${lang}`
 	//}
 
+	uiLocale := p.ReqOriginalLocale
+
+	langParam := fmt.Sprintf("&lang=%s", lang)
+	uiLocaleParam := fmt.Sprintf("&ui_locale=%s", uiLocale)
+
 	websocketURL := websocketScheme + "://" + p.ReqOriginalHost
 
-	iFrameUrl := fmt.Sprintf("%s?host=%s&WOPISrc=%s&access_token=%s&permission=%s%s", iframeUrl, websocketURL, fileSrcUrl, patGenerateResp.AccessToken, permission, langParam)
+	iFrameUrl := fmt.Sprintf("%s?host=%s&WOPISrc=%s&access_token=%s&permission=%s%s%s", iframeUrl, websocketURL, fileSrcUrl, patGenerateResp.AccessToken, permission, langParam, uiLocaleParam)
 
 	return &rest.PreSignedURL{Url: iFrameUrl, ExpiresAt: int64(p.AutoRefreshWindow)}, nil
 }
