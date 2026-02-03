@@ -278,6 +278,18 @@ class MetaNamespace extends React.Component {
         }
     }
 
+     getEntityItems () {
+        const { namespace } = this.state;
+        try {
+            const parsed = JSON.parse(namespace.JsonDefinition || '{}');
+            const entityItems = parsed && parsed.data && parsed.data.entityItems;
+            
+            return entityItems;
+        } catch (e) {
+            return '';
+        }
+    }
+
     // Append data key
     setAdditionalDataKey(key, value) {
         const { namespace } = this.state;
@@ -447,7 +459,7 @@ class MetaNamespace extends React.Component {
                         ns={namespace}
                         ref={this.fieldOptionsRef}
                         fieldType={JSON.parse(namespace.JsonDefinition).type}
-                        tagValues={type === 'tag_cloud' ? this.getCommaSeparatedEntities() : this.getAdditionalData({ items: [] }).items}
+                        tagValues={type === 'tag_cloud' || type === 'auto_complete' ? this.getEntityItems() : this.getAdditionalData({ items: [] }).items}
                     />
                 ))}
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
