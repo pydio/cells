@@ -105,6 +105,7 @@ class MetaClient{
                 order: ns.Order,
                 visible: true,
                 readonly: !ns.PoliciesContextEditable,
+                description: ns.Description,
                 jsonSchema: JsonSchema,
                 required: JsonSchema.required && JsonSchema.required.length > 0
             };

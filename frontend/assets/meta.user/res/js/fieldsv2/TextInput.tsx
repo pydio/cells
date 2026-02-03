@@ -35,7 +35,6 @@ export const TextInput: React.FC<InputProps> = ({label, description, placeholder
 }
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
     const onChangeString = (value: string) => onChange(value)
-
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
             onChange(value, true);

@@ -316,10 +316,10 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
-	case "tag_cloud":
+	case "tag_cloud", "auto_complete":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
-			t = fmt.Sprintf("usermeta-%s", name)
+			t = fmt.Sprintf(name)
 		}
 		f.root["title"] = t
 		props[t] = withArraySchema()
