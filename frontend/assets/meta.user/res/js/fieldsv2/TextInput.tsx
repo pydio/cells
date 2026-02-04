@@ -22,17 +22,30 @@ import React from 'react'
 import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
 
-export const TextInput: React.FC<InputProps> = ({label, description, placeholder, subType, disabled, value, onChange, errorText, requestToggleClose}) => {
+export const TextInput: React.FC<InputProps> = ({
+    label,
+    description,
+    placeholder,
+    subType,
+    disabled,
+    required,
+    value,
+    onChange,
+    errorText,
+    requestToggleClose
+}) => {
     const props = {
         label,
         description,
         placeholder,
         value:value||'',
         disabled,
+        required,
         error: errorText,
         autoFocus:!!requestToggleClose,
-        onBlur:requestToggleClose
-}
+        onBlur: requestToggleClose
+    }
+
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
     const onChangeString = (value: string) => onChange(value)
     const simpleEnter = (event: React.KeyboardEvent) => {

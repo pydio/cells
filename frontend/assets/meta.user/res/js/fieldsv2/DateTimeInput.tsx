@@ -38,7 +38,7 @@ export const DateTimeInput: React.FC<InputProps> = ({
         label,
         disabled,
         error: errorText,
-        required: required,
+        required,
     }
 
     const popoverProps : PopoverProps = {withinPortal: false}

@@ -50,6 +50,7 @@ const formatValueArrayToString = (value: string[]) => {
 export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     name,
     label,
+    required,
     description,
     placeholder,
     dataLoader,
@@ -69,6 +70,7 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         description,
         placeholder,
         error: errorText,
+        required,
     }
 
     useEffect(() => {
