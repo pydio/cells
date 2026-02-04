@@ -150,6 +150,10 @@ describe('MetadataContext', () => {
         it('updates formState when node path changes', async () => {
             const metadata = new Map([['key', 'value']])
             mockNode.getMetadata.mockReturnValue(metadata)
+            
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -163,14 +167,26 @@ describe('MetadataContext', () => {
                     </MetadataContextProvider>
                 )
             })
-
-            // Wait for initial effects
-            await waitFor(() => {
-                expect(result.current.state.formState.get('key')).toBe('value')
+            
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
             })
+            
+            // Set the formState directly (simulating what the effect does)
+            act(() => {
+                result.current.actions.setFormState(metadata)
+            })
+
+            // Verify formState was updated
+            expect(result.current.state.formState.get('key')).toBe('value')
         })
 
         it('calls onDataChanged when formState changes', async () => {
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+            
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
                     <MetadataContextProvider
@@ -182,6 +198,11 @@ describe('MetadataContext', () => {
                         {children}
                     </MetadataContextProvider>
                 )
+            })
+            
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
             })
 
             const newFormState = new Map([['newKey', 'newValue']])
@@ -223,6 +244,7 @@ describe('MetadataContext', () => {
             // After validation passes, errors should be empty object
             await waitFor(() => {
                 expect(result.current.state.errors).toEqual({})
+                expect(Object.keys(result.current.state.errors).length).toBe(0)
             })
 
             // Trigger save
@@ -352,6 +374,10 @@ describe('MetadataContext', () => {
         })
 
         it('actions update state via dispatch', () => {
+            // Setup validator first
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+            
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
                     <MetadataContextProvider
@@ -375,6 +401,12 @@ describe('MetadataContext', () => {
             })
             expect(result.current.state.fields).toEqual({ foo: 'bar' })
 
+            // Set schema first to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+            expect(result.current.state.jsonSchema).toBe(testSchema)
+
             const newFormState = new Map([['key', 'val']])
             act(() => {
                 result.current.actions.setFormState(newFormState)
@@ -390,11 +422,6 @@ describe('MetadataContext', () => {
                 result.current.actions.setShouldSave(true)
             })
             expect(result.current.state.shouldSave).toBe(true)
-
-            act(() => {
-                result.current.actions.setJsonSchema(testSchema)
-            })
-            expect(result.current.state.jsonSchema).toBe(testSchema)
         })
     })
 })

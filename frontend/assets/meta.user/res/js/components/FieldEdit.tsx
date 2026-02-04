@@ -96,6 +96,11 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
 
     const onCommitChange = (v) => {
         actions.setFormState(state.formState.set(name, v))
+
+        // NOTE: nicer UX when everything is validated
+        if (Object.keys(state.errors).length === 0) {
+            actions.setShouldSave(true)
+        }
     }
 
     switch (type) {

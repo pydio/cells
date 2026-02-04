@@ -4,7 +4,7 @@ import MetaClient from "../MetaClient";
 // FIXME: Properly type this
 type PydioNode = unknown;
 
-import Ajv, { JSONSchemaType, ValidateFunction } from "ajv";
+import Ajv, { AnySchema, JSONSchemaType, ValidateFunction } from "ajv";
 import addFormats from 'ajv-formats'
 
 interface MetadataState {
@@ -99,12 +99,13 @@ const defaultContext: MetadataContextType = {
 
 export const MetadataContext = React.createContext(defaultContext)
 
-const mapErrors = (errors: any[]) => {
-    if (!errors) return new Map()
+export const mapErrors = (errors: any[]) => {
+    if (!errors) return {}
 
     return errors.reduce((acc: {[key: string]: string}, e: any) => {
-        if (!e.schemaPath.includes('#required') && e.params.missingProperty) {
-            const key = e.params.missingProperty.replace('/', '')
+        const params = e.params || {}
+        if (!e.schemaPath.includes('#required') && params.missingProperty) {
+            const key = params.missingProperty.replace(/\//g, '')
             return { ...acc, [key]: e.message }
         }
 
@@ -113,20 +114,23 @@ const mapErrors = (errors: any[]) => {
     }, {})
 }
 
-const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema: JSONSchemaType<any> | null, type: string) => {
+export const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema: AnySchema) => {
     if (!jsonSchema) return formState
 
     const { properties } = jsonSchema
+    const safeProperties = properties || {}
     const entries = {}
     formState.forEach((v, k) => {
-        if (properties[k]?.format === 'time') {
-            const date = new Date(parseFloat(v) * 1000).toISOString();
-            const [hours, minutes, seconds] = date.split('T')[1].split(':');
+        if (safeProperties[k]?.format === 'time') {
+            const iso = new Date(parseFloat(v) * 1000).toISOString();
+            const timePart = iso.split('T')[1];
+            const [hours, minutes, secondsWithMs] = timePart.split(':');
+            const seconds = secondsWithMs.split('.')[0];
             entries[k] = `${hours}:${minutes}:${seconds}`;
             return
         }
 
-        if (properties[k]?.format === 'date-time' || properties[k]?.format === 'date') {
+        if (safeProperties[k]?.format === 'date-time' || safeProperties[k]?.format === 'date') {
             entries[k] = new Date(parseFloat(v) * 1000).toISOString()
             return
         }
@@ -135,6 +139,22 @@ const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema
     })
 
     return entries
+}
+
+type Validator = (formState: Map<string, any>) => { isValid: boolean, errors: any }
+export const buildValidator = (
+    validator: ValidateFunction<any> | null
+): Validator => (formState: Map<string, any>) => {
+    if (!validator) return { isValid: true, errors: {} };
+
+    let isValid = validator(
+        formatSpecialCasesForValidation(
+            formState,
+            validator.schema
+        )
+    )
+    const errors = mapErrors(validator.errors)
+    return { isValid, errors }
 }
 
 type MetadataContextProviderProps = {
@@ -154,7 +174,7 @@ export const MetadataContextProvider = ({
     savePartially = false,
     children,
 }: MetadataContextProviderProps) => {
-    const validatorRef = React.useRef<ValidateFunction<any> | null>(null);
+    const validatorRef = React.useRef<Validator>();
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
         node,
@@ -168,18 +188,10 @@ export const MetadataContextProvider = ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
 
         setFormState: (formState) => {
-            let isValid = false;
-            if (validatorRef.current) {
-                isValid = validatorRef.current(
-                    formatSpecialCasesForValidation(
-                        formState,
-                        validatorRef.current.schema
+            if (!validatorRef.current) return;
 
-                    )
-                )
-                const errors = mapErrors(validatorRef.current.errors)
-                dispatch({ type: 'set_errors', errors })
-            }
+            let { isValid, errors } = validatorRef.current(formState);
+            dispatch({ type: 'set_errors', errors })
 
             dispatch({ type: 'set_form_state', formState })
 
@@ -197,7 +209,7 @@ export const MetadataContextProvider = ({
     React.useEffect(() => {
         if (!state.jsonSchema) return
 
-        validatorRef.current = ajv.compile(state.jsonSchema)
+        validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
         actions.setFormState(state.formState)
     }, [state.jsonSchema]);
 
@@ -211,8 +223,6 @@ export const MetadataContextProvider = ({
                 if (!ns) return
                 actions.setJsonSchema(ns.JsonSchema)
             })
-
-        actions.setFormState(new Map(node.getMetadata()))
     }, [node]);
 
 
@@ -228,20 +238,12 @@ export const MetadataContextProvider = ({
     React.useEffect(() => {
         if (!state.shouldSave) return;
 
-        if (validatorRef.current) {
-            let isValid = validatorRef.current(
-                formatSpecialCasesForValidation(
-                    state.formState,
-                    validatorRef.current.schema
-                )
-            )
-            const errors = mapErrors(validatorRef.current.errors)
-            dispatch({ type: 'set_errors', errors })
+        let { isValid, errors } = validatorRef.current(state.formState);
+        dispatch({ type: 'set_errors', errors })
 
-            // NOTE: savePartialy is only for the mutiple node selection for now
-            // see: frontend/assets/meta.user/res/js/UserMetaDialog.js
-            if (!savePartially && !isValid) return;
-        }
+        // NOTE: savePartialy is only for the mutiple node selection for now
+        // see: frontend/assets/meta.user/res/js/UserMetaDialog.js
+        if (!savePartially && !isValid) return;
 
         if (state.shouldSave && saveMeta) {
             actions.setSaving(true)
