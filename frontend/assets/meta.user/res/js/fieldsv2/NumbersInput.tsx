@@ -27,6 +27,7 @@ export const NumbersInput: React.FC<InputProps> = ({
     description,
     placeholder,
     disabled,
+    required,
     value,
     requestToggleClose,
     onChange,
@@ -39,6 +40,7 @@ export const NumbersInput: React.FC<InputProps> = ({
         label,
         value: value || '',
         disabled,
+        required,
         error: errorText,
     }
 

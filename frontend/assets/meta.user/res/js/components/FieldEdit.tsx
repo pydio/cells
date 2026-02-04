@@ -50,7 +50,7 @@ export interface FieldEditProps {
 /**
  * Renders a single metadata field in edit mode
  */
-export const FieldEdit: React.FC<FieldEditProps> = ({
+const FieldEditInternal: React.FC<FieldEditProps> = ({
     context,
     name,
     meta,
@@ -167,4 +167,16 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             return <TextInput {...baseProps} subType={type} />;
     }
 };
+
+export const FieldEdit = (props) => {
+    // NOTE: fixes the issue with Field label/input split in
+    // the Prompt To Upload dialog
+    return (<div style={{
+        width: '100%',
+        overflowY: 'scroll',
+        overflowX: 'hidden',
+    }}>
+        <FieldEditInternal {...props} />
+    </div>)
+}
 
