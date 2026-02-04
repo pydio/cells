@@ -3,9 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
 
-import testSchema from '../__fixtures__/test-schema.json'
-import multiValSchema from '../__fixtures__/metadata-with-multival.json'
-import { buildValidator, mapErrors, formatSpecialCasesForValidation } from './metadata'
+import testSchema from '../../__fixtures__/test-schema.json'
+import multiValSchema from '../../__fixtures__/metadata-with-multival.json'
+import { buildValidator, mapErrors, formatSpecialCasesForValidation } from './validators'
 
 // Helper to create AJV error objects for testing mapErrors
 const createError = (keyword: string, instancePath: string, schemaPath: string, message: string, params?: any) => ({
@@ -473,21 +473,21 @@ describe('buildValidator', () => {
     expect(result.isValid).toBe(true)
   })
 
-   it('handles validator schema null', () => {
-     const mockValidator = vi.fn(() => true)
-     mockValidator.schema = null
-     mockValidator.errors = null
-     const validate = buildValidator(mockValidator as any)
-     const formState = new Map([['field', 'value']])
-     const result = validate(formState)
-     // formatSpecialCasesForValidation returns formState (Map) when jsonSchema null
-     // validator receives Map, may treat as object? Mock expects Map
-     // We'll just ensure no crash
-     expect(mockValidator).toHaveBeenCalled()
-     // The mock will be called with Map because formatSpecialCasesForValidation returns Map
-     // We'll accept any argument
-     expect(result.isValid).toBe(true)
-   })
+  it('handles validator schema null', () => {
+    const mockValidator = vi.fn(() => true)
+    mockValidator.schema = null
+    mockValidator.errors = null
+    const validate = buildValidator(mockValidator as any)
+    const formState = new Map([['field', 'value']])
+    const result = validate(formState)
+    // formatSpecialCasesForValidation returns formState (Map) when jsonSchema null
+    // validator receives Map, may treat as object? Mock expects Map
+    // We'll just ensure no crash
+    expect(mockValidator).toHaveBeenCalled()
+    // The mock will be called with Map because formatSpecialCasesForValidation returns Map
+    // We'll accept any argument
+    expect(result.isValid).toBe(true)
+  })
 })
 
 describe('Multi-value metadata validation', () => {
