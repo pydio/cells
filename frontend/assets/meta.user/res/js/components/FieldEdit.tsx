@@ -30,6 +30,7 @@ import { DateInput } from "../fieldsv2/DateInput";
 import { TimeInput } from "../fieldsv2/TimeInput";
 import { URLInput } from "../fieldsv2/URLInput";
 import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
+import { AutoCompleteInput } from "../fieldsv2/AutoCompleteInput";
 import { InputProps, Items } from "../fieldsv2/CommonInputProps";
 import MetaClient from "../MetaClient";
 import { NamespaceMeta } from "./MetaSpec";
@@ -49,7 +50,7 @@ export interface FieldEditProps {
 /**
  * Renders a single metadata field in edit mode
  */
-export const FieldEdit: React.FC<FieldEditProps> = ({
+const FieldEditInternal: React.FC<FieldEditProps> = ({
     context,
     name,
     meta,
@@ -76,13 +77,15 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
         name,
         label,
         required,
+        description: meta.description,
         disabled: readonly || saving,
         value,
         onChange: (v) => {
             actions.setFormState(state.formState.set(name, v))
         },
         errorText,
-        requestToggleClose: () => {} // FIXME: Toggleable fields are disabled
+        requestToggleClose: () => {},
+        // FIXME: Toggleable fields are disabled
         // requestToggleClose: () => {
         //     // NOTE: means this isnot a toggleable field
         //     if (!requestToggleClose) return
@@ -92,9 +95,12 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
     };
 
     const onCommitChange = (v) => {
-        if (state.errors[name]) return
-
         actions.setFormState(state.formState.set(name, v))
+
+        // NOTE: nicer UX when everything is validated
+        if (Object.keys(state.errors).length === 0) {
+            actions.setShouldSave(true)
+        }
     }
 
     switch (type) {
@@ -107,6 +113,28 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             const cssLabels = getCssLabels();
             const cssItems: Items[] = Object.keys(cssLabels).map((id) => { return { ...cssLabels[id], key: id, value: cssLabels[id].label } })
             return <Selector {...baseProps} items={cssItems} />;
+        case 'auto_complete':
+            return <AutoCompleteInput
+                {...baseProps}
+                value={state.formState.get(name) || ""}
+                disabled={state.saving || state.shouldSave}
+                onCommitChange={(v) => {
+                    // FIXME: Why this is an array?
+                    // AutoComplete is only one value selected
+                    onCommitChange([v])
+                }}
+                data={[]}
+                dataLoader={localDataLoader}
+            />;
+        case 'tag_cloud':
+            return <TagsCloudInput
+                {...baseProps}
+                value={state.formState.get(name) || ""}
+                disabled={state.saving || state.shouldSave}
+                onCommitChange={(v) => onCommitChange(v)}
+                data={[]}
+                dataLoader={localDataLoader}
+            />;
         case 'tags':
             return <TagsCloudInput
                 {...baseProps}
@@ -144,4 +172,16 @@ export const FieldEdit: React.FC<FieldEditProps> = ({
             return <TextInput {...baseProps} subType={type} />;
     }
 };
+
+export const FieldEdit = (props) => {
+    // NOTE: fixes the issue with Field label/input split in
+    // the Prompt To Upload dialog
+    return (<div style={{
+        width: '100%',
+        overflowY: 'scroll',
+        overflowX: 'hidden',
+    }}>
+        <FieldEditInternal {...props} />
+    </div>)
+}
 

@@ -95,7 +95,6 @@ export const Selector: React.FC<SelectInputProps> = ({value, label, description,
             comboboxProps={{ withinPortal: false }}
             styles={leftSection?{input:{paddingLeft: 30}}:undefined}
             renderOption={handleColors?renderOptions:undefined}
-            defaultDropdownOpened={!!requestToggleClose}
             onDropdownClose={requestToggleClose}
             onBlur={requestToggleClose}
         />

@@ -102,6 +102,7 @@ func defaultMetas(ctx context.Context, dao meta.DAO) error {
 		Label:          "Tags",
 		Indexable:      true,
 		JsonDefinition: "{\"type\":\"tags\"}",
+		Description:    "Default Tags",
 		Policies: []*service2.ResourcePolicy{
 			{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
 			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},

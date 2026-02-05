@@ -38,6 +38,7 @@ const NumberDisplay = ({ value, format }) => {
  */
 export const FieldDisplay = ({fieldKey, meta, value, node, className, onValueClick}) => {
     const {label, type, data, description} = meta;
+
     const column = {name: fieldKey};
     let displayValue = value;
 

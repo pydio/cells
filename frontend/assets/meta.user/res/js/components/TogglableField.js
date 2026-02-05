@@ -20,7 +20,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {FieldEdit} from './FieldEdit';
-import {FieldDisplay} from './FieldDisplay';
+// import {FieldDisplay} from './FieldDisplay';
 
 /**
  * Main component that handles a metadata field in edit or display mode
@@ -29,12 +29,12 @@ export const TogglableField = ({
       context,
       fieldKey,
       meta,
-      node,
+      // node,
       updateValue,
       configsForGroup,
       supportTemplates,
       additionalProps,
-      isEditing,
+      // isEditing,
       setFieldBeingEditted,
   }) => {
 
@@ -75,7 +75,6 @@ export const TogglableField = ({
     //         value={value}
     //         node={node}
     //         onValueClick={() => {
-    //             console.log('(TogglableField:78) - @@@@@@ fieldKey: ', fieldKey);
     //             setFieldBeingEditted(fieldKey)
     //         }}
     //     />

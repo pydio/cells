@@ -22,15 +22,27 @@ import React from 'react'
 import {TextInput} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
 
-export const URLInput: React.FC<InputProps> = ({label, description, placeholder, disabled, value, onChange, requestToggleClose, errorText}) => {
+export const URLInput: React.FC<InputProps> = ({
+    label,
+    description,
+    placeholder,
+    disabled,
+    required,
+    value,
+    onChange,
+    requestToggleClose,
+    errorText
+}) => {
     const props = {
         label,
         description,
+        required,
         placeholder,
         value,
         disabled,
         error: errorText,
     }
+
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){

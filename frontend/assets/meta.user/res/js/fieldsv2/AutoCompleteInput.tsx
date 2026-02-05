@@ -19,38 +19,15 @@
  */
 
 import React, { useEffect, useState } from 'react'
-import { TagsInput } from '@mantine/core'
+import { Autocomplete } from '@mantine/core'
 import { StringItemsInputProps } from "./CommonInputProps";
-
-/**
- * @typedef {Object} TagsCloudInputProps
- * @property {string} name
- * @property {string} label
- * @property {string} description
- * @property {string} placeholder
- * @property {boolean} disabled
- * @property {function} dataLoader
- * @property {boolean} requestToggleClose
- * @property {string} errorText
- * @property {string} value
- * @property {function} onCommitChange
- */
-
-const formatValueStringToArray = (value: string) => {
-    return (value || '').split(',').filter((tag) => tag.trim());
-}
-
-const formatValueArrayToString = (value: string[]) => {
-    return (value || []).filter(v => v).join(',')
-}
 
 /**
  * @param {TagsCloudInputProps} props
  */
-export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
+export const AutoCompleteInput: React.FC<StringItemsInputProps> = ({
     name,
     label,
-    required,
     description,
     placeholder,
     dataLoader,
@@ -58,11 +35,11 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     value,
     onCommitChange,
 }) => {
-    const [localValue, setLocalValue] = useState([]);
+    const [localValue, setLocalValue] = useState('');
     const [items, setItems] = useState<string[]>([]);
 
     React.useEffect(() => {
-        setLocalValue(formatValueStringToArray(value));
+        setLocalValue(value);
     }, [value]);
 
     const props = {
@@ -70,7 +47,6 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         description,
         placeholder,
         error: errorText,
-        required,
     }
 
     useEffect(() => {
@@ -79,30 +55,21 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         }
     }, [name])
 
-    const onChangeJoin = (values: string[]) => {
-        setLocalValue(values.filter(v => v))
-        onCommitChange(formatValueArrayToString(values));
-    }
-
-    return <TagsInput
+    return <Autocomplete
         {...props}
         value={localValue}
         data={items}
-        onChange={onChangeJoin}
+        onChange={setLocalValue}
         comboboxProps={{ withinPortal: false }}
         onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
             const { key, target } = e;
             const { value } = target;
             if(key === 'Enter'){
-                onCommitChange(formatValueArrayToString([...localValue, value]));
-            }
-            if (key === ',') {
-                onCommitChange(formatValueArrayToString([...localValue, value]));
+                onCommitChange(value);
             }
         }}
         onBlur={(e) => {
-            const { value } = e.target;
-            onCommitChange(formatValueArrayToString([...localValue, value]));
+            onCommitChange(e.target.value);
         }}
     />
 }

@@ -7,7 +7,7 @@ export interface SelectItem {
 
 export interface NamespaceMeta {
     label:string;
-    type: 'text' | 'textarea' | 'json' | 'stars_rate' | 'choice' | 'css_label' | 'tags' | 'date' | 'integer' | 'boolean' | 'url';
+    type: 'text' | 'textarea' | 'json' | 'stars_rate' | 'choice' | 'css_label' | 'tags' | 'date' | 'integer' | 'boolean' | 'url' | 'tag_cloud' | 'auto_complete';
     readonly?:boolean;
     required?:boolean;
     errorText?:string;
@@ -16,4 +16,5 @@ export interface NamespaceMeta {
         steps?: boolean;
         format?: string;
     };
+    description?:string;
 }
