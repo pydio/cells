@@ -1,15 +1,19 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 
 import { TextSearchModifierInput, RangeSearchModifierInput } from './SearchModifierInput'
 import { TextSearchModifiers, NumberRangeModifiers } from './SearchModifiers'
 
-vi.mock('./SearchModifiers', () => ({
-    LeftSectionMenu: ({ items, onChange }) => (
-        <button onClick={() => onChange(items[0]?.value || '')}>menu</button>
-    )
-}))
+vi.mock('./SearchModifiers', async (importOriginal) => {
+    const actual = await importOriginal()
+    return {
+        ...actual,
+        LeftSectionMenu: ({ items, onChange }) => (
+            <button onClick={() => onChange(items[0]?.value || '')}>menu</button>
+        )
+    }
+})
 
 const renderProbe = ({ text, leftSection, onTextChange, onSubmit, onBlur, autoFocus }) => (
     <div>
@@ -24,6 +28,7 @@ const renderProbe = ({ text, leftSection, onTextChange, onSubmit, onBlur, autoFo
 
 describe('SearchModifierInput', () => {
     beforeEach(() => {
+        cleanup()
         vi.clearAllMocks()
     })
 

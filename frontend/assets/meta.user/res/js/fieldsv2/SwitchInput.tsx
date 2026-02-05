@@ -19,28 +19,36 @@
  */
 
 import React from 'react'
-import {Input, Switch} from '@mantine/core'
-import {InputProps} from "./CommonInputProps";
+import { Input, Switch } from '@mantine/core'
+import { InputProps } from "./CommonInputProps";
 
-export const SwitchInput:React.FC<InputProps> = (props: InputProps) => {
-
-    const {label, description, value, errorText, disabled, onChange, requestToggleClose} = props;
+export const SwitchInput: React.FC<InputProps> = ({
+    label,
+    description,
+    value,
+    errorText,
+    disabled,
+    required,
+    onChange,
+    requestToggleClose
+}: InputProps) => {
 
     return (
         <Input.Wrapper
             label={label}
             description={description}
+            required={required}
             error={errorText}
         >
             <Input component={"div"} onBlur={requestToggleClose}>
-            <div style={{display: 'flex', alignItems: 'center', height:'100%'}} onBlur={requestToggleClose}>
-                <Switch
-                    label={label}
-                    checked={value}
-                    onChange={(e) => onChange(e.currentTarget.checked, true)}
-                    disabled={disabled}
-                />
-            </div>
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%' }} onBlur={requestToggleClose}>
+                    <Switch
+                        label={label}
+                        checked={value}
+                        onChange={(e) => onChange(e.currentTarget.checked, true)}
+                        disabled={disabled}
+                    />
+                </div>
             </Input>
         </Input.Wrapper>
     )

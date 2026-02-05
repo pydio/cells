@@ -30,7 +30,7 @@ export default defineConfig({
 		// Provide a browser-like DOM for React component testing.
 		environment: 'jsdom',
 		// Discover both .js and .jsx test files under the repo.
-		include: ['**/*.{test,spec}.{js,jsx}'],
+		include: ['**/*.{test,spec}.{js,jsx,ts,tsx}'],
 		deps: {
 			inline: ['pydio/http/api', 'cells-sdk'],
 		},
