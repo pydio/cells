@@ -31,8 +31,6 @@ export const NumbersInputSearch: React.FC<InputProps> = ({label, description, pl
         error: errorText,
     }
 
-//    const format = meta.data?.format || 'general'
-
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
             onChange(value, true);
@@ -70,7 +68,7 @@ export const NumbersInputSearch: React.FC<InputProps> = ({label, description, pl
                 onChange={(v) => onChange(searchComp+''+v)}
                 onKeyPress={simpleEnter}
                 autoFocus={!!requestToggleClose}
-                onBlur={requestToggleClose}
+                onBlur={() => requestToggleClose && requestToggleClose()}
                 thousandSeparator=" "
                 prefix="€"
                 description={description}

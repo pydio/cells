@@ -287,9 +287,19 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel, accessKe
                         {!onSelectSearch &&
                             <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
                         }
-                        <div style={{fontSize: 16}}>
-                            <IconButton onClick={()=>submitSearch()} className={'mdi mdi-refresh'} size={'small'} aria-label={"Reload search"}/>
-                            <IconButton onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}} className={'mdi mdi-content-save'} size={'small'}/>
+                        <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
+                        <div data-testid="search-status-bar-actions" style={{fontSize: 16}}>
+                            <IconButton onClick={()=>submitSearch()}
+                                className={'mdi mdi-refresh'}
+                                size={'small'}
+                                aria-label={"Reload search"}
+                            />
+                            <IconButton
+                                onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}}
+                                className={'mdi mdi-content-save'}
+                                size={'small'}
+                                aria-label={m('searchengine.complete.group.saved')}
+                            />
                             <Menu
                                 open={savedMenuOpen}
                                 slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
@@ -302,6 +312,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel, accessKe
                                 {savedSearches.map(i => {
                                     const {searchID, searchLABEL, searchSORTING, ...savedValues} = i
                                     return <MenuItem
+                                        aria-label={searchLABEL}
                                         key={searchID}
                                         style={{padding:'4px 6px 4px 6px', fontSize:13, fontWeight:400, display:'flex'}}
                                         onClick={()=>{
@@ -325,7 +336,12 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel, accessKe
                                     <div><span className={"mdi mdi-content-save"} style={{opacity:0.43, marginRight:8}}/> {m('searchengine.query.action.save-new')}</div>
                                 </MenuItem>
                             </Menu>
-                            <IconButton onClick={(e)=>{setDisplayMenuOpen(true); setDisplayMenuAnchor(e.currentTarget)}} className={'mdi mdi-cog-outline'} size={'small'}/>
+                            <IconButton
+                                onClick={(e)=>{setDisplayMenuOpen(true); setDisplayMenuAnchor(e.currentTarget)}}
+                                className={'mdi mdi-cog-outline'}
+                                size={'small'}
+                                aria-label={m('151')}
+                            />
                             <Menu open={displayMenuOpen}
                                   slotProps={{paper:{style:{borderRadius:6, background:'var(--md-sys-color-surface-1)', paddingBottom:4}}}}
                                   anchorEl={displayMenuAnchor}
