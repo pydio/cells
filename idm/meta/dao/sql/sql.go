@@ -205,6 +205,26 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 	return previousValue, nil
 }
 
+// This method was added to fix an issue with Set returning incorrect uuid of meta row
+func (s *sqlimpl) GetMeta(ctx context.Context, nodeUuid string, namespace string) (*idm.UserMeta, error) {
+	var meta *Meta
+	tx := s.Session(ctx).Where(&Meta{NodeUUID: nodeUuid}, &Meta{Namespace: namespace}).First(&meta)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
+		return nil, errors.WithMessagef(errors.NodeNotFound, "Cannot find metadata for node %s", nodeUuid)
+	}
+
+	return &idm.UserMeta{
+		Uuid:      meta.UUID,
+		Namespace: meta.Namespace,
+		JsonValue: string(meta.Data),
+		NodeUuid:  meta.NodeUUID,
+	}, nil
+}
+
 // Search meta on their conditions
 // func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
 func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.UserMeta, error) {

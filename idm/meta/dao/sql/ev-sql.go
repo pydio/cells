@@ -229,9 +229,9 @@ func (s *evSqlImpl) validateUUIDs(uuids ...string) error {
 	return nil
 }
 
-func (s *evSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) error {
+func (s *evSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error) {
 	if err := s.validateUUIDs(metaUuid, valueUuid); err != nil {
-		return err
+		return false, err
 	}
 
 	link := MetaValuesRel{
@@ -241,10 +241,26 @@ func (s *evSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUui
 
 	tx := s.Session(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(&link)
 	if tx.Error != nil {
-		return evTagError(tx.Error)
+		return false, evTagError(tx.Error)
 	}
 
-	return nil
+	return tx.RowsAffected == 1, nil
+}
+
+func (s *evSqlImpl) UnlinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error) {
+	if err := s.validateUUIDs(metaUuid, valueUuid); err != nil {
+		return false, err
+	}
+
+	tx := s.Session(ctx).Where(&MetaValuesRel{
+		MetaUUID:   metaUuid,
+		EValueUUID: valueUuid,
+	}).Delete(&MetaValuesRel{})
+	if tx.Error != nil {
+		return false, evTagError(tx.Error)
+	}
+
+	return tx.RowsAffected == 1, nil
 }
 
 func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error) {
