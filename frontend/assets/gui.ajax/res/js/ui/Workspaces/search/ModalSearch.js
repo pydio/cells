@@ -38,11 +38,14 @@ const {ModernSimpleList} = Pydio.requireLib('components');
 const {PydioMantineProvider, ModernTextField, withSearch} = Pydio.requireLib('hoc');
 
 
-export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
+export const ModalSearch = withSearch( ({pydio, searchTools, dataModel, accessKey='k', eventName='pydioOpenSearch'}) => {
 
     const [open, setOpen] = useState(false)
     const [displayMenuAnchor, setDisplayMenuAnchor] = React.useState(null);
     const [displayMenuOpen, setDisplayMenuOpen] = React.useState(false);
+    const [onSelectNode, setSelectNode] = React.useState(null);
+    const [onSelectSearch, setSelectSearch] = React.useState(null);
+    const [onSelectCancel, setSelectCancel] = React.useState(null);
 
     const [savedMenuAnchor, setSavedMenuAnchor] = React.useState(null);
     const [savedMenuOpen, setSavedMenuOpen] = React.useState(false);
@@ -52,6 +55,9 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
     const {displayMode, buildDisplayModeItems} = useActionDisplayMode({preferencePrefix:'ModalSearch.FilesList'})
 
     useEffect(()=>{
+        if(!accessKey){
+            return;
+        }
         const listener = e => {
             if(open && e.key === 'Escape') {
                 setOpen(false)
@@ -60,7 +66,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
             if (open || /^(?:input|textarea|select|button)$/i.test(e.target.tagName)) {
                 return;
             }
-            if(e.key !== 'k' || !(e.metaKey || e.ctrlKey)) {
+            if(e.key !== accessKey || !(e.metaKey || e.ctrlKey)) {
                 return
             }
             e.preventDefault();
@@ -71,13 +77,29 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
             document.removeEventListener("keydown", listener)
         }
 
-    },[open]);
+    },[open, accessKey]);
+
+    const {saveSearch, clearSavedSearch, values, setValues, savedSearches = [], sortField, sortDesc, setSortField} = searchTools
 
     useEffect(() => {
-        const listener = () => setOpen(true)
-        document.addEventListener("pydioOpenSearch", listener);
+        const listener = (e) => {
+            if(e.detail) {
+                const {onSelectNode, onSelectSearch, onSelectCancel, openValues, openSort} = e.detail;
+                setSelectNode(() => onSelectNode)
+                setSelectCancel(() => onSelectCancel)
+                setSelectSearch(() => onSelectSearch)
+                if(openValues) {
+                    setValues(openValues)
+                }
+                if(openSort) {
+                    setSortField(openSort.field, openSort.desc)
+                }
+            }
+            setOpen(true)
+        }
+        document.addEventListener(eventName, listener);
         return () => {
-            document.removeEventListener("pydioOpenSearch", listener);
+            document.removeEventListener(eventName, listener);
         }
     }, [open]);
 
@@ -141,8 +163,8 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
 
     const {columns} = useColumnsFromRegistry({pydio})
     const {computeLabel} = useActionExtensionsPin({})
-    const entryRenderActions = useModalSearchActions({pydio, dataModel, displayMode, requestClose:()=>setOpen(false)})
-    const entryHandleClicks = useModalHandleClick({pydio, dataModel, displayMode, requestClose:()=>setOpen(false)})
+    const entryRenderActions = useModalSearchActions({pydio, dataModel, displayMode, requestClose:()=>setOpen(false), onSelectNode})
+    const entryHandleClicks = useModalHandleClick({pydio, dataModel, displayMode, requestClose:()=>setOpen(false), onSelectNode})
     const entryRenderSecondLine = useRichMetaLine({pydio, columns:columns, searchResults:true, searchScope:'all', requestCloseOnGoto: () => setOpen(false)});
     const tableEntryRenderCell = useCallback((node) => {
         return previewTableEntryRenderCell(node, computeLabel);
@@ -161,7 +183,15 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
         }
     }
 
-    const {saveSearch, clearSavedSearch, savedSearches = [], setValues, sortField, sortDesc, setSortField} = searchTools
+    const onRequestClose = useCallback(() => {
+        setOpen(false)
+        if(onSelectCancel) {
+            onSelectCancel();
+            setSelectCancel(null);
+            setSelectNode(null)
+            setSelectSearch(null)
+        }
+    }, [setOpen, onSelectCancel, setSelectCancel, setSelectNode, setSelectSearch]);
 
     let dMode = displayMode;
     let className = 'modern-list vertical-layout layout-fill files-list main-files-list';
@@ -202,7 +232,7 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
                         formStyles={styles.searchForm}
                         searchTools={searchTools}
                         onRequestOpen={()=>{}}
-                        onRequestClose={()=>setOpen(false)}
+                        onRequestClose={onRequestClose}
                         advancedPopover={false}
                     />
                     <AdvancedAsChips
@@ -254,7 +284,9 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
                          */
                     />
                     <div style={styles.statusBar}>
-                        <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
+                        {!onSelectSearch &&
+                            <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
+                        }
                         <div style={{fontSize: 16}}>
                             <IconButton onClick={()=>submitSearch()} className={'mdi mdi-refresh'} size={'small'} aria-label={"Reload search"}/>
                             <IconButton onClick={(e)=>{setSavedMenuOpen(true); setSavedMenuAnchor(e.currentTarget)}} className={'mdi mdi-content-save'} size={'small'}/>
@@ -311,8 +343,21 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel}) => {
                                 )}
                             </Menu>
                         </div>
-                        <div>
-                        </div>
+                        {onSelectSearch &&
+                            <>
+                                <div style={{flex:1}}></div>
+                                <div>
+                                    <Button style={{fontWeight:500}} onClick={() => {
+                                        onSelectCancel()
+                                        setOpen(false);
+                                    }}>Cancel</Button>
+                                    <Button style={{fontWeight:500}} onClick={() => {
+                                        onSelectSearch(values, sortField, sortDesc)
+                                        setOpen(false);
+                                    }}>Use Current Search</Button>
+                                </div>
+                            </>
+                        }
                     </div>
                         <Dialog open={showSaveSearchField} PaperProps={{style:{background:'var(--md-sys-color-surface-5)'}}} onClose={() => setShowSaveSearchField(false)}>
                             <DialogTitle style={{padding: 20, paddingBottom:10, fontSize:22}}>{m('searchengine.query.action.save-new')}</DialogTitle>

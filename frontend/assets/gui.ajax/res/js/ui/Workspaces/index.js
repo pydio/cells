@@ -35,6 +35,7 @@ import {SearchStatusButton} from "./search/components/SearchStatusButton"
 import Facets from './search/components/Facets'
 import SearchSorter from './search/components/SearchSorter'
 import {AdvancedAsChips} from "./search/components/AdvancedAsChips";
+import {ModalSearch} from "./search/ModalSearch"
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
@@ -80,6 +81,7 @@ const classes = {
     MetaRenderer:Renderer,
     Facets,
     SearchSorter,
+    ModalSearch,
 
     InfoPanel,
     InfoPanelCard,

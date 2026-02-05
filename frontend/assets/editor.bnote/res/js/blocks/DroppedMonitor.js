@@ -42,7 +42,6 @@ export const DroppedMonitor = muiThemeable()(({editor, block, blockId, muiTheme}
     const replaceSelf = useCallback((nodeUuid) => {
         const id = blockIdRef.current; // always current
         if(editor.document.find(b => b.id === id)) {
-            console.log('REPLACE BLOCK', id)
             editor.replaceBlocks([id], [{ type: NodeBlockSpecType, props: { nodeUuid } }]);
         }
     }, [editor]);

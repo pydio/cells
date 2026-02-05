@@ -30,8 +30,8 @@ import {
     MdShortText
 } from "react-icons/md";
 import uuid4 from "uuid4";
-import {ChildrenListSpecType, NodeBlockSpecType, NodeRefSpecType} from "../specs/NodeRef";
-export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBlockFolder = false, blockOrInlineProps}) => {
+import {ChildrenListSpecType, NodeBlockSpecType, NodeRefSpecType, ResultsListSpecType} from "../specs/NodeRef";
+export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBlockFolder = false, isResultsList = false, blockOrInlineProps}) => {
 
     const editor = useBlockNoteEditor();
 
@@ -55,7 +55,7 @@ export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBloc
             })
         } else if(isBlockFolder) { // it's a display toggle
             editor.updateBlock(block, {
-                type: ChildrenListSpecType,
+                type: isResultsList ? ResultsListSpecType : ChildrenListSpecType,
                 props: {...block.props, display: value}
             })
         } else if(inlineId) {
