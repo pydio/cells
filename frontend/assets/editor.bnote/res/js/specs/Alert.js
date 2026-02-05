@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {defaultProps, insertOrUpdateBlock} from "@blocknote/core";
+import {defaultProps} from "@blocknote/core";
 import {createReactBlockSpec} from "@blocknote/react";
 import {RiAlertFill} from "react-icons/ri";
 import {AlertBlock} from "../blocks/AlertBlock";
@@ -44,21 +44,23 @@ export const Alert = createReactBlockSpec(
     }
 );
 
-export const alertBlockSpecs = {alert: Alert}
+export const alertBlockSpecs = {alert: Alert()}
 
 // Custom Slash Menu item to insert a block after the current one.
 export const insertAlertItem = (editor) => ({
     title: "Insert Warning Block",
-    onItemClick: () =>
-        // If the block containing the text caret is empty, `insertOrUpdateBlock`
-        // changes its type to the provided block. Otherwise, it inserts the new
-        // block below and moves the text caret to it. We use this function with
-        // a block containing 'Hello World' in bold.
-        insertOrUpdateBlock(editor, {
-            type: AlertSpecType,
-            props: {type:'warning'},
-            content: [{ type: "text", text: "", styles:{}}],
-        }),
+    onItemClick: () => {
+        const currentBlock = editor.getTextCursorPosition().block;
+        editor.insertBlocks(
+            [{
+                type: AlertSpecType,
+                props: {type:'warning'},
+                content: [{ type: "text", text: "", styles:{}}],
+            }],
+            currentBlock,
+            "after"
+        );
+    },
     aliases: ["alert", "al"],
     group: "Others",
     icon: <RiAlertFill size={18} />,

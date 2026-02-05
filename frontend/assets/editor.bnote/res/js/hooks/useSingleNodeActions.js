@@ -22,7 +22,11 @@ import Pydio from 'pydio'
 import {useCallback, useMemo} from 'react'
 import {MdOpenInBrowser, MdOutlineFolderOpen} from "react-icons/md";
 
-export const useSingleNodeActions = ({node, isCurrentFolder}) => {
+export const useSingleNodeActions = ({node, isCurrentFolder, presetNodeActions}) => {
+
+    if(presetNodeActions) {
+        return presetNodeActions
+    }
 
     const items = useMemo(() =>  {
         const it = []
