@@ -46,6 +46,7 @@ type DAO interface {
 	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
 	Del(ctx context.Context, meta *idm.UserMeta) (prevValue string, e error)
 	Search(ctx context.Context, query service2.Enquirer) ([]*idm.UserMeta, error)
+	GetMeta(ctx context.Context, nodeUuid string, namespace string) (*idm.UserMeta, error)
 }
 
 const (
@@ -81,6 +82,7 @@ type EntityValueDAO interface {
 	DeleteEntity(ctx context.Context, entityUuid string) (*idm.DeleteEntityValuesResponse, error)
 
 	// Link operations
-	LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) error
+	LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error)
+	UnlinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error)
 	GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error)
 }

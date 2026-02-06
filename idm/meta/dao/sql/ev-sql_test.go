@@ -156,34 +156,6 @@ func TestEntityValueCrud(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(values, ShouldHaveLength, 2)
 		})
-
-		Convey("Delete Entity values and meta relations", func() {
-			createdEntity, err := createTestEntity(ctx, mockDAO, "Link Entity")
-			So(err, ShouldBeNil)
-
-			value1, err := createTestEntityValue(ctx, mockDAO, "Value 1", createdEntity.Uuid)
-			So(err, ShouldBeNil)
-
-			value2, err := createTestEntityValue(ctx, mockDAO, "Value 2", createdEntity.Uuid)
-			So(err, ShouldBeNil)
-
-			metaWithId, err := createTestMeta(ctx, "test-node", "test-namespace")
-			So(err, ShouldBeNil)
-
-			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value1.Uuid)
-			So(err, ShouldBeNil)
-
-			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value2.Uuid)
-			So(err, ShouldBeNil)
-
-			//delete all the entitites, values
-
-			deletedRows, err := mockDAO.DeleteEntity(ctx, createdEntity.Uuid)
-
-			So(err, ShouldBeNil)
-			So(deletedRows, ShouldNotBeEmpty)
-
-		})
 	})
 }
 
@@ -207,11 +179,13 @@ func TestMetaValueLinking(t *testing.T) {
 			metaWithId, err := createTestMeta(ctx, "test-node", "test-namespace")
 			So(err, ShouldBeNil)
 
-			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value1.Uuid)
+			linked, err := mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value1.Uuid)
 			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
 
-			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value2.Uuid)
+			linked, err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value2.Uuid)
 			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
 
 			linkedValues, err := mockDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
 			So(err, ShouldBeNil)
@@ -228,13 +202,191 @@ func TestMetaValueLinking(t *testing.T) {
 			metaWithId, err := createTestMeta(ctx, "test-node-get", "test-namespace")
 			So(err, ShouldBeNil)
 
-			err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			linked, err := mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
 			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
 
 			values, err := mockDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
 			So(err, ShouldBeNil)
 			So(values, ShouldHaveLength, 1)
 			So(values[0].Label, ShouldEqual, "Test Value")
+		})
+
+		Convey("Unlink Meta Value", t, func() {
+			createdEntity, err := createTestEntity(ctx, mockDAO, "Unlink Entity")
+			So(err, ShouldBeNil)
+
+			value, err := createTestEntityValue(ctx, mockDAO, "Unlink Value", createdEntity.Uuid)
+			So(err, ShouldBeNil)
+
+			metaWithId, err := createTestMeta(ctx, "test-node-unlink", "test-namespace")
+			So(err, ShouldBeNil)
+
+			linked, err := mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			values, err := mockDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(values, ShouldHaveLength, 1)
+
+			unlinked, err := mockDAO.UnlinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(unlinked, ShouldBeTrue)
+
+			values, err = mockDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(values, ShouldHaveLength, 0)
+		})
+
+		Convey("Link Duplicate Meta Value Returns False", t, func() {
+			createdEntity, err := createTestEntity(ctx, mockDAO, "Duplicate Entity")
+			So(err, ShouldBeNil)
+
+			value, err := createTestEntityValue(ctx, mockDAO, "Duplicate Value", createdEntity.Uuid)
+			So(err, ShouldBeNil)
+
+			metaWithId, err := createTestMeta(ctx, "test-node-duplicate", "test-namespace")
+			So(err, ShouldBeNil)
+
+			linked, err := mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			linked, err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeFalse)
+		})
+	})
+}
+
+func TestBatchOperations(t *testing.T) {
+	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Create Entity Values Batch", t, func() {
+			createdEntity, err := createTestEntity(ctx, mockDAO, "Batch Entity")
+			So(err, ShouldBeNil)
+
+			values := []*idm.EntityValue{
+				{Label: "Batch Value 1", EntityUuid: createdEntity.Uuid},
+				{Label: "Batch Value 2", EntityUuid: createdEntity.Uuid},
+				{Label: "Batch Value 3", EntityUuid: createdEntity.Uuid},
+			}
+
+			created, err := mockDAO.CreateEntityValues(ctx, values)
+			So(err, ShouldBeNil)
+			So(created, ShouldHaveLength, 3)
+			for i, val := range created {
+				So(val.Uuid, ShouldNotBeEmpty)
+				So(val.Label, ShouldEqual, values[i].Label)
+				So(val.EntityUuid, ShouldEqual, createdEntity.Uuid)
+			}
+		})
+
+		Convey("Create Entity Values Batch Empty", t, func() {
+			created, err := mockDAO.CreateEntityValues(ctx, []*idm.EntityValue{})
+			So(err, ShouldBeNil)
+			So(created, ShouldHaveLength, 0)
+		})
+	})
+}
+
+func TestDeleteOperations(t *testing.T) {
+	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Delete Entity Cascade", t, func() {
+			createdEntity, err := createTestEntity(ctx, mockDAO, "Delete Entity")
+			So(err, ShouldBeNil)
+
+			value1, err := createTestEntityValue(ctx, mockDAO, "Delete Value 1", createdEntity.Uuid)
+			So(err, ShouldBeNil)
+
+			value2, err := createTestEntityValue(ctx, mockDAO, "Delete Value 2", createdEntity.Uuid)
+			So(err, ShouldBeNil)
+
+			metaWithId, err := createTestMeta(ctx, "test-node-delete", "test-namespace")
+			So(err, ShouldBeNil)
+
+			linked, err := mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value1.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			linked, err = mockDAO.LinkMetaValue(ctx, metaWithId.Uuid, value2.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			valuesBefore, err := mockDAO.GetEntityValues(ctx, createdEntity.Uuid)
+			So(err, ShouldBeNil)
+			So(valuesBefore, ShouldHaveLength, 2)
+
+			linkedValuesBefore, err := mockDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(linkedValuesBefore, ShouldHaveLength, 2)
+
+			deleteResp, err := mockDAO.DeleteEntity(ctx, createdEntity.Uuid)
+			So(err, ShouldBeNil)
+			So(deleteResp, ShouldNotBeNil)
+			So(deleteResp.RowsDeleted, ShouldEqual, 1)
+
+			retrieved, err := mockDAO.GetEntity(ctx, createdEntity.Uuid)
+			So(err, ShouldBeNil)
+			So(retrieved, ShouldBeNil)
+
+			valuesAfter, err := mockDAO.GetEntityValues(ctx, createdEntity.Uuid)
+			So(err, ShouldBeNil)
+			So(valuesAfter, ShouldHaveLength, 0)
+
+			linkedValuesAfter, err := mockDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(linkedValuesAfter, ShouldHaveLength, 0)
+		})
+
+		Convey("Delete Non-existent Entity", t, func() {
+			deleteResp, err := mockDAO.DeleteEntity(ctx, "00000000-0000-0000-0000-000000000000")
+			So(err, ShouldBeNil)
+			So(deleteResp, ShouldNotBeNil)
+			So(deleteResp.RowsDeleted, ShouldEqual, 0)
+		})
+
+		Convey("Delete Entity with Invalid UUID", t, func() {
+			_, err := mockDAO.DeleteEntity(ctx, "invalid-uuid")
+			So(err, ShouldNotBeNil)
+		})
+	})
+}
+
+func TestValidation(t *testing.T) {
+	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Link with Invalid UUIDs", t, func() {
+			_, err := mockDAO.LinkMetaValue(ctx, "invalid-uuid", "valid-uuid")
+			So(err, ShouldNotBeNil)
+
+			_, err = mockDAO.LinkMetaValue(ctx, "00000000-0000-0000-0000-000000000000", "invalid-uuid")
+			So(err, ShouldNotBeNil)
+
+			_, err = mockDAO.LinkMetaValue(ctx, "", "00000000-0000-0000-0000-000000000000")
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Unlink with Invalid UUIDs", t, func() {
+			_, err := mockDAO.UnlinkMetaValue(ctx, "invalid-uuid", "valid-uuid")
+			So(err, ShouldNotBeNil)
+
+			_, err = mockDAO.UnlinkMetaValue(ctx, "00000000-0000-0000-0000-000000000000", "invalid-uuid")
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

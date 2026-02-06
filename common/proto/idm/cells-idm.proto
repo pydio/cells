@@ -451,34 +451,66 @@ service UserMetaService {
     rpc DeleteEntity(GetMetaEntityValuesRequest) returns (DeleteEntityValuesResponse) {}
     rpc CreateEntity(CreateEntityRequest) returns (CreateEntityResponse) {}
     rpc CreateEntityValues(CreateEntityValueRequest) returns (CreateEntityValueResponse) {}
+    rpc LinkMetaToEntityValue(MetaToEntityValueRequest) returns (MetaToEntityValueResponse) {}
+    rpc UnlinkMetaFromEntityValue(MetaToEntityValueRequest) returns (MetaToEntityValueResponse) {}
+    rpc GetMetadata(GetMetadataRequest) returns (UserMeta) {}
 }
 
-message CreateEntityValueRequest{
+message LinkMetaToEntityValueRequest {
+    string MetaUuid = 1;
+    string EntityValueUuid = 2;
+}
+
+// Added to enable linking metadata to fetch meta UUID for EntityValue association
+message GetMetadataRequest {
+    string NodeUuid = 1;
+    string Namespace = 2;
+}
+
+// Creates a new Entity representing a metadata field (e.g. "Department", "Project") and its possible values
+message CreateEntityValueRequest {
     repeated EntityValue EntityValue = 1;
 }
 
-message CreateEntityValueResponse{
+// Response of CreateEntityValueRequest, returns the list of created EntityValues with their UUIDs
+message CreateEntityValueResponse {
     repeated EntityValue EntityValue = 1;
 }
 
-message CreateEntityRequest{
+// Creates a new Entity request
+message CreateEntityRequest {
     MetaEntity Entity = 1;
 }
 
-message CreateEntityResponse{
+// Response of CreateEntityRequest, returns the created Entity with its UUID
+message CreateEntityResponse {
     MetaEntity Entity = 1;
 }
 
-message DeleteEntityValuesResponse{
+// Delete EntityValuesRequest, takes the EntityUuid and delete all its values and associations with metas
+message DeleteEntityValuesResponse {
     int64 RowsDeleted = 1;
 }
 
-message GetMetaEntityValuesRequest{
+// Get EntityValuesRequest, takes the EntityUuid and returns all its values and associations with metas
+message GetMetaEntityValuesRequest {
     string EntityUuid = 1;
 }
 
-message MetaEntityValueResponse{
+// Get EntityValuesResponse, returns all values of an Entity with their associations with metas
+message MetaEntityValueResponse {
     repeated EntityValue EntityValue = 1;
+}
+
+// LinkMetaToEntityValueRequest takes a MetaUuid and an EntityValueUuid and stores a row for EntityValueMetaRel 
+message MetaToEntityValueRequest {
+    string MetaUuid = 1;
+    string EntityValueUuid = 2;
+}
+
+// LinkMetaToEntityValueResponse returns the success of the operation
+message MetaToEntityValueResponse {
+    bool Success = 1;
 }
 
 // Piece of metadata attached to a node
@@ -498,6 +530,7 @@ message UserMeta {
     // Pass along resolved Node for advanced filtering
     tree.Node ResolvedNode = 7;
 }
+
 // Globally declared Namespace with associated policies
 message UserMetaNamespace{
     // Namespace identifier, must be unique

@@ -439,6 +439,27 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		} else {
 			e = er
 		}
+	case "/idm.UserMetaService/LinkMetaToEntityValue":
+		resp, er := s.UserMetaServiceServer.LinkMetaToEntityValue(ctx, args.(*MetaToEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/UnlinkMetaFromEntityValue":
+		resp, er := s.UserMetaServiceServer.UnlinkMetaFromEntityValue(ctx, args.(*MetaToEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetMetadata":
+		resp, er := s.UserMetaServiceServer.GetMetadata(ctx, args.(*GetMetadataRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = errors.New(method + " not implemented")
 	}
