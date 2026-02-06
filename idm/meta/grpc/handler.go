@@ -494,6 +494,50 @@ func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityV
 	}, nil
 }
 
+func (h *Handler) LinkMetaToEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+	link, er := evDAO.LinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	if er != nil {
+		return nil, er
+	}
+	return &idm.MetaToEntityValueResponse{
+		Success: link,
+	}, nil
+}
+
+func (h *Handler) GetMetadata(ctx context.Context, req *idm.GetMetadataRequest) (*idm.UserMeta, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	meta, err := dao.GetMeta(ctx, req.NodeUuid, req.Namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta, nil
+}
+
+func (h *Handler) UnlinkMetaFromEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+	unlink, er := evDAO.UnlinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	if er != nil {
+		return nil, er
+	}
+	return &idm.MetaToEntityValueResponse{
+		Success: unlink,
+	}, nil
+}
+
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {
 
 	sc, _ := cache_helper.ResolveCache(ctx, common.CacheTypeShared, cacheConfig)

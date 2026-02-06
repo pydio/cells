@@ -329,7 +329,7 @@ func (x UpdateUserMetaRequest_UserMetaOp) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use UpdateUserMetaRequest_UserMetaOp.Descriptor instead.
 func (UpdateUserMetaRequest_UserMetaOp) EnumDescriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{53, 0}
+	return file_cells_idm_proto_rawDescGZIP(), []int{57, 0}
 }
 
 type UpdateUserMetaEvent_UserMetaOp int32
@@ -375,7 +375,7 @@ func (x UpdateUserMetaEvent_UserMetaOp) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use UpdateUserMetaEvent_UserMetaOp.Descriptor instead.
 func (UpdateUserMetaEvent_UserMetaOp) EnumDescriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{55, 0}
+	return file_cells_idm_proto_rawDescGZIP(), []int{59, 0}
 }
 
 type UpdateUserMetaNamespaceRequest_UserMetaNsOp int32
@@ -421,7 +421,7 @@ func (x UpdateUserMetaNamespaceRequest_UserMetaNsOp) Number() protoreflect.EnumN
 
 // Deprecated: Use UpdateUserMetaNamespaceRequest_UserMetaNsOp.Descriptor instead.
 func (UpdateUserMetaNamespaceRequest_UserMetaNsOp) EnumDescriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{58, 0}
+	return file_cells_idm_proto_rawDescGZIP(), []int{62, 0}
 }
 
 // *****************************************************************************
@@ -3014,6 +3014,112 @@ func (x *ACLSingleQuery) GetNot() bool {
 	return false
 }
 
+type LinkMetaToEntityValueRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	MetaUuid        string                 `protobuf:"bytes,1,opt,name=MetaUuid,proto3" json:"MetaUuid,omitempty"`
+	EntityValueUuid string                 `protobuf:"bytes,2,opt,name=EntityValueUuid,proto3" json:"EntityValueUuid,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *LinkMetaToEntityValueRequest) Reset() {
+	*x = LinkMetaToEntityValueRequest{}
+	mi := &file_cells_idm_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkMetaToEntityValueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkMetaToEntityValueRequest) ProtoMessage() {}
+
+func (x *LinkMetaToEntityValueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cells_idm_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkMetaToEntityValueRequest.ProtoReflect.Descriptor instead.
+func (*LinkMetaToEntityValueRequest) Descriptor() ([]byte, []int) {
+	return file_cells_idm_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *LinkMetaToEntityValueRequest) GetMetaUuid() string {
+	if x != nil {
+		return x.MetaUuid
+	}
+	return ""
+}
+
+func (x *LinkMetaToEntityValueRequest) GetEntityValueUuid() string {
+	if x != nil {
+		return x.EntityValueUuid
+	}
+	return ""
+}
+
+// Added to enable linking metadata to fetch meta UUID for EntityValue association
+type GetMetadataRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeUuid      string                 `protobuf:"bytes,1,opt,name=NodeUuid,proto3" json:"NodeUuid,omitempty"`
+	Namespace     string                 `protobuf:"bytes,2,opt,name=Namespace,proto3" json:"Namespace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMetadataRequest) Reset() {
+	*x = GetMetadataRequest{}
+	mi := &file_cells_idm_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetadataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetadataRequest) ProtoMessage() {}
+
+func (x *GetMetadataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cells_idm_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetadataRequest.ProtoReflect.Descriptor instead.
+func (*GetMetadataRequest) Descriptor() ([]byte, []int) {
+	return file_cells_idm_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *GetMetadataRequest) GetNodeUuid() string {
+	if x != nil {
+		return x.NodeUuid
+	}
+	return ""
+}
+
+func (x *GetMetadataRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+// Creates a new Entity representing a metadata field (e.g. "Department", "Project") and its possible values
 type CreateEntityValueRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityValue   []*EntityValue         `protobuf:"bytes,1,rep,name=EntityValue,proto3" json:"EntityValue,omitempty"`
@@ -3023,7 +3129,7 @@ type CreateEntityValueRequest struct {
 
 func (x *CreateEntityValueRequest) Reset() {
 	*x = CreateEntityValueRequest{}
-	mi := &file_cells_idm_proto_msgTypes[42]
+	mi := &file_cells_idm_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3035,7 +3141,7 @@ func (x *CreateEntityValueRequest) String() string {
 func (*CreateEntityValueRequest) ProtoMessage() {}
 
 func (x *CreateEntityValueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[42]
+	mi := &file_cells_idm_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3048,7 +3154,7 @@ func (x *CreateEntityValueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEntityValueRequest.ProtoReflect.Descriptor instead.
 func (*CreateEntityValueRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{42}
+	return file_cells_idm_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *CreateEntityValueRequest) GetEntityValue() []*EntityValue {
@@ -3058,6 +3164,7 @@ func (x *CreateEntityValueRequest) GetEntityValue() []*EntityValue {
 	return nil
 }
 
+// Response of CreateEntityValueRequest, returns the list of created EntityValues with their UUIDs
 type CreateEntityValueResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityValue   []*EntityValue         `protobuf:"bytes,1,rep,name=EntityValue,proto3" json:"EntityValue,omitempty"`
@@ -3067,7 +3174,7 @@ type CreateEntityValueResponse struct {
 
 func (x *CreateEntityValueResponse) Reset() {
 	*x = CreateEntityValueResponse{}
-	mi := &file_cells_idm_proto_msgTypes[43]
+	mi := &file_cells_idm_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3079,7 +3186,7 @@ func (x *CreateEntityValueResponse) String() string {
 func (*CreateEntityValueResponse) ProtoMessage() {}
 
 func (x *CreateEntityValueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[43]
+	mi := &file_cells_idm_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3092,7 +3199,7 @@ func (x *CreateEntityValueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEntityValueResponse.ProtoReflect.Descriptor instead.
 func (*CreateEntityValueResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{43}
+	return file_cells_idm_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *CreateEntityValueResponse) GetEntityValue() []*EntityValue {
@@ -3102,6 +3209,7 @@ func (x *CreateEntityValueResponse) GetEntityValue() []*EntityValue {
 	return nil
 }
 
+// Creates a new Entity request
 type CreateEntityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Entity        *MetaEntity            `protobuf:"bytes,1,opt,name=Entity,proto3" json:"Entity,omitempty"`
@@ -3111,7 +3219,7 @@ type CreateEntityRequest struct {
 
 func (x *CreateEntityRequest) Reset() {
 	*x = CreateEntityRequest{}
-	mi := &file_cells_idm_proto_msgTypes[44]
+	mi := &file_cells_idm_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3123,7 +3231,7 @@ func (x *CreateEntityRequest) String() string {
 func (*CreateEntityRequest) ProtoMessage() {}
 
 func (x *CreateEntityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[44]
+	mi := &file_cells_idm_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3136,7 +3244,7 @@ func (x *CreateEntityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEntityRequest.ProtoReflect.Descriptor instead.
 func (*CreateEntityRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{44}
+	return file_cells_idm_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *CreateEntityRequest) GetEntity() *MetaEntity {
@@ -3146,6 +3254,7 @@ func (x *CreateEntityRequest) GetEntity() *MetaEntity {
 	return nil
 }
 
+// Response of CreateEntityRequest, returns the created Entity with its UUID
 type CreateEntityResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Entity        *MetaEntity            `protobuf:"bytes,1,opt,name=Entity,proto3" json:"Entity,omitempty"`
@@ -3155,7 +3264,7 @@ type CreateEntityResponse struct {
 
 func (x *CreateEntityResponse) Reset() {
 	*x = CreateEntityResponse{}
-	mi := &file_cells_idm_proto_msgTypes[45]
+	mi := &file_cells_idm_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3167,7 +3276,7 @@ func (x *CreateEntityResponse) String() string {
 func (*CreateEntityResponse) ProtoMessage() {}
 
 func (x *CreateEntityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[45]
+	mi := &file_cells_idm_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3180,7 +3289,7 @@ func (x *CreateEntityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEntityResponse.ProtoReflect.Descriptor instead.
 func (*CreateEntityResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{45}
+	return file_cells_idm_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *CreateEntityResponse) GetEntity() *MetaEntity {
@@ -3190,6 +3299,7 @@ func (x *CreateEntityResponse) GetEntity() *MetaEntity {
 	return nil
 }
 
+// Delete EntityValuesRequest, takes the EntityUuid and delete all its values and associations with metas
 type DeleteEntityValuesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RowsDeleted   int64                  `protobuf:"varint,1,opt,name=RowsDeleted,proto3" json:"RowsDeleted,omitempty"`
@@ -3199,7 +3309,7 @@ type DeleteEntityValuesResponse struct {
 
 func (x *DeleteEntityValuesResponse) Reset() {
 	*x = DeleteEntityValuesResponse{}
-	mi := &file_cells_idm_proto_msgTypes[46]
+	mi := &file_cells_idm_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3211,7 +3321,7 @@ func (x *DeleteEntityValuesResponse) String() string {
 func (*DeleteEntityValuesResponse) ProtoMessage() {}
 
 func (x *DeleteEntityValuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[46]
+	mi := &file_cells_idm_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3224,7 +3334,7 @@ func (x *DeleteEntityValuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEntityValuesResponse.ProtoReflect.Descriptor instead.
 func (*DeleteEntityValuesResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{46}
+	return file_cells_idm_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *DeleteEntityValuesResponse) GetRowsDeleted() int64 {
@@ -3234,6 +3344,7 @@ func (x *DeleteEntityValuesResponse) GetRowsDeleted() int64 {
 	return 0
 }
 
+// Get EntityValuesRequest, takes the EntityUuid and returns all its values and associations with metas
 type GetMetaEntityValuesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityUuid    string                 `protobuf:"bytes,1,opt,name=EntityUuid,proto3" json:"EntityUuid,omitempty"`
@@ -3243,7 +3354,7 @@ type GetMetaEntityValuesRequest struct {
 
 func (x *GetMetaEntityValuesRequest) Reset() {
 	*x = GetMetaEntityValuesRequest{}
-	mi := &file_cells_idm_proto_msgTypes[47]
+	mi := &file_cells_idm_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3255,7 +3366,7 @@ func (x *GetMetaEntityValuesRequest) String() string {
 func (*GetMetaEntityValuesRequest) ProtoMessage() {}
 
 func (x *GetMetaEntityValuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[47]
+	mi := &file_cells_idm_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3268,7 +3379,7 @@ func (x *GetMetaEntityValuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetaEntityValuesRequest.ProtoReflect.Descriptor instead.
 func (*GetMetaEntityValuesRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{47}
+	return file_cells_idm_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetMetaEntityValuesRequest) GetEntityUuid() string {
@@ -3278,6 +3389,7 @@ func (x *GetMetaEntityValuesRequest) GetEntityUuid() string {
 	return ""
 }
 
+// Get EntityValuesResponse, returns all values of an Entity with their associations with metas
 type MetaEntityValueResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityValue   []*EntityValue         `protobuf:"bytes,1,rep,name=EntityValue,proto3" json:"EntityValue,omitempty"`
@@ -3287,7 +3399,7 @@ type MetaEntityValueResponse struct {
 
 func (x *MetaEntityValueResponse) Reset() {
 	*x = MetaEntityValueResponse{}
-	mi := &file_cells_idm_proto_msgTypes[48]
+	mi := &file_cells_idm_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3299,7 +3411,7 @@ func (x *MetaEntityValueResponse) String() string {
 func (*MetaEntityValueResponse) ProtoMessage() {}
 
 func (x *MetaEntityValueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[48]
+	mi := &file_cells_idm_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3312,7 +3424,7 @@ func (x *MetaEntityValueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaEntityValueResponse.ProtoReflect.Descriptor instead.
 func (*MetaEntityValueResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{48}
+	return file_cells_idm_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *MetaEntityValueResponse) GetEntityValue() []*EntityValue {
@@ -3320,6 +3432,104 @@ func (x *MetaEntityValueResponse) GetEntityValue() []*EntityValue {
 		return x.EntityValue
 	}
 	return nil
+}
+
+// LinkMetaToEntityValueRequest takes a MetaUuid and an EntityValueUuid and stores a row for EntityValueMetaRel
+type MetaToEntityValueRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	MetaUuid        string                 `protobuf:"bytes,1,opt,name=MetaUuid,proto3" json:"MetaUuid,omitempty"`
+	EntityValueUuid string                 `protobuf:"bytes,2,opt,name=EntityValueUuid,proto3" json:"EntityValueUuid,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *MetaToEntityValueRequest) Reset() {
+	*x = MetaToEntityValueRequest{}
+	mi := &file_cells_idm_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetaToEntityValueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetaToEntityValueRequest) ProtoMessage() {}
+
+func (x *MetaToEntityValueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cells_idm_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetaToEntityValueRequest.ProtoReflect.Descriptor instead.
+func (*MetaToEntityValueRequest) Descriptor() ([]byte, []int) {
+	return file_cells_idm_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *MetaToEntityValueRequest) GetMetaUuid() string {
+	if x != nil {
+		return x.MetaUuid
+	}
+	return ""
+}
+
+func (x *MetaToEntityValueRequest) GetEntityValueUuid() string {
+	if x != nil {
+		return x.EntityValueUuid
+	}
+	return ""
+}
+
+// LinkMetaToEntityValueResponse returns the success of the operation
+type MetaToEntityValueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=Success,proto3" json:"Success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MetaToEntityValueResponse) Reset() {
+	*x = MetaToEntityValueResponse{}
+	mi := &file_cells_idm_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetaToEntityValueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetaToEntityValueResponse) ProtoMessage() {}
+
+func (x *MetaToEntityValueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cells_idm_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetaToEntityValueResponse.ProtoReflect.Descriptor instead.
+func (*MetaToEntityValueResponse) Descriptor() ([]byte, []int) {
+	return file_cells_idm_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *MetaToEntityValueResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
 }
 
 // Piece of metadata attached to a node
@@ -3345,7 +3555,7 @@ type UserMeta struct {
 
 func (x *UserMeta) Reset() {
 	*x = UserMeta{}
-	mi := &file_cells_idm_proto_msgTypes[49]
+	mi := &file_cells_idm_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3357,7 +3567,7 @@ func (x *UserMeta) String() string {
 func (*UserMeta) ProtoMessage() {}
 
 func (x *UserMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[49]
+	mi := &file_cells_idm_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3370,7 +3580,7 @@ func (x *UserMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserMeta.ProtoReflect.Descriptor instead.
 func (*UserMeta) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{49}
+	return file_cells_idm_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *UserMeta) GetUuid() string {
@@ -3455,7 +3665,7 @@ type UserMetaNamespace struct {
 
 func (x *UserMetaNamespace) Reset() {
 	*x = UserMetaNamespace{}
-	mi := &file_cells_idm_proto_msgTypes[50]
+	mi := &file_cells_idm_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3467,7 +3677,7 @@ func (x *UserMetaNamespace) String() string {
 func (*UserMetaNamespace) ProtoMessage() {}
 
 func (x *UserMetaNamespace) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[50]
+	mi := &file_cells_idm_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3480,7 +3690,7 @@ func (x *UserMetaNamespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserMetaNamespace.ProtoReflect.Descriptor instead.
 func (*UserMetaNamespace) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{50}
+	return file_cells_idm_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *UserMetaNamespace) GetNamespace() string {
@@ -3579,7 +3789,7 @@ type MetaEntity struct {
 
 func (x *MetaEntity) Reset() {
 	*x = MetaEntity{}
-	mi := &file_cells_idm_proto_msgTypes[51]
+	mi := &file_cells_idm_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3591,7 +3801,7 @@ func (x *MetaEntity) String() string {
 func (*MetaEntity) ProtoMessage() {}
 
 func (x *MetaEntity) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[51]
+	mi := &file_cells_idm_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3604,7 +3814,7 @@ func (x *MetaEntity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaEntity.ProtoReflect.Descriptor instead.
 func (*MetaEntity) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{51}
+	return file_cells_idm_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *MetaEntity) GetUuid() string {
@@ -3640,7 +3850,7 @@ type EntityValue struct {
 
 func (x *EntityValue) Reset() {
 	*x = EntityValue{}
-	mi := &file_cells_idm_proto_msgTypes[52]
+	mi := &file_cells_idm_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3652,7 +3862,7 @@ func (x *EntityValue) String() string {
 func (*EntityValue) ProtoMessage() {}
 
 func (x *EntityValue) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[52]
+	mi := &file_cells_idm_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3665,7 +3875,7 @@ func (x *EntityValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EntityValue.ProtoReflect.Descriptor instead.
 func (*EntityValue) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{52}
+	return file_cells_idm_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *EntityValue) GetUuid() string {
@@ -3702,7 +3912,7 @@ type UpdateUserMetaRequest struct {
 
 func (x *UpdateUserMetaRequest) Reset() {
 	*x = UpdateUserMetaRequest{}
-	mi := &file_cells_idm_proto_msgTypes[53]
+	mi := &file_cells_idm_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3714,7 +3924,7 @@ func (x *UpdateUserMetaRequest) String() string {
 func (*UpdateUserMetaRequest) ProtoMessage() {}
 
 func (x *UpdateUserMetaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[53]
+	mi := &file_cells_idm_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3727,7 +3937,7 @@ func (x *UpdateUserMetaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserMetaRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserMetaRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{53}
+	return file_cells_idm_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UpdateUserMetaRequest) GetOperation() UpdateUserMetaRequest_UserMetaOp {
@@ -3755,7 +3965,7 @@ type UpdateUserMetaResponse struct {
 
 func (x *UpdateUserMetaResponse) Reset() {
 	*x = UpdateUserMetaResponse{}
-	mi := &file_cells_idm_proto_msgTypes[54]
+	mi := &file_cells_idm_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3767,7 +3977,7 @@ func (x *UpdateUserMetaResponse) String() string {
 func (*UpdateUserMetaResponse) ProtoMessage() {}
 
 func (x *UpdateUserMetaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[54]
+	mi := &file_cells_idm_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3780,7 +3990,7 @@ func (x *UpdateUserMetaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserMetaResponse.ProtoReflect.Descriptor instead.
 func (*UpdateUserMetaResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{54}
+	return file_cells_idm_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *UpdateUserMetaResponse) GetMetaDatas() []*UserMeta {
@@ -3805,7 +4015,7 @@ type UpdateUserMetaEvent struct {
 
 func (x *UpdateUserMetaEvent) Reset() {
 	*x = UpdateUserMetaEvent{}
-	mi := &file_cells_idm_proto_msgTypes[55]
+	mi := &file_cells_idm_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3817,7 +4027,7 @@ func (x *UpdateUserMetaEvent) String() string {
 func (*UpdateUserMetaEvent) ProtoMessage() {}
 
 func (x *UpdateUserMetaEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[55]
+	mi := &file_cells_idm_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3830,7 +4040,7 @@ func (x *UpdateUserMetaEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserMetaEvent.ProtoReflect.Descriptor instead.
 func (*UpdateUserMetaEvent) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{55}
+	return file_cells_idm_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *UpdateUserMetaEvent) GetEventMetadata() map[string]string {
@@ -3873,7 +4083,7 @@ type SearchUserMetaRequest struct {
 
 func (x *SearchUserMetaRequest) Reset() {
 	*x = SearchUserMetaRequest{}
-	mi := &file_cells_idm_proto_msgTypes[56]
+	mi := &file_cells_idm_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3885,7 +4095,7 @@ func (x *SearchUserMetaRequest) String() string {
 func (*SearchUserMetaRequest) ProtoMessage() {}
 
 func (x *SearchUserMetaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[56]
+	mi := &file_cells_idm_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3898,7 +4108,7 @@ func (x *SearchUserMetaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchUserMetaRequest.ProtoReflect.Descriptor instead.
 func (*SearchUserMetaRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{56}
+	return file_cells_idm_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *SearchUserMetaRequest) GetMetaUuids() []string {
@@ -3946,7 +4156,7 @@ type SearchUserMetaResponse struct {
 
 func (x *SearchUserMetaResponse) Reset() {
 	*x = SearchUserMetaResponse{}
-	mi := &file_cells_idm_proto_msgTypes[57]
+	mi := &file_cells_idm_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3958,7 +4168,7 @@ func (x *SearchUserMetaResponse) String() string {
 func (*SearchUserMetaResponse) ProtoMessage() {}
 
 func (x *SearchUserMetaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[57]
+	mi := &file_cells_idm_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3971,7 +4181,7 @@ func (x *SearchUserMetaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchUserMetaResponse.ProtoReflect.Descriptor instead.
 func (*SearchUserMetaResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{57}
+	return file_cells_idm_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *SearchUserMetaResponse) GetUserMeta() *UserMeta {
@@ -3992,7 +4202,7 @@ type UpdateUserMetaNamespaceRequest struct {
 
 func (x *UpdateUserMetaNamespaceRequest) Reset() {
 	*x = UpdateUserMetaNamespaceRequest{}
-	mi := &file_cells_idm_proto_msgTypes[58]
+	mi := &file_cells_idm_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4004,7 +4214,7 @@ func (x *UpdateUserMetaNamespaceRequest) String() string {
 func (*UpdateUserMetaNamespaceRequest) ProtoMessage() {}
 
 func (x *UpdateUserMetaNamespaceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[58]
+	mi := &file_cells_idm_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4017,7 +4227,7 @@ func (x *UpdateUserMetaNamespaceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserMetaNamespaceRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserMetaNamespaceRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{58}
+	return file_cells_idm_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *UpdateUserMetaNamespaceRequest) GetOperation() UpdateUserMetaNamespaceRequest_UserMetaNsOp {
@@ -4044,7 +4254,7 @@ type UpdateUserMetaNamespaceResponse struct {
 
 func (x *UpdateUserMetaNamespaceResponse) Reset() {
 	*x = UpdateUserMetaNamespaceResponse{}
-	mi := &file_cells_idm_proto_msgTypes[59]
+	mi := &file_cells_idm_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4056,7 +4266,7 @@ func (x *UpdateUserMetaNamespaceResponse) String() string {
 func (*UpdateUserMetaNamespaceResponse) ProtoMessage() {}
 
 func (x *UpdateUserMetaNamespaceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[59]
+	mi := &file_cells_idm_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4069,7 +4279,7 @@ func (x *UpdateUserMetaNamespaceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserMetaNamespaceResponse.ProtoReflect.Descriptor instead.
 func (*UpdateUserMetaNamespaceResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{59}
+	return file_cells_idm_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *UpdateUserMetaNamespaceResponse) GetNamespaces() []*UserMetaNamespace {
@@ -4088,7 +4298,7 @@ type ListUserMetaNamespaceRequest struct {
 
 func (x *ListUserMetaNamespaceRequest) Reset() {
 	*x = ListUserMetaNamespaceRequest{}
-	mi := &file_cells_idm_proto_msgTypes[60]
+	mi := &file_cells_idm_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4100,7 +4310,7 @@ func (x *ListUserMetaNamespaceRequest) String() string {
 func (*ListUserMetaNamespaceRequest) ProtoMessage() {}
 
 func (x *ListUserMetaNamespaceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[60]
+	mi := &file_cells_idm_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4113,7 +4323,7 @@ func (x *ListUserMetaNamespaceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserMetaNamespaceRequest.ProtoReflect.Descriptor instead.
 func (*ListUserMetaNamespaceRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{60}
+	return file_cells_idm_proto_rawDescGZIP(), []int{64}
 }
 
 // Collection of results
@@ -4126,7 +4336,7 @@ type ListUserMetaNamespaceResponse struct {
 
 func (x *ListUserMetaNamespaceResponse) Reset() {
 	*x = ListUserMetaNamespaceResponse{}
-	mi := &file_cells_idm_proto_msgTypes[61]
+	mi := &file_cells_idm_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4138,7 +4348,7 @@ func (x *ListUserMetaNamespaceResponse) String() string {
 func (*ListUserMetaNamespaceResponse) ProtoMessage() {}
 
 func (x *ListUserMetaNamespaceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[61]
+	mi := &file_cells_idm_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4151,7 +4361,7 @@ func (x *ListUserMetaNamespaceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserMetaNamespaceResponse.ProtoReflect.Descriptor instead.
 func (*ListUserMetaNamespaceResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{61}
+	return file_cells_idm_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *ListUserMetaNamespaceResponse) GetUserMetaNamespace() *UserMetaNamespace {
@@ -4170,7 +4380,7 @@ type GetFieldSchemaRequest struct {
 
 func (x *GetFieldSchemaRequest) Reset() {
 	*x = GetFieldSchemaRequest{}
-	mi := &file_cells_idm_proto_msgTypes[62]
+	mi := &file_cells_idm_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4182,7 +4392,7 @@ func (x *GetFieldSchemaRequest) String() string {
 func (*GetFieldSchemaRequest) ProtoMessage() {}
 
 func (x *GetFieldSchemaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[62]
+	mi := &file_cells_idm_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4195,7 +4405,7 @@ func (x *GetFieldSchemaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFieldSchemaRequest.ProtoReflect.Descriptor instead.
 func (*GetFieldSchemaRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{62}
+	return file_cells_idm_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *GetFieldSchemaRequest) GetFieldType() string {
@@ -4214,7 +4424,7 @@ type JsonSchemaResponse struct {
 
 func (x *JsonSchemaResponse) Reset() {
 	*x = JsonSchemaResponse{}
-	mi := &file_cells_idm_proto_msgTypes[63]
+	mi := &file_cells_idm_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4226,7 +4436,7 @@ func (x *JsonSchemaResponse) String() string {
 func (*JsonSchemaResponse) ProtoMessage() {}
 
 func (x *JsonSchemaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[63]
+	mi := &file_cells_idm_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4239,7 +4449,7 @@ func (x *JsonSchemaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JsonSchemaResponse.ProtoReflect.Descriptor instead.
 func (*JsonSchemaResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{63}
+	return file_cells_idm_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *JsonSchemaResponse) GetJsonSchema() *structpb.Struct {
@@ -4260,7 +4470,7 @@ type GetNamespaceSchemaRequest struct {
 
 func (x *GetNamespaceSchemaRequest) Reset() {
 	*x = GetNamespaceSchemaRequest{}
-	mi := &file_cells_idm_proto_msgTypes[64]
+	mi := &file_cells_idm_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4272,7 +4482,7 @@ func (x *GetNamespaceSchemaRequest) String() string {
 func (*GetNamespaceSchemaRequest) ProtoMessage() {}
 
 func (x *GetNamespaceSchemaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[64]
+	mi := &file_cells_idm_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4285,7 +4495,7 @@ func (x *GetNamespaceSchemaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNamespaceSchemaRequest.ProtoReflect.Descriptor instead.
 func (*GetNamespaceSchemaRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{64}
+	return file_cells_idm_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *GetNamespaceSchemaRequest) GetFieldType() string {
@@ -4326,7 +4536,7 @@ type ChangeEvent struct {
 
 func (x *ChangeEvent) Reset() {
 	*x = ChangeEvent{}
-	mi := &file_cells_idm_proto_msgTypes[65]
+	mi := &file_cells_idm_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4338,7 +4548,7 @@ func (x *ChangeEvent) String() string {
 func (*ChangeEvent) ProtoMessage() {}
 
 func (x *ChangeEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[65]
+	mi := &file_cells_idm_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4351,7 +4561,7 @@ func (x *ChangeEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeEvent.ProtoReflect.Descriptor instead.
 func (*ChangeEvent) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{65}
+	return file_cells_idm_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *ChangeEvent) GetJsonType() string {
@@ -4425,7 +4635,7 @@ type PolicyEngineRequest struct {
 
 func (x *PolicyEngineRequest) Reset() {
 	*x = PolicyEngineRequest{}
-	mi := &file_cells_idm_proto_msgTypes[66]
+	mi := &file_cells_idm_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4437,7 +4647,7 @@ func (x *PolicyEngineRequest) String() string {
 func (*PolicyEngineRequest) ProtoMessage() {}
 
 func (x *PolicyEngineRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[66]
+	mi := &file_cells_idm_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4450,7 +4660,7 @@ func (x *PolicyEngineRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyEngineRequest.ProtoReflect.Descriptor instead.
 func (*PolicyEngineRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{66}
+	return file_cells_idm_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *PolicyEngineRequest) GetResource() string {
@@ -4492,7 +4702,7 @@ type PolicyEngineResponse struct {
 
 func (x *PolicyEngineResponse) Reset() {
 	*x = PolicyEngineResponse{}
-	mi := &file_cells_idm_proto_msgTypes[67]
+	mi := &file_cells_idm_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4504,7 +4714,7 @@ func (x *PolicyEngineResponse) String() string {
 func (*PolicyEngineResponse) ProtoMessage() {}
 
 func (x *PolicyEngineResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[67]
+	mi := &file_cells_idm_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4517,7 +4727,7 @@ func (x *PolicyEngineResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyEngineResponse.ProtoReflect.Descriptor instead.
 func (*PolicyEngineResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{67}
+	return file_cells_idm_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *PolicyEngineResponse) GetAllowed() bool {
@@ -4551,7 +4761,7 @@ type PolicyCondition struct {
 
 func (x *PolicyCondition) Reset() {
 	*x = PolicyCondition{}
-	mi := &file_cells_idm_proto_msgTypes[68]
+	mi := &file_cells_idm_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4563,7 +4773,7 @@ func (x *PolicyCondition) String() string {
 func (*PolicyCondition) ProtoMessage() {}
 
 func (x *PolicyCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[68]
+	mi := &file_cells_idm_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4576,7 +4786,7 @@ func (x *PolicyCondition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyCondition.ProtoReflect.Descriptor instead.
 func (*PolicyCondition) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{68}
+	return file_cells_idm_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *PolicyCondition) GetType() string {
@@ -4611,7 +4821,7 @@ type Policy struct {
 
 func (x *Policy) Reset() {
 	*x = Policy{}
-	mi := &file_cells_idm_proto_msgTypes[69]
+	mi := &file_cells_idm_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4623,7 +4833,7 @@ func (x *Policy) String() string {
 func (*Policy) ProtoMessage() {}
 
 func (x *Policy) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[69]
+	mi := &file_cells_idm_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4636,7 +4846,7 @@ func (x *Policy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Policy.ProtoReflect.Descriptor instead.
 func (*Policy) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{69}
+	return file_cells_idm_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *Policy) GetID() string {
@@ -4721,7 +4931,7 @@ type PolicySubject struct {
 
 func (x *PolicySubject) Reset() {
 	*x = PolicySubject{}
-	mi := &file_cells_idm_proto_msgTypes[70]
+	mi := &file_cells_idm_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4733,7 +4943,7 @@ func (x *PolicySubject) String() string {
 func (*PolicySubject) ProtoMessage() {}
 
 func (x *PolicySubject) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[70]
+	mi := &file_cells_idm_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4746,7 +4956,7 @@ func (x *PolicySubject) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicySubject.ProtoReflect.Descriptor instead.
 func (*PolicySubject) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{70}
+	return file_cells_idm_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *PolicySubject) GetID() string {
@@ -4789,7 +4999,7 @@ type PolicyResource struct {
 
 func (x *PolicyResource) Reset() {
 	*x = PolicyResource{}
-	mi := &file_cells_idm_proto_msgTypes[71]
+	mi := &file_cells_idm_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4801,7 +5011,7 @@ func (x *PolicyResource) String() string {
 func (*PolicyResource) ProtoMessage() {}
 
 func (x *PolicyResource) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[71]
+	mi := &file_cells_idm_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4814,7 +5024,7 @@ func (x *PolicyResource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyResource.ProtoReflect.Descriptor instead.
 func (*PolicyResource) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{71}
+	return file_cells_idm_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *PolicyResource) GetID() string {
@@ -4857,7 +5067,7 @@ type PolicyAction struct {
 
 func (x *PolicyAction) Reset() {
 	*x = PolicyAction{}
-	mi := &file_cells_idm_proto_msgTypes[72]
+	mi := &file_cells_idm_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4869,7 +5079,7 @@ func (x *PolicyAction) String() string {
 func (*PolicyAction) ProtoMessage() {}
 
 func (x *PolicyAction) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[72]
+	mi := &file_cells_idm_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4882,7 +5092,7 @@ func (x *PolicyAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyAction.ProtoReflect.Descriptor instead.
 func (*PolicyAction) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{72}
+	return file_cells_idm_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *PolicyAction) GetID() string {
@@ -4923,7 +5133,7 @@ type PolicyResourceRel struct {
 
 func (x *PolicyResourceRel) Reset() {
 	*x = PolicyResourceRel{}
-	mi := &file_cells_idm_proto_msgTypes[73]
+	mi := &file_cells_idm_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4935,7 +5145,7 @@ func (x *PolicyResourceRel) String() string {
 func (*PolicyResourceRel) ProtoMessage() {}
 
 func (x *PolicyResourceRel) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[73]
+	mi := &file_cells_idm_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4948,7 +5158,7 @@ func (x *PolicyResourceRel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyResourceRel.ProtoReflect.Descriptor instead.
 func (*PolicyResourceRel) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{73}
+	return file_cells_idm_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *PolicyResourceRel) GetPolicy() string {
@@ -4975,7 +5185,7 @@ type PolicySubjectRel struct {
 
 func (x *PolicySubjectRel) Reset() {
 	*x = PolicySubjectRel{}
-	mi := &file_cells_idm_proto_msgTypes[74]
+	mi := &file_cells_idm_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4987,7 +5197,7 @@ func (x *PolicySubjectRel) String() string {
 func (*PolicySubjectRel) ProtoMessage() {}
 
 func (x *PolicySubjectRel) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[74]
+	mi := &file_cells_idm_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5000,7 +5210,7 @@ func (x *PolicySubjectRel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicySubjectRel.ProtoReflect.Descriptor instead.
 func (*PolicySubjectRel) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{74}
+	return file_cells_idm_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *PolicySubjectRel) GetPolicy() string {
@@ -5027,7 +5237,7 @@ type PolicyActionRel struct {
 
 func (x *PolicyActionRel) Reset() {
 	*x = PolicyActionRel{}
-	mi := &file_cells_idm_proto_msgTypes[75]
+	mi := &file_cells_idm_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5039,7 +5249,7 @@ func (x *PolicyActionRel) String() string {
 func (*PolicyActionRel) ProtoMessage() {}
 
 func (x *PolicyActionRel) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[75]
+	mi := &file_cells_idm_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5052,7 +5262,7 @@ func (x *PolicyActionRel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyActionRel.ProtoReflect.Descriptor instead.
 func (*PolicyActionRel) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{75}
+	return file_cells_idm_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *PolicyActionRel) GetPolicy() string {
@@ -5080,7 +5290,7 @@ type PolicyRel struct {
 
 func (x *PolicyRel) Reset() {
 	*x = PolicyRel{}
-	mi := &file_cells_idm_proto_msgTypes[76]
+	mi := &file_cells_idm_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5092,7 +5302,7 @@ func (x *PolicyRel) String() string {
 func (*PolicyRel) ProtoMessage() {}
 
 func (x *PolicyRel) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[76]
+	mi := &file_cells_idm_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5105,7 +5315,7 @@ func (x *PolicyRel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyRel.ProtoReflect.Descriptor instead.
 func (*PolicyRel) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{76}
+	return file_cells_idm_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *PolicyRel) GetID() int64 {
@@ -5144,7 +5354,7 @@ type PolicyGroup struct {
 
 func (x *PolicyGroup) Reset() {
 	*x = PolicyGroup{}
-	mi := &file_cells_idm_proto_msgTypes[77]
+	mi := &file_cells_idm_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5156,7 +5366,7 @@ func (x *PolicyGroup) String() string {
 func (*PolicyGroup) ProtoMessage() {}
 
 func (x *PolicyGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[77]
+	mi := &file_cells_idm_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5169,7 +5379,7 @@ func (x *PolicyGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyGroup.ProtoReflect.Descriptor instead.
 func (*PolicyGroup) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{77}
+	return file_cells_idm_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *PolicyGroup) GetUuid() string {
@@ -5231,7 +5441,7 @@ type StorePolicyGroupRequest struct {
 
 func (x *StorePolicyGroupRequest) Reset() {
 	*x = StorePolicyGroupRequest{}
-	mi := &file_cells_idm_proto_msgTypes[78]
+	mi := &file_cells_idm_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5243,7 +5453,7 @@ func (x *StorePolicyGroupRequest) String() string {
 func (*StorePolicyGroupRequest) ProtoMessage() {}
 
 func (x *StorePolicyGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[78]
+	mi := &file_cells_idm_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5256,7 +5466,7 @@ func (x *StorePolicyGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StorePolicyGroupRequest.ProtoReflect.Descriptor instead.
 func (*StorePolicyGroupRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{78}
+	return file_cells_idm_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *StorePolicyGroupRequest) GetPolicyGroup() *PolicyGroup {
@@ -5275,7 +5485,7 @@ type StorePolicyGroupResponse struct {
 
 func (x *StorePolicyGroupResponse) Reset() {
 	*x = StorePolicyGroupResponse{}
-	mi := &file_cells_idm_proto_msgTypes[79]
+	mi := &file_cells_idm_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5287,7 +5497,7 @@ func (x *StorePolicyGroupResponse) String() string {
 func (*StorePolicyGroupResponse) ProtoMessage() {}
 
 func (x *StorePolicyGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[79]
+	mi := &file_cells_idm_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5300,7 +5510,7 @@ func (x *StorePolicyGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StorePolicyGroupResponse.ProtoReflect.Descriptor instead.
 func (*StorePolicyGroupResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{79}
+	return file_cells_idm_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *StorePolicyGroupResponse) GetPolicyGroup() *PolicyGroup {
@@ -5319,7 +5529,7 @@ type DeletePolicyGroupRequest struct {
 
 func (x *DeletePolicyGroupRequest) Reset() {
 	*x = DeletePolicyGroupRequest{}
-	mi := &file_cells_idm_proto_msgTypes[80]
+	mi := &file_cells_idm_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5331,7 +5541,7 @@ func (x *DeletePolicyGroupRequest) String() string {
 func (*DeletePolicyGroupRequest) ProtoMessage() {}
 
 func (x *DeletePolicyGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[80]
+	mi := &file_cells_idm_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5344,7 +5554,7 @@ func (x *DeletePolicyGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePolicyGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeletePolicyGroupRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{80}
+	return file_cells_idm_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *DeletePolicyGroupRequest) GetPolicyGroup() *PolicyGroup {
@@ -5363,7 +5573,7 @@ type DeletePolicyGroupResponse struct {
 
 func (x *DeletePolicyGroupResponse) Reset() {
 	*x = DeletePolicyGroupResponse{}
-	mi := &file_cells_idm_proto_msgTypes[81]
+	mi := &file_cells_idm_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5375,7 +5585,7 @@ func (x *DeletePolicyGroupResponse) String() string {
 func (*DeletePolicyGroupResponse) ProtoMessage() {}
 
 func (x *DeletePolicyGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[81]
+	mi := &file_cells_idm_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5388,7 +5598,7 @@ func (x *DeletePolicyGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePolicyGroupResponse.ProtoReflect.Descriptor instead.
 func (*DeletePolicyGroupResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{81}
+	return file_cells_idm_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *DeletePolicyGroupResponse) GetSuccess() bool {
@@ -5410,7 +5620,7 @@ type ListPolicyGroupsRequest struct {
 
 func (x *ListPolicyGroupsRequest) Reset() {
 	*x = ListPolicyGroupsRequest{}
-	mi := &file_cells_idm_proto_msgTypes[82]
+	mi := &file_cells_idm_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5422,7 +5632,7 @@ func (x *ListPolicyGroupsRequest) String() string {
 func (*ListPolicyGroupsRequest) ProtoMessage() {}
 
 func (x *ListPolicyGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[82]
+	mi := &file_cells_idm_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5435,7 +5645,7 @@ func (x *ListPolicyGroupsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPolicyGroupsRequest.ProtoReflect.Descriptor instead.
 func (*ListPolicyGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{82}
+	return file_cells_idm_proto_rawDescGZIP(), []int{86}
 }
 
 // Deprecated: Marked as deprecated in cells-idm.proto.
@@ -5463,7 +5673,7 @@ type ListPolicyGroupsResponse struct {
 
 func (x *ListPolicyGroupsResponse) Reset() {
 	*x = ListPolicyGroupsResponse{}
-	mi := &file_cells_idm_proto_msgTypes[83]
+	mi := &file_cells_idm_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5475,7 +5685,7 @@ func (x *ListPolicyGroupsResponse) String() string {
 func (*ListPolicyGroupsResponse) ProtoMessage() {}
 
 func (x *ListPolicyGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[83]
+	mi := &file_cells_idm_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5488,7 +5698,7 @@ func (x *ListPolicyGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPolicyGroupsResponse.ProtoReflect.Descriptor instead.
 func (*ListPolicyGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{83}
+	return file_cells_idm_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *ListPolicyGroupsResponse) GetPolicyGroups() []*PolicyGroup {
@@ -5524,7 +5734,7 @@ type PolicyGroupSingleQuery struct {
 
 func (x *PolicyGroupSingleQuery) Reset() {
 	*x = PolicyGroupSingleQuery{}
-	mi := &file_cells_idm_proto_msgTypes[84]
+	mi := &file_cells_idm_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5536,7 +5746,7 @@ func (x *PolicyGroupSingleQuery) String() string {
 func (*PolicyGroupSingleQuery) ProtoMessage() {}
 
 func (x *PolicyGroupSingleQuery) ProtoReflect() protoreflect.Message {
-	mi := &file_cells_idm_proto_msgTypes[84]
+	mi := &file_cells_idm_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5549,7 +5759,7 @@ func (x *PolicyGroupSingleQuery) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyGroupSingleQuery.ProtoReflect.Descriptor instead.
 func (*PolicyGroupSingleQuery) Descriptor() ([]byte, []int) {
-	return file_cells_idm_proto_rawDescGZIP(), []int{84}
+	return file_cells_idm_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *PolicyGroupSingleQuery) GetResourceGroup() string {
@@ -5837,7 +6047,13 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\aRoleIDs\x18\x02 \x03(\tR\aRoleIDs\x12\"\n" +
 	"\fWorkspaceIDs\x18\x03 \x03(\tR\fWorkspaceIDs\x12\x18\n" +
 	"\aNodeIDs\x18\x04 \x03(\tR\aNodeIDs\x12\x10\n" +
-	"\x03not\x18\x05 \x01(\bR\x03not\"N\n" +
+	"\x03not\x18\x05 \x01(\bR\x03not\"d\n" +
+	"\x1cLinkMetaToEntityValueRequest\x12\x1a\n" +
+	"\bMetaUuid\x18\x01 \x01(\tR\bMetaUuid\x12(\n" +
+	"\x0fEntityValueUuid\x18\x02 \x01(\tR\x0fEntityValueUuid\"N\n" +
+	"\x12GetMetadataRequest\x12\x1a\n" +
+	"\bNodeUuid\x18\x01 \x01(\tR\bNodeUuid\x12\x1c\n" +
+	"\tNamespace\x18\x02 \x01(\tR\tNamespace\"N\n" +
 	"\x18CreateEntityValueRequest\x122\n" +
 	"\vEntityValue\x18\x01 \x03(\v2\x10.idm.EntityValueR\vEntityValue\"O\n" +
 	"\x19CreateEntityValueResponse\x122\n" +
@@ -5853,7 +6069,12 @@ const file_cells_idm_proto_rawDesc = "" +
 	"EntityUuid\x18\x01 \x01(\tR\n" +
 	"EntityUuid\"M\n" +
 	"\x17MetaEntityValueResponse\x122\n" +
-	"\vEntityValue\x18\x01 \x03(\v2\x10.idm.EntityValueR\vEntityValue\"\x95\x02\n" +
+	"\vEntityValue\x18\x01 \x03(\v2\x10.idm.EntityValueR\vEntityValue\"`\n" +
+	"\x18MetaToEntityValueRequest\x12\x1a\n" +
+	"\bMetaUuid\x18\x01 \x01(\tR\bMetaUuid\x12(\n" +
+	"\x0fEntityValueUuid\x18\x02 \x01(\tR\x0fEntityValueUuid\"5\n" +
+	"\x19MetaToEntityValueResponse\x12\x18\n" +
+	"\aSuccess\x18\x01 \x01(\bR\aSuccess\"\x95\x02\n" +
 	"\bUserMeta\x12\x12\n" +
 	"\x04Uuid\x18\x01 \x01(\tR\x04Uuid\x12\x1a\n" +
 	"\bNodeUuid\x18\x02 \x01(\tR\bNodeUuid\x12\x1c\n" +
@@ -6193,7 +6414,7 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\tSearchACL\x12\x15.idm.SearchACLRequest\x1a\x16.idm.SearchACLResponse\"\x000\x01\x12@\n" +
 	"\tStreamACL\x12\x15.idm.SearchACLRequest\x1a\x16.idm.SearchACLResponse\"\x00(\x010\x01\x12?\n" +
 	"\n" +
-	"RestoreACL\x12\x16.idm.RestoreACLRequest\x1a\x17.idm.RestoreACLResponse\"\x002\xd9\x06\n" +
+	"RestoreACL\x12\x16.idm.RestoreACLRequest\x1a\x17.idm.RestoreACLResponse\"\x002\xca\b\n" +
 	"\x0fUserMetaService\x12K\n" +
 	"\x0eUpdateUserMeta\x12\x1a.idm.UpdateUserMetaRequest\x1a\x1b.idm.UpdateUserMetaResponse\"\x00\x12M\n" +
 	"\x0eSearchUserMeta\x12\x1a.idm.SearchUserMetaRequest\x1a\x1b.idm.SearchUserMetaResponse\"\x000\x01\x12f\n" +
@@ -6204,7 +6425,10 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\x0fGetEntityValues\x12\x1f.idm.GetMetaEntityValuesRequest\x1a\x1c.idm.MetaEntityValueResponse\"\x00\x12R\n" +
 	"\fDeleteEntity\x12\x1f.idm.GetMetaEntityValuesRequest\x1a\x1f.idm.DeleteEntityValuesResponse\"\x00\x12E\n" +
 	"\fCreateEntity\x12\x18.idm.CreateEntityRequest\x1a\x19.idm.CreateEntityResponse\"\x00\x12U\n" +
-	"\x12CreateEntityValues\x12\x1d.idm.CreateEntityValueRequest\x1a\x1e.idm.CreateEntityValueResponse\"\x002\x9f\x03\n" +
+	"\x12CreateEntityValues\x12\x1d.idm.CreateEntityValueRequest\x1a\x1e.idm.CreateEntityValueResponse\"\x00\x12X\n" +
+	"\x15LinkMetaToEntityValue\x12\x1d.idm.MetaToEntityValueRequest\x1a\x1e.idm.MetaToEntityValueResponse\"\x00\x12\\\n" +
+	"\x19UnlinkMetaFromEntityValue\x12\x1d.idm.MetaToEntityValueRequest\x1a\x1e.idm.MetaToEntityValueResponse\"\x00\x127\n" +
+	"\vGetMetadata\x12\x17.idm.GetMetadataRequest\x1a\r.idm.UserMeta\"\x002\x9f\x03\n" +
 	"\x13PolicyEngineService\x12B\n" +
 	"\tIsAllowed\x12\x18.idm.PolicyEngineRequest\x1a\x19.idm.PolicyEngineResponse\"\x00\x12Q\n" +
 	"\x10StorePolicyGroup\x12\x1c.idm.StorePolicyGroupRequest\x1a\x1d.idm.StorePolicyGroupResponse\"\x00\x12Q\n" +
@@ -6225,7 +6449,7 @@ func file_cells_idm_proto_rawDescGZIP() []byte {
 }
 
 var file_cells_idm_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-var file_cells_idm_proto_msgTypes = make([]protoimpl.MessageInfo, 91)
+var file_cells_idm_proto_msgTypes = make([]protoimpl.MessageInfo, 95)
 var file_cells_idm_proto_goTypes = []any{
 	(NodeType)(0),                                    // 0: idm.NodeType
 	(WorkspaceScope)(0),                              // 1: idm.WorkspaceScope
@@ -6277,145 +6501,149 @@ var file_cells_idm_proto_goTypes = []any{
 	(*ACLAction)(nil),                                // 47: idm.ACLAction
 	(*ACL)(nil),                                      // 48: idm.ACL
 	(*ACLSingleQuery)(nil),                           // 49: idm.ACLSingleQuery
-	(*CreateEntityValueRequest)(nil),                 // 50: idm.CreateEntityValueRequest
-	(*CreateEntityValueResponse)(nil),                // 51: idm.CreateEntityValueResponse
-	(*CreateEntityRequest)(nil),                      // 52: idm.CreateEntityRequest
-	(*CreateEntityResponse)(nil),                     // 53: idm.CreateEntityResponse
-	(*DeleteEntityValuesResponse)(nil),               // 54: idm.DeleteEntityValuesResponse
-	(*GetMetaEntityValuesRequest)(nil),               // 55: idm.GetMetaEntityValuesRequest
-	(*MetaEntityValueResponse)(nil),                  // 56: idm.MetaEntityValueResponse
-	(*UserMeta)(nil),                                 // 57: idm.UserMeta
-	(*UserMetaNamespace)(nil),                        // 58: idm.UserMetaNamespace
-	(*MetaEntity)(nil),                               // 59: idm.MetaEntity
-	(*EntityValue)(nil),                              // 60: idm.EntityValue
-	(*UpdateUserMetaRequest)(nil),                    // 61: idm.UpdateUserMetaRequest
-	(*UpdateUserMetaResponse)(nil),                   // 62: idm.UpdateUserMetaResponse
-	(*UpdateUserMetaEvent)(nil),                      // 63: idm.UpdateUserMetaEvent
-	(*SearchUserMetaRequest)(nil),                    // 64: idm.SearchUserMetaRequest
-	(*SearchUserMetaResponse)(nil),                   // 65: idm.SearchUserMetaResponse
-	(*UpdateUserMetaNamespaceRequest)(nil),           // 66: idm.UpdateUserMetaNamespaceRequest
-	(*UpdateUserMetaNamespaceResponse)(nil),          // 67: idm.UpdateUserMetaNamespaceResponse
-	(*ListUserMetaNamespaceRequest)(nil),             // 68: idm.ListUserMetaNamespaceRequest
-	(*ListUserMetaNamespaceResponse)(nil),            // 69: idm.ListUserMetaNamespaceResponse
-	(*GetFieldSchemaRequest)(nil),                    // 70: idm.GetFieldSchemaRequest
-	(*JsonSchemaResponse)(nil),                       // 71: idm.JsonSchemaResponse
-	(*GetNamespaceSchemaRequest)(nil),                // 72: idm.GetNamespaceSchemaRequest
-	(*ChangeEvent)(nil),                              // 73: idm.ChangeEvent
-	(*PolicyEngineRequest)(nil),                      // 74: idm.PolicyEngineRequest
-	(*PolicyEngineResponse)(nil),                     // 75: idm.PolicyEngineResponse
-	(*PolicyCondition)(nil),                          // 76: idm.PolicyCondition
-	(*Policy)(nil),                                   // 77: idm.Policy
-	(*PolicySubject)(nil),                            // 78: idm.PolicySubject
-	(*PolicyResource)(nil),                           // 79: idm.PolicyResource
-	(*PolicyAction)(nil),                             // 80: idm.PolicyAction
-	(*PolicyResourceRel)(nil),                        // 81: idm.PolicyResourceRel
-	(*PolicySubjectRel)(nil),                         // 82: idm.PolicySubjectRel
-	(*PolicyActionRel)(nil),                          // 83: idm.PolicyActionRel
-	(*PolicyRel)(nil),                                // 84: idm.PolicyRel
-	(*PolicyGroup)(nil),                              // 85: idm.PolicyGroup
-	(*StorePolicyGroupRequest)(nil),                  // 86: idm.StorePolicyGroupRequest
-	(*StorePolicyGroupResponse)(nil),                 // 87: idm.StorePolicyGroupResponse
-	(*DeletePolicyGroupRequest)(nil),                 // 88: idm.DeletePolicyGroupRequest
-	(*DeletePolicyGroupResponse)(nil),                // 89: idm.DeletePolicyGroupResponse
-	(*ListPolicyGroupsRequest)(nil),                  // 90: idm.ListPolicyGroupsRequest
-	(*ListPolicyGroupsResponse)(nil),                 // 91: idm.ListPolicyGroupsResponse
-	(*PolicyGroupSingleQuery)(nil),                   // 92: idm.PolicyGroupSingleQuery
-	nil,                                              // 93: idm.User.AttributesEntry
-	nil,                                              // 94: idm.Workspace.RootNodesEntry
-	nil,                                              // 95: idm.UpdateUserMetaEvent.EventMetadataEntry
-	nil,                                              // 96: idm.ChangeEvent.AttributesEntry
-	nil,                                              // 97: idm.PolicyEngineRequest.ContextEntry
-	nil,                                              // 98: idm.Policy.ConditionsEntry
-	(*service.Query)(nil),                            // 99: service.Query
-	(*service.ResourcePolicy)(nil),                   // 100: service.ResourcePolicy
-	(*tree.TreeNode)(nil),                            // 101: tree.TreeNode
-	(*tree.Node)(nil),                                // 102: tree.Node
-	(*structpb.Struct)(nil),                          // 103: google.protobuf.Struct
-	(*service.ResourcePolicyQuery)(nil),              // 104: service.ResourcePolicyQuery
+	(*LinkMetaToEntityValueRequest)(nil),             // 50: idm.LinkMetaToEntityValueRequest
+	(*GetMetadataRequest)(nil),                       // 51: idm.GetMetadataRequest
+	(*CreateEntityValueRequest)(nil),                 // 52: idm.CreateEntityValueRequest
+	(*CreateEntityValueResponse)(nil),                // 53: idm.CreateEntityValueResponse
+	(*CreateEntityRequest)(nil),                      // 54: idm.CreateEntityRequest
+	(*CreateEntityResponse)(nil),                     // 55: idm.CreateEntityResponse
+	(*DeleteEntityValuesResponse)(nil),               // 56: idm.DeleteEntityValuesResponse
+	(*GetMetaEntityValuesRequest)(nil),               // 57: idm.GetMetaEntityValuesRequest
+	(*MetaEntityValueResponse)(nil),                  // 58: idm.MetaEntityValueResponse
+	(*MetaToEntityValueRequest)(nil),                 // 59: idm.MetaToEntityValueRequest
+	(*MetaToEntityValueResponse)(nil),                // 60: idm.MetaToEntityValueResponse
+	(*UserMeta)(nil),                                 // 61: idm.UserMeta
+	(*UserMetaNamespace)(nil),                        // 62: idm.UserMetaNamespace
+	(*MetaEntity)(nil),                               // 63: idm.MetaEntity
+	(*EntityValue)(nil),                              // 64: idm.EntityValue
+	(*UpdateUserMetaRequest)(nil),                    // 65: idm.UpdateUserMetaRequest
+	(*UpdateUserMetaResponse)(nil),                   // 66: idm.UpdateUserMetaResponse
+	(*UpdateUserMetaEvent)(nil),                      // 67: idm.UpdateUserMetaEvent
+	(*SearchUserMetaRequest)(nil),                    // 68: idm.SearchUserMetaRequest
+	(*SearchUserMetaResponse)(nil),                   // 69: idm.SearchUserMetaResponse
+	(*UpdateUserMetaNamespaceRequest)(nil),           // 70: idm.UpdateUserMetaNamespaceRequest
+	(*UpdateUserMetaNamespaceResponse)(nil),          // 71: idm.UpdateUserMetaNamespaceResponse
+	(*ListUserMetaNamespaceRequest)(nil),             // 72: idm.ListUserMetaNamespaceRequest
+	(*ListUserMetaNamespaceResponse)(nil),            // 73: idm.ListUserMetaNamespaceResponse
+	(*GetFieldSchemaRequest)(nil),                    // 74: idm.GetFieldSchemaRequest
+	(*JsonSchemaResponse)(nil),                       // 75: idm.JsonSchemaResponse
+	(*GetNamespaceSchemaRequest)(nil),                // 76: idm.GetNamespaceSchemaRequest
+	(*ChangeEvent)(nil),                              // 77: idm.ChangeEvent
+	(*PolicyEngineRequest)(nil),                      // 78: idm.PolicyEngineRequest
+	(*PolicyEngineResponse)(nil),                     // 79: idm.PolicyEngineResponse
+	(*PolicyCondition)(nil),                          // 80: idm.PolicyCondition
+	(*Policy)(nil),                                   // 81: idm.Policy
+	(*PolicySubject)(nil),                            // 82: idm.PolicySubject
+	(*PolicyResource)(nil),                           // 83: idm.PolicyResource
+	(*PolicyAction)(nil),                             // 84: idm.PolicyAction
+	(*PolicyResourceRel)(nil),                        // 85: idm.PolicyResourceRel
+	(*PolicySubjectRel)(nil),                         // 86: idm.PolicySubjectRel
+	(*PolicyActionRel)(nil),                          // 87: idm.PolicyActionRel
+	(*PolicyRel)(nil),                                // 88: idm.PolicyRel
+	(*PolicyGroup)(nil),                              // 89: idm.PolicyGroup
+	(*StorePolicyGroupRequest)(nil),                  // 90: idm.StorePolicyGroupRequest
+	(*StorePolicyGroupResponse)(nil),                 // 91: idm.StorePolicyGroupResponse
+	(*DeletePolicyGroupRequest)(nil),                 // 92: idm.DeletePolicyGroupRequest
+	(*DeletePolicyGroupResponse)(nil),                // 93: idm.DeletePolicyGroupResponse
+	(*ListPolicyGroupsRequest)(nil),                  // 94: idm.ListPolicyGroupsRequest
+	(*ListPolicyGroupsResponse)(nil),                 // 95: idm.ListPolicyGroupsResponse
+	(*PolicyGroupSingleQuery)(nil),                   // 96: idm.PolicyGroupSingleQuery
+	nil,                                              // 97: idm.User.AttributesEntry
+	nil,                                              // 98: idm.Workspace.RootNodesEntry
+	nil,                                              // 99: idm.UpdateUserMetaEvent.EventMetadataEntry
+	nil,                                              // 100: idm.ChangeEvent.AttributesEntry
+	nil,                                              // 101: idm.PolicyEngineRequest.ContextEntry
+	nil,                                              // 102: idm.Policy.ConditionsEntry
+	(*service.Query)(nil),                            // 103: service.Query
+	(*service.ResourcePolicy)(nil),                   // 104: service.ResourcePolicy
+	(*tree.TreeNode)(nil),                            // 105: tree.TreeNode
+	(*tree.Node)(nil),                                // 106: tree.Node
+	(*structpb.Struct)(nil),                          // 107: google.protobuf.Struct
+	(*service.ResourcePolicyQuery)(nil),              // 108: service.ResourcePolicyQuery
 }
 var file_cells_idm_proto_depIdxs = []int32{
 	15,  // 0: idm.CreateRoleRequest.Role:type_name -> idm.Role
 	15,  // 1: idm.CreateRoleResponse.Role:type_name -> idm.Role
-	99,  // 2: idm.DeleteRoleRequest.Query:type_name -> service.Query
-	99,  // 3: idm.SearchRoleRequest.Query:type_name -> service.Query
+	103, // 2: idm.DeleteRoleRequest.Query:type_name -> service.Query
+	103, // 3: idm.SearchRoleRequest.Query:type_name -> service.Query
 	15,  // 4: idm.SearchRoleResponse.Role:type_name -> idm.Role
-	100, // 5: idm.Role.Policies:type_name -> service.ResourcePolicy
+	104, // 5: idm.Role.Policies:type_name -> service.ResourcePolicy
 	27,  // 6: idm.CreateUserRequest.User:type_name -> idm.User
 	27,  // 7: idm.CreateUserResponse.User:type_name -> idm.User
 	27,  // 8: idm.BindUserResponse.User:type_name -> idm.User
-	99,  // 9: idm.DeleteUserRequest.Query:type_name -> service.Query
-	99,  // 10: idm.SearchUserRequest.Query:type_name -> service.Query
+	103, // 9: idm.DeleteUserRequest.Query:type_name -> service.Query
+	103, // 10: idm.SearchUserRequest.Query:type_name -> service.Query
 	27,  // 11: idm.SearchUserResponse.User:type_name -> idm.User
-	101, // 12: idm.TreeUser.node:type_name -> tree.TreeNode
+	105, // 12: idm.TreeUser.node:type_name -> tree.TreeNode
 	27,  // 13: idm.TreeUser.user:type_name -> idm.User
-	93,  // 14: idm.User.Attributes:type_name -> idm.User.AttributesEntry
+	97,  // 14: idm.User.Attributes:type_name -> idm.User.AttributesEntry
 	15,  // 15: idm.User.Roles:type_name -> idm.Role
-	100, // 16: idm.User.Policies:type_name -> service.ResourcePolicy
+	104, // 16: idm.User.Policies:type_name -> service.ResourcePolicy
 	0,   // 17: idm.UserSingleQuery.NodeType:type_name -> idm.NodeType
 	35,  // 18: idm.CreateWorkspaceRequest.Workspace:type_name -> idm.Workspace
 	35,  // 19: idm.CreateWorkspaceResponse.Workspace:type_name -> idm.Workspace
-	99,  // 20: idm.DeleteWorkspaceRequest.Query:type_name -> service.Query
-	99,  // 21: idm.SearchWorkspaceRequest.Query:type_name -> service.Query
+	103, // 20: idm.DeleteWorkspaceRequest.Query:type_name -> service.Query
+	103, // 21: idm.SearchWorkspaceRequest.Query:type_name -> service.Query
 	35,  // 22: idm.SearchWorkspaceResponse.Workspace:type_name -> idm.Workspace
 	1,   // 23: idm.Workspace.Scope:type_name -> idm.WorkspaceScope
-	100, // 24: idm.Workspace.Policies:type_name -> service.ResourcePolicy
-	94,  // 25: idm.Workspace.RootNodes:type_name -> idm.Workspace.RootNodesEntry
+	104, // 24: idm.Workspace.Policies:type_name -> service.ResourcePolicy
+	98,  // 25: idm.Workspace.RootNodes:type_name -> idm.Workspace.RootNodesEntry
 	1,   // 26: idm.WorkspaceSingleQuery.scope:type_name -> idm.WorkspaceScope
 	48,  // 27: idm.CreateACLRequest.ACL:type_name -> idm.ACL
 	48,  // 28: idm.CreateACLRequest.Batch:type_name -> idm.ACL
 	48,  // 29: idm.CreateACLResponse.ACL:type_name -> idm.ACL
 	48,  // 30: idm.CreateACLResponse.Batch:type_name -> idm.ACL
-	99,  // 31: idm.ExpireACLRequest.Query:type_name -> service.Query
-	99,  // 32: idm.DeleteACLRequest.Query:type_name -> service.Query
-	99,  // 33: idm.SearchACLRequest.Query:type_name -> service.Query
+	103, // 31: idm.ExpireACLRequest.Query:type_name -> service.Query
+	103, // 32: idm.DeleteACLRequest.Query:type_name -> service.Query
+	103, // 33: idm.SearchACLRequest.Query:type_name -> service.Query
 	48,  // 34: idm.SearchACLResponse.ACL:type_name -> idm.ACL
-	99,  // 35: idm.RestoreACLRequest.Query:type_name -> service.Query
+	103, // 35: idm.RestoreACLRequest.Query:type_name -> service.Query
 	47,  // 36: idm.ACL.Action:type_name -> idm.ACLAction
 	47,  // 37: idm.ACLSingleQuery.Actions:type_name -> idm.ACLAction
-	60,  // 38: idm.CreateEntityValueRequest.EntityValue:type_name -> idm.EntityValue
-	60,  // 39: idm.CreateEntityValueResponse.EntityValue:type_name -> idm.EntityValue
-	59,  // 40: idm.CreateEntityRequest.Entity:type_name -> idm.MetaEntity
-	59,  // 41: idm.CreateEntityResponse.Entity:type_name -> idm.MetaEntity
-	60,  // 42: idm.MetaEntityValueResponse.EntityValue:type_name -> idm.EntityValue
-	100, // 43: idm.UserMeta.Policies:type_name -> service.ResourcePolicy
-	102, // 44: idm.UserMeta.ResolvedNode:type_name -> tree.Node
-	100, // 45: idm.UserMetaNamespace.Policies:type_name -> service.ResourcePolicy
-	103, // 46: idm.UserMetaNamespace.JsonSchema:type_name -> google.protobuf.Struct
+	64,  // 38: idm.CreateEntityValueRequest.EntityValue:type_name -> idm.EntityValue
+	64,  // 39: idm.CreateEntityValueResponse.EntityValue:type_name -> idm.EntityValue
+	63,  // 40: idm.CreateEntityRequest.Entity:type_name -> idm.MetaEntity
+	63,  // 41: idm.CreateEntityResponse.Entity:type_name -> idm.MetaEntity
+	64,  // 42: idm.MetaEntityValueResponse.EntityValue:type_name -> idm.EntityValue
+	104, // 43: idm.UserMeta.Policies:type_name -> service.ResourcePolicy
+	106, // 44: idm.UserMeta.ResolvedNode:type_name -> tree.Node
+	104, // 45: idm.UserMetaNamespace.Policies:type_name -> service.ResourcePolicy
+	107, // 46: idm.UserMetaNamespace.JsonSchema:type_name -> google.protobuf.Struct
 	5,   // 47: idm.UpdateUserMetaRequest.Operation:type_name -> idm.UpdateUserMetaRequest.UserMetaOp
-	57,  // 48: idm.UpdateUserMetaRequest.MetaDatas:type_name -> idm.UserMeta
-	57,  // 49: idm.UpdateUserMetaResponse.MetaDatas:type_name -> idm.UserMeta
-	95,  // 50: idm.UpdateUserMetaEvent.EventMetadata:type_name -> idm.UpdateUserMetaEvent.EventMetadataEntry
+	61,  // 48: idm.UpdateUserMetaRequest.MetaDatas:type_name -> idm.UserMeta
+	61,  // 49: idm.UpdateUserMetaResponse.MetaDatas:type_name -> idm.UserMeta
+	99,  // 50: idm.UpdateUserMetaEvent.EventMetadata:type_name -> idm.UpdateUserMetaEvent.EventMetadataEntry
 	6,   // 51: idm.UpdateUserMetaEvent.Operation:type_name -> idm.UpdateUserMetaEvent.UserMetaOp
-	57,  // 52: idm.UpdateUserMetaEvent.UserMeta:type_name -> idm.UserMeta
-	104, // 53: idm.SearchUserMetaRequest.ResourceQuery:type_name -> service.ResourcePolicyQuery
-	57,  // 54: idm.SearchUserMetaResponse.UserMeta:type_name -> idm.UserMeta
+	61,  // 52: idm.UpdateUserMetaEvent.UserMeta:type_name -> idm.UserMeta
+	108, // 53: idm.SearchUserMetaRequest.ResourceQuery:type_name -> service.ResourcePolicyQuery
+	61,  // 54: idm.SearchUserMetaResponse.UserMeta:type_name -> idm.UserMeta
 	7,   // 55: idm.UpdateUserMetaNamespaceRequest.Operation:type_name -> idm.UpdateUserMetaNamespaceRequest.UserMetaNsOp
-	58,  // 56: idm.UpdateUserMetaNamespaceRequest.Namespaces:type_name -> idm.UserMetaNamespace
-	58,  // 57: idm.UpdateUserMetaNamespaceResponse.Namespaces:type_name -> idm.UserMetaNamespace
-	58,  // 58: idm.ListUserMetaNamespaceResponse.UserMetaNamespace:type_name -> idm.UserMetaNamespace
-	103, // 59: idm.JsonSchemaResponse.JsonSchema:type_name -> google.protobuf.Struct
+	62,  // 56: idm.UpdateUserMetaNamespaceRequest.Namespaces:type_name -> idm.UserMetaNamespace
+	62,  // 57: idm.UpdateUserMetaNamespaceResponse.Namespaces:type_name -> idm.UserMetaNamespace
+	62,  // 58: idm.ListUserMetaNamespaceResponse.UserMetaNamespace:type_name -> idm.UserMetaNamespace
+	107, // 59: idm.JsonSchemaResponse.JsonSchema:type_name -> google.protobuf.Struct
 	2,   // 60: idm.ChangeEvent.Type:type_name -> idm.ChangeEventType
 	27,  // 61: idm.ChangeEvent.User:type_name -> idm.User
 	15,  // 62: idm.ChangeEvent.Role:type_name -> idm.Role
 	35,  // 63: idm.ChangeEvent.Workspace:type_name -> idm.Workspace
 	48,  // 64: idm.ChangeEvent.Acl:type_name -> idm.ACL
-	58,  // 65: idm.ChangeEvent.MetaNamespace:type_name -> idm.UserMetaNamespace
-	96,  // 66: idm.ChangeEvent.Attributes:type_name -> idm.ChangeEvent.AttributesEntry
-	97,  // 67: idm.PolicyEngineRequest.Context:type_name -> idm.PolicyEngineRequest.ContextEntry
-	78,  // 68: idm.Policy.OrmSubjects:type_name -> idm.PolicySubject
-	79,  // 69: idm.Policy.OrmResources:type_name -> idm.PolicyResource
-	80,  // 70: idm.Policy.OrmActions:type_name -> idm.PolicyAction
+	62,  // 65: idm.ChangeEvent.MetaNamespace:type_name -> idm.UserMetaNamespace
+	100, // 66: idm.ChangeEvent.Attributes:type_name -> idm.ChangeEvent.AttributesEntry
+	101, // 67: idm.PolicyEngineRequest.Context:type_name -> idm.PolicyEngineRequest.ContextEntry
+	82,  // 68: idm.Policy.OrmSubjects:type_name -> idm.PolicySubject
+	83,  // 69: idm.Policy.OrmResources:type_name -> idm.PolicyResource
+	84,  // 70: idm.Policy.OrmActions:type_name -> idm.PolicyAction
 	3,   // 71: idm.Policy.Effect:type_name -> idm.PolicyEffect
-	98,  // 72: idm.Policy.Conditions:type_name -> idm.Policy.ConditionsEntry
+	102, // 72: idm.Policy.Conditions:type_name -> idm.Policy.ConditionsEntry
 	4,   // 73: idm.PolicyGroup.ResourceGroup:type_name -> idm.PolicyResourceGroup
-	77,  // 74: idm.PolicyGroup.Policies:type_name -> idm.Policy
-	85,  // 75: idm.StorePolicyGroupRequest.PolicyGroup:type_name -> idm.PolicyGroup
-	85,  // 76: idm.StorePolicyGroupResponse.PolicyGroup:type_name -> idm.PolicyGroup
-	85,  // 77: idm.DeletePolicyGroupRequest.PolicyGroup:type_name -> idm.PolicyGroup
-	99,  // 78: idm.ListPolicyGroupsRequest.Query:type_name -> service.Query
-	85,  // 79: idm.ListPolicyGroupsResponse.PolicyGroups:type_name -> idm.PolicyGroup
-	102, // 80: idm.Workspace.RootNodesEntry.value:type_name -> tree.Node
-	76,  // 81: idm.Policy.ConditionsEntry.value:type_name -> idm.PolicyCondition
+	81,  // 74: idm.PolicyGroup.Policies:type_name -> idm.Policy
+	89,  // 75: idm.StorePolicyGroupRequest.PolicyGroup:type_name -> idm.PolicyGroup
+	89,  // 76: idm.StorePolicyGroupResponse.PolicyGroup:type_name -> idm.PolicyGroup
+	89,  // 77: idm.DeletePolicyGroupRequest.PolicyGroup:type_name -> idm.PolicyGroup
+	103, // 78: idm.ListPolicyGroupsRequest.Query:type_name -> service.Query
+	89,  // 79: idm.ListPolicyGroupsResponse.PolicyGroups:type_name -> idm.PolicyGroup
+	106, // 80: idm.Workspace.RootNodesEntry.value:type_name -> tree.Node
+	80,  // 81: idm.Policy.ConditionsEntry.value:type_name -> idm.PolicyCondition
 	8,   // 82: idm.RoleService.CreateRole:input_type -> idm.CreateRoleRequest
 	10,  // 83: idm.RoleService.DeleteRole:input_type -> idm.DeleteRoleRequest
 	12,  // 84: idm.RoleService.SearchRole:input_type -> idm.SearchRoleRequest
@@ -6438,60 +6666,66 @@ var file_cells_idm_proto_depIdxs = []int32{
 	43,  // 101: idm.ACLService.SearchACL:input_type -> idm.SearchACLRequest
 	43,  // 102: idm.ACLService.StreamACL:input_type -> idm.SearchACLRequest
 	45,  // 103: idm.ACLService.RestoreACL:input_type -> idm.RestoreACLRequest
-	61,  // 104: idm.UserMetaService.UpdateUserMeta:input_type -> idm.UpdateUserMetaRequest
-	64,  // 105: idm.UserMetaService.SearchUserMeta:input_type -> idm.SearchUserMetaRequest
-	66,  // 106: idm.UserMetaService.UpdateUserMetaNamespace:input_type -> idm.UpdateUserMetaNamespaceRequest
-	68,  // 107: idm.UserMetaService.ListUserMetaNamespace:input_type -> idm.ListUserMetaNamespaceRequest
-	70,  // 108: idm.UserMetaService.GetFieldSchema:input_type -> idm.GetFieldSchemaRequest
-	72,  // 109: idm.UserMetaService.GetNamespaceSchema:input_type -> idm.GetNamespaceSchemaRequest
-	55,  // 110: idm.UserMetaService.GetEntityValues:input_type -> idm.GetMetaEntityValuesRequest
-	55,  // 111: idm.UserMetaService.DeleteEntity:input_type -> idm.GetMetaEntityValuesRequest
-	52,  // 112: idm.UserMetaService.CreateEntity:input_type -> idm.CreateEntityRequest
-	50,  // 113: idm.UserMetaService.CreateEntityValues:input_type -> idm.CreateEntityValueRequest
-	74,  // 114: idm.PolicyEngineService.IsAllowed:input_type -> idm.PolicyEngineRequest
-	86,  // 115: idm.PolicyEngineService.StorePolicyGroup:input_type -> idm.StorePolicyGroupRequest
-	90,  // 116: idm.PolicyEngineService.ListPolicyGroups:input_type -> idm.ListPolicyGroupsRequest
-	90,  // 117: idm.PolicyEngineService.StreamPolicyGroups:input_type -> idm.ListPolicyGroupsRequest
-	88,  // 118: idm.PolicyEngineService.DeletePolicyGroup:input_type -> idm.DeletePolicyGroupRequest
-	9,   // 119: idm.RoleService.CreateRole:output_type -> idm.CreateRoleResponse
-	11,  // 120: idm.RoleService.DeleteRole:output_type -> idm.DeleteRoleResponse
-	13,  // 121: idm.RoleService.SearchRole:output_type -> idm.SearchRoleResponse
-	13,  // 122: idm.RoleService.StreamRole:output_type -> idm.SearchRoleResponse
-	14,  // 123: idm.RoleService.CountRole:output_type -> idm.CountRoleResponse
-	18,  // 124: idm.UserService.CreateUser:output_type -> idm.CreateUserResponse
-	22,  // 125: idm.UserService.DeleteUser:output_type -> idm.DeleteUserResponse
-	20,  // 126: idm.UserService.BindUser:output_type -> idm.BindUserResponse
-	25,  // 127: idm.UserService.CountUser:output_type -> idm.CountUserResponse
-	24,  // 128: idm.UserService.SearchOne:output_type -> idm.SearchUserResponse
-	24,  // 129: idm.UserService.SearchUser:output_type -> idm.SearchUserResponse
-	24,  // 130: idm.UserService.StreamUser:output_type -> idm.SearchUserResponse
-	30,  // 131: idm.WorkspaceService.CreateWorkspace:output_type -> idm.CreateWorkspaceResponse
-	32,  // 132: idm.WorkspaceService.DeleteWorkspace:output_type -> idm.DeleteWorkspaceResponse
-	34,  // 133: idm.WorkspaceService.SearchWorkspace:output_type -> idm.SearchWorkspaceResponse
-	34,  // 134: idm.WorkspaceService.StreamWorkspace:output_type -> idm.SearchWorkspaceResponse
-	38,  // 135: idm.ACLService.CreateACL:output_type -> idm.CreateACLResponse
-	40,  // 136: idm.ACLService.ExpireACL:output_type -> idm.ExpireACLResponse
-	42,  // 137: idm.ACLService.DeleteACL:output_type -> idm.DeleteACLResponse
-	44,  // 138: idm.ACLService.SearchACL:output_type -> idm.SearchACLResponse
-	44,  // 139: idm.ACLService.StreamACL:output_type -> idm.SearchACLResponse
-	46,  // 140: idm.ACLService.RestoreACL:output_type -> idm.RestoreACLResponse
-	62,  // 141: idm.UserMetaService.UpdateUserMeta:output_type -> idm.UpdateUserMetaResponse
-	65,  // 142: idm.UserMetaService.SearchUserMeta:output_type -> idm.SearchUserMetaResponse
-	67,  // 143: idm.UserMetaService.UpdateUserMetaNamespace:output_type -> idm.UpdateUserMetaNamespaceResponse
-	69,  // 144: idm.UserMetaService.ListUserMetaNamespace:output_type -> idm.ListUserMetaNamespaceResponse
-	71,  // 145: idm.UserMetaService.GetFieldSchema:output_type -> idm.JsonSchemaResponse
-	71,  // 146: idm.UserMetaService.GetNamespaceSchema:output_type -> idm.JsonSchemaResponse
-	56,  // 147: idm.UserMetaService.GetEntityValues:output_type -> idm.MetaEntityValueResponse
-	54,  // 148: idm.UserMetaService.DeleteEntity:output_type -> idm.DeleteEntityValuesResponse
-	53,  // 149: idm.UserMetaService.CreateEntity:output_type -> idm.CreateEntityResponse
-	51,  // 150: idm.UserMetaService.CreateEntityValues:output_type -> idm.CreateEntityValueResponse
-	75,  // 151: idm.PolicyEngineService.IsAllowed:output_type -> idm.PolicyEngineResponse
-	87,  // 152: idm.PolicyEngineService.StorePolicyGroup:output_type -> idm.StorePolicyGroupResponse
-	91,  // 153: idm.PolicyEngineService.ListPolicyGroups:output_type -> idm.ListPolicyGroupsResponse
-	85,  // 154: idm.PolicyEngineService.StreamPolicyGroups:output_type -> idm.PolicyGroup
-	89,  // 155: idm.PolicyEngineService.DeletePolicyGroup:output_type -> idm.DeletePolicyGroupResponse
-	119, // [119:156] is the sub-list for method output_type
-	82,  // [82:119] is the sub-list for method input_type
+	65,  // 104: idm.UserMetaService.UpdateUserMeta:input_type -> idm.UpdateUserMetaRequest
+	68,  // 105: idm.UserMetaService.SearchUserMeta:input_type -> idm.SearchUserMetaRequest
+	70,  // 106: idm.UserMetaService.UpdateUserMetaNamespace:input_type -> idm.UpdateUserMetaNamespaceRequest
+	72,  // 107: idm.UserMetaService.ListUserMetaNamespace:input_type -> idm.ListUserMetaNamespaceRequest
+	74,  // 108: idm.UserMetaService.GetFieldSchema:input_type -> idm.GetFieldSchemaRequest
+	76,  // 109: idm.UserMetaService.GetNamespaceSchema:input_type -> idm.GetNamespaceSchemaRequest
+	57,  // 110: idm.UserMetaService.GetEntityValues:input_type -> idm.GetMetaEntityValuesRequest
+	57,  // 111: idm.UserMetaService.DeleteEntity:input_type -> idm.GetMetaEntityValuesRequest
+	54,  // 112: idm.UserMetaService.CreateEntity:input_type -> idm.CreateEntityRequest
+	52,  // 113: idm.UserMetaService.CreateEntityValues:input_type -> idm.CreateEntityValueRequest
+	59,  // 114: idm.UserMetaService.LinkMetaToEntityValue:input_type -> idm.MetaToEntityValueRequest
+	59,  // 115: idm.UserMetaService.UnlinkMetaFromEntityValue:input_type -> idm.MetaToEntityValueRequest
+	51,  // 116: idm.UserMetaService.GetMetadata:input_type -> idm.GetMetadataRequest
+	78,  // 117: idm.PolicyEngineService.IsAllowed:input_type -> idm.PolicyEngineRequest
+	90,  // 118: idm.PolicyEngineService.StorePolicyGroup:input_type -> idm.StorePolicyGroupRequest
+	94,  // 119: idm.PolicyEngineService.ListPolicyGroups:input_type -> idm.ListPolicyGroupsRequest
+	94,  // 120: idm.PolicyEngineService.StreamPolicyGroups:input_type -> idm.ListPolicyGroupsRequest
+	92,  // 121: idm.PolicyEngineService.DeletePolicyGroup:input_type -> idm.DeletePolicyGroupRequest
+	9,   // 122: idm.RoleService.CreateRole:output_type -> idm.CreateRoleResponse
+	11,  // 123: idm.RoleService.DeleteRole:output_type -> idm.DeleteRoleResponse
+	13,  // 124: idm.RoleService.SearchRole:output_type -> idm.SearchRoleResponse
+	13,  // 125: idm.RoleService.StreamRole:output_type -> idm.SearchRoleResponse
+	14,  // 126: idm.RoleService.CountRole:output_type -> idm.CountRoleResponse
+	18,  // 127: idm.UserService.CreateUser:output_type -> idm.CreateUserResponse
+	22,  // 128: idm.UserService.DeleteUser:output_type -> idm.DeleteUserResponse
+	20,  // 129: idm.UserService.BindUser:output_type -> idm.BindUserResponse
+	25,  // 130: idm.UserService.CountUser:output_type -> idm.CountUserResponse
+	24,  // 131: idm.UserService.SearchOne:output_type -> idm.SearchUserResponse
+	24,  // 132: idm.UserService.SearchUser:output_type -> idm.SearchUserResponse
+	24,  // 133: idm.UserService.StreamUser:output_type -> idm.SearchUserResponse
+	30,  // 134: idm.WorkspaceService.CreateWorkspace:output_type -> idm.CreateWorkspaceResponse
+	32,  // 135: idm.WorkspaceService.DeleteWorkspace:output_type -> idm.DeleteWorkspaceResponse
+	34,  // 136: idm.WorkspaceService.SearchWorkspace:output_type -> idm.SearchWorkspaceResponse
+	34,  // 137: idm.WorkspaceService.StreamWorkspace:output_type -> idm.SearchWorkspaceResponse
+	38,  // 138: idm.ACLService.CreateACL:output_type -> idm.CreateACLResponse
+	40,  // 139: idm.ACLService.ExpireACL:output_type -> idm.ExpireACLResponse
+	42,  // 140: idm.ACLService.DeleteACL:output_type -> idm.DeleteACLResponse
+	44,  // 141: idm.ACLService.SearchACL:output_type -> idm.SearchACLResponse
+	44,  // 142: idm.ACLService.StreamACL:output_type -> idm.SearchACLResponse
+	46,  // 143: idm.ACLService.RestoreACL:output_type -> idm.RestoreACLResponse
+	66,  // 144: idm.UserMetaService.UpdateUserMeta:output_type -> idm.UpdateUserMetaResponse
+	69,  // 145: idm.UserMetaService.SearchUserMeta:output_type -> idm.SearchUserMetaResponse
+	71,  // 146: idm.UserMetaService.UpdateUserMetaNamespace:output_type -> idm.UpdateUserMetaNamespaceResponse
+	73,  // 147: idm.UserMetaService.ListUserMetaNamespace:output_type -> idm.ListUserMetaNamespaceResponse
+	75,  // 148: idm.UserMetaService.GetFieldSchema:output_type -> idm.JsonSchemaResponse
+	75,  // 149: idm.UserMetaService.GetNamespaceSchema:output_type -> idm.JsonSchemaResponse
+	58,  // 150: idm.UserMetaService.GetEntityValues:output_type -> idm.MetaEntityValueResponse
+	56,  // 151: idm.UserMetaService.DeleteEntity:output_type -> idm.DeleteEntityValuesResponse
+	55,  // 152: idm.UserMetaService.CreateEntity:output_type -> idm.CreateEntityResponse
+	53,  // 153: idm.UserMetaService.CreateEntityValues:output_type -> idm.CreateEntityValueResponse
+	60,  // 154: idm.UserMetaService.LinkMetaToEntityValue:output_type -> idm.MetaToEntityValueResponse
+	60,  // 155: idm.UserMetaService.UnlinkMetaFromEntityValue:output_type -> idm.MetaToEntityValueResponse
+	61,  // 156: idm.UserMetaService.GetMetadata:output_type -> idm.UserMeta
+	79,  // 157: idm.PolicyEngineService.IsAllowed:output_type -> idm.PolicyEngineResponse
+	91,  // 158: idm.PolicyEngineService.StorePolicyGroup:output_type -> idm.StorePolicyGroupResponse
+	95,  // 159: idm.PolicyEngineService.ListPolicyGroups:output_type -> idm.ListPolicyGroupsResponse
+	89,  // 160: idm.PolicyEngineService.StreamPolicyGroups:output_type -> idm.PolicyGroup
+	93,  // 161: idm.PolicyEngineService.DeletePolicyGroup:output_type -> idm.DeletePolicyGroupResponse
+	122, // [122:162] is the sub-list for method output_type
+	82,  // [82:122] is the sub-list for method input_type
 	82,  // [82:82] is the sub-list for extension type_name
 	82,  // [82:82] is the sub-list for extension extendee
 	0,   // [0:82] is the sub-list for field type_name
@@ -6508,7 +6742,7 @@ func file_cells_idm_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cells_idm_proto_rawDesc), len(file_cells_idm_proto_rawDesc)),
 			NumEnums:      8,
-			NumMessages:   91,
+			NumMessages:   95,
 			NumExtensions: 0,
 			NumServices:   6,
 		},

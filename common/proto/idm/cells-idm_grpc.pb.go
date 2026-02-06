@@ -1163,16 +1163,19 @@ var ACLService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	UserMetaService_UpdateUserMeta_FullMethodName          = "/idm.UserMetaService/UpdateUserMeta"
-	UserMetaService_SearchUserMeta_FullMethodName          = "/idm.UserMetaService/SearchUserMeta"
-	UserMetaService_UpdateUserMetaNamespace_FullMethodName = "/idm.UserMetaService/UpdateUserMetaNamespace"
-	UserMetaService_ListUserMetaNamespace_FullMethodName   = "/idm.UserMetaService/ListUserMetaNamespace"
-	UserMetaService_GetFieldSchema_FullMethodName          = "/idm.UserMetaService/GetFieldSchema"
-	UserMetaService_GetNamespaceSchema_FullMethodName      = "/idm.UserMetaService/GetNamespaceSchema"
-	UserMetaService_GetEntityValues_FullMethodName         = "/idm.UserMetaService/GetEntityValues"
-	UserMetaService_DeleteEntity_FullMethodName            = "/idm.UserMetaService/DeleteEntity"
-	UserMetaService_CreateEntity_FullMethodName            = "/idm.UserMetaService/CreateEntity"
-	UserMetaService_CreateEntityValues_FullMethodName      = "/idm.UserMetaService/CreateEntityValues"
+	UserMetaService_UpdateUserMeta_FullMethodName            = "/idm.UserMetaService/UpdateUserMeta"
+	UserMetaService_SearchUserMeta_FullMethodName            = "/idm.UserMetaService/SearchUserMeta"
+	UserMetaService_UpdateUserMetaNamespace_FullMethodName   = "/idm.UserMetaService/UpdateUserMetaNamespace"
+	UserMetaService_ListUserMetaNamespace_FullMethodName     = "/idm.UserMetaService/ListUserMetaNamespace"
+	UserMetaService_GetFieldSchema_FullMethodName            = "/idm.UserMetaService/GetFieldSchema"
+	UserMetaService_GetNamespaceSchema_FullMethodName        = "/idm.UserMetaService/GetNamespaceSchema"
+	UserMetaService_GetEntityValues_FullMethodName           = "/idm.UserMetaService/GetEntityValues"
+	UserMetaService_DeleteEntity_FullMethodName              = "/idm.UserMetaService/DeleteEntity"
+	UserMetaService_CreateEntity_FullMethodName              = "/idm.UserMetaService/CreateEntity"
+	UserMetaService_CreateEntityValues_FullMethodName        = "/idm.UserMetaService/CreateEntityValues"
+	UserMetaService_LinkMetaToEntityValue_FullMethodName     = "/idm.UserMetaService/LinkMetaToEntityValue"
+	UserMetaService_UnlinkMetaFromEntityValue_FullMethodName = "/idm.UserMetaService/UnlinkMetaFromEntityValue"
+	UserMetaService_GetMetadata_FullMethodName               = "/idm.UserMetaService/GetMetadata"
 )
 
 // UserMetaServiceClient is the client API for UserMetaService service.
@@ -1192,6 +1195,9 @@ type UserMetaServiceClient interface {
 	DeleteEntity(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*DeleteEntityValuesResponse, error)
 	CreateEntity(ctx context.Context, in *CreateEntityRequest, opts ...grpc.CallOption) (*CreateEntityResponse, error)
 	CreateEntityValues(ctx context.Context, in *CreateEntityValueRequest, opts ...grpc.CallOption) (*CreateEntityValueResponse, error)
+	LinkMetaToEntityValue(ctx context.Context, in *MetaToEntityValueRequest, opts ...grpc.CallOption) (*MetaToEntityValueResponse, error)
+	UnlinkMetaFromEntityValue(ctx context.Context, in *MetaToEntityValueRequest, opts ...grpc.CallOption) (*MetaToEntityValueResponse, error)
+	GetMetadata(ctx context.Context, in *GetMetadataRequest, opts ...grpc.CallOption) (*UserMeta, error)
 }
 
 type userMetaServiceClient struct {
@@ -1320,6 +1326,36 @@ func (c *userMetaServiceClient) CreateEntityValues(ctx context.Context, in *Crea
 	return out, nil
 }
 
+func (c *userMetaServiceClient) LinkMetaToEntityValue(ctx context.Context, in *MetaToEntityValueRequest, opts ...grpc.CallOption) (*MetaToEntityValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MetaToEntityValueResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_LinkMetaToEntityValue_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) UnlinkMetaFromEntityValue(ctx context.Context, in *MetaToEntityValueRequest, opts ...grpc.CallOption) (*MetaToEntityValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MetaToEntityValueResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_UnlinkMetaFromEntityValue_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) GetMetadata(ctx context.Context, in *GetMetadataRequest, opts ...grpc.CallOption) (*UserMeta, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserMeta)
+	err := c.cc.Invoke(ctx, UserMetaService_GetMetadata_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserMetaServiceServer is the server API for UserMetaService service.
 // All implementations must embed UnimplementedUserMetaServiceServer
 // for forward compatibility.
@@ -1337,6 +1373,9 @@ type UserMetaServiceServer interface {
 	DeleteEntity(context.Context, *GetMetaEntityValuesRequest) (*DeleteEntityValuesResponse, error)
 	CreateEntity(context.Context, *CreateEntityRequest) (*CreateEntityResponse, error)
 	CreateEntityValues(context.Context, *CreateEntityValueRequest) (*CreateEntityValueResponse, error)
+	LinkMetaToEntityValue(context.Context, *MetaToEntityValueRequest) (*MetaToEntityValueResponse, error)
+	UnlinkMetaFromEntityValue(context.Context, *MetaToEntityValueRequest) (*MetaToEntityValueResponse, error)
+	GetMetadata(context.Context, *GetMetadataRequest) (*UserMeta, error)
 	mustEmbedUnimplementedUserMetaServiceServer()
 }
 
@@ -1376,6 +1415,15 @@ func (UnimplementedUserMetaServiceServer) CreateEntity(context.Context, *CreateE
 }
 func (UnimplementedUserMetaServiceServer) CreateEntityValues(context.Context, *CreateEntityValueRequest) (*CreateEntityValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEntityValues not implemented")
+}
+func (UnimplementedUserMetaServiceServer) LinkMetaToEntityValue(context.Context, *MetaToEntityValueRequest) (*MetaToEntityValueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LinkMetaToEntityValue not implemented")
+}
+func (UnimplementedUserMetaServiceServer) UnlinkMetaFromEntityValue(context.Context, *MetaToEntityValueRequest) (*MetaToEntityValueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnlinkMetaFromEntityValue not implemented")
+}
+func (UnimplementedUserMetaServiceServer) GetMetadata(context.Context, *GetMetadataRequest) (*UserMeta, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetadata not implemented")
 }
 func (UnimplementedUserMetaServiceServer) mustEmbedUnimplementedUserMetaServiceServer() {}
 func (UnimplementedUserMetaServiceServer) testEmbeddedByValue()                         {}
@@ -1564,6 +1612,60 @@ func _UserMetaService_CreateEntityValues_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserMetaService_LinkMetaToEntityValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MetaToEntityValueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).LinkMetaToEntityValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_LinkMetaToEntityValue_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).LinkMetaToEntityValue(ctx, req.(*MetaToEntityValueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserMetaService_UnlinkMetaFromEntityValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MetaToEntityValueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).UnlinkMetaFromEntityValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_UnlinkMetaFromEntityValue_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).UnlinkMetaFromEntityValue(ctx, req.(*MetaToEntityValueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserMetaService_GetMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).GetMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_GetMetadata_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).GetMetadata(ctx, req.(*GetMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserMetaService_ServiceDesc is the grpc.ServiceDesc for UserMetaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1602,6 +1704,18 @@ var UserMetaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateEntityValues",
 			Handler:    _UserMetaService_CreateEntityValues_Handler,
+		},
+		{
+			MethodName: "LinkMetaToEntityValue",
+			Handler:    _UserMetaService_LinkMetaToEntityValue_Handler,
+		},
+		{
+			MethodName: "UnlinkMetaFromEntityValue",
+			Handler:    _UserMetaService_UnlinkMetaFromEntityValue_Handler,
+		},
+		{
+			MethodName: "GetMetadata",
+			Handler:    _UserMetaService_GetMetadata_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
