@@ -29,7 +29,7 @@ export const NumbersInput: React.FC<InputProps> = ({
     disabled,
     required,
     value,
-    requestToggleClose,
+    onCommitChange,
     onChange,
     errorText,
 
@@ -54,8 +54,7 @@ export const NumbersInput: React.FC<InputProps> = ({
         {...props}
         onChange={(e) => onChange(e)}
         onKeyPress={simpleEnter}
-        autoFocus={!!requestToggleClose}
-        onBlur={requestToggleClose}
+        onBlur={() => onCommitChange(value)}
         thousandSeparator=" "
         prefix={prefix}
         suffix={suffix}

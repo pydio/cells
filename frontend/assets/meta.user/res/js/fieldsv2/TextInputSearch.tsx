@@ -23,7 +23,17 @@ import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
 import {LeftSectionMenu, TextSearchModifiers} from "./SearchModifiers";
 
-export const TextInputSearch: React.FC<InputProps> = ({name, label, description, placeholder, subType, disabled, value, onChange, errorText, requestToggleClose}) => {
+export const TextInputSearch: React.FC<InputProps> = ({
+    name,
+    label,
+    description,
+    placeholder,
+    disabled,
+    value,
+    onChange,
+    errorText,
+    requestToggleClose
+}) => {
     const props = {
         label,
         description,
@@ -31,9 +41,8 @@ export const TextInputSearch: React.FC<InputProps> = ({name, label, description,
         value:value||'',
         disabled,
         error: errorText,
-        autoFocus:!!requestToggleClose,
-        onBlur:requestToggleClose
-}
+        autoFocus: !!requestToggleClose,
+    }
 
     const applyModifier = useCallback((m:string, t:string):string => {
         if(!t) {
@@ -88,5 +97,6 @@ export const TextInputSearch: React.FC<InputProps> = ({name, label, description,
         />}
         onChange={onChangeEvent}
         onKeyPress={simpleEnter}
+        onBlur={() => requestToggleClose && requestToggleClose()}
     />
 }

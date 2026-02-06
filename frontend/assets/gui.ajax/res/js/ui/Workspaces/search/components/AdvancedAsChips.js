@@ -105,11 +105,13 @@ export const AdvancedAsChips = muiThemeable()((props) => {
         }
         if(field.plus) {
             return {
+                dataTestId: `search-plus-${field.name}`,
                 contents:[<span className={"mdi mdi-plus"}/>],
                 keyClick:field.name
             }
         } else if(field.sorter) {
             return {
+                dataTestId: `search-sorter-${field.name}`,
                 contents:<ChipContents icon={'mdi mdi-sort'} label={field.label}/>,
                 keyClick:field.name
             }
@@ -128,6 +130,7 @@ export const AdvancedAsChips = muiThemeable()((props) => {
             closeCallback = (e) => e.stopPropagation() || setDisplayed(displayed.filter(n => n !== field.name))
         }
         return {
+            dataTestId: `search-chip-${field.name}`,
             keyClick: field.name,
             active: !isValueEmpty(values, key),
             contents: <ChipContents
@@ -218,6 +221,7 @@ export const AdvancedAsChips = muiThemeable()((props) => {
                     }
                     return (
                     <div
+                        data-testid={cc.dataTestId}
                         key={'block-'+idx} style={st}
                         onClick={cc.keyClick?(e)=>openPopover(e, cc.keyClick):undefined}
                     >{cc.contents}

@@ -150,7 +150,6 @@ export const URLInput: React.FC<InputProps> = ({
     required,
     value,
     onChange,
-    requestToggleClose,
     errorText,
 }) => {
     const [localValue, setLocalValue] = useState(value || '')
@@ -205,7 +204,6 @@ export const URLInput: React.FC<InputProps> = ({
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 onBlur={handleConfirmValue}
-                autoFocus={!!requestToggleClose}
                 rightSection={
                     hasValue && !hasError ? (
                         <URLLinkIcon fontSize={18} url={localValue} displayText={localValue} />

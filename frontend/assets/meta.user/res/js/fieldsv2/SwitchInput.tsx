@@ -40,8 +40,8 @@ export const SwitchInput: React.FC<InputProps> = ({
             required={required}
             error={errorText}
         >
-            <Input component={"div"} onBlur={requestToggleClose}>
-                <div style={{ display: 'flex', alignItems: 'center', height: '100%' }} onBlur={requestToggleClose}>
+            <Input component={"div"} onBlur={() => requestToggleClose && requestToggleClose()}>
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%' }} onBlur={() => requestToggleClose && requestToggleClose()}>
                     <Switch
                         label={label}
                         checked={value}

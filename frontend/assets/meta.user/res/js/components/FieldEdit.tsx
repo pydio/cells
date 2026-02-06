@@ -73,6 +73,11 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
     const value = state.formState.get(name)
     const errorText = state.errors?.[name];
 
+    const onCommitChange = useCallback((v) => {
+        actions.setFormState(state.formState.set(name, v))
+
+    }, [state.formState, state.errors, actions])
+
     let baseProps: InputProps = {
         name,
         label,
@@ -80,28 +85,14 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
         description: meta.description,
         disabled: readonly || saving,
         value,
+        onCommitChange,
         onChange: (v) => {
             actions.setFormState(state.formState.set(name, v))
         },
         errorText,
+        // FIXME: go over the code and remove this
         requestToggleClose: () => {},
-        // FIXME: Toggleable fields are disabled
-        // requestToggleClose: () => {
-        //     // NOTE: means this isnot a toggleable field
-        //     if (!requestToggleClose) return
-        //
-        //     requestToggleClose()
-        // },
     };
-
-    const onCommitChange = (v) => {
-        actions.setFormState(state.formState.set(name, v))
-
-        // NOTE: nicer UX when everything is validated
-        if (Object.keys(state.errors).length === 0) {
-            actions.setShouldSave(true)
-        }
-    }
 
     switch (type) {
         case 'stars_rate':
@@ -118,11 +109,7 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
                 {...baseProps}
                 value={state.formState.get(name) || ""}
                 disabled={state.saving || state.shouldSave}
-                onCommitChange={(v) => {
-                    // FIXME: Why this is an array?
-                    // AutoComplete is only one value selected
-                    onCommitChange([v])
-                }}
+                onCommitChange={(v) => onCommitChange([v])}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
@@ -131,7 +118,6 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
                 {...baseProps}
                 value={state.formState.get(name) || ""}
                 disabled={state.saving || state.shouldSave}
-                onCommitChange={(v) => onCommitChange(v)}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
@@ -140,7 +126,6 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
                 {...baseProps}
                 value={state.formState.get(name) || ""}
                 disabled={state.saving || state.shouldSave}
-                onCommitChange={onCommitChange}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
