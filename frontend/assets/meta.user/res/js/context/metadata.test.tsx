@@ -342,6 +342,139 @@ describe('MetadataContext', () => {
             })
         })
 
+        it('blocks save when savePartially is false and validation fails', async () => {
+            // Setup validator to fail with specific error
+            mockValidator.mockReturnValue(false)
+            mockValidator.errors = [
+                { instancePath: '/usermeta-text', schemaPath: '#/properties/usermeta-text/minLength', message: 'must be at least 3 characters', params: {} }
+            ]
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                        savePartially={false}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Set invalid data
+            act(() => {
+                result.current.actions.setFormState(new Map([['usermeta-text', 'x']]))
+            })
+
+            // Try to save
+            mockSaveMeta.mockClear()
+            act(() => {
+                result.current.actions.setShouldSave(true)
+            })
+
+            // Wait and verify save was NOT called
+            await waitFor(() => {
+                expect(mockSaveMeta).not.toHaveBeenCalled()
+                expect(result.current.state.saving).toBe(false)
+                expect(result.current.state.shouldSave).toBe(true) // Should remain true since save was blocked
+            })
+        })
+
+        it('savePartially defaults to false when not provided', async () => {
+            // Setup validator to fail
+            mockValidator.mockReturnValue(false)
+            mockValidator.errors = [
+                { instancePath: '/usermeta-text', schemaPath: '#/properties/usermeta-text/minLength', message: 'must be at least 3 characters', params: {} }
+            ]
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                        // No savePartially prop - should default to false
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Set invalid data
+            act(() => {
+                result.current.actions.setFormState(new Map([['usermeta-text', 'no']]))
+            })
+
+            mockSaveMeta.mockClear()
+            act(() => {
+                result.current.actions.setShouldSave(true)
+            })
+
+            // Should NOT save (default is false)
+            await waitFor(() => {
+                expect(mockSaveMeta).not.toHaveBeenCalled()
+            })
+        })
+
+        it('allows save when savePartially is true even with validation errors', async () => {
+            // Setup validator to fail with errors
+            mockValidator.mockReturnValue(false)
+            mockValidator.errors = [
+                { instancePath: '/field1', schemaPath: '#/properties/field1/type', message: 'must be string', params: {} },
+                { instancePath: '/field2', schemaPath: '#/properties/field2/minLength', message: 'must be at least 5 characters', params: {} }
+            ]
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                        savePartially={true}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Set data with validation errors
+            const invalidData = new Map([
+                ['field1', 123], // wrong type
+                ['field2', 'abc'] // too short
+            ])
+            act(() => {
+                result.current.actions.setFormState(invalidData)
+            })
+
+            mockSaveMeta.mockClear()
+            act(() => {
+                result.current.actions.setShouldSave(true)
+            })
+
+            // Should save despite errors
+            await waitFor(() => {
+                expect(mockSaveMeta).toHaveBeenCalledWith(invalidData)
+                expect(result.current.state.saving).toBe(false)
+                expect(result.current.state.shouldSave).toBe(false)
+            })
+        })
+
         it('removes empty string keys from formState', () => {
             // Setup validator
             mockValidator.mockReturnValue(true)

@@ -76,6 +76,10 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
     const onCommitChange = useCallback((v) => {
         actions.setFormState(state.formState.set(name, v))
 
+        // NOTE: Only save on change if there are no errors
+        if (Object.keys(state.errors).length === 0) {
+            actions.setShouldSave(true)
+        }
     }, [state.formState, state.errors, actions])
 
     let baseProps: InputProps = {

@@ -37,7 +37,7 @@ const InfoPanel = ({ pydio,
     const [valid, setValid] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    const saveMeta = useCallback((metadata) => {
+    const saveMeta = useCallback((metadata, { shouldClosePopover = false } = {}) => {
         if (!metadata) {
             return Promise.resolve()
         }
@@ -52,6 +52,9 @@ const InfoPanel = ({ pydio,
                 throw error;
             }).finally(() => {
                 setSaving(false);
+
+                if (!shouldClosePopover) return
+
                 if (popoverPanel && popoverRequestClose) {
                     popoverRequestClose();
                 }
@@ -59,7 +62,7 @@ const InfoPanel = ({ pydio,
     }, [node, setSaving, setUpdateData])
 
     const submitMetadata = useCallback(() => {
-        saveMeta(updateData)
+        saveMeta(updateData, { shouldClosePopover: true })
         setUpdateData(null)
     }, [saveMeta, updateData])
 
@@ -96,6 +99,7 @@ const InfoPanel = ({ pydio,
         <MetadataContextProvider
             node={node}
             saveMeta={saveMeta}
+            savePartialy={true}
             saving={saving}
             onDataChanged={(data, isValid) => {
                 setUpdateData(data)
