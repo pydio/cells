@@ -68,7 +68,7 @@ describe('MetadataContext', () => {
         mockNode = createMockNode()
         mockSaveMeta = vi.fn(() => Promise.resolve())
         mockOnDataChanged = vi.fn()
-        mockValidator = vi.fn() as Mock<any> & { errors: any }
+        mockValidator = vi.fn(() => ({ isValid: true, errors: {} })) as Mock<any> & { errors: any }
         mockCompile.mockReturnValue(mockValidator)
         // Setup default MetaClient mock
         MetaClient.getInstance.mockReturnValue({
@@ -1122,6 +1122,92 @@ describe('MetadataContext', () => {
                 const callArgs = mockOnDataChanged.mock.calls[0][0]
                 expect(callArgs.get('newKey')).toBe('newValue')
             })
+        })
+
+        it('updates formState without validation when no jsonSchema is set', async () => {
+            // Even without a schema, formState should update
+            // The validator defaults to noopValidator which always returns isValid: true
+            const metadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(metadata)
+
+            // Don't set up a schema - simulate getNamespaceSchema returning null
+            MetaClient.getInstance.mockReturnValue({
+                getNamespaceSchema: vi.fn(() => Promise.resolve(null))
+            })
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            mockOnDataChanged.mockClear()
+
+            // Set form state without schema - should still work with noopValidator
+            act(() => {
+                result.current.actions.setFormState(metadata)
+            })
+
+            // onDataChanged SHOULD be called with isValid: true (noopValidator result)
+            expect(mockOnDataChanged).toHaveBeenCalledWith(metadata, true)
+        })
+
+        it('switches from noopValidator to real validator when jsonSchema becomes available', async () => {
+            const metadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(metadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue({ isValid: true, errors: {} })
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Initially no schema, uses noopValidator
+            mockOnDataChanged.mockClear()
+            act(() => {
+                result.current.actions.setFormState(metadata)
+            })
+            // noopValidator still calls onDataChanged with isValid: true
+            expect(mockOnDataChanged).toHaveBeenCalledWith(metadata, true)
+
+            // Now set schema - replaces noopValidator with real validator
+            mockOnDataChanged.mockClear()
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Wait for the effect that initializes real validator and calls setFormState
+            await waitFor(() => {
+                expect(mockCompile).toHaveBeenCalledWith(testSchema)
+            })
+
+            // Now setFormState uses the real validator
+            mockOnDataChanged.mockClear()
+            const newMetadata = new Map([['key2', 'value2']])
+            act(() => {
+                result.current.actions.setFormState(newMetadata)
+            })
+
+            // Check that onDataChanged was called (might be called twice due to the effect)
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            expect(mockValidator).toHaveBeenCalled()
         })
     })
 })
