@@ -1,11 +1,18 @@
 import * as React from 'react'
 import MetaClient from "../MetaClient";
 import { mapErrors, formatSpecialCasesForValidation, buildValidator } from './utils/validators';
+import type { Validator } from './utils/validators';
 
 // FIXME: Properly type this
-type PydioNode = unknown;
+type PydioNode = {
+    getMetadata: () => Map<string, any>;
+    getPath: () => string;
+    replaceMetadata: (metadata: Map<string, any>, notify?: boolean) => void;
+    observe: (eventName: string, callback: (node: PydioNode) => void) => void;
+    stopObserving: (eventName: string, callback: (node: PydioNode) => void) => void;
+};
 
-import Ajv, { JSONSchemaType, ValidateFunction } from "ajv";
+import Ajv, { JSONSchemaType, ValidateFunction, AnySchema } from "ajv";
 import addFormats from 'ajv-formats'
 
 interface MetadataState {
@@ -13,8 +20,8 @@ interface MetadataState {
     saving: boolean;
     formState: Map<string, any>;
     fields: {[key: string]: any};
-    namespaceJsonSchema: JSONSchemaType<any> | null;
-    jsonSchema: JSONSchemaType<any> | null;
+    namespaceJsonSchema: AnySchema | null;
+    jsonSchema: AnySchema | null;
     shouldSave: boolean;
     editingTag: string;
     errors: {[key: string]: string};
@@ -25,7 +32,7 @@ type MetadataAction =
     | { type: 'set_saving'; saving: boolean }
     | { type: 'set_form_state'; formState: Map<string, any> }
     | { type: 'set_fields'; fields: {[key: string]: any} }
-    | { type: 'set_namespace_schema'; namespaceJsonSchema: JSONSchemaType<any> | null }
+    | { type: 'set_namespace_schema'; namespaceJsonSchema: AnySchema | null }
     | { type: 'set_should_save'; shouldSave: boolean }
     | { type: 'set_json_schema'; jsonSchema: JSONSchemaType<any> | null }
     | { type: 'set_errors'; errors: {[key: string]: string} };
@@ -85,6 +92,17 @@ const reducer = (state: MetadataState, action: MetadataAction): MetadataState =>
 
 const noop = (...args: any[]) => {}
 
+// Helper function to remove entries with empty string keys from a Map
+const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
+    const cleanedMap = new Map<string, any>()
+    formState.forEach((value, key) => {
+        if (key !== '') {
+            cleanedMap.set(key, value)
+        }
+    })
+    return cleanedMap
+}
+
 const defaultContext: MetadataContextType = {
     state: initialState,
     dispatch: noop as React.Dispatch<MetadataAction>,
@@ -100,14 +118,14 @@ const defaultContext: MetadataContextType = {
 
 export const MetadataContext = React.createContext(defaultContext)
 
-
+const NODE_REPLACED_EVENT = 'node_replaced';
 
 type MetadataContextProviderProps = {
     node: PydioNode;
     saveMeta: (formData: Map<string, any>) => Promise<any>;
     value: any;
     onDataChanged: (formData: Map<string, any>, isValid: boolean) => void;
-    savePartially: boolean;
+    savePartially?: boolean;
     children: React.ReactNode;
 }
 
@@ -135,21 +153,38 @@ export const MetadataContextProvider = ({
         setFormState: (formState) => {
             if (!validatorRef.current) return;
 
-            let { isValid, errors } = validatorRef.current(formState);
+            // Remove entries with empty string keys
+            const cleanedFormState = removeEmptyKeys(formState);
+
+            let { isValid, errors } = validatorRef.current(cleanedFormState);
             dispatch({ type: 'set_errors', errors })
 
-            dispatch({ type: 'set_form_state', formState })
+            dispatch({ type: 'set_form_state', formState: cleanedFormState })
 
             // NOTE: For parents that require holding state because we can't
             // wrap them with a provider.
             // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
-            if (onDataChanged) onDataChanged(formState, isValid)
+            if (onDataChanged) onDataChanged(cleanedFormState, isValid)
         },
 
         setShouldSave: (shouldSave) => dispatch({ type: 'set_should_save', shouldSave }),
         setFields: (fields) => dispatch({ type: 'set_fields', fields }),
         setJsonSchema: (jsonSchema) => dispatch({ type: 'set_json_schema', jsonSchema })
     }), []);
+
+    const onNodeReplaced = React.useCallback((newNode) => {
+        if (!newNode) return;
+
+        actions.setFormState(newNode.getMetadata())
+    }, [node])
+
+    React.useEffect(() => {
+        if (!node) return;
+
+        node.observe(NODE_REPLACED_EVENT, onNodeReplaced);
+
+        return () => node.stopObserving(NODE_REPLACED_EVENT, onNodeReplaced)
+    }, [node])
 
     React.useEffect(() => {
         if (!state.jsonSchema) return

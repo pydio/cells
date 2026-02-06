@@ -25,7 +25,13 @@ import UserMetaPanelV2 from "./UserMetaPanelV2";
 const { InfoPanelCard } = Pydio.requireLib('workspaces')
 import { MetadataContextProvider } from './context/metadata.tsx';
 
-const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
+const InfoPanel = ({ pydio,
+    node,
+    popoverPanel,
+    popoverRequestClose,
+    style,
+    ...infoProps
+}) => {
     const panel = useRef(null);
     const [updateData, setUpdateData] = useState(null);
     const [valid, setValid] = useState(true);
@@ -40,13 +46,16 @@ const InfoPanel = ({ pydio, node, popoverPanel, style, ...infoProps }) => {
         return MetaClient.getInstance()
             .saveMeta([node], metadata)
             .then(() => {
-                setSaving(false);
                 node.replaceMetadata(metadata, true);
                 setUpdateData(null);
             }).catch((error) => {
-                setSaving(false);
                 throw error;
-            });
+            }).finally(() => {
+                setSaving(false);
+                if (popoverPanel && popoverRequestClose) {
+                    popoverRequestClose();
+                }
+            })
     }, [node, setSaving, setUpdateData])
 
     const submitMetadata = useCallback(() => {

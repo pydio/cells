@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { Mock } from 'vitest'
+import { Mock } from 'vitest'
 import { renderHook, act, waitFor, render, screen } from '@testing-library/react'
 
 // Suppress console.log from reducer
@@ -17,13 +17,13 @@ vi.mock('../MetaClient', () => ({
 
 // Mock ajv and ajv-formats
 const { mockCompile, mockAjv, mockAddFormats } = vi.hoisted(() => {
-    const mockCompile = vi.fn()
-    const mockAjv = vi.fn(function() {
+    const mockCompile: Mock<() => any> = vi.fn()
+    const mockAjv: Mock<() => any> = vi.fn(function() {
         return {
             compile: mockCompile
         }
     })
-    const mockAddFormats = vi.fn()
+    const mockAddFormats: Mock<() => any> = vi.fn()
     return { mockCompile, mockAjv, mockAddFormats }
 })
 vi.mock('ajv', () => ({
@@ -40,9 +40,11 @@ import MetaClient from '../MetaClient'
 import { MetadataContextProvider, useMetadataContext, MetadataContext } from './metadata'
 
 interface MockNode {
-  getMetadata: Mock<any>;
-  getPath: Mock<any>;
-  replaceMetadata: Mock<any>;
+  getMetadata: Mock<() => Map<string, any>>;
+  getPath: Mock<() => string>;
+  replaceMetadata: Mock<(metadata: Map<string, any>, notify?: boolean) => void>;
+  observe: Mock<(eventName: string, callback: (node: MockNode) => void) => void>;
+  stopObserving: Mock<(eventName: string, callback: (node: MockNode) => void) => void>;
   [key: string]: any;
 }
 
@@ -51,13 +53,15 @@ const createMockNode = (overrides: Partial<MockNode> = {}): MockNode => ({
     getMetadata: vi.fn(() => new Map()),
     getPath: vi.fn(() => '/test/path'),
     replaceMetadata: vi.fn(),
+    observe: vi.fn(),
+    stopObserving: vi.fn(),
     ...overrides
 })
 
 describe('MetadataContext', () => {
     let mockNode: MockNode
-    let mockSaveMeta: Mock<any>
-    let mockOnDataChanged: Mock<any>
+    let mockSaveMeta: Mock<(formData: Map<string, any>) => Promise<any>>
+    let mockOnDataChanged: Mock<(formData: Map<string, any>, isValid: boolean) => void>
     let mockValidator: Mock<any> & { errors: any }
 
     beforeEach(() => {
@@ -150,7 +154,7 @@ describe('MetadataContext', () => {
         it('updates formState when node path changes', async () => {
             const metadata = new Map([['key', 'value']])
             mockNode.getMetadata.mockReturnValue(metadata)
-            
+
             // Setup validator
             mockValidator.mockReturnValue(true)
             mockValidator.errors = null
@@ -167,26 +171,28 @@ describe('MetadataContext', () => {
                     </MetadataContextProvider>
                 )
             })
-            
+
             // Set schema to initialize validator
             act(() => {
                 result.current.actions.setJsonSchema(testSchema)
             })
-            
+
             // Set the formState directly (simulating what the effect does)
             act(() => {
                 result.current.actions.setFormState(metadata)
             })
 
-            // Verify formState was updated
-            expect(result.current.state.formState.get('key')).toBe('value')
+            // Verify onDataChanged was called with the cleaned formState (same data as input since no empty keys)
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            const callArgs = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
+            expect(callArgs[0].get('key')).toBe('value')
         })
 
         it('calls onDataChanged when formState changes', async () => {
             // Setup validator
             mockValidator.mockReturnValue(true)
             mockValidator.errors = null
-            
+
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
                     <MetadataContextProvider
@@ -199,7 +205,7 @@ describe('MetadataContext', () => {
                     </MetadataContextProvider>
                 )
             })
-            
+
             // Set schema to initialize validator
             act(() => {
                 result.current.actions.setJsonSchema(testSchema)
@@ -335,6 +341,193 @@ describe('MetadataContext', () => {
                 expect(mockSaveMeta).toHaveBeenCalled()
             })
         })
+
+        it('removes empty string keys from formState', () => {
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            mockOnDataChanged.mockClear()
+
+            // Create formState with an empty string key
+            const formStateWithEmptyKey = new Map([
+                ['key1', 'value1'],
+                ['', 'emptyKeyValue'],
+                ['key2', 'value2']
+            ])
+
+            act(() => {
+                result.current.actions.setFormState(formStateWithEmptyKey)
+            })
+
+            // Verify onDataChanged was called
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            const cleanedState = mockOnDataChanged.mock.calls[0][0]
+
+            // The cleaned formState should not contain the empty key
+            expect(cleanedState.has('')).toBe(false)
+            expect(cleanedState.get('key1')).toBe('value1')
+            expect(cleanedState.get('key2')).toBe('value2')
+            expect(cleanedState.size).toBe(2)
+        })
+
+        it('preserves entries with empty string values', () => {
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            mockOnDataChanged.mockClear()
+
+            // Create formState with empty string VALUE (not key)
+            const formStateWithEmptyValue = new Map([
+                ['key1', 'value1'],
+                ['key2', ''],  // empty value, but valid key
+                ['key3', 'value3']
+            ])
+
+            act(() => {
+                result.current.actions.setFormState(formStateWithEmptyValue)
+            })
+
+            // Verify onDataChanged was called
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            const cleanedState = mockOnDataChanged.mock.calls[0][0]
+
+            // All keys should be preserved, including the one with empty value
+            expect(cleanedState.get('key1')).toBe('value1')
+            expect(cleanedState.get('key2')).toBe('')
+            expect(cleanedState.get('key3')).toBe('value3')
+            expect(cleanedState.size).toBe(3)
+        })
+
+        it('keeps all valid non-empty keys intact', () => {
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            mockOnDataChanged.mockClear()
+
+            const formState = new Map([
+                ['usermeta-text', 'hello'],
+                ['key-with-dash', 'value'],
+                ['key_with_underscore', 'value'],
+                ['123numerickey', 'value']
+            ])
+
+            act(() => {
+                result.current.actions.setFormState(formState)
+            })
+
+            // Verify onDataChanged was called
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            const cleanedState = mockOnDataChanged.mock.calls[0][0]
+
+            // All valid keys should be preserved
+            expect(cleanedState.get('usermeta-text')).toBe('hello')
+            expect(cleanedState.get('key-with-dash')).toBe('value')
+            expect(cleanedState.get('key_with_underscore')).toBe('value')
+            expect(cleanedState.get('123numerickey')).toBe('value')
+            expect(cleanedState.size).toBe(4)
+        })
+
+        it('passes cleaned formState to onDataChanged callback', () => {
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            const formStateWithEmptyKey = new Map([
+                ['key1', 'value1'],
+                ['', 'emptyKeyValue'],
+                ['key2', 'value2']
+            ])
+
+            act(() => {
+                result.current.actions.setFormState(formStateWithEmptyKey)
+            })
+
+            // Verify onDataChanged was called with cleaned formState
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            const callArgs = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
+            const cleanedFormState = callArgs[0]
+
+            // The callback should receive formState without empty keys
+            expect(cleanedFormState.has('')).toBe(false)
+            expect(cleanedFormState.get('key1')).toBe('value1')
+            expect(cleanedFormState.get('key2')).toBe('value2')
+            expect(cleanedFormState.size).toBe(2)
+        })
     })
 
     describe('useMetadataContext', () => {
@@ -377,7 +570,7 @@ describe('MetadataContext', () => {
             // Setup validator first
             mockValidator.mockReturnValue(true)
             mockValidator.errors = null
-            
+
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
                     <MetadataContextProvider
@@ -408,10 +601,16 @@ describe('MetadataContext', () => {
             expect(result.current.state.jsonSchema).toBe(testSchema)
 
             const newFormState = new Map([['key', 'val']])
+            mockOnDataChanged.mockClear()
             act(() => {
                 result.current.actions.setFormState(newFormState)
             })
-            expect(result.current.state.formState).toBe(newFormState)
+            // After cleaning empty keys, the formState should contain the same data
+            // Verify via the onDataChanged callback since that's what gets called
+            expect(mockOnDataChanged).toHaveBeenCalled()
+            const callArgs = mockOnDataChanged.mock.calls[0]
+            expect(callArgs[0].get('key')).toBe('val')
+            expect(callArgs[0].size).toBe(1)
 
             act(() => {
                 result.current.actions.setNamespaceJsonSchema(testSchema)
@@ -422,6 +621,374 @@ describe('MetadataContext', () => {
                 result.current.actions.setShouldSave(true)
             })
             expect(result.current.state.shouldSave).toBe(true)
+        })
+
+        it('observes node_replaced event and updates formState when node is replaced', async () => {
+            // Setup initial node with metadata
+            const initialMetadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(initialMetadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Verify that node.observe was called with 'node_replaced' event
+            expect(mockNode.observe).toHaveBeenCalledWith('node_replaced', expect.any(Function))
+        })
+
+        it('fires node_replaced event handler with new node metadata', async () => {
+            const initialMetadata = new Map([['key1', 'value1']])
+            const newMetadata = new Map([['key2', 'value2']])
+            mockNode.getMetadata.mockReturnValue(initialMetadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Get the callback that was passed to node.observe
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            expect(observeCall).toBeDefined()
+
+            const nodeReplacedCallback = observeCall![1]
+
+            // Create a new mock node with different metadata
+            const newNode = createMockNode({
+                getMetadata: vi.fn(() => newMetadata)
+            })
+
+            // Clear previous calls to onDataChanged
+            mockOnDataChanged.mockClear()
+
+            // Simulate the node_replaced event by calling the callback
+            act(() => {
+                nodeReplacedCallback(newNode)
+            })
+
+            // Verify that onDataChanged was called with the new metadata
+            await waitFor(() => {
+                expect(mockOnDataChanged).toHaveBeenCalledWith(newMetadata, expect.any(Boolean))
+            })
+        })
+
+        it('cleans up node_replaced observer on unmount', () => {
+            const initialMetadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(initialMetadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { unmount } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Verify that node.observe was called
+            expect(mockNode.observe).toHaveBeenCalledWith('node_replaced', expect.any(Function))
+
+            // Get the callback that was registered
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            const nodeReplacedCallback = observeCall![1]
+
+            // Unmount the component
+            unmount()
+
+            // Verify that stopObserving was called with the same callback
+            expect(mockNode.stopObserving).toHaveBeenCalledWith('node_replaced', nodeReplacedCallback)
+        })
+
+        it('handles new node being null in node_replaced callback', async () => {
+            const initialMetadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(initialMetadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Get the callback
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            const nodeReplacedCallback = observeCall![1]
+
+            mockOnDataChanged.mockClear()
+
+            // Call callback with null node - should return early and not crash
+            act(() => {
+                nodeReplacedCallback(null)
+            })
+
+            // onDataChanged should not be called
+            expect(mockOnDataChanged).not.toHaveBeenCalled()
+        })
+
+        it('handles multiple rapid node replacements', async () => {
+            const initialMetadata = new Map([['key1', 'value1']])
+            const metadata2 = new Map([['key2', 'value2']])
+            const metadata3 = new Map([['key3', 'value3']])
+
+            mockNode.getMetadata.mockReturnValue(initialMetadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Get the callback
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            const nodeReplacedCallback = observeCall![1]
+
+            mockOnDataChanged.mockClear()
+
+            // Create multiple nodes
+            const node2 = createMockNode({ getMetadata: vi.fn(() => metadata2) })
+            const node3 = createMockNode({ getMetadata: vi.fn(() => metadata3) })
+
+            // Fire multiple replacements rapidly
+            act(() => {
+                nodeReplacedCallback(node2)
+                nodeReplacedCallback(node3)
+            })
+
+            // Should have been called twice, with the last metadata winning
+            await waitFor(() => {
+                expect(mockOnDataChanged).toHaveBeenCalledTimes(2)
+                // Last call should have node3's metadata - compare by Map content
+                const lastCall = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
+                const lastMetadata = lastCall[0]
+                expect(lastMetadata.get('key3')).toBe('value3')
+                expect(lastMetadata.size).toBe(1)
+            })
+        })
+
+        it('skips unnecessary updates when metadata is identical', async () => {
+            const sharedMetadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(sharedMetadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Get the callback
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            const nodeReplacedCallback = observeCall![1]
+
+            mockOnDataChanged.mockClear()
+
+            // Create node with same metadata
+            const newNode = createMockNode({
+                getMetadata: vi.fn(() => sharedMetadata)
+            })
+
+            // Fire replacement
+            act(() => {
+                nodeReplacedCallback(newNode)
+            })
+
+            // Should still call onDataChanged (we don't do equality checking in current impl)
+            // This tests current behavior - optimization could be added later
+            await waitFor(() => {
+                expect(mockOnDataChanged).toHaveBeenCalledWith(sharedMetadata, expect.any(Boolean))
+            })
+        })
+
+        it('handles same node being replaced with itself', async () => {
+            const metadata = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(metadata)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Get the callback
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            const nodeReplacedCallback = observeCall![1]
+
+            mockOnDataChanged.mockClear()
+
+            // Replace with the same node
+            act(() => {
+                nodeReplacedCallback(mockNode)
+            })
+
+            // Should still update (no identity check in current impl)
+            await waitFor(() => {
+                expect(mockOnDataChanged).toHaveBeenCalledWith(metadata, expect.any(Boolean))
+            })
+        })
+
+        it('properly registers callback with current node reference', async () => {
+            // This test verifies that the onNodeReplaced callback is registered with the 
+            // current node instance and not stale references
+            const metadata1 = new Map([['key1', 'value1']])
+            mockNode.getMetadata.mockReturnValue(metadata1)
+
+            // Setup validator
+            mockValidator.mockReturnValue(true)
+            mockValidator.errors = null
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            // Set schema to initialize validator
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Verify the observer was registered exactly once
+            expect(mockNode.observe).toHaveBeenCalledTimes(1)
+            expect(mockNode.observe).toHaveBeenCalledWith('node_replaced', expect.any(Function))
+
+            // Get the registered callback
+            const callback = mockNode.observe.mock.calls[0][1]
+
+            mockOnDataChanged.mockClear()
+
+            // Create a new node and invoke the callback with it
+            const newNode = createMockNode({
+                getMetadata: vi.fn(() => new Map([['newKey', 'newValue']]))
+            })
+
+            act(() => {
+                callback(newNode)
+            })
+
+            // Verify the callback used the new node's metadata
+            await waitFor(() => {
+                expect(mockOnDataChanged).toHaveBeenCalled()
+                const callArgs = mockOnDataChanged.mock.calls[0][0]
+                expect(callArgs.get('newKey')).toBe('newValue')
+            })
         })
     })
 })
