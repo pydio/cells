@@ -92,6 +92,9 @@ const reducer = (state: MetadataState, action: MetadataAction): MetadataState =>
 
 const noop = (...args: any[]) => {}
 
+// Validator that accepts everything without validation
+const noopValidator: Validator = (formState: Map<string, any>) => ({ isValid: true, errors: {} })
+
 // Helper function to remove entries with empty string keys from a Map
 const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
     const cleanedMap = new Map<string, any>()
@@ -137,7 +140,7 @@ export const MetadataContextProvider = ({
     savePartially = false,
     children,
 }: MetadataContextProviderProps) => {
-    const validatorRef = React.useRef<Validator>();
+    const validatorRef = React.useRef<Validator>(noopValidator);
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
         node,
@@ -151,8 +154,6 @@ export const MetadataContextProvider = ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
 
         setFormState: (formState) => {
-            if (!validatorRef.current) return;
-
             // Remove entries with empty string keys
             const cleanedFormState = removeEmptyKeys(formState);
 
@@ -188,7 +189,6 @@ export const MetadataContextProvider = ({
 
     React.useEffect(() => {
         if (!state.jsonSchema) return
-        if (validatorRef.current) return // Already initialized
 
         validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
 
