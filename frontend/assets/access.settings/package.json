@@ -27,7 +27,7 @@
     "react-json-view": "^1.21.3",
     "@types/codemirror": "^0.0.108",
     "codemirror": "^5.59.4",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lodash.shuffle": "^4.2.0",
     "react-codemirror": "^1.0.0",
     "react-redux": "^7.1.3",
