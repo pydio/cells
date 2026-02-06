@@ -30,8 +30,8 @@ export const DateInput: React.FC<InputProps> = ({
     required,
     disabled,
     value,
-    requestToggleClose,
     onChange,
+    onCommitChange,
     errorText
 }) => {
     const props = {
@@ -42,9 +42,9 @@ export const DateInput: React.FC<InputProps> = ({
     }
 
     const popoverProps : PopoverProps = {withinPortal: false}
-    if(requestToggleClose && !disabled) {
+    if(onCommitChange && !disabled) {
         popoverProps.onClose = () => {
-            requestToggleClose();
+            onCommitChange(value);
         };
     }
 
@@ -55,10 +55,10 @@ export const DateInput: React.FC<InputProps> = ({
         onChange={(v) => {
             const d = new Date(v).getTime()/1000;
             onChange(d, true);
+            onCommitChange(d);
         }}
         description={description}
         placeholder={placeholder}
-        autoFocus={!!requestToggleClose}
         popoverProps={popoverProps}
     />
 }

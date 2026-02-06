@@ -30,7 +30,7 @@ export const RatingInput: React.FC<InputProps> = ({
     disabled,
     required,
     onChange,
-    requestToggleClose
+    onCommitChange,
 }: InputProps) => {
 
     return (
@@ -46,7 +46,10 @@ export const RatingInput: React.FC<InputProps> = ({
                 component={"div"}
                 disabled={disabled}
             >
-                <div style={{ display: 'flex', alignItems: 'center' }} onBlur={requestToggleClose}>
+                <div
+                    style={{ display: 'flex', alignItems: 'center' }}
+                    onBlur={() => onCommitChange(value)}
+                >
                     <span
                         className={'mdi mdi-star-off-outline'}
                         style={{ fontSize: 19, marginRight: 5, cursor: 'pointer' }}

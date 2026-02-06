@@ -153,10 +153,13 @@ export const MetadataContextProvider = ({
 
     React.useEffect(() => {
         if (!state.jsonSchema) return
+        if (validatorRef.current) return // Already initialized
 
         validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
-        actions.setFormState(state.formState)
-    }, [state.jsonSchema]);
+
+        const metadata = node.getMetadata()
+        actions.setFormState(metadata)
+    }, [state.jsonSchema, node]);
 
     React.useEffect(() => {
         if (!node) return

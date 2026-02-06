@@ -75,7 +75,7 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
                 composedValue,
                 leftSection,
                 autoFocus: !!requestToggleClose,
-                onBlur: requestToggleClose,
+                onBlur: () => requestToggleClose && requestToggleClose(),
                 onTextChange: (nextText) => onChange(applyModifier(modifier, nextText)),
                 onSubmit: () => onChange(composedValue, true)
             })}

@@ -32,7 +32,7 @@ export const TextInput: React.FC<InputProps> = ({
     value,
     onChange,
     errorText,
-    requestToggleClose
+    onCommitChange
 }) => {
     const props = {
         label,
@@ -42,8 +42,7 @@ export const TextInput: React.FC<InputProps> = ({
         disabled,
         required,
         error: errorText,
-        autoFocus:!!requestToggleClose,
-        onBlur: requestToggleClose
+        onBlur: () => onCommitChange(value)
     }
 
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
@@ -55,7 +54,7 @@ export const TextInput: React.FC<InputProps> = ({
     }
     const ctrlEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter' && event.ctrlKey){
-            onChange(value, true);
+            onCommitChange(value);
         }
     }
 
