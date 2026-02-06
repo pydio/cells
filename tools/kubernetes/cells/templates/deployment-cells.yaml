@@ -178,7 +178,9 @@ spec:
               wait_tcp broker  {{ include "cells.broker.host" . | quote }} {{ include "cells.broker.port" . | quote }} 120 &
               {{- end }}
               {{- if (include "cells.s3.enabled" .) }}
+              {{- if or .Values.minio.enabled (and .Values.externalS3.enabled .Values.externalS3.useCustomURL) }}
               wait_tcp s3  {{ include "cells.s3.host" . | quote }} {{ include "cells.s3.port" . | quote }} 120 &
+              {{- end }}
               {{- end }}
               {{- if (include "cells.vault.enabled" .) }}
               wait_tcp vault  {{ include "cells.vault.host" . | quote }} {{ include "cells.vault.port" . | quote }} 120 &
