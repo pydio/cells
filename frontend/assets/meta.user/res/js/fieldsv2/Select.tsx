@@ -45,7 +45,6 @@ export const Selector: React.FC<SelectInputProps> = ({
     disabled,
     stepper
  }) => {
-
     const handleColors = items.find(i => !!i.color)
 
     const renderOptions = useCallback(({ option, checked }: RenderOptionProps) => {
@@ -55,7 +54,7 @@ export const Selector: React.FC<SelectInputProps> = ({
         }
     }, [items, value])
 
-    const crtItem = items.find(i => i.key === value)
+    const crtItem = items.find(i => i.value === value)
 
     let leftSection: React.ReactNode, rightSection: React.ReactNode
     if (handleColors && value) {
@@ -105,10 +104,18 @@ export const Selector: React.FC<SelectInputProps> = ({
             comboboxProps={{ withinPortal: false }}
             styles={leftSection ? { input: { paddingLeft: 30 } } : undefined}
             renderOption={handleColors ? renderOptions : undefined}
-            onDropdownClose={() => onCommitChange(value)}
+            onDropdownClose={() => {
+                const key = items.find(i => i.value === value)?.key
+                if (!key) return
+
+                onCommitChange(key)
+            }}
             onBlur={(e) => {
                 const { value } = e.currentTarget;
-                onCommitChange(value);
+                const key = items.find(i => i.value === value)?.key
+                if (!key) return
+
+                onCommitChange(key);
             }}
         />
     )
