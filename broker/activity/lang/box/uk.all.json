@@ -1,6 +1,6 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Доступ отримано {{.Actor}}"
   },
   "AccessedObject": {
     "other": "Accessed {{.Object}}"
