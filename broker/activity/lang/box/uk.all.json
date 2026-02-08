@@ -48,13 +48,13 @@
     "other": "Modified by {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Змінено {{.Object}}"
   },
   "ModifiedObjectBy": {
     "other": "{{.Object}} was modified by {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Метадані змінені користувачем {{.Actor}}"
   },
   "MetaModifiedObject": {
     "other": "Modified metadata on {{.Object}}"
