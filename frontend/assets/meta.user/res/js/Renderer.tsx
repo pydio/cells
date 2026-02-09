@@ -228,6 +228,9 @@ export default class Renderer{
             case 'tags':
                 out = {renderComponent: Renderer.renderTagsCloud, renderBlock: true, sortType: 'string'}
                 break
+            case 'tag_cloud':
+                out = {renderComponent: Renderer.renderTagsCloud, renderBlock: true, sortType: 'string'}
+                break
             case 'integer':
                 out = {renderComponent: Renderer.renderInteger, sortType: 'number'}
                 break
