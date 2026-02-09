@@ -26,7 +26,7 @@ import {
     UpdateUserMetaNamespaceRequestUserMetaNsOp,
 
 } from 'cells-sdk'
-import Form from '@rjsf/mantine';
+
 
 /** 
  * @typedef {import('cells-sdk').IdmUserMetaNamespace} IdmUserMetaNamespace
@@ -80,7 +80,26 @@ class Metadata {
     static getJsonSchemaByType(fieldType, namespace, format = '') {     
         return Metadata.api.getNamespaceSchema({ FieldType: fieldType, Namespace: namespace, Format: format });
     }
+    /**
+     * @param namespace String
+     * @return {Promise<Array>}
+     */
+    static listTags(namespace){
 
+        return new Promise((resolve) => {
+            Metadata.api.listUserMetaTags(namespace).then(response => {
+                if(response.Tags){
+                    resolve(response.Tags);
+                } else {
+                    resolve([]);
+                }
+            }).catch(e => {
+                resolve([])
+            })
+
+        });
+
+    }
     /**
      * Clear ReactMeta cache if it exists
      */
@@ -93,6 +112,7 @@ class Metadata {
             //console.log(e)
         }
     }
+    
 
 }
 
