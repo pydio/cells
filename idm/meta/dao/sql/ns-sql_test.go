@@ -76,7 +76,7 @@ func TestNSCrud(t *testing.T) {
 			So(er, ShouldBeNil)
 			So(def["type"], ShouldEqual, "string")
 
-			e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace"})
+			e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: "namespace", Label: "label"})
 			So(e, ShouldBeNil)
 
 			// List meta for the node
@@ -209,12 +209,13 @@ func TestNSDeleteWithJsonSchema(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			// Insert namespace with JsonSchema value
-			err, _ = mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+			sample := &idm.UserMetaNamespace{
 				Namespace:      nsKey,
 				Label:          nsLabel,
 				JsonDefinition: "{\"type\":\"string\"}",
 				JsonSchema:     jsStruct,
-			})
+			}
+			err, _ = mockDAO.Upsert(ctx, sample)
 			So(err, ShouldBeNil)
 
 			afterAdd, err := mockDAO.List(ctx)
@@ -223,7 +224,7 @@ func TestNSDeleteWithJsonSchema(t *testing.T) {
 			_, ok := afterAdd[nsKey]
 			So(ok, ShouldBeTrue)
 
-			err = mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: nsKey, Label: nsLabel})
+			err = mockDAO.Del(ctx, sample)
 			So(err, ShouldBeNil)
 
 			afterDelete, err := mockDAO.List(ctx)
@@ -293,6 +294,7 @@ func TestNSAddUpdatesJsonSchema(t *testing.T) {
 				Namespace:      nsKey,
 				Label:          "label3",
 				JsonSchema:     ns.JsonSchema,
+				Order:          1,
 			})
 
 			So(err2, ShouldBeNil)
@@ -302,6 +304,7 @@ func TestNSAddUpdatesJsonSchema(t *testing.T) {
 
 			// Assert
 			updated, ok := nss[nsKey]
+
 			So(ok, ShouldBeTrue)
 			So(updated.Namespace, ShouldEqual, nsKey)
 			So(updated.Label, ShouldEqual, "label3")
@@ -316,6 +319,76 @@ func TestNSAddUpdatesJsonSchema(t *testing.T) {
 			// cleanup
 			e := mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: nsKey})
 			So(e, ShouldBeNil)
+		})
+	})
+}
+
+func TestNSDescriptionAndEnforceDefault(t *testing.T) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
+		Convey("Test Description and EnforceDefault fields", t, func() {
+			mockDAO, err := manager.Resolve[meta.NamespaceDAO](ctx)
+			So(err, ShouldBeNil)
+
+			nsKey := "usermeta-desc-enforce"
+
+			// Build JsonSchema matching sample row
+			schemaMap := map[string]interface{}{
+				"$id":   "https://pydio.com/string",
+				"title": nsKey,
+				"type":  "object",
+				"properties": map[string]interface{}{
+					nsKey: map[string]interface{}{
+						"type":      "string",
+						"default":   "A short text",
+						"minLength": 1,
+						"maxLength": 12,
+					},
+				},
+				"required": []interface{}{nsKey},
+			}
+			jsStruct, err := structpb.NewStruct(schemaMap)
+			So(err, ShouldBeNil)
+
+			// Insert with Description, EnforceDefault, and JsonSchema
+			err, _ = mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+				Namespace:      nsKey,
+				Label:          "string",
+				Order:          15,
+				JsonDefinition: `{"type":"string"}`,
+				JsonSchema:     jsStruct,
+				EnforceDefault: true,
+				Description:    "A short text field",
+				FieldType:      "string",
+			})
+			So(err, ShouldBeNil)
+
+			// Verify
+			result, err := mockDAO.List(ctx)
+			So(err, ShouldBeNil)
+			ns := result[nsKey]
+			So(ns.Description, ShouldEqual, "A short text field")
+			So(ns.EnforceDefault, ShouldBeTrue)
+			So(ns.FieldType, ShouldEqual, "string")
+			So(ns.JsonSchema, ShouldNotBeNil)
+
+			// Update to EnforceDefault = false
+			err, _ = mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
+				Namespace:      nsKey,
+				Label:          "updated",
+				JsonDefinition: `{"type":"string"}`,
+				JsonSchema:     jsStruct,
+				EnforceDefault: false,
+				Description:    "Updated description",
+			})
+			So(err, ShouldBeNil)
+
+			result2, _ := mockDAO.List(ctx)
+			ns2 := result2[nsKey]
+			So(ns2.EnforceDefault, ShouldBeFalse)
+			So(ns2.Description, ShouldEqual, "Updated description")
+
+			// Cleanup
+			_ = mockDAO.Del(ctx, &idm.UserMetaNamespace{Namespace: nsKey})
 		})
 	})
 }
