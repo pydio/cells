@@ -1,6 +1,6 @@
 import * as React from 'react'
 import MetaClient from "../MetaClient";
-import { mapErrors, formatSpecialCasesForValidation, buildValidator } from './utils/validators';
+import { buildValidator } from './utils/validators';
 import type { Validator } from './utils/validators';
 
 // FIXME: Properly type this
@@ -95,14 +95,15 @@ const noop = (...args: any[]) => {}
 // Validator that accepts everything without validation
 const noopValidator: Validator = (formState: Map<string, any>) => ({ isValid: true, errors: {} })
 
+const isEmpty = (value: any) =>
+    value === null
+        || value === undefined
+        || (`${value}`).trim().length === 0
+
 // Helper function to remove entries with empty string keys from a Map
 const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
     const cleanedMap = new Map<string, any>()
-    formState.forEach((value, key) => {
-        if (key !== '') {
-            cleanedMap.set(key, value)
-        }
-    })
+    formState.forEach((v, k) => k && !isEmpty(v) && cleanedMap.set(k, v))
     return cleanedMap
 }
 
@@ -154,18 +155,18 @@ export const MetadataContextProvider = ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
 
         setFormState: (formState) => {
-            // Remove entries with empty string keys
-            const cleanedFormState = removeEmptyKeys(formState);
-
-            let { isValid, errors } = validatorRef.current(cleanedFormState);
+            let { isValid, errors } = validatorRef.current(
+                // NODE: To validate and show the currect message "field is required"
+                removeEmptyKeys(formState)
+            );
             dispatch({ type: 'set_errors', errors })
 
-            dispatch({ type: 'set_form_state', formState: cleanedFormState })
+            dispatch({ type: 'set_form_state', formState })
 
             // NOTE: For parents that require holding state because we can't
             // wrap them with a provider.
             // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
-            if (onDataChanged) onDataChanged(cleanedFormState, isValid)
+            if (onDataChanged) onDataChanged(formState, isValid)
         },
 
         setShouldSave: (shouldSave) => dispatch({ type: 'set_should_save', shouldSave }),
