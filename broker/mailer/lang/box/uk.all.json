@@ -36,31 +36,31 @@
     "other": "Якщо ви не викликали цю опцію, будь ласка, негайно повідомте адміністратора, бо це може бути проблемою безпеки."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "Ваші сповіщення від {{.Configs.Title}}"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "Нижче наведено короткий підсумок усіх сповіщень, які ви отримали від {{.Configs.Title}}"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} відправив вам повідомлення!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} відправив вам повідомлення, використовуючи додаток {{.Configs.Title}}: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "Ласкаво просимо на {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "Для вас створено обліковий запис {{.Configs.Title}}. \nВаш логін: {{.TplData.Login}}{{if .TplData.Password}}, пароль: {{.TplData.Password}}. Ви можете змінити його при першому вході {{end}}."
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Натисніть, щоб увійти"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Увійти до {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "Система обміну файлами {{.Configs.Title}} використовується вашою командою для ефективної взаємодії з документами. Ми раді бачити вас на борту!"
   },
   "Mail.Invite.Subject": {
     "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
@@ -213,25 +213,25 @@
     "other": "Self-signed Certificate"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "Вимкніть перевірку сертифіката, якщо ваш сертифікат SMTP-сервера самопідписний"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Локальне ім’я з’єднувача"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "За замовчуванням SMTP-конектор надсилає 'localhost' у команді EHLO. Використовуйте це поле, щоб встановити власну локальну назву"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "Сервіс SendGrid"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "Api Ключ"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "Api Key, наданий SendGrid для підключення до сервісу"
   },
   "Mail.Config.Sendmail.Label": {
-    "other": "Sendmail"
+    "other": "Відправити листа"
   },
   "Mail.Config.Sendmail.Legend": {
     "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
