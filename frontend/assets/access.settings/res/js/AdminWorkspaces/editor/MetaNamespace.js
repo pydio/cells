@@ -181,21 +181,7 @@ class MetaNamespace extends React.Component {
         if (create && namespaces.length) {
             newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a, c) => Math.max(a, c), 0) + 1;
         }
-        this.setState({ namespace: newNS }, () => {
-            if (props.open && newNS.Namespace && newNS.Namespace !== 'usermeta-') {
-                try {
-                    Metadata.listTags(newNS.Namespace).then(values => {
-                        const merged = values.join(',');
-
-                        this.setState({ namespaceValues: merged });
-                    }).catch(e => {
-                        console.error('Error loading namespace values:', e);
-                    });
-                } catch (e) {
-                    console.error('Error parsing JsonDefinition:', e);
-                }
-            }
-        });
+        this.setState({ namespace: newNS });
     }
 
     save() {
@@ -473,7 +459,7 @@ class MetaNamespace extends React.Component {
                         <TagsCloudInput
                             label={m('tag_cloud.entity')}
                             disabled={false}
-                            value={this.state.namespaceValues ? this.state.namespaceValues : ''}
+                            value={''}
                             onCommitChange={(v) => this.setEntityValues(v)} 
                             hintText={m('tag_cloud.entity.hint')}
                         />
