@@ -70,6 +70,7 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 	case "string", "textarea":
 		props["minLength"] = withNumberType("Minimum Length")
 		props["maxLength"] = withNumberType("Maximum Length")
+		props["default"] = withStringType("Default Value")
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
@@ -78,13 +79,12 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 		return toProtoStruct(f.root)
 
 	case "tag_cloud":
-		// props["minLength"] = withNumberType("Minimum Length")
-		// props["maxLength"] = withNumberType("Maximum Length")
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 	case "integer":
 		props["minimum"] = withNumberType("Minimum Value")
 		props["maximum"] = withNumberType("Maximum Value")
+		props["default"] = withNumberType("Default Value")
 		props["required"] = withBooleanType()
 		return toProtoStruct(f.root)
 
@@ -130,7 +130,6 @@ func (f *MetaSchemaFactory) BuildMetaSchema(label string) *structpb.Struct {
 			"choice":        "Selection",
 			"tags":          "Extensible Tags",
 			"tag_cloud":     "Tag Cloud",
-			"multi_value":   "Multi Value Selection",
 			"stars_rate":    "Stars Rating",
 			"css_label":     "Color Labels",
 			"json":          "JSON",
@@ -316,13 +315,23 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 		}
 		f.root["title"] = t
 		props[t] = withStringSchema()
-	case "tag_cloud", "auto_complete":
+	case "auto_complete":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
 			t = fmt.Sprintf(name)
 		}
 		f.root["title"] = t
 		props[t] = withArraySchema()
+	// TODO Switching tag cloud schema to a string to solve input issues in the frontend
+	// Ideally it maybe a schema with anyOf an array of strings and a string to allow new inputs
+	case "tag_cloud":
+		var t = fmt.Sprintf("%s-tags", usermeta)
+		if name != "" {
+			t = fmt.Sprintf(name)
+		}
+		f.root["title"] = t
+		props[t] = withStringSchema()
+
 	default:
 		return nil, nil
 	}
@@ -389,16 +398,7 @@ func withStringSchema() map[string]interface{} {
 func withNumberSchema() map[string]interface{} {
 	s, _ := Infer[float64](nil)
 	prop := marshalSchema(s)
-	// prop["minimum"] = withMin(0, "number")["minimum"]
-	// prop["maximum"] = withMax(0, "number")["maximum"]
-	// prop["format"] = ""
-	// if format != "" {
-	// 	if format == "general" {
-	// 		prop["format"] = "float"
-	// 	} else if format == "bytesize" {
 
-	// 	}
-	// }
 	return prop
 }
 

@@ -34,6 +34,18 @@ const { ModernTextField, ModernAutoComplete, ThemedModernStyles } = Pydio.requir
 import FuncUtils from 'pydio/util/func'
 import ResourcesManager from 'pydio/http/resources-manager'
 
+const TYPES_WITHOUT_DEFAULTS = [
+    'tags', 
+    'tag_cloud', 
+    'auto_complete', 
+    'stars_rate', 
+    'css_label', 
+    'json', 
+    'boolean',
+    'choice',
+    'date',
+];
+
 function getGroupValue(namespace) {
     try {
         return JSON.parse(namespace.JsonDefinition).groupName || ""
@@ -138,6 +150,7 @@ class MetaNamespace extends React.Component {
             m: (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id,
             selectorNewKey: '',
             selectorNewValue: '',
+            namespaceValues: [],
             PoliciesBuilder: MetaPoliciesBuilder
         };
         this.fieldOptionsRef = React.createRef();
@@ -168,7 +181,21 @@ class MetaNamespace extends React.Component {
         if (create && namespaces.length) {
             newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a, c) => Math.max(a, c), 0) + 1;
         }
-        this.setState({ namespace: newNS });
+        this.setState({ namespace: newNS }, () => {
+            if (props.open && newNS.Namespace && newNS.Namespace !== 'usermeta-') {
+                try {
+                    Metadata.listTags(newNS.Namespace).then(values => {
+                        const merged = values.join(',');
+
+                        this.setState({ namespaceValues: merged });
+                    }).catch(e => {
+                        console.error('Error loading namespace values:', e);
+                    });
+                } catch (e) {
+                    console.error('Error parsing JsonDefinition:', e);
+                }
+            }
+        });
     }
 
     save() {
@@ -446,7 +473,7 @@ class MetaNamespace extends React.Component {
                         <TagsCloudInput
                             label={m('tag_cloud.entity')}
                             disabled={false}
-                            value={this.getCommaSeparatedEntities()}
+                            value={this.state.namespaceValues ? this.state.namespaceValues : ''}
                             onCommitChange={(v) => this.setEntityValues(v)} 
                             hintText={m('tag_cloud.entity.hint')}
                         />
@@ -477,15 +504,32 @@ class MetaNamespace extends React.Component {
                     }}
                     {...ModernStyles.toggleFieldV2}
                 />}
+                
                 {USERMETA_PROMPT_FF &&
-                <Toggle
-                    label={"Required"}
-                    disabled={!namespace?.PromptOnUpload || false}
-                    labelPosition={"left"}
-                    toggled={namespace?.JsonSchema?.required?.length > 0}
-                    onToggle={() => this.toggleRequired(namespace)}
-                    {...ModernStyles.toggleFieldV2}
-                /> }
+                // TODO add translations
+                <>
+                    <Toggle
+                        label={"Required"}
+                        disabled={!namespace?.PromptOnUpload || false}
+                        labelPosition={"left"}
+                        toggled={namespace?.JsonSchema?.required?.length > 0}
+                        onToggle={() => this.toggleRequired(namespace)}
+                        {...ModernStyles.toggleFieldV2}
+                    />
+                    {!TYPES_WITHOUT_DEFAULTS.includes(namespace.FieldType) &&
+                        <Toggle
+                            label={"EnforceDefaults"}
+                            labelPosition={"left"}
+                            toggled={namespace?.EnforceDefault}
+                            onToggle={(e, v) => {
+                                namespace.EnforceDefault = v;
+                                this.setState({ namespace })
+                            }}
+                            {...ModernStyles.toggleFieldV2}
+                        />
+                    }
+                </>
+                }
 
                 <Toggle
                     label={m('toggle.list-visibility')}
