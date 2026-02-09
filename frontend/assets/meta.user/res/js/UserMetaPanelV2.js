@@ -22,7 +22,8 @@ import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
 import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
-import './components/TogglableField.css';
+// FIXME: disabling the togglable fields for now
+// import './components/TogglableField.css';
 
 /**
  * Main component for displaying and editing metadata fields
