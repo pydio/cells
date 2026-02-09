@@ -155,18 +155,18 @@ export const MetadataContextProvider = ({
         setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
 
         setFormState: (formState) => {
-            // Remove entries with empty string keys
-            const cleanedFormState = removeEmptyKeys(formState);
-
-            let { isValid, errors } = validatorRef.current(cleanedFormState);
+            let { isValid, errors } = validatorRef.current(
+                // NODE: To validate and show the currect message "field is required"
+                removeEmptyKeys(formState)
+            );
             dispatch({ type: 'set_errors', errors })
 
-            dispatch({ type: 'set_form_state', formState: cleanedFormState })
+            dispatch({ type: 'set_form_state', formState })
 
             // NOTE: For parents that require holding state because we can't
             // wrap them with a provider.
             // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
-            if (onDataChanged) onDataChanged(cleanedFormState, isValid)
+            if (onDataChanged) onDataChanged(formState, isValid)
         },
 
         setShouldSave: (shouldSave) => dispatch({ type: 'set_should_save', shouldSave }),
