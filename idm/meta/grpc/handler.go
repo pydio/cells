@@ -86,6 +86,12 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// Check JsonValue is valid json
 			var data interface{}
+			var val = metaData.GetJsonValue()
+			// NOTE: there might be case where value comes empty for empty
+			if val == "" {
+				continue
+			}
+
 			if er := json.Unmarshal([]byte(metaData.GetJsonValue()), &data); er != nil {
 				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
