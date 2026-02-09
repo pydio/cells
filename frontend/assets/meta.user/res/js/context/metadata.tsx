@@ -98,11 +98,7 @@ const noopValidator: Validator = (formState: Map<string, any>) => ({ isValid: tr
 // Helper function to remove entries with empty string keys from a Map
 const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
     const cleanedMap = new Map<string, any>()
-    formState.forEach((value, key) => {
-        if (key !== '') {
-            cleanedMap.set(key, value)
-        }
-    })
+    formState.forEach((v, k) => k && v && cleanedMap.set(k, v))
     return cleanedMap
 }
 

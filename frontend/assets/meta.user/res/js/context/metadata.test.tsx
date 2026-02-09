@@ -522,7 +522,7 @@ describe('MetadataContext', () => {
             expect(cleanedState.size).toBe(2)
         })
 
-        it('preserves entries with empty string values', () => {
+        it('does not preserve entries with empty string values', () => {
             // Setup validator
             mockValidator.mockReturnValue(true)
             mockValidator.errors = null
@@ -564,9 +564,9 @@ describe('MetadataContext', () => {
 
             // All keys should be preserved, including the one with empty value
             expect(cleanedState.get('key1')).toBe('value1')
-            expect(cleanedState.get('key2')).toBe('')
+            expect(cleanedState.has('key2')).toBe(false)
             expect(cleanedState.get('key3')).toBe('value3')
-            expect(cleanedState.size).toBe(3)
+            expect(cleanedState.size).toBe(2)
         })
 
         it('keeps all valid non-empty keys intact', () => {
@@ -1071,7 +1071,7 @@ describe('MetadataContext', () => {
         })
 
         it('properly registers callback with current node reference', async () => {
-            // This test verifies that the onNodeReplaced callback is registered with the 
+            // This test verifies that the onNodeReplaced callback is registered with the
             // current node instance and not stale references
             const metadata1 = new Map([['key1', 'value1']])
             mockNode.getMetadata.mockReturnValue(metadata1)
