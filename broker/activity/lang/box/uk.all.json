@@ -18,7 +18,7 @@
     "other": "Created {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} було створено {{.Actor}}"
   },
   "DeletedBy": {
     "other": "Deleted by {{.Actor}}"
@@ -33,7 +33,7 @@
     "other": "Shared in {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} поділився {{.Object}} з вами"
   },
   "DigestTitle": {
     "other": "This is your Pydio Daily Digest"
@@ -45,13 +45,13 @@
     "other": "Folder"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Змінено користувачем {{.Actor}}"
   },
   "ModifiedObject": {
     "other": "Змінено {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} Було змінено {{.Actor}}"
   },
   "MetaModifiedBy": {
     "other": "Метадані змінені користувачем {{.Actor}}"
@@ -60,10 +60,10 @@
     "other": "Modified metadata on {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} Змінив метаданні у {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "{{.Actor}} прокоментував"
   },
   "CommentedObject": {
     "other": "Commented {{.Object}}"
