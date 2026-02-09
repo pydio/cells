@@ -21,7 +21,7 @@
 import React, {Fragment} from 'react'
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
-import {MenuItem, Toggle} from 'material-ui'
+import { MenuItem, Toggle, Subheader } from 'material-ui'
 import TypeSelectionBoard from "./TypeSelectionBoard";
 import {muiThemeable} from 'material-ui/styles'
 const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
@@ -33,7 +33,6 @@ const MetaTypes = {
     "date": "Date",
     "integer": "Number",
     "json": "JSON",
-    "multi_value": "Multi Value Selection",
     "stars_rate": "Stars Rating",
     "string": "Text",
     "tag_cloud": "Tag Cloud",
@@ -41,6 +40,14 @@ const MetaTypes = {
     "textarea": "Long Text",
     "url": "External URL",
     "auto_complete": "Auto complete"
+}
+
+// Group definitions for organized type selection
+const MetaTypeGroups = {
+    "Text": ["string", "textarea", "tags", "url"],
+    "Number": ["integer", "date"],
+    "Multi-Value": ["choice", "tag_cloud", "stars_rate", "css_label", "auto_complete"],
+    "Other": ["json", "boolean"]
 }
 
 class TypeEditor extends React.Component {
@@ -106,6 +113,26 @@ class TypeEditor extends React.Component {
         onChange(namespace)
     }
 
+    renderGroupedTypeMenuItems(metaTypes, m) {
+        return Object.entries(MetaTypeGroups).reduce((items, [groupLabel, types], groupIndex) => {
+            items.push(
+                <Subheader key={`group-${groupIndex}`} style={{fontSize: 12, fontWeight: 600, lineHeight: '32px'}}>
+                    {groupLabel}
+                </Subheader>,
+                ...types
+                    .filter(typeKey => metaTypes[typeKey])
+                    .map(typeKey => (
+                        <MenuItem 
+                            key={typeKey} 
+                            value={typeKey} 
+                            primaryText={m('type.' + typeKey) || metaTypes[typeKey]}
+                        />
+                    ))
+            );
+            return items;
+        }, []);
+    }
+
     render() {
 
         const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, showDefaultValue=false, format=['label', 'namespace', 'section', 'type', 'value', 'mandatory'], muiTheme} = this.props;
@@ -154,9 +181,7 @@ class TypeEditor extends React.Component {
                     fullWidth={true}
                     variant={"v2"}
                 >
-                    {Object.keys(metaTypes).map(k => {
-                        return <MenuItem value={k} primaryText={m('type.'+k) || metaTypes[k]}/>
-                    })}
+                    {this.renderGroupedTypeMenuItems(metaTypes, m)}
                 </ModernSelectField>
                 {type === 'choice' &&
                     <TypeSelectionBoard
