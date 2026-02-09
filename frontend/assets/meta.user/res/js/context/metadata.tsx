@@ -1,6 +1,6 @@
 import * as React from 'react'
 import MetaClient from "../MetaClient";
-import { mapErrors, formatSpecialCasesForValidation, buildValidator } from './utils/validators';
+import { buildValidator } from './utils/validators';
 import type { Validator } from './utils/validators';
 
 // FIXME: Properly type this
@@ -95,10 +95,15 @@ const noop = (...args: any[]) => {}
 // Validator that accepts everything without validation
 const noopValidator: Validator = (formState: Map<string, any>) => ({ isValid: true, errors: {} })
 
+const isEmpty = (value: any) =>
+    value === null
+        || value === undefined
+        || (`${value}`).trim().length === 0
+
 // Helper function to remove entries with empty string keys from a Map
 const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
     const cleanedMap = new Map<string, any>()
-    formState.forEach((v, k) => k && v && cleanedMap.set(k, v))
+    formState.forEach((v, k) => k && !isEmpty(v) && cleanedMap.set(k, v))
     return cleanedMap
 }
 
