@@ -1,39 +1,39 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "Файлова платформа з гордістю працює на Pydio"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "Якщо кнопка {ACTION} не працює у вас, просто скопіюйте та вставте посилання нижче у ваш веб-браузер."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "Привіт"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "З повагою,"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "Для {{.Configs.Title}} зроблено запит на скидання пароля"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "Запит на скидання пароля був отриманий для вашого облікового запису на {{.Configs.Title}}."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "Якщо ви не робили цей запит, ви можете просто проігнорувати це повідомлення. Якщо ви продовжуєте отримувати такі листи, будь ласка, повідомте адміністратора, бо це може бути проблемою безпеки."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Скинути мій пароль"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "Натисніть для скидання пароля"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "Ваш пароль на {{.Configs.Title}} було скинуто"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "За вашим запитом, ваш пароль було успішно скинуто на {{.Configs.Title}}."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "Якщо ви не викликали цю опцію, будь ласка, негайно повідомте адміністратора, бо це може бути проблемою безпеки."
   },
   "Mail.Digest.Subject": {
     "other": "Your {{.Configs.Title}} notifications"
