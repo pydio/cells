@@ -6,11 +6,7 @@ require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.3
 	github.com/pydio/cells/v5 v5.0.0-20241203095551-b98a0e99a514
 	golang.org/x/text v0.32.0
-<<<<<<< Updated upstream
 	google.golang.org/protobuf v1.36.11
-=======
-	google.golang.org/protobuf v1.36.10
->>>>>>> Stashed changes
 )
 
 require (

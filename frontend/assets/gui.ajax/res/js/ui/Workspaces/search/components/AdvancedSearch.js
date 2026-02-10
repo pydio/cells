@@ -24,7 +24,7 @@ import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField, ModernStyles, AdditionalIcons:{DeleteOutline}} = Pydio.requireLib('hoc');
-import Renderer from './Renderer'
+import Renderer, {renderField} from './Renderer'
 
 const FieldRow = ({constants, name, label, values, children, style, muiTheme, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
     let labelStyle= {
@@ -101,42 +101,8 @@ class AdvancedSearch extends Component {
     }
 
     renderField(val) {
-        const {searchTools:{SearchConstants}} = this.props;
-        const {name:key, renderer, label, userDefined} = val
-
-        const isCore = (key === SearchConstants.KeyBasename || key === SearchConstants.KeyContent || key === SearchConstants.KeyBasenameOrContent)
-        const fieldname = isCore ? key : SearchConstants.KeyMetaPrefix + key;
-        const {values} = this.props;
-        const value = values[fieldname];
-
-        if (renderer) {
-            // Custom renderer
-            return renderer({
-                ...this.props,
-                label,
-                value,
-                fieldname: key,
-                onChange: this.onChange.bind(this)
-            });
-        } else if (userDefined) {
-            // No Custom renderer but user-defined metadata
-            // Output a simple textfied **wrapped with** KeyMetaPrefix
-            return Renderer.formRenderer(
-                this.props,
-                {...val, name: fieldname},
-                {[fieldname]: value},
-                this.onChange.bind(this)
-            )
-        } else {
-            // Will switch on known field names (mime, scope, search, etc)
-            return Renderer.formRenderer(
-                this.props,
-                val,
-                values,
-                this.onChange.bind(this)
-            )
-        }
-
+        const {pydio, searchTools} = this.props;
+        return renderField(pydio, searchTools, 'form', val, this.onChange.bind(this));
     }
 
     clearAll() {

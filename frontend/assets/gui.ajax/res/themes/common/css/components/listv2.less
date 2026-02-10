@@ -1,4 +1,4 @@
-.react-mui-context{
+.react-mui-context {
 
   .mimefont-mixin(@size:40px, @fontsize:24px, @marginH:15px, @marginV:15px){
 
@@ -163,7 +163,7 @@
       &.selected{
 
         color: inherit;
-        border-bottom-color: transparent;
+        border-bottom-color: var(--md-sys-color-secondary);
         .material-list-line-1{
           .label-extension{
             visibility:visible !important;
@@ -287,15 +287,18 @@
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          &.header_cell{
+            font-size: 12px;
+            font-weight:500;
+            color: inherit;
+          }
           &.cell-ajxp_label{
             font-size: 14px;
             font-weight: 500;
             min-width: 320px;
             padding-left: 0;
             &.header_cell{
-              font-size: inherit;
-              font-weight:inherit;
-              color: inherit;
+              font-size: 12px;
               padding-left: 52px;
             }
             > span{
@@ -346,10 +349,10 @@
         }
         &.selected-dark{
           .cell{
-            color: rgba(255,255,255,.73);
+            color: var(--md-sys-color-on-secondary);
           }
           .cell.cell-ajxp_label{
-            color: rgba(255,255,255,1);
+            color: var(--md-sys-color-on-secondary);
             font-weight:500;
           }
           .mimefont{

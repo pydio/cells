@@ -34,7 +34,7 @@ const mergeProps = (root, overrides) => {
     return root;
 }
 
-const styles = (muiTheme) => {
+const styles = (muiTheme, overrides = {}) => {
 
     const noWrap = {
         whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
@@ -42,8 +42,8 @@ const styles = (muiTheme) => {
 
     const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
     const hintColor='var(--md-sys-color-outline)'
-    const v1SearchRadiusLeft = '20px 0 0 20px'
-    const v1SearchRadiusRight = '0 20px 20px 0'
+    const v1SearchRadiusLeft = overrides.searchRadius || '20px 0 0 20px'
+    const v1SearchRadiusRight = overrides.searchRadius || '0 20px 20px 0'
 
     const isMUI3 = muiTheme.userTheme === 'mui3'
 

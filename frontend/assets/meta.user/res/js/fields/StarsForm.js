@@ -27,8 +27,8 @@ import {muiThemeable} from 'material-ui/styles'
 class StarsFormPanel extends React.Component {
 
     render(){
-        const {updateValue, value = 0, search, label, muiTheme} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const {updateValue, value = 0, search, label, errorText, muiTheme, mode} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
         let stars = [-1,0,1,2,3,4].map((v) => {
             const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
             const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});
@@ -44,10 +44,18 @@ class StarsFormPanel extends React.Component {
                 </div>
             );
         } else {
+            let error;
+            let borderBottom = ModernStyles.fillBlockV2Right.borderBottom
+            if(errorText) {
+                const errStyle = {...ModernStyles.textFieldV2.errorStyle, fontSize: 12, lineHeight: '12px', color: 'var(--md-sys-color-error)'}
+                error = <div style={errStyle}>{errorText}</div>
+                borderBottom = '2px solid var(--md-sys-color-primary)'
+            }
             return (
-                <div style={{...ModernStyles.textFieldV2.style, borderBottom:ModernStyles.fillBlockV2Right.borderBottom, marginBottom:6}}>
+                <div style={{...ModernStyles.textFieldV2.style, borderBottom, marginBottom:6, position: 'relative'}}>
                     <div style={{color: muiTheme.palette.mui3['on-surface-variant'], fontSize: 12, padding: '3px 8px 0', lineHeight: '16px'}} >{label}</div>
                     <div style={{...starsStyle, paddingLeft: 6}}>{stars}</div>
+                    {error}
                 </div>
             )
         }

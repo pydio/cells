@@ -59,6 +59,7 @@ func NewDAO(db *gorm.DB) meta.DAO {
 		Abstract:     sql.NewAbstract(db),
 		resourcesDAO: resources2.NewDAO(db),
 		nsDAO:        NewNSDAO(db),
+		evDAO:        NewEntityValueDAO(db),
 	}
 }
 
@@ -67,6 +68,7 @@ type sqlimpl struct {
 	*sql.Abstract
 	resourcesDAO
 	nsDAO meta.NamespaceDAO
+	evDAO meta.EntityValueDAO
 }
 
 type Meta struct {
@@ -113,6 +115,10 @@ func (s *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
 	return s.nsDAO
 }
 
+func (s *sqlimpl) GetEntityValueDao() meta.EntityValueDAO {
+	return s.evDAO
+}
+
 func (s *sqlimpl) Migrate(ctx context.Context) error {
 	if err := s.Session(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
 		return err
@@ -123,6 +129,10 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 	}
 
 	if err := s.nsDAO.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := s.evDAO.Migrate(ctx); err != nil {
 		return err
 	}
 
@@ -193,6 +203,26 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 	}
 
 	return previousValue, nil
+}
+
+// This method was added to fix an issue with Set returning incorrect uuid of meta row
+func (s *sqlimpl) GetMeta(ctx context.Context, nodeUuid string, namespace string) (*idm.UserMeta, error) {
+	var meta *Meta
+	tx := s.Session(ctx).Where(&Meta{NodeUUID: nodeUuid}, &Meta{Namespace: namespace}).First(&meta)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
+		return nil, errors.WithMessagef(errors.NodeNotFound, "Cannot find metadata for node %s", nodeUuid)
+	}
+
+	return &idm.UserMeta{
+		Uuid:      meta.UUID,
+		Namespace: meta.Namespace,
+		JsonValue: string(meta.Data),
+		NodeUuid:  meta.NodeUUID,
+	}, nil
 }
 
 // Search meta on their conditions

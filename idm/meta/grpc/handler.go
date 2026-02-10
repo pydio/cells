@@ -42,6 +42,7 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/meta"
+	"github.com/pydio/cells/v5/idm/meta/json_schema"
 )
 
 // Handler definition.
@@ -85,6 +86,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// Check JsonValue is valid json
 			var data interface{}
+
 			if er := json.Unmarshal([]byte(metaData.GetJsonValue()), &data); er != nil {
 				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
@@ -328,20 +330,28 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 
 	response := &idm.UpdateUserMetaNamespaceResponse{}
 	namespaceDAO := dao.GetNamespaceDao()
-	for _, metaNameSpace := range request.Namespaces {
-		if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
-			return nil, err
-		} else {
-			broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
-				Type:          idm.ChangeEventType_DELETE,
-				MetaNamespace: metaNameSpace,
-			})
+	if request.Operation == idm.UpdateUserMetaNamespaceRequest_DELETE {
+		for _, metaNameSpace := range request.Namespaces {
+			if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
+				return nil, err
+			} else {
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_DELETE,
+					MetaNamespace: metaNameSpace,
+				})
+			}
 		}
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
-			if err := namespaceDAO.Add(ctx, metaNameSpace); err != nil {
+
+			if err, ups := namespaceDAO.Upsert(ctx, metaNameSpace); err != nil {
 				return nil, err
+			} else if ups {
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_UPDATE,
+					MetaNamespace: metaNameSpace,
+				})
 			} else {
 				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 					Type:          idm.ChangeEventType_CREATE,
@@ -366,6 +376,7 @@ func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceReques
 	}
 
 	namespaceDAO := dao.GetNamespaceDao()
+	//TODO how to prefil MultiValue Choices with Entities and Values?
 	if results, err := namespaceDAO.List(ctx); err == nil {
 		for _, result := range results {
 			stream.Send(&idm.ListUserMetaNamespaceResponse{UserMetaNamespace: result})
@@ -381,6 +392,151 @@ func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginReq
 	}
 
 	return resources.ModifyLogin(ctx, dao, req)
+}
+
+func (h *Handler) GetFieldSchema(ctx context.Context, req *idm.GetFieldSchemaRequest) (*idm.JsonSchemaResponse, error) {
+	schema := json_schema.GetMetaSchema(req.FieldType)
+	return &idm.JsonSchemaResponse{
+		JsonSchema: schema,
+	}, nil
+}
+
+func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceSchemaRequest) (*idm.JsonSchemaResponse, error) {
+
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	namespaceDAO := dao.GetNamespaceDao()
+
+	if req.FieldType != "" && req.Namespace != "" {
+		schema, err := namespaceDAO.GetNamespaceSchemaSample(ctx, req.FieldType, req.Namespace, req.Format)
+		if err != nil {
+			return nil, err
+		}
+
+		return &idm.JsonSchemaResponse{
+			JsonSchema: schema,
+		}, nil
+	}
+
+	if schema, err := namespaceDAO.GetJSONSchema(ctx); err == nil {
+		return &idm.JsonSchemaResponse{
+			JsonSchema: schema,
+		}, nil
+	} else {
+		return nil, err
+	}
+}
+
+func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.MetaEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	entityDAO := dao.GetEntityValueDao()
+
+	values, err := entityDAO.GetEntityValues(ctx, req.EntityUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.MetaEntityValueResponse{
+		EntityValue: values,
+	}, nil
+}
+
+func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+
+	resp, err := evDAO.DeleteEntity(ctx, req.EntityUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+
+	entity, err := evDAO.CreateEntity(ctx, req.Entity)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.CreateEntityResponse{
+		Entity: entity,
+	}, nil
+}
+
+func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+
+	values, err := evDAO.CreateEntityValues(ctx, req.EntityValue)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.CreateEntityValueResponse{
+		EntityValue: values,
+	}, nil
+}
+
+func (h *Handler) LinkMetaToEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+	link, er := evDAO.LinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	if er != nil {
+		return nil, er
+	}
+	return &idm.MetaToEntityValueResponse{
+		Success: link,
+	}, nil
+}
+
+func (h *Handler) GetMetadata(ctx context.Context, req *idm.GetMetadataRequest) (*idm.UserMeta, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	meta, err := dao.GetMeta(ctx, req.NodeUuid, req.Namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta, nil
+}
+
+func (h *Handler) UnlinkMetaFromEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
+	dao, err := manager.Resolve[meta.DAO](ctx)
+	if err != nil {
+		return nil, err
+	}
+	evDAO := dao.GetEntityValueDao()
+	unlink, er := evDAO.UnlinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	if er != nil {
+		return nil, er
+	}
+	return &idm.MetaToEntityValueResponse{
+		Success: unlink,
+	}, nil
 }
 
 func (h *Handler) resultsToCache(ctx context.Context, nodeId string, searchSubjects []string, results []*idm.UserMeta) {

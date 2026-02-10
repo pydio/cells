@@ -473,6 +473,18 @@
     },
     "idmUserMetaNamespace": {
       "properties": {
+        "Description": {
+          "title": "Human-readable Description",
+          "type": "string"
+        },
+        "EnforceDefault": {
+          "title": "Use default value from JsonSchema to enforce defaults",
+          "type": "boolean"
+        },
+        "FieldType": {
+          "title": "Namespace Type  \"boolean\", \"choice\", \"css_label\", \"date\", \"integer\", \"json\", \"multi_value\", \"stars_rate\", \"string\", \"tag_cloud\", \"tags\", \"textarea\", \"url\"",
+          "type": "string"
+        },
         "Indexable": {
           "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",
           "type": "boolean"
@@ -480,6 +492,10 @@
         "JsonDefinition": {
           "title": "Json-encoded type to provide accurate interface for edition",
           "type": "string"
+        },
+        "JsonSchema": {
+          "title": "JSON Schema for validating metadata values",
+          "type": "object"
         },
         "Label": {
           "title": "Human-readable Label",
@@ -504,6 +520,10 @@
         },
         "PoliciesContextEditable": {
           "title": "Context-resolved to quickly check if this meta is editable or not",
+          "type": "boolean"
+        },
+        "PromptOnUpload": {
+          "title": "Prompt options for this namespace",
           "type": "boolean"
         }
       },
@@ -589,6 +609,14 @@
         }
       },
       "type": "object"
+    },
+    "protobufNullValue": {
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value.",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "type": "string"
     },
     "restActionOptionsCopyMove": {
       "properties": {

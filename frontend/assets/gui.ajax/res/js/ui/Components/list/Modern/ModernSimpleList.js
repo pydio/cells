@@ -61,6 +61,7 @@ const ModernSimpleList = (props) => {
         entryRenderIcon,
         entryRenderFirstLine,
         entryRenderSecondLine,
+        entryHandleClicks,
         tableEntryRenderCell,
         customToolbar,
         additionalAttrs={}
@@ -76,7 +77,7 @@ const ModernSimpleList = (props) => {
 
     const {items, isLoading, error, selection, updateSelection, updateSelectionFromItemEvent, currentSortingInfo, handleSortChange} =  useItems(props)
 
-    const {handleItemClick, handleItemDoubleClick} = useItemClicked({items, pydio, dataModel, updateSelectionFromItemEvent})
+    const {handleItemClick, handleItemDoubleClick} = useItemClicked({items, pydio, dataModel, entryHandleClicks, updateSelectionFromItemEvent})
 
     const {handleKeyDown} = useKeyNavigation({
         selection,
@@ -99,7 +100,7 @@ const ModernSimpleList = (props) => {
     const showLoading = isLoading && (!node || (typeof node.isLoaded === 'function' ? !node.isLoaded() : true));
     if (showLoading && !error) {
         return (
-            <div className={className}>
+            <div className={className} {...additionalAttrs}>
                 <PlaceHolders
                     displayMode={displayMode}
                     tableKeys={displayMode==='detail' && tableKeys}

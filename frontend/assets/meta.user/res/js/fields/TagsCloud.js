@@ -144,8 +144,8 @@ class TagsCloud extends React.Component {
 
     renderChip(tag) {
         const {color, backgroundColor} = colorsFromString(tag);
-        const chipStyle = {margin:2, borderRadius:'4px 16px 16px 4px'};
-        const labelStyle = {color, fontWeight: 500, paddingLeft: 10, paddingRight: 16};
+        const chipStyle = {margin:2, borderRadius:16};
+        const labelStyle = {color, paddingLeft: 10, paddingRight: 16, fontSize: 15};
         if (this.props.editMode) {
             return ( <Chip key={tag} backgroundColor={backgroundColor} labelStyle={labelStyle} style={chipStyle} onRequestDelete={this.handleRequestDelete.bind(this, tag)}>{tag}</Chip> );
         } else {
@@ -154,7 +154,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search, label, muiTheme} = this.props;
+        const {editMode, search, label, errorText, muiTheme, mode, containerStyle = {}} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList, autoCompleter, knownTags = [];
@@ -163,7 +163,7 @@ class TagsCloud extends React.Component {
             knownTags = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag)
             tagsList = knownTags.map(tag => this.renderChip(tag));
         }
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
 
         if (editMode) {
             const Component = search ? AutoComplete : ModernAutoComplete
@@ -173,6 +173,7 @@ class TagsCloud extends React.Component {
                     fullWidth={true}
                     hintText={Pydio.getMessages()['meta.user.10']}
                     searchText={searchText}
+                    errorText={errorText}
                     onUpdateInput={this.handleUpdateInput.bind(this)}
                     onNewRequest={this.handleNewRequest.bind(this)}
                     dataSource={this.state.dataSource}
@@ -186,12 +187,10 @@ class TagsCloud extends React.Component {
                     {...otherProps}
                 />
             );
-        } else {
-            autoCompleter = <div></div>
         }
 
         return (
-            <div style={search?{marginBottom: 8}:{}}>
+            <div style={search?{marginBottom: 8}:{...containerStyle}}>
                 {autoCompleter}
                 {tagsList && <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>}
             </div>

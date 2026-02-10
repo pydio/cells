@@ -31,6 +31,7 @@ import (
 	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 var Drivers = service.StorageDrivers{}
@@ -39,11 +40,13 @@ var Drivers = service.StorageDrivers{}
 type DAO interface {
 	resources.DAO
 	GetNamespaceDao() NamespaceDAO
+	GetEntityValueDao() EntityValueDAO
 
 	Migrate(ctx context.Context) error
 	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
 	Del(ctx context.Context, meta *idm.UserMeta) (prevValue string, e error)
 	Search(ctx context.Context, query service2.Enquirer) ([]*idm.UserMeta, error)
+	GetMeta(ctx context.Context, nodeUuid string, namespace string) (*idm.UserMeta, error)
 }
 
 const (
@@ -54,7 +57,32 @@ const (
 type NamespaceDAO interface {
 	resources.DAO
 
-	Add(ctx context.Context, ns *idm.UserMetaNamespace) error
+	Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool)
 	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
 	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
+	GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
+	GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string, format string) (*structpb.Struct, error)
+}
+
+// EntityValueDAO interface for managing meta entities and their values
+type EntityValueDAO interface {
+	resources.DAO
+
+	Migrate(ctx context.Context) error
+
+	// Entity operations
+	CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error)
+	SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error)
+	GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error)
+
+	// Entity Value operations
+	CreateEntityValues(ctx context.Context, values []*idm.EntityValue) ([]*idm.EntityValue, error)
+	CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error)
+	GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error)
+	DeleteEntity(ctx context.Context, entityUuid string) (*idm.DeleteEntityValuesResponse, error)
+
+	// Link operations
+	LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error)
+	UnlinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error)
+	GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error)
 }

@@ -22,7 +22,9 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"path"
+	"slices"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -40,6 +42,8 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/idm/meta"
 )
+
+var ns_with_ev = []string{"tag_cloud", "choice", "auto_complete"}
 
 func NewUserMetaHandler() *UserMetaHandler {
 	return &UserMetaHandler{
@@ -158,18 +162,110 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		if !strings.HasPrefix(ns.Namespace, common.MetaNamespaceUserspacePrefix) {
 			return errors.WithMessage(errors.InvalidParameters, "user defined meta must start with "+common.MetaNamespaceUserspacePrefix+" prefix")
 		}
-		if _, e := ns.UnmarshallDefinition(); e != nil {
+		// Use the helper to validate and get definition
+		definition, e := ns.UnmarshallDefinition()
+		if e != nil {
 			return errors.WithMessagef(errors.UnmarshalError, "invalid json definition for namespace: %s, %v", ns.Namespace, e)
+		}
+		if input.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
+			fieldType := definition.GetType()
+			if fieldType != "" { //
+				// Check if entity_id is already set
+				if definition.GetEntityId() == "" { // TODO handle if entityId is already set (update scenario)
+					// Set description
+					var desc = ""
+					if ns.Description != "" {
+						desc = ns.Description
+					} else {
+						desc = "Entity for " + fieldType + " namespace"
+					}
+					// Its somewhat dangerous to create before namespace has been created but its more efficient than doing it after
+					entity, err := s.ServiceClient(ctx).CreateEntity(ctx, &idm.CreateEntityRequest{
+						Entity: &idm.MetaEntity{
+							Label:       "ns-entity-" + ns.Namespace,
+							Description: desc,
+						},
+					})
+					if err != nil {
+						return err
+					}
+
+					if slices.Contains(ns_with_ev, fieldType) {
+						// Create empty entity values
+						var evs []*idm.EntityValue
+						items := definition.GetItems()
+						if len(items) > 0 {
+							for _, item := range items {
+								evs = append(evs, &idm.EntityValue{
+									EntityUuid: entity.Entity.Uuid,
+									Label:      item,
+								})
+							}
+						}
+						entities := definition.GetEntities()
+						if len(entities) > 0 {
+							for _, ent := range entities {
+								evs = append(evs, &idm.EntityValue{
+									EntityUuid: entity.Entity.Uuid,
+									Label:      ent,
+								})
+							}
+						}
+
+						_, err := s.ServiceClient(ctx).CreateEntityValues(ctx, &idm.CreateEntityValueRequest{
+							EntityValue: evs,
+						})
+						if err != nil {
+							return err
+						}
+					}
+
+					// Cast to concrete type for modification
+					if def, ok := definition.(*idm.MetaNsDef); ok {
+						def.SetEntityId(entity.Entity.Uuid)
+						updatedJsDef, err := json.Marshal(def)
+						if err != nil {
+							return err
+						}
+						ns.JsonDefinition = string(updatedJsDef)
+					}
+				}
+			}
 		}
 	}
 
 	response, err := s.ServiceClient(ctx).UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
+		for _, ns := range input.Namespaces {
+			// Use helper to check if we need to cleanup
+			definition, _ := ns.UnmarshallDefinition()
+			if definition != nil && definition.GetType() != "" {
+				entityID := definition.GetEntityId()
+				if entityID == "" {
+					continue
+				}
+				if _, err := s.DeleteEntity(ctx, entityID); err != nil {
+					return err
+				}
+			}
+		}
 		return err
-	} else {
-		return rsp.WriteEntity(response)
+	} else if input.Operation == idm.UpdateUserMetaNamespaceRequest_DELETE {
+		for _, ns := range input.Namespaces {
+			// Use helper to check if we need to cleanup
+			definition, _ := ns.UnmarshallDefinition()
+			if definition != nil && definition.GetType() != "" {
+				entityID := definition.GetEntityId()
+				if entityID == "" {
+					continue
+				}
+				if _, err := s.DeleteEntity(ctx, entityID); err != nil {
+					return err
+				}
+			}
+		}
 	}
-
+	return rsp.WriteEntity(response)
 }
 
 func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restful.Response) error {
@@ -191,6 +287,30 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 
 }
 
+func (s *UserMetaHandler) GetFieldSchema(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+	fieldType := req.PathParameter("FieldType")
+	schema, err := s.ServiceClient(ctx).GetFieldSchema(ctx, &idm.GetFieldSchemaRequest{FieldType: fieldType})
+
+	if err != nil {
+		return err
+	}
+	return rsp.WriteEntity(schema)
+}
+
+func (s *UserMetaHandler) GetNamespaceSchema(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+	typeParam := req.QueryParameter("FieldType")
+	nameParam := req.QueryParameter("Namespace")
+	formatParam := req.QueryParameter("Format")
+	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: typeParam, Namespace: nameParam, Format: formatParam})
+
+	if err != nil {
+		return err
+	}
+	return rsp.WriteEntity(schema)
+}
+
 func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Response) error {
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()
@@ -199,9 +319,38 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	if er != nil {
 		return er
 	}
-	if _, ok := nss[ns]; !ok { // ns not found or filtered by policies
+	nsObject, ok := nss[ns]
+	if !ok { // ns not found or filtered by policies
 		return errors.WithMessagef(errors.StatusNotFound, "namespace %s does not exist", ns)
 	}
+
+	// Use the helper to get definition
+	if nss[ns].FieldType != "" && slices.Contains(ns_with_ev, nss[ns].FieldType) {
+		definition, err := nsObject.UnmarshallDefinition()
+		if err != nil {
+			return err
+		}
+
+		// Check type through interface
+		if slices.Contains(ns_with_ev, definition.GetType()) {
+			entityID := definition.GetEntityId()
+			if entityID == "" {
+				return err
+			}
+			entityValues, err := s.GetEntityValues(ctx, entityID)
+			if err != nil {
+				return err
+			}
+			tags := []string{}
+			for _, ev := range entityValues {
+				tags = append(tags, ev.Label)
+			}
+			return rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
+				Tags: tags,
+			})
+		}
+	}
+
 	tags, _ := s.TagValuesHandler().ListTags(ctx, ns)
 	return rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,

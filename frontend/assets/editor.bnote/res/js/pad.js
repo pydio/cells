@@ -17,7 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {useState, useEffect, useCallback} from 'react'
+import React, {useState, useEffect, useCallback, useMemo} from 'react'
+import Pydio from 'pydio';
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
@@ -28,25 +29,31 @@ import {
     SideMenu,
     SideMenuController,
 } from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { en } from '@blocknote/core/locales'
-import {codeBlock} from "@blocknote/code-block";
+
 import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
 import {
     nodeBlockSpecs,
     nodeInlineSpecs,
     insertChildrenList,
-    NodesSuggestionMenu,
+    insertNodePickerBlock,
+    insertResultsList,
     pasteHandler
 } from "./specs/NodeRef";
 import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
+import {insertSubPageItem} from "./specs/SubPage";
 import {SideMenuButton} from "./SideMenuButton";
 import ContextMenuModel from 'pydio/model/context-menu'
 import {headerBlockSpecs, HeaderSpecType} from "./specs/Header";
 import {findExistingHeader} from "./hooks/useNodeTitle";
-import {padFileDropHandler} from "./hooks/padFileDropHandler";
 
+import {padFileDropHandler} from "./hooks/padFileDropHandler";
 import './pad-styles.less'
+const {ModalSearch} = Pydio.requireLib('workspaces');
+const {emptyDataModel} = Pydio.requireLib('hoc')
+
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -62,13 +69,18 @@ const schema = BlockNoteSchema.create({
     }
 });
 
+const defaultExcludedKeys = ["audio", "video", "image", "file"]
+
 // List containing all default Slash Menu Items, as well as our custom one.
 const getCustomSlashMenuItems = (
     editor
 ) => [
-    ...getDefaultReactSlashMenuItems(editor),
+    ...getDefaultReactSlashMenuItems(editor).filter((item => defaultExcludedKeys.indexOf(item.key) === -1)),
     insertChildrenList(editor),
+    insertNodePickerBlock(editor),
+    insertResultsList(editor),
     insertAlertItem(editor),
+    insertSubPageItem(editor),
 ];
 
 export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
@@ -88,8 +100,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
             }
         },
-        pasteHandler:pasteHandler,
-        codeBlock,
+        pasteHandler: pasteHandler,
         setIdAttribute:true
     });
 
@@ -102,6 +113,7 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         onChange(blocks)
     }, [editor, onChange])
 
+    const searchDM = useMemo(() => emptyDataModel(), [])
 
     let main;
     if(false && readOnly) {
@@ -125,15 +137,15 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                 editor={editor}
                 theme={darkMode?"dark":"light"}
                 sideMenu={false}
+                slashMenu={false}
                 onClick={(e) => ContextMenuModel.getInstance().close()}
                 onDrop={(e) => padFileDropHandler(editor, e)}
             >
                 <SideMenuController
                     sideMenu={(props) => (
-                        <SideMenu {...props} blockDragStart={()=>{}} blockDragEnd={()=>{}}>
-                            {/* Button which removes the hovered block. */}
+                        <SideMenu {...props}>
                             <AddBlockButton {...props} />
-                            <SideMenuButton {...props} />
+                            <SideMenuButton />
                         </SideMenu>
                     )}
                 />
@@ -145,7 +157,6 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
                     }
                 />
                 <MentionSuggestionMenu editor={editor}/>
-                <NodesSuggestionMenu editor={editor}/>
             </BlockNoteView>
         )
     }
@@ -155,8 +166,10 @@ export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
         <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', paddingTop: 20, userSelect:"inherit", ...style}}
              onClick={(e) => e.stopPropagation()}
              onKeyUp={(e) => e.stopPropagation()}
+             onDrop={(e) => padFileDropHandler(editor, e, true)}
         >
             {main}
+            <ModalSearch pydio={Pydio.getInstance()} dataModel={searchDM} accessKey={''} eventName={'pydioOpenSelector'}/>
         </div>
     );
 };

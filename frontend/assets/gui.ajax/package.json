@@ -11,6 +11,8 @@
     "@emotion/styled": "^11.10.6",
     "@livekit/components-react": "^0.8.2",
     "@livekit/components-styles": "^0.3.2",
+    "@mantine/core": "^8.3.12",
+    "@mantine/dates": "^8.3.12",
     "@material/material-color-utilities": "^0.2.4",
     "@mdi/font": "^7.3.67",
     "@mui/icons-material": "^5.11.11",

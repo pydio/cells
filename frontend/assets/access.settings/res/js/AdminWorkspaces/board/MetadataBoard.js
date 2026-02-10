@@ -16,6 +16,7 @@ class MetadataBoard extends React.Component{
         this.state = {
             loading: false,
             namespaces: [],
+            types: [],
             m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id
         };
     }
@@ -37,8 +38,9 @@ class MetadataBoard extends React.Component{
             ServiceResourcePolicy.constructFromObject({Action:'READ', Subject:'*', Effect:'allow'}),
             ServiceResourcePolicy.constructFromObject({Action:'WRITE', Subject:'*', Effect:'allow'})
         ];
-        ns.JsonDefinition = JSON.stringify({type:'string'});
+        // ns.JsonDefinition = JSON.stringify({type:'string'});
         ns.Indexable = true;
+        ns.PromptOptions = undefined;
         return ns;
     }
 
@@ -109,6 +111,13 @@ class MetadataBoard extends React.Component{
             {name:'Indexable', label:m('indexable'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
                 return row.Indexable ? 'Yes' : 'No';
             }), sorter:{type:'number', value:(row)=>row.Indexable?1:0}},
+             {name:'PromptOnUpload', label:m('Prompt On Upload'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
+                return row.PromptOnUpload ? 'Yes' : 'No';
+            }), sorter:{type:'number', value:(row)=>row.PromptOnUpload?1:0}},
+             {name:'Required', label:m('Required'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
+                const requiredArray = row.JsonSchema?.required || [];
+                return requiredArray.length > 0 ? 'Yes' : 'No';
+            }), sorter:{type:'number', value:(row)=>(row.JsonSchema?.required?.length > 0) ? 1 : 0}},
             {name:'JsonDefinition', label:m('definition'), hideSmall:true, renderCell:(row => {
                 const def = row.JsonDefinition;
                 if(!def) {
@@ -169,6 +178,7 @@ class MetadataBoard extends React.Component{
         return (
 
             <div className="main-layout-nav-to-stack workspaces-board">
+                {/* WIZARD: Comment out MetaNamespace and uncomment NewMetaNamespace to use the wizard */}
                 <MetaNamespace
                     pydio={pydio}
                     open={dialogOpen}
@@ -180,6 +190,19 @@ class MetadataBoard extends React.Component{
                     readonly={!accessByName('Create')}
                     policiesBuilder={policiesBuilder}
                 />
+
+                {/* WIZARD: When using wizard, keep MetaNamespace for editing existing namespaces */}
+                {dialogOpen && !create && <MetaNamespace
+                    pydio={pydio}
+                    open={dialogOpen}
+                    create={create}
+                    namespace={selectedNamespace}
+                    onRequestClose={() => this.close()}
+                    reloadList={() => this.load()}
+                    namespaces={namespaces}
+                    readonly={!accessByName('Create')}
+                    policiesBuilder={policiesBuilder}
+                />}
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header
                         title={title}

@@ -797,6 +797,18 @@
   "metadata.editor.title.create": {
     "other": "Create Namespace"
   },
+  "metadata.editor.field.validation": {
+    "other": "Field Validation"
+  },
+  "metadata.editor.toggle.prompt":{
+    "other": "Prompt Metadata tagging on Upload"
+  },
+  "metadata.editor.toggle.required": {
+    "other": "Required"
+  },
+  "metadata.editor.toggle.defaults": {
+    "other": "Enforce Defaults"
+  },
   "metadata.empty": {
     "other": "No metadata defined"
   },
@@ -863,14 +875,35 @@
   "metadata.type.css_label": {
     "other": "Color Labels"
   },
+  "metadata.type.auto_complete" :{
+    "other": "Auto Complete"
+  },
   "metadata.type.tags": {
-    "other": "Extensible Tags"
+    "other": "Extensible Tags (legacy)"
   },
   "metadata.type.choice": {
     "other": "Select from values"
   },
+  "metadata.type.multi_value": {
+    "other": "Multi Value select"
+  },
+  "metadata.type.tag_cloud": {
+    "other": "Tag Cloud"
+  },
+  "metadata.type.tag_cloud.values": {
+    "other": "Tag Cloud values"
+  },
+  "metadata.tag_cloud.entity.hint": {
+    "other": "Comma-separated list of possible tags"
+  },
+  "metadata.tag_cloud.entity": {
+    "other": "Values"
+  },
   "metadata.type.json": {
     "other": "JSON (internal format)"
+  },
+  "metadata.type.url": {
+    "other": "URL"
   },
   "metadata.type.date.format": {
     "other": "Format"

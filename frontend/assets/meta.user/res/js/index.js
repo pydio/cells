@@ -20,9 +20,27 @@
 import Callbacks from './Callbacks'
 import Renderer from './Renderer'
 import UserMetaPanel from './UserMetaPanel'
+import UserMetaPanelV2 from './UserMetaPanelV2'
 import InfoPanel from './InfoPanel'
 import UserMetaDialog from './UserMetaDialog'
 import MetaClient from "./MetaClient";
 import TypeEditor from "./TypeEditor"
+import {
+    MetadataContextProvider,
+    useMetadataContext
+}  from "./context/metadata";
+import { TagsCloudInput } from './fieldsv2/TagsCloudInput'
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel, MetaClient, TypeEditor}
+export {
+    Renderer,
+    InfoPanel,
+    Callbacks,
+    UserMetaDialog,
+    UserMetaPanel,
+    UserMetaPanelV2,
+    MetaClient,
+    TypeEditor,
+    TagsCloudInput,
+    MetadataContextProvider,
+    useMetadataContext,
+}
