@@ -35,7 +35,7 @@ import (
 )
 
 var (
-	evTestcases = test.TemplateSQL(NewEntityValueDAO)
+	evTestcases = test.TemplateSQL(NewDAO)
 )
 
 // Test fixtures
@@ -80,10 +80,11 @@ func createTestMeta(ctx context.Context, nodeUuid, namespace string) (*idm.UserM
 
 func TestEntityCrud(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		mockDAO := mainDAO.GetEntityValueDao()
 
 		Convey("Create Entity", t, func() {
 			created, err := mockDAO.CreateEntity(ctx, fixtureEntityCity)
@@ -125,10 +126,11 @@ func TestEntityCrud(t *testing.T) {
 
 func TestEntityValueCrud(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		mockDAO := mainDAO.GetEntityValueDao()
 
 		Convey("Create Entity Value", t, func() {
 			createdEntity, err := createTestEntity(ctx, mockDAO, "Test Entity")
@@ -161,10 +163,11 @@ func TestEntityValueCrud(t *testing.T) {
 
 func TestMetaValueLinking(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		mockDAO := mainDAO.GetEntityValueDao()
 
 		Convey("Link Meta to Values", t, func() {
 			createdEntity, err := createTestEntity(ctx, mockDAO, "Link Entity")
@@ -262,10 +265,11 @@ func TestMetaValueLinking(t *testing.T) {
 
 func TestBatchOperations(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		mockDAO := mainDAO.GetEntityValueDao()
 
 		Convey("Create Entity Values Batch", t, func() {
 			createdEntity, err := createTestEntity(ctx, mockDAO, "Batch Entity")
@@ -297,10 +301,11 @@ func TestBatchOperations(t *testing.T) {
 
 func TestDeleteOperations(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		mockDAO := mainDAO.GetEntityValueDao()
 
 		Convey("Delete Entity Cascade", t, func() {
 			createdEntity, err := createTestEntity(ctx, mockDAO, "Delete Entity")
@@ -365,10 +370,11 @@ func TestDeleteOperations(t *testing.T) {
 
 func TestValidation(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		mockDAO, err := manager.Resolve[meta.EntityValueDAO](ctx)
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		mockDAO := mainDAO.GetEntityValueDao()
 
 		Convey("Link with Invalid UUIDs", t, func() {
 			_, err := mockDAO.LinkMetaValue(ctx, "invalid-uuid", "valid-uuid")
