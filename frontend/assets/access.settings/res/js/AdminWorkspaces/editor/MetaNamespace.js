@@ -477,7 +477,7 @@ class MetaNamespace extends React.Component {
                 ))}
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 {USERMETA_PROMPT_FF && <Toggle
-                    label={'Prompt Metadata tagging on Upload'}
+                    label={m('metadata.editor.toggle.prompt')}
                     disabled={readonly}
                     labelPosition={"left"}
                     toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
@@ -492,10 +492,9 @@ class MetaNamespace extends React.Component {
                 />}
                 
                 {USERMETA_PROMPT_FF &&
-                // TODO add translations
                 <>
                     <Toggle
-                        label={"Required"}
+                        label={m('metadata.editor.toggle.required')}
                         disabled={!namespace?.PromptOnUpload || false}
                         labelPosition={"left"}
                         toggled={namespace?.JsonSchema?.required?.length > 0}
@@ -504,7 +503,7 @@ class MetaNamespace extends React.Component {
                     />
                     {!TYPES_WITHOUT_DEFAULTS.includes(namespace.FieldType) &&
                         <Toggle
-                            label={"EnforceDefaults"}
+                            label={m('metadata.editor.toggle.defaults')}
                             labelPosition={"left"}
                             toggled={namespace?.EnforceDefault}
                             onToggle={(e, v) => {

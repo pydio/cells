@@ -797,6 +797,18 @@
   "metadata.editor.title.create": {
     "other": "Create Namespace"
   },
+  "metadata.editor.field.validation": {
+    "other": "Field Validation"
+  },
+  "metadata.editor.toggle.prompt":{
+    "other": "Prompt Metadata tagging on Upload"
+  },
+  "metadata.editor.toggle.required": {
+    "other": "Required"
+  },
+  "metadata.editor.toggle.defaults": {
+    "other": "Enforce Defaults"
+  },
   "metadata.empty": {
     "other": "No metadata defined"
   },

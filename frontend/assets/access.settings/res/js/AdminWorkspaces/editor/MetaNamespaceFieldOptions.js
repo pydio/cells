@@ -276,7 +276,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                 fontWeight: '500',
                 fontSize: '12px',
             }}>
-                Field Validation
+                {m('metadata.editor.field.validation')}
             </p>
             <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
                 <div style={{
