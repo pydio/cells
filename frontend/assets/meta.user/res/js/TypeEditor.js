@@ -44,10 +44,11 @@ const MetaTypes = {
 
 // Group definitions for organized type selection
 const MetaTypeGroups = {
-    "Text": ["string", "textarea", "tags", "url"],
-    "Number": ["integer", "date"],
-    "Multi-Value": ["choice", "tag_cloud", "stars_rate", "css_label", "auto_complete"],
-    "Other": ["json", "boolean"]
+    "Boolean": ["boolean"],
+    "Text": ["string", "textarea", "url"],
+    "Number": ["integer", "date", "stars_rate"],
+    "Lists": ["choice", "tag_cloud", "css_label", "auto_complete", "tags"],
+    "Internal": ["json"],
 }
 
 class TypeEditor extends React.Component {

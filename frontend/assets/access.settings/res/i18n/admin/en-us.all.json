@@ -867,7 +867,7 @@
     "other": "Auto Complete"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags"
+    "other": "Extensible Tags (legacy)"
   },
   "metadata.type.choice": {
     "other": "Select from values"
