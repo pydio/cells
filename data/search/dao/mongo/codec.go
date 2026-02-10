@@ -284,7 +284,7 @@ func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string
 		finalMeta := "meta." + s
 		nss := m.QueryNsProvider.TypedNamespaces()
 		ns, ok := nss[s]
-		if !ok || ns.GetType() != "tags" {
+		if !ok || ns.GetType() != "tags" && ns.GetType() != "tag_cloud" && ns.GetType() != "auto_complete" {
 			return finalMeta, nil, false
 		}
 		switch qTyped := q.(type) {
