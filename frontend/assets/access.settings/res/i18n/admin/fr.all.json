@@ -864,28 +864,28 @@
     "other": "Étiquettes de couleur"
   },
   "metadata.type.auto_complete": {
-    "other": "Auto Complete"
+    "other": "Auto-complétion"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags (legacy)"
+    "other": "Tags Extensibles (v4)"
   },
   "metadata.type.choice": {
     "other": "Sélection de valeurs"
   },
   "metadata.type.multi_value": {
-    "other": "Multi Value select"
+    "other": "Listes de choix"
   },
   "metadata.type.tag_cloud": {
-    "other": "Tag Cloud"
+    "other": "Nuage de Tags"
   },
   "metadata.type.tag_cloud.values": {
-    "other": "Tag Cloud values"
+    "other": "Valeurs"
   },
   "metadata.tag_cloud.entity.hint": {
-    "other": "Comma-separated list of possible tags"
+    "other": "Liste de termes séparés par des virgules"
   },
   "metadata.tag_cloud.entity": {
-    "other": "Values"
+    "other": "Valeurs"
   },
   "metadata.type.json": {
     "other": "JSON (format interne)"
@@ -936,16 +936,16 @@
     "other": "Afficher dans la liste"
   },
   "metadata.toggle.prompt": {
-    "other": "Prompt Metadata tagging on Upload"
+    "other": "Remplissage des métadonnées lors du téléchargement"
   },
   "metadata.field.validation": {
-    "other": "Field Validation"
+    "other": "Règles de validation"
   },
   "metadata.toggle.required": {
-    "other": "Required"
+    "other": "Obligatoire"
   },
   "metadata.toggle.defaults": {
-    "other": "Enforce Defaults"
+    "other": "Forcer les valeurs par défaut"
   },
   "metadata.field.mandatory": {
     "other": "Obligatoire"
