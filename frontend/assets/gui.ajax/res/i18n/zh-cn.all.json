@@ -311,6 +311,21 @@
   "fastsearch.quick-copy.legend": {
     "other": "按 [Enter] 将 %s 个选定项目复制到目标，按 [Esc] 关闭"
   },
+  "modalsearch.opentip.cmd": {
+    "other": "Tip: Use <kbd>⌘+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
+  },
+  "modalsearch.opentip.ctrl": {
+    "other": "Tip: Use <kbd>Ctrl+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
+  },
+  "search.chip.scope.folder": {
+    "other": "Folder"
+  },
+  "search.chip.scope.ws": {
+    "other": "Inside"
+  },
+  "search.chip.scope.all": {
+    "other": "All Workspaces"
+  },
   "wslist-options.title": {
     "other": "显示选项"
   },
