@@ -477,7 +477,7 @@ class MetaNamespace extends React.Component {
                 ))}
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 {USERMETA_PROMPT_FF && <Toggle
-                    label={m('metadata.editor.toggle.prompt')}
+                    label={m('toggle.prompt')}
                     disabled={readonly}
                     labelPosition={"left"}
                     toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
@@ -494,7 +494,7 @@ class MetaNamespace extends React.Component {
                 {USERMETA_PROMPT_FF &&
                 <>
                     <Toggle
-                        label={m('metadata.editor.toggle.required')}
+                        label={m('toggle.required')}
                         disabled={!namespace?.PromptOnUpload || false}
                         labelPosition={"left"}
                         toggled={namespace?.JsonSchema?.required?.length > 0}
@@ -503,7 +503,7 @@ class MetaNamespace extends React.Component {
                     />
                     {!TYPES_WITHOUT_DEFAULTS.includes(namespace.FieldType) &&
                         <Toggle
-                            label={m('metadata.editor.toggle.defaults')}
+                            label={m('toggle.defaults')}
                             labelPosition={"left"}
                             toggled={namespace?.EnforceDefault}
                             onToggle={(e, v) => {

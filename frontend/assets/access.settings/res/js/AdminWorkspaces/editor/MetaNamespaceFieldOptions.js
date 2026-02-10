@@ -89,7 +89,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
     const [metaSchema, setSchema] = useState({});
     const [formData, setFormData] = useState({});
     const hasValidNs = ns && ns.JsonSchema;
-    
+    const m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
     const uiSchema = {
         required: {
             "ui:widget": "hidden"
@@ -268,7 +268,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
     const handleChange = ({ formData: newFormData }) => {
         setFormData(newFormData);
     };
-
+    
     return (
         <React.Fragment>
             <p style={{
@@ -276,7 +276,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                 fontWeight: '500',
                 fontSize: '12px',
             }}>
-                {m('metadata.editor.field.validation')}
+                {m('metadata.field.validation')}
             </p>
             <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
                 <div style={{
