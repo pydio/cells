@@ -1191,8 +1191,8 @@ importers:
         specifier: ^2.847.0
         version: 2.1693.0
       cells-sdk:
-        specifier: github:pydio/cells-sdk-js#feat/optimizing-namespace-model-changes
-        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/55f9bce6d0b574ae37c0f6d57155bfa199fd422c
+        specifier: github:pydio/cells-sdk-js#next
+        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ddb6c2e149ce6345dfadb1a1c0b91fa658e84941
       classnames:
         specifier: ~2.1.3
         version: 2.1.5
@@ -4217,8 +4217,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-ts/tar.gz/cbea7de85ff1ac4602a86e8196d583b9ef6c9893}
     version: 0.1.0
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/55f9bce6d0b574ae37c0f6d57155bfa199fd422c:
-    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/55f9bce6d0b574ae37c0f6d57155bfa199fd422c}
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ddb6c2e149ce6345dfadb1a1c0b91fa658e84941:
+    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ddb6c2e149ce6345dfadb1a1c0b91fa658e84941}
     version: 3.0.0
 
   chai@6.2.2:
@@ -11824,7 +11824,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/55f9bce6d0b574ae37c0f6d57155bfa199fd422c:
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ddb6c2e149ce6345dfadb1a1c0b91fa658e84941:
     dependencies:
       superagent: 6.1.0
     transitivePeerDependencies:
