@@ -18,61 +18,41 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback} from 'react'
+import React from 'react'
 import {NumberInput} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
-import {LeftSectionMenu, NumberRangeModifiers} from "./SearchModifiers";
+import {NumberRangeModifiers} from "./SearchModifiers";
+import {RangeSearchModifierInput} from "./SearchModifierInput";
 
 export const NumbersInputSearch: React.FC<InputProps> = ({label, description, placeholder, disabled, value, requestToggleClose, onChange, errorText}) => {
-    const props = {
-        label,
-        value: value || '',
-        disabled,
-        error: errorText,
-    }
-
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
-            onChange(value, true);
+            event.currentTarget.blur();
         }
     }
-
-    // Decide for int or decimal
-    const parser = parseFloat
-
-
-    let searchComp = ''
-    if (value && value.indexOf && ['<','>'].indexOf(value.charAt(0))>-1){
-        searchComp = value.charAt(0)
-        if(value.charAt(1) === "=") {
-            searchComp += "="
-            value = parser(value.substring(2))
-        } else {
-            value = parser(value.substring(1))
-        }
-    } else {
-        value = parser(value)
-    }
-
-    const updateSearchComparator= useCallback((comp) => {
-        onChange(comp+''+value, true);
-    }, [value])
-
-    const menu = <LeftSectionMenu items={NumberRangeModifiers} value={searchComp} onChange={updateSearchComparator}/>
 
     return (
-            <NumberInput
-                {...props}
-                value={parser(value)}
-                leftSection={menu}
-                onChange={(v) => onChange(searchComp+''+v)}
-                onKeyPress={simpleEnter}
-                autoFocus={!!requestToggleClose}
-                onBlur={() => requestToggleClose && requestToggleClose()}
-                thousandSeparator=" "
-                prefix="€"
-                description={description}
-                placeholder={placeholder}
-            />
+        <RangeSearchModifierInput
+            value={value}
+            onChange={onChange}
+            items={NumberRangeModifiers}
+            requestToggleClose={requestToggleClose}
+        >
+            {({text, leftSection, autoFocus, onBlur, onTextChange}) => (
+                <NumberInput
+                    label={label}
+                    value={text === '' ? '' : parseFloat(text) || ''}
+                    disabled={disabled}
+                    error={errorText}
+                    leftSection={leftSection}
+                    onChange={(v) => onTextChange(v === '' ? '' : v?.toString() || '')}
+                    onKeyPress={simpleEnter}
+                    autoFocus={autoFocus}
+                    onBlur={onBlur}
+                    description={description}
+                    placeholder={placeholder}
+                />
+            )}
+        </RangeSearchModifierInput>
     )
 }
