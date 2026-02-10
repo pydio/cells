@@ -200,7 +200,6 @@ func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (erro
 // Del removes a namespace
 func (s *nsSqlImpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error) {
 	whereClause := (&MetaNamespace{}).From(ns)
-	whereClause.JsonSchema = nil
 
 	tx := s.Session(ctx).Where(whereClause).Delete(&MetaNamespace{})
 	if tx.Error != nil {

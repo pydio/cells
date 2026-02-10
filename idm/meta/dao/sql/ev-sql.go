@@ -22,6 +22,7 @@ package sql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -266,9 +267,16 @@ func (s *evSqlImpl) UnlinkMetaValue(ctx context.Context, metaUuid string, valueU
 func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error) {
 	var models []*EntityValues
 
-	tx := s.Session(ctx).
-		Joins("INNER JOIN meta_values_rel ON meta_entity_values.uuid = meta_values_rel.e_value_uuid").
-		Where("meta_values_rel.meta_uuid = ?", metaUuid).
+	db := s.Session(ctx)
+	evTable := sql.TableNameFromModel(db, &EntityValues{})
+	relTable := sql.TableNameFromModel(db, &MetaValuesRel{})
+
+	evTable = sql.QuoteTo(db, evTable)
+	relTable = sql.QuoteTo(db, relTable)
+
+	tx := db.Model(&EntityValues{}).
+		Joins(fmt.Sprintf("INNER JOIN %s ON %s.uuid = %s.e_value_uuid", relTable, evTable, relTable)).
+		Where(fmt.Sprintf("%s.meta_uuid = ?", relTable), metaUuid).
 		Find(&models)
 
 	if tx.Error != nil {
