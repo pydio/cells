@@ -18,77 +18,57 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback} from 'react'
+import React from 'react'
 import {InputProps} from "./CommonInputProps";
 import {DateTimePicker} from '@mantine/dates'
 import {PopoverProps} from "@mantine/core";
-import {DateRangeModifiers, LeftSectionMenu} from "./SearchModifiers";
+import {DateRangeModifiers} from "./SearchModifiers";
+import {DateTimeSearchModifierInput} from "./SearchModifierInput";
+import {textToDate, dateToTimestamp} from "./dateTimeConversion";
 
-export const DateTimeInputSearch: React.FC<InputProps> = ({label, description, placeholder, required, disabled, value, onChange, requestToggleClose, errorText}) => {
-    const props = {
-        label,
-        disabled,
-        error: errorText,
-        required: required,
-    }
-
+export const DateTimeInputSearch: React.FC<InputProps> = ({
+    label,
+    description,
+    placeholder,
+    required,
+    disabled,
+    value,
+    onChange,
+    requestToggleClose,
+    errorText
+}) => {
     const popoverProps : PopoverProps = {withinPortal: false}
     if(requestToggleClose && !disabled) {
-        popoverProps.opened = true
         popoverProps.onClose= requestToggleClose
     }
-    const fromTimestamp = (v:any):{vDate:Date,searchComp:string}|null => {
-        let floatValue, searchComp;
-        if (v && v.indexOf && ['<','>'].indexOf(v.charAt(0))>-1){
-            searchComp = v.charAt(0)
-            if(v.charAt(1) === "=") {
-                searchComp += "="
-                floatValue = parseFloat(v.substring(2))
-            } else {
-                floatValue = parseFloat(v.substring(1))
-            }
-        } else {
-            floatValue = parseFloat(v)
-        }
-        const mDate = new Date(parseFloat(floatValue)*1000);
-        if (isNaN(mDate.getTime())) {
-            return {vDate: null, searchComp};
-        } else {
-            return {vDate: mDate, searchComp};
-        }
-    }
 
-    const {vDate, searchComp} = fromTimestamp(value)
-
-    const toTimestamp= useCallback((d:string|Date):string => {
-        if(!d) {
-            return ''
-        }
-        return new Date(d).getTime()/1000 + ''
-    }, [searchComp])
-
-    const updateSearchComparator= useCallback((comp) => {
-        const ts = toTimestamp(vDate)
-        if(!ts) {
-            onChange('', true)
-        } else {
-            onChange(comp+''+ts, true);
-        }
-    }, [vDate])
-
-    const menu = <LeftSectionMenu items={DateRangeModifiers} value={searchComp} onChange={updateSearchComparator}/>
-
-    return <DateTimePicker
-        {...props}
-        radius={"md"}
-        value={vDate}
-        leftSection={menu}
-        onChange={(v) => {
-            onChange(toTimestamp(v), true)
-        }}
-        description={description}
-        placeholder={placeholder}
-        autoFocus={!!requestToggleClose}
-        popoverProps={popoverProps}
-    />
+    return (
+        <DateTimeSearchModifierInput
+            value={value}
+            onChange={onChange}
+            items={DateRangeModifiers}
+            requestToggleClose={requestToggleClose}
+        >
+            {({text, leftSection, autoFocus, onBlur, onTextChange}) => (
+                <DateTimePicker
+                    label={label}
+                    disabled={disabled}
+                    error={errorText}
+                    required={required}
+                    radius={"md"}
+                    value={textToDate(text)}
+                    leftSection={leftSection}
+                    onChange={(date) => {
+                        const timestamp = dateToTimestamp(date)
+                        onTextChange(timestamp)
+                    }}
+                    description={description}
+                    placeholder={placeholder}
+                    autoFocus={autoFocus}
+                    onBlur={onBlur}
+                    popoverProps={popoverProps}
+                />
+            )}
+        </DateTimeSearchModifierInput>
+    )
 }

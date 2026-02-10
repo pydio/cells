@@ -173,3 +173,40 @@ export const RangeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
         </SearchModifierInput>
     )
 }
+
+export const DateTimeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
+    value,
+    onChange,
+    items,
+    requestToggleClose,
+    children
+}) => {
+    const applyModifier = (modifier: string, text: string) => {
+        if (!text) return ''
+        return `${modifier}${text}`
+    }
+
+    const parseModifier = (input: string): ModifierParseResult => {
+        if (!input) return { modifier: '', text: '' }
+        if (input.indexOf('>=') === 0 || input.indexOf('<=') === 0) {
+            return { modifier: input.substring(0, 2), text: input.substring(2) }
+        }
+        if (input.indexOf('>') === 0 || input.indexOf('<') === 0) {
+            return { modifier: input.substring(0, 1), text: input.substring(1) }
+        }
+        return { modifier: '', text: input }
+    }
+
+    return (
+        <SearchModifierInput
+            value={value}
+            onChange={onChange}
+            items={items}
+            applyModifier={applyModifier}
+            parseModifier={parseModifier}
+            requestToggleClose={requestToggleClose}
+        >
+            {children}
+        </SearchModifierInput>
+    )
+}
