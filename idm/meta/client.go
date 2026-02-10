@@ -261,7 +261,7 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 						}
 					}
 
-					if ns.FieldType == "tag_cloud" {
+					if ns.FieldType == "tag_cloud" || ns.FieldType == "auto_complete" {
 						// get the diff of labels from metaValue
 						var newLabels []string
 						// combine all EntityValue labels into an array
