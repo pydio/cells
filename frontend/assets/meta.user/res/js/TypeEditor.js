@@ -39,7 +39,8 @@ const MetaTypes = {
     "tags": "Extensible Tags",
     "textarea": "Long Text",
     "url": "External URL",
-    "auto_complete": "Auto complete"
+    // FIXME: Auto complete is not supported for now
+    // "auto_complete": "Auto complete"
 }
 
 // Group definitions for organized type selection
@@ -47,7 +48,7 @@ const MetaTypeGroups = {
     "Boolean": ["boolean"],
     "Text": ["string", "textarea", "url"],
     "Number": ["integer", "date", "stars_rate"],
-    "Lists": ["choice", "tag_cloud", "css_label", "auto_complete", "tags"],
+    "Lists": ["choice", "tag_cloud", "css_label", /* FIXME "auto_complete", */ "tags"],
     "Internal": ["json"],
 }
 
@@ -123,9 +124,9 @@ class TypeEditor extends React.Component {
                 ...types
                     .filter(typeKey => metaTypes[typeKey])
                     .map(typeKey => (
-                        <MenuItem 
-                            key={typeKey} 
-                            value={typeKey} 
+                        <MenuItem
+                            key={typeKey}
+                            value={typeKey}
                             primaryText={m('type.' + typeKey) || metaTypes[typeKey]}
                         />
                     ))
