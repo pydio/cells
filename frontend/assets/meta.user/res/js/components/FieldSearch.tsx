@@ -30,6 +30,7 @@ import MetaClient from "../MetaClient";
 import {NamespaceMeta} from "./MetaSpec";
 import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
 import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
+import {DateInputSearch} from "../fieldsv2/DateInputSearch";
 import {TextInputSearch} from "../fieldsv2/TextInputSearch";
 import { TimeInputSearch } from '../fieldsv2/TimeInputSearch';
 
@@ -66,7 +67,7 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
         value,
         onChange: localChange,
         errorText,
-        requestToggleClose: () => {}, // For search it does nothing
+        // requestToggleClose: () => {}, // For search it does nothing
         onCommitChange: (values) => {
             localChange(values)
         },
@@ -89,6 +90,11 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
             if (formatType === 'time') {
                 return <TimeInputSearch {...baseProps}/>;
             }
+
+            if (formatType === 'date') {
+                return <DateInputSearch {...baseProps}/>
+            }
+
             return <DateTimeInputSearch {...baseProps}/>;
         case 'integer':
             return <NumbersInputSearch {...baseProps}/>;
