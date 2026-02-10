@@ -797,18 +797,6 @@
   "metadata.editor.title.create": {
     "other": "Create Namespace"
   },
-  "metadata.editor.field.validation": {
-    "other": "Field Validation"
-  },
-  "metadata.editor.toggle.prompt":{
-    "other": "Prompt Metadata tagging on Upload"
-  },
-  "metadata.editor.toggle.required": {
-    "other": "Required"
-  },
-  "metadata.editor.toggle.defaults": {
-    "other": "Enforce Defaults"
-  },
   "metadata.empty": {
     "other": "No metadata defined"
   },
@@ -946,6 +934,18 @@
   },
   "metadata.toggle.list-visibility": {
     "other": "Show value in files list"
+  },
+  "metadata.toggle.prompt": {
+    "other": "Prompt Metadata tagging on Upload"
+  },
+  "metadata.field.validation": {
+    "other": "Field Validation"
+  },
+  "metadata.toggle.required": {
+    "other": "Required"
+  },
+  "metadata.toggle.defaults": {
+    "other": "Enforce Defaults"
   },
   "metadata.field.mandatory": {
     "other": "Mandatory"
