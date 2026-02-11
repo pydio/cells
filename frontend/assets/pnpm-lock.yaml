@@ -547,9 +547,27 @@ importers:
       '@blocknote/react':
         specifier: 0.46.2
         version: 0.46.2(@floating-ui/dom@1.7.4)(@types/hast@3.0.4)(@types/react-dom@18.3.7(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@shikijs/core':
+        specifier: ^3.22.0
+        version: 3.22.0
+      '@shikijs/engine-javascript':
+        specifier: ^3.22.0
+        version: 3.22.0
+      '@shikijs/langs':
+        specifier: ^3.22.0
+        version: 3.22.0
+      '@shikijs/langs-precompiled':
+        specifier: ^3.22.0
+        version: 3.22.0
+      '@shikijs/themes':
+        specifier: ^3.22.0
+        version: 3.22.0
+      '@shikijs/types':
+        specifier: ^3.22.0
+        version: 3.22.0
       axios:
-        specifier: ^1.13.2
-        version: 1.13.2
+        specifier: ^1.13.5
+        version: 1.13.5
       cells-sdk-ts:
         specifier: github:pydio/cells-sdk-ts#v5-dev
         version: https://codeload.github.com/pydio/cells-sdk-ts/tar.gz/cbea7de85ff1ac4602a86e8196d583b9ef6c9893
@@ -578,24 +596,6 @@ importers:
       '@mantine/core':
         specifier: ^8.3.13
         version: 8.3.13(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@19.2.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@shikijs/core':
-        specifier: ^3.22.0
-        version: 3.22.0
-      '@shikijs/engine-javascript':
-        specifier: ^3.22.0
-        version: 3.22.0
-      '@shikijs/langs':
-        specifier: ^3.22.0
-        version: 3.22.0
-      '@shikijs/langs-precompiled':
-        specifier: ^3.22.0
-        version: 3.22.0
-      '@shikijs/themes':
-        specifier: ^3.22.0
-        version: 3.22.0
-      '@shikijs/types':
-        specifier: ^3.22.0
-        version: 3.22.0
       assemble-less:
         specifier: ~0.7.0
         version: 0.7.0
@@ -4043,8 +4043,8 @@ packages:
   aws4@1.13.2:
     resolution: {integrity: sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==}
 
-  axios@1.13.2:
-    resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
+  axios@1.13.5:
+    resolution: {integrity: sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==}
 
   babel-loader@9.2.1:
     resolution: {integrity: sha512-fqe8naHt46e0yIdkjUZYqddSXfej3AHajX+CSO5X7oy0EmPc6o5Xh+RClNoHjnieWz9AW4kZxW9yyFMhVB1QLA==}
@@ -11542,7 +11542,7 @@ snapshots:
   aws4@1.13.2:
     optional: true
 
-  axios@1.13.2:
+  axios@1.13.5:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.5
@@ -11820,7 +11820,7 @@ snapshots:
 
   cells-sdk-ts@https://codeload.github.com/pydio/cells-sdk-ts/tar.gz/cbea7de85ff1ac4602a86e8196d583b9ef6c9893:
     dependencies:
-      axios: 1.13.2
+      axios: 1.13.5
     transitivePeerDependencies:
       - debug
 
