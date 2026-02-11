@@ -11,6 +11,13 @@
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
+    "@mantine/core": "^8.3.13",
+    "@shikijs/core": "^3.22.0",
+    "@shikijs/engine-javascript": "^3.22.0",
+    "@shikijs/langs": "^3.22.0",
+    "@shikijs/langs-precompiled": "^3.22.0",
+    "@shikijs/themes": "^3.22.0",
+    "@shikijs/types": "^3.22.0",
     "assemble-less": "~0.7.0",
     "babel-loader": "^9.1.2",
     "babel-plugin-add-module-exports": "^1.0.4",
@@ -21,15 +28,13 @@
     "less-plugin-autoprefix": "^2.0.0",
     "style-loader": "^3.3.1",
     "webpack": ">=5.76.0",
-    "webpack-cli": "^5.0.1",
-    "@mantine/core": "^8.3.13"
-},
+    "webpack-cli": "^5.0.1"
+  },
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "build-prod": "rm -rf res/dist && NODE_ENV=production webpack --config webpack.config.js"
   },
   "dependencies": {
-    "@blocknote/code-block": "0.46.2",
     "@blocknote/core": "0.46.2",
     "@blocknote/mantine": "0.46.2",
     "@blocknote/react": "0.46.2",

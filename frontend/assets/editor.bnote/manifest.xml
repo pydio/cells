@@ -10,7 +10,6 @@
         <resources>
             <js file="plug/editor.bnote/res/dist/BlockNote.min.js" className="BlockNote"/>
             <i18n remote="plug/editor.bnote/i18n" namespace="bnote"/>
-			<css file="plug/editor.bnote/res/css/style.css" autoload="true"/>
         </resources>
 	</client_settings>
 	<registry_contributions>
