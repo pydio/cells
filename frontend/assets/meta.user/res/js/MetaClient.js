@@ -55,7 +55,10 @@ class MetaClient{
                         const meta = new IdmUserMeta();
                         meta.NodeUuid = node.getMetadata().get("uuid");
                         meta.Namespace = cName;
-                        meta.JsonValue = JSON.stringify(values.get(cName));
+
+                        // NOTE: This ensure JsonValue is always present
+                        meta.JsonValue = JSON.stringify(values.get(cName) || '');
+
                         meta.Policies = [
                             ServiceResourcePolicy.constructFromObject({
                                 Action: 'READ',
