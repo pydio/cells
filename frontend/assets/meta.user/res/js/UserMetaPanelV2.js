@@ -22,6 +22,7 @@ import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
 import { pathsToTree, groupConfigsByNamespace } from './utils/treeUtils';
+import { useMetadataContext } from './context/metadata';
 // FIXME: disabling the togglable fields for now
 // import './components/TogglableField.css';
 
@@ -50,8 +51,11 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         onValidStatusChanged,
         additionalProps,
         useTogglableFields,
-        className
+        className,
     } = props;
+
+    const context = useMetadataContext();
+    const { state } = context;
 
     // State management
     const {
@@ -129,6 +133,10 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
                 autoSave={autoSave}
                 saving={saving}
             />
+            {state.errors['form'] && <div style={{
+                color: 'red',
+                padding: '5px 0',
+            }}>{state.errors['form']}</div>}
         </div>
     );
 });
