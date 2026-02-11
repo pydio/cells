@@ -21,64 +21,9 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { TextInput } from '@mantine/core'
 import { sanitizeUrl } from "@braintree/sanitize-url"
+import { ensureHttpScheme, formatURL } from '../utils/formatUrl.js'
 import { InputProps } from "./CommonInputProps"
-
-/**
- * If no scheme is provided, default to https:// to avoid relative links.
- * Keeps existing schemes (mailto:, ftp:, etc.) untouched.
- * Distinguishes between URL schemes (http:, ftp:, etc.) and port numbers (domain:8080).
- *
- * @param {string} raw
- * @returns {string}
- */
-export const ensureHttpScheme = (raw: string): string => {
-    const trimmed = String(raw || '').trim()
-    if (!trimmed) {
-        return ''
-    }
-    // Check for valid URL schemes: must start with letter, followed by alphanumeric/+/-.
-    // A valid scheme is followed by :// or : and then non-digits
-    // This distinguishes from port numbers (localhost:8080 has only digits after :)
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmed)) {
-        return trimmed
-    }
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:(?!\d)/.test(trimmed)) {
-        return trimmed
-    }
-    return `https://${trimmed}`
-}
-
-/**
- * Formats a URL for display and validation
- * @param {string} url - Raw URL input
- * @returns {{normalizedURL: string, displayURL: string}} Normalized and display URLs
- */
-export const formatURL = (url: string): { normalizedURL: string; displayURL: string } => {
-    if (!url || !String(url).trim()) {
-        return { normalizedURL: '', displayURL: '' }
-    }
-    const normalizedURL = ensureHttpScheme(url)
-    const sanitizedURL = sanitizeUrl(normalizedURL)
-
-    if (!sanitizedURL) {
-        return { normalizedURL: '', displayURL: '' }
-    }
-
-    // Extract display text (domain or full URL)
-    let displayURL = sanitizedURL
-    try {
-        const urlObj = new URL(sanitizedURL)
-        displayURL = urlObj.hostname || sanitizedURL
-    } catch (e) {
-        // If URL parsing fails, use sanitized value
-        displayURL = sanitizedURL
-    }
-
-    return {
-        normalizedURL,
-        displayURL,
-    }
-}
+export { ensureHttpScheme, formatURL };
 
 /**
  * URLIcon component for displaying the open-in-new icon

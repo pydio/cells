@@ -27,24 +27,10 @@ const { ModernTextField, ThemedModernStyles } = Pydio.requireLib('hoc');
 import { muiThemeable } from 'material-ui/styles'
 import { FontIcon } from 'material-ui'
 import { sanitizeUrl } from "@braintree/sanitize-url";
+import { ensureHttpScheme, formatURL } from '../utils/formatUrl.js';
 
-/**
- * If no scheme is provided, default to http:// to avoid relative links.
- * Keeps existing schemes (mailto:, ftp:, etc.) untouched.
- *
- * @param {string} raw
- * @returns {string}
- */
-const ensureHttpScheme = (raw) => {
-    const trimmed = String(raw || '').trim();
-    if (!trimmed) {
-        return '';
-    }
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) {
-        return trimmed;
-    }
-    return `https://${trimmed}`;
-};
+export { formatURL };
+
 
 /**
  * @param {{fontSize?: number}} props
@@ -97,34 +83,6 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
 
 }
 
-const formatURL = (url) => {
-    if (!url || !String(url).trim()) {
-        return <Fragment></Fragment>;
-    }
-    const normalizedURL = ensureHttpScheme(url);
-    const sanitizedURL = sanitizeUrl(normalizedURL);
-
-    if (!sanitizedURL) {
-        return <Fragment></Fragment>;
-    }
-
-    // Validate URL format
-    let displayURL = sanitizedURL;
-
-    // Extract display text (domain or full URL)
-    try {
-        const urlObj = new URL(sanitizedURL);
-        displayURL = urlObj.hostname || sanitizedURL;
-    } catch (e) {
-        // If URL parsing fails, use original value
-        displayURL = sanitizedURL;
-    }
-
-    return {
-        normalizedURL,
-        displayURL,
-    }
-}
 
 /**
  * @param {{getRealValue: () => string}} props
