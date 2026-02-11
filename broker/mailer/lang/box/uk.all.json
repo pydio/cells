@@ -81,118 +81,118 @@
     "other": "{{.TplData.Inviter}} додав вас до комірки {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} додав вас у комірку {{.TplData.Cell}} на {{.Configs.Title}}.! Ви можете почати ділитися файлами та теками разом й ефективно співпрацювати."
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "Натисніть, щоб відкрити комірку"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "Відкрити {{.TplData.Cell}}"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} відправив вам файл"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} відправив вам файл.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Посилання спливає {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Максимум завантажень:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "Відкрити {{.TplData.FileName}}"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "Натисніть, щоб переглянути файл у вашому браузері"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "Система обміну файлами {{.Configs.Title}} використовується командою {{.TplData.Inviter}} для ефективної взаємодії з документами."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} надав вам доступ до теки"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} надав вам доступ до теки.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Посилання закінчується {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Максимум завантажень:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "Відкрити {{.TplData.FolderName}}"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "Натисніть, щоб переглянути документи у вашому браузері"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "Система обміну файлами {{.Configs.Title}} використовується {{.TplData.Inviter}} для ефективного обміну документами."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} відправив вам тестове повідомлення"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Відкрити комірки"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "Натисніть, щоб відкрити інтерфейс"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "Система обміну файлами {{.Configs.Title}} використовується командами для ефективної взаємодії з документами."
   },
   "Mail.Config.Title": {
-    "other": "Mailer"
+    "other": "Поштова служба"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "Email відправника за замовченням"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "Адреса, яка використовується за замовчуванням при надсиланні листів. Ви повинні використовувати правильну електронну адресу підтримки замість адреси типу «не відповідайте»."
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Виправлення для клієнтів Outlook (вимкнення CSS надбудови)"
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "Тип черги"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "Місце для зберігання черги листів"
   },
   "Mail.Config.Queue.ValueBolt": {
-    "other": "On-file Database (Bolt)"
+    "other": "Файлова база (Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "В пам'яті"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "Поштовий двигун"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "Поштовий двигун, що використовується для надсилання листів"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Вимкнено (не вмикати листи)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (увімкнути надсилання листів, але нічого не відправляти)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Записувати листи у файл для налагодження"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Цільова тека для запису листів"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP Server"
+    "other": "SMTP-сервер"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "Ім'я хоста сервера"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "Хост SMTP-сервера, наприклад smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "Порт сервера"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "Порт SMTP-сервера, наприклад 587 (небезпечно) або 465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "Використовувати для підключення"
   },
   "Mail.Config.Smtp.User.Description": {
     "other": "Username required to connect to the SMTP server"
@@ -228,7 +228,7 @@
     "other": "Api Ключ"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key, наданий SendGrid для підключення до сервісу"
+    "other": "Api Ключ, наданий SendGrid для підключення до сервісу"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Відправити листа"
