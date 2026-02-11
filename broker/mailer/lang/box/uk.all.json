@@ -63,22 +63,22 @@
     "other": "Система обміну файлами {{.Configs.Title}} використовується вашою командою для ефективної взаємодії з документами. Ми раді бачити вас на борту!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} запрошує вас на {{.Configs.Title}}"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "{{.TplData.Inviter}} створив для вас обліковий запис на {{.Configs.Title}}. \n Ваш логін: {{.TplData.Login}}{{if .TplData.Password}} , пароль: {{.TplData.Password}}. Ви можете змінити його при першому вході{{end}}."
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Натисніть, щоб увійти"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Війти в {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "Система обміну файлами {{.Configs.Title}} використовується командою {{.TplData.Inviter}} для ефективної взаємодії з документами. Ми раді бачити вас на борту!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} додав вас до комірки {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
     "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
