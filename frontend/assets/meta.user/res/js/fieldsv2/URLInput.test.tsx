@@ -18,236 +18,143 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import { describe, it, expect } from 'vitest'
-import { ensureHttpScheme, formatURL } from './URLInput'
+import React from 'react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 
-describe('URL Utility Functions', () => {
-    describe('ensureHttpScheme', () => {
-        it('adds https:// to URLs without a scheme', () => {
-            expect(ensureHttpScheme('example.com')).toBe('https://example.com')
-        })
+import { URLIcon, URLLinkIcon } from './URLInput'
 
-        it('preserves existing http:// scheme', () => {
-            expect(ensureHttpScheme('http://example.com')).toBe('http://example.com')
-        })
-
-        it('preserves existing https:// scheme', () => {
-            expect(ensureHttpScheme('https://example.com')).toBe('https://example.com')
-        })
-
-        it('preserves mailto: scheme', () => {
-            expect(ensureHttpScheme('mailto:test@example.com')).toBe('mailto:test@example.com')
-        })
-
-        it('preserves ftp: scheme', () => {
-            expect(ensureHttpScheme('ftp://example.com')).toBe('ftp://example.com')
-        })
-
-        it('preserves other schemes like tel:', () => {
-            expect(ensureHttpScheme('tel:+1234567890')).toBe('tel:+1234567890')
-        })
-
-        it('preserves custom schemes with multiple characters', () => {
-            expect(ensureHttpScheme('git+https://github.com/repo.git')).toBe(
-                'git+https://github.com/repo.git'
-            )
-        })
-
-        it('handles empty string', () => {
-            expect(ensureHttpScheme('')).toBe('')
-        })
-
-        it('handles null/undefined by treating as empty string', () => {
-            expect(ensureHttpScheme(null as any)).toBe('')
-            expect(ensureHttpScheme(undefined as any)).toBe('')
-        })
-
-        it('trims whitespace before checking scheme', () => {
-            expect(ensureHttpScheme('  example.com  ')).toBe('https://example.com')
-            expect(ensureHttpScheme('  http://example.com  ')).toBe('http://example.com')
-        })
-
-        it('does not add scheme to whitespace-only strings', () => {
-            expect(ensureHttpScheme('   ')).toBe('')
-        })
-
-        it('handles URLs with multiple dots correctly', () => {
-            expect(ensureHttpScheme('example.co.uk')).toBe('https://example.co.uk')
-        })
-
-        it('handles URLs with hyphens in domain', () => {
-            expect(ensureHttpScheme('my-example.com')).toBe('https://my-example.com')
-        })
-
-        it('handles URLs with subdomains', () => {
-            expect(ensureHttpScheme('sub.domain.example.com')).toBe('https://sub.domain.example.com')
-        })
-
-        it('handles URLs with ports', () => {
-            expect(ensureHttpScheme('example.com:8080')).toBe('https://example.com:8080')
-        })
-
-        it('handles URLs with paths', () => {
-            expect(ensureHttpScheme('example.com/path/to/page')).toBe('https://example.com/path/to/page')
-        })
-
-        it('handles URLs with query strings', () => {
-            expect(ensureHttpScheme('example.com?param=value')).toBe('https://example.com?param=value')
-        })
-
-        it('handles URLs with fragments', () => {
-            expect(ensureHttpScheme('example.com#section')).toBe('https://example.com#section')
-        })
+describe('URLIcon Component', () => {
+    beforeEach(() => {
+        cleanup()
     })
 
-    describe('formatURL', () => {
-        it('returns empty strings for empty input', () => {
-            const result = formatURL('')
-            expect(result).toEqual({ normalizedURL: '', displayURL: '' })
-        })
-
-        it('returns empty strings for whitespace-only input', () => {
-            const result = formatURL('   ')
-            expect(result).toEqual({ normalizedURL: '', displayURL: '' })
-        })
-
-        it('normalizes URL and extracts hostname for display', () => {
-            const result = formatURL('example.com')
-            expect(result.normalizedURL).toBe('https://example.com')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('extracts hostname from full URL with path', () => {
-            const result = formatURL('example.com/path/to/page')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('extracts hostname from URL with subdomain', () => {
-            const result = formatURL('sub.example.com')
-            expect(result.displayURL).toBe('sub.example.com')
-        })
-
-        it('handles URLs with port numbers', () => {
-            const result = formatURL('example.com:8080')
-            expect(result.normalizedURL).toBe('https://example.com:8080')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('handles URLs with query parameters', () => {
-            const result = formatURL('example.com?param=value')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('preserves existing https:// scheme', () => {
-            const result = formatURL('https://example.com')
-            expect(result.normalizedURL).toBe('https://example.com')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('preserves existing http:// scheme', () => {
-            const result = formatURL('http://example.com')
-            expect(result.normalizedURL).toBe('http://example.com')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('preserves ftp:// scheme', () => {
-            const result = formatURL('ftp://files.example.com')
-            expect(result.normalizedURL).toBe('ftp://files.example.com')
-            expect(result.displayURL).toBe('files.example.com')
-        })
-
-        it('handles mailto: URLs correctly', () => {
-            const result = formatURL('mailto:test@example.com')
-            expect(result.normalizedURL).toBe('mailto:test@example.com')
-            // mailto URLs don't parse as web URLs, so displayURL should be the sanitized value
-            expect(result.displayURL).not.toBe('')
-        })
-
-        it('uses full normalized URL when URL parsing fails', () => {
-            const result = formatURL('not-a-valid-url-format')
-            expect(result.normalizedURL).toBe('https://not-a-valid-url-format')
-            // When URL parsing fails, displayURL falls back to the normalized URL
-            // sanitizeUrl may return the value unchanged, so we test that displayURL is not empty
-            expect(result.displayURL).not.toBe('')
-            expect(typeof result.displayURL).toBe('string')
-        })
-
-        it('extracts hostname from URL with www prefix', () => {
-            const result = formatURL('www.example.com')
-            expect(result.displayURL).toBe('www.example.com')
-        })
-
-        it('handles internationalized domain names', () => {
-            const result = formatURL('münchen.de')
-            expect(result.normalizedURL).toBe('https://münchen.de')
-        })
-
-        it('trims whitespace from URLs', () => {
-            const result = formatURL('  example.com  ')
-            expect(result.normalizedURL).toBe('https://example.com')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('handles URLs with authentication info', () => {
-            const result = formatURL('https://user:pass@example.com')
-            expect(result.displayURL).toBe('example.com')
-        })
-
-        it('handles localhost URLs', () => {
-            const result = formatURL('localhost:3000')
-            expect(result.normalizedURL).toBe('https://localhost:3000')
-            expect(result.displayURL).toBe('localhost')
-        })
-
-        it('handles IP addresses', () => {
-            const result = formatURL('192.168.1.1')
-            expect(result.normalizedURL).toBe('https://192.168.1.1')
-            expect(result.displayURL).toBe('192.168.1.1')
-        })
-
-        it('handles IP addresses with ports', () => {
-            const result = formatURL('192.168.1.1:8080')
-            expect(result.normalizedURL).toBe('https://192.168.1.1:8080')
-            expect(result.displayURL).toBe('192.168.1.1')
-        })
-
-        it('handles URLs with fragments and query strings', () => {
-            const result = formatURL('example.com/page?param=value#section')
-            expect(result.displayURL).toBe('example.com')
-        })
+    it('renders the icon with default size', () => {
+        render(<URLIcon />)
+        const icon = screen.getByTestId('open-in-new-icon')
+        expect(icon).toBeInTheDocument()
+        expect(icon).toHaveClass('mdi', 'mdi-open-in-new')
     })
 
-    describe('Edge cases and security', () => {
-        it('handles URLs with special characters in path', () => {
-            const result = formatURL('example.com/path/with%20spaces')
-            expect(result.displayURL).toBe('example.com')
-        })
+    it('renders the icon with custom font size', () => {
+        render(<URLIcon fontSize={24} />)
+        const icon = screen.getByTestId('open-in-new-icon')
+        expect(icon.style.fontSize).toBe('24px')
+    })
 
-        it('handles very long URLs', () => {
-            const longPath = 'a'.repeat(1000)
-            const result = formatURL(`example.com/${longPath}`)
-            expect(result.displayURL).toBe('example.com')
-        })
+    it('inherits color from parent', () => {
+        render(<URLIcon fontSize={18} />)
+        const icon = screen.getByTestId('open-in-new-icon')
+        expect(icon.style.color).toBe('inherit')
+    })
+})
 
-        it('handles URLs with emojis in domain', () => {
-            const result = formatURL('example.com')
-            expect(result.displayURL).toBe('example.com')
-        })
+describe('URLLinkIcon Component', () => {
+    beforeEach(() => {
+        cleanup()
+    })
 
-        it('handles multiple slashes in path', () => {
-            const result = formatURL('example.com///path///to///page')
-            expect(result.displayURL).toBe('example.com')
-        })
+    it('returns null for empty URL', () => {
+        const { container } = render(<URLLinkIcon url="" />)
+        expect(container.firstChild).toBeNull()
+    })
 
-        it('ensureHttpScheme preserves URL encoding', () => {
-            const encoded = 'example.com/path%20with%20spaces'
-            expect(ensureHttpScheme(encoded)).toBe(`https://${encoded}`)
-        })
+    it('returns null for whitespace-only URL', () => {
+        const { container } = render(<URLLinkIcon url="   " />)
+        expect(container.firstChild).toBeNull()
+    })
 
-        it('formatURL handles already normalized URLs without modification', () => {
-            const url = 'https://example.com/path'
-            const result = formatURL(url)
-            expect(result.normalizedURL).toBe(url)
-        })
+    it('renders a link with icon for valid URL', () => {
+        render(<URLLinkIcon url="example.com" />)
+        const link = screen.getByTestId('url-link-icon')
+        expect(link).toBeInTheDocument()
+        expect(link).toHaveAttribute('target', '_blank')
+        expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    })
+
+    it('uses sanitized and normalized URL as href', () => {
+        render(<URLLinkIcon url="example.com" />)
+        const link = screen.getByTestId('url-link-icon')
+        // sanitizeUrl may add a trailing slash
+        expect(link.getAttribute('href')).toMatch(/^https:\/\/example\.com\/?$/)
+    })
+
+    it('uses custom display text in aria-label', () => {
+        render(<URLLinkIcon url="example.com" displayText="My Website" />)
+        const link = screen.getByTestId('url-link-icon')
+        expect(link.getAttribute('aria-label')).toBe('Open My Website in a new tab')
+    })
+
+    it('uses URL as fallback for aria-label when no display text provided', () => {
+        render(<URLLinkIcon url="example.com" />)
+        const link = screen.getByTestId('url-link-icon')
+        expect(link.getAttribute('aria-label')).toBe('Open example.com in a new tab')
+    })
+
+    it('renders children inside the link', () => {
+        render(
+            <URLLinkIcon url="example.com">
+                <span>Click me</span>
+            </URLLinkIcon>
+        )
+        expect(screen.getByText('Click me')).toBeInTheDocument()
+    })
+
+    it('includes the icon after children', () => {
+        const { container } = render(
+            <URLLinkIcon url="example.com">
+                <span>Click me</span>
+            </URLLinkIcon>
+        )
+        const link = container.querySelector('[data-testid="url-link-icon"]')
+        expect(link).toBeInTheDocument()
+        const icon = link?.querySelector('[data-testid="open-in-new-icon"]')
+        expect(icon).toBeInTheDocument()
+    })
+
+    it('stops click propagation when clicked', () => {
+        const handleClick = vi.fn()
+        const { container } = render(
+            <div onClick={handleClick}>
+                <URLLinkIcon url="example.com" />
+            </div>
+        )
+        const link = screen.getByTestId('url-link-icon')
+        fireEvent.click(link)
+        expect(handleClick).not.toHaveBeenCalled()
+    })
+
+    it('handles custom font size for icon', () => {
+        const { container } = render(<URLLinkIcon url="example.com" fontSize={24} />)
+        const icon = container.querySelector('[data-testid="open-in-new-icon"]')
+        expect(icon?.style.fontSize).toBe('24px')
+    })
+
+    it('sanitizes malicious URLs to about:blank', () => {
+        render(
+            <URLLinkIcon url="javascript:alert('xss')" />
+        )
+        const link = screen.getByTestId('url-link-icon')
+        // sanitizeUrl converts malicious URLs to about:blank for safety
+        expect(link.getAttribute('href')).toBe('about:blank')
+    })
+
+    it('handles https scheme URLs', () => {
+        render(<URLLinkIcon url="https://example.com" />)
+        const link = screen.getByTestId('url-link-icon')
+        // sanitizeUrl may add a trailing slash
+        expect(link.getAttribute('href')).toMatch(/^https:\/\/example\.com\/?$/)
+    })
+
+    it('handles ftp scheme URLs', () => {
+        render(<URLLinkIcon url="ftp://files.example.com" />)
+        const link = screen.getByTestId('url-link-icon')
+        expect(link.getAttribute('href')).toBe('ftp://files.example.com')
+    })
+
+    it('handles mailto scheme URLs', () => {
+        render(<URLLinkIcon url="mailto:test@example.com" />)
+        const link = screen.getByTestId('url-link-icon')
+        expect(link.getAttribute('href')).toBe('mailto:test@example.com')
     })
 })

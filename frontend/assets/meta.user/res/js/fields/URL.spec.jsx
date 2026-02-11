@@ -5,7 +5,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import { URLField, URLForm, formatURL } from './URL';
+import { URLField, URLForm } from './URL';
 
 function createPydioMock() {
     return {
@@ -227,86 +227,3 @@ describe('URLForm', () => {
     });
 });
 
-describe('formatURL', () => {
-    it('should decode asterisks in URL', () => {
-        const result = formatURL('*google.com*');
-        expect(result.displayURL).toBe('*google.com*');
-        expect(result.displayURL).not.toContain('%2A');
-    });
-
-    it('should decode percent-encoded asterisks', () => {
-        const result = formatURL('%2Agoogle.com%2A');
-        expect(result.displayURL).toBe('*google.com*');
-        expect(result.displayURL).not.toContain('%2A');
-    });
-
-    it('should decode spaces in URL', () => {
-        const result = formatURL('hello world.com');
-        // Spaces in hostname cause sanitization to return about:blank
-        expect(result.displayURL).toBe('about:blank');
-        expect(result.normalizedURL).toBe('https://hello world.com');
-    });
-
-    it('should decode special characters like tilde', () => {
-        const result = formatURL('~special~.com');
-        expect(result.displayURL).toBe('~special~.com');
-        expect(result.displayURL).not.toContain('%7E');
-    });
-
-    it('should handle normal HTTPS URL', () => {
-        const result = formatURL('https://google.com');
-        expect(result.displayURL).toBe('google.com');
-        expect(result.normalizedURL).toBe('https://google.com');
-    });
-
-    it('should handle URL with path', () => {
-        const result = formatURL('https://google.com/path');
-        expect(result.displayURL).toBe('google.com');
-        expect(result.normalizedURL).toBe('https://google.com/path');
-    });
-
-    it('should add http scheme when missing', () => {
-        const result = formatURL('example.com');
-        expect(result.normalizedURL).toBe('https://example.com');
-        expect(result.displayURL).toBe('example.com');
-    });
-
-    it('should handle empty string', () => {
-        const result = formatURL('');
-        expect(result.displayURL).toBe('');
-        expect(result.normalizedURL).toBe('');
-    });
-
-    it('should handle null', () => {
-        const result = formatURL(null);
-        expect(result.displayURL).toBe('');
-        expect(result.normalizedURL).toBe('');
-    });
-
-    it('should handle undefined', () => {
-        const result = formatURL(undefined);
-        expect(result.displayURL).toBe('');
-        expect(result.normalizedURL).toBe('');
-    });
-
-    it('should handle malformed URL gracefully', () => {
-        const result = formatURL('not-a-valid-url***');
-        // Should sanitize? Expect normalizedURL to have https:// prefix
-        expect(result.normalizedURL).toBe('https://not-a-valid-url***');
-        // displayURL may be the same as normalizedURL (since parsing fails) but decoded
-        expect(result.displayURL).toBe('not-a-valid-url***');
-    });
-
-    it('should decode percent-encoded input', () => {
-        const result = formatURL('hello%20world.com');
-        // Percent sign in hostname causes sanitization to return about:blank
-        expect(result.displayURL).toBe('about:blank');
-        expect(result.normalizedURL).toBe('https://hello%20world.com');
-    });
-
-    it('should preserve existing scheme like mailto', () => {
-        const result = formatURL('mailto:test@example.com');
-        expect(result.normalizedURL).toBe('mailto:test@example.com');
-        // displayURL likely will be mailto:test@example.com (since hostname extraction fails)
-    });
-});
