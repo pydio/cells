@@ -59,6 +59,10 @@ func init() {
 			service.WithStorageDrivers(meta.Drivers),
 			service.Migrations([]*service.Migration{
 				{
+					TargetVersion: service.FirstRunOrChange(),
+					Up:            manager.StorageMigration(),
+				},
+				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
 						dao, err := manager.Resolve[meta.DAO](ctx)
