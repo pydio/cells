@@ -32,7 +32,7 @@ import {muiThemeable} from 'material-ui/styles'
 import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 // import UrlForm from "./fields/UrlForm";
-import { URLForm } from "./fields/URL";
+import { URLForm, URLField } from "./fields/URL";
 import {IntegerField, IntegerForm} from "./fields/Integer";
 const {ModernTextField} = Pydio.requireLib("hoc")
 const {EmptyStateView} = Pydio.requireLib('components');
@@ -316,6 +316,9 @@ export default class UserMetaPanel extends React.Component{
                     case 'boolean':
                         value = value ? 'Yes' : 'No'
                         realValue = value;
+                        break
+                    case 'url':
+                        value = <URLField node={node} column={column}/>
                         break
                     default:
                         break

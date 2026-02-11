@@ -226,3 +226,4 @@ describe('URLForm', () => {
         expect(updateValue).toHaveBeenCalledWith('example.com', false);
     });
 });
+
