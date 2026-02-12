@@ -6,49 +6,49 @@
     "other": "Очищення кешу мініатюр для вилучених файлів"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Синхронізувати зовнішні теки"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Чисті завдання та завдання в планувальнику"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Готові завершені роботи (для тестування призначення)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Створення випадкових користувачів (для тестування призначення)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Зразок завдання RPC (для тестування)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Автоматичне архівування змінених служб"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Очищати або передавати дані користувача під час видалення"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Очищати застарілі тимчасові файли через 24 год"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Видаляти недійсні права доступу через 10 днів"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Стиснути обране..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Вилучення архіву..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Видалення вибору у фоновому режимі..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Копіювання теки у фоновому режимі..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Переміщення теки у фоновому режимі..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Копіювання файлу у тлі..."
   },
   "Jobs.User.FileMove": {
     "other": "Переміщення файлу у тлі..."
