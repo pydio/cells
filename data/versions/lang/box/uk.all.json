@@ -1,19 +1,19 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Реплікація для версіонування (за подією)"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Створено версію {{.Uuid}} всередині сховища версій "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Створено запис метаданих версії для ідентифікатора {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Видалено версій: {{.Count}}",
+    "other": "Очищено версій: {{.Count}}"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Очищення файлів версій для видалених об'єктів"
   },
   "Job.Pruning.StatusDone": {
     "one": "Successfully removed {{.Count}} version",
