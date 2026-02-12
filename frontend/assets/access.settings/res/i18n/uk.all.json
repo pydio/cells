@@ -12,49 +12,49 @@
     "other": "Name"
   },
   "102": {
-    "other": "Identifier"
+    "other": "Ідентифікатор"
   },
   "103": {
-    "other": "Description"
+    "other": "Опис"
   },
   "104": {
-    "other": "Enabled"
+    "other": "Увімкнено"
   },
   "105": {
-    "other": "Automatic checks"
+    "other": "Автоматична перевірка"
   },
   "106": {
-    "other": "Unique Identifier"
+    "other": "Унікальний ідентифікатор"
   },
   "107": {
-    "other": "Plugin Configurations"
+    "other": "Конфігурації плагінів"
   },
   "108": {
-    "other": "Documentation"
+    "other": "Документація"
   },
   "109": {
-    "other": "Application Parameters"
+    "other": "Параметри додатків"
   },
   "11": {
-    "other": "Add a source"
+    "other": "Додати джерело"
   },
   "110": {
-    "other": "Workspaces & Users"
+    "other": "Робочі області та користувачів"
   },
   "111": {
-    "other": "Backend"
+    "other": "Бекенд"
   },
   "112": {
     "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
-    "other": "Role status was successfully modified"
+    "other": "Статус ролі успішно змінено"
   },
   "114": {
-    "other": "Applies to"
+    "other": "Застосовується до:"
   },
   "115": {
-    "other": "Scheme"
+    "other": "Схема"
   },
   "116": {
     "other": "Template Label"
@@ -99,49 +99,49 @@
     "other": "Successfully deleted group"
   },
   "129": {
-    "other": "Refresh plugins cache"
+    "other": "Оновити кеш плагінів"
   },
   "13": {
-    "other": "Are you sure you want to delete this source?"
+    "other": "Ви впевнені, що хочете видалити це джерело?"
   },
   "130": {
-    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
+    "other": "Очистити кеш плагінів, може бути необхідним, щоб побачити нові плагіни в списку."
   },
   "131": {
-    "other": "Plugins cache files were deleted successfully!"
+    "other": "Кеш-файли плагінів успішно видалено!"
   },
   "132": {
-    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
+    "other": "Кеш очищено, але зараз ви працюєте в режимі SKIP_CACHE (див. bootstrap_context.php)."
   },
   "133": {
-    "other": "Core application parameters"
+    "other": "Параметри додатку ядра"
   },
   "134": {
-    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
+    "other": "Увімкнути/вимкнути додаткові плагіни, орієнтовані на функції перевірте, чи вони правильно працюють, налаштуйте глобальні параметри плагінів."
   },
   "135": {
-    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
+    "other": "Увімкнути/вимкнути системні плагіни (auth, conf, mail, etc), перевірте, чи вони правильно працюють. Як правило, в основні параметри"
   },
   "136": {
-    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
+    "other": "Глобальні конфігурації ядра програми та кожного плагіна. Увімкнути/вимкнути плагіни"
   },
   "137": {
-    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
+    "other": "Це безкоштовне керування програмою: хто має доступ до будь-чого, створювати ролі та інше."
   },
   "138": {
-    "other": "Create and delete workspaces, add features to them using meta sources."
+    "other": "Створюйте і видаляйте робочі простори, додавайте їх до власних функцій за допомогою мета-джерел."
   },
   "139": {
-    "other": "Manage users and groups"
+    "other": "Керування користувачами і групами"
   },
   "14": {
-    "other": "True"
+    "other": "Так"
   },
   "140": {
-    "other": "Define profiles that can be applied at once to whole bunch of users."
+    "other": "Профілі, які можуть бути застосовані відразу для всієї кількості користувачів."
   },
   "141": {
-    "other": "Administrator tasks to monitor the application state."
+    "other": "Адміністраторські завдання відстежувати стан програми."
   },
   "142": {
     "other": "Monitor all activities happening on the server"
@@ -189,49 +189,49 @@
     "other": "Access Drivers"
   },
   "156": {
-    "other": "Standard"
+    "other": "Стандартна"
   },
   "157": {
-    "other": "Administrator"
+    "other": "Адміністратор"
   },
   "158": {
-    "other": "Shared"
+    "other": "Спільні"
   },
   "159": {
-    "other": "Guest"
+    "other": "Гість"
   },
   "160": {
-    "other": "Group was successfully created"
+    "other": "Групу успішно створено"
   },
   "161": {
-    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+    "other": "Ви намагаєтеся переміститися всередині групи, і ви втратите суперадміністраторські права. Будь ласка, увійдіть як інший користувач, якщо ви дійсно хочете це зробити. Переривання."
   },
   "162": {
-    "other": "You are not authorized to update user %s"
+    "other": "Ви не авторизовані для оновлення користувача %s"
   },
   "163": {
-    "other": "Roles reordered for user %s"
+    "other": "Ролі перепорядкуються для користувача %s"
   },
   "164": {
-    "other": "Successfully updated roles"
+    "other": "Ролі успішно оновлені"
   },
   "165": {
-    "other": "Successfully saved user preferences"
+    "other": "Користувацькі налаштування успішно збережені"
   },
   "166": {
-    "other": "Successfully set lock (%1) on user (%2)"
+    "other": "Успішно встановлено блокування (%1) на користувача (%2)"
   },
   "167": {
-    "other": "Successfully unlocked user (%s)"
+    "other": "Успішно розблокований користувач (%s)"
   },
   "168": {
-    "other": "%1 users were moved to group %2"
+    "other": "Користувачів %1 переміщено в групу %2"
   },
   "169": {
-    "other": "No users were moved, there must have been something wrong!"
+    "other": "Жодного користувача не переміщено, мабуть було щось не так!"
   },
   "17": {
-    "other": "Date"
+    "other": "Дата"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -279,49 +279,49 @@
     "other": "More info"
   },
   "23": {
-    "other": "Test Name"
+    "other": "Тестове ім'я"
   },
   "24": {
-    "other": "Test Data"
+    "other": "Тестові дані"
   },
   "25": {
-    "other": "Workspaces Access"
+    "other": "Доступ до робочих областей"
   },
   "26": {
-    "other": "Modify Password"
+    "other": "Змінити пароль"
   },
   "27": {
-    "other": "Admin Right"
+    "other": "Права адміністратора"
   },
   "28": {
-    "other": "User has admin rights?"
+    "other": "Користувач має права адміністратора?"
   },
   "29": {
-    "other": "Read"
+    "other": "Прочитано"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Управління даними"
   },
   "3": {
-    "other": "Workspaces"
+    "other": "Робочі області"
   },
   "30": {
-    "other": "Write"
+    "other": "Записати"
   },
   "32": {
-    "other": "Access Driver"
+    "other": "Модуль доступу до сховища"
   },
   "33": {
-    "other": "Loading..."
+    "other": "Завантаження..."
   },
   "34": {
-    "other": "Are you sure you want to delete this user? This operation is not reversible!"
+    "other": "Ви впевнені, що хочете видалити цього користувача? Ця операція незворотня!"
   },
   "35": {
-    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
+    "other": "Ви впевнені, що хочете видалити цю робочу область? Ця операція незворотна!"
   },
   "36": {
-    "other": "Mandatory fields are missing!"
+    "other": "Обов'язкові поля відсутні!"
   },
   "37": {
     "other": "Warning, password and confirmation differ!"
@@ -369,49 +369,49 @@
     "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "Cannot update password"
+    "other": "Не вдалося оновити пароль"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "Error: a workspace with the same name already exists"
+    "other": "Помилка: робоча область з такою ж назвою вже існує"
   },
   "51": {
-    "other": "The conf directory is not writeable"
+    "other": "Каталог conf не доступний для запису"
   },
   "52": {
-    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
+    "other": "Успішно створено робочий простір! Тепер ви можете додати деякі 'Джерела метаданих' для збагачення даних, додавання автоматичної індексації, тощо"
   },
   "53": {
-    "other": "Error while trying to edit workspace"
+    "other": "Помилка при спробі редагування робочої області"
   },
   "54": {
-    "other": "Successfully edited workspace"
+    "other": "Робоче середовище успішно змінено"
   },
   "55": {
-    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
+    "other": "Увага: наразі можна додати лише по одному екземпляру кожного мета-плагіна."
   },
   "56": {
-    "other": "Successfully added meta source"
+    "other": "Успішно додано джерело мета-даних"
   },
   "57": {
-    "other": "Successfully deleted meta source"
+    "other": "Успішно видалено джерело мета-даних"
   },
   "58": {
-    "other": "Successfully edited meta source"
+    "other": "Успішно змінено джерело мета-даних"
   },
   "59": {
-    "other": "Successfully deleted workspace"
+    "other": "Робоче середовище успішно видалено"
   },
   "6": {
-    "other": "User Name"
+    "other": "Ім'я користувача"
   },
   "60": {
-    "other": "User successfully erased"
+    "other": "Користувача успішно стерто"
   },
   "61": {
-    "other": "Wrong arguments!"
+    "other": "Неправильні аргументи!"
   },
   "62": {
     "other": "Rights Summary"
@@ -459,105 +459,105 @@
     "other": "New Role"
   },
   "76": {
-    "other": "Role Id"
+    "other": "ID ролі"
   },
   "77": {
-    "other": "Access Control"
+    "other": "Контроль доступу"
   },
   "78": {
-    "other": "Personal data"
+    "other": "Особисті дані"
   },
   "79": {
-    "other": "Workspace"
+    "other": "Робоча область"
   },
   "8": {
-    "other": "Workspace Label"
+    "other": "Мітка робочого простору"
   },
   "80": {
-    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
+    "other": "Точне налаштування доступу для цього користувача (позначка робочої області, якщо ви бажаєте зробити його стандартною робочою областю під час входу користувача)"
   },
   "81": {
-    "other": "Specific workspaces data"
+    "other": "Дані визначених робочих областей"
   },
   "82": {
-    "other": "Batch-edit users"
+    "other": "Редагування користувачів"
   },
   "83": {
-    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
+    "other": "Перетягніть ролі, щоб застосувати їх до всіх вибраних користувачів (пропущено спільних користувачів)"
   },
   "84": {
-    "other": "Users Roles"
+    "other": "Ролі користувачів"
   },
   "85": {
-    "other": "Manual actions filtering"
+    "other": "Фільтрування дій вручну"
   },
   "86": {
-    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
+    "other": "список дій, які будуть вимкнені для цієї ролі, незалежно від прав доступу."
   },
   "87": {
-    "other": "Successfully updated actions for this role"
+    "other": "Операції над цією роллю успішно оновлено"
   },
   "88": {
-    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
+    "other": "Це робоче середовище визначено у файлі конфігурації, ви не можете редагувати його джерела через GUI."
   },
   "89": {
-    "other": "User specific data"
+    "other": "Конкретні дані користувача"
   },
   "9": {
-    "other": "Access Type"
+    "other": "Тип доступу"
   },
   "90": {
-    "other": "New Workspace"
+    "other": "Нова робоча область"
   },
   "91": {
-    "other": "New Template"
+    "other": "Новий шаблон"
   },
   "92": {
-    "other": "Create a new template"
+    "other": "Створити новий шаблон"
   },
   "93": {
-    "other": "Edit"
+    "other": "Редагувати"
   },
   "94": {
-    "other": "Batch Edit"
+    "other": "Пакетне редагування"
   },
   "95": {
-    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
+    "other": "Виберіть мітку і драйвер для доступу до даних (перевірте всі розділи на обов'язкові поля, ви можете навести імена параметрів мишкою, щоб отримати детальну інформацію)."
   },
   "96": {
-    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
+    "other": "Після вибору мітки і драйвера увімкніть поля, які ви хочете заповнити в шаблоні, використовуючи прапорці. Інші поля будуть залишені користувачеві. Ви можете включити деякі поля і залишити їх порожніми, якщо ви все ще хочете приховати їх від користувача."
   },
   "97": {
-    "other": "Plugin options successfully updated"
+    "other": "Налаштування плагіна успішно оновлені"
   },
   "98": {
-    "other": "Main Settings"
+    "other": "Основні налаштування"
   },
   "99": {
-    "other": "Feature plugins"
+    "other": "Плагіни модифікацій"
   },
   "topbar.title": {
-    "other": "Cells Console"
+    "other": "Консоль комірки"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Показати/приховати додаткові параметри"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Дізнатися більше про Pydio Cells"
   },
   "group_access": {
-    "other": "g"
+    "other": "Параметри доступу групи"
   },
   "repository_access_key": {
-    "other": "N"
+    "other": "Ключ доступу до репозиторію"
   },
   "role_access": {
-    "other": "o"
+    "other": "Параметри доступу ролі"
   },
   "uploaders-chunk-size-warn-multiple": {
-    "other": "Part size must be a multiple of 10MB!"
+    "other": "Розмір частини має бути кратним 10 МБ!"
   },
   "uploaders-chunk-size-warn-too-small": {
-    "other": "Part size must be at least 10MB!"
+    "other": "Розмір частини повинен бути не менше 10 МБ!"
   }
 }
