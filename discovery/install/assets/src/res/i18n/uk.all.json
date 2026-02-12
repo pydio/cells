@@ -294,21 +294,21 @@
     "other": "Відступ відра буде створено"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "Наступні комірки не були знайдені"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "Ви не маєте прав на створення комірок, обов'язково створіть їх вручну!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "Уперед"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "Назад"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Встановити зараз"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "Оновити"
   }
 }
