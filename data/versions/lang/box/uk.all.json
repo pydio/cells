@@ -16,53 +16,53 @@
     "other": "Очищення файлів версій для видалених об'єктів"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "Успішно видалено {{.Count}} версію",
+    "other": "Успішно видалено {{.Count}} версії."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "Політика"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Назва"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Назва політики"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Опис"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Опис політики"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "Сховище"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "Джерело даних для зберігання версій"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "Контейнер"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Контейнер, що використовується всередині цього джерела даних"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Обмеження розміру"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Загальний розмір усіх версій, що зберігаються в цьому контейнері"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Обмежити загальний розмір. У разі досягнення ліміту найстаріші версії будуть видалені. Використовуйте -1, щоб зняти обмеження"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Сумарний розмір усіх версій окремого файлу"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Обмежити розмір, що займають усі версії одного файлу. У разі досягнення ліміту найстаріші версії будуть видалені. Використовуйте -1, щоб зняти обмеження"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Ігнорувати файли, розмір яких перевищує..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
     "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
