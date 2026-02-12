@@ -1,9 +1,9 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Розпакувати мініатюри зображень і Exif даних"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Очищення кешу мініатюр для вилучених файлів"
   },
   "Jobs.Default.Directories": {
     "other": "Synchronize external directories"
@@ -51,30 +51,30 @@
     "other": "Copying file in background..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Переміщення файлу у тлі..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Копіювання виділеного у фоновому режимі..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Переміщення виділення в фоновому режимі..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Переміщення до смітника у фоновому режимі..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Синхронізація дат з вихідними даними {{.DsName}}, потім наносити нові файли"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Завантаження файлу у тлі..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Видалення %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Копіювання %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "Переміщення %s"
   }
 }
