@@ -1,30 +1,30 @@
 {
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "Нижче наведено список робочих областей, до яких ви можете отримати доступ. Вони можуть бути особистими або спільними з іншими користувачами."
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Вітаємо, %s!"
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Використовувати цю робочу область за замовчуванням"
   },
   "42": {
-    "other": "Enter"
+    "other": "Увійти"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Мій профіль"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Всі мої особисті дані"
   },
   "44": {
-    "other": "My Account"
+    "other": "Особистий кабінет"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Особисті дані"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Адресна книга"
   },
   "47": {
     "other": "Користувачі та команди, які ви створили"
@@ -81,40 +81,40 @@
     "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "Дізнайтеся більше на каналі APPLICATION_TITLE!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>Використання APPLICATION_TITLE на iOS пристроях</h2>\n                            Це відео демонструє, як використовувати додаток APPLICATION_TITLE (доступний в App Store). Для Android - аналогічно.\n<ul><li>Налаштування з'єднання з сервером</li>\n<li>Навігація по файлах</li>\n<li>Зберігання файлів для автономного доступу (offline) та взаємодія з іншими додатками</li>\n<li>Захист додатка за допомогою PIN-коду</li>\n<li>Використання закладок та механізму пошуку</li></ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "якщо ви не %s, натисніть %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Завантажити клієнт Sync для Windows"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Завантажте клієнт Sync для Mac OSX"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "Додаток для iOS-пристроїв"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "Додаток для Android-пристроїв"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "QR-код сервера"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "Легко підключіть свої мобільні додатки"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "Проскануйте цей QR-код щоб легко налаштувати мобільну програму"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "Пошук усіх файлів..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "Відкрийте %1 за допомогою меню вгорі праворуч"
   },
   "77": {
     "other": "панель адміністрування"
@@ -162,28 +162,28 @@
     "other": "Збережіть файли в автономному режимі з нашим клієнтом для ПК"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Завантаження додатків"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Швидке завантаження"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Відеоуроки"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "Сторінка привітання"
   },
   "title": {
-    "other": "Home"
+    "other": "Домашня сторінка"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "Тека"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Результат фільтру..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "Тип"
   },
   "search.facet.extension": {
     "other": "Розширення"
@@ -231,36 +231,36 @@
     "other": "10 МБ до 100 МБ"
   },
   "facet.label.size.gt.100MB": {
-    "other": "> 100MB"
+    "other": "> 100 МБ"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Щойно"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "Сьогодні"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Останні 7 днів"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Останні 30 днів"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Старіші за 30 днів"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "Вміст"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Ім'я файлу"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "Закладка"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "Робоча область"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "Комірка"
   }
 }
