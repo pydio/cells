@@ -1,57 +1,57 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "30 днів максимум"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Видалити версії через 30 днів"
   },
   "Keep All": {
     "other": "Keep All"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Зберігати всі версії назавжди"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Регулярне очищення"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Регулярно очищувати версії через певні проміжки часу"
   },
   "aclAction.Name": {
-    "other": "Name"
+    "other": "Назва дії"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "Значення"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Дії"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Ідентифікатори вузлів"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Ідентифікатори ролей"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Ідентифікатори робочого простору"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "не"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Пошук за помилкою (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Успіх"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Json body має ключ..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Пошук в Json тілі (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
     "other": "Size of Json body is greater than"
@@ -99,16 +99,16 @@
     "other": "Matches"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "відповідає"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "патерн"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Вірно"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "Умова CIDR (діапазон IP-адрес)"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
     "other": "Subject equals"
