@@ -1,144 +1,144 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "Умови користування"
   },
   "welcome.title": {
-    "other": "Welcome to Pydio Cells Installation Wizard"
+    "other": "Ласкаво просимо до майстра встановлення Pydio Cells"
   },
   "welcome.legend": {
-    "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
+    "other": "Це встановить всі сервіси на поточному сервері. Будь ласка, погодьтеся з умовами ліцензійної угоди перед початком"
   },
   "welcome.agreed": {
-    "other": "I agree with the terms"
+    "other": "Я приймаю умови"
   },
   "database.stepLabel": {
-    "other": "Database Connection"
+    "other": "Підключення до бази даних"
   },
   "database.title": {
-    "other": "Database Configuration"
+    "other": "Налаштування бази даних"
   },
   "database.legend": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
+    "other": "Pydio потребує принаймні одного SQL сховища для конфігурації та індексації даних. Налаштуйте тут з'єднання з сервером MySQL/MariaDB."
   },
   "database.legend.bold": {
-    "other": "Please make sure that your database is running MySQL version 5.6 or higher"
+    "other": "Будь ласка, переконайтеся, що ваша база даних працює на версії MySQL 5.6 або вище"
   },
   "database.legend1": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation."
+    "other": "Pydio потребує принаймні одного SQL сховища для конфігурації та індексації даних."
   },
   "database.legend2": {
-    "other": "Supported databases are MySQL/MariaDB or PostgreSQL or SQLite."
+    "other": "Підтримувані бази даних є MySQL/MariaDB або PostgreSQL або SQLite."
   },
   "database.installDetected": {
-    "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
+    "other": "Схоже, у цій базі паролів вже встановлено ПЕЗ. Підтвердіть продовження або "
   },
   "database.installDetected.retry": {
-    "other": "retry with new value"
+    "other": "повторити з новим значенням"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "База даних по замовчуванню вже настроєна, просто натисніть кнопку Далі для перевірки підключення."
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "Налаштування іншої бази даних."
   },
   "admin.stepLabel": {
-    "other": "Admin User"
+    "other": "Адміністратор"
   },
   "admin.title": {
-    "other": "Admin user and frontend defaults"
+    "other": "Стандартний інтерфейс користувача та інтерфейс за замовчуванням"
   },
   "admin.legend": {
-    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+    "other": "Введіть облікові дані для адміністративного користувача. Залиште поля порожніми, якщо ви розгортаєте поверх існуючої інсталяції."
   },
   "admin.adminFound": {
-    "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
+    "other": "Адміністративного користувача вже знайдено в базі даних. Перевірте, чи бажаєте ви створити новий."
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "Додаткові параметри"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "Розширені налаштування (за бажанням)"
   },
   "advanced.legend": {
-    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+    "other": "Служби Pydio Cells будуть розгорнуті на цьому комп’ютері. Ви можете переглянути деякі додаткові параметри нижче для точного налаштування вашої конфігурації."
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "Показати додаткові налаштування"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "Джерело стандартних даних для зберігання особистих даних і даних користувачів створюється під час запуску. Пізніше ви можете створити інші джерела даних."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Налаштування з'єднання MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Це краще для масштабування, і потрібно для кластеризації розгортання. Якщо ви не маєте готових файлів у Монго-БД, то це можна зробити пізніше."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Хост сервера"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Порт сервера"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Ім'я бази даних"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Ім'я користувача"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "База налаштувань авторизації"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Перевірка підключення"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "Ліцензія Enterprise"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Ліцензія Pydio Cells Enterprise"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "Файл ліцензії був успішно виявлений."
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "Ця інсталяція дійсна для %count користувачам до %expiration."
   },
   "license.failed": {
-    "other": "Error while trying to verify this license key. Please contact the support."
+    "other": "Помилка при перевірці ліцензійного ключа. Будь ласка, зверніться до служби підтримки."
   },
   "license.required": {
-    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+    "other": "Потрібен дійсний ліцензійний ключ, щоб запустити дистрибуцію Enterprise. Щоб отримати 30-денну пробну ліцензію або квоту на продажі, будь ласка, зв'яжіться з нами"
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "Рядок ліцензії"
   },
   "license.fieldLegend": {
-    "other": "Please copy/paste the license key provided to you."
+    "other": "Будь ласка, скопіюйте і вставте ліцензійний ключ для вас."
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "Застосувати встановлення"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Будь ласка, будьте терплячі під час встановлення Pydio Cells ..."
   },
   "apply.success": {
-    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+    "other": "Установка була успішною, а служби наразі запускаються. Цей інсталятор перезавантаже сторінку, коли будуть запущені служби."
   },
   "apply.success.restarted": {
-    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+    "other": "Встановлення було успішним та служби запущено, будь ласка, оновіть сторінку зараз (вона автоматично перезавантажиться в %1s)"
   },
   "apply.error": {
-    "other": "There was an error while performing installation! Please check your configuration."
+    "other": "Під час виконання встановлення сталася помилка! Будь ласка, перевірте ваші налаштування."
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "Помилка була: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "Тип з'єднання"
   },
   "form.dbConnectionType.mysql_tcp": {
     "other": "MySQL/MariaDB - TCP"
@@ -150,148 +150,148 @@
     "other": "PostGreSQL - TCP"
   },
   "form.dbConnectionType.pg_socket": {
-    "other": "PostGreSQL - Socket"
+    "other": "PostGreSQL - Сокет"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite (dev purpose only)"
+    "other": "SQLite (тільки для цілей розробки)"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manual"
+    "other": "Вручну"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Ім'я хоста"
   },
   "form.dbTCPHostname.legend": {
     "other": "Server where mysql is running"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "Ім'я бази даних"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "База даних для використання (буде створена якщо вона не існує)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "Порт"
   },
   "form.dbTCPPort.legend": {
     "other": "Port to connect to mysql"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "Користувач"
   },
   "form.dbUser.legend": {
-    "other": "Leave blank if not required"
+    "other": "Залиште пустим, якщо не обов'язково"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "Пароль бази даних"
   },
   "form.dbPassword.legend": {
-    "other": "Leave blank if not required"
+    "other": "Залиште пустим, якщо не обов'язково"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "Введіть розташування файлу сокета для підключення"
   },
   "form.dbSocketFileSQLite.label": {
-    "other": "Database Path"
+    "other": "Шлях до бази даних"
   },
   "form.dbSocketFileSQLite.legend": {
-    "other": "Enter the location of the SQLite database"
+    "other": "Введіть розташування бази даних SQLite"
   },
   "form.dbSqliteFile.label": {
-    "other": "File Path"
+    "other": "Шлях до файлу"
   },
   "form.dbSqliteFile.legend": {
-    "other": "Enter the location of the file to use as database"
+    "other": "Введіть розташування файлу, що використовується в якості бази даних"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "Використовувати Golang-style DSN для опису підключення бази даних"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "Назва додатку"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "Основна назва вашої інсталяції"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "Мова за замовчуванням"
   },
   "form.frontendLogin.label": {
-    "other": "Admin user login *"
+    "other": "Вхід користувача *"
   },
   "form.frontendLogin.legend": {
-    "other": "Identifier used to log in"
+    "other": "Ідентифікатор використовується для входу"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "Пароль адміністрування *"
   },
   "form.frontendPassword.legend": {
-    "other": "Password used to log in"
+    "other": "Пароль для входу"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirm password"
+    "other": "Підтвердити пароль"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirm password twice"
+    "other": "Підтвердити пароль двічі"
   },
   "form.dsFolder.label": {
-    "other": "Path of the default datasource"
+    "other": "Шлях джерела даних за замовчуванням"
   },
   "form.dsFolder.legend": {
-    "other": "Use an absolute path on the server"
+    "other": "Використовувати абсолютний шлях на сервері"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "Тип сховища"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "Локальна FS (зберігати всі дані на цьому сервері)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / S3-сумісний (зберегти в межах S3 buckets)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, додати ?minio=true якщо Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "Не заповнено для Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "S3 настроювана область"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "Залиште порожнім для типового значення (us-схід-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 Api ключ"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "Ключ для з'єднання з S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 Api Секрет"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "Секретний ключ"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "Підключіться до S3, щоб визначити контейнери"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Buckets prefix"
+    "other": "Префікс контейнера"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "Унікальний префікс для створення 6 контейнерів за замовчуванням"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "Такий відро вже існує"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "Відступ відра буде створено"
   },
   "form.bucketList.notFound": {
     "other": "Following buckets were not found"
