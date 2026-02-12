@@ -6,13 +6,13 @@
     "other": "Folder is shared"
   },
   "100": {
-    "other": "Shared files"
+    "other": "Спільні файли"
   },
   "101": {
-    "other": "All files shared as public links"
+    "other": "Всі файли поширюються як публічні посилання"
   },
   "102": {
-    "other": "Shared folders"
+    "other": "Спільні теки"
   },
   "103": {
     "other": "All folders shared as workspaces or minisites."
@@ -21,10 +21,10 @@
     "other": "Displaying first link, there are %s others"
   },
   "105": {
-    "other": "Displaying first link, there is one other"
+    "other": "Відображено перше посилання, є ще одне"
   },
   "106": {
-    "other": "Do you want to reset the download counter?"
+    "other": "Ви хочете скинути лічильник завантажень?"
   },
   "107": {
     "other": "Межа завантаження повинна бути від 1 до %s"
@@ -165,43 +165,43 @@
     "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
   },
   "145": {
-    "other": "Description"
+    "other": "Опис"
   },
   "146": {
     "other": "Will be displayed to the shared users"
   },
   "147": {
-    "other": "Security"
+    "other": "Безпека"
   },
   "148": {
-    "other": "(Optional)"
+    "other": "(Необов'язково)"
   },
   "149": {
-    "other": "Leave 0 for no limit"
+    "other": "Залиште 0 для відсутності обмежень"
   },
   "15": {
-    "other": "File was download %s times"
+    "other": "Файл завантажено %s разів"
   },
   "150": {
-    "other": "Access rights"
+    "other": "Права доступу"
   },
   "151": {
-    "other": "Layout"
+    "other": "Макет"
   },
   "152": {
-    "other": "Update"
+    "other": "Оновити"
   },
   "153": {
-    "other": "Standard (file list with application header)"
+    "other": "Стандартний (у списку файлів з заголовком програми)"
   },
   "154": {
-    "other": "Images Gallery (best for photos)"
+    "other": "Галерея зображень (найкраще для фотографій)"
   },
   "155": {
-    "other": "Embedded (smaller header, for widgets)"
+    "other": "Вбудований (менший заголовок для віджетів)"
   },
   "156": {
-    "other": "Successfully published link %s"
+    "other": "Успішно опубліковано посилання %s"
   },
   "157": {
     "other": "This folder is currently shared. If you delete it, associated share will be disabled."
@@ -252,16 +252,16 @@
     "other": "Це посилання захищене паролем."
   },
   "171": {
-    "other": "Link Handle"
+    "other": "Обробка посилань"
   },
   "172": {
-    "other": "Sorry this link is already used, please pick another handle."
+    "other": "На жаль, це посилання вже використовується. Будь ласка, оберіть інший ідентифікатор."
   },
   "173": {
     "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
   },
   "174": {
-    "other": "Reset"
+    "other": "Скинути"
   },
   "175": {
     "other": "Please set a password and make sure it's long enough!"
@@ -270,37 +270,37 @@
     "other": "(Mandatory)"
   },
   "177": {
-    "other": "View parameters"
+    "other": "Параметри перегляду"
   },
   "178": {
-    "other": "enabled"
+    "other": "увімкнено"
   },
   "179": {
-    "other": "Revert"
+    "other": "Відмінити"
   },
   "18": {
-    "other": "Folder is shared as a new workspace"
+    "other": "Тека поширюється як нова робоча область"
   },
   "180": {
-    "other": "Clear list"
+    "other": "Очистити список"
   },
   "181": {
-    "other": "Modify"
+    "other": "Змінити"
   },
   "182": {
-    "other": "Use the field above to pick a user from the internal directory or from your personal address book. If you want to create a new user, just type in a new identifier and hit Enter."
+    "other": "Виберіть поле вище, щоб вибрати користувача з внутрішнього каталогу або з Вашої особистої адресної книги. Якщо ви хочете створити нового користувача, просто введіть новий ідентифікатор і натисніть Enter."
   },
   "183": {
-    "other": "Notify on content change"
+    "other": "Сповіщати про зміну вмісту"
   },
   "184": {
-    "other": "Notify me when content is accessed or changed"
+    "other": "Повідомити мене, коли доступ до контенту буде змінено"
   },
   "185": {
-    "other": "Notify me when content is accessed"
+    "other": "Сповіщати мене, коли є доступ до контенту"
   },
   "186": {
-    "other": "Notify me when content is changed"
+    "other": "Повідомити мене, коли зміст змінено"
   },
   "187": {
     "other": "Do not notify me"
@@ -375,7 +375,7 @@
     "other": "Shares are 'private' by default: you only can see them. If you want other users who access the current workspace to see and edit this share, toggle the visibility."
   },
   "207": {
-    "other": "Remote Users"
+    "other": "Віддалені користувачі"
   },
   "208": {
     "other": "Share with users from other filesharing platforms (compatible with Federated Sharing API)."
@@ -507,28 +507,28 @@
     "other": "%s personal invitation(s) sent"
   },
   "246": {
-    "other": "Open cell"
+    "other": "Відкрити комірку"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "Редагувати комірку"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "Видалити комірку"
   },
   "249": {
-    "other": "Contents"
+    "other": "Вміст"
   },
   "25": {
-    "other": "No limit"
+    "other": "Без обмежень"
   },
   "250": {
-    "other": "Cells"
+    "other": "Комірка"
   },
   "251": {
-    "other": "Link"
+    "other": "Посилання"
   },
   "252": {
-    "other": "Access"
+    "other": "Доступ"
   },
   "253": {
     "other": "Visibility"
@@ -555,10 +555,10 @@
     "other": "Created on %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "Редагувати користувачів комірки"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "Видалити з цієї комірки"
   },
   "26": {
     "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
@@ -579,13 +579,13 @@
     "other": "+ New Cell"
   },
   "265": {
-    "other": "Link Label"
+    "other": "Позначка посилання"
   },
   "266": {
-    "other": "Link Description"
+    "other": "Опис посилання"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "Назва комірки"
   },
   "268": {
     "other": "Cell Description"
