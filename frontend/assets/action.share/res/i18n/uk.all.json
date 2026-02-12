@@ -27,139 +27,139 @@
     "other": "Do you want to reset the download counter?"
   },
   "107": {
-    "other": "Download limit must be between 1 and %s"
+    "other": "Межа завантаження повинна бути від 1 до %s"
   },
   "108": {
-    "other": "Use a QRCode reader to scan the image "
+    "other": "Використовувати QR-код для сканування зображення "
   },
   "109": {
-    "other": "Minisite User"
+    "other": "Згортати користувача"
   },
   "11": {
-    "other": "Expiration"
+    "other": "Термін дії"
   },
   "110": {
-    "other": "Share this"
+    "other": "Поділитися з друзями"
   },
   "110b": {
-    "other": "Share"
+    "other": "Поділитись"
   },
   "111": {
-    "other": "Share this page with other people"
+    "other": "Поділитися цією сторінкою з іншими людьми"
   },
   "112": {
-    "other": "Share this page"
+    "other": "Поділитися цією сторінкою"
   },
   "113": {
-    "other": "As New Workspace"
+    "other": "Як нова робоча область"
   },
   "114": {
-    "other": "Share this folder with internal users"
+    "other": "Поділитися цією папкою з внутрішніми користувачами"
   },
   "115": {
-    "other": "As Web link"
+    "other": "Як Веб посилання"
   },
   "116": {
-    "other": "Publish folder content as a minisite"
+    "other": "Опублікувати вміст папки як мінісайт"
   },
   "117": {
-    "other": "As private minisite"
+    "other": "Як приватний мінісайт"
   },
   "118": {
-    "other": "Password-protected minisite"
+    "other": "Мінісайт захищений паролем"
   },
   "119": {
-    "other": "Download link"
+    "other": "Посилання для завантаження"
   },
   "12": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "120": {
-    "other": "Simple download page"
+    "other": "Проста сторінка завантаження"
   },
   "121": {
-    "other": "Public link"
+    "other": "Публічне посилання"
   },
   "122": {
-    "other": "Create a public URL"
+    "other": "Створити публічний URL"
   },
   "123": {
-    "other": "Selection as minisite"
+    "other": "Створити мінісайт із обраного"
   },
   "124": {
-    "other": "Publish current selection"
+    "other": "Опублікувати поточний вибір"
   },
   "125": {
-    "other": "Edit Share"
+    "other": "Редагувати поширення"
   },
   "126": {
-    "other": "Edit/stop already configured sharing"
+    "other": "Змінити/зупинити вже налаштований спільний доступ"
   },
   "127": {
-    "other": "Migrate legacy"
+    "other": "Перенести застарілі дані"
   },
   "128": {
-    "other": "Migrate legacy shares"
+    "other": "Перенести застарілі поширення"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "Копіювати посилання"
   },
   "13": {
-    "other": "Yes"
+    "other": "Так"
   },
   "130": {
-    "other": "Copy URL to your clipboard"
+    "other": "Скопіювати URL в буфер обміну"
   },
   "131": {
-    "other": "No shared files or folders yet."
+    "other": "Поки немає спільних файлів і тек."
   },
   "132": {
-    "other": "Workspace"
+    "other": "Робоча область"
   },
   "133": {
-    "other": "As a public link"
+    "other": "Як публічне посилання"
   },
   "134": {
-    "other": "As a workspace"
+    "other": "Як робоче середовище"
   },
   "135": {
-    "other": "Folder will appear as a minisite in the user browser"
+    "other": "Тека буде відображатися як мінісайт у браузері користувача"
   },
   "136": {
-    "other": "Folder content will appear as a new workspace for the application users"
+    "other": "Вміст теки з'явиться в якості нової робочої області для користувачів додатку"
   },
   "137": {
-    "other": "Share selected file via a public link"
+    "other": "Поділитися вибраним файлом через публічне посилання"
   },
   "138": {
-    "other": "You have shared this folder as a public link (minisite)"
+    "other": "Ви поділилися цією текою як публічним посиланням (мінісайт)"
   },
   "138b": {
-    "other": "You have shared this folder as a public link, but it is currently inactive (expired)."
+    "other": "Ви надали спільний доступ до цієї теки через публічне посилання, але наразі воно неактивне (термін дії вичерпано)."
   },
   "139": {
-    "other": "You have shared this folder as a workspace with application users"
+    "other": "Ви поділилися цією текою як робочою областю з користувачами програми"
   },
   "139b": {
-    "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
+    "other": "Ви поділилися цією текою як робочою областю з користувачами програми, але вона в даний час неактивна (термін дії вичерпано)."
   },
   "14": {
-    "other": "No"
+    "other": "Ні"
   },
   "140": {
-    "other": "You have shared this file via a public link"
+    "other": "Ви поділилися цим файлом через публічне посилання"
   },
   "140b": {
-    "other": "You have shared this file via a public link, but it is currently inactive (expired)."
+    "other": "Ви поділилися цим файлом через публічне посилання, але він в даний час неактивний (термін дії вичерпано)."
   },
   "141": {
-    "other": "Change parameters"
+    "other": "Змінити параметри"
   },
   "142": {
-    "other": "Hide parameters"
+    "other": "Приховати параметри"
   },
   "143": {
-    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd>to copy the link"
+    "other": "Використовувати <kbd>Ctrl</kbd>+<kbd>C</kbd>для копіювання посилання"
   },
   "144": {
     "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
@@ -207,49 +207,49 @@
     "other": "This folder is currently shared. If you delete it, associated share will be disabled."
   },
   "158": {
-    "other": "This file is currently shared. If you delete it, associated share will be disabled. "
+    "other": "Цей файл зараз не поділений. Якщо ви видалите його, пов'язане посилання буде відключено. "
   },
   "159": {
-    "other": "Owner"
+    "other": "Власник"
   },
   "16": {
-    "other": "reset"
+    "other": "скинути"
   },
   "160": {
-    "other": "You are not allowed to delete this shared item"
+    "other": "Ви не маєте права видалити цей спільний елемент"
   },
   "161": {
-    "other": "Deprecated Link"
+    "other": "Застаріле посилання"
   },
   "162": {
-    "other": "You have one or more legacy link on this file. Links are still active, but you can replace them with a new share link by stopping this share and recreating a new one. Copy the share 'hash' (the last part of the link, e.g. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) and apply it to the new link using the 'Change Parameters' form."
+    "other": "Для цього файлу існує один або кілька застарілих лінків. Посилання все ще активні, але ви можете замінити їх новим публічним посиланням, зупинивши поточний спільний доступ і створивши його заново. Скопіюйте «хеш» посилання (останню частину адреси, наприклад: http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) і застосуйте його до нового посилання через форму «Змінити параметри»."
   },
   "163": {
-    "other": "Drop Files Here (for upload-enabled minisites)"
+    "other": "Видалити файли (тут (для вимкнення на завантаження)"
   },
   "164": {
-    "other": "Not allowed: script was modified!"
+    "other": "Недозволено: скрипт було змінено!"
   },
   "165": {
-    "other": "Sorry, this link is expired!"
+    "other": "На жаль, це посилання вже не діє!"
   },
   "166": {
-    "other": "Cannot find specified link!"
+    "other": "Не вдалося знайти вказане посилання!"
   },
   "167": {
-    "other": "Link is expired!"
+    "other": "Посилання застаріле!"
   },
   "168": {
-    "other": "The number of authorized downloads have been reached. Click to reset the counter and reactivate the link."
+    "other": "Кількість дозволених завантажень досягнуто. Натисніть, щоб скинути лічильник і повторно активувати посилання."
   },
   "169": {
-    "other": "The expiration date was reached. Change the parameters with a new date if you want to reactivate the link."
+    "other": "Термін дії посилання закінчився. Якщо ви хочете активувати його знову, змініть параметри, вказавши нову дату."
   },
   "17": {
-    "other": "Click to reset download counter"
+    "other": "Натисніть, щоб скинути лічильник завантажень"
   },
   "170": {
-    "other": "This is link is secured with a password."
+    "other": "Це посилання захищене паролем."
   },
   "171": {
     "other": "Link Handle"
