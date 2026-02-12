@@ -246,49 +246,49 @@
     "other": "Disconnect from APPLICATION_TITLE"
   },
   "17": {
-    "other": "REAL file"
+    "other": "Реальний файл"
   },
   "170": {
-    "other": "Current Folder"
+    "other": "Батьківська тека"
   },
   "171": {
-    "other": "Browse"
+    "other": "Оглянути"
   },
   "172": {
-    "other": "Your Selection"
+    "other": "Ваш вибір"
   },
   "173": {
-    "other": "New folder name"
+    "other": "Нова назва теки"
   },
   "174": {
-    "other": "New file name"
+    "other": "Нова назва файлу"
   },
   "175": {
-    "other": "Select destination folder"
+    "other": "Обрати теку призначення"
   },
   "176": {
-    "other": "The selected files will be moved to the Recycle Bin."
+    "other": "Вибрані файли будуть переміщені в кошик."
   },
   "177": {
-    "other": "Are you sure you want to permanently delete the selected files?"
+    "other": "Ви дійсно бажаєте остаточно видалити вибрані файли?"
   },
   "178": {
-    "other": "Previous"
+    "other": "Назад"
   },
   "179": {
-    "other": "Next"
+    "other": "Уперед"
   },
   "18": {
     "other": "PERL script"
   },
   "180": {
-    "other": "Enter login/password"
+    "other": "Введіть логін/пароль"
   },
   "181": {
-    "other": "Login"
+    "other": "Логін"
   },
   "182": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "183": {
     "other": "Please select a destination folder different from the origin!"
