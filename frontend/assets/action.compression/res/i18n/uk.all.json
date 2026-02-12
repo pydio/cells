@@ -1,36 +1,36 @@
 {
   "1": {
-    "other": "Compress"
+    "other": "Стиснути"
   },
   "10": {
-    "other": "Extract selected archives"
+    "other": "Видобути вибрані архіви"
   },
   "11": {
-    "other": "Path of the extracted files "
+    "other": "Шлях добутих файлів "
   },
   "12": {
-    "other": "Starting extraction..."
+    "other": "Початок видобування..."
   },
   "13": {
-    "other": "Extracting files ... %s "
+    "other": "Розпакування файлів... %s "
   },
   "14": {
-    "other": "Extraction finished successfullly in the folder '%s'."
+    "other": "Розпакування успішно завершено в папці '%s'."
   },
   "15": {
-    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
+    "other": "Обраний файл не є архівом TAR і TAR.GZ і TAR.BZ2 архівом."
   },
   "16": {
-    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
+    "other": "Ви можете стискати тільки на TAR, TAR.GZ або TAR.BZ2."
   },
   "17": {
-    "other": "You can't compress empty folders."
+    "other": "Ви не можете стиснути порожні папки."
   },
   "2": {
-    "other": "Compress Selection"
+    "other": "Стиснути обране"
   },
   "3": {
-    "other": "Format"
+    "other": "Форматувати"
   },
   "4": {
     "other": "Archive's name"
