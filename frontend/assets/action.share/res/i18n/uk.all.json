@@ -1,9 +1,9 @@
 {
   "1": {
-    "other": "%s Public Download"
+    "other": "%s публічне завантаження"
   },
   "10": {
-    "other": "Folder is shared"
+    "other": "Спільна тека"
   },
   "100": {
     "other": "Спільні файли"
@@ -15,10 +15,10 @@
     "other": "Спільні теки"
   },
   "103": {
-    "other": "All folders shared as workspaces or minisites."
+    "other": "Всі теки поділилися як робочий простір або мініатюри."
   },
   "104": {
-    "other": "Displaying first link, there are %s others"
+    "other": "Відображено перше посилання, є ще %s"
   },
   "105": {
     "other": "Відображено перше посилання, є ще одне"
@@ -162,13 +162,13 @@
     "other": "Використовувати <kbd>Ctrl</kbd>+<kbd>C</kbd>для копіювання посилання"
   },
   "144": {
-    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
+    "other": "Використовувати <kbd>Ctrl</kbd>+<kbd>C</kbd>для копіювання посилання"
   },
   "145": {
     "other": "Опис"
   },
   "146": {
-    "other": "Will be displayed to the shared users"
+    "other": "Відображатиметься для користувачів, які мають доступ"
   },
   "147": {
     "other": "Безпека"
@@ -204,7 +204,7 @@
     "other": "Успішно опубліковано посилання %s"
   },
   "157": {
-    "other": "This folder is currently shared. If you delete it, associated share will be disabled."
+    "other": "Ця тека зараз має спільний доступ. Якщо ви її видалите, пов’язаний доступ буде вимкнено."
   },
   "158": {
     "other": "Цей файл зараз не поділений. Якщо ви видалите його, пов'язане посилання буде відключено. "
@@ -342,19 +342,19 @@
     "other": "You can select the appearance of the link as it will appear in the browser."
   },
   "199": {
-    "other": "Share Visibility"
+    "other": "Доступність посилань"
   },
   "2": {
-    "other": "Click on the image to download <b>%s</b> to your hard drive"
+    "other": "Натисніть на зображення для завантаження <b>%s</b> на ваш локальний диск"
   },
   "20": {
-    "other": "Ooops, the file you required could not be found! Maybe it was deleted or it is not shared with you anymore."
+    "other": "Ой! Не вдалося знайти потрібний файл. Можливо, його видалили або він більше не доступний для вас."
   },
   "200": {
-    "other": "Visible to other users"
+    "other": "Видимий для інших користувачів"
   },
   "201": {
-    "other": "Other users who access to the current workspace can update the links parameters, but they cannot delete it. Only you can stop this share or toggle its visibility"
+    "other": "Інші користувачі, які мають доступ до поточного робочого простору, можуть оновлювати параметри посилань, але не можуть їх видаляти. Тільки ви можете припинити цей спільний доступ або змінити його видимість."
   },
   "202": {
     "other": "Other users who access to the current workspace can update the links parameters. You are not the owner of the share so you cannot delete it or toggle its visibility"
@@ -408,25 +408,25 @@
     "other": "Successfully unshared element"
   },
   "217": {
-    "other": "Local Users"
+    "other": "Локальні користувачі"
   },
   "218": {
-    "other": "Notification"
+    "other": "Сповіщення"
   },
   "219": {
     "other": "Error while loading share. Error was (%s)."
   },
   "21b": {
-    "other": "Expired on"
+    "other": "Діє до:"
   },
   "22": {
-    "other": "Allowed Downloads"
+    "other": "Дозволені завантаження"
   },
   "220": {
-    "other": "You are not allowed to create users"
+    "other": "Ви не можете створювати користувачів"
   },
   "221": {
-    "other": "You are not allowed to share with other users, only your own external users"
+    "other": "Вам не дозволено ділитися з іншими користувачами, тільки своїми зовнішніми користувачами"
   },
   "222": {
     "other": "User %s already exists, please choose another identifier"
@@ -447,64 +447,64 @@
     "other": "You are not allowed to share files internally"
   },
   "228": {
-    "other": "You are not allowed to share folders internally"
+    "other": "Вам не дозволено поширювати теки внутрішньо"
   },
   "229": {
-    "other": "Insert a preview of the file by pasting this code inside an HTML page."
+    "other": "Вставте попередній перегляд файлу шляхом вставлення цього коду в HTML-сторінку."
   },
   "22b": {
-    "other": "No more downloads"
+    "other": "Немає більше завантажень"
   },
   "23": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "230": {
-    "other": "Please save before sending an invitation"
+    "other": "Будь ласка, збережіть, перш ніж надсилати запрошення"
   },
   "231": {
-    "other": "Click to start downloading"
+    "other": "Натисніть, щоб почати завантаження"
   },
   "232": {
-    "other": "No entries found for share, did you maybe delete some users?"
+    "other": "Не знайдено записів для спільного використання, Ви можливо видалили декілька користувачів?"
   },
   "233": {
-    "other": "Reset this share"
+    "other": "Скинути це поширення"
   },
   "234": {
-    "other": "It has been added to your %s workspace."
+    "other": "Його було додано до вашої робочої області %s."
   },
   "235": {
-    "other": "Generate unique links to identify users"
+    "other": "Створити унікальні посилання для ідентифікації користувачів"
   },
   "236": {
-    "other": "Restrict access only to identified users"
+    "other": "Обмежити доступ лише для ідентифікованих користувачів"
   },
   "237": {
-    "other": "Use a random key instead of email in link"
+    "other": "Використовувати випадковий ключ замість посилання"
   },
   "238": {
-    "other": "Share Types"
+    "other": "Тип спільного доступу"
   },
   "24": {
     "other": "Set expiration limits or define a password to access this share."
   },
   "240": {
-    "other": "Group by..."
+    "other": "Групувати за..."
   },
   "241": {
-    "other": "Shares List"
+    "other": "Список спільного доступу"
   },
   "242": {
-    "other": "Load More Results"
+    "other": "Завантажити більше результатів"
   },
   "243": {
-    "other": "Public Links"
+    "other": "Публічне посилання"
   },
   "244": {
-    "other": "Shared Folders"
+    "other": "Знайти теки"
   },
   "245": {
-    "other": "%s personal invitation(s) sent"
+    "other": "%s персональних запрошень відправлено"
   },
   "246": {
     "other": "Відкрити комірку"
@@ -531,7 +531,7 @@
     "other": "Доступ"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Видимість"
   },
   "254": {
     "other": "Shared in cells"
