@@ -206,7 +206,7 @@ export const MetadataContextProvider = ({
             .then(ns => {
                 if (!ns) return
                 actions.setJsonSchema(ns.JsonSchema)
-            })
+            });
     }, [node]);
 
 
@@ -237,6 +237,17 @@ export const MetadataContextProvider = ({
                     actions.setShouldSave(false)
                     node.replaceMetadata(state.formState, true);
                 })
+                .catch((e) => {
+                    actions.setSaving(false)
+                    actions.setShouldSave(false)
+
+                    console.error('Error saving metadata', e);
+                    dispatch({
+                        type: 'set_errors',
+                        errors: { 'form': 'Error saving. Please try again.' },
+                    });
+                });
+
         }
     }, [state.shouldSave])
 
