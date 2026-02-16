@@ -283,11 +283,10 @@ export const ModalSearch = withSearch( ({pydio, searchTools, dataModel, accessKe
                         {...groupProps}
                          */
                     />
-                    <div style={styles.statusBar}>
-                        {!onSelectSearch &&
-                            <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
-                        }
-                        <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
+                     <div style={styles.statusBar}>
+                         {!onSelectSearch &&
+                             <div style={{flex: 1}}><span className={'mdi mdi-lightbulb-outline'}/> {statusBarString}</div>
+                         }
                         <div data-testid="search-status-bar-actions" style={{fontSize: 16}}>
                             <IconButton onClick={()=>submitSearch()}
                                 className={'mdi mdi-refresh'}
