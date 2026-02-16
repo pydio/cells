@@ -87,7 +87,8 @@ class MetadataBoard extends React.Component{
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
         }
-
+        const configs = this.props.pydio.getPluginConfigs('access.settings');
+        const PROMPTONUPLOAD_FF = Boolean(configs.get('USERMETA_NAMESPACE_PROMPT'));
         const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
 
         namespaces.sort((a,b) => {
@@ -102,6 +103,13 @@ class MetadataBoard extends React.Component{
             return orderSort(a0, b0)
         });
 
+        const promptOnUploadColumn = {name:'PromptOnUpload', label:m('Prompt On Upload'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
+                return row.PromptOnUpload ? 'Yes' : 'No';
+            }), sorter:{type:'number', value:(row)=>row.PromptOnUpload?1:0}};
+        const requiredColumn = {name:'Required', label:m('Required'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
+                const requiredArray = row.JsonSchema?.required || [];
+                return requiredArray.length > 0 ? 'Yes' : 'No';
+            }), sorter:{type:'number', value:(row)=>(row.JsonSchema?.required?.length > 0) ? 1 : 0}};
         let columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
                 return row.Order || '0';
@@ -111,13 +119,7 @@ class MetadataBoard extends React.Component{
             {name:'Indexable', label:m('indexable'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
                 return row.Indexable ? 'Yes' : 'No';
             }), sorter:{type:'number', value:(row)=>row.Indexable?1:0}},
-             {name:'PromptOnUpload', label:m('Prompt On Upload'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
-                return row.PromptOnUpload ? 'Yes' : 'No';
-            }), sorter:{type:'number', value:(row)=>row.PromptOnUpload?1:0}},
-             {name:'Required', label:m('Required'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
-                const requiredArray = row.JsonSchema?.required || [];
-                return requiredArray.length > 0 ? 'Yes' : 'No';
-            }), sorter:{type:'number', value:(row)=>(row.JsonSchema?.required?.length > 0) ? 1 : 0}},
+            ...(PROMPTONUPLOAD_FF ? [promptOnUploadColumn, requiredColumn] : []),
             {name:'JsonDefinition', label:m('definition'), hideSmall:true, renderCell:(row => {
                 const def = row.JsonDefinition;
                 if(!def) {
@@ -126,7 +128,7 @@ class MetadataBoard extends React.Component{
                 const data = JSON.parse(def);
                 return Metadata.MetaTypes[data.type] || data.type;
             }), sorter:{type:'string'}}
-        ];
+        ].filter(Boolean);
 
         const groupedNS = {}
         if(knownGroups.length) {
