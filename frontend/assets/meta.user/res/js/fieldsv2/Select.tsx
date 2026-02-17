@@ -96,7 +96,8 @@ export const Selector: React.FC<SelectInputProps> = ({
             disabled={disabled}
             onChange={v => onChange(v, true)}
             data={items.map(i => { return { value: i.key, label: i.value } })}
-            allowDeselect={false}
+            allowDeselect={true}
+            clearable={true}
             leftSection={leftSection}
             leftSectionPointerEvents="all"
             rightSectionPointerEvents="all"
