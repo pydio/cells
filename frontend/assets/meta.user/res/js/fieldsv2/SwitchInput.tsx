@@ -43,7 +43,6 @@ export const SwitchInput: React.FC<InputProps> = ({
             <Input component={"div"} onBlur={() => requestToggleClose && requestToggleClose()}>
                 <div style={{ display: 'flex', alignItems: 'center', height: '100%' }} onBlur={() => requestToggleClose && requestToggleClose()}>
                     <Switch
-                        label={label}
                         checked={value}
                         onChange={(e) => onChange(e.currentTarget.checked, true)}
                         disabled={disabled}
