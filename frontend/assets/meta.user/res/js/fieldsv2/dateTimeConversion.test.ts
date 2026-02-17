@@ -188,7 +188,7 @@ describe('dateTimeConversion', () => {
         })
 
         it('should handle string dates that parse to epoch 0', () => {
-            // This tests that dateToTimestamp rejects epoch 0 even from valid date strings
+            // Epoch 0 should be rejected as a defensive measure against default values
             const epochString = '1970-01-01T00:00:00.000Z'
             const result = dateToTimestamp(epochString)
             expect(result).toBe('')

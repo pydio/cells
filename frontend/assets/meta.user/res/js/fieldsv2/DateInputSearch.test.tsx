@@ -125,7 +125,6 @@ describe('DateInputSearch', () => {
                 />
             )
 
-            // The date picker should display the converted date
             const output = screen.getByTestId('current-date')
             expect(output.textContent).toContain('2024-02-10')
         })
@@ -167,7 +166,7 @@ describe('DateInputSearch', () => {
             expect(onChange).toHaveBeenCalled()
             const call = onChange.mock.calls[0][0]
             expect(typeof call).toBe('string')
-            expect(/^\d+$/.test(call)).toBe(true) // Should be numeric string (timestamp)
+            expect(/^\d+$/.test(call)).toBe(true)
         })
 
         it('should reject epoch 0 date selection (January 1, 1970)', () => {
@@ -196,8 +195,9 @@ describe('DateInputSearch', () => {
             render(
                 <DateInputSearch
                     label="Test Date"
-                    value="">
-                </DateInputSearch>
+                    value=""
+                    onChange={onChange}
+                />
             )
 
             expect(screen.getByTestId('modifier-menu')).toBeInTheDocument()
@@ -215,7 +215,6 @@ describe('DateInputSearch', () => {
                 />
             )
 
-            // The text portion should be extracted and converted to Date
             const output = screen.getByTestId('current-date')
             expect(output.textContent).toContain('2024-02-10')
         })
@@ -539,7 +538,6 @@ describe('DateInputSearch', () => {
                 />
             )
 
-            // The component should use requestToggleClose in popover props
             const input = screen.getByTestId('date-picker-hidden-input')
             expect(input).toBeInTheDocument()
         })
@@ -557,8 +555,8 @@ describe('DateInputSearch', () => {
                 />
             )
 
-            const input = screen.getByTestId('date-picker-hidden-input')
             // autoFocus is passed to the mocked DatePickerInput component
+            const input = screen.getByTestId('date-picker-hidden-input')
             expect(input).toBeInTheDocument()
         })
 

@@ -448,7 +448,6 @@ describe('DateTimeInputSearch', () => {
 
             const output = screen.getByTestId('current-datetime')
             expect(output.textContent).toContain('2024-02-10')
-            // The timestamp is preserved in the conversion
             expect(output.textContent).toContain('12:10:45')
         })
 
@@ -578,8 +577,8 @@ describe('DateTimeInputSearch', () => {
                 />
             )
 
-            const input = screen.getByTestId('datetime-picker-hidden-input')
             // autoFocus is passed to the mocked DateTimePicker component
+            const input = screen.getByTestId('datetime-picker-hidden-input')
             expect(input).toBeInTheDocument()
         })
 
