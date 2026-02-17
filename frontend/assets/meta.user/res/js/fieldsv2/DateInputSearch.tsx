@@ -59,13 +59,8 @@ export const DateInputSearch: React.FC<InputProps> = ({
                     value={textToDate(text)}
                     leftSection={leftSection}
                     onChange={(date) => {
-                        // Return null for empty selections to prevent defaulting to epoch (Date(0))
-                        if (date === null) {
-                            onTextChange('')
-                        } else {
-                            const timestamp = dateToTimestamp(date)
-                            onTextChange(timestamp)
-                        }
+                        const timestamp = dateToTimestamp(date)
+                        onTextChange(timestamp)
                     }}
                     description={description}
                     placeholder={placeholder}
