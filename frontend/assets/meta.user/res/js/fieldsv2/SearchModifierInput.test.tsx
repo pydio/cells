@@ -2,8 +2,8 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 
-import { TextSearchModifierInput, RangeSearchModifierInput } from './SearchModifierInput'
-import { TextSearchModifiers, NumberRangeModifiers } from './SearchModifiers'
+import { TextSearchModifierInput, RangeSearchModifierInput, DateTimeSearchModifierInput } from './SearchModifierInput'
+import { TextSearchModifiers, NumberRangeModifiers, DateRangeModifiers } from './SearchModifiers'
 
 vi.mock('./SearchModifiers', async (importOriginal) => {
     const actual = await importOriginal()
@@ -152,5 +152,169 @@ describe('SearchModifierInput', () => {
         expect(screen.getByLabelText('auto-focus').textContent).toBe('yes')
         fireEvent.click(screen.getByRole('button', { name: 'blur' }))
         expect(requestToggleClose).toHaveBeenCalled()
+    })
+
+    describe('DateTimeSearchModifierInput', () => {
+        it('parses >= date modifier and applies it on change', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value=">=1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
+
+            fireEvent.click(screen.getByRole('button', { name: 'change' }))
+            expect(onChange).toHaveBeenCalledWith('>=next')
+        })
+
+        it('parses <= date modifier and applies it on change', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value="<=1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
+
+            fireEvent.click(screen.getByRole('button', { name: 'change' }))
+            expect(onChange).toHaveBeenCalledWith('<=next')
+        })
+
+        it('parses exact date (no modifier) and applies it on change', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value="1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
+
+            fireEvent.click(screen.getByRole('button', { name: 'change' }))
+            expect(onChange).toHaveBeenCalledWith('next')
+        })
+
+        it('returns empty text for empty input and preserves modifier', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value="" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('')
+
+            fireEvent.click(screen.getByRole('button', { name: 'submit' }))
+            expect(onChange).toHaveBeenCalledWith('', true)
+        })
+
+        it('handles modifier change with timestamp value', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value="1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            fireEvent.click(screen.getByRole('button', { name: 'menu' }))
+            expect(onChange).toHaveBeenCalledWith('1707550800')
+        })
+
+        it('preserves timestamp value when modifying modifier', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value=">=1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
+
+            fireEvent.click(screen.getByRole('button', { name: 'submit' }))
+            expect(onChange).toHaveBeenCalledWith('>=1707550800', true)
+        })
+
+        it('parses single-character range modifier (>)', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value=">1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
+            fireEvent.click(screen.getByRole('button', { name: 'change' }))
+            expect(onChange).toHaveBeenCalledWith('>next')
+        })
+
+        it('parses single-character range modifier (<)', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value="<1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
+            fireEvent.click(screen.getByRole('button', { name: 'change' }))
+            expect(onChange).toHaveBeenCalledWith('<next')
+        })
+
+        it('handles empty timestamp with >= modifier', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value=">=" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('')
+        })
+
+        it('composes modifier correctly when applying', () => {
+            const onChange = vi.fn()
+
+            render(
+                <DateTimeSearchModifierInput value=">=1707550800" onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            fireEvent.click(screen.getByRole('button', { name: 'submit' }))
+            // Should preserve the >= modifier with the timestamp value
+            expect(onChange).toHaveBeenCalledWith('>=1707550800', true)
+        })
+
+        it('handles null/undefined values gracefully', () => {
+            const onChange = vi.fn()
+
+            const { rerender } = render(
+                <DateTimeSearchModifierInput value={undefined} onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('')
+
+            rerender(
+                <DateTimeSearchModifierInput value={null as any} onChange={onChange} items={DateRangeModifiers}>
+                    {renderProbe}
+                </DateTimeSearchModifierInput>
+            )
+
+            expect(screen.getByLabelText('text-value').textContent).toBe('')
+        })
     })
 })
