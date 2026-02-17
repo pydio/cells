@@ -57,7 +57,8 @@ class MetaClient{
                         meta.Namespace = cName;
 
                         // NOTE: This ensure JsonValue is always present
-                        meta.JsonValue = JSON.stringify(values.get(cName) || '');
+                        const value = values.get(cName);
+                        meta.JsonValue = JSON.stringify(value !== undefined ? value : null);
 
                         meta.Policies = [
                             ServiceResourcePolicy.constructFromObject({
