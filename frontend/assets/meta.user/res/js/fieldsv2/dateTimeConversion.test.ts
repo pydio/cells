@@ -49,10 +49,10 @@ describe('dateTimeConversion', () => {
             expect(textToDate('abc123')).toBeNull()
         })
 
-        it('should handle zero timestamp', () => {
+        it('should reject epoch timestamp 0 (January 1, 1970)', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
             const result = textToDate('0')
-            expect(result).toBeInstanceOf(Date)
-            expect(result?.getTime()).toBe(0)
+            expect(result).toBeNull()
         })
 
         it('should handle floating point timestamps', () => {
@@ -96,6 +96,19 @@ describe('dateTimeConversion', () => {
 
         it('should handle non-Date objects', () => {
             expect(dateToTimestamp({} as any)).toBe('')
+        })
+
+        it('should reject epoch timestamp 0 (January 1, 1970)', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
+            const epochDate = new Date(0)
+            const result = dateToTimestamp(epochDate)
+            expect(result).toBe('')
+        })
+
+        it('should reject epoch timestamp 0 from string input', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
+            const result = dateToTimestamp('1970-01-01T00:00:00Z')
+            expect(result).toBe('')
         })
     })
 
