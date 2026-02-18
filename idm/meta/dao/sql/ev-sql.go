@@ -319,3 +319,47 @@ func (s *evSqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.Del
 		RowsDeleted: tx.RowsAffected,
 	}, nil
 }
+
+func (s *evSqlImpl) GetMetaEntityValuesForMetas(ctx context.Context, metaUuids []string) (map[string][]*idm.EntityValue, error) {
+	if len(metaUuids) == 0 {
+		return nil, nil
+	}
+
+	var relations []struct {
+		MetaUUID     string
+		EVUuid       string
+		EVLabel      string
+		EVEntityUUID string
+	}
+
+	db := s.Session(ctx)
+	relTable := sql.TableNameFromModel(db, &MetaValuesRel{})
+	evTable := sql.TableNameFromModel(db, &EntityValues{})
+
+	relTable = sql.QuoteTo(db, relTable)
+	evTable = sql.QuoteTo(db, evTable)
+
+	tx := db.Model(&EntityValues{}).
+		Select(
+			fmt.Sprintf("%s.meta_uuid, %s.uuid as ev_uuid, %s.label as ev_label, %s.entity_uuid as ev_entity_uuid",
+				relTable, evTable, evTable, evTable)).
+		Joins(fmt.Sprintf("INNER JOIN %s ON %s.uuid = %s.e_value_uuid", relTable, evTable, relTable)).
+		Where(fmt.Sprintf("%s.meta_uuid IN ?", relTable), metaUuids).
+		Scan(&relations)
+
+	if tx.Error != nil {
+		return nil, evTagError(tx.Error)
+	}
+
+	result := make(map[string][]*idm.EntityValue)
+	for _, rel := range relations {
+		ev := &idm.EntityValue{
+			Uuid:       rel.EVUuid,
+			Label:      rel.EVLabel,
+			EntityUuid: rel.EVEntityUUID,
+		}
+		result[rel.MetaUUID] = append(result[rel.MetaUUID], ev)
+	}
+
+	return result, nil
+}
