@@ -49,10 +49,10 @@ describe('dateTimeConversion', () => {
             expect(textToDate('abc123')).toBeNull()
         })
 
-        it('should handle zero timestamp', () => {
+        it('should reject epoch timestamp 0 (January 1, 1970)', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
             const result = textToDate('0')
-            expect(result).toBeInstanceOf(Date)
-            expect(result?.getTime()).toBe(0)
+            expect(result).toBeNull()
         })
 
         it('should handle floating point timestamps', () => {
@@ -97,6 +97,19 @@ describe('dateTimeConversion', () => {
         it('should handle non-Date objects', () => {
             expect(dateToTimestamp({} as any)).toBe('')
         })
+
+        it('should reject epoch timestamp 0 (January 1, 1970)', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
+            const epochDate = new Date(0)
+            const result = dateToTimestamp(epochDate)
+            expect(result).toBe('')
+        })
+
+        it('should reject epoch timestamp 0 from string input', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
+            const result = dateToTimestamp('1970-01-01T00:00:00Z')
+            expect(result).toBe('')
+        })
     })
 
     describe('round-trip conversion', () => {
@@ -105,6 +118,123 @@ describe('dateTimeConversion', () => {
             const date = textToDate(originalTimestamp)
             const result = dateToTimestamp(date)
             expect(result).toBe(originalTimestamp)
+        })
+
+        it('should handle multiple round-trips correctly', () => {
+            const timestamp1 = '1707550800'
+            const date1 = textToDate(timestamp1)
+            const timestamp2 = dateToTimestamp(date1)
+            const date2 = textToDate(timestamp2)
+            const timestamp3 = dateToTimestamp(date2)
+            expect(timestamp3).toBe(timestamp1)
+        })
+
+        it('should preserve timestamp for large values', () => {
+            const largeTimestamp = '9999999999' // Year 2286
+            const date = textToDate(largeTimestamp)
+            const result = dateToTimestamp(date)
+            expect(result).toBe(largeTimestamp)
+        })
+
+        it('should preserve timestamp for small positive values', () => {
+            const smallTimestamp = '1'
+            const date = textToDate(smallTimestamp)
+            const result = dateToTimestamp(date)
+            expect(result).toBe(smallTimestamp)
+        })
+    })
+
+    describe('edge cases and validation', () => {
+        it('should handle timestamps with leading zeros', () => {
+            const timestamp = '01707550800'
+            const result = textToDate(timestamp)
+            expect(result).not.toBeNull()
+            expect(result?.getTime()).toBe(1707550800000)
+        })
+
+        it('should handle timestamps with trailing whitespace', () => {
+            // parseFloat should trim whitespace
+            const timestamp = '1707550800 '
+            const result = textToDate(timestamp)
+            expect(result).not.toBeNull()
+            expect(result?.getTime()).toBe(1707550800000)
+        })
+
+        it('should handle negative timestamps (before epoch)', () => {
+            const timestamp = '-86400' // 1 day before epoch
+            const result = textToDate(timestamp)
+            expect(result).not.toBeNull()
+            expect(result?.getTime()).toBeLessThan(0)
+        })
+
+        it('should handle very small floating point timestamps', () => {
+            const timestamp = '0.001'
+            const result = textToDate(timestamp)
+            // This is a very small but valid timestamp (Jan 1, 1970 00:00:00.001)
+            expect(result).not.toBeNull()
+            expect(result?.getTime()).toBe(1)
+        })
+
+        it('should return null for NaN after conversion', () => {
+            const timestamp = 'NaN'
+            const result = textToDate(timestamp)
+            expect(result).toBeNull()
+        })
+
+        it('should return null for Infinity', () => {
+            const timestamp = 'Infinity'
+            const result = textToDate(timestamp)
+            expect(result).toBeNull()
+        })
+
+        it('should handle string dates that parse to epoch 0', () => {
+            // Epoch 0 should be rejected as a defensive measure against default values
+            const epochString = '1970-01-01T00:00:00.000Z'
+            const result = dateToTimestamp(epochString)
+            expect(result).toBe('')
+        })
+
+        it('should handle null date in dateToTimestamp gracefully', () => {
+            const result = dateToTimestamp(null)
+            expect(result).toBe('')
+            expect(typeof result).toBe('string')
+        })
+
+        it('should handle undefined date in dateToTimestamp gracefully', () => {
+            const result = dateToTimestamp(undefined)
+            expect(result).toBe('')
+            expect(typeof result).toBe('string')
+        })
+
+        it('should return empty string for Invalid Date objects', () => {
+            const invalidDate = new Date('not a real date')
+            const result = dateToTimestamp(invalidDate)
+            expect(result).toBe('')
+        })
+
+        it('should maintain precision with decimal timestamps', () => {
+            const timestamp = '1707550800.123'
+            const date = textToDate(timestamp)
+            const result = dateToTimestamp(date)
+            // Result maintains millisecond precision from conversion
+            expect(result).toBe('1707550800.123')
+        })
+    })
+
+    describe('mutation safety', () => {
+        it('should not modify the input date', () => {
+            const originalDate = new Date(1707550800000)
+            const originalTime = originalDate.getTime()
+            dateToTimestamp(originalDate)
+            expect(originalDate.getTime()).toBe(originalTime)
+        })
+
+        it('should not share mutable state between calls', () => {
+            const timestamp = '1707550800'
+            const date1 = textToDate(timestamp)
+            const date2 = textToDate(timestamp)
+            expect(date1).toEqual(date2)
+            expect(date1).not.toBe(date2) // Different instances
         })
     })
 })
