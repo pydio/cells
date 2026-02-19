@@ -39,13 +39,13 @@
     "other": "Стиснення..."
   },
   "6": {
-    "other": "Adding files in the archive... %s "
+    "other": "Додавання файлів до архіву... %s "
   },
   "7": {
-    "other": "During compression in %s ..."
+    "other": "Під час стиснення у %s ..."
   },
   "8": {
-    "other": "Your archive finished successfully !!"
+    "other": "Ваш архів успішно створено !!"
   },
   "9": {
     "other": "Видобути"
