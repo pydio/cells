@@ -44,10 +44,14 @@ const formatValueArrayToString = (value: string[]) => {
     return (value || []).filter(v => v).join(',')
 }
 
+type TagsCloudInputProps = StringItemsInputProps & {
+    onlyValuesFromList?: boolean;
+}
+
 /**
  * @param {TagsCloudInputProps} props
  */
-export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
+export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     name,
     label,
     required,
@@ -56,6 +60,7 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     dataLoader,
     errorText,
     value,
+    onlyValuesFromList,
     onCommitChange,
 }) => {
     const [localValue, setLocalValue] = useState([]);
@@ -90,18 +95,22 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         data={items}
         onChange={onChangeJoin}
         comboboxProps={{ withinPortal: false }}
+        splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
         onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
             const { key, target } = e;
             const { value } = target;
-            if(key === 'Enter'){
-                onCommitChange(formatValueArrayToString([...localValue, value]));
-            }
-            if (key === ',') {
+
+            if(key === 'Enter' || key === ','){
+                if (onlyValuesFromList && !items.includes(value)) return;
+
                 onCommitChange(formatValueArrayToString([...localValue, value]));
             }
         }}
         onBlur={(e) => {
             const { value } = e.target;
+
+            if (onlyValuesFromList && !items.includes(value)) return;
+
             onCommitChange(formatValueArrayToString([...localValue, value]));
         }}
     />

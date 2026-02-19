@@ -85,7 +85,9 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
             const cssItems:Items[] = Object.keys(cssLabels).map((id) => {return {...cssLabels[id], key:id, value: cssLabels[id].label}})
             return <Selector {...baseProps} items={cssItems}/>;
         case 'tags':
-            return <TagsCloudInput {...baseProps} data={[]} dataLoader={localDataLoader}/>;
+            return <TagsCloudInput onlyValuesFromList {...baseProps} data={[]} dataLoader={localDataLoader}/>;
+        case 'tag_cloud':
+            return <TagsCloudInput onlyValuesFromList {...baseProps} data={[]} dataLoader={localDataLoader}/>;
         case 'date':
             if (formatType === 'time') {
                 return <TimeInputSearch {...baseProps}/>;
