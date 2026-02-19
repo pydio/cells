@@ -78,7 +78,7 @@
     "other": "<h2>[Інструкція] Пошук, перегляд та керування файлами</h2>\n            У цьому відео наведено корисні поради щодо ефективного керування файлами в APPLICATION_TITLE\n            <ul>\n                <li>Рядок пошуку по всіх робочих просторах</li>\n                <li>Режими відображення контенту, гарячі клавіші</li>\n                <li>Сортування файлів</li>\n                <li>Метадані, закладки</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Пошук, перегляд та керування файлами</h2>\n            Цей відеоогляд містить поради щодо ефективного керування файлами в APPLICATION_TITLE\n            <ul>\n                <li>Рядок пошуку між робочими просторами</li>\n                <li>Режими відображення вмісту, гарячі клавіші</li>\n                <li>Сортування файлів</li>\n                <li>Метадані, закладки</li>\n            </ul>\n            "
   },
   "65": {
     "other": "Дізнайтеся більше на каналі APPLICATION_TITLE!"
@@ -123,25 +123,25 @@
     "other": "Виберіть цільову робочу область"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Спільний доступ до файлів і тек</h2>\n            Цей посібник покаже вам, як надавати спільний доступ до файлів і тек — як внутрішнім, так і зовнішнім користувачам\n            <ul>\n                <li>Створення посилань для зовнішніх користувачів</li>\n                <li>Надання доступу внутрішнім колегам</li>\n                <li>Надання доступу до теки як до робочого простору</li>\n                <li>Параметри оформлення спільних тек</li>\n                <li>Створення теки для анонімного завантаження (blind drop)</li>\n                <li>Керування користувачами та правами доступу</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Спільний доступ: функції безпеки</h2>\n            Цей відеоогляд присвячений налаштуванням спільного доступу, які допоможуть захистити ваші дані\n            <ul>\n                <li>Захист паролем</li>\n                <li>Термін дії посилання</li>\n                <li>Обмеження кількості завантажень</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[Інструкція] Налаштування посилань спільного доступу</h2>\n            Дізнайтеся, як налаштувати URL-адреси ваших посилань, щоб вони виглядали зручнішими для користувачів.\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Власні права доступу для посилань</h2>\n            Цей відеоогляд покаже вам, як керувати дозволами, що надаються для ваших спільних ресурсів\n            <ul>\n                <li>Перегляд</li>\n                <li>Завантаження</li>\n                <li>Завантаження файлів / Редагування</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[Інструкція] Мова</h2>\n            APPLICATION_TITLE доступна 28 мовами. Цей відеоогляд покаже вам, як змінити мову в APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[Інструкція] Сповіщення</h2>\n            Дізнайтеся, як налаштувати сповіщення для файлу, щоб бачити, коли його було змінено або переглянуто.\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Спільне редагування</h2>\n            Цей відеоогляд покаже вам, як працювати над офісними документами завдяки онлайн-пакету Collabora\n            <ul>\n                <li>Робота з текстовими документами, презентаціями та таблицями</li>\n                <li>Спільне редагування документів у режимі реального часу</li>\n                <li>Створення нових документів безпосередньо у браузері</li>\n            </ul>\n            "
   },
   "86": {
     "other": "Відтворити відео"
