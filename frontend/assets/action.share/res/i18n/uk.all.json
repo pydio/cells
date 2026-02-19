@@ -321,25 +321,25 @@
     "other": "Копіювати посилання в буфер обміну"
   },
   "192": {
-    "other": "Link has been copied to clipboard"
+    "other": "Посилання скопійовано в буфер обміну"
   },
   "193": {
-    "other": "Customize Link"
+    "other": "Налаштувати посилання"
   },
   "194": {
-    "other": "For a prettier link, you can customize the last part"
+    "other": "Щоб зробити посилання гарнішим, ви можете налаштувати його останню частину"
   },
   "195": {
-    "other": "Warning, there is no embedded viewer for this file, except opening in a new tab of your browser: this may trigger a download automatically when user opens the link."
+    "other": "Увага! Для цього файлу немає вбудованого переглядача, окрім відкриття в новій вкладці вашого браузера: це може призвести до автоматичного завантаження файлу, коли користувач відкриє посилання."
   },
   "196": {
-    "other": "Secure Access"
+    "other": "Безпечний доступ"
   },
   "197": {
-    "other": "Use this field to send optional comments"
+    "other": "Використовуйте це поле, щоб надіслати додаткові коментарі"
   },
   "198": {
-    "other": "You can select the appearance of the link as it will appear in the browser."
+    "other": "Ви можете вибрати вигляд посилання, яким воно буде відображатися в браузері."
   },
   "199": {
     "other": "Доступність посилань"
@@ -357,55 +357,55 @@
     "other": "Інші користувачі, які мають доступ до поточного робочого простору, можуть оновлювати параметри посилань, але не можуть їх видаляти. Тільки ви можете припинити цей спільний доступ або змінити його видимість."
   },
   "202": {
-    "other": "Other users who access to the current workspace can update the links parameters. You are not the owner of the share so you cannot delete it or toggle its visibility"
+    "other": "Інші користувачі, що мають доступ до поточної робочої області, можуть оновити параметри посилань. Ви не власник акції, тому ви не можете видалити його або перемкнути його видимість"
   },
   "203": {
-    "other": "Transfer Ownership"
+    "other": "Передати права власності"
   },
   "203b": {
-    "other": "Transfer"
+    "other": "Передати"
   },
   "204": {
-    "other": "If the share is publicly visible and you want another user to manage this share, you can transfer its ownership."
+    "other": "Якщо спільний ресурс є публічно видимим і ви хочете, щоб інший користувач керував ним, ви можете передати права власності на нього."
   },
   "205": {
-    "other": "Transfer to ... (user identifier)"
+    "other": "Передати... (ідентифікатор користувача)"
   },
   "206": {
-    "other": "Shares are 'private' by default: you only can see them. If you want other users who access the current workspace to see and edit this share, toggle the visibility."
+    "other": "Спільні ресурси є «приватними» за замовчуванням: їх бачите лише ви. Якщо ви хочете, щоб інші користувачі, які мають доступ до поточного робочого простору, могли бачити та редагувати цей спільний ресурс, змініть статус його видимості."
   },
   "207": {
     "other": "Віддалені користувачі"
   },
   "208": {
-    "other": "Share with users from other filesharing platforms (compatible with Federated Sharing API)."
+    "other": "Надавайте доступ користувачам інших платформ обміну файлами (сумісних із Federated Sharing API)."
   },
   "209": {
-    "other": "Remote Address"
+    "other": "Віддалена адреса"
   },
   "21": {
-    "other": "Will expire on"
+    "other": "Термін дії закінчується"
   },
   "210": {
-    "other": "Identifier"
+    "other": "Ідентифікатор"
   },
   "211": {
-    "other": "pending"
+    "other": "очікується"
   },
   "212": {
-    "other": "accepted"
+    "other": "прийнято"
   },
   "213": {
-    "other": "rejected"
+    "other": "відхилено"
   },
   "214": {
-    "other": "not sent"
+    "other": "не надіслано"
   },
   "215": {
-    "other": "To enable a public link on a file or a folder, you first need to set up a password."
+    "other": "Щоб увімкнути публічне посилання на файл або теку, спочатку потрібно встановити пароль."
   },
   "216": {
-    "other": "Successfully unshared element"
+    "other": "Спільний доступ до елемента успішно скасовано"
   },
   "217": {
     "other": "Локальні користувачі"
@@ -414,7 +414,7 @@
     "other": "Сповіщення"
   },
   "219": {
-    "other": "Error while loading share. Error was (%s)."
+    "other": "Помилка під час завантаження спільного ресурсу. Помилка: (%s)."
   },
   "21b": {
     "other": "Діє до:"
@@ -429,22 +429,22 @@
     "other": "Вам не дозволено ділитися з іншими користувачами, тільки своїми зовнішніми користувачами"
   },
   "222": {
-    "other": "User %s already exists, please choose another identifier"
+    "other": "Користувач %s уже існує, будь ласка, виберіть інший ідентифікатор"
   },
   "223": {
-    "other": "Custom link is too short, please use at least %s characters"
+    "other": "Назва посилання занадто коротка, будь ласка, використайте принаймні %s символів"
   },
   "224": {
-    "other": "You are not allowed to manage this share, please ask its owner to perform the changes, or to transfer you the ownership."
+    "other": "Ви не маєте прав на керування цим спільним ресурсом. Будь ласка, зверніться до власника, щоб внести зміни або передати вам права власності."
   },
   "225": {
-    "other": "You are not allowed to create public links on files"
+    "other": "Ви не маєте прав на створення публічних посилань на файли"
   },
   "226": {
-    "other": "You are not allowed to create public links on folders"
+    "other": "Ви не маєте прав на створення публічних посилань на теки"
   },
   "227": {
-    "other": "You are not allowed to share files internally"
+    "other": "Ви не маєте прав на внутрішній обмін файлами"
   },
   "228": {
     "other": "Вам не дозволено поширювати теки внутрішньо"
@@ -486,7 +486,7 @@
     "other": "Тип спільного доступу"
   },
   "24": {
-    "other": "Set expiration limits or define a password to access this share."
+    "other": "Встановіть обмеження терміну дії або визначте пароль для доступу до цього спільного ресурсу."
   },
   "240": {
     "other": "Групувати за..."
@@ -534,25 +534,25 @@
     "other": "Видимість"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "Спільний доступ у комірках"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "З користувачами або групами"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Спільний доступ у %d комірках"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Спільний доступ у «%s»"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "Ви впевнені, що хочете видалити всі комірки та посилання для цього елемента?"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "Спільні ресурси для %s"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "Створено %s"
   },
   "258": {
     "other": "Редагувати користувачів комірки"
@@ -561,22 +561,22 @@
     "other": "Видалити з цієї комірки"
   },
   "26": {
-    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
+    "other": "Виберіть користувачів або групи та встановіть їхні права доступу. Вибір лише «Запис» створить робочу область тільки для завантаження."
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "Тека є спільною у наведених нижче комірках. Ви можете змінити список користувачів або створити нову комірку."
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "Виберіть користувачів або групи, які матимуть доступ до цієї комірки"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "Поділіться цією текою з іншими користувачами, створивши нову комірку"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "Додати до комірки..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ Нова комірка"
   },
   "265": {
     "other": "Позначка посилання"
@@ -588,121 +588,121 @@
     "other": "Назва комірки"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "Опис комірки"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "Ви створите комірку, спільну з %USERS. Виберіть теки, якими хочете поділитися, або дозвольте Pydio створити для вас порожню теку!"
   },
   "27": {
-    "other": "Share file"
+    "other": "Поділитися файлом"
   },
   "270": {
-    "other": "users"
+    "other": "користувачі"
   },
   "271": {
-    "other": "groups"
+    "other": "групи"
   },
   "272": {
-    "other": "teams"
+    "other": "команди"
   },
   "273": {
-    "other": "nobody"
+    "other": "ніхто"
   },
   "274": {
-    "other": " and "
+    "other": " та "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "Створюйте комірки для спільної роботи з іншими користувачами. Почніть з опису призначення цієї комірки."
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "Назва вашої комірки"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "За бажанням додайте опис"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "Виберіть, з ким ви хочете поділитися даними"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "Створити комірку зараз!"
   },
   "28": {
-    "other": "Share folder"
+    "other": "Поділитися текою"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "Комірка має власну теку"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "Комірку буде створено в новій теці"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "Додати наявну теку..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "Виберіть вузол у дереві..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "Видимо у %s комірках"
   },
   "29": {
-    "other": "WebLink"
+    "other": "Вебпосилання"
   },
   "3": {
-    "other": "Wrong password"
+    "other": "Неправильний пароль"
   },
   "30": {
-    "other": "Share with..."
+    "other": "Поділитися з..."
   },
   "31": {
-    "other": "Read"
+    "other": "Перегляд"
   },
   "32": {
-    "other": "Write"
+    "other": "Редагування"
   },
   "33": {
-    "other": "Watch"
+    "other": "Спостереження"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "Виберіть або створіть користувачів"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "Виберіть користувачів"
   },
   "35": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "36": {
-    "other": "Set a label and a short description"
+    "other": "Укажіть мітку та короткий опис"
   },
   "37": {
-    "other": "Confirm"
+    "other": "Підтвердити"
   },
   "38": {
-    "other": "Watch this folder content"
+    "other": "Стежити за вмістом цієї теки"
   },
   "39": {
-    "other": "Watch this file activity"
+    "other": "Стежити за активністю в цьому файлі"
   },
   "4": {
-    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
+    "other": "Введіть потрібний пароль і натисніть на зображення, щоб завантажити <b>%s</b> на свій жорсткий диск"
   },
   "40": {
-    "other": "Invitations"
+    "other": "Запрошення"
   },
   "41": {
-    "other": "Send invitations by email to the users you have shared this item with."
+    "other": "Надішліть запрошення електронною поштою користувачам, яким ви надали доступ до цього об’єкта."
   },
   "42": {
-    "other": "A user of %s is sharing a file with you"
+    "other": "Користувач %s ділиться з вами файлом"
   },
   "43": {
-    "other": "A user of %s is sharing a folder with you"
+    "other": "Користувач %s ділиться з вами текою"
   },
   "44": {
-    "other": "%s Share"
+    "other": "Спільний доступ: %s"
   },
   "45": {
-    "other": "Send Invitation"
+    "other": "Надіслати запрошення"
   },
   "46": {
     "other": "Open workspace %s1 directly in %s2"
