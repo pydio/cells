@@ -258,16 +258,16 @@
     "other": "На жаль, це посилання вже використовується. Будь ласка, оберіть інший ідентифікатор."
   },
   "173": {
-    "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
+    "other": "Якщо ви хочете отримати постійне та гарне посилання (наприклад, https://.../my-share-link), ви можете скористатися цим полем. Якщо залишити його порожнім, ідентифікатор посилання буде згенеровано автоматично."
   },
   "174": {
     "other": "Скинути"
   },
   "175": {
-    "other": "Please set a password and make sure it's long enough!"
+    "other": "Будь ласка, встановіть пароль і переконайтеся, що він достатньо довгий!"
   },
   "176": {
-    "other": "(Mandatory)"
+    "other": "(Обов'язково)"
   },
   "177": {
     "other": "Параметри перегляду"
@@ -303,22 +303,22 @@
     "other": "Повідомити мене, коли зміст змінено"
   },
   "187": {
-    "other": "Do not notify me"
+    "other": "Не сповіщати мене"
   },
   "188": {
-    "other": "Receive alerts whenever a user accesses or modifies the content of this share."
+    "other": "Отримуйте сповіщення щоразу, коли користувач переглядає або змінює вміст цього спільного ресурсу."
   },
   "189": {
-    "other": "Enable Public Link"
+    "other": "Увімкнути публічне посилання"
   },
   "19": {
-    "other": "Shared workspace options were successfully modified"
+    "other": "Параметри спільного робочого простору успішно змінено"
   },
   "190": {
-    "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
+    "other": "Наразі цей файл не має публічного доступу. Увімкнення публічного посилання створить унікальний доступ, який ви зможете надіслати будь-кому. Якщо ви хочете надати доступ наявним користувачам Pydio, скористайтеся вкладкою «Користувачі»."
   },
   "191": {
-    "other": "Copy link to clipboard"
+    "other": "Копіювати посилання в буфер обміну"
   },
   "192": {
     "other": "Link has been copied to clipboard"
