@@ -18,76 +18,76 @@
     "other": "Помилка під час створення файлу:"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Не вдалося знайти теку"
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Перейти до вказаного місця"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "Надіслати посиланням електронний лист для прямого доступу до цієї теки."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "Надіслати листа"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "Ваше ім'я та/або електронна адреса"
   },
   "108": {
-    "other": "The destination email"
+    "other": "Адреса призначення"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "Активне посилання"
   },
   "11": {
-    "other": "Javascript"
+    "other": "JavaScript"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "Додати коментар"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "Було надіслано такий електронний лист:"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "Не вдалося надіслати електронний лист:"
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "Нічого не вибрано!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "Під час копіювання сталася невідома помилка!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "Файл успішно збережено"
   },
   "116": {
-    "other": "files"
+    "other": "файли"
   },
   "117": {
-    "other": "The folder"
+    "other": "Тека"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "Завантажити кілька файлів"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "Натисніть на кожен файл, щоб завантажити його."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "Зображення GIF"
   },
   "120": {
-    "other": "You are not allowed to delete the whole arborescence!"
+    "other": "Ви не можете видалити все дерево каталогів!"
   },
   "121": {
-    "other": "Image File "
+    "other": "Файл зображення"
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Смітник"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "переміщено до "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "Перезаписати наявні файли?"
   },
   "125": {
     "other": "Файл або тека з такою назвою вже існує (регістр не враховується). Будь ласка, виберіть іншу назву!"
@@ -186,64 +186,64 @@
     "other": "Закладка"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Додати об'єкт до Моїх закладок"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Вилучити закладку"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Вилучити об'єкт із Моїх закладок"
   },
   "154": {
-    "other": "New Folder"
+    "other": "Нова тека"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "Створити нову теку"
   },
   "156": {
-    "other": "New empty file"
+    "other": "Новий порожній файл"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "Створити новий порожній файл"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "Перейменувати вибраний файл або теку"
   },
   "159": {
-    "other": "Copy selection to..."
+    "other": "Копіювати виділене до..."
   },
   "16": {
-    "other": "REAL file"
+    "other": "Справжній файл"
   },
   "160": {
-    "other": "Move selected files to ..."
+    "other": "Перемістити виділені файли..."
   },
   "161": {
-    "other": "Delete selected files."
+    "other": "Видалити вибрані файли."
   },
   "162": {
-    "other": "Edit text files online."
+    "other": "Редагувати текстові файли онлайн."
   },
   "163": {
-    "other": "Log in"
+    "other": "Увійти"
   },
   "164": {
-    "other": "Log out"
+    "other": "Вийти"
   },
   "165": {
-    "other": "Settings"
+    "other": "Налаштування"
   },
   "166": {
-    "other": "About"
+    "other": "Про програму"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Про Pydio"
   },
   "168": {
-    "other": "Connect to APPLICATION_TITLE"
+    "other": "Підключитися до APPLICATION_TITLE"
   },
   "169": {
-    "other": "Disconnect from APPLICATION_TITLE"
+    "other": "Від'єднатися від APPLICATION_TITLE"
   },
   "17": {
     "other": "Реальний файл"
@@ -291,43 +291,43 @@
     "other": "Пароль"
   },
   "183": {
-    "other": "Please select a destination folder different from the origin!"
+    "other": "Будь ласка, оберіть теку призначення, яка відрізняється від оригіналу!"
   },
   "184": {
-    "other": "Search in current folder and sub-folders"
+    "other": "Пошук у поточній теці і підтеках"
   },
   "185": {
-    "other": "Stop searching"
+    "other": "Зупинити пошук"
   },
   "186": {
-    "other": "Image Preview"
+    "other": "Попередній перегляд зображення"
   },
   "187": {
-    "other": "Online Edition - "
+    "other": "Онлайн редактор - "
   },
   "189": {
-    "other": "Edit My Preferences"
+    "other": "Змінити мої налаштування"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "ZIP файл"
   },
   "190": {
-    "other": "Language"
+    "other": "Мова"
   },
   "191": {
-    "other": "Default Display"
+    "other": "Відображення за замовчуванням"
   },
   "192": {
-    "other": "List"
+    "other": "Список"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "Мініатюри"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Зміна пароля"
   },
   "195": {
-    "other": "User Preferences"
+    "other": "Налаштування користувача"
   },
   "196": {
     "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
