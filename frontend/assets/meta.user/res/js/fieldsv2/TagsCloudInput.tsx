@@ -21,7 +21,7 @@
 import React, { useEffect, useState } from 'react';
 import { TagsInput } from '@mantine/core';
 import { StringItemsInputProps } from './CommonInputProps';
-import { parseTagsValue, formatTagsArrayToString } from '../utils/mapTags';
+import { parseTagsValue as parseCSLtoArray, formatTagsArrayToString } from '../utils/mapTags';
 
 /**
  * @typedef {Object} TagsCloudInputProps
@@ -37,10 +37,14 @@ import { parseTagsValue, formatTagsArrayToString } from '../utils/mapTags';
  * @property {function} onCommitChange
  */
 
+type TagsCloudInputProps = StringItemsInputProps & {
+    onlyValuesFromList?: boolean;
+}
+
 /**
  * @param {TagsCloudInputProps} props
  */
-export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
+export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     name,
     label,
     required,
@@ -50,14 +54,11 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     dataLoader,
     errorText,
     value,
+    onlyValuesFromList,
     onCommitChange,
 }) => {
-    const [localValue, setLocalValue] = useState([]);
+    const [localValue, setLocalValue] = useState(parseCSLtoArray(value));
     const [items, setItems] = useState<string[]>([]);
-
-    React.useEffect(() => {
-        setLocalValue(parseTagsValue(value));
-    }, [value]);
 
     const props = {
         label,
@@ -66,6 +67,10 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         error: errorText,
         required,
     };
+
+    useEffect(() => {
+        setLocalValue(parseCSLtoArray(value));
+    }, [value]);
 
     useEffect(() => {
         if (dataLoader) {
@@ -78,33 +83,30 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         onCommitChange(formatTagsArrayToString(values));
     };
 
-    return (
-        <TagsInput
-            {...props}
-            value={localValue}
-            data={items}
-            onChange={onChangeJoin}
-            comboboxProps={{ withinPortal: false }}
-            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                const { key } = e;
-                const value = (e.target as HTMLInputElement).value;
-                if (key === 'Enter') {
-                    onCommitChange(
-                        formatTagsArrayToString([...localValue, value]),
-                    );
-                }
-                if (key === ',') {
-                    onCommitChange(
-                        formatTagsArrayToString([...localValue, value]),
-                    );
-                }
-            }}
-            onBlur={(e) => {
-                const value = (e.target as HTMLInputElement).value;
-                    onCommitChange(
-                        formatTagsArrayToString([...localValue, value]),
-                    );
-            }}
-        />
-    );
-};
+    return <TagsInput
+        {...props}
+        value={localValue}
+        data={items}
+        onChange={onChangeJoin}
+        disabled={disabled}
+        comboboxProps={{ withinPortal: false }}
+        splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
+        onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            const { key, target } = e;
+            const { value } = target;
+
+            if(key === 'Enter' || key === ','){
+                if (onlyValuesFromList && !items.includes(value)) return;
+
+                onCommitChange(formatTagsArrayToString([...localValue, value]));
+            }
+        }}
+        onBlur={(e) => {
+            const { value } = e.target;
+
+            if (onlyValuesFromList && !items.includes(value)) return;
+
+            onCommitChange(formatTagsArrayToString([...localValue, value]));
+        }}
+    />
+}
