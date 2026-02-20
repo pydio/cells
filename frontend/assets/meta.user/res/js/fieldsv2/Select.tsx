@@ -44,15 +44,15 @@ export const Selector: React.FC<SelectInputProps> = ({
     errorText,
     disabled,
     stepper
- }) => {
-    const handleColors = items.find(i => !!i.color)
-
-    const renderOptions = useCallback(({ option, checked }: RenderOptionProps) => {
+}) => {
+    const handleColors = items.find(i => !!i.color);
+    const renderOptions = useCallback(({ option }: RenderOptionProps) => {
         const item = items.find(i => i.key === option.value)
         if (item && item.color) {
             return <span><span className={"mdi mdi-label"} style={{ color: item.color, marginRight: 8, marginLeft: -3, fontSize: 11 }} />{item.value}</span>
         }
-    }, [items, value])
+        return <span>{item?.value}</span>
+    }, [items])
 
     const crtItem = items.find(i => i.value === value)
 
