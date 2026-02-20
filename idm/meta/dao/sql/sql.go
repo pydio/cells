@@ -255,7 +255,7 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.Us
 
 	entityValuesMap := make(map[string][]string)
 	if len(metaUUIDs) > 0 {
-		evMap, err := s.evDAO.GetMetaEntityValuesForMetas(ctx, metaUUIDs)
+		evMap, err := s.evDAO.GetMetaEntityValuesMap(ctx, metaUUIDs)
 		if err == nil { // Ignoring the error since it's not guaranteed to have entity values for all metas
 			for metaUUID, entityValues := range evMap {
 				labels := make([]string, len(entityValues))

@@ -397,7 +397,7 @@ func TestValidation(t *testing.T) {
 	})
 }
 
-func TestGetMetaEntityValuesForMetas(t *testing.T) {
+func TestGetMetaEntityValuesMap(t *testing.T) {
 	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
 		mainDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
@@ -451,7 +451,7 @@ func TestGetMetaEntityValuesForMetas(t *testing.T) {
 
 			// Test with all three metas
 			metaUuids := []string{meta1.Uuid, meta2.Uuid, meta3.Uuid}
-			result, err := mockDAO.GetMetaEntityValuesForMetas(ctx, metaUuids)
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, metaUuids)
 			So(err, ShouldBeNil)
 			So(result, ShouldNotBeNil)
 
@@ -471,24 +471,23 @@ func TestGetMetaEntityValuesForMetas(t *testing.T) {
 		})
 
 		Convey("Get Meta Entity Values For Empty Input", t, func() {
-			result, err := mockDAO.GetMetaEntityValuesForMetas(ctx, []string{})
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, []string{})
+
 			So(err, ShouldBeNil)
-			So(result, ShouldNotBeNil)
-			So(result, ShouldHaveLength, 0)
+			So(result, ShouldBeNil)
 		})
 
 		Convey("Get Meta Entity Values For Nil Input", t, func() {
-			result, err := mockDAO.GetMetaEntityValuesForMetas(ctx, nil)
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, nil)
 			So(err, ShouldBeNil)
-			So(result, ShouldNotBeNil)
-			So(result, ShouldHaveLength, 0)
+			So(result, ShouldBeNil)
 		})
 
 		Convey("Get Meta Entity Values For Non-existent Metas", t, func() {
 			fakeUuid1 := "00000000-0000-0000-0000-000000000001"
 			fakeUuid2 := "00000000-0000-0000-0000-000000000002"
 
-			result, err := mockDAO.GetMetaEntityValuesForMetas(ctx, []string{fakeUuid1, fakeUuid2})
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, []string{fakeUuid1, fakeUuid2})
 			So(err, ShouldBeNil)
 			So(result, ShouldNotBeNil)
 
@@ -514,7 +513,7 @@ func TestGetMetaEntityValuesForMetas(t *testing.T) {
 			So(linked, ShouldBeTrue)
 
 			// Retrieve and verify all fields are populated correctly
-			result, err := mockDAO.GetMetaEntityValuesForMetas(ctx, []string{meta.Uuid})
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, []string{meta.Uuid})
 			So(err, ShouldBeNil)
 			So(result[meta.Uuid], ShouldHaveLength, 1)
 
