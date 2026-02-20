@@ -54,13 +54,13 @@
     "other": "Як нова робоча область"
   },
   "114": {
-    "other": "Поділитися цією папкою з внутрішніми користувачами"
+    "other": "Поділитися цією текою з внутрішніми користувачами"
   },
   "115": {
     "other": "Як Веб посилання"
   },
   "116": {
-    "other": "Опублікувати вміст папки як мінісайт"
+    "other": "Опублікувати вміст теки як мінісайт"
   },
   "117": {
     "other": "Як приватний мінісайт"
@@ -852,141 +852,141 @@
     "other": "Змініть статус стеження, щоб отримувати або не отримувати сповіщення під час перегляду робочого простору"
   },
   "84": {
-    "other": "password"
+    "other": "пароль"
   },
   "85": {
-    "other": "A protection password is set on this link"
+    "other": "Це посилання захищене паролем"
   },
   "86": {
-    "other": "expire"
+    "other": "термін дії"
   },
   "87": {
-    "other": "This link will automatically expire on..."
+    "other": "Термін дії цього посилання автоматично закінчиться..."
   },
   "88": {
-    "other": "downloads"
+    "other": "завантаження"
   },
   "89": {
-    "other": "Number of downloads / authorized downloads. Click to reset download counter."
+    "other": "Кількість завантажень / дозволено завантажень. Натисніть, щоб скинути лічильник завантажень."
   },
   "9": {
-    "other": "Use this button to stop sharing this folder"
+    "other": "Використовуйте цю кнопку, щоб припинити спільний доступ до цієї теки"
   },
   "90": {
-    "other": "Link URL"
+    "other": "URL-адреса посилання"
   },
   "91": {
-    "other": "Tags (Enter to save)"
+    "other": "Теги (Натисніть Enter, щоб зберегти)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Створити посилання"
   },
   "93": {
-    "other": "Existing links"
+    "other": "Наявні посилання"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR-код"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR-код"
   },
   "96": {
-    "other": "stop sharing"
+    "other": "припинити спільний доступ"
   },
   "97": {
-    "other": "Stop sharing this folder with other users"
+    "other": "Припинити спільний доступ до цієї теки для інших користувачів"
   },
   "98": {
-    "other": "My Shares"
+    "other": "Мої поширення"
   },
   "99": {
-    "other": "All shared elements"
+    "other": "Усі поширені елементи"
   },
   "cells.create.advanced": {
-    "other": "Add users/data"
+    "other": "Додати користувачів/дані"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "або"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "Поширити наявні теки"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Вилучити з цієї Комірки"
   },
   "cell.visibility.advanced": {
-    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+    "other": "Ця розширена функція дозволяє визначити, хто може редагувати властивості цієї Комірки (право додавати/вилучати користувачів та додавати/вилучати теки в корені комірки). Щоб просто керувати безпосереднім доступом до даних, будь ласка, використовуйте вкладку «Поширити для»."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Додати до наявної або нової Комірки"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Додати до наявної Комірки"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Створити нову Комірку"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "Один учасник"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d учасників"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "Ще один учасник"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "Ще %d учасників"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "Одна тека"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d тек"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Розширені] Видимість"
   },
   "link.visibility.advanced": {
-    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
+    "other": "Ця розширена функція дозволяє визначити, чи буде це посилання видимим для інших користувачів, коли вони бачать цей файл, і чи зможуть вони редагувати його властивості. За замовчуванням створені вами посилання бачите лише ви. Ви можете передати право власності на посилання, дозволивши іншому користувачеві редагувати його."
   },
   "dialog.close.confirm.unsaved": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "Є незбережені зміни. Ви впевнені, що хочете закрити?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Ви впевнені, що хочете вимкнути це посилання?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Швидкий фільтр..."
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "Вимкнути всі спільні доступи"
   },
   "link.active": {
-    "other": "active"
+    "other": "активно"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Вимкнути посилання"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Скопіюйте та надішліть це посилання для прямого доступу"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Обмеження доступу"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "діє до:"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "термін дії вичерпано"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "потрібен пароль"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "лише %d завантажень"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "Змінити тему (світла/темна)"
   }
 }
