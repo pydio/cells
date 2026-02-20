@@ -571,6 +571,7 @@ message EntityValue {
     string Uuid = 1;
     string Label = 2;
     string EntityUuid = 3;
+    string DisplayJSON = 4;
 }
 
 // Request for modifying UserMeta

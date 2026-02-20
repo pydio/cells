@@ -3844,6 +3844,7 @@ type EntityValue struct {
 	Uuid          string                 `protobuf:"bytes,1,opt,name=Uuid,proto3" json:"Uuid,omitempty"`
 	Label         string                 `protobuf:"bytes,2,opt,name=Label,proto3" json:"Label,omitempty"`
 	EntityUuid    string                 `protobuf:"bytes,3,opt,name=EntityUuid,proto3" json:"EntityUuid,omitempty"`
+	DisplayJSON   string                 `protobuf:"bytes,4,opt,name=DisplayJSON,proto3" json:"DisplayJSON,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3895,6 +3896,13 @@ func (x *EntityValue) GetLabel() string {
 func (x *EntityValue) GetEntityUuid() string {
 	if x != nil {
 		return x.EntityUuid
+	}
+	return ""
+}
+
+func (x *EntityValue) GetDisplayJSON() string {
+	if x != nil {
+		return x.DisplayJSON
 	}
 	return ""
 }
@@ -6104,13 +6112,14 @@ const file_cells_idm_proto_rawDesc = "" +
 	"MetaEntity\x12\x12\n" +
 	"\x04Uuid\x18\x01 \x01(\tR\x04Uuid\x12\x14\n" +
 	"\x05Label\x18\x02 \x01(\tR\x05Label\x12 \n" +
-	"\vDescription\x18\x03 \x01(\tR\vDescription\"W\n" +
+	"\vDescription\x18\x03 \x01(\tR\vDescription\"y\n" +
 	"\vEntityValue\x12\x12\n" +
 	"\x04Uuid\x18\x01 \x01(\tR\x04Uuid\x12\x14\n" +
 	"\x05Label\x18\x02 \x01(\tR\x05Label\x12\x1e\n" +
 	"\n" +
 	"EntityUuid\x18\x03 \x01(\tR\n" +
-	"EntityUuid\"\xac\x01\n" +
+	"EntityUuid\x12 \n" +
+	"\vDisplayJSON\x18\x04 \x01(\tR\vDisplayJSON\"\xac\x01\n" +
 	"\x15UpdateUserMetaRequest\x12C\n" +
 	"\tOperation\x18\x01 \x01(\x0e2%.idm.UpdateUserMetaRequest.UserMetaOpR\tOperation\x12+\n" +
 	"\tMetaDatas\x18\x03 \x03(\v2\r.idm.UserMetaR\tMetaDatas\"!\n" +
