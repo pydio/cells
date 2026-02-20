@@ -243,6 +243,21 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 							}
 						}
 						continue
+					} else if len(metaValue) > 0 && len(evals.EntityValue) > 0 {
+						// unlink the diff
+						for _, val := range evals.EntityValue {
+							if !slices.Contains(strings.Split(metaValue, ","), val.Label) {
+								//unlink value
+								meta, _ := u.ServiceClient(ctx).GetMetadata(ctx, &idm.GetMetadataRequest{NodeUuid: m.NodeUuid, Namespace: m.Namespace})
+								_, err = u.ServiceClient(ctx).UnlinkMetaFromEntityValue(ctx, &idm.MetaToEntityValueRequest{
+									MetaUuid:        meta.Uuid,
+									EntityValueUuid: val.Uuid,
+								})
+								if err != nil {
+									return nil, err
+								}
+							}
+						}
 					}
 					if err != nil || len(evals.EntityValue) == 0 && len(metaValue) > 0 {
 						// if no entity values exist for this entity but we have a meta value throw an error

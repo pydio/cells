@@ -34,7 +34,7 @@ func TestJsonSchemaPackage(t *testing.T) {
 	})
 
 	Convey("GetJsonSchema returns bytes + optional proto Struct and can be used interchangeably", t, func() {
-		jsonB, err := GetJsonSchema("string")
+		jsonB, err := GetJsonSchema("string", "")
 		So(err, ShouldBeNil)
 		So(jsonB, ShouldNotBeNil)
 
@@ -57,14 +57,14 @@ func TestJsonSchemaPackage(t *testing.T) {
 	})
 
 	Convey("GetJsonSchema handles other labels and returns nil for unknowns", t, func() {
-		b, err := GetJsonSchema("boolean")
+		b, err := GetJsonSchema("boolean", "")
 		So(err, ShouldBeNil)
 		So(b, ShouldNotBeNil)
 		jsStruct, err := JsonToProtoStruct((*datatypes.JSON)(&b))
 		So(err, ShouldBeNil)
 		So(jsStruct.GetFields()["properties"], ShouldNotBeNil)
 
-		bu, err := GetJsonSchema("i-do-not-exist")
+		bu, err := GetJsonSchema("i-do-not-exist", "")
 		So(err, ShouldBeNil)
 		So(bu, ShouldBeNil)
 
@@ -257,7 +257,7 @@ func TestJsonSchemaCoverage(t *testing.T) {
 	Convey("JSONSchemaFactory.BuildJsonSchema returns bytes and contains expected fields", t, func() {
 		f := NewJSONSchemaFactory("string")
 
-		bt, st := f.BuildJsonSchema("string", "")
+		bt, st := f.BuildJsonSchema("string", "string-label", "")
 		So(bt, ShouldNotBeNil)
 
 		var m map[string]interface{}
@@ -274,14 +274,14 @@ func TestJsonSchemaCoverage(t *testing.T) {
 		}
 
 		// other labels
-		bt2, _ := f.BuildJsonSchema("textarea", "")
+		bt2, _ := f.BuildJsonSchema("textarea", "textarea-label", "")
 		So(bt2, ShouldNotBeNil)
 		var mt map[string]interface{}
 		So(json.Unmarshal(bt2, &mt), ShouldBeNil)
 		So(mt["title"], ShouldEqual, "usermeta-long-text")
 		So(mt["properties"], ShouldNotBeNil)
 
-		bb, sb := f.BuildJsonSchema("boolean", "")
+		bb, sb := f.BuildJsonSchema("boolean", "boolean-label", "")
 		So(bb, ShouldNotBeNil)
 		if sb == nil {
 			var tmp structpb.Struct
@@ -289,7 +289,7 @@ func TestJsonSchemaCoverage(t *testing.T) {
 			So(tmp.GetFields()["properties"], ShouldNotBeNil)
 		}
 
-		urlSchema, _ := f.BuildJsonSchema("url", "")
+		urlSchema, _ := f.BuildJsonSchema("url", "", "")
 		So(bt2, ShouldNotBeNil)
 		var mapURL map[string]interface{}
 		So(json.Unmarshal(urlSchema, &mapURL), ShouldBeNil)
@@ -316,7 +316,7 @@ func TestJsonSchemaCoverage(t *testing.T) {
 		So(wn["type"], ShouldNotBeNil)
 		wb := withBooleanSchema()
 		So(wb["type"], ShouldNotBeNil)
-		wd := withDateTimeSchema()
+		wd := withDateTimeSchema("datetime")
 		So(wd["format"], ShouldEqual, "date-time")
 	})
 }

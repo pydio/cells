@@ -290,7 +290,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 	case "choice":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
-			t = fmt.Sprintf(name)
+			t = name
 		}
 		f.root["title"] = t
 		props[t] = withArraySchema()
@@ -318,7 +318,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 	case "auto_complete":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
-			t = fmt.Sprintf(name)
+			t = name
 		}
 		f.root["title"] = t
 		props[t] = withArraySchema()
@@ -327,10 +327,10 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 	case "tag_cloud":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
-			t = fmt.Sprintf(name)
+			t = name
 		}
 		f.root["title"] = t
-		props[t] = withStringSchema()
+		props[t] = withStringArraySchema()
 
 	default:
 		return nil, nil
@@ -467,6 +467,18 @@ func withBooleanType() map[string]interface{} {
 	}
 }
 
+func withStringArraySchema() map[string]interface{} {
+	s := &Schema{
+		OneOf: []*Schema{
+			{Type: "string"},
+			{
+				Type:  "array",
+				Items: &Schema{Type: "string"},
+			},
+		},
+	}
+	return marshalSchema(s)
+}
 func LegacyTypeToLabel(d []byte) string {
 
 	var tv string

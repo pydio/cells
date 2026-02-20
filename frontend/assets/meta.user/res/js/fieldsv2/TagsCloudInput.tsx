@@ -18,9 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useEffect, useState } from 'react'
-import { TagsInput } from '@mantine/core'
-import { StringItemsInputProps } from "./CommonInputProps";
+import React, { useEffect, useState } from 'react';
+import { TagsInput } from '@mantine/core';
+import { StringItemsInputProps } from './CommonInputProps';
+import { parseTagsValue as parseCSLtoArray, formatTagsArrayToString } from '../utils/mapTags';
 
 /**
  * @typedef {Object} TagsCloudInputProps
@@ -36,14 +37,6 @@ import { StringItemsInputProps } from "./CommonInputProps";
  * @property {function} onCommitChange
  */
 
-const formatValueStringToArray = (value: string) => {
-    return (value || '').split(',').filter((tag) => tag.trim());
-}
-
-const formatValueArrayToString = (value: string[]) => {
-    return (value || []).filter(v => v).join(',')
-}
-
 type TagsCloudInputProps = StringItemsInputProps & {
     onlyValuesFromList?: boolean;
 }
@@ -57,18 +50,15 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     required,
     description,
     placeholder,
+    disabled,
     dataLoader,
     errorText,
     value,
     onlyValuesFromList,
     onCommitChange,
 }) => {
-    const [localValue, setLocalValue] = useState([]);
+    const [localValue, setLocalValue] = useState(parseCSLtoArray(value));
     const [items, setItems] = useState<string[]>([]);
-
-    React.useEffect(() => {
-        setLocalValue(formatValueStringToArray(value));
-    }, [value]);
 
     const props = {
         label,
@@ -76,24 +66,29 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
         placeholder,
         error: errorText,
         required,
-    }
+    };
+
+    useEffect(() => {
+        setLocalValue(parseCSLtoArray(value));
+    }, [value]);
 
     useEffect(() => {
         if (dataLoader) {
-            dataLoader().then(ss => setItems(ss));
+            dataLoader().then((ss) => setItems(ss));
         }
-    }, [name])
+    }, [name]);
 
     const onChangeJoin = (values: string[]) => {
-        setLocalValue(values.filter(v => v))
-        onCommitChange(formatValueArrayToString(values));
-    }
+        setLocalValue(values.filter((v) => v));
+        onCommitChange(formatTagsArrayToString(values));
+    };
 
     return <TagsInput
         {...props}
         value={localValue}
         data={items}
         onChange={onChangeJoin}
+        disabled={disabled}
         comboboxProps={{ withinPortal: false }}
         splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
         onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -103,7 +98,7 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
             if(key === 'Enter' || key === ','){
                 if (onlyValuesFromList && !items.includes(value)) return;
 
-                onCommitChange(formatValueArrayToString([...localValue, value]));
+                onCommitChange(formatTagsArrayToString([...localValue, value]));
             }
         }}
         onBlur={(e) => {
@@ -111,7 +106,7 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
 
             if (onlyValuesFromList && !items.includes(value)) return;
 
-            onCommitChange(formatValueArrayToString([...localValue, value]));
+            onCommitChange(formatTagsArrayToString([...localValue, value]));
         }}
     />
 }

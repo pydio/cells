@@ -113,6 +113,7 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 	return u
 }
 
+// CreateEntity creates a new entity
 func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
 	res := (&Entities{}).FromEntity(entity)
 	// //check if entity with the same label exists
@@ -131,6 +132,7 @@ func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*
 	return res.AsEntity(&idm.MetaEntity{}), nil
 }
 
+// SetEntities creates multiple entities
 func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
 	createdEntities := make([]*idm.MetaEntity, 0, len(entities))
 
@@ -145,6 +147,7 @@ func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity)
 	return createdEntities, nil
 }
 
+// GetEntity retrieves an entity by its UUID
 func (s *evSqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
 	var model Entities
 	tx := s.Session(ctx).Where(&Entities{UUID: entityUuid}).First(&model)
@@ -174,6 +177,7 @@ func (u *EntityValues) FromEntityValue(res *idm.EntityValue) *EntityValues {
 	return u
 }
 
+// CreateEntityValue creates a new entity value and links it to its entity
 func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error) {
 	model := (&EntityValues{}).FromEntityValue(value)
 
@@ -185,6 +189,7 @@ func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValu
 	return model.AsEntityValue(&idm.EntityValue{}), nil
 }
 
+// CreateEntityValues creates multiple entity values
 func (s *evSqlImpl) CreateEntityValues(ctx context.Context, values []*idm.EntityValue) ([]*idm.EntityValue, error) {
 	if len(values) == 0 {
 		return []*idm.EntityValue{}, nil
@@ -203,6 +208,7 @@ func (s *evSqlImpl) CreateEntityValues(ctx context.Context, values []*idm.Entity
 	return createdValues, nil
 }
 
+// GetEntityValues retrieves all entity values linked to a given entity UUID
 func (s *evSqlImpl) GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error) {
 	var models []*EntityValues
 	tx := s.Session(ctx).Where(&EntityValues{EntityUUID: entityUuid}).Find(&models)
@@ -230,6 +236,7 @@ func (s *evSqlImpl) validateUUIDs(uuids ...string) error {
 	return nil
 }
 
+// LinkMetaValue creates a link between a meta and an entity value
 func (s *evSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error) {
 	if err := s.validateUUIDs(metaUuid, valueUuid); err != nil {
 		return false, err
@@ -248,6 +255,7 @@ func (s *evSqlImpl) LinkMetaValue(ctx context.Context, metaUuid string, valueUui
 	return tx.RowsAffected == 1, nil
 }
 
+// UnlinkMetaValue removes the link between a meta and an entity value
 func (s *evSqlImpl) UnlinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error) {
 	if err := s.validateUUIDs(metaUuid, valueUuid); err != nil {
 		return false, err
@@ -264,33 +272,21 @@ func (s *evSqlImpl) UnlinkMetaValue(ctx context.Context, metaUuid string, valueU
 	return tx.RowsAffected == 1, nil
 }
 
+// GetMetaEntityValues retrieves the meta entity values linked to a given meta UUID
 func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error) {
-	var models []*EntityValues
-
-	db := s.Session(ctx)
-	evTable := sql.TableNameFromModel(db, &EntityValues{})
-	relTable := sql.TableNameFromModel(db, &MetaValuesRel{})
-
-	evTable = sql.QuoteTo(db, evTable)
-	relTable = sql.QuoteTo(db, relTable)
-
-	tx := db.Model(&EntityValues{}).
-		Joins(fmt.Sprintf("INNER JOIN %s ON %s.uuid = %s.e_value_uuid", relTable, evTable, relTable)).
-		Where(fmt.Sprintf("%s.meta_uuid = ?", relTable), metaUuid).
-		Find(&models)
-
-	if tx.Error != nil {
-		return nil, evTagError(tx.Error)
+	result, err := s.GetMetaEntityValuesMap(ctx, []string{metaUuid})
+	if err != nil {
+		return nil, err
 	}
 
-	values := make([]*idm.EntityValue, len(models))
-	for i, model := range models {
-		values[i] = model.AsEntityValue(&idm.EntityValue{})
+	if values, ok := result[metaUuid]; ok {
+		return values, nil
 	}
 
-	return values, nil
+	return []*idm.EntityValue{}, nil
 }
 
+// DeleteEntity deletes an entity and all its values, as well as the links between those values and any meta
 func (s *evSqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
 	if err := s.validateUUIDs(entityID); err != nil {
 		return nil, err
@@ -318,4 +314,49 @@ func (s *evSqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.Del
 	return &idm.DeleteEntityValuesResponse{
 		RowsDeleted: tx.RowsAffected,
 	}, nil
+}
+
+// GetMetaEntityValuesMap retrieves a map of meta UUIDs to their linked entity values for a given list of meta UUIDs
+func (s *evSqlImpl) GetMetaEntityValuesMap(ctx context.Context, metaUuids []string) (map[string][]*idm.EntityValue, error) {
+	if len(metaUuids) == 0 {
+		return nil, nil
+	}
+
+	var relations []struct {
+		MetaUUID     string
+		EVUuid       string
+		EVLabel      string
+		EVEntityUUID string
+	}
+
+	db := s.Session(ctx)
+	relTable := sql.TableNameFromModel(db, &MetaValuesRel{})
+	evTable := sql.TableNameFromModel(db, &EntityValues{})
+
+	relTable = sql.QuoteTo(db, relTable)
+	evTable = sql.QuoteTo(db, evTable)
+
+	tx := db.Model(&EntityValues{}).
+		Select(
+			fmt.Sprintf("%s.meta_uuid, %s.uuid as ev_uuid, %s.label as ev_label, %s.entity_uuid as ev_entity_uuid",
+				relTable, evTable, evTable, evTable)).
+		Joins(fmt.Sprintf("INNER JOIN %s ON %s.uuid = %s.e_value_uuid", relTable, evTable, relTable)).
+		Where(fmt.Sprintf("%s.meta_uuid IN ?", relTable), metaUuids).
+		Scan(&relations)
+
+	if tx.Error != nil {
+		return nil, evTagError(tx.Error)
+	}
+
+	result := make(map[string][]*idm.EntityValue)
+	for _, rel := range relations {
+		ev := &idm.EntityValue{
+			Uuid:       rel.EVUuid,
+			Label:      rel.EVLabel,
+			EntityUuid: rel.EVEntityUUID,
+		}
+		result[rel.MetaUUID] = append(result[rel.MetaUUID], ev)
+	}
+
+	return result, nil
 }

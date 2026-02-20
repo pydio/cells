@@ -396,3 +396,131 @@ func TestValidation(t *testing.T) {
 		})
 	})
 }
+
+func TestGetMetaEntityValuesMap(t *testing.T) {
+	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
+		mainDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		mockDAO := mainDAO.GetEntityValueDao()
+
+		Convey("Get Meta Entity Values For Multiple Metas", t, func() {
+			// Create test entities
+			entity1, err := createTestEntity(ctx, mockDAO, "Test Entity 1")
+			So(err, ShouldBeNil)
+
+			entity2, err := createTestEntity(ctx, mockDAO, "Test Entity 2")
+			So(err, ShouldBeNil)
+
+			// Create entity values
+			value1, err := createTestEntityValue(ctx, mockDAO, "Value 1", entity1.Uuid)
+			So(err, ShouldBeNil)
+
+			value2, err := createTestEntityValue(ctx, mockDAO, "Value 2", entity1.Uuid)
+			So(err, ShouldBeNil)
+
+			value3, err := createTestEntityValue(ctx, mockDAO, "Value 3", entity2.Uuid)
+			So(err, ShouldBeNil)
+
+			// Create metas
+			meta1, err := createTestMeta(ctx, "node-1", "namespace-1")
+			So(err, ShouldBeNil)
+
+			meta2, err := createTestMeta(ctx, "node-2", "namespace-2")
+			So(err, ShouldBeNil)
+
+			meta3, err := createTestMeta(ctx, "node-3", "namespace-3")
+			So(err, ShouldBeNil)
+
+			// Link meta1 to value1 and value2
+			linked, err := mockDAO.LinkMetaValue(ctx, meta1.Uuid, value1.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			linked, err = mockDAO.LinkMetaValue(ctx, meta1.Uuid, value2.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			// Link meta2 to value3
+			linked, err = mockDAO.LinkMetaValue(ctx, meta2.Uuid, value3.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			// meta3 has no links
+
+			// Test with all three metas
+			metaUuids := []string{meta1.Uuid, meta2.Uuid, meta3.Uuid}
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, metaUuids)
+			So(err, ShouldBeNil)
+			So(result, ShouldNotBeNil)
+
+			// Verify meta1 has 2 values
+			So(result[meta1.Uuid], ShouldHaveLength, 2)
+			labels := []string{result[meta1.Uuid][0].Label, result[meta1.Uuid][1].Label}
+			So(labels, ShouldContain, "Value 1")
+			So(labels, ShouldContain, "Value 2")
+
+			// Verify meta2 has 1 value
+			So(result[meta2.Uuid], ShouldHaveLength, 1)
+			So(result[meta2.Uuid][0].Label, ShouldEqual, "Value 3")
+			So(result[meta2.Uuid][0].EntityUuid, ShouldEqual, entity2.Uuid)
+
+			// Verify meta3 has no values
+			So(result[meta3.Uuid], ShouldBeNil)
+		})
+
+		Convey("Get Meta Entity Values For Empty Input", t, func() {
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, []string{})
+
+			So(err, ShouldBeNil)
+			So(result, ShouldBeNil)
+		})
+
+		Convey("Get Meta Entity Values For Nil Input", t, func() {
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, nil)
+			So(err, ShouldBeNil)
+			So(result, ShouldBeNil)
+		})
+
+		Convey("Get Meta Entity Values For Non-existent Metas", t, func() {
+			fakeUuid1 := "00000000-0000-0000-0000-000000000001"
+			fakeUuid2 := "00000000-0000-0000-0000-000000000002"
+
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, []string{fakeUuid1, fakeUuid2})
+			So(err, ShouldBeNil)
+			So(result, ShouldNotBeNil)
+
+			// Non-existent metas should have no values
+			So(result[fakeUuid1], ShouldBeNil)
+			So(result[fakeUuid2], ShouldBeNil)
+		})
+
+		Convey("Get Meta Entity Values Preserves Entity UUID", t, func() {
+			// Create entity and value
+			entity, err := createTestEntity(ctx, mockDAO, "UUID Test Entity")
+			So(err, ShouldBeNil)
+
+			value, err := createTestEntityValue(ctx, mockDAO, "UUID Test Value", entity.Uuid)
+			So(err, ShouldBeNil)
+
+			// Create meta and link
+			meta, err := createTestMeta(ctx, "uuid-test-node", "uuid-test-namespace")
+			So(err, ShouldBeNil)
+
+			linked, err := mockDAO.LinkMetaValue(ctx, meta.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			// Retrieve and verify all fields are populated correctly
+			result, err := mockDAO.GetMetaEntityValuesMap(ctx, []string{meta.Uuid})
+			So(err, ShouldBeNil)
+			So(result[meta.Uuid], ShouldHaveLength, 1)
+
+			retrievedValue := result[meta.Uuid][0]
+			So(retrievedValue.Uuid, ShouldEqual, value.Uuid)
+			So(retrievedValue.Label, ShouldEqual, value.Label)
+			So(retrievedValue.EntityUuid, ShouldEqual, entity.Uuid)
+		})
+	})
+}
