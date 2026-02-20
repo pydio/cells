@@ -454,67 +454,72 @@ class MetaNamespace extends React.Component {
                     readOnly={readonly}
                     variant={"v2"}
                 />
-                {(type === 'tag_cloud' || type === 'auto_complete') && (
-                    <MantineProvider>
-                        <TagsCloudInput
-                            label={m('tag_cloud.entity')}
-                            disabled={false}
-                            value={''}
-                            onCommitChange={(v) => this.setEntityValues(v)} 
-                            hintText={m('tag_cloud.entity.hint')}
-                        />
-                    </MantineProvider>
-                )}
-                {USERMETA_PROMPT_FF && (
-                    namespace?.Namespace?.toString().length > 0 &&
-                    namespace.JsonDefinition?.toString().length > 0 && (
-                    <MetaNamespaceFieldOptions
-                        ns={namespace}
-                        ref={this.fieldOptionsRef}
-                        fieldType={JSON.parse(namespace.JsonDefinition).type}
-                        tagValues={type === 'tag_cloud' || type === 'auto_complete' ? this.getEntityItems() : this.getAdditionalData({ items: [] }).items}
-                    />
-                ))}
-                <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
-                {USERMETA_PROMPT_FF && <Toggle
-                    label={m('toggle.prompt')}
-                    disabled={readonly}
-                    labelPosition={"left"}
-                    toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
-                    onToggle={(e, v) => {
-                        namespace.PromptOnUpload = v;
-                        this.setState({ namespace })
-                        if (v === false) {
-                            this.toggleRequired(namespace)
-                        }
-                    }}
-                    {...ModernStyles.toggleFieldV2}
-                />}
                 
-                {USERMETA_PROMPT_FF &&
+                {(create && !namespace.JsonSchema || namespace.JsonSchema) && (
                 <>
-                    <Toggle
-                        label={m('toggle.required')}
-                        disabled={!namespace?.PromptOnUpload || false}
+                    {(type === 'tag_cloud' || type === 'auto_complete') && (
+                        <MantineProvider>
+                            <TagsCloudInput
+                                label={m('tag_cloud.entity')}
+                                disabled={false}
+                                value={''}
+                                onCommitChange={(v) => this.setEntityValues(v)}
+                                hintText={m('tag_cloud.entity.hint')}
+                            />
+                        </MantineProvider>
+                    )}
+                    {USERMETA_PROMPT_FF && (
+                        namespace?.Namespace?.toString().length > 0 &&
+                        namespace.JsonDefinition?.toString().length > 0 && (
+                        <MetaNamespaceFieldOptions
+                            ns={namespace}
+                            ref={this.fieldOptionsRef}
+                            fieldType={JSON.parse(namespace.JsonDefinition).type}
+                            tagValues={type === 'tag_cloud' || type === 'auto_complete' ? this.getEntityItems() : this.getAdditionalData({ items: [] }).items}
+                        />
+                    ))}
+                    <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
+                    {USERMETA_PROMPT_FF && <Toggle
+                        label={m('toggle.prompt')}
+                        disabled={readonly}
                         labelPosition={"left"}
-                        toggled={namespace?.JsonSchema?.required?.length > 0}
-                        onToggle={() => this.toggleRequired(namespace)}
+                        toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
+                        onToggle={(e, v) => {
+                            namespace.PromptOnUpload = v;
+                            this.setState({ namespace })
+                            if (v === false) {
+                                this.toggleRequired(namespace)
+                            }
+                        }}
                         {...ModernStyles.toggleFieldV2}
-                    />
-                    {!TYPES_WITHOUT_DEFAULTS.includes(namespace.FieldType) &&
+                    />}
+
+                    {USERMETA_PROMPT_FF &&
+                    <>
                         <Toggle
-                            label={m('toggle.defaults')}
+                            label={m('toggle.required')}
+                            disabled={!namespace?.PromptOnUpload || false}
                             labelPosition={"left"}
-                            toggled={namespace?.EnforceDefault}
-                            onToggle={(e, v) => {
-                                namespace.EnforceDefault = v;
-                                this.setState({ namespace })
-                            }}
+                            toggled={namespace?.JsonSchema?.required?.length > 0}
+                            onToggle={() => this.toggleRequired(namespace)}
                             {...ModernStyles.toggleFieldV2}
                         />
+                        {!TYPES_WITHOUT_DEFAULTS.includes(namespace.FieldType) &&
+                            <Toggle
+                                label={m('toggle.defaults')}
+                                labelPosition={"left"}
+                                toggled={namespace?.EnforceDefault}
+                                onToggle={(e, v) => {
+                                    namespace.EnforceDefault = v;
+                                    this.setState({ namespace })
+                                }}
+                                {...ModernStyles.toggleFieldV2}
+                            />
+                        }
+                    </>
                     }
                 </>
-                }
+                )}
 
                 <Toggle
                     label={m('toggle.list-visibility')}
