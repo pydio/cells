@@ -30,8 +30,8 @@ export const NumbersInput: React.FC<InputProps> = ({
     required,
     value,
     onChange,
+    onCommitChange,
     errorText,
-
     prefix,
     suffix,
 }) => {
@@ -45,7 +45,7 @@ export const NumbersInput: React.FC<InputProps> = ({
 
     const simpleEnter = (event: React.KeyboardEvent) => {
         if (event.key === 'Enter') {
-            onChange(value, true);
+            onCommitChange(value);
         }
     }
 

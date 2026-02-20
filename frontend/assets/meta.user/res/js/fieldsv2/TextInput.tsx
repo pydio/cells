@@ -42,7 +42,6 @@ export const TextInput: React.FC<InputProps> = ({
         disabled,
         required,
         error: errorText,
-        onBlur: () => onCommitChange(value)
     }
 
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
