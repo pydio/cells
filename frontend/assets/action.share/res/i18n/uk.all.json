@@ -726,130 +726,130 @@
     "other": "пароль"
   },
   "50": {
-    "other": "Shared"
+    "other": "Спільні"
   },
   "51": {
-    "other": "Downloaded"
+    "other": "Завантажені"
   },
   "52": {
-    "other": "Configuration"
+    "other": "Конфігурація"
   },
   "53": {
-    "other": "none"
+    "other": "немає"
   },
   "54": {
-    "other": "Shared with"
+    "other": "Спільний доступ із"
   },
   "55": {
-    "other": "Shared..."
+    "other": "Поділитися..."
   },
   "56": {
-    "other": "Configure sharing..."
+    "other": "Налаштувати спільний доступ..."
   },
   "57": {
-    "other": "times"
+    "other": "разів"
   },
   "58": {
-    "other": "Please check at least one permission!"
+    "other": "Виберіть принаймні один дозвіл!"
   },
   "59": {
-    "other": "Download Page"
+    "other": "Сторінка завантаження"
   },
   "6": {
-    "other": "Stop Sharing"
+    "other": "Припинити спільний доступ"
   },
   "60": {
-    "other": "Direct Download Link"
+    "other": "Пряме посилання на завантаження"
   },
   "61": {
-    "other": "HTML Embed Code"
+    "other": "HTML-код для вставки"
   },
   "62": {
-    "other": "Minisite Adress"
+    "other": "Адреса мінісайту"
   },
   "63": {
-    "other": "New workspace"
+    "other": "Новий робочий простір"
   },
   "64": {
-    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
+    "other": "Для внутрішніх та зовнішніх користувачів ця тека з’явиться як новий робочий простір у списку робочих просторів цільового користувача."
   },
   "65": {
-    "other": "Public Minisite (no authentication required)"
+    "other": "Публічний мінісайт (авторизація не потрібна)"
   },
   "66": {
-    "other": "For external users, the folder will appear at a new public adress as a simple file list."
+    "other": "Для зовнішніх користувачів тека відображатиметься за новою публічною адресою як простий список файлів."
   },
   "67": {
-    "other": "Private Minisite (users authentication required)"
+    "other": "Приватний мінісайт (потрібна авторизація користувачів)"
   },
   "68": {
-    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
+    "other": "Для внутрішніх або зовнішніх користувачів тека відображатиметься за новою адресою як простий список файлів, але з обов’язковою авторизацією користувача"
   },
   "69": {
-    "other": "Configure Minisite"
+    "other": "Налаштувати мінісайт"
   },
   "69r": {
-    "other": "Link Parameters"
+    "other": "Параметри посилання"
   },
   "7": {
-    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
+    "other": "Припинення спільного доступу не видалить файл. Якщо ви хочете змінити параметри, надайте доступ до файлу знову."
   },
   "70": {
-    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
+    "other": "Використовуйте прапорці, щоб надати дозволи на цю теку для всіх користувачів. Якщо ви виберете лише «Завантаження», ця тека стане порожньою скринькою, куди люди зможуть надсилати файли."
   },
   "70r": {
-    "other": "Permissions granted to the users accessing this link"
+    "other": "Дозволи, надані користувачам, які переходять за цим посиланням"
   },
   "71": {
-    "other": "Permissions"
+    "other": "Дозволи"
   },
   "72": {
-    "other": "Preview"
+    "other": "Попередній перегляд"
   },
   "73": {
-    "other": "Download"
+    "other": "Завантажити"
   },
   "74": {
-    "other": "Upload files"
+    "other": "Завантажити файли"
   },
   "74b": {
-    "other": "Edit"
+    "other": "Редагувати"
   },
   "75": {
-    "other": "Please use a positive number for both Expiration and Download limit fields."
+    "other": "Будь ласка, вкажіть додатне число для полів «Термін дії» та «Ліміт завантажень»."
   },
   "76": {
-    "other": "Please enable Cookies to access this application"
+    "other": "Будь ласка, увімкніть файли cookie, щоб отримати доступ до цієї програми"
   },
   "77": {
-    "other": "Please enable JavaScript to access this application"
+    "other": "Будь ласка, увімкніть JavaScript, щоб отримати доступ до цієї програми"
   },
   "78": {
-    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
+    "other": "Увага: для імен користувачів слід використовувати лише стандартні буквено-цифрові символи. Ідентифікатор «%CURRENT%» буде замінено на «%NEW%»"
   },
   "79": {
-    "other": "invite"
+    "other": "запросити"
   },
   "8": {
-    "other": "File is shared"
+    "other": "Доступ до файлу надано"
   },
   "80": {
-    "other": "Send link by email to a selection of users or addresses"
+    "other": "Надіслати посилання електронною поштою вибраним користувачам або на вказані адреси"
   },
   "80b": {
-    "other": "Invite by email the selected users to visit this workspace"
+    "other": "Запросити вибраних користувачів до цього робочого простору електронною поштою"
   },
   "81": {
-    "other": "stop watching"
+    "other": "припинити стеження"
   },
   "82": {
-    "other": "watch"
+    "other": "стежити"
   },
   "83": {
-    "other": "Toggle watch status to receive or not notifications when file is downloaded"
+    "other": "Змініть статус стеження, щоб отримувати або не отримувати сповіщення під час завантаження файлу"
   },
   "83b": {
-    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
+    "other": "Змініть статус стеження, щоб отримувати або не отримувати сповіщення під час перегляду робочого простору"
   },
   "84": {
     "other": "password"
