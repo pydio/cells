@@ -705,25 +705,25 @@
     "other": "Надіслати запрошення"
   },
   "46": {
-    "other": "Open workspace %s1 directly in %s2"
+    "other": "Відкрити робочий простір %s1 безпосередньо в %s2"
   },
   "46_file": {
-    "other": "Open file %s1"
+    "other": "Відкрити файл %s1"
   },
   "46_mini": {
-    "other": "Open mini %s1"
+    "other": "Відкрити міні %s1"
   },
   "47": {
-    "other": "Successfully updated watch status"
+    "other": "Статус стеження успішно оновлено"
   },
   "48": {
-    "other": "You are not allowed to access this data"
+    "other": "У вас немає прав для доступу до цих даних"
   },
   "49": {
-    "other": "create user"
+    "other": "cтворити користувача"
   },
   "5": {
-    "other": "password"
+    "other": "пароль"
   },
   "50": {
     "other": "Shared"
