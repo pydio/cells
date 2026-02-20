@@ -44,9 +44,10 @@ export const TextInput: React.FC<InputProps> = ({
         error: errorText,
     }
 
-    const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
+    const onChangeEvent =
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
     const onChangeString = (value: string) => onChange(value)
-    const onEnterCommit = useCallback((event: React.KeyboardEvent) => {
+    const onCtrlEnterCommit = useCallback((event: React.KeyboardEvent) => {
         if(event.key === 'Enter' && event.ctrlKey){
             onCommitChange(value);
         }
@@ -55,10 +56,22 @@ export const TextInput: React.FC<InputProps> = ({
 
     switch (subType) {
         case 'textarea':
-            return <Textarea {...props} onChange={onChangeEvent} autosize minRows={3} maxRows={5}/>
+            return <Textarea {...props}
+                onChange={onChangeEvent}
+                onKeyPress={onCtrlEnterCommit}
+                autosize
+                minRows={3}
+                maxRows={5}
+            />
         case 'json':
-            return <JsonInput {...props} onChange={onChangeString} autosize minRows={3} maxRows={10}/>
+            return <JsonInput {...props}
+                onChange={onChangeString}
+                onKeyPress={onCtrlEnterCommit}
+                autosize
+                minRows={3}
+                maxRows={10}
+            />
         default:
-            return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={onEnterCommit}  />
+            return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={onCtrlEnterCommit}  />
     }
 }
