@@ -18,7 +18,8 @@ export default defineConfig({
 		alias: {
 			'@mocks': path.resolve(__dirname, '__mocks__'),
 			'pydio/http/api': path.resolve(__dirname, '__mocks__/pydio-http-api.js'),
-			pydio: path.resolve(__dirname, '__mocks__/pydio.js'),
+			'pydio/util/lang': path.resolve(__dirname, '__mocks__/pydio/util/lang.js'),
+			'pydio': path.resolve(__dirname, '__mocks__/pydio.js'),
 			'material-ui/styles': path.resolve(__dirname, '__mocks__/material-ui-styles.js'),
 			'material-ui': path.resolve(__dirname, '__mocks__/material-ui.js'),
 			'../hoc/asMetaField': path.resolve(__dirname, '__mocks__/hoc.js'),
