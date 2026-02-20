@@ -1,21 +1,21 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Остання версія"
   },
   "1": {
-    "other": "Filename"
+    "other": "Ім'я файлу"
   },
   "10": {
-    "other": "Text file"
+    "other": "Текстовий файл"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Не вдалося знайти файл"
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "Теки джерела та призначення збігаються!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Помилка під час створення файлу:"
   },
   "103": {
     "other": "Cannot find folder "
@@ -90,100 +90,100 @@
     "other": "Overwrite existing files?"
   },
   "125": {
-    "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
+    "other": "Файл або тека з такою назвою вже існує (регістр не враховується). Будь ласка, виберіть іншу назву!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "Мініатюри"
   },
   "127": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "128": {
-    "other": "files selected."
+    "other": "файли вибрано."
   },
   "129": {
-    "other": "View"
+    "other": "Перегляд"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "JPG зображення"
   },
   "130": {
-    "other": "Folders"
+    "other": "Теки"
   },
   "131": {
-    "other": "Details"
+    "other": "Деталі"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Немає файлу чи теки"
   },
   "133": {
-    "other": "Name"
+    "other": "Ім'я"
   },
   "134": {
-    "other": "Type"
+    "other": "Тип"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "Розміри"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "Збільшити зображення"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "Ост. зміна"
   },
   "139": {
-    "other": "Edit Online"
+    "other": "Редагувати онлайн"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML-сторінка"
   },
   "140": {
-    "other": "Play whole folder"
+    "other": "Відтворити всю теку"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "Зчитування теки"
   },
   "142": {
-    "other": "Logged as "
+    "other": "Увійшов як "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "Гостьовий перегляд. Увійти."
   },
   "144": {
-    "other": "Not logged in."
+    "other": "Ви не увійшли в систему."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "Мої закладки"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Видалити закладку"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Закладки"
   },
   "148": {
-    "other": "Parent"
+    "other": "Батьківський елемент"
   },
   "149": {
-    "other": "Reload"
+    "other": "Оновити"
   },
   "15": {
-    "other": "HTML page"
+    "other": "HTML-сторінка"
   },
   "150": {
-    "other": "Display"
+    "other": "Відображення"
   },
   "151": {
-    "other": "Switch display mode..."
+    "other": "Перемкнути режим відображення..."
   },
   "152": {
-    "other": "Toggle Bookmark"
+    "other": "Додати/видалити закладку"
   },
   "153": {
-    "other": "Add/remove item to MyBookmarks"
+    "other": "Додати/вилучити з моїх закладок"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Закладка"
   },
   "153-on": {
     "other": "Add item to MyBookmarks"
