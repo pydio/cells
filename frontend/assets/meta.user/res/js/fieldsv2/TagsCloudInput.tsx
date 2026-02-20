@@ -18,9 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useEffect, useState } from 'react'
-import { TagsInput } from '@mantine/core'
-import { StringItemsInputProps } from "./CommonInputProps";
+import React, { useEffect, useState } from 'react';
+import { TagsInput } from '@mantine/core';
+import { StringItemsInputProps } from './CommonInputProps';
+import { parseTagsValue, formatTagsArrayToString } from '../utils/mapTags';
 
 /**
  * @typedef {Object} TagsCloudInputProps
@@ -36,14 +37,6 @@ import { StringItemsInputProps } from "./CommonInputProps";
  * @property {function} onCommitChange
  */
 
-const formatValueStringToArray = (value: string) => {
-    return (value || '').split(',').filter((tag) => tag.trim());
-}
-
-const formatValueArrayToString = (value: string[]) => {
-    return (value || []).filter(v => v).join(',')
-}
-
 /**
  * @param {TagsCloudInputProps} props
  */
@@ -53,6 +46,7 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     required,
     description,
     placeholder,
+    disabled,
     dataLoader,
     errorText,
     value,
@@ -62,7 +56,7 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
     const [items, setItems] = useState<string[]>([]);
 
     React.useEffect(() => {
-        setLocalValue(formatValueStringToArray(value));
+        setLocalValue(parseTagsValue(value));
     }, [value]);
 
     const props = {
@@ -71,38 +65,46 @@ export const TagsCloudInput: React.FC<StringItemsInputProps> = ({
         placeholder,
         error: errorText,
         required,
-    }
+    };
 
     useEffect(() => {
         if (dataLoader) {
-            dataLoader().then(ss => setItems(ss));
+            dataLoader().then((ss) => setItems(ss));
         }
-    }, [name])
+    }, [name]);
 
     const onChangeJoin = (values: string[]) => {
-        setLocalValue(values.filter(v => v))
-        onCommitChange(formatValueArrayToString(values));
-    }
+        setLocalValue(values.filter((v) => v));
+        onCommitChange(formatTagsArrayToString(values));
+    };
 
-    return <TagsInput
-        {...props}
-        value={localValue}
-        data={items}
-        onChange={onChangeJoin}
-        comboboxProps={{ withinPortal: false }}
-        onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            const { key, target } = e;
-            const { value } = target;
-            if(key === 'Enter'){
-                onCommitChange(formatValueArrayToString([...localValue, value]));
-            }
-            if (key === ',') {
-                onCommitChange(formatValueArrayToString([...localValue, value]));
-            }
-        }}
-        onBlur={(e) => {
-            const { value } = e.target;
-            onCommitChange(formatValueArrayToString([...localValue, value]));
-        }}
-    />
-}
+    return (
+        <TagsInput
+            {...props}
+            value={localValue}
+            data={items}
+            onChange={onChangeJoin}
+            comboboxProps={{ withinPortal: false }}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                const { key } = e;
+                const value = (e.target as HTMLInputElement).value;
+                if (key === 'Enter') {
+                    onCommitChange(
+                        formatTagsArrayToString([...localValue, value]),
+                    );
+                }
+                if (key === ',') {
+                    onCommitChange(
+                        formatTagsArrayToString([...localValue, value]),
+                    );
+                }
+            }}
+            onBlur={(e) => {
+                const value = (e.target as HTMLInputElement).value;
+                    onCommitChange(
+                        formatTagsArrayToString([...localValue, value]),
+                    );
+            }}
+        />
+    );
+};

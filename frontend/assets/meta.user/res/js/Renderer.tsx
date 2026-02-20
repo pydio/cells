@@ -17,62 +17,70 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React from 'react';
 //@ts-ignore
-import Pydio from 'pydio'
+import Pydio from 'pydio';
 //@ts-ignore
-import {MenuItem} from 'material-ui'
-import StarsField from "./fields/StarsField";
-import SelectorField from "./fields/SelectorField";
-import CssLabelsField, {getCssLabels} from "./fields/CssLabelsField";
-const {colorsFromString} = Pydio.requireLib('hoc')
-import StarsForm from "./fields/StarsForm";
-import SelectorForm from "./fields/SelectorForm";
-import MetaClient from "./MetaClient";
-import TagsCloud from "./fields/TagsCloud";
-import {DateTimeField, DateTimeForm} from "./fields/DateTime";
-import BooleanForm from "./fields/BooleanForm";
-import {IntegerField, IntegerForm} from "./fields/Integer";
-import {getURLDisplayByContext, URLForm} from "./fields/URL";
-import {FieldSearch, FieldSearchProps} from "./components/FieldSearch";
-import {NamespaceMeta} from "./components/MetaSpec";
+import { MenuItem } from 'material-ui';
+import StarsField from './fields/StarsField';
+import SelectorField from './fields/SelectorField';
+import CssLabelsField, { getCssLabels } from './fields/CssLabelsField';
+const { colorsFromString } = Pydio.requireLib('hoc');
+import StarsForm from './fields/StarsForm';
+import SelectorForm from './fields/SelectorForm';
+import MetaClient from './MetaClient';
+import TagsCloud from './fields/TagsCloud';
+import { DateTimeField, DateTimeForm } from './fields/DateTime';
+import BooleanForm from './fields/BooleanForm';
+import { IntegerField, IntegerForm } from './fields/Integer';
+import { getURLDisplayByContext, URLForm } from './fields/URL';
+import { FieldSearch, FieldSearchProps } from './components/FieldSearch';
+import { NamespaceMeta } from './components/MetaSpec';
+import { parseTagsValue } from './utils/mapTags';
 
-export default class Renderer{
-
-    static renderStars(node, column){
-        if(!node.getMetadata().get(column.name)){
+export default class Renderer {
+    static renderStars(node, column) {
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
-        return <StarsField node={node} column={column} size="small"/>;
+        return <StarsField node={node} column={column} size="small" />;
     }
 
-    static renderBoolean(node, column){
-        if(!node.getMetadata().get(column.name)){
+    static renderBoolean(node, column) {
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
-        return <span><span className={"mdi mdi-check"} style={{color:'#4caf50'}}/> {column.label}</span>
+        return (
+            <span>
+                <span
+                    className={'mdi mdi-check'}
+                    style={{ color: '#4caf50' }}
+                />{' '}
+                {column.label}
+            </span>
+        );
     }
 
-    static renderSelector(node, column){
-        if(!node.getMetadata().get(column.name)){
+    static renderSelector(node, column) {
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
-        return <SelectorField node={node} column={column}/>;
+        return <SelectorField node={node} column={column} />;
     }
 
-    static renderCSSLabel(node, column){
-        if(!node.getMetadata().get(column.name)){
+    static renderCSSLabel(node, column) {
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
-        return <CssLabelsField node={node} column={column}/>;
+        return <CssLabelsField node={node} column={column} />;
     }
 
-    static renderTagsCloud(node, column){
-        if(!node.getMetadata().get(column.name)){
+    static renderTagsCloud(node, column) {
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
         const tagStyle = {
-            display:'inline-block',
+            display: 'inline-block',
             backgroundColor: '#E1BEE7',
             borderRadius: 6,
             height: 22,
@@ -85,106 +93,152 @@ export default class Renderer{
             border: '1px solid var(--md-sys-color-inline-tags-border)',
         };
         const value = node.getMetadata().get(column.name);
-        if(!value || !value.split) {
+        if (!value) {
             return null;
         }
-        return (<span>{value.split(',').map((tag, index) => {
-            let sStyle = {...tagStyle, ...colorsFromString(tag)};
-            if(index === value.split(',').length -1){
-                sStyle = {...sStyle, marginRight: -4}
-            }
-            return <span style={sStyle}>{tag}</span>
-        })}</span>)
+
+        const tags = parseTagsValue(value);
+
+        return (
+            <span>
+                {tags.map((tag, index) => {
+                    let sStyle = { ...tagStyle, ...colorsFromString(tag) };
+                    if (index === tags.length - 1) {
+                        sStyle = { ...sStyle, marginRight: -4 };
+                    }
+                    return <span style={sStyle}>{tag}</span>;
+                })}
+            </span>
+        );
     }
 
     static renderDate(node, column) {
-        if(!node.getMetadata().get(column.name)){
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
-        return <DateTimeField node={node} column={column} type={"date"}/>;
+        return <DateTimeField node={node} column={column} type={'date'} />;
     }
 
     static renderInteger(node, column) {
-        if(!node.getMetadata().get(column.name)){
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
-        return <IntegerField node={node} column={column} inline={true}/>;
+        return <IntegerField node={node} column={column} inline={true} />;
     }
 
     static renderURL(node, column, ctx) {
-        if(!node.getMetadata().get(column.name)){
+        if (!node.getMetadata().get(column.name)) {
             return null;
         }
         const UrlComponent = getURLDisplayByContext(ctx || {});
         //@ts-ignore
-        return <UrlComponent node={node} column={column}/>;
+        return <UrlComponent node={node} column={column} />;
     }
 
-    static formPanelStars(props){
-        return <StarsForm {...props} search={true}/>;
+    static formPanelStars(props) {
+        return <StarsForm {...props} search={true} />;
     }
 
-    static formPanelCssLabels(props, configs){
+    static formPanelCssLabels(props, configs) {
+        const menuItems = Object.keys(getCssLabels()).map(
+            function (id) {
+                let label = getCssLabels()[id];
+                const lSpan = (
+                    <span>
+                        <span
+                            className="mdi mdi-label"
+                            style={{ color: label.color, marginRight: 5 }}
+                        />
+                        {label.label}
+                    </span>
+                );
+                return <MenuItem value={id} primaryText={lSpan} />;
+            }.bind(this),
+        );
 
-        const menuItems = Object.keys(getCssLabels()).map(function(id){
-            let label = getCssLabels()[id];
-            const lSpan = <span><span className="mdi mdi-label" style={{color: label.color, marginRight: 5}} />{label.label}</span>;
-            return <MenuItem value={id} primaryText={lSpan}/>
-        }.bind(this));
-
-        return <SelectorForm {...props} menuItems={menuItems} search={!configs}/>;
+        return (
+            <SelectorForm {...props} menuItems={menuItems} search={!configs} />
+        );
     }
 
-    static formPanelSelectorFilter(props, configs){
-
+    static formPanelSelectorFilter(props, configs) {
         const configsToItems = (metaConfigs, callback) => {
             let configs = metaConfigs.get(props.fieldname);
-            let menuItems = [], keys = [], stepper, labels = {};
-            if(configs && configs.data && configs.data.items){
+            let menuItems = [],
+                keys = [],
+                stepper,
+                labels = {};
+            if (configs && configs.data && configs.data.items) {
                 menuItems = configs.data.items.map((i) => {
                     keys.push(i.key);
                     labels[i.key] = i.value;
                     let pSpan = i.value;
-                    if(i.color) {
-                        pSpan = <span><span className={"mdi mdi-label"} style={{color: i.color, marginRight:5}}/>{i.value}</span>
+                    if (i.color) {
+                        pSpan = (
+                            <span>
+                                <span
+                                    className={'mdi mdi-label'}
+                                    style={{ color: i.color, marginRight: 5 }}
+                                />
+                                {i.value}
+                            </span>
+                        );
                     }
-                    return <MenuItem value={i.key} primaryText={pSpan}/>;
+                    return <MenuItem value={i.key} primaryText={pSpan} />;
                 });
             }
-            if(configs && configs.data && configs.data.steps){
-                stepper = true
+            if (configs && configs.data && configs.data.steps) {
+                stepper = true;
             }
             callback(menuItems, keys, stepper, labels);
-        }
+        };
 
         const itemsLoader = (callback) => {
-            if(configs) {
+            if (configs) {
                 configsToItems(configs, callback);
             } else {
-                MetaClient.getInstance().loadConfigs().then(metaConfigs => configsToItems(metaConfigs, callback))
+                MetaClient.getInstance()
+                    .loadConfigs()
+                    .then((metaConfigs) =>
+                        configsToItems(metaConfigs, callback),
+                    );
             }
         };
-        return <SelectorForm {...props} menuItems={[]} itemsLoader={itemsLoader} search={!configs}/>;
+        return (
+            <SelectorForm
+                {...props}
+                menuItems={[]}
+                itemsLoader={itemsLoader}
+                search={!configs}
+            />
+        );
     }
 
-    static formPanelTags(props, configs){
-        return <TagsCloud {...props} editMode={true} search={!configs}/>;
+    static formPanelTags(props, configs) {
+        return <TagsCloud {...props} editMode={true} search={!configs} />;
     }
 
-    static formPanelDate(props){
-        return <DateTimeForm type={"date"} {...props} editMode={true} search={true}/>;
+    static formPanelDate(props) {
+        return (
+            <DateTimeForm
+                type={'date'}
+                {...props}
+                editMode={true}
+                search={true}
+            />
+        );
     }
 
-    static formPanelBoolean(props){
-        return <BooleanForm {...props} search={true}/>
+    static formPanelBoolean(props) {
+        return <BooleanForm {...props} search={true} />;
     }
 
     static formPanelInteger(props) {
-        return <IntegerForm {...props} search={true}/>
+        return <IntegerForm {...props} search={true} />;
     }
 
     static formPanelURL(props) {
-        return <URLForm {...props} search={true}/>
+        return <URLForm {...props} search={true} />;
     }
 
     /**
@@ -193,19 +247,22 @@ export default class Renderer{
      * @return {(function(*): *)|*|(function(*, *): *)}
      */
     static typeFormRenderer(type) {
-        const fSearchRenderer = (props:{fieldname:string, value:any, onChange:({})=>void}, configs:Map<string, NamespaceMeta>) => {
+        const fSearchRenderer = (
+            props: { fieldname: string; value: any; onChange: ({}) => void },
+            configs: Map<string, NamespaceMeta>,
+        ) => {
             const fieldProps: FieldSearchProps = {
                 name: props.fieldname,
                 value: props.value,
-                updateValue:(f,v) => {
-                    const searchValues = {['ajxp_meta_'+f]:v}
+                updateValue: (f, v) => {
+                    const searchValues = { ['ajxp_meta_' + f]: v };
                     props.onChange(searchValues);
                 },
-                meta:configs.get(props.fieldname)
-            }
-            return <FieldSearch {...fieldProps}/>;
-        }
-        return fSearchRenderer
+                meta: configs.get(props.fieldname),
+            };
+            return <FieldSearch {...fieldProps} />;
+        };
+        return fSearchRenderer;
     }
 
     /**
@@ -217,40 +274,68 @@ export default class Renderer{
         let out;
         switch (type) {
             case 'stars_rate':
-                out = {renderComponent: Renderer.renderStars, sortType: 'number'}
-                break
+                out = {
+                    renderComponent: Renderer.renderStars,
+                    sortType: 'number',
+                };
+                break;
             case 'css_label':
-                out = {renderComponent: Renderer.renderCSSLabel, sortType: 'string'}
-                break
+                out = {
+                    renderComponent: Renderer.renderCSSLabel,
+                    sortType: 'string',
+                };
+                break;
             case 'choice':
-                out = {renderComponent: Renderer.renderSelector, sortType: 'string'}
-                break
+                out = {
+                    renderComponent: Renderer.renderSelector,
+                    sortType: 'string',
+                };
+                break;
             case 'tags':
-                out = {renderComponent: Renderer.renderTagsCloud, renderBlock: true, sortType: 'string'}
-                break
+                out = {
+                    renderComponent: Renderer.renderTagsCloud,
+                    renderBlock: true,
+                    sortType: 'string',
+                };
+                break;
             case 'tag_cloud':
-                out = {renderComponent: Renderer.renderTagsCloud, renderBlock: true, sortType: 'string'}
-                break
+                out = {
+                    renderComponent: Renderer.renderTagsCloud,
+                    renderBlock: true,
+                    sortType: 'string',
+                };
+                break;
             case 'integer':
-                out = {renderComponent: Renderer.renderInteger, sortType: 'number'}
-                break
+                out = {
+                    renderComponent: Renderer.renderInteger,
+                    sortType: 'number',
+                };
+                break;
             case 'boolean':
-                out = {renderComponent: Renderer.renderBoolean, sortType: 'number'}
-                break
+                out = {
+                    renderComponent: Renderer.renderBoolean,
+                    sortType: 'number',
+                };
+                break;
             case 'date':
-                out = {renderComponent: Renderer.renderDate, sortType: 'number'}
-                break
+                out = {
+                    renderComponent: Renderer.renderDate,
+                    sortType: 'number',
+                };
+                break;
             case 'url':
-                out = {renderComponent: Renderer.renderURL, sortType: 'string'}
-                break
+                out = {
+                    renderComponent: Renderer.renderURL,
+                    sortType: 'string',
+                };
+                break;
             default:
-                return {}
+                return {};
         }
         // Duplicate key
         if (out.renderComponent) {
-            out.renderCell = out.renderComponent
+            out.renderCell = out.renderComponent;
         }
         return out;
     }
-
 }
