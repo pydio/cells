@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
 import {InputProps} from "./CommonInputProps";
 
@@ -46,24 +46,19 @@ export const TextInput: React.FC<InputProps> = ({
 
     const onChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
     const onChangeString = (value: string) => onChange(value)
-    const simpleEnter = (event: React.KeyboardEvent) => {
-        if(event.key === 'Enter'){
-            onChange(value, true);
-        }
-    }
-    const ctrlEnter = (event: React.KeyboardEvent) => {
+    const onEnterCommit = useCallback((event: React.KeyboardEvent) => {
         if(event.key === 'Enter' && event.ctrlKey){
             onCommitChange(value);
         }
-    }
+    }, [onCommitChange, value])
 
 
     switch (subType) {
         case 'textarea':
-            return <Textarea {...props} onChange={onChangeEvent} onKeyPress={ctrlEnter} autosize minRows={3} maxRows={5}/>
+            return <Textarea {...props} onChange={onChangeEvent} autosize minRows={3} maxRows={5}/>
         case 'json':
-            return <JsonInput {...props} onChange={onChangeString} onKeyPress={ctrlEnter} autosize minRows={3} maxRows={10}/>
+            return <JsonInput {...props} onChange={onChangeString} autosize minRows={3} maxRows={10}/>
         default:
-            return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={simpleEnter}/>
+            return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={onEnterCommit}  />
     }
 }

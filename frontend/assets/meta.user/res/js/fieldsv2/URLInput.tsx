@@ -95,6 +95,7 @@ export const URLInput: React.FC<InputProps> = ({
     required,
     value,
     onChange,
+    onCommitChange,
     errorText,
 }) => {
     const [localValue, setLocalValue] = useState(value || '')
@@ -116,13 +117,13 @@ export const URLInput: React.FC<InputProps> = ({
         const normalized = ensureHttpScheme(localValue)
         if (normalized !== localValue) {
             setLocalValue(normalized)
-            onChange(normalized, false)
+            onCommitChange(value);
         }
     }, [localValue, onChange])
 
     const handleKeyPress = useCallback(
         (event: React.KeyboardEvent) => {
-            if (event.key === 'Enter') {
+            if(event.key === 'Enter' && event.ctrlKey) {
                 handleConfirmValue()
             }
         },

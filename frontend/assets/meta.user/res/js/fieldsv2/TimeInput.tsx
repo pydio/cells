@@ -21,7 +21,6 @@
 import React from 'react'
 import {InputProps} from "./CommonInputProps";
 import {TimePicker} from '@mantine/dates'
-import {PopoverProps} from "@mantine/core";
 
 const timestampToDate = (timestamp: number) => {
     if (!timestamp) return '';
@@ -50,33 +49,20 @@ export const TimeInput: React.FC<InputProps> = ({
     required,
     disabled,
     value,
-    requestToggleClose,
     onChange,
     errorText
 }) => {
-    const props = {
-        label,
-        disabled,
-        error: errorText,
-        required: required,
-    }
-
-    const popoverProps : PopoverProps = {withinPortal: false}
-    if(requestToggleClose && !disabled) {
-        popoverProps.onClose = () => {
-            requestToggleClose();
-        };
-    }
-
     return <TimePicker
-        {...props}
+        label={label}
+        disabled={disabled}
+        error={errorText}
+        required={required}
         radius={"md"}
         value={timestampToDate(value)}
         onChange={(v) => {
             onChange(dateToTimestamp(v));
         }}
         description={description}
-        autoFocus={!!requestToggleClose}
-        popoverProps={popoverProps}
+        popoverProps={{ withinPortal: false }}
     />
 }

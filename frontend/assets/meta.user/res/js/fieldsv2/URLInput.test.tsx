@@ -21,8 +21,14 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { MantineProvider } from '@mantine/core'
 
-import { URLIcon, URLLinkIcon } from './URLInput'
+import { URLIcon, URLLinkIcon, URLInput } from './URLInput'
+
+// Helper to render components that need MantineProvider
+const renderWithProvider = (component: React.ReactElement) => {
+    return render(<MantineProvider>{component}</MantineProvider>)
+}
 
 describe('URLIcon Component', () => {
     beforeEach(() => {
@@ -156,5 +162,186 @@ describe('URLLinkIcon Component', () => {
         render(<URLLinkIcon url="mailto:test@example.com" />)
         const link = screen.getByTestId('url-link-icon')
         expect(link.getAttribute('href')).toBe('mailto:test@example.com')
+    })
+})
+
+describe('URLInput Component - handleConfirmValue', () => {
+    beforeEach(() => {
+        cleanup()
+    })
+
+    it('normalizes URL on blur when scheme is missing', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types a URL without scheme
+        fireEvent.change(input, { target: { value: 'example.com' } })
+        expect(handleChange).toHaveBeenCalledWith('example.com', false)
+        
+        // User blurs the input (triggers handleConfirmValue)
+        fireEvent.blur(input)
+        
+        // The input value should be normalized to include https://
+        expect(input).toHaveValue('https://example.com')
+        expect(handleCommitChange).toHaveBeenCalledWith('')
+    })
+
+    it('does not modify URL on blur when scheme is already present', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types a URL with scheme
+        fireEvent.change(input, { target: { value: 'https://example.com' } })
+        
+        // User blurs the input
+        fireEvent.blur(input)
+        
+        // The input value should remain unchanged
+        expect(input).toHaveValue('https://example.com')
+        expect(handleCommitChange).not.toHaveBeenCalled()
+    })
+
+    it('normalizes URL on Ctrl+Enter key press when scheme is missing', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types a URL without scheme
+        fireEvent.change(input, { target: { value: 'example.com' } })
+        
+        // User presses Ctrl+Enter (triggers handleConfirmValue)
+        fireEvent.keyPress(input, { key: 'Enter', code: 'Enter', charCode: 13, ctrlKey: true })
+        
+        // The input value should be normalized to include https://
+        expect(input).toHaveValue('https://example.com')
+        expect(handleCommitChange).toHaveBeenCalledWith('')
+    })
+
+    it('does not normalize URL on Enter without Ctrl', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types a URL without scheme
+        fireEvent.change(input, { target: { value: 'example.com' } })
+        
+        // User presses Enter without Ctrl (should NOT trigger handleConfirmValue)
+        fireEvent.keyPress(input, { key: 'Enter', code: 'Enter', charCode: 13, ctrlKey: false })
+        
+        // The input value should remain unchanged (not normalized)
+        expect(input).toHaveValue('example.com')
+        expect(handleCommitChange).not.toHaveBeenCalled()
+    })
+
+    it('preserves other URL schemes on blur', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types a mailto URL
+        fireEvent.change(input, { target: { value: 'mailto:test@example.com' } })
+        
+        // User blurs the input
+        fireEvent.blur(input)
+        
+        // The mailto scheme should be preserved
+        expect(input).toHaveValue('mailto:test@example.com')
+        expect(handleCommitChange).not.toHaveBeenCalled()
+    })
+
+    it('handles localhost with port number correctly', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types localhost with port (should be treated as missing scheme)
+        fireEvent.change(input, { target: { value: 'localhost:8080' } })
+        
+        // User blurs the input
+        fireEvent.blur(input)
+        
+        // Should add https:// prefix
+        expect(input).toHaveValue('https://localhost:8080')
+        expect(handleCommitChange).toHaveBeenCalledWith('')
+    })
+
+    it('does not call onCommitChange when value is unchanged after normalization', () => {
+        const handleChange = vi.fn()
+        const handleCommitChange = vi.fn()
+        
+        renderWithProvider(
+            <URLInput
+                value=""
+                onChange={handleChange}
+                onCommitChange={handleCommitChange}
+            />
+        )
+        
+        const input = screen.getByRole('textbox')
+        
+        // User types a complete URL
+        fireEvent.change(input, { target: { value: 'http://example.com' } })
+        
+        // User blurs the input
+        fireEvent.blur(input)
+        
+        // onCommitChange should not be called since the value didn't change
+        expect(handleCommitChange).not.toHaveBeenCalled()
     })
 })
