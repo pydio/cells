@@ -82,6 +82,10 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
         }
     }, [state.formState, state.errors, actions])
 
+    const onChange = useCallback((v) => {
+        actions.setFormState(state.formState.set(name, v))
+    }, [state.formState, actions])
+
     let baseProps: InputProps = {
         name,
         label,
@@ -90,9 +94,7 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
         disabled: readonly || saving,
         value,
         onCommitChange,
-        onChange: (v) => {
-            actions.setFormState(state.formState.set(name, v))
-        },
+        onChange,
         errorText,
         // FIXME: go over the code and remove this
         requestToggleClose: () => {},

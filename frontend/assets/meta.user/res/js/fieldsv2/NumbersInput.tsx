@@ -29,7 +29,6 @@ export const NumbersInput: React.FC<InputProps> = ({
     disabled,
     required,
     value,
-    onCommitChange,
     onChange,
     errorText,
 
@@ -54,7 +53,7 @@ export const NumbersInput: React.FC<InputProps> = ({
         {...props}
         onChange={(e) => onChange(e)}
         onKeyPress={simpleEnter}
-        onBlur={() => onCommitChange(value)}
+        onBlur={() => onChange(value)}
         thousandSeparator=" "
         prefix={prefix}
         suffix={suffix}

@@ -73,7 +73,7 @@ export const TimeInput: React.FC<InputProps> = ({
         radius={"md"}
         value={timestampToDate(value)}
         onChange={(v) => {
-            onChange(dateToTimestamp(v), true);
+            onChange(dateToTimestamp(v));
         }}
         description={description}
         autoFocus={!!requestToggleClose}

@@ -29,7 +29,6 @@ export const RatingInput: React.FC<InputProps> = ({
     errorText,
     disabled,
     required,
-    onChange,
     onCommitChange,
 }: InputProps) => {
 
@@ -46,19 +45,16 @@ export const RatingInput: React.FC<InputProps> = ({
                 component={"div"}
                 disabled={disabled}
             >
-                <div
-                    style={{ display: 'flex', alignItems: 'center' }}
-                    onBlur={() => onCommitChange(value)}
-                >
+                <div style={{ display: 'flex', alignItems: 'center' }} >
                     <span
                         className={'mdi mdi-star-off-outline'}
                         style={{ fontSize: 19, marginRight: 5, cursor: 'pointer' }}
-                        onClick={() => { !disabled ? onChange('', true) : null }}
+                        onClick={() => { !disabled ? onCommitChange('') : null }}
                     />
                     <Rating
                         className={""}
                         value={parseInt(value) || 0}
-                        onChange={(n) => onChange(n, true)}
+                        onChange={onCommitChange}
                         readOnly={false}
                     />
                 </div>

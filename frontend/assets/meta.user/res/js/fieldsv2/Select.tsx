@@ -94,7 +94,7 @@ export const Selector: React.FC<SelectInputProps> = ({
             value={value}
             error={errorText}
             disabled={disabled}
-            onChange={v => onChange(v, true)}
+            onChange={onCommitChange}
             data={items.map(i => { return { value: i.key, label: i.value } })}
             allowDeselect={true}
             clearable={true}

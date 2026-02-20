@@ -31,7 +31,6 @@ export const DateTimeInput: React.FC<InputProps> = ({
     disabled,
     value,
     onCommitChange,
-    onChange,
     errorText
 }) => {
     const props = {
@@ -54,7 +53,7 @@ export const DateTimeInput: React.FC<InputProps> = ({
         value={value ? new Date(parseFloat(value)*1000) : null}
         onChange={(v) => {
             const d = new Date(v).getTime()/1000;
-            onChange(d, true);
+            onCommitChange(d);
         }}
         description={description}
         placeholder={placeholder}
