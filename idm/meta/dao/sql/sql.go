@@ -22,6 +22,7 @@ package sql
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"go.uber.org/zap"
@@ -246,6 +247,27 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.Us
 		return nil, tag(tx.Error)
 	}
 
+	// Collect meta UUIDs to fetch entity values
+	var metaUUIDs []string
+	for _, meta := range metas {
+		metaUUIDs = append(metaUUIDs, meta.UUID)
+	}
+
+	entityValuesMap := make(map[string][]string)
+	if len(metaUUIDs) > 0 {
+		evMap, err := s.evDAO.GetMetaEntityValuesMap(ctx, metaUUIDs)
+		if err == nil { // Ignoring the error since it's not guaranteed to have entity values for all metas
+			for metaUUID, entityValues := range evMap {
+				labels := make([]string, len(entityValues))
+				for i, ev := range entityValues {
+					labels[i] = ev.Label
+				}
+				entityValuesMap[metaUUID] = labels
+			}
+		}
+	}
+
+	// Build result with entity values where they exist
 	var res []*idm.UserMeta
 	for _, meta := range metas {
 		m := meta.As(&idm.UserMeta{})
@@ -253,6 +275,16 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.Us
 			m.Policies = policies
 		} else {
 			log.Logger(ctx).Error("cannot load resource policies for uuid: "+m.Uuid, zap.Error(e))
+		}
+
+		if labels, found := entityValuesMap[meta.UUID]; found && len(labels) > 0 {
+			// Encode labels as JSON array for tag_cloud only
+			jsonArray, err := json.Marshal(labels)
+			if err != nil {
+				log.Logger(ctx).Error("failed to marshal entity values", zap.Error(err))
+			} else {
+				m.JsonValue = string(jsonArray)
+			}
 		}
 
 		res = append(res, m)
