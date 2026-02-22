@@ -2040,58 +2040,58 @@
     "other": "Функціональні плагіни для різних аспектів системи"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "Спосіб зберігання даних користувачів у серверній частині"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Методи збору ідентифікаційних даних (вебформа, API-ключ тощо)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "Унікальний плагін для завантаження фреймворку"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "Унікальний плагін для налаштування сервера кешування, що використовується програмою"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "Спосіб зберігання конфігураційних даних у серверній частині"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Плагіни для шифрування даних"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Засоби перегляду або редактори для широкого спектра MIME-типів"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "Реалізації для зберігання подій даних (наразі лише SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "Основний веб-інтерфейс, теми та розширення"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "Допоміжні інструменти для адміністративних завдань"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "Інструменти для індексації даних та забезпечення швидкого пошуку"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "Надсилання логів програми у різні канали"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "Інструменти для надсилання електронних листів із програми"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Параметри пошукового рушія"
   },
   "plugtype.desc.meta": {
     "other": "Додаткові можливості для додавання до робочих просторів"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "Різні реалізації для зберігання метаданих разом із файлами та теками"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "Реалізації простого сервера PUB/SUB"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Розширені функції безпеки"
   },
   "plugtype.desc.shorten": {
     "other": "Webservices bridges for shortening public links"
