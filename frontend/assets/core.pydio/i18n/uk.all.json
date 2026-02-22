@@ -627,49 +627,49 @@
     "other": "Кількість файлів"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "Не вдалося знайти користувача, спробуйте ще раз.\\n Переконайтеся, що Caps Lock вимкнено!"
   },
   "286": {
-    "other": "Your user is out of date with the current version, please use the upgrade procedure."
+    "other": "Ваш обліковий запис застарів порівняно з поточною версією, будь ласка, виконайте процедуру оновлення."
   },
   "287": {
     "other": "Дозволи файлів"
   },
   "288": {
-    "other": "User"
+    "other": "Користувач"
   },
   "289": {
-    "other": "Group"
+    "other": "Група"
   },
   "29": {
-    "other": "Create"
+    "other": "Створити"
   },
   "290": {
-    "other": "All"
+    "other": "Всі"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "Застосувати рекурсивно?"
   },
   "292": {
-    "other": "Share"
+    "other": "Поділитись"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "Створити публічне посилання на цей файл"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "Термін дії посилання (в днях) і пароль (залиште порожнім, якщо немає пароля)."
   },
   "295": {
-    "other": "Expiration"
+    "other": "Термін дії"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "Скопіювати URL нижче:"
   },
   "297": {
-    "other": "New User"
+    "other": "Новий користувач"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Створити нового користувача"
   },
   "299": {
     "other": "Робочі простори"
@@ -702,208 +702,208 @@
     "other": "Мої робочі простори"
   },
   "306": {
-    "other": "Too many items"
+    "other": "Занадто багато елементів"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "Заповніть необов’язкові поля"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Створити посилання"
   },
   "309": {
-    "other": "Generate"
+    "other": "Створити"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Необхідно обрати файл"
   },
   "310": {
-    "other": "Options"
+    "other": "Варіанти"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Завантажувати автоматично після додавання файлу"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Параметри завантажувача"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Стиснення..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Стиснути обране в zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Стиснути обране в"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Перегляд/Редагування"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "Редактор вихідного коду"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "Переглядач вихідних кодів CodePress"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML-редактор"
   },
   "32": {
-    "other": "Explore"
+    "other": "Знайти"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "WYSIWYG редактор для HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Обрати"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Обрати поточний файл"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Напишіть цю адресу"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Редактор недоступний"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "Підігнати за розміром"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Без масштабування"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Засіб перегляду документів"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Перегляд pdf, svg, tif та інших форматів онлайн"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Помилка завантаження файлу!"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Будь ласка, зачекайте, поки відтворюються сторінки..."
   },
   "331": {
-    "other": "Page"
+    "other": "Сторінка"
   },
   "332": {
-    "other": "of"
+    "other": "з"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Редактор зображень Pixlr"
   },
   "334": {
-    "other": "more"
+    "other": "більше"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Будь ласка, введіть число сторінки між 1 і "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Вибачте, не можна перетягувати теки, перетягуйте лише файли!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Запустити завантаження автоматично"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Закрити панель після завершення завантаження"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Існуючі файли"
   },
   "34": {
-    "other": "The file"
+    "other": "Файл"
   },
   "340": {
-    "other": "Alert"
+    "other": "Сповіщення"
   },
   "341": {
-    "other": "File Info"
+    "other": "Відомості про файл"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Відомості про теку"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Відомості про зображення"
   },
   "344": {
-    "other": "Search on"
+    "other": "Пошук за"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Не вдалося отримати інформації про версію"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "У вас встановлено найновішу версію"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "Нова версія (%s) доступна! Відвідайте %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Вам надано доступ до нового робочого простору."
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "Попередження, пропущені аргументи"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "був успішно створений в каталозі"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "Користувач із таким іменем уже існує та не належить вам, будь ласка, оберіть інше ім’я."
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "Ви не маєте дозволу на публічний доступ до елементів."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Робочий простір із такою назвою вже існує, будь ласка, оберіть іншу назву."
   },
   "353": {
-    "other": "Target User"
+    "other": "Цільовий користувач"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Створіть нового користувача або оберіть одного з наявних у списку."
   },
   "355": {
-    "other": "User Name"
+    "other": "Ім'я користувача"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Пароль користувача"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Цільове сховище"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Оберіть ім'я для спільного робочого простору."
   },
   "359": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Розмір"
   },
   "360": {
-    "other": "Rights"
+    "other": "Права"
   },
   "361": {
-    "other": "Read"
+    "other": "Читання"
   },
   "362": {
-    "other": "Write"
+    "other": "Запис"
   },
   "363": {
-    "other": "Shared"
+    "other": "Спільний доступ"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Ви не маєте прав для виконання цієї операції"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Ви не маєте дозволу завантажувати більше ніж %s файлів одночасно."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Цей користувач не має жодного активного робочого простору."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Ви не маєте дозволу завантажувати файли такого типу. Будь ласка, оберіть серед таких розширень: "
   },
   "368": {
     "other": "Selection successfully extracted from archive %s to folder %s"
