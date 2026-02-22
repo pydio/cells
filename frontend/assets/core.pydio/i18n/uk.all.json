@@ -1440,406 +1440,406 @@
     "other": "Пароль для входу"
   },
   "535": {
-    "other": "Відправити пароль по електронній пошті"
+    "other": "Відправити пароль на електронну пошту"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Надіслати новому користувачеві привітальний лист із паролем"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Файл занадто великий! Максимальний дозволений розмір – %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Помилка завантаження: файл не знайдено на сервері!"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "Помилка завантаження: файл з частин"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Відміна"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Помилка завантаження: не вдається знайти тимчасовий каталог"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Помилка завантаження: не можливо записати до тимчасового каталогу"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Помилка завантаження: PHP розширення зупинило процес завантаження."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Результати обмежені до %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Показати більше"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Віддалене поширення"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "Цим об'єктом із вами поділився користувач %%OWNER%% із віддаленого ресурсу. Бажаєте продовжити?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Прийняти"
   },
   "548": {
-    "other": "Decline"
+    "other": "Відхилити"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "Ви раніше прийняли цей об'єкт, яким із вами поділився користувач %%OWNER%% із віддаленого ресурсу. Бажаєте відхилити його зараз?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "було змінено"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Відхилити цей спільний доступ"
   },
   "551": {
-    "other": "Reject"
+    "other": "Відхилити"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Будь ласка, введіть пароль."
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "Неправильний пароль, спробуйте ще раз. \\n Переконайтеся, що клавіша Caps Lock вимкнена!"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s результат(ів) у Смітнику"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "Запуск завдання %s в фоновому режимі"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Необхідні облікові дані"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Будь ласка, введіть пароль для входу в цей робочий простір."
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "Помилка автентифікації для цього робочого простору."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "Зображення BMP"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Необхідна аутентифікація"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Вас буде перенаправлено на сторінку автентифікації провайдера. Якщо перенаправлення не відбулося автоматично, натисніть «ОК», щоб повторити спробу..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Ця тека порожня!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Цей робочий простір порожній!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "Смітник порожній."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Почніть додавати файли або теки, вибравши їх у меню або перетягнувши прямо з робочого столу"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Ви не можете додавати файли тут"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Огляд смітника"
   },
   "568": {
-    "other": "Teams"
+    "other": "Команди"
   },
   "569": {
-    "other": "New Team"
+    "other": "Нова команда"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "Зображення PNG"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Видалити команду"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Немає створених команд"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "Створюйте власні команди, щоб легко ділитися даними з кількома користувачами одночасно"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Немає доступних команд"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "Ви не маєте прав на створення команд, але уповноважені користувачі можуть ділитися ними з вами"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Створення та редагування команд"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "Дозволити користувачам створювати та редагувати власні команди"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Додати користувача до команди"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Вилучити з команди"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Учасники команди"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s учасників"
   },
   "577": {
-    "other": "No members"
+    "other": "Немає учасників"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Назва команди"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Створити команду"
   },
   "58": {
-    "other": "CSS File"
+    "other": "Файл CSS"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Редагувати назву команди"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Користувач належить до %s команд"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Видалити користувача"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Каталог пошуку"
   },
   "584": {
-    "other": "Directory"
+    "other": "Тека"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Немає зовнішніх користувачів"
   },
   "586": {
     "other": "Створюйте власних користувачів і діліться з ними файлами або теками з ваших робочих просторів."
   },
   "587": {
-    "other": "No results"
+    "other": "Нічого не знайдено"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Почніть вводити в форму пошуку, щоб знайти користувачів в каталозі"
   },
   "589": {
-    "other": "External user"
+    "other": "Зовнішній користувач"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "Файл MP3"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Внутрішній користувач"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Виберіть назву для команди. Ви зможете додати користувачів до неї після створення."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Адресна книга"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "Спільні користувачі"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Надійні сервери"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Пошук користувача..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Сервер: '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "всі"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Надіслати повідомлення"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Додати користувача"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Всі результати"
   },
   "6": {
-    "other": "Rename"
+    "other": "Перейменувати"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR-файл"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Редагувати користувача"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "Одна спільна комірка"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 спільних комірок"
   },
   "603": {
-    "other": "Team"
+    "other": "Команда"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Віддалений користувач"
   },
   "605": {
-    "other": "More search options"
+    "other": "Більше параметрів пошуку"
   },
   "606": {
-    "other": "Less search options"
+    "other": "Менше параметрів пошуку"
   },
   "607": {
     "other": "Ваші останні дії - Введіть для пошуку файлів у всіх робочих просторах"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Поточна тека"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Весь робочий простір"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ файл"
   },
   "610": {
     "other": "Усі робочі простори"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Почніть вводити текст для пошуку"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Власний діапазон"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Більше ніж..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Менше ніж..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Виконати"
   },
   "616": {
-    "other": "Mask"
+    "other": "Маска"
   },
   "617": {
-    "other": "Enter"
+    "other": "Увійти"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Перемкнути мову..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "Пошук обмежено поточною текою та її підтеками"
   },
   "62": {
-    "other": "Root directory"
+    "other": "Кореневий каталог"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "Пошук обмежено поточним робочим простором"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Це поле не може бути порожнім"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Стек помилок"
   },
   "623": {
-    "other": "Copy"
+    "other": "Копіювати"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Скопійовано!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Літера"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Файли, до яких мені надано доступ"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Спільні ресурси з віддалених серверів"
   },
   "628": {
-    "other": "Revert"
+    "other": "Відновити"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Записів ще немає"
   },
   "63": {
-    "other": "Log out"
+    "other": "Вийти"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Теки, котрими зі мною поділилися"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Ця комірка порожня!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Ще немає комірок"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Комірки — це простори для спільної роботи з іншими користувачами над документами"
   },
   "634": {
-    "other": "You"
+    "other": "Ви"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Ваша група"
   },
   "634c": {
-    "other": "All users"
+    "other": "Всі користувачі"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Кімната чату"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Почніть вводити текст і натисніть Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Поки що немає повідомлень. Почніть писати, щоб поспілкуватися з учасниками цієї Комірки!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "Комірка містить кілька кореневих тек або файлів; ви не можете завантажувати дані безпосередньо сюди."
   },
   "639": {
-    "other": "In this cell"
+    "other": "В цій комірці"
   },
   "64": {
-    "other": "XLS File"
+    "other": "Файл XLS"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Створити комірку з %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Вилучити з поточної комірки"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Додати до поточної комірки"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Тепер ви маєте спільну комірку з %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Не вдалося створити комірку: %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Файл Word"
   },
   "66": {
-    "other": "Copy"
+    "other": "Копіювати"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Вибраний файл"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Вставити до"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "Або вибрати іншу теку"
   },
   "7": {
-    "other": "Delete"
+    "other": "Видалити"
   },
   "70": {
     "other": "Move"
