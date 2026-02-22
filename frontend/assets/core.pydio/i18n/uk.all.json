@@ -330,46 +330,46 @@
     "other": "Налаштування користувача"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "Ваша мова відрізняється від поточної мови інтерфейсу!\\n Бажаєте перезавантажити сторінку, щоб змінити мову?"
   },
   "197": {
-    "other": "Your password change will take effect after you logout."
+    "other": "Зміна пароля набуде чинності після вашого виходу з системи."
   },
   "198": {
-    "other": "New"
+    "other": "Новий"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Підтвердити"
   },
   "2": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "20": {
-    "other": "WAV file"
+    "other": "WAV файл"
   },
   "200": {
-    "other": "Switch Repository to..."
+    "other": "Змінити репозиторій..."
   },
   "201": {
-    "other": "Warning, some of your changes are not saved!\\n Are you sure you want to close?"
+    "other": "Увага! Деякі зміни не збережено.\\n\nВи впевнені, що хочете закрити сторінку?"
   },
   "202": {
-    "other": "Warning, recursive copy!"
+    "other": "Увага: рекурсивне копіювання!"
   },
   "203": {
-    "other": "Destintation folder is the same as original folder!"
+    "other": "Цільова тека збігається з початковою!"
   },
   "204": {
-    "other": "The file \""
+    "other": "Файл «"
   },
   "205": {
-    "other": "\" exceeds size limit ("
+    "other": "» перевищує ліміт розміру ("
   },
   "206": {
-    "other": "Mb).\\nIt will not be uploaded."
+    "other": "МБ).\\n його не буде завантажено."
   },
   "207": {
-    "other": "You have no write permission on this folder"
+    "other": "У вас немає прав на запис у цій теці"
   },
   "208": {
     "other": "You have no read permission on this folder"
