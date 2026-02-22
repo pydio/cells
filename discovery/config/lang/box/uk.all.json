@@ -363,10 +363,10 @@
     "other": "ні"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Тип робочої області"
+    "other": "Тип робочого простору"
   },
   "workspaceSingleQuery.scope.ADMIN": {
-    "other": "Робоча область"
+    "other": "Робочий простір"
   },
   "workspaceSingleQuery.scope.ANY": {
     "other": "Всі"
