@@ -1842,115 +1842,115 @@
     "other": "Видалити"
   },
   "70": {
-    "other": "Move"
+    "other": "Перемістити"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "Цей файл уже існує (регістр літер не враховується)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "Кореневий шлях вказано неправильно. Перевірте його у файлі conf/conf.php"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "було скопійовано до теки"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "було переміщено до теки"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "Файл users.txt відсутній у теці prive"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Цей файл було вилучено"
   },
   "77": {
-    "other": "Send"
+    "other": "Надіслати"
   },
   "78": {
-    "other": "Pass"
+    "other": "Пароль"
   },
   "79": {
-    "other": "PDF File"
+    "other": "Файл PDF"
   },
   "8": {
-    "other": "Directory"
+    "other": "Тека"
   },
   "80": {
-    "other": "MOV File"
+    "other": "Файл MOV"
   },
   "81": {
-    "other": "AVI File"
+    "other": "Файл AVI"
   },
   "82": {
-    "other": "MPG File"
+    "other": "Файл MPG"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "Файл MPEG"
   },
   "84": {
-    "other": "Help"
+    "other": "Довідка"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Оновити"
   },
   "86": {
-    "other": "Close"
+    "other": "Закрити"
   },
   "87": {
-    "other": "Search"
+    "other": "Пошук"
   },
   "88": {
-    "other": "Download"
+    "other": "Завантаження"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Не вдалося відкрити файл"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Файл Midi"
   },
   "90": {
-    "other": "Print"
+    "other": "Друк"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "Файл FLASH"
   },
   "92": {
-    "other": "Language"
+    "other": "Мова"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Щоб обрати мову, ваш браузер повинен приймати файли cookies."
   },
   "94": {
-    "other": "Login"
+    "other": "Логін"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Оберіть вашу мову:"
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "Будь ласка, оберіть цільову теку в каталозі: "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Завантажити файл"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Натисніть у будь-якому місці цього вікна, щоб закрити його."
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "недоступний для запису. Можливо, виникла проблема з правами доступу; будь ласка, зверніться до адміністратора."
   },
   "about_access_key": {
     "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "B"
+    "other": "В"
   },
   "byte_unit_symbol": {
-    "other": "B"
+    "other": "В"
   },
   "copy_access_key": {
     "other": "C"
   },
   "create_repo_accesskey": {
-    "other": "R"
+    "other": "Р"
   },
   "create_user_accesskey": {
     "other": "U"
@@ -1959,40 +1959,40 @@
     "other": "Y/m/d H:i"
   },
   "date_intl_locale": {
-    "other": "en_US"
+    "other": "Англійська (США)"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "на дату"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s днів тому"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "через %s днів"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "ЧАС"
   },
   "date_relative_time_format": {
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "[Today at] LT"
+    "other": "[Сьогодні о] LT"
   },
   "date_relative_tomorrow": {
-    "other": "[Tomorrow at] LT"
+    "other": "[Завтра о] LT"
   },
   "date_relative_yesterday": {
-    "other": "[Yesterday at] LT"
+    "other": "[Вчора о] LT"
   },
   "date_relative_lastweek": {
-    "other": "[Last] dddd [at] LT"
+    "other": "[Минулого] dddd [о] LT"
   },
   "date_relative_nextweek": {
-    "other": "dddd [at] LT"
+    "other": "dddd [о] LT"
   },
   "delete_access_key": {
     "other": "D"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Англійська"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,10 +2034,10 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "Плагіни, що визначають спосіб доступу робочого простору до серверної частини (сховища файлів тощо), а також основні макети та дії."
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "Функціональні плагіни для різних аспектів системи"
   },
   "plugtype.desc.auth": {
     "other": "How users data are stored in the backend"
@@ -2106,73 +2106,73 @@
     "other": "Action plugins"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "Сервери автентифікації"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "Інтерфейси автентифікації"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Завантажувач"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Кеш-сервер"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Сховище конфігурації"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Інструменти шифрування"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Редактори"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Сховище стрічки подій"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Графічний інтерфейс користувача"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Помічник"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "Індексація"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "Реєстратори подій"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "Поштові служби"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Пошукова система"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "Метадані робочого простору"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Сховище метаданих"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Миттєві повідомлення"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Безпека"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Скорочення URL-адрес"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Завантажувачі"
   },
   "preview_access_key": {
-    "other": "e"
+    "other": "е"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "батьківська тека"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "групові дії"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2181,7 +2181,7 @@
     "other": "R"
   },
   "restore_access_key": {
-    "other": "o"
+    "other": "о"
   },
   "settings_access_key": {
     "other": "g"
@@ -2190,7 +2190,7 @@
     "other": "L"
   },
   "thumbs_access_key": {
-    "other": "T"
+    "other": "Т"
   },
   "upload_access_key": {
     "other": "U"
@@ -2199,61 +2199,61 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Публічний доступ"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Файл переміщується у фоновому режимі..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Тека переміщується у фоновому режимі..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Копіювання виділеного у фоновому режимі..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Файл заблокований"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Тека заблокована"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Наразі переглядають цей файл"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Наразі переглядають цю теку"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Спільний файл, натисніть для редагування"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Спільна тека, натисніть для редагування"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Файл додано до закладок"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Теку додано до закладок"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Додати цей елемент до закладок"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Вилучити цю закладку"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Змішані значення, натисніть, щоб додати все до закладок"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Збереження статусу закладки"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Всередині"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Порожній файл"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Безіменний документ"
   },
   "filename.forbidden.slash": {
     "other": "Do not use / in file names!"
