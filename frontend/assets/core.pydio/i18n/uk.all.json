@@ -513,7 +513,7 @@
     "other": "Завантажте один або кілька файлів (макс. %s в каталозі: "
   },
   "250": {
-    "other": "Робочі області"
+    "other": "Робочі простори"
   },
   "251": {
     "other": "Журнали"
@@ -522,109 +522,109 @@
     "other": "Досягнуто максимальний розмір файлу."
   },
   "253": {
-    "other": "There has been an HTTP Error:"
+    "other": "Сталася помилка HTTP:"
   },
   "254": {
-    "other": "There has been an IO Error:"
+    "other": "Сталася помилка вводу-виводу:"
   },
   "255": {
-    "other": "These has been a Security Error:"
+    "other": "Сталася помилка безпеки:"
   },
   "256": {
-    "other": "Uploaded"
+    "other": "Завантажено"
   },
   "257": {
-    "other": "Remove"
+    "other": "Видалити"
   },
   "258": {
-    "other": "File count :"
+    "other": "Файлів:"
   },
   "259": {
-    "other": "Total size :"
+    "other": "Загальний розмір:"
   },
   "26": {
-    "other": "Create a new directory in : "
+    "other": "Створити новий каталог у: "
   },
   "260": {
-    "other": "bytes"
+    "other": "байт"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "Запам'ятати мене"
   },
   "262": {
-    "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
+    "other": "Здається, один або декілька файлів уже\\nіснують у теці призначення.\\nЩо ви хочете зробити?"
   },
   "263": {
-    "other": "Overwrite"
+    "other": "Перезаписати"
   },
   "264": {
-    "other": "Skip"
+    "other": "Пропустити"
   },
   "265": {
-    "other": "Files"
+    "other": "Файли"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Створити"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "Створити нову таблицю"
   },
   "269": {
-    "other": "Structure"
+    "other": "Структура"
   },
   "27": {
-    "other": "Upload"
+    "other": "Завантажити"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "Редагувати структуру таблиці"
   },
   "271": {
-    "other": "Drop"
+    "other": "Видалити"
   },
   "272": {
-    "other": "Drop open table"
+    "other": "Видалити відкриту таблицю"
   },
   "273": {
-    "other": "Insert"
+    "other": "Вставити"
   },
   "274": {
-    "other": "Insert a new record"
+    "other": "Вставити новий запис"
   },
   "275": {
-    "other": "Are you sure you want to drop the selected table(s)?"
+    "other": "Ви дійсно бажаєте видалити обрані таблиці?"
   },
   "276": {
-    "other": "Edit selected record"
+    "other": "Редагувати обраний запис"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "Видалити обрані записи"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "Ви впевнені, що хочете видалити обрані записи?"
   },
   "279": {
-    "other": "Tables"
+    "other": "Таблиці"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "Створити новий файл в : "
   },
   "280": {
-    "other": "Records"
+    "other": "Записи"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "Обмеження завантаження"
   },
   "282": {
-    "other": "Size per File"
+    "other": "Розмір на файл"
   },
   "283": {
-    "other": "Total Size"
+    "other": "Загальний розмір"
   },
   "284": {
-    "other": "Files Number"
+    "other": "Кількість файлів"
   },
   "285": {
     "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
@@ -633,7 +633,7 @@
     "other": "Your user is out of date with the current version, please use the upgrade procedure."
   },
   "287": {
-    "other": "File Permissions"
+    "other": "Дозволи файлів"
   },
   "288": {
     "other": "User"
@@ -672,7 +672,7 @@
     "other": "Create a new user"
   },
   "299": {
-    "other": "Робочі області"
+    "other": "Робочі простори"
   },
   "3": {
     "other": "Тип"
@@ -681,25 +681,25 @@
     "other": "Введіть назву каталога, потім натисніть &quot;Створити&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Створіть нову робочу область"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Змінити конфігурацію"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Копіювати як текст"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "Копіювати виділений текст як текст, розділений табуляцією."
   },
   "304": {
-    "other": "Back"
+    "other": "Назад"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "Назад до головної сторінки"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "Мої робочі простори"
   },
   "306": {
     "other": "Too many items"
@@ -927,7 +927,7 @@
     "other": "Destination"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Не можна копіювати теки між робочими просторами"
   },
   "375": {
     "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
@@ -1173,7 +1173,7 @@
     "other": "Select files on your computer"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "Робочі простори"
   },
   "456": {
     "other": "More"
@@ -1206,7 +1206,7 @@
     "other": "Download all workspace content at once (zipped)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "Показати альтернативні URL-адреси (монтувати робочі простори окремо)"
   },
   "466": {
     "other": "Loading..."
@@ -1215,7 +1215,7 @@
     "other": "All Shared Elements"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Робочі простори"
   },
   "469": {
     "other": "Cells"
@@ -1347,7 +1347,7 @@
     "other": "to"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Параметри додатку (користувачі, робочі простори, конфігурації)"
   },
   "507": {
     "other": "Welcome on %s"
@@ -1617,7 +1617,7 @@
     "other": "No External Users"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Створюйте власних користувачів і діліться з ними файлами або теками з ваших робочих просторів."
   },
   "587": {
     "other": "No results"
@@ -1692,7 +1692,7 @@
     "other": "Less search options"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "Ваші останні дії - Введіть для пошуку файлів у всіх робочих просторах"
   },
   "608": {
     "other": "Current folder"
@@ -1704,7 +1704,7 @@
     "other": "GZ File"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "Усі робочі простори"
   },
   "611": {
     "other": "Start typing to search"
@@ -2082,7 +2082,7 @@
     "other": "Search Engine options"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "Додаткові можливості для додавання до робочих просторів"
   },
   "plugtype.desc.metastore": {
     "other": "Various implementations for storing metadata along with files and folders"
@@ -2100,7 +2100,7 @@
     "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "Драйвери робочих просторів"
   },
   "plugtype.title.action": {
     "other": "Action plugins"
@@ -2274,7 +2274,7 @@
     "other": "Filter Cells"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Фільтрувати робочі простори"
   },
   "visibility.panel.title": {
     "other": "Visibility"
