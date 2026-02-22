@@ -111,7 +111,7 @@
     "other": "Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes."
   },
   "ds.editor.legend.delete.2": {
-    "other": "Make sure to first remove all workspaces that are pointing to this datasource before deleting it."
+    "other": "Перш ніж видаляти це джерело даних, обов’язково видаліть усі робочі простори, що на нього посилаються."
   },
   "ds.editor.legend.delete.button": {
     "other": "Delete DataSource"
@@ -168,7 +168,7 @@
     "other": "Read-only mode"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+    "other": "Використовуйте режим «лише для читання», якщо потрібно, щоб у Комірки ніколи не записувалися приховані файли та використовувалися стандартні eTags як контрольні суми (це може бути необхідно для кошиків із величезним обсягом наявних даних). Однак зверніть увагу: будь-які робочі простори, створені на основі цього джерела даних, мають бути встановлені в режим «лише для читання», оскільки функція переміщення не зможе працювати належним чином."
   },
   "ds.editor.storage.flatStorage": {
     "other": "Keep data structure on storage"
