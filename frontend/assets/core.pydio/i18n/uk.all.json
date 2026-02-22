@@ -372,154 +372,154 @@
     "other": "У вас немає прав на запис у цій теці"
   },
   "208": {
-    "other": "You have no read permission on this folder"
+    "other": "Ви не маєте дозволу на читання цієї теки"
   },
   "209": {
-    "other": "Internal server error, please contact Administrator!"
+    "other": "Внутрішня помилка сервера, будь ласка, зверніться до адміністратора!"
   },
   "21": {
-    "other": "PHP script"
+    "other": "PHP-скрипт"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "Помилка завантаження"
   },
   "211": {
-    "other": "The file is too big! Please contact your administrator or use the desktop sync client."
+    "other": "Файл завеликий! Будь ласка, зверніться до адміністратора або скористайтеся клієнтом для синхронізації комп'ютера."
   },
   "212": {
-    "other": "No file found on server!"
+    "other": "Не знайдено файл на сервері!"
   },
   "213": {
-    "other": "Error while copying file to current folder"
+    "other": "Помилка при копіюванні файлу в поточну теку"
   },
   "214": {
-    "other": "Browse"
+    "other": "Огляд"
   },
   "215": {
-    "other": "Start Upload"
+    "other": "Почати завантаження"
   },
   "216": {
-    "other": "Clear"
+    "other": "Очистити"
   },
   "217": {
-    "other": "Clear Completed"
+    "other": "Очищення завершено"
   },
   "218": {
-    "other": "Remove from queue"
+    "other": "Видалити з черги"
   },
   "219": {
-    "other": "Completed"
+    "other": "Завершено"
   },
   "22": {
-    "other": "PHP script"
+    "other": "PHP-скрипт"
   },
   "220": {
-    "other": "Empty"
+    "other": "Порожньо"
   },
   "221": {
-    "other": "Empty Recycle Bin"
+    "other": "Очистити смітник"
   },
   "222": {
-    "other": "Restore"
+    "other": " Відновити"
   },
   "223": {
-    "other": "Restore file to its original location"
+    "other": "Відновити файл до початкового розташування"
   },
   "224": {
-    "other": "Go to"
+    "other": "Перейти до"
   },
   "225": {
-    "other": "Rename bookmark"
+    "other": "Перейменувати закладку"
   },
   "226": {
-    "other": "Details"
+    "other": "Деталі"
   },
   "227": {
-    "other": "Switch to detailed table view"
+    "other": "Перейти до детального табличного вигляду"
   },
   "228": {
-    "other": "Thumbs"
+    "other": "Мініатюри"
   },
   "229": {
-    "other": "Switch to thumbnails view"
+    "other": "Перейти до режиму мініатюр"
   },
   "23": {
-    "other": "File"
+    "other": "Файл"
   },
   "230": {
-    "other": "Play"
+    "other": "Відтворити"
   },
   "231": {
-    "other": "Play Slideshow"
+    "other": "Відтворити слайд-шоу"
   },
   "232": {
-    "other": "Stop"
+    "other": "Зупинити"
   },
   "233": {
-    "other": "Stop Slideshow"
+    "other": "Зупинити слайд-шоу"
   },
   "234": {
-    "other": "View selected images"
+    "other": "Переглянути обрані зображення"
   },
   "235": {
-    "other": "Fullscreen"
+    "other": "На весь екран"
   },
   "236": {
-    "other": "Restore"
+    "other": "Відновити"
   },
   "237": {
-    "other": "Old password"
+    "other": "Старий пароль"
   },
   "238": {
-    "other": "Passwords differ!"
+    "other": "Паролі відрізняються!"
   },
   "239": {
-    "other": "Please fill you current password"
+    "other": "Будь ласка, введіть поточний пароль"
   },
   "24": {
-    "other": "Parent directory"
+    "other": "Батьківський каталог"
   },
   "240": {
-    "other": "Wrong password!"
+    "other": "Невірний пароль!"
   },
   "241": {
-    "other": "Your preferences have been saved successfully!"
+    "other": "Ваші налаштування успішно оновлені!"
   },
   "242": {
-    "other": "Svn Log"
+    "other": "Журнал Svn"
   },
   "243": {
-    "other": "Revision"
+    "other": "Редакція"
   },
   "244": {
-    "other": "Author"
+    "other": "Автор"
   },
   "245": {
-    "other": "Date"
+    "other": "Дата"
   },
   "246": {
-    "other": "Message"
+    "other": "Повідомлення"
   },
   "247": {
-    "other": "Extract"
+    "other": "Видобути"
   },
   "248": {
-    "other": "Extract selection from zip to..."
+    "other": "Видобути обране з zip у..."
   },
   "249": {
-    "other": "Users"
+    "other": "Користувачі"
   },
   "25": {
-    "other": "Upload one or more files (max. %s in the directory : "
+    "other": "Завантажте один або кілька файлів (макс. %s в каталозі: "
   },
   "250": {
-    "other": "Workspaces"
+    "other": "Робочі області"
   },
   "251": {
-    "other": "Logs"
+    "other": "Журнали"
   },
   "252": {
-    "other": "The total file size limit has been reached."
+    "other": "Досягнуто максимальний розмір файлу."
   },
   "253": {
     "other": "There has been an HTTP Error:"
@@ -672,13 +672,13 @@
     "other": "Create a new user"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Робочі області"
   },
   "3": {
-    "other": "Type"
+    "other": "Тип"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "Введіть назву каталога, потім натисніть &quot;Створити&quot;"
   },
   "300": {
     "other": "Create a new workspace"
