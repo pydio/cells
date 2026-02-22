@@ -906,541 +906,541 @@
     "other": "Ви не маєте дозволу завантажувати файли такого типу. Будь ласка, оберіть серед таких розширень: "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Вибрані об'єкти успішно вилучено з архіву %s до теки %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Ярлик"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Ви повинні написати допустиму назву"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE Публічне завантаження"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Для цього завантаження потрібен пароль"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Поточний робочий простір"
   },
   "373": {
-    "other": "Destination"
+    "other": "Призначення"
   },
   "374": {
     "other": "Не можна копіювати теки між робочими просторами"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Ми помітили, що ви не проявляли активності понад __IDLE__. Для безпеки ваших даних вихід із системи відбудеться за __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Ви ще тут?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Натисніть будь-де, щоб продовжити сеанс"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Увага: пароль порожній або занадто короткий!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Недозволене слово!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Каталог"
   },
   "380": {
-    "other": "Too short"
+    "other": "Занадто короткий"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Дуже слабкий"
   },
   "382": {
-    "other": "Weak"
+    "other": "Слабкий"
   },
   "383": {
-    "other": "Medium"
+    "other": "Середній"
   },
   "384": {
-    "other": "Strong"
+    "other": "Надійний"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Дуже надійний"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Будь ласка, використовуйте лише маленькі літери для входу"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Будь ласка, використовуйте цифри та латинські літери або коректну адресу пошти для входу"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Ви тричі не змогли увійти до системи.\\nЗадля вашої безпеки введіть код із зображення."
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Будь ласка, прочитайте код нижче:"
   },
   "39": {
-    "other": "has been created in"
+    "other": "було створено в"
   },
   "390": {
-    "other": "Code"
+    "other": "Код"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Немає репозиторію"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Увага, APPLICATION_TITLE версія змінилася (тепер %s), будь ласка, очистіть кеш вашого браузера й оновіть сторінку, щоб переконатися, що все функціонує!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Попередження, довжина імен повинна бути до %s символів, ім'я цього файлу буде обрізано!"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "На жаль, наразі спільний доступ до тек неможливий через поточний драйвер авторизації (користувачі недоступні для редагування). Поширення файлів усе ще працює."
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "Схоже, ви перетягнули теку, а завантаження тек на сервер не підтримується! Ви впевнені, що хочете продовжити?"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Метод аутентифікації"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "Завантажити частинами"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "Завантажити обраний файл частинами"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "Введіть кількість частин, які ви хочете завантажити, натисніть кнопку та по черзі клацніть кожен файл для завантаження."
   },
   "4": {
-    "other": "Modified"
+    "other": "Змінено"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Цей каталог вже існує (імена не чутливі до регістру)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Кількість частин:"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "Ви можете завантажити й встановити наступне програмне забезпечення, яке б поєднало певні частини у вашому комп'ютері: "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "перейменовано на"
   },
   "411": {
-    "other": "Open"
+    "other": "Відкрити"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Тільки завантаження"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Доступ відкрито"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "Використовуйте стрілки для навігації + /- зміни масштабу"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Видимість лівої панелі"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Ліва панель"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Створити Комірку..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Створити Комірку"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Завантаження шаблонів..."
   },
   "42": {
-    "other": "to"
+    "other": "до"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "Будь ласка, оберіть шаблон зі списку"
   },
   "421": {
-    "other": "New %s"
+    "other": "Новий %s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "Будь ласка, заповніть обов'язкові поля. Наведіть курсор на назви полів, щоб отримати додаткову інформацію."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Видалити робочий простір"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "Ви впевнені, що хочете видалити цей робочий простір? Ця дія є незворотною."
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "Робочий простір створено та додано до вашого списку. Щоб видалити його, спершу перейдіть до іншого робочого простору, а потім натисніть на червоний хрестик поруч із назвою."
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "При створенні робочого простору сталася помилка"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "Сталася помилка при видаленні робочого простору"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "Робочий простір успішно видалено"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "Ось так робочий простір виглядатиме у вашому списку."
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "вже існує (регістр літер не враховується)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "Спільні файли"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "Зразок шаблону"
   },
   "432": {
-    "other": "My Files"
+    "other": "Мої файли"
   },
   "433": {
-    "other": "ready"
+    "other": "готово"
   },
   "434": {
-    "other": "sending"
+    "other": "відправка"
   },
   "435": {
-    "other": "done"
+    "other": "зроблено"
   },
   "436": {
-    "other": "error"
+    "other": "помилка"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "Ой! Схоже, термін дії вашого токена безпеки вичерпано. Будь ласка, %s, оновивши сторінку або натиснувши F5 у браузері!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "перезавантажити сторінку"
   },
   "439": {
-    "other": "Main Options"
+    "other": "Основні параметри"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "було видалено"
   },
   "440": {
-    "other": "Yes"
+    "other": "Так"
   },
   "441": {
-    "other": "No"
+    "other": "Ні"
   },
   "442": {
-    "other": "My Account"
+    "other": "Мій акаунт"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Оновити персональну інформацію"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "Будь-ласка, оновіть свій пароль, інакше ви не зможете увійти в систему."
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "Зараз ви вийдете із системи. Будь ласка, увійдіть знову, використовуючи свій новий пароль. Дякуємо!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Представлення"
   },
   "447": {
-    "other": "My group"
+    "other": "Моя група"
   },
   "448": {
-    "other": "create user"
+    "other": "створити користувача"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "Створення %s, оберіть пароль"
   },
   "45": {
-    "other": "directory"
+    "other": "каталог"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Сортувати за ..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "Сортувати мініатюри за ..."
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "Розмір мініатюр"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "Встановити розмір мініатюр"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Оберіть файли на комп'ютері"
   },
   "455": {
     "other": "Робочі простори"
   },
   "456": {
-    "other": "More"
+    "other": "Більше"
   },
   "457": {
-    "other": "update"
+    "other": "оновити"
   },
   "458": {
-    "other": "remove"
+    "other": "видалити"
   },
   "459": {
-    "other": "Top folder"
+    "other": "Головна тека"
   },
   "46": {
-    "other": "file"
+    "other": "файл"
   },
   "460": {
-    "other": "List"
+    "other": "Список"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Перейти до вигляду списком"
   },
   "462": {
-    "other": "Preview"
+    "other": "Попередній перегляд"
   },
   "463": {
-    "other": "Download all"
+    "other": "Завантажити все"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Завантажити весь вміст робочого простору одним архівом (ZIP)"
   },
   "465": {
     "other": "Показати альтернативні URL-адреси (монтувати робочі простори окремо)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Завантаження..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Всі спільні елементи"
   },
   "468": {
     "other": "Робочі простори"
   },
   "469": {
-    "other": "Cells"
+    "other": "Комірки"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Ви справді хочете видалити"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Створено %date"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "Створено %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Поширено %user"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Поширено %user %date"
   },
   "474": {
-    "other": "No description available"
+    "other": "Опис відсутній"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Файли, доступні всім користувачам"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Ваш особистий робочий простір"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Оберіть файл або теку, щоб переглянути деталі тут"
   },
   "478": {
-    "other": "No results found"
+    "other": "Нічого не знайдено"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Забули пароль?"
   },
   "48": {
-    "other": "Ok"
+    "other": "Гаразд"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Переглянути всі теки поточного робочого простору."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Всі ваші спільні файли та теки"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Швидкий доступ до закладок"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "У вас немає прав для створення нових користувачів!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Створити користувача"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Створити спільного користувача"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Додатково"
   },
   "487": {
-    "other": "Basic"
+    "other": "Основні"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Розширений фільтр"
   },
   "489": {
-    "other": "Metadata"
+    "other": "Метадані"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Скасувати"
   },
   "490": {
-    "other": "Date range"
+    "other": "Діапазон дат"
   },
   "491": {
-    "other": "After"
+    "other": "Після"
   },
   "492": {
-    "other": "until"
+    "other": "до"
   },
   "493": {
-    "other": "Today"
+    "other": "Сьогодні"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Вчора"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "Завтра"
   },
   "495": {
-    "other": "Last week"
+    "other": "Минулий тиждень"
   },
   "496": {
-    "other": "Last month"
+    "other": "Минулий місяць"
   },
   "497": {
-    "other": "Last year"
+    "other": "Минулий рік"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Властивість документа"
   },
   "499": {
-    "other": "File"
+    "other": "Файл"
   },
   "5": {
-    "other": "Actions"
+    "other": "Дії"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Файл EXE"
   },
   "500": {
-    "other": "Extension"
+    "other": "Розширення"
   },
   "501": {
-    "other": "or"
+    "other": "або"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Тільки теки"
   },
   "503": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "504": {
-    "other": "1k,1M,1G"
+    "other": "1 КБ, 1 МБ, 1 ГБ"
   },
   "505": {
-    "other": "to"
+    "other": "до"
   },
   "506": {
     "other": "Параметри додатку (користувачі, робочі простори, конфігурації)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Ласкаво просимо до %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Я щойно створив(ла) для вас обліковий запис у %s. Щоб увійти, будь ласка, перейдіть за цим посиланням %link та використайте такі дані: <br><br> Логін: %user <br><br> Пароль: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Зберегти як команду"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Текстовий редактор"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Будь ласка, введіть назву команди"
   },
   "511": {
-    "other": "My %s"
+    "other": "Моє %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "На весь екран"
   },
   "513": {
-    "other": "show"
+    "other": "показати"
   },
   "514": {
-    "other": "hide"
+    "other": "приховати"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Немає закладок — перетягніть файли або теки сюди для швидкого доступу."
   },
   "516": {
-    "other": "expand"
+    "other": "розгорнути"
   },
   "517": {
-    "other": "collapse"
+    "other": "згорнути"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Крім того, ви можете <a class='create_file_alt_link'>створити новий порожній файл</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Оновити користувача"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Редагування файлу"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Оновити дані користувача та пароль"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Успішно оновлено користувача"
   },
   "522": {
-    "other": "User ID"
+    "other": "ID користувача"
   },
   "523": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Оновити пароль"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Показати оригінал"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Версія низької роздільної здатності"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Спільні з"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Внутрішні користувачі"
   },
   "53": {
-    "other": "Save"
+    "other": "Зберегти"
   },
   "530": {
-    "other": "External users"
+    "other": "Зовнішні користувачі"
   },
   "531": {
-    "other": "Users"
+    "other": "Користувачі"
   },
   "532": {
-    "other": "Groups"
+    "other": "Групи"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "Ідентифікатор для входу; використовуйте лише малі латинські літери, цифри або email."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Пароль для входу"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Відправити пароль по електронній пошті"
   },
   "536": {
     "other": "Send a welcome email including the password to the new user"
