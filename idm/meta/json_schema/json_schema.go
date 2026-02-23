@@ -293,7 +293,7 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 			t = name
 		}
 		f.root["title"] = t
-		props[t] = withArraySchema()
+		props[t] = withStringArraySchema()
 	case "stars_rate":
 		var t = fmt.Sprintf("%s-stars_rate", usermeta)
 		if name != "" {
@@ -322,8 +322,6 @@ func (f *JSONSchemaFactory) BuildJsonSchema(label string, name string, format st
 		}
 		f.root["title"] = t
 		props[t] = withArraySchema()
-	// TODO Switching tag cloud schema to a string to solve input issues in the frontend
-	// Ideally it maybe a schema with anyOf an array of strings and a string to allow new inputs
 	case "tag_cloud":
 		var t = fmt.Sprintf("%s-tags", usermeta)
 		if name != "" {
@@ -419,7 +417,6 @@ func withArraySchema() map[string]interface{} {
 	// Create a slice type for string enums
 	s := ArrayOfStrings([]string{})
 	prop := marshalSchema(s)
-	// Add additional array-specific constraints
 	return prop
 }
 
