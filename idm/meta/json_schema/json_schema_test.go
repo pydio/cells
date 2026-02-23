@@ -257,7 +257,7 @@ func TestJsonSchemaCoverage(t *testing.T) {
 	Convey("JSONSchemaFactory.BuildJsonSchema returns bytes and contains expected fields", t, func() {
 		f := NewJSONSchemaFactory("string")
 
-		bt, st := f.BuildJsonSchema("string", "string-label", "")
+		bt, st := f.BuildJsonSchema("string", "usermeta-text", "")
 		So(bt, ShouldNotBeNil)
 
 		var m map[string]interface{}
@@ -274,7 +274,7 @@ func TestJsonSchemaCoverage(t *testing.T) {
 		}
 
 		// other labels
-		bt2, _ := f.BuildJsonSchema("textarea", "textarea-label", "")
+		bt2, _ := f.BuildJsonSchema("textarea", "usermeta-long-text", "")
 		So(bt2, ShouldNotBeNil)
 		var mt map[string]interface{}
 		So(json.Unmarshal(bt2, &mt), ShouldBeNil)
