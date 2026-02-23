@@ -2094,16 +2094,16 @@
     "other": "Розширені функції безпеки"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "Вебсервіси для скорочення публічних посилань"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "Завантажувачі на основі різних технологій (HTML, JavaScript, Java та інші)"
   },
   "plugtype.title.access": {
     "other": "Драйвери робочих просторів"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "Плагіни дій"
   },
   "plugtype.title.auth": {
     "other": "Сервери автентифікації"
@@ -2256,181 +2256,181 @@
     "other": "Безіменний документ"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Не використовуйте символ «/» у назвах файлів!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "Необхідно вказати назву!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Увага! Схоже, назва починається або закінчується пробілом (можливо, це друкарська помилка?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Будь ласка, вкажіть іншу назву для перейменування!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Перейменування «%1» на «%2»"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Фільтрувати комірки"
   },
   "ws.quick-filter": {
     "other": "Фільтрувати робочі простори"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Видимість"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Переглянути"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Редагувати"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Користувачі"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Ваші команди"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Зміна видимості"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Зберегти зміни"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Скасувати зміни"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Сталася помилка"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Оберіть користувача..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Встановити видимість для..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Ця розширена функція дозволяє визначити, чи зможуть інші користувачі переглядати та/або редагувати створені вами контакти в адресній книзі. За замовчуванням ваші записи бачите лише ви."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Невідомо"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Оберіть групу"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Множинний вибір"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Підтвердити"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Ви збираєтеся видалити"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Не попереджати мене наступного разу"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Рядків на сторінці"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "з"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Будь ласка, використовуйте тільки зображення (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Скинути"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Ви хочете видалити поточне зображення?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Будь ласка, використовуйте зображення, що менші за 5МБ"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Почніть вводити для пошуку файлів та тек"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Шукаємо..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Пошук..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Пошук: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Шукати в..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Спільний доступ"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Без статусу"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Публічне посилання"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Спільний доступ у комірках"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Публічне посилання або комірка"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "Формат"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Лише файли"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Розширені фільтри"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "Знайдено результатів: %1"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "Показано %1, завантажити ще..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Зберегти"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Зберегти запит"
   },
   "searchengine.query.action.save-legend": {
-    "other": "Save this search query for later re-use"
+    "other": "Зберегти цей пошуковий запит для подальшого використання"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "Очистити"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Очистити все"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Видалити"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "Видалити цей збережений запит?"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Введіть мітку"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Назва/Контент"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Збережені пошукові запити"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Останні пошуки"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Розширена пропозиція"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Ви маєте на увазі"
   },
   "searchengine.complete.suggestion.remain": {
     "other": "containing '%s'"
