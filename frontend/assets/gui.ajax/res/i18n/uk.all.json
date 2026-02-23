@@ -147,94 +147,94 @@
     "other": "Скопіювати код в буфер обміну"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "Код скопійований в буфер обміну, Ви можете вставити його в командний рядок."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "Не вдалося скопіювати до буфера обміну."
   },
   "layouts.preferences": {
-    "other": "Manage Layouts"
+    "other": "Керування макетами"
   },
   "layouts.preferences.legend": {
-    "other": "Save and Recall Layouts as Presets"
+    "other": "Зберігайте та застосовуйте макети як пресети"
   },
   "layouts.action.rename": {
-    "other": "Rename Layout"
+    "other": "Перейменувати макет"
   },
   "layouts.action.remove": {
-    "other": "Remove Layout"
+    "other": "Видалити макет"
   },
   "layouts.action.remove.confirm": {
-    "other": "Do you want to remove this layout?"
+    "other": "Ви хочете видалити цей макет?"
   },
   "layouts.action.reset": {
-    "other": "Reset Layout"
+    "other": "Скинути макет"
   },
   "layouts.action.reset.confirm": {
-    "other": "Do you want to reset the current layout?"
+    "other": "Ви хочете скинути поточний макет?"
   },
   "layouts.action.create": {
-    "other": "Save Layout..."
+    "other": "Зберегти макет..."
   },
   "layouts.action.fork": {
-    "other": "New From Current..."
+    "other": "Новий на основі поточного..."
   },
   "layouts.action.create.default": {
-    "other": "My Layout"
+    "other": "Мої макети"
   },
   "layouts.prompt.save": {
-    "other": "Save Layout As..."
+    "other": "Зберегти макет як..."
   },
   "layouts.prompt.save.field": {
-    "other": "Choose a name to save/recall the current layout"
+    "other": "Виберіть назву для збереження або відновлення поточного макета"
   },
   "list.display-mode.list": {
-    "other": "List"
+    "other": "Список"
   },
   "list.display-mode.details": {
-    "other": "Details"
+    "other": "Подробиці"
   },
   "list.display-mode.thumbs": {
-    "other": "Thumbs"
+    "other": "Мініатюри"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Larger"
+    "other": "Великий"
   },
   "list.display-mode.thumbs-medium": {
-    "other": "Medium"
+    "other": "Середній"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Smaller"
+    "other": "Малий"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "Галерея зображень"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "Розширення файлів"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Відображати розширення"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "Закріпити закладки вгорі"
   },
   "list.writeonly.emptystate.title": {
-    "other": "Drop Files Here"
+    "other": "Перетягніть файли сюди"
   },
   "list.writeonly.emptystate.legend": {
-    "other": "This folder is write-only: you cannot see its contents and are only authorized to upload files or folders. Your own content will not be visible after upload!"
+    "other": "Ця тека призначена лише для запису: ви не бачите її вмісту і маєте дозвіл лише на завантаження файлів або тек. Ваш контент не буде відображатися після завантаження!"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "Виберіть файл для відображення інформації"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "Прикріпити картку (на всю висоту)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "Від'єднати картку"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "Від’єднати в окрему панель"
   },
   "infopanel.detached.minimize": {
     "other": "Згорнути панель"
