@@ -3,66 +3,66 @@
     "other": "Remote DL"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "Завантажити до APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "Завантажити в %s"
   },
   "10b": {
-    "other": "DL to %s"
+    "other": "Завантажити в %s"
   },
   "10c": {
-    "other": "DL to %s"
+    "other": "Завантажити в %s"
   },
   "10d": {
-    "other": "AjXp Download (%s)"
+    "other": "Завантаження AjXp (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "Перетягніть одне з цих посилань на панель закладок: "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "Запустити віддалене завантаження файлу"
   },
   "13": {
-    "other": "From computer"
+    "other": "З комп'ютера"
   },
   "14": {
-    "other": "From remote server"
+    "other": "З віддаленого сервера"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "Або створіть закладку вручну та використайте наведений нижче код як URL-адресу посилання: "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "Перетягніть мене на панель закладок!"
   },
   "17": {
-    "other": "Download file"
+    "other": "Завантажити файл"
   },
   "18": {
-    "other": "Partial file"
+    "other": "Частковий файл"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "Завантажити файл(и) з віддаленого сервера"
   },
   "3": {
-    "other": "m"
+    "other": "хв"
   },
   "4": {
-    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+    "other": "Введіть принаймні одну URL-адресу файлу, який ви хочете завантажити безпосередньо із зовнішнього HTTP-сервера до поточної теки. Ця дія виконуватиметься у фоновому режимі, тож ви зможете продовжувати роботу з APPLICATION_TITLE під час завантаження."
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "Завантаження"
   },
   "7": {
-    "other": "to server"
+    "other": "на сервер"
   },
   "8": {
-    "other": "File downloaded, reloading the client!"
+    "other": "Файл завантажено, перевантажте клієнт!"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "Створити розумну закладку"
   }
 }
