@@ -32,6 +32,7 @@ type MetaNamespaceDefinition interface {
 	GetEntityId() string
 	GetItems() []string
 	GetEntities() []string
+	GetItemsWithColor() []ChoiceItem
 }
 
 type TypedUserMetaNamespace struct {
@@ -54,17 +55,19 @@ type MetaNsDef struct {
 		EntityID string `json:"entity_id,omitempty"`
 	} `json:"entity,omitempty"`
 	Data struct {
-		Items []struct {
-			Key   string `json:"key"`
-			Value string `json:"value"`
-			Color string `json:"color,omitempty"`
-		} `json:"items,omitempty"`
-		Steps       bool     `json:"steps,omitempty"`
-		EntityItems []string `json:"entityItems,omitempty"`
+		Items       []ChoiceItem `json:"items,omitempty"`
+		Steps       bool         `json:"steps,omitempty"`
+		EntityItems []string     `json:"entityItems,omitempty"`
 	} `json:"data,omitempty"`
 	GroupName string `json:"groupName,omitempty"`
 	Steps     bool   `json:"steps,omitempty"`
 	Hide      bool   `json:"hide,omitempty"`
+}
+
+type ChoiceItem struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+	Color string `json:"color,omitempty"`
 }
 
 // Implement MetaNamespaceDefinition interface for legacy metaNsDef
@@ -97,6 +100,10 @@ func (d *metaNsDef) GetEntities() []string {
 	return nil
 }
 
+func (d *metaNsDef) GetItemsWithColor() []ChoiceItem {
+	return nil
+}
+
 // Implement MetaNamespaceDefinition interface for MetaNsDef
 func (d *MetaNsDef) GetType() string {
 	return d.Type
@@ -118,6 +125,22 @@ func (d *MetaNsDef) GetItems() []string {
 	var items []string
 	for _, item := range d.Data.Items {
 		items = append(items, item.Value)
+	}
+	return items
+}
+
+func (d *MetaNsDef) GetItemsWithColor() []ChoiceItem {
+	var items []ChoiceItem
+	for _, item := range d.Data.Items {
+		ci := ChoiceItem{
+			Key:   item.Key,
+			Value: item.Value,
+		}
+		if item.Color != "" {
+			styleJSON, _ := json.Marshal(map[string]string{"color": item.Color})
+			ci.Color = string(styleJSON)
+		}
+		items = append(items, ci)
 	}
 	return items
 }

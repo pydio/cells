@@ -25,6 +25,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
@@ -57,9 +58,10 @@ func (*Entities) TableName(namer schema.Namer) string {
 }
 
 type EntityValues struct {
-	UUID       string `gorm:"primaryKey;column:uuid;type:varchar(255);notNull"`
-	Label      string `gorm:"column:label;type:varchar(100);notNull"`
-	EntityUUID string `gorm:"column:entity_uuid;type:varchar(255);notNull"`
+	UUID        string          `gorm:"primaryKey;column:uuid;type:varchar(255);notNull"`
+	Label       string          `gorm:"column:label;type:varchar(100);notNull"`
+	EntityUUID  string          `gorm:"column:entity_uuid;type:varchar(255);notNull"`
+	DisplayJSON *datatypes.JSON `gorm:"column:display_json"`
 
 	Entity *Entities `gorm:"foreignKey:EntityUUID;references:UUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Metas  []Meta    `gorm:"many2many:meta_values_rel;joinForeignKey:EValueUUID;JoinReferences:MetaUUID"`
@@ -165,6 +167,9 @@ func (u *EntityValues) AsEntityValue(res *idm.EntityValue) *idm.EntityValue {
 	res.Uuid = u.UUID
 	res.Label = u.Label
 	res.EntityUuid = u.EntityUUID
+	if u.DisplayJSON != nil {
+		res.DisplayJSON = string(*u.DisplayJSON)
+	}
 
 	return res
 }
@@ -173,15 +178,35 @@ func (u *EntityValues) FromEntityValue(res *idm.EntityValue) *EntityValues {
 	u.UUID = uuid.New().String()
 	u.Label = res.Label
 	u.EntityUUID = res.EntityUuid
+	if res.DisplayJSON != "" {
+		j := datatypes.JSON(res.DisplayJSON)
+		u.DisplayJSON = &j
+	}
 
 	return u
 }
 
 // CreateEntityValue creates a new entity value and links it to its entity
 func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error) {
+	// Check if already exists
+	var existing EntityValues
+	tx := s.Session(ctx).Where("label = ? AND entity_uuid = ?", value.Label, value.EntityUuid).First(&existing)
+
+	if tx.Error == nil {
+		// Found existing, return it
+		return existing.AsEntityValue(&idm.EntityValue{}), nil
+	}
+
+	// Return error only if it's not "record not found"
+	if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return nil, evTagError(tx.Error)
+	}
+
+	// Not found, create new (delta)
+
 	model := (&EntityValues{}).FromEntityValue(value)
 
-	tx := s.Session(ctx).Create(model)
+	tx = s.Session(ctx).Create(model)
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
 	}

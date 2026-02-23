@@ -169,9 +169,8 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		}
 		if input.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 			fieldType := definition.GetType()
-			if fieldType != "" { //
-				// Check if entity_id is already set
-				if definition.GetEntityId() == "" { // TODO handle if entityId is already set (update scenario)
+			if fieldType != "" {
+				if definition.GetEntityId() == "" {
 					// Set description
 					var desc = ""
 					if ns.Description != "" {
@@ -190,27 +189,18 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 						return err
 					}
 
+					if def, ok := definition.(*idm.MetaNsDef); ok {
+						def.SetEntityId(entity.Entity.Uuid)
+						updatedJsDef, err := json.Marshal(def)
+						if err != nil {
+							return err
+						}
+						ns.JsonDefinition = string(updatedJsDef)
+					}
 					if slices.Contains(ns_with_ev, fieldType) {
 						// Create empty entity values
-						var evs []*idm.EntityValue
-						items := definition.GetItems()
-						if len(items) > 0 {
-							for _, item := range items {
-								evs = append(evs, &idm.EntityValue{
-									EntityUuid: entity.Entity.Uuid,
-									Label:      item,
-								})
-							}
-						}
-						entities := definition.GetEntities()
-						if len(entities) > 0 {
-							for _, ent := range entities {
-								evs = append(evs, &idm.EntityValue{
-									EntityUuid: entity.Entity.Uuid,
-									Label:      ent,
-								})
-							}
-						}
+						evs := []*idm.EntityValue{}
+						evs = s.parseEntityValues(definition)
 
 						_, err := s.ServiceClient(ctx).CreateEntityValues(ctx, &idm.CreateEntityValueRequest{
 							EntityValue: evs,
@@ -219,15 +209,14 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 							return err
 						}
 					}
-
-					// Cast to concrete type for modification
-					if def, ok := definition.(*idm.MetaNsDef); ok {
-						def.SetEntityId(entity.Entity.Uuid)
-						updatedJsDef, err := json.Marshal(def)
-						if err != nil {
-							return err
-						}
-						ns.JsonDefinition = string(updatedJsDef)
+				} else if definition.GetEntityId() != "" && slices.Contains(ns_with_ev, fieldType) {
+					evs := []*idm.EntityValue{}
+					evs = s.parseEntityValues(definition)
+					_, err := s.ServiceClient(ctx).CreateEntityValues(ctx, &idm.CreateEntityValueRequest{
+						EntityValue: evs,
+					})
+					if err != nil {
+						return err
 					}
 				}
 			}
@@ -430,4 +419,36 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 func (s *UserMetaHandler) PoliciesForMeta(ctx context.Context, resourceId string, resourceClient interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
 
 	return
+}
+
+func (h *UserMetaHandler) parseEntityValues(definition idm.MetaNamespaceDefinition) []*idm.EntityValue {
+	var evs []*idm.EntityValue
+	entityId := definition.GetEntityId()
+	if entityId == "" {
+		return evs
+	}
+
+	if definition.GetType() == "choice" {
+		items := definition.GetItemsWithColor()
+		if len(items) > 0 {
+			for _, item := range items {
+				evs = append(evs, &idm.EntityValue{
+					EntityUuid:  entityId,
+					Label:       item.Value,
+					DisplayJSON: item.Color,
+				})
+			}
+		}
+	} else {
+		entities := definition.GetEntities()
+		if len(entities) > 0 {
+			for _, ent := range entities {
+				evs = append(evs, &idm.EntityValue{
+					EntityUuid: entityId,
+					Label:      ent,
+				})
+			}
+		}
+	}
+	return evs
 }
