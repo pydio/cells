@@ -2433,78 +2433,78 @@
     "other": "Ви маєте на увазі"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "містить «%s»"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Фільтри:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "Натисніть для зміни"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Видалити"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "Включити попередній перегляд?"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "Вставити в рядок"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Старіші записи"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "Змінити повідомлення"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Зберегти зміни"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "Скасувати зміни"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Видалити повідомлення"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "Видалити повідомлення?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "Цю дію не можна буде скасувати"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "Завантаження документа..."
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "Відкриття документа..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Перейти до документа"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "Документ не знайдений, він може бути видалений."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "Натисніть, щоб відкрити %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Відкрити документ в..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Використання квоти"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Видалити назавжди"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "Цю дію неможливо скасувати!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Перейти до теки"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Нещодавні місця"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Верхня тека"
   }
 }
