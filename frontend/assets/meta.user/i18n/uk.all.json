@@ -3,48 +3,48 @@
     "other": "Метадані"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Існуючий або новий тег"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Метадані не задано, натисніть, щоб додати"
   },
   "16": {
-    "other": "No metadata set"
+    "other": "Метадані не задано"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Множинний вибір:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "перевірте поля, які ви хочете оновити, значення будуть застосовані до всіх вибраних файлів"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Редагувати метадані"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Зберегти метадані"
   },
   "2": {
-    "other": "No Label"
+    "other": "Без мітки"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "Видалити рейтинг"
   },
   "4": {
-    "other": "Low"
+    "other": "Низько"
   },
   "5": {
-    "other": "Todo"
+    "other": "Завдання"
   },
   "6": {
-    "other": "Personal"
+    "other": "Особисті"
   },
   "7": {
-    "other": "Work"
+    "other": "Робота"
   },
   "8": {
-    "other": "Important"
+    "other": "Важливо"
   },
   "9": {
-    "other": "No Value"
+    "other": "Без значень"
   }
 }
