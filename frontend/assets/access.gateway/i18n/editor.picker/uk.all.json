@@ -3,45 +3,45 @@
     "other": "Оберіть інший..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "Виберіть інший редактор"
   },
   "3": {
     "other": "Оберіть інший редактор, щоб відкрити цей файл"
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "Увага! Ці редактори не заявляють про підтримку цього типу файлів, їхня поведінка може бути непередбачуваною!"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "Очистити асоціації"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "Оберіть дію для %s..."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "Додати новий елемент до цієї комірки"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Всередині %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Поділитися файлом"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Поділитися текою"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Перемістити файл"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Перемістити теку"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Копіювати файл"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Копіювати теку"
   },
   "download.as.pdf": {
-    "other": "Download as PDF"
+    "other": "Завантажити у форматі PDF"
   }
 }
