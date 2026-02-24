@@ -312,19 +312,19 @@
     "other": "Drücken Sie [Enter], um %s ausgewählte Elemente in das Ziel zu kopieren, [Esc] zum Schließen"
   },
   "modalsearch.opentip.cmd": {
-    "other": "Tip: Use <kbd>⌘+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
+    "other": "Tipp: Verwenden Sie <kbd>⌘+K</kbd>, um diesen Suchdialog zu öffnen, und <kbd>Esc</kbd>, um ihn zu schließen."
   },
   "modalsearch.opentip.ctrl": {
-    "other": "Tip: Use <kbd>Ctrl+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
+    "other": "Tipp: Verwenden Sie <kbd>Strg+K</kbd>, um diesen Suchdialog zu öffnen, und <kbd>Esc</kbd>, um ihn zu schließen."
   },
   "search.chip.scope.folder": {
-    "other": "Folder"
+    "other": "Ordner"
   },
   "search.chip.scope.ws": {
-    "other": "Inside"
+    "other": "Innerhalb"
   },
   "search.chip.scope.all": {
-    "other": "All Workspaces"
+    "other": "Alle Workspaces"
   },
   "wslist-options.title": {
     "other": "Anzeigeoptionen"
