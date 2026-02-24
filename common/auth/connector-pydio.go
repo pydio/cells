@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 var (
@@ -71,7 +71,7 @@ func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password
 	}, true, nil
 }
 
-func DefaultConnectorScanner(ctx context.Context, values configx.Scanner) (connectors []ConnectorConfig, err error) {
+func DefaultConnectorScanner(ctx context.Context, values kv.Scanner) (connectors []ConnectorConfig, err error) {
 	var cc []struct {
 		ID   string
 		Name string

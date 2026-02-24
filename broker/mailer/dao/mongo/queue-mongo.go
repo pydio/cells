@@ -32,7 +32,7 @@ import (
 	mailer2 "github.com/pydio/cells/v5/broker/mailer"
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -69,7 +69,7 @@ func NewMongoDAO(db *mongodb.Indexer) mailer2.Queue {
 	return &mongoQueue{db: db.Database}
 }
 
-func (m *mongoQueue) Init(ctx context.Context, conf configx.Values) error {
+func (m *mongoQueue) Init(ctx context.Context, conf kv.Values) error {
 	return model.Init(ctx, m.db)
 }
 

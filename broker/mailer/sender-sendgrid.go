@@ -23,6 +23,7 @@ package mailer
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/kv"
 
 	sendgrid "github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -30,7 +31,6 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
 // SendGrid is a passerelle to Sendgrid API. It holds the application API Key.
@@ -39,7 +39,7 @@ type SendGrid struct {
 }
 
 // Configure expects a valid sendgrid API key.
-func (s *SendGrid) Configure(ctx context.Context, config configx.Values) error {
+func (s *SendGrid) Configure(ctx context.Context, config kv.Values) error {
 	s.ApiKey = config.Val("apiKey").String()
 
 	if s.ApiKey == "" {

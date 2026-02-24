@@ -401,21 +401,21 @@ message TreeNode {
     option (orm.ormPolicy).enabled = true;
 
     Node Node    = 1 [(orm.orm).gorm = {embedded: true}];
-    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ",composite:name,length:128"; type: "VARCHAR(255) NOT NULL"; collate:"utf8mb4_bin"}];
-    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ",composite:level"; type: "SMALLINT NOT NULL"}];
+    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ",composite:name,length:128"; type: "VARCHAR(255)"; notNull: true;}];
+    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ",composite:level"; type: "SMALLINT"; notNull: true}];
     MPath MPath  = 4 [(orm.orm).gorm = {embedded: true}];
-    string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(40) NOT NULL"}];
-    string Hash2 = 6 [(orm.orm).gorm = {column:"hash2"; unique: true; type: "VARCHAR(50) NOT NULL"}];
+    string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(40)"; notNull: true}];
+    string Hash2 = 6 [(orm.orm).gorm = {column:"hash2"; unique: true; type: "VARCHAR(50)"; notNull: true}];
 }
 
 message MPath {
     option (setter.all_fields) = true;
     option (orm.ormPolicy).enabled = true;
 
-    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: ",composite:mp1"; type:"varchar(255) NOT NULL"}];
-    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: ",composite:mp2"; type:"varchar(255) NOT NULL"}];
-    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: ",composite:mp3"; type:"varchar(255) NOT NULL"}];
-    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: ",composite:mp4"; type:"varchar(255) NOT NULL"}];
+    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: ",composite:mp1"; type:"varchar(255)"; notNull: true}];
+    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: ",composite:mp2"; type:"varchar(255)"; notNull: true}];
+    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: ",composite:mp3"; type:"varchar(255)"; notNull: true}];
+    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: ",composite:mp4"; type:"varchar(255)"; notNull: true}];
 }
 
 message Node{
@@ -427,10 +427,10 @@ message Node{
     // ------------------------------------
     string Uuid = 1     [(orm.orm).gorm = {column: "uuid"; primaryKey: true; type: "VARCHAR(128)"}];
     string Path = 2;
-    NodeType Type = 3   [(orm.orm).gorm = {column: "leaf"; type: "TINYINT(1) NOT NULL"; default: "0"}];
+    NodeType Type = 3   [(orm.orm).gorm = {column: "leaf"; type: "TINYINT(1)"; notNull: true; default: "0"}];
 
     // Size of the file, or cumulated size of folder
-    int64 Size = 4      [(orm.orm).gorm = {column: "size"; type:"BIGINT NOT NULL"; default: "0"}];
+    int64 Size = 4      [(orm.orm).gorm = {column: "size"; type:"BIGINT"; notNull: true; default: "0"}];
 
     // Last modification Timestamp
     int64 MTime = 5     [(orm.orm).gorm = {column: "mtime"; type: "INT"}];

@@ -142,7 +142,7 @@ function UnifiedSearchForm (props){
         onRequestOpen();
     }
 
-    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, additionalRightButton, closeButton} = props;
+    const {style, active, searchTools, autoFocus, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, additionalRightButton, closeButton, advancedPopover = true} = props;
     const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
 
     if(uniqueSearchScope) {
@@ -187,34 +187,36 @@ function UnifiedSearchForm (props){
 
     const currentFilters = [], advancedOption = []
     const ad = advancedValues()
-    if(ad && ad.length > 0) {
-        let additionalChild = [];
-        if(basenameOrContent && basenameOrContent !== '*'){
-            //additionalChild.push(<span>{basenameOrContent}</span>)
-        }
-        currentFilters.push(
-            {
-                text:'#advanced#',
-                className:'advanced-filters-active',
-                tooltipTitle: completeMessage('activefilters-edit'),
-                value:(<AdvancedChips
-                    muiTheme={muiTheme}
-                    containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
-                    searchTools={searchTools}
-                    title={completeMessage('activefilters')}
-                    titleTagStyle={{backgroundColor:'transparent'}}
-                    showRemove={false}
-                    append={additionalChild}
-                />)
+    if(advancedPopover) {
+        if(ad && ad.length > 0) {
+            let additionalChild = [];
+            if(basenameOrContent && basenameOrContent !== '*'){
+                //additionalChild.push(<span>{basenameOrContent}</span>)
             }
-        )
-    } else {
-        advancedOption.push({
-            text: '#advanced#',
-            className:'advanced-filters-option',
-            icon:'mdi mdi-tune',
-            value: <span style={{display:'inline-block', padding: '8px 0'}}>{pydio.MessageHash['searchengine.advanced-filter.tooltip']}</span>
-        })
+            currentFilters.push(
+                {
+                    text:'#advanced#',
+                    className:'advanced-filters-active',
+                    tooltipTitle: completeMessage('activefilters-edit'),
+                    value:(<AdvancedChips
+                        muiTheme={muiTheme}
+                        containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
+                        searchTools={searchTools}
+                        title={completeMessage('activefilters')}
+                        titleTagStyle={{backgroundColor:'transparent'}}
+                        showRemove={false}
+                        append={additionalChild}
+                    />)
+                }
+            )
+        } else {
+            advancedOption.push({
+                text: '#advanced#',
+                className:'advanced-filters-option',
+                icon:'mdi mdi-tune',
+                value: <span style={{display:'inline-block', padding: '8px 0'}}>{pydio.MessageHash['searchengine.advanced-filter.tooltip']}</span>
+            })
+        }
     }
 
     const nlpSuggestions = []
@@ -275,7 +277,7 @@ function UnifiedSearchForm (props){
 
     return (
         <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={containerRef}>
-            {!uniqueSearchScope &&
+            {advancedPopover && !uniqueSearchScope &&
                 <Popover
                     open={popoverOpen}
                     anchorEl={containerRef.current}
@@ -308,6 +310,7 @@ function UnifiedSearchForm (props){
                     return (
                         <TextField
                             {...params}
+                            autoFocus={autoFocus}
                             variant={"standard"}
                             fullWidth={true}
                             inputRef={textfieldRef}
@@ -327,7 +330,7 @@ function UnifiedSearchForm (props){
                                 endAdornment: (
                                 <span>
                                     {params.InputProps.endAdornment}
-                                    {active && !uniqueSearchScope &&
+                                    {active && advancedPopover && !uniqueSearchScope &&
                                         <IconButton onClick={togglePopover} tooltip={pydio.MessageHash['searchengine.advanced-filter.tooltip']}
                                                     style={buttonStyle} iconStyle={buttonIconStyle} iconClassName={"mdi mdi-tune"}/>
                                     }

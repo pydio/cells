@@ -1,12 +1,14 @@
 package configx
 
+import "github.com/pydio/cells/v5/common/utils/kv"
+
 type marshaller struct {
-	Values
-	Marshaller
-	Unmarshaler
+	kv.Values
+	kv.Marshaller
+	kv.Unmarshaler
 }
 
-func (m marshaller) Val(path ...string) Values {
+func (m marshaller) Val(path ...string) kv.Values {
 	return caster{Storer: marshaller{Values: m.Values.Val(path...), Marshaller: m, Unmarshaler: m}}
 }
 

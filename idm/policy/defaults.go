@@ -170,7 +170,7 @@ var (
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
 						"rest:/user-meta/bookmarks",
-						"rest:/user-meta/namespace",
+						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
 					},
@@ -254,7 +254,7 @@ func Upgrade101(ctx context.Context) error {
 		return er
 	}
 
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -297,7 +297,7 @@ func Upgrade103(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -328,7 +328,7 @@ func Upgrade120(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -412,7 +412,7 @@ func Upgrade122(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -440,7 +440,7 @@ func Upgrade142(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -471,7 +471,7 @@ func Upgrade202(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -512,7 +512,7 @@ func Upgrade210(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -543,7 +543,7 @@ func Upgrade210(ctx context.Context) error {
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
 						"rest:/user-meta/bookmarks",
-						"rest:/user-meta/namespace",
+						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
 					},
@@ -577,7 +577,7 @@ func Upgrade220(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -603,7 +603,7 @@ func Upgrade227(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -637,7 +637,7 @@ func Upgrade399(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -663,7 +663,7 @@ func Upgrade4199(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -689,7 +689,7 @@ func Upgrade4399(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -722,7 +722,7 @@ func Upgrade4992(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}

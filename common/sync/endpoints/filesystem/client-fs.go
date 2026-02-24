@@ -27,6 +27,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -44,6 +45,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/sync/proc"
@@ -56,7 +58,19 @@ import (
 
 const (
 	SyncTmpPrefix = ".tmp.write."
+	scheme        = "fs"
 )
+
+func init() {
+	endpoints.Register(scheme, endpoints.OpenURLFunc(func(ctx context.Context, u *url.URL, _ ...*url.URL) (model.Endpoint, error) {
+		rootPath := u.Path
+		var opts = model.EndpointOptions{}
+		if u.Query().Get("browseOnly") == "true" {
+			opts.BrowseOnly = true
+		}
+		return NewFSClient(rootPath, opts)
+	}))
+}
 
 type Discarder struct {
 	bytes.Buffer
@@ -234,7 +248,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI:                   scheme + "://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PydioSyncHiddenFile},
@@ -290,7 +304,7 @@ func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 }
 
 // Watch watches all fs events on an input path.
-func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *FSClient) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
@@ -484,7 +498,7 @@ func (c *FSClient) UpdateFolderUuid(ctx context.Context, node tree.N) (tree.N, e
 	return node, err
 }
 
-func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	// Ignore .pydio except for root folder .pydio
 	if filepath.Base(path) == common.PydioSyncHiddenFile && strings.Trim(path, "/") != common.PydioSyncHiddenFile {
@@ -510,7 +524,7 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 
 }
 
-func (c *FSClient) GetReaderOn(_ context.Context, path string) (out io.ReadCloser, err error) {
+func (c *FSClient) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
 
 	return c.FS.Open(c.denormalize(path))
 

@@ -21,22 +21,35 @@
 import React, {Fragment} from 'react'
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
-import {MenuItem, Toggle} from 'material-ui'
+import { MenuItem, Toggle, Subheader } from 'material-ui'
 import TypeSelectionBoard from "./TypeSelectionBoard";
 import {muiThemeable} from 'material-ui/styles'
 const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const MetaTypes = {
-    "string":       "Text",
-    "textarea":     "Long Text",
-    "integer":      "Number",
-    "boolean":      "Boolean",
-    "date":         "Date",
-    "choice":       "Selection",
-    "tags":         "Extensible Tags",
-    "stars_rate":   "Stars Rating",
-    "css_label":    "Color Labels",
-    "json":         "JSON"
+    "boolean": "Boolean",
+    "choice": "Selection",
+    "css_label": "Color Labels",
+    "date": "Date",
+    "integer": "Number",
+    "json": "JSON",
+    "stars_rate": "Stars Rating",
+    "string": "Text",
+    "tag_cloud": "Tag Cloud",
+    "tags": "Extensible Tags",
+    "textarea": "Long Text",
+    "url": "External URL",
+    // FIXME: Auto complete is not supported for now
+    // "auto_complete": "Auto complete"
+}
+
+// Group definitions for organized type selection
+const MetaTypeGroups = {
+    "Boolean": ["boolean"],
+    "Text": ["string", "textarea", "url"],
+    "Number": ["integer", "date", "stars_rate"],
+    "Lists": ["choice", "tag_cloud", "css_label", /* FIXME "auto_complete", */ "tags"],
+    "Internal": ["json"],
 }
 
 class TypeEditor extends React.Component {
@@ -102,6 +115,26 @@ class TypeEditor extends React.Component {
         onChange(namespace)
     }
 
+    renderGroupedTypeMenuItems(metaTypes, m) {
+        return Object.entries(MetaTypeGroups).reduce((items, [groupLabel, types], groupIndex) => {
+            items.push(
+                <Subheader key={`group-${groupIndex}`} style={{fontSize: 12, fontWeight: 600, lineHeight: '32px'}}>
+                    {groupLabel}
+                </Subheader>,
+                ...types
+                    .filter(typeKey => metaTypes[typeKey])
+                    .map(typeKey => (
+                        <MenuItem
+                            key={typeKey}
+                            value={typeKey}
+                            primaryText={m('type.' + typeKey) || metaTypes[typeKey]}
+                        />
+                    ))
+            );
+            return items;
+        }, []);
+    }
+
     render() {
 
         const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, showDefaultValue=false, format=['label', 'namespace', 'section', 'type', 'value', 'mandatory'], muiTheme} = this.props;
@@ -110,10 +143,10 @@ class TypeEditor extends React.Component {
         if(!m){
             m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
         }
-        let type = 'string';
-        if(namespace.JsonDefinition){
-            type = JSON.parse(namespace.JsonDefinition).type;
-        }
+          let type = '';
+            if(namespace.JsonDefinition){
+                type = JSON.parse(namespace.JsonDefinition).type || 'string';
+            }
         const comps = {}
         comps.label = (
             <ModernTextField
@@ -144,15 +177,13 @@ class TypeEditor extends React.Component {
             <Fragment>
                 <ModernSelectField
                     hintText={m('type')}
-                    value={type}
+                    value={type || null}
                     onChange={(e,i,v) => this.updateType(v)}
                     disabled={readonly}
                     fullWidth={true}
                     variant={"v2"}
                 >
-                    {Object.keys(metaTypes).map(k => {
-                        return <MenuItem value={k} primaryText={m('type.'+k) || metaTypes[k]}/>
-                    })}
+                    {this.renderGroupedTypeMenuItems(metaTypes, m)}
                 </ModernSelectField>
                 {type === 'choice' &&
                     <TypeSelectionBoard

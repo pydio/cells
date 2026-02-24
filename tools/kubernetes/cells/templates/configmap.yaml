@@ -68,7 +68,14 @@ data:
     {{- end }}
 
     customconfigs:
-      {{- toYaml .Values.service.customconfigs | nindent 6 }}
+      {{- $baseConfigs := .Values.service.customconfigs | default dict }}
+      {{- $collaboraConfigsStr := (include "cells.collabora.customconfigs" .) }}
+      {{- $collaboraConfigs := dict }}
+      {{- if $collaboraConfigsStr }}
+      {{- $collaboraConfigs = $collaboraConfigsStr | fromYaml | default dict }}
+      {{- end }}
+      {{- $mergedConfigs := merge $baseConfigs $collaboraConfigs }}
+      {{- toYaml $mergedConfigs | nindent 6 }}
 
   bootstrap.yaml: |
     #------------------------------------------
@@ -90,10 +97,20 @@ data:
       http:
         type: tcp
         bind: 0.0.0.0
+        {{ if .Values.useCaddyProxy }}
         port: 8032
+        {{ else }}
+        port: {{ .Values.service.port }}
+        {{ end }}
+      httpadmin:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8081
     servers:
+      {{ if .Values.useCaddyProxy }}
       proxy:
         type: caddy+proxy
+      {{ end }}
       http:
         type: http
         listener: http
@@ -152,9 +169,9 @@ data:
         storages:
           main:
             - type: bleve
-              file: search.bleve?mapping=node&rotationSize=-1
+              file: searchengine.bleve?mapping=node&rotationSize=-1
             - type: mongo
-              prefix: search_
+              prefix: searchengine_
       pydio.grpc.chat:
         storages:
           main:
@@ -173,7 +190,7 @@ data:
             - type: bolt
               file: activities.db
             - type: mongo
-              prefix: activities_
+              prefix: activity_
       pydio.grpc.versions:
         storages:
           main:
@@ -215,7 +232,7 @@ data:
             - type: bleve
               file: tasklogs.bleve?mapping=log&rotationSize=-1
             - type: mongo
-              prefix: jobs_
+              prefix: tasklogs_
       pydio.grpc.role:
         after:
           - pydio.grpc.acl

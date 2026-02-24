@@ -5,10 +5,10 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
-func IndexGeoPoint(_ context.Context, node *tree.IndexableNode, _ configx.Values) error {
+func IndexGeoPoint(_ context.Context, node *tree.IndexableNode, _ kv.Values) error {
 	_ = node.GetMeta(common.MetaNamespaceGeoLocation, &node.GeoPoint)
 	if node.GeoPoint != nil {
 		lat, ok1 := node.GeoPoint["lat"].(float64)

@@ -23,10 +23,11 @@ package index
 import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 var (
-	options configx.Values = configx.New()
+	options kv.Values = configx.New()
 
 	mockNode     *tree.TreeNode
 	updateNode   *tree.TreeNode

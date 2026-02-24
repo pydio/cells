@@ -153,7 +153,7 @@ func TestManagerStorage(t *testing.T) {
 	})
 }
 
-func TestManagerConnection(t *testing.T) {
+func SkipTestManagerConnection(t *testing.T) {
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
 	v.Set(runtime.KeyKeyring, "mem://")

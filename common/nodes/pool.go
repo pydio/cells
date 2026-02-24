@@ -312,7 +312,7 @@ func (p *ClientsPool) LoadDataSources() {
 				log.Logger(p.ctx).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
-			if !errors.Is(err, errors.StatusServiceUnavailable) {
+			if errors.Is(err, errors.StatusServiceUnavailable) {
 				log.Logger(p.ctx).Warn("service " + common.ServiceDataSyncGRPC_ + source + " not available yet...")
 			} else {
 				log.Logger(p.ctx).Error("no answer from endpoint, maybe not ready yet? "+common.ServiceDataSyncGRPC_+source, zap.Any("r", response), zap.Error(err))

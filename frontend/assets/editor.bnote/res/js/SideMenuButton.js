@@ -26,21 +26,34 @@ import {
     BlockColorsItem,
     TableRowHeaderItem,
     TableColumnHeaderItem,
-    useDictionary
+    useDictionary,
+    useExtensionState,
+    useExtension
 } from "@blocknote/react";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import {MdMoreVert} from "react-icons/md";
 import {HeaderSpecType} from "./specs/Header";
 
 // Custom Side Menu button to remove the hovered block.
-export function SideMenuButton(props) {
+export function SideMenuButton() {
     const editor = useBlockNoteEditor();
+    const Components = useComponentsContext();
+    const dict = useDictionary();
+
+    // Get block from extension state
+    const block = useExtensionState(SideMenuExtension, {
+        selector: (state) => state?.block,
+    });
+
+    // Get the extension instance to access freezeMenu/unfreezeMenu methods
+    const sideMenuExtension = useExtension(SideMenuExtension);
 
     const isTitle = useCallback((b) => {
         return b.type === HeaderSpecType
     }, []);
-    const Components = useComponentsContext();
-    const dict = useDictionary();
-    const {block} = props;
+
+    if (!block) return null;
+
     const previous = editor.getPrevBlock(block)
     const next = editor.getNextBlock(block)
 
@@ -48,10 +61,10 @@ export function SideMenuButton(props) {
         <Components.Generic.Menu.Root
             position={"left"}
             onOpenChange={(open) => {
-                if (open) {
-                    props.freezeMenu();
-                } else {
-                    props.unfreezeMenu();
+                if (open && sideMenuExtension) {
+                    sideMenuExtension.freezeMenu();
+                } else if (!open && sideMenuExtension) {
+                    sideMenuExtension.unfreezeMenu();
                 }
             }}
         >
@@ -65,46 +78,44 @@ export function SideMenuButton(props) {
             <Components.Generic.Menu.Dropdown
                 className={"bn-menu-dropdown bn-drag-handle-menu"}
             >
-                {props.children || (
-                    <>
-                        {previous && !isTitle(previous) &&
-                            <Components.Generic.Menu.Item
-                                className={"bn-menu-item"}
-                                onClick={() => {
-                                    editor.removeBlocks([block])
-                                    editor.insertBlocks([block], previous, "before")
-                                }}
-                            >
-                                Move Up
-                            </Components.Generic.Menu.Item>
-                        }
-                        {next && !isTitle(block) &&
-                            <Components.Generic.Menu.Item
-                                className={"bn-menu-item"}
-                                onClick={() => {
-                                    editor.removeBlocks([block])
-                                    editor.insertBlocks([block], next, "after")
-                                }}
-                            >
-                                Move Down
-                            </Components.Generic.Menu.Item>
-                        }
-                        {!isTitle(block) &&
-                            <RemoveBlockItem {...props}>
-                                {dict.drag_handle.delete_menuitem}
-                            </RemoveBlockItem>
-                        }
-                        <BlockColorsItem {...props}>
-                            {dict.drag_handle.colors_menuitem}
-                        </BlockColorsItem>
-                        <TableRowHeaderItem {...props}>
-                            {dict.drag_handle.header_row_menuitem}
-                        </TableRowHeaderItem>
-                        <TableColumnHeaderItem {...props}>
-                            {dict.drag_handle.header_column_menuitem}
-                        </TableColumnHeaderItem>
-                    </>
-                )}
+                <>
+                    {previous && !isTitle(previous) &&
+                        <Components.Generic.Menu.Item
+                            className={"bn-menu-item"}
+                            onClick={() => {
+                                editor.removeBlocks([block])
+                                editor.insertBlocks([block], previous, "before")
+                            }}
+                        >
+                            Move Up
+                        </Components.Generic.Menu.Item>
+                    }
+                    {next && !isTitle(block) &&
+                        <Components.Generic.Menu.Item
+                            className={"bn-menu-item"}
+                            onClick={() => {
+                                editor.removeBlocks([block])
+                                editor.insertBlocks([block], next, "after")
+                            }}
+                        >
+                            Move Down
+                        </Components.Generic.Menu.Item>
+                    }
+                    {!isTitle(block) &&
+                        <RemoveBlockItem>
+                            {dict.drag_handle.delete_menuitem}
+                        </RemoveBlockItem>
+                    }
+                    <BlockColorsItem>
+                        {dict.drag_handle.colors_menuitem}
+                    </BlockColorsItem>
+                    <TableRowHeaderItem>
+                        {dict.drag_handle.header_row_menuitem}
+                    </TableRowHeaderItem>
+                    <TableColumnHeaderItem>
+                        {dict.drag_handle.header_column_menuitem}
+                    </TableColumnHeaderItem>
+                </>
             </Components.Generic.Menu.Dropdown>
 
         </Components.Generic.Menu.Root>

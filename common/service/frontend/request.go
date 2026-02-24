@@ -24,14 +24,14 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type RequestStatus struct {
 	RuntimeCtx    context.Context
-	Config        configx.Values
-	AclParameters configx.Values
-	AclActions    configx.Values
+	Config        kv.Values
+	AclParameters kv.Values
+	AclActions    kv.Values
 	WsScopes      []string
 
 	User     *User

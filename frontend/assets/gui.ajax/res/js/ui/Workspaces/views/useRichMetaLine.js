@@ -5,7 +5,7 @@ import PathUtils from 'pydio/util/path'
 import OverlayIcon from "./OverlayIcon";
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 
-const useRichMetaLine = ({pydio, columns, searchResults=false, searchScope='all'}) => {
+const useRichMetaLine = ({pydio, columns, searchResults=false, searchScope='all', requestCloseOnGoto = undefined}) => {
 
     return useCallback((node) => {
 
@@ -62,6 +62,9 @@ const useRichMetaLine = ({pydio, columns, searchResults=false, searchScope='all'
                     style={{marginRight: 5, cursor:'pointer'}}
                     onClick={(e)=>{
                         e.stopPropagation();
+                        if(requestCloseOnGoto){
+                            requestCloseOnGoto(node.getPath());
+                        }
                         pydio.goTo(node)
                     }}
                 >{linkString}</span>,

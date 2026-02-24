@@ -20,7 +20,6 @@
 
 import { Menu } from "@mantine/core";
 import {Fragment, useMemo} from "react";
-// import {VscSettings} from "react-icons/vsc"; // NOTION-Like Settings icon
 import {HiOutlineDotsVertical} from "react-icons/hi";
 
 const BlockMenu = ({target, groups, settingsStyle = {}, position='bottom-end'}) => {

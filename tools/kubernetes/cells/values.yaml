@@ -163,6 +163,8 @@ tls:
       duration: 2160h
       renewBefore: 360h
 
+useCaddyProxy: true
+
 ingress:
   ## @param ingress.enabled Enable ingress controller resource for Cells
   ##
@@ -585,6 +587,40 @@ externalVault:
     enabled: false
   test:
     enabled: false
+
+collabora:
+  enabled: false
+  # Collabora Online subchart configuration
+  # See https://github.com/CollaboraOnline/online/tree/master/kubernetes/helm/collabora-online
+  # for full list of available options
+  service:
+    port: 9980
+  ssl:
+    enabled: false
+    skipVerify: false
+  codeVersion: "v21"
+  pluginEnabled: true
+  # Resource limits for Collabora (document conversion is CPU/memory intensive)
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "2000m"
+      memory: "2Gi"
+  env:
+    # domain has to be the cells ingress hostname, adjust if necessary
+    - name: domain
+      value: "cells.local"
+
+externalCollabora:
+  enabled: false
+  host: collabora.example.com
+  port: 9980
+  ssl: false
+  skipTLSVerify: false
+  codeVersion: "v21"
+  pluginEnabled: true
 
 externalIngress:
   enabled: false

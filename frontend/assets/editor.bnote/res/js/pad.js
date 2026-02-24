@@ -17,9 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {useState, useEffect, useCallback} from 'react'
-import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Pydio from 'pydio';
+// Default styles for the mantine editor
+import '@blocknote/mantine/style.css';
+import '@blocknote/core/fonts/inter.css';
+import { BlockNoteView } from '@blocknote/mantine';
 import {
     useCreateBlockNote,
     getDefaultReactSlashMenuItems,
@@ -27,136 +30,206 @@ import {
     AddBlockButton,
     SideMenu,
     SideMenuController,
-} from "@blocknote/react";
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, filterSuggestionItems } from "@blocknote/core";
-import { en } from '@blocknote/core/locales'
-import {codeBlock} from "@blocknote/code-block";
-import {MentionSuggestionMenu, mentionInlineSpecs} from './specs/Mention'
+} from '@blocknote/react';
+import {
+    BlockNoteSchema,
+    defaultBlockSpecs,
+    createCodeBlockSpec,
+    defaultInlineContentSpecs,
+} from '@blocknote/core';
+import { filterSuggestionItems } from '@blocknote/core/extensions';
+import { en } from '@blocknote/core/locales';
+// This packages some of the most used languages in on-demand bundle
+import { codeBlockOptions } from './blocks/codeblock';
+
+import { MentionSuggestionMenu, mentionInlineSpecs } from './specs/Mention';
 import {
     nodeBlockSpecs,
     nodeInlineSpecs,
     insertChildrenList,
-    NodesSuggestionMenu,
-    pasteHandler
-} from "./specs/NodeRef";
-import {alertBlockSpecs, insertAlertItem} from './specs/Alert'
-import {SideMenuButton} from "./SideMenuButton";
-import ContextMenuModel from 'pydio/model/context-menu'
-import {headerBlockSpecs, HeaderSpecType} from "./specs/Header";
-import {findExistingHeader} from "./hooks/useNodeTitle";
-import {padFileDropHandler} from "./hooks/padFileDropHandler";
+    insertNodePickerBlock,
+    insertResultsList,
+    pasteHandler,
+} from './specs/NodeRef';
+import { alertBlockSpecs, insertAlertItem } from './specs/Alert';
+import { insertSubPageItem } from './specs/SubPage';
+import { SideMenuButton } from './SideMenuButton';
+import ContextMenuModel from 'pydio/model/context-menu';
+import { headerBlockSpecs, HeaderSpecType } from './specs/Header';
+import { findExistingHeader } from './hooks/useNodeTitle';
 
-import './pad-styles.less'
+import { padFileDropHandler } from './hooks/padFileDropHandler';
+import './pad-styles.less';
+const { ModalSearch } = Pydio.requireLib('workspaces');
+const { emptyDataModel } = Pydio.requireLib('hoc');
 
 const schema = BlockNoteSchema.create({
     blockSpecs: {
         ...defaultBlockSpecs,
         ...nodeBlockSpecs,
         ...alertBlockSpecs,
-        ...headerBlockSpecs
+        ...headerBlockSpecs,
+        codeBlock: createCodeBlockSpec(codeBlockOptions),
     },
     inlineContentSpecs: {
         ...defaultInlineContentSpecs,
         ...nodeInlineSpecs,
         ...mentionInlineSpecs,
-    }
+    },
 });
 
+const defaultExcludedKeys = ['audio', 'video', 'image', 'file'];
+
 // List containing all default Slash Menu Items, as well as our custom one.
-const getCustomSlashMenuItems = (
-    editor
-) => [
-    ...getDefaultReactSlashMenuItems(editor),
-    insertChildrenList(editor),
-    insertAlertItem(editor),
-];
+const getCustomSlashMenuItems = (editor) => {
+    const all = [
+        ...getDefaultReactSlashMenuItems(editor).filter(
+            (item) => defaultExcludedKeys.indexOf(item.key) === -1,
+        ),
+        insertChildrenList(editor),
+        insertNodePickerBlock(editor),
+        insertResultsList(editor),
+        insertAlertItem(editor),
+        insertSubPageItem(editor),
+    ];
+    // Ensure Groups ordering and grouping
+    const groupsOrder = [
+        'Basic blocks',
+        'Heading',
+        'Subheadings',
+        'Advanced',
+        'Others',
+    ];
+    let ordered = [];
+    groupsOrder.forEach((group) => {
+        ordered = [...ordered, ...all.filter((i) => i.group === group)];
+    });
+    return ordered;
+};
 
-export default ({initialContent = [], onChange, darkMode, readOnly, style}) => {
-
-    const [htmlReady, setHtmlReady] = useState('')
+export default ({
+    initialContent = [],
+    onChange,
+    darkMode,
+    readOnly,
+    style,
+}) => {
+    const [htmlReady, setHtmlReady] = useState('');
 
     // Creates a new editor instance.
     const editor = useCreateBlockNote({
         schema,
-        initialContent:initialContent.length?initialContent:null,
+        initialContent: initialContent.length ? initialContent : null,
         // We override the `placeholders` in our dictionary
         dictionary: {
             ...en,
             placeholders: {
                 ...en.placeholders,
                 // We override the default placeholder
-                default: "Type text or '/' for commands, '%' for mentioning a file, '@' for mentioning a user",
-            }
+                default:
+                    "Type text or '/' for commands, '@' for mentioning a user",
+            },
         },
-        pasteHandler:pasteHandler,
-        codeBlock,
-        setIdAttribute:true
+        pasteHandler: pasteHandler,
+        setIdAttribute: true,
+        tables: {
+            splitCells: true,
+            cellBackgroundColor: true,
+            cellTextColor: true,
+            headers: true,
+        },
     });
 
-    const onChangePreventHeaderDelete = useCallback(()=>{
-        const blocks = editor.document
-        if(!findExistingHeader(blocks)){
-            editor.insertBlocks([{type:HeaderSpecType}], blocks && blocks.length ? blocks[0]: null, 'before')
-            return
+    const onChangePreventHeaderDelete = useCallback(() => {
+        const blocks = editor.document;
+        if (!findExistingHeader(blocks)) {
+            editor.insertBlocks(
+                [{ type: HeaderSpecType }],
+                blocks && blocks.length ? blocks[0] : null,
+                'before',
+            );
+            return;
         }
-        onChange(blocks)
-    }, [editor, onChange])
+        onChange(blocks);
+    }, [editor, onChange]);
 
+    const searchDM = useMemo(() => emptyDataModel(), []);
 
     let main;
-    if(false && readOnly) {
+    if (false && readOnly) {
         useEffect(() => {
-            editor.blocksToFullHTML(initialContent||[]).then(res => setHtmlReady(res))
-        }, [initialContent])
-        if(htmlReady) {
-            main =(<div
-                data-color-scheme={darkMode?"dark":"light"}
-                className={"bn-container bn-readonly bn-editor bn-mantine bn-default-styles"}
-                dangerouslySetInnerHTML={{__html:htmlReady}}
-            />)
+            editor
+                .blocksToFullHTML(initialContent || [])
+                .then((res) => setHtmlReady(res));
+        }, [initialContent]);
+        if (htmlReady) {
+            main = (
+                <div
+                    data-color-scheme={darkMode ? 'dark' : 'light'}
+                    className={
+                        'bn-container bn-readonly bn-editor bn-mantine bn-default-styles'
+                    }
+                    dangerouslySetInnerHTML={{ __html: htmlReady }}
+                />
+            );
         } else {
-            main = 'Rendering HTML...'
+            main = 'Rendering HTML...';
         }
     } else {
+        const slashMenuItems = getCustomSlashMenuItems(editor);
         main = (
             <BlockNoteView
                 editable={!readOnly}
                 onChange={onChangePreventHeaderDelete}
                 editor={editor}
-                theme={darkMode?"dark":"light"}
+                theme={darkMode ? 'dark' : 'light'}
                 sideMenu={false}
+                slashMenu={false}
                 onClick={(e) => ContextMenuModel.getInstance().close()}
                 onDrop={(e) => padFileDropHandler(editor, e)}
             >
                 <SideMenuController
                     sideMenu={(props) => (
-                        <SideMenu {...props} blockDragStart={()=>{}} blockDragEnd={()=>{}}>
-                            {/* Button which removes the hovered block. */}
+                        <SideMenu {...props}>
                             <AddBlockButton {...props} />
-                            <SideMenuButton {...props} />
+                            <SideMenuButton />
                         </SideMenu>
                     )}
                 />
                 <SuggestionMenuController
-                    triggerCharacter={"/"}
+                    triggerCharacter={'/'}
                     // Replaces the default Slash Menu items with our custom ones.
                     getItems={async (query) =>
-                        filterSuggestionItems(getCustomSlashMenuItems(editor), query)
+                        filterSuggestionItems(slashMenuItems, query)
                     }
                 />
-                <MentionSuggestionMenu editor={editor}/>
-                <NodesSuggestionMenu editor={editor}/>
+                <MentionSuggestionMenu editor={editor} />
             </BlockNoteView>
-        )
+        );
     }
 
     // Renders the editor instance using a React component.
     return (
-        <div style={{flex: 1, width: '100%', backgroundColor:'var(--md-sys-color-surface)', paddingTop: 20, userSelect:"inherit", ...style}}
-             onClick={(e) => e.stopPropagation()}
-             onKeyUp={(e) => e.stopPropagation()}
+        <div
+            style={{
+                flex: 1,
+                width: '100%',
+                backgroundColor: 'var(--md-sys-color-surface)',
+                paddingTop: 20,
+                userSelect: 'inherit',
+                ...style,
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
+            onDrop={(e) => padFileDropHandler(editor, e, true)}
         >
             {main}
+            <ModalSearch
+                pydio={Pydio.getInstance()}
+                dataModel={searchDM}
+                accessKey={''}
+                eventName={'pydioOpenSelector'}
+            />
         </div>
     );
 };

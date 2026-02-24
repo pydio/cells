@@ -30,6 +30,8 @@ type Watchable[T Cloneable] interface {
 type Cloneable interface {
 	Get() any
 	Empty()
+	RLock()
+	RUnlock()
 }
 
 type Caller interface {
@@ -70,7 +72,7 @@ type watcher[T Cloneable] struct {
 	timer   *time.Timer
 	timeout time.Duration
 
-	snap         T
+	snap         any
 	snapInitOnce sync.Once
 }
 
@@ -79,7 +81,7 @@ func NewWatcher[T Cloneable](object Watchable[T]) Watcher {
 		object:          object,
 		receiversLocker: new(sync.RWMutex),
 		reset:           make(chan bool),
-		timeout:         50 * time.Millisecond,
+		timeout:         200 * time.Millisecond,
 		snapInitOnce:    sync.Once{},
 	}
 
@@ -94,7 +96,8 @@ func (w *watcher[T]) Reset() {
 
 func (w *watcher[T]) Flush() {
 	w.snapInitOnce.Do(func() {
-		w.snap = w.object.Clone()
+		clone := w.object.Clone()
+		w.snap = clone.Get()
 	})
 
 	// Waiting for first call to start the timeout
@@ -109,20 +112,26 @@ func (w *watcher[T]) Flush() {
 		case <-w.reset:
 			w.timer.Reset(w.timeout)
 		case <-w.timer.C:
+
 			settings := w.object.Get()
 			if settings == nil {
 				continue
 			}
 
-			snapSettings := w.snap.Get()
+			w.object.RLock()
+			snapSettings := w.snap
 
 			patch, err := diff.Diff(snapSettings, settings, diff.CustomValueDiffers(CustomValueDiffers...), diff.DisableStructValues(), diff.AllowTypeMismatch(true)) // , diff.CustomValueDiffers(config.CustomValueDiffers...))
-
+			w.object.RUnlock()
 			if err != nil {
 				continue
 			}
 
-			w.snap = w.object.Clone()
+			w.object.RLock()
+			clone := w.object.Clone()
+			w.object.RUnlock()
+
+			w.snap = clone.Get()
 
 			for _, op := range patch {
 				var updated []*receiver

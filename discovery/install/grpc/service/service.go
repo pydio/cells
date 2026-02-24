@@ -82,7 +82,7 @@ func init() {
 
 					mgr, err := manager.New(ctrl.GetConfigOrDie(), manager.Options{
 						BaseContext: func() context.Context {
-							return ctx
+							return propagator.ForkContext(ctx, context.Background())
 						},
 						Scheme: scheme,
 						Cache: cache.Options{
@@ -186,10 +186,12 @@ func init() {
 					zl := zap.New(log.Logger(ctx).Core())
 
 					ctrl.SetLogger(zapr.NewLogger(zl))
-					if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-						fmt.Println("Problem running manager", err)
-						os.Exit(1)
-					}
+					go func() {
+						if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+							fmt.Println("Problem running manager", err)
+							os.Exit(1)
+						}
+					}()
 				}
 
 				return nil
@@ -396,7 +398,7 @@ func (r *ConfigMapReconciler) Reconcile(ctx context.Context, req reconcile.Reque
 	// Merge with GetDefaults()
 	err = lib.MergeWithDefaultConfig(confFromFile)
 	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("Could not merge conf with defaults", err)
+		return reconcile.Result{}, fmt.Errorf("Could not merge conf with defaults: %v", err)
 	}
 
 	// Check if pre-configured DB is up and running

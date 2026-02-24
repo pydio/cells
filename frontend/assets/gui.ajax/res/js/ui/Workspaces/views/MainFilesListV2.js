@@ -23,7 +23,7 @@ import React, {useState, useCallback, useEffect} from 'react';
 import Pydio from 'pydio'
 import ResourcesManager from 'pydio/http/resources-manager'
 
-import FilePreview from './FilePreview'
+import FilePreview, {previewEntryRenderIcon, previewTableEntryRenderCell} from './FilePreview'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {ModernSimpleList, useSorting} = Pydio.requireLib('components');
 const {usePydioActions, useColumnsFromRegistry} =  Pydio.requireLib('hoc');
@@ -181,44 +181,11 @@ let MainFilesListV2 = (props) => {
     usePydioActions({pydio, loader: getPydioActions})
 
     const tableEntryRenderCell = useCallback((node) => {
-        return (
-            <span>
-                <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
-                <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{computeLabel(node)}</span>
-            </span>
-        );
+        return previewTableEntryRenderCell(node, computeLabel);
     }, [computeLabel])
 
     const entryRenderIcon = useCallback((node, entryProps = {}) => {
-        const lightBackground = displayMode.indexOf('grid') === 0 || displayMode === 'masonry'
-        if(entryProps && entryProps.parent){
-            return (
-                <FilePreview
-                    loadThumbnail={false}
-                    node={node}
-                    mimeClassName="mimefont mdi mdi-chevron-left"
-                    style={{cursor:'pointer'}}
-                    lightBackground={lightBackground}
-                />
-            );
-        }else{
-            const hasThumbnail = !!node.getMetadata().get("thumbnails") || !!node.getMetadata().get('ImagePreview');
-            const processing = !!node.getMetadata().get('Processing');
-            const uploading = node.getMetadata().get('local:UploadStatus') === 'loading'
-            const uploadprogress = node.getMetadata().get('local:UploadProgress');
-            return (
-                <FilePreview
-                    loadThumbnail={!entryProps['parentIsScrolling'] && hasThumbnail && !processing}
-                    node={node}
-                    processing={processing}
-                    lightBackground={lightBackground}
-                    displayLarge={lightBackground}
-                    mimeFontOverlay={displayMode === 'list'}
-                    uploading={uploading}
-                    uploadprogress={uploadprogress}
-                />
-            );
-        }
+        return previewEntryRenderIcon(node, entryProps, displayMode);
     }, [displayMode])
 
     const entryRenderActions = useRichMetaActions({pydio,dataModel,displayMode,customRenderProps:{},searchResults})

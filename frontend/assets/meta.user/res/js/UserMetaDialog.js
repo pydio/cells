@@ -23,9 +23,11 @@ import Node from 'pydio/model/node'
 import DataModel from 'pydio/model/data-model'
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types'
-
+import UserMetaPanelV2 from "./UserMetaPanelV2";
 import MetaClient from "./MetaClient";
-import UserMetaPanel from "./UserMetaPanel"
+import { MetadataContextProvider } from './context/metadata.tsx';
+
+const { PydioMantineProvider } = Pydio.requireLib('hoc');
 
 const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 
@@ -42,31 +44,45 @@ export default createReactClass({
         SubmitButtonProviderMixin
     ],
 
-    saveMeta(){
-        let values = this.refs.panel.getUpdateData();
-        let params = {};
-        values.forEach(function(v, k){
-            params[k] = v;
-        });
-        return MetaClient.getInstance().saveMeta(this.props.selection.getSelectedNodes(), values);
+    saveMeta(metadata){
+        return MetaClient
+            .getInstance()
+            .saveMeta(this.props.selection.getSelectedNodes(), metadata);
     },
 
     submit(){
-        this.saveMeta().then(() => {
+        this.saveMeta(this.formMetadata).then(() => {
             this.dismiss();
         });
     },
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.selection !== this.props.selection) {
+            // FIXME: Store the form state without re-rendering.
+            this.formMetadata = new Map();
+        }
+    },
+
     render(){
         return (
-            <UserMetaPanel
-                pydio={this.props.pydio}
-                multiple={!this.props.selection.isUnique()}
-                ref="panel"
-                node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
-                editMode={true}
-                style={{fontSize: 14}}
-            />
+            <PydioMantineProvider>
+                <MetadataContextProvider
+                    node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
+                    saveMeta={(metadata) => this.saveMeta(metadata)}
+                    saving={false}
+                    savePartialy={!this.props.selection.isUnique()}
+                    onDataChanged={(metadata) => this.formMetadata = metadata}
+                >
+                    <UserMetaPanelV2
+                        pydio={this.props.pydio}
+                        multiple={!this.props.selection.isUnique()}
+                        ref="panel"
+                        node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
+                        editMode={true}
+                        style={{fontSize: 14}}
+                    />
+                </MetadataContextProvider>
+            </PydioMantineProvider>
         );
     },
 });

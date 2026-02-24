@@ -61,9 +61,9 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/fork"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	net2 "github.com/pydio/cells/v5/common/utils/net"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -160,6 +160,8 @@ func NewManager(ctx context.Context, namespace string, r ...runtime.Runtime) (Ma
 
 	m.ctx = propagator.With(m.ctx, ContextKey, m)
 
+	runtime.Init(m.ctx, "system")
+
 	bootstrap, err := NewBootstrap(m.ctx)
 	if err != nil {
 		return nil, err
@@ -172,7 +174,7 @@ func NewManager(ctx context.Context, namespace string, r ...runtime.Runtime) (Ma
 		localRuntime = r[0]
 	}
 
-	runtime.Init(m.ctx, "system")
+	// runtime.Init(m.ctx, "system")
 
 	base := localRuntime.GetString(runtime.KeyBootstrapRoot)
 	m.base = base
@@ -538,7 +540,7 @@ func (m *manager) initTelemetry(ctx context.Context, bootstrap config.Store, sto
 
 	var configLoaded bool
 	// And finally from config, it will be hot-reloaded if config is changed
-	config.GetAndWatch(ctx, store, []string{"defaults", "telemetry"}, func(values configx.Values) {
+	config.GetAndWatch(ctx, store, []string{"defaults", "telemetry"}, func(values kv.Values) {
 		if values.Context(ctx).Scan(conf) == nil {
 			if e := conf.Reload(ctx, common.LogLevel.String(), common.LogJSON); e != nil {
 				fmt.Println("Error loading telemetry setup", e)
@@ -622,9 +624,9 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 			return err
 		}
 		baseRead := append(baseWatch, "processes")
-		create := diff.(configx.Values).Val(append([]string{"create"}, baseRead...)...)
-		update := diff.(configx.Values).Val(append([]string{"update"}, baseRead...)...)
-		deletes := diff.(configx.Values).Val(append([]string{"delete"}, baseRead...)...)
+		create := diff.(kv.Values).Val(append([]string{"create"}, baseRead...)...)
+		update := diff.(kv.Values).Val(append([]string{"update"}, baseRead...)...)
+		deletes := diff.(kv.Values).Val(append([]string{"delete"}, baseRead...)...)
 
 		var processesToStart, processesToStop []string
 
@@ -783,7 +785,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 	}
 }
 
-func (m *manager) initListeners(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initListeners(ctx context.Context, store kv.Values, base string) error {
 	listeners := store.Val(base + "/listeners")
 	for k, v := range listeners.Map() {
 		vv, err := cast.ToStringMapE(v)
@@ -836,7 +838,7 @@ func (m *manager) initListeners(ctx context.Context, store configx.Values, base 
 	return nil
 }
 
-func (m *manager) initServers(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initServers(ctx context.Context, store kv.Values, base string) error {
 
 	servers := store.Val(base + "/servers")
 	for _, v := range servers.Map() {
@@ -916,7 +918,7 @@ func (m *manager) initServers(ctx context.Context, store configx.Values, base st
 	return nil
 }
 
-func (m *manager) initServices(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initServices(ctx context.Context, store kv.Values, base string) error {
 
 	runtime.Register(m.ns, func(ctx context.Context) {
 		svcs, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
@@ -960,7 +962,7 @@ func (m *manager) initServices(ctx context.Context, store configx.Values, base s
 	return nil
 }
 
-func (m *manager) initConnections(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initConnections(ctx context.Context, store kv.Values, base string) error {
 	connections := store.Val(base + "/connections")
 	for k, v := range connections.Map() {
 		vv, err := cast.ToStringMapE(v)
@@ -1037,7 +1039,7 @@ func (m *manager) initConnections(ctx context.Context, store configx.Values, bas
 	return nil
 }
 
-func (m *manager) initStorages(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initStorages(ctx context.Context, store kv.Values, base string) error {
 	storages := store.Val(base + "/storages")
 	storagesMap := storages.Map()
 
@@ -1062,7 +1064,7 @@ func (m *manager) initStorages(ctx context.Context, store configx.Values, base s
 	return nil
 }
 
-func (m *manager) initQueues(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initQueues(ctx context.Context, store kv.Values, base string) error {
 	// runtime.Register(m.ns, func(ctx context.Context) {
 	queues := store.Val(base + "/queues")
 	for k := range queues.Map() {
@@ -1126,7 +1128,7 @@ func (m *manager) initQueues(ctx context.Context, store configx.Values, base str
 	return nil
 }
 
-func (m *manager) initCaches(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initCaches(ctx context.Context, store kv.Values, base string) error {
 	// runtime.Register(m.ns, func(ctx context.Context) {
 	caches := store.Val(base + "/caches")
 	for k := range caches.Map() {
@@ -1495,7 +1497,7 @@ func (m *manager) WatchServicesConfigs() {
 		}
 		for {
 			v, _ := res.Next()
-			mm := v.(configx.Values).Val("update", "services").Map()
+			mm := v.(kv.Values).Val("update", "services").Map()
 
 			for k, _ := range mm {
 				ss, err := m.internalRegistry.List(sotwRegistry.WithName(k), sotwRegistry.WithType(pb.ItemType_SERVICE))
@@ -1741,7 +1743,7 @@ func (m *manager) WatchBootstrap() {
 			continue
 		}
 
-		val, ok := res.(configx.Values)
+		val, ok := res.(kv.Values)
 		if !ok {
 			continue
 		}

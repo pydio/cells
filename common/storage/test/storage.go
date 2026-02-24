@@ -31,6 +31,7 @@ import (
 	_ "github.com/pydio/cells/v5/common/storage/config"
 	_ "github.com/pydio/cells/v5/common/storage/mongodb"
 	_ "github.com/pydio/cells/v5/common/storage/sql"
+	_ "github.com/pydio/cells/v5/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 )
 
@@ -77,6 +78,37 @@ func TemplateSQL(daoFunc any) []StorageTestCase {
 				DSN:       []string{strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=test_" + unique},
 				Condition: true,
 				DAO:       daoFunc,
+			})
+		}
+	}
+	return ss
+}
+
+// TemplateSQLService returns a single SQL test case with the provided DAO func
+func TemplateSQLService(services map[string]map[string]map[string]any) []ServicesStorageTestCase {
+	unique := uuid.New()[:6]
+	ss := []ServicesStorageTestCase{
+		{
+			DSN:       map[string]string{"sql": sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=test_" + unique},
+			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
+			Services:  services,
+		},
+	}
+	if other := os.Getenv("CELLS_TEST_MYSQL_DSN"); other != "" {
+		for _, dsn := range strings.Split(other, ";") {
+			ss = append(ss, ServicesStorageTestCase{
+				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "?parseTime=true&hookNames=cleanTables&prefix=test_" + unique},
+				Condition: true,
+				Services:  services,
+			})
+		}
+	}
+	if other := os.Getenv("CELLS_TEST_PGSQL_DSN"); other != "" {
+		for _, dsn := range strings.Split(other, ";") {
+			ss = append(ss, ServicesStorageTestCase{
+				DSN:       map[string]string{"sql": strings.TrimSpace(dsn) + "&hookNames=cleanTables&prefix=test_" + unique},
+				Condition: true,
+				Services:  services,
 			})
 		}
 	}
@@ -218,7 +250,7 @@ func RunGenericTests[T Testable](testcases []T, t *testing.T, f func(ctx context
 }
 
 func RunTests(t *testing.T, init func(context.Context), f func(context.Context)) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
@@ -246,14 +278,14 @@ func RunTests(t *testing.T, init func(context.Context), f func(context.Context))
 
 	mgr.ServeAll()
 
-	log.SetLoggerInit(func(ctx context.Context) (*zap.Logger, []io.Closer) {
+	/*log.SetLoggerInit(func(ctx context.Context) (*zap.Logger, []io.Closer) {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.OutputPaths = []string{"stdout"}
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 		z, _ := cfg.Build()
 
 		return z, nil
-	}, nil)
+	}, nil)*/
 
 	t.Run("Testing with server", func(t *testing.T) {
 		f(ctx)
@@ -276,7 +308,7 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 			label = caser.String(scheme)
 		}
 		runner := func(t *testing.T) {
-			ctx, err := manager.DSNtoContextDAO(context.Background(), tc.DSN, tc.DAO)
+			ctx, err := manager.DSNtoContextDAO(t.Context(), tc.DSN, tc.DAO)
 			if err != nil {
 				panic(err)
 			}
@@ -317,13 +349,13 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 }
 
 // RunServicesTests initialize a runtime and run the tests cases with correct DAOs in context
-func RunServicesTests(testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
+func RunServicesTests(ns string, testCases []ServicesStorageTestCase, t *testing.T, f func(context.Context)) {
 	for _, tc := range testCases {
 		if !tc.Condition {
 			continue
 		}
 		runner := func(t *testing.T) {
-			ctx, err := manager.MockServicesToContextDAO(context.Background(), tc.DSN, tc.Services)
+			ctx, err := manager.MockServicesToContextDAO(t.Context(), ns, tc.DSN, tc.Services)
 			if err != nil {
 				panic(err)
 			}

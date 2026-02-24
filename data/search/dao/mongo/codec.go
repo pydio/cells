@@ -20,7 +20,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/data/search"
 	"github.com/pydio/cells/v5/data/search/dao/commons"
 )
@@ -82,7 +82,7 @@ func FastMongoDAO(ctx context.Context, v *mongodb.Indexer) search.Engine {
 	return commons.NewServer(ctx, v, createQueryCodec, indexer.WithExpire(10*time.Millisecond))
 }
 
-func createQueryCodec(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex {
+func createQueryCodec(values kv.Values, metaProvider *meta.NsProvider) indexer.IndexCodex {
 	return &Codex{
 		QueryConfigs:    values,
 		QueryNsProvider: metaProvider,
@@ -97,7 +97,7 @@ type mongoBucket struct {
 type Codex struct {
 	bucketFacets    map[string][]map[interface{}]*tree.SearchFacet
 	QueryNsProvider *meta.NsProvider
-	QueryConfigs    configx.Values
+	QueryConfigs    kv.Values
 }
 
 func (m *Codex) RequirePreCount() bool {
@@ -284,7 +284,7 @@ func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string
 		finalMeta := "meta." + s
 		nss := m.QueryNsProvider.TypedNamespaces()
 		ns, ok := nss[s]
-		if !ok || ns.GetType() != "tags" {
+		if !ok || ns.GetType() != "tags" && ns.GetType() != "tag_cloud" && ns.GetType() != "auto_complete" {
 			return finalMeta, nil, false
 		}
 		switch qTyped := q.(type) {
@@ -503,7 +503,7 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 }
 
 // GetModel returns a mongodb.Model to be inserted in the db
-func (m *Codex) GetModel(sc configx.Values) (interface{}, bool) {
+func (m *Codex) GetModel(sc kv.Values) (interface{}, bool) {
 	model := mongodb.Model{
 		Collections: []mongodb.Collection{
 			{

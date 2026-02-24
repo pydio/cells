@@ -1,15 +1,44 @@
 package watch
 
 import (
+	"context"
 	"fmt"
 	"maps"
+	"reflect"
 	"testing"
 	"time"
 
+	diff "github.com/r3labs/diff/v3"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v5/common/utils/std"
 )
+
+type mockWatchTypeDiffer struct {
+}
+
+func (*mockWatchTypeDiffer) Match(a, b reflect.Value) bool {
+	return a.Kind() == reflect.ValueOf(&mockWatchType{}).Kind() && b.Kind() == reflect.ValueOf(&mockWatchType{}).Kind()
+}
+
+func (*mockWatchTypeDiffer) Diff(dt diff.DiffType, df diff.DiffFunc, cl *diff.Changelog, path []string, a, b reflect.Value, parent interface{}) error {
+	// Checking what's been added
+	am := a.Interface().(*struct{ Test string })
+	bm := b.Interface().(*struct{ Test string })
+
+	if am.Test != bm.Test {
+		cl.Add(diff.UPDATE, append(path, "test"), am.Test, bm.Test)
+	}
+
+	return nil
+}
+
+func (*mockWatchTypeDiffer) InsertParentDiffer(dfunc func(path []string, a, b reflect.Value, p interface{}) error) {
+}
+
+func init() {
+	RegisterCustomValueDiffer(&mockWatchTypeDiffer{})
+}
 
 type mockWatchType struct {
 	viper *viper.Viper
@@ -32,6 +61,10 @@ func (m *mockWatchType) Empty() {
 	m.viper = viper.New()
 }
 
+func (m *mockWatchType) RLock() {}
+
+func (m *mockWatchType) RUnlock() {}
+
 func TestWatch(t *testing.T) {
 	v := viper.New()
 
@@ -42,28 +75,34 @@ func TestWatch(t *testing.T) {
 
 	r, _ := w.Watch()
 
+	res := make(chan any)
+	defer close(res)
+
 	go func() {
-		val, err := r.Next()
-		fmt.Println("val", val, err)
+		for {
+			val, err := r.Next()
+			if err != nil {
+				t.Error(err)
+			}
 
-		val2, err2 := r.Next()
-
-		fmt.Println("val2", val2, err2)
+			res <- val
+		}
 	}()
 
-	d := &struct{ test string }{test: "yo"}
+	d := &struct{ Test string }{Test: fmt.Sprintf("Test %d", 0)}
 
-	v.Set("test", d)
-	w.Reset()
-	w.Reset()
-	w.Reset()
-	<-time.After(3 * time.Second)
+	for i := 0; i < 10; i++ {
+		d.Test = fmt.Sprintf("Test %d", i+1)
 
-	d.test = "yo2"
-	v.Set("test", d)
-	w.Reset()
+		v.Set("test", d)
+		w.Reset()
 
-	<-time.After(3 * time.Second)
+		select {
+		case <-res:
+		case <-time.After(1 * time.Second):
+			t.Fatal("timeout waiting for event")
+		}
+	}
 }
 
 type mockSimpleWatchType struct {
@@ -86,6 +125,10 @@ func (m *mockSimpleWatchType) Empty() {
 	m.m = map[string]any{}
 }
 
+func (m *mockSimpleWatchType) RLock() {}
+
+func (m *mockSimpleWatchType) RUnlock() {}
+
 func TestWatchSimple(t *testing.T) {
 	sources := []string{"test1"}
 
@@ -97,15 +140,24 @@ func TestWatchSimple(t *testing.T) {
 
 	r, _ := w.Watch(WithPath("sources"))
 
+	finish, can := context.WithTimeout(context.Background(), time.Second)
 	go func() {
 		val, err := r.Next()
-		fmt.Println("val", val, err)
+		if ch, ok := val.([]diff.Change); ok && len(ch) == 3 {
+			fmt.Println("val", val, err)
+			t.Log("Received 3 changes in diff")
+			can()
+		}
 	}()
 
 	sources = append(sources, "test2", "test3", "test4")
 	m["sources"] = sources
 	w.Reset()
 
-	<-time.After(10 * time.Minute)
-
+	select {
+	case <-finish.Done():
+		break
+	case <-time.After(5 * time.Minute):
+		break
+	}
 }

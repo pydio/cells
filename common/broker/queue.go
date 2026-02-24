@@ -185,3 +185,21 @@ func MakeWrappedOpener(opener URLOpener) func(w OpenWrapper) controller.Opener[A
 	}
 
 }
+
+var mux = openurl.SchemeMap{}
+
+// RegisterAsyncQueue registers the opener with the given scheme. If an opener
+// already exists for the scheme, Register panics.
+func RegisterAsyncQueue(scheme string, opener URLOpener) {
+	mux.Register("queue", "AsyncQueue", scheme, opener)
+}
+
+// OpenAsyncQueue calls OpenTopicURL with the URL parsed from urlstr.
+// OpenTopic is safe to call from multiple goroutines.
+func OpenAsyncQueue(ctx context.Context, urlstr string) (AsyncQueue, error) {
+	opener, u, err := mux.FromString("AsyncQueue", urlstr)
+	if err != nil {
+		return nil, err
+	}
+	return opener.(URLOpener).OpenURL(ctx, u)
+}

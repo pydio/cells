@@ -28,16 +28,25 @@ class TypeSelectionBoard extends React.Component{
 
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            keyError: '',
+        };
     }
 
     addSelectionValue(){
         const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
         const {data, setAdditionalDataKey} = this.props;
         const {items = []} = data;
+        
+        // Check if key already exists
+        if(items.some(item => item.key === selectorNewKey)) {
+            this.setState({keyError: ''});
+            return;
+        }
+        
         items.push({key:selectorNewKey, value:selectorNewValue, color: selectorNewColor});
         setAdditionalDataKey('items', items);
-        this.setState({selectorNewKey:'', selectorNewValue: '', selectorNewColor:''});
+        this.setState({selectorNewKey:'', selectorNewValue: '', selectorNewColor:'', keyError: ''});
     }
 
     removeSelectionValue(k) {
@@ -77,9 +86,14 @@ class TypeSelectionBoard extends React.Component{
 
     render() {
         const {data, m, setAdditionalDataKey, muiTheme} = this.props;
-        const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
+        const {selectorNewKey, selectorNewValue, selectorNewColor, keyError} = this.state;
         const {items = []} = data;
         const ModernStyles = ThemedModernStyles(muiTheme)
+        
+        // Check for duplicate as user types
+        const isDuplicate = selectorNewKey && items.some(item => item.key === selectorNewKey);
+        const hasError = isDuplicate || keyError;
+        
         return(
             <Fragment>
                 <div style={{padding: 10, paddingRight: 0, backgroundColor: '#f5f5f5', borderRadius: 3}}>
@@ -98,11 +112,17 @@ class TypeSelectionBoard extends React.Component{
                     <div style={{display:'flex'}} key={"new-selection-key"}>
                         {this.renderColor(selectorNewColor)}
                         <span style={{width: 80, marginRight: 6}}>
-                        <ModernTextField value={selectorNewKey} onChange={(e,v)=>{this.setState({selectorNewKey:v})}} hintText={m('editor.selection.key')} fullWidth={true}/>
+                        <ModernTextField 
+                            value={selectorNewKey} 
+                            onChange={(e,v)=>{this.setState({selectorNewKey:v, keyError: ''})}} 
+                            hintText={m('editor.selection.key')} 
+                            fullWidth={true}
+                            errorText={hasError ? (m('editor.selection.key_exists')) : ''}
+                        />
                     </span>
                         <span style={{flex: 1}}>
                         <ModernTextField value={selectorNewValue} onChange={(e,v)=>{this.setState({selectorNewValue:v})}} hintText={m('editor.selection.value')} fullWidth={true}/></span>
-                        <span><IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue}/></span>
+                        <span><IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue || hasError}/></span>
                     </div>
                 </div>
                 <div>

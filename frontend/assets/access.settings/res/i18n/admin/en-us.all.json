@@ -1,11 +1,11 @@
 {
-  "dashboard.tab.dashboard":{
+  "dashboard.tab.dashboard": {
     "other": "Dashboard"
   },
-  "dashboard.tab.activity":{
+  "dashboard.tab.activity": {
     "other": "Activity"
   },
-  "loading":{
+  "loading": {
     "other": "Loading..."
   },
   "ds.board.ds.legend": {
@@ -29,17 +29,17 @@
   "ds.board.versioning.title": {
     "other": "Versioning Policies"
   },
-  "ds.board.wsfromds.title":{
-    "other":"Create Workspace"
+  "ds.board.wsfromds.title": {
+    "other": "Create Workspace"
   },
-  "ds.board.wsfromds.legend":{
-    "other":"Create a new workspace at the root of datasource %s"
+  "ds.board.wsfromds.legend": {
+    "other": "Create a new workspace at the root of datasource %s"
   },
-  "ds.board.wsfromds.field":{
-    "other":"Label"
+  "ds.board.wsfromds.field": {
+    "other": "Label"
   },
-  "ds.board.wsfromds.defaultPrefix":{
-    "other":"DataSource %s"
+  "ds.board.wsfromds.defaultPrefix": {
+    "other": "DataSource %s"
   },
   "ds.format-picker.title": {
     "other": "Create DataSource"
@@ -140,55 +140,55 @@
   "ds.editor.legend.s3.2": {
     "other": "Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
   },
-  "ds.editor.storage.legend.fs":{
+  "ds.editor.storage.legend.fs": {
     "other": "Browse data from a local or network-attached file system."
   },
-  "ds.editor.storage.legend.fs.peer":{
+  "ds.editor.storage.legend.fs.peer": {
     "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
   },
-  "ds.editor.storage.legend.fs.path":{
+  "ds.editor.storage.legend.fs.path": {
     "other": "Make sure that last folder is lowercase and that its parent is writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
   },
-  "ds.editor.storage.legend.s3":{
+  "ds.editor.storage.legend.s3": {
     "other": "Browse data from an Amazon S3 bucket or from an S3-compatible storage."
   },
-  "ds.editor.storage.legend.azure":{
+  "ds.editor.storage.legend.azure": {
     "other": "Browse data from an Azure Blob Storage bucket."
   },
-  "ds.editor.storage.legend.gcs":{
+  "ds.editor.storage.legend.gcs": {
     "other": "Browse data from a Google Cloud Storage bucket."
   },
-  "ds.editor.storage.legend.versioning":{
+  "ds.editor.storage.legend.versioning": {
     "other": "Set up versioning policy to keep files contents modifications history. Beware that it will use additional storage space."
   },
-  "ds.editor.storage.legend.encryption":{
+  "ds.editor.storage.legend.encryption": {
     "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
   },
-  "ds.editor.storage.readOnly":{
+  "ds.editor.storage.readOnly": {
     "other": "Read-only mode"
   },
-  "ds.editor.storage.legend.readOnly":{
+  "ds.editor.storage.legend.readOnly": {
     "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
   },
-  "ds.editor.storage.flatStorage":{
+  "ds.editor.storage.flatStorage": {
     "other": "Keep data structure on storage"
   },
-  "ds.editor.storage.legend.flatStorage":{
+  "ds.editor.storage.legend.flatStorage": {
     "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
   },
-  "ds.editor.storage.skipResync":{
+  "ds.editor.storage.skipResync": {
     "other": "Skip full resynchronisation at restart"
   },
-  "ds.editor.storage.legend.skipResync":{
+  "ds.editor.storage.legend.skipResync": {
     "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
   },
-  "ds.editor.storage.checksumMapper":{
+  "ds.editor.storage.checksumMapper": {
     "other": "Store checksums locally (do not modify objects)"
   },
-  "ds.editor.storage.nativeEtags":{
+  "ds.editor.storage.nativeEtags": {
     "other": "Use Native Etags (will disable Desktop Sync)"
   },
-  "ds.editor.storage.legend.checksumMapper":{
+  "ds.editor.storage.legend.checksumMapper": {
     "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
   },
   "ds.editor.new": {
@@ -617,67 +617,67 @@
   "logs.9": {
     "other": "File will be export as CSV format with semi-colmuns (;) separators and fields enclosed in double-quotes (\")."
   },
-  "logs.level":{
+  "logs.level": {
     "other": "Level"
   },
-  "logs.level.exact":{
+  "logs.level.exact": {
     "other": "(only)"
   },
-  "logs.level.greaterthan":{
+  "logs.level.greaterthan": {
     "other": "(and up)"
   },
-  "logs.service":{
+  "logs.service": {
     "other": "Service"
   },
-  "logs.message":{
+  "logs.message": {
     "other": "Message"
   },
-  "logs.noentries":{
+  "logs.noentries": {
     "other": "No entries"
   },
-  "logs.noresults":{
+  "logs.noresults": {
     "other": "No results"
   },
-  "logs.details.copy":{
+  "logs.details.copy": {
     "other": "Copy log to clipboard"
   },
-  "logs.details.show-focus":{
+  "logs.details.show-focus": {
     "other": "Show +/- 5 minutes"
   },
-  "logs.details.close":{
+  "logs.details.close": {
     "other": "Close log detail"
   },
-  "logs.details.user":{
+  "logs.details.user": {
     "other": "User"
   },
-  "logs.details.user-attributes":{
+  "logs.details.user-attributes": {
     "other": "User Attributes"
   },
-  "logs.details.date":{
+  "logs.details.date": {
     "other": "Event Date"
   },
-  "logs.details.msg":{
+  "logs.details.msg": {
     "other": "Event Message"
   },
-  "logs.details.service":{
+  "logs.details.service": {
     "other": "Emitting Service"
   },
-  "logs.details.connection":{
+  "logs.details.connection": {
     "other": "Connection IP"
   },
-  "logs.details.agent":{
+  "logs.details.agent": {
     "other": "User-Agent"
   },
-  "logs.details.protocol":{
+  "logs.details.protocol": {
     "other": "Protocol"
   },
-  "logs.details.node":{
+  "logs.details.node": {
     "other": "File/Folder"
   },
-  "logs.details.transfer-size":{
+  "logs.details.transfer-size": {
     "other": "Transfer Size"
   },
-  "logs.details.workspace":{
+  "logs.details.workspace": {
     "other": "In Workspace"
   },
   "menu.0": {
@@ -863,14 +863,35 @@
   "metadata.type.css_label": {
     "other": "Color Labels"
   },
+  "metadata.type.auto_complete": {
+    "other": "Auto Complete"
+  },
   "metadata.type.tags": {
-    "other": "Extensible Tags"
+    "other": "Extensible Tags (legacy)"
   },
   "metadata.type.choice": {
     "other": "Select from values"
   },
+  "metadata.type.multi_value": {
+    "other": "Multi Value select"
+  },
+  "metadata.type.tag_cloud": {
+    "other": "Tag Cloud"
+  },
+  "metadata.type.tag_cloud.values": {
+    "other": "Tag Cloud values"
+  },
+  "metadata.tag_cloud.entity.hint": {
+    "other": "Comma-separated list of possible tags"
+  },
+  "metadata.tag_cloud.entity": {
+    "other": "Values"
+  },
   "metadata.type.json": {
     "other": "JSON (internal format)"
+  },
+  "metadata.type.url": {
+    "other": "URL"
   },
   "metadata.type.date.format": {
     "other": "Format"
@@ -913,6 +934,21 @@
   },
   "metadata.toggle.list-visibility": {
     "other": "Show value in files list"
+  },
+  "metadata.toggle.prompt": {
+    "other": "Prompt Metadata tagging on Upload"
+  },
+  "metadata.field.validation": {
+    "other": "Field Validation"
+  },
+  "metadata.editor.selection.key_exists": {
+    "other": "This key already exists"
+  },
+  "metadata.toggle.required": {
+    "other": "Required"
+  },
+  "metadata.toggle.defaults": {
+    "other": "Enforce Defaults"
   },
   "metadata.field.mandatory": {
     "other": "Mandatory"
@@ -1037,19 +1073,19 @@
   "plugins.6": {
     "other": "Revert"
   },
-  "plugins.list.column.enabled":{
+  "plugins.list.column.enabled": {
     "other": "Enabled"
   },
-  "plugins.list.column.label":{
+  "plugins.list.column.label": {
     "other": "Label"
   },
-  "plugins.list.column.id":{
+  "plugins.list.column.id": {
     "other": "Id"
   },
-  "plugins.list.column.description":{
+  "plugins.list.column.description": {
     "other": "Description"
   },
-  "plugins.list.action.edit":{
+  "plugins.list.action.edit": {
     "other": "Edit plugin parameters"
   },
   "plugins.documentation": {
@@ -1277,40 +1313,40 @@
   "user.moveto.hint": {
     "other": "Select destination group, leave '/' for root group."
   },
-  "user.filter.tooltip":{
+  "user.filter.tooltip": {
     "other": "Filter users list..."
   },
-  "user.filter.locks":{
+  "user.filter.locks": {
     "other": "Locked Users"
   },
-  "user.filter.hidden":{
+  "user.filter.hidden": {
     "other": "Public Links (hidden)"
   },
   "user.filter.status": {
     "other": "Status"
   },
-  "user.type.hidden":{
+  "user.type.hidden": {
     "other": "Public User"
   },
-  "user.type.hidden.legend":{
+  "user.type.hidden.legend": {
     "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
   },
-  "user.rootgroup.legend":{
+  "user.rootgroup.legend": {
     "other": "Permissions applied to the entire user hierarchy"
   },
-  "user.filter.internal":{
+  "user.filter.internal": {
     "other": "Internal users"
   },
-  "user.filter.shared":{
+  "user.filter.shared": {
     "other": "Shared users"
   },
-  "user.filter.admins":{
+  "user.filter.admins": {
     "other": "Admins only"
   },
-  "user.filter.all":{
+  "user.filter.all": {
     "other": "All users"
   },
-  "user.filter.anon":{
+  "user.filter.anon": {
     "other": "Show anonymous"
   },
   "versions.editor.delete": {
@@ -1739,23 +1775,23 @@
   "ws.editor.other.sync-personal": {
     "other": "(personal workspaces only)"
   },
-  "ws.editor.sync.warning":{
-    "other" : "Warning!"
+  "ws.editor.sync.warning": {
+    "other": "Warning!"
   },
-  "ws.editor.sync.warning.validate":{
-    "other" : "I understand"
+  "ws.editor.sync.warning.validate": {
+    "other": "I understand"
   },
-  "ws.editor.sync.warning.enable":{
-    "other" : "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+  "ws.editor.sync.warning.enable": {
+    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
   },
-  "ws.editor.sync.warning.disable":{
-    "other" : "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+  "ws.editor.sync.warning.disable": {
+    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
   },
-  "ws.editor.other.quota":{
-    "other" : "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+  "ws.editor.other.quota": {
+    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
   },
-  "ws.editor.other.quota.noquota":{
-    "other" : "No Quota set"
+  "ws.editor.other.quota.noquota": {
+    "other": "No Quota set"
   },
   "ws.editor.path.folder": {
     "other": "Folder Path"
@@ -1766,22 +1802,22 @@
   "ws.editor.slug.legend": {
     "other": "Technical name used for example in URLs, automatically computed but you can customize it."
   },
-  "services.text-filter.hint":{
+  "services.text-filter.hint": {
     "other": "Filter..."
   },
-  "services.filter.nofilter":{
+  "services.filter.nofilter": {
     "other": "All Services"
   },
-  "services.filter.started":{
+  "services.filter.started": {
     "other": "Running Only"
   },
-  "services.filter.stopped":{
+  "services.filter.stopped": {
     "other": "Stopped Only"
   },
-  "services.peerfilter.title":{
+  "services.peerfilter.title": {
     "other": "Select Node"
   },
-  "services.toggle.details":{
+  "services.toggle.details": {
     "other": "Show Details"
   },
   "services.empty.loading": {
@@ -1790,67 +1826,67 @@
   "services.empty.noservice": {
     "other": "No service"
   },
-  "services.column.name":{
+  "services.column.name": {
     "other": "Service Name"
   },
-  "services.column.description":{
+  "services.column.description": {
     "other": "Description"
   },
-  "services.column.version":{
+  "services.column.version": {
     "other": "Version"
   },
-  "services.column.tag":{
+  "services.column.tag": {
     "other": "Tag"
   },
-  "services.column.peers":{
+  "services.column.peers": {
     "other": "Peers"
   },
-  "services.tag.gateway.title":{
+  "services.tag.gateway.title": {
     "other": "Gateways"
   },
-  "services.tag.gateway.description":{
+  "services.tag.gateway.description": {
     "other": "World-facing services for accessing the platform"
   },
-  "services.tag.datasource.title":{
+  "services.tag.datasource.title": {
     "other": "Data Sources"
   },
-  "services.tag.datasource.description":{
+  "services.tag.datasource.description": {
     "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
   },
-  "services.tag.data.title":{
+  "services.tag.data.title": {
     "other": "Data"
   },
-  "services.tag.data.description":{
+  "services.tag.data.description": {
     "other": "Services handling data and metadata."
   },
-  "services.tag.idm.title":{
+  "services.tag.idm.title": {
     "other": "Identity Management"
   },
-  "services.tag.idm.description":{
+  "services.tag.idm.description": {
     "other": "All services related to authentication and authorizations, roles, security policies, etc."
   },
-  "services.tag.scheduler.title":{
+  "services.tag.scheduler.title": {
     "other": "Scheduler"
   },
-  "services.tag.scheduler.description":{
+  "services.tag.scheduler.description": {
     "other": "Services for managing background jobs. The task server can be dispatched across various peers."
   },
-  "services.tag.broker.title":{
+  "services.tag.broker.title": {
     "other": "Broker"
   },
-  "services.tag.broker.description":{
+  "services.tag.broker.description": {
     "other": "Services dispatching and processing events (generally toward users) across the application."
   },
-  "services.tag.frontend.title":{
+  "services.tag.frontend.title": {
     "other": "Frontend"
   },
-  "services.tag.frontend.description":{
+  "services.tag.frontend.description": {
     "other": "Web services for user interfaces in the browser"
   },
-  "services.tag.discovery.title":{
+  "services.tag.discovery.title": {
     "other": "Discovery"
   },
-  "services.tag.discovery.description":{
+  "services.tag.discovery.description": {
     "other": "Basic configurations and services registries called by all other services."
   },
   "services.service.ip": {
@@ -1871,34 +1907,34 @@
   "services.service.datasource.index": {
     "other": "Indexation"
   },
-  "scheduler.title":{
+  "scheduler.title": {
     "other": "Scheduler"
   },
-  "scheduler.legend":{
+  "scheduler.legend": {
     "other": "Flows running in background on a periodical basis or triggered by events"
   },
-  "scheduler.system.title":{
+  "scheduler.system.title": {
     "other": "System Flows"
   },
-  "scheduler.system.legend":{
+  "scheduler.system.legend": {
     "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
-  "scheduler.inactives.title":{
+  "scheduler.inactives.title": {
     "other": "Inactive Flows"
   },
-  "scheduler.inactives.legend":{
+  "scheduler.inactives.legend": {
     "other": "These Flows are inactive, click on a Flow to enable it."
   },
-  "scheduler.system.empty":{
+  "scheduler.system.empty": {
     "other": "No Flows scheduled."
   },
-  "scheduler.users.title":{
+  "scheduler.users.title": {
     "other": "Users Flows"
   },
-  "scheduler.users.legend":{
+  "scheduler.users.legend": {
     "other": "These Flows are dynamically created and trigged by user actions."
   },
-  "scheduler.users.empty":{
+  "scheduler.users.empty": {
     "other": "No Flows launched by users"
   },
   "scheduler.cellsflows.cta.button": {
@@ -1913,355 +1949,355 @@
   "scheduler.cellsflows.dialog.text": {
     "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
-  "scheduler.job.label":{
+  "scheduler.job.label": {
     "other": "Label"
   },
-  "scheduler.job.endTime":{
+  "scheduler.job.endTime": {
     "other": "Last Execution"
   },
-  "scheduler.job.status":{
+  "scheduler.job.status": {
     "other": "Status"
   },
-  "scheduler.job.owner":{
+  "scheduler.job.owner": {
     "other": "Owner"
   },
-  "scheduler.job.trigger":{
+  "scheduler.job.trigger": {
     "other": "Trigger"
   },
-  "scheduler.job.delete":{
+  "scheduler.job.delete": {
     "other": "Delete"
   },
-  "scheduler.job.delete.confirm":{
+  "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
   },
-  "scheduler.tasks.delete.confirm":{
+  "scheduler.tasks.delete.confirm": {
     "other": "Are you sure you want to clear all tasks for this Flow?"
   },
-  "scheduler.trigger.picker.title":{
+  "scheduler.trigger.picker.title": {
     "other": "Trigger job on..."
   },
-  "scheduler.trigger.type.nodes":{
+  "scheduler.trigger.type.nodes": {
     "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
   },
-  "scheduler.trigger.type.workspaces":{
+  "scheduler.trigger.type.workspaces": {
     "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
   },
-  "scheduler.trigger.type.acls":{
+  "scheduler.trigger.type.acls": {
     "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
   },
-  "scheduler.trigger.type.users":{
+  "scheduler.trigger.type.users": {
     "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
   },
-  "scheduler.trigger.type.roles":{
+  "scheduler.trigger.type.roles": {
     "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
   },
-  "scheduler.trigger.type.chat":{
+  "scheduler.trigger.type.chat": {
     "other": "Chat Events: react to new chat message or chat room modification"
   },
-  "scheduler.trigger.type.chat-messages":{
+  "scheduler.trigger.type.chat-messages": {
     "other": "Chat Messages Events"
   },
-  "scheduler.trigger.type.chat-rooms":{
+  "scheduler.trigger.type.chat-rooms": {
     "other": "Chat Rooms Events"
   },
-  "scheduler.trigger.create.node":{
+  "scheduler.trigger.create.node": {
     "other": "Create Node"
   },
-  "scheduler.trigger.create.node.description":{
+  "scheduler.trigger.create.node.description": {
     "other": "A new file was uploaded or a new folder was created."
   },
-  "scheduler.trigger.read.node":{
+  "scheduler.trigger.read.node": {
     "other": "Read Node"
   },
-  "scheduler.trigger.read.node.description":{
+  "scheduler.trigger.read.node.description": {
     "other": "A file was downloaded or a folder content was listed."
   },
-  "scheduler.trigger.update.path":{
+  "scheduler.trigger.update.path": {
     "other": "Update Path"
   },
-  "scheduler.trigger.update.path.description":{
+  "scheduler.trigger.update.path.description": {
     "other": "A file or folder was moved or renamed."
   },
-  "scheduler.trigger.update.content":{
+  "scheduler.trigger.update.content": {
     "other": "Update Content"
   },
-  "scheduler.trigger.update.content.description":{
+  "scheduler.trigger.update.content.description": {
     "other": "A file content was updated by edition or upload overwriting."
   },
-  "scheduler.trigger.update.metadata":{
+  "scheduler.trigger.update.metadata": {
     "other": "Update Metadata"
   },
-  "scheduler.trigger.update.metadata.description":{
+  "scheduler.trigger.update.metadata.description": {
     "other": "Internal metadata were modified on file or folder."
   },
-  "scheduler.trigger.update.user-metadata":{
+  "scheduler.trigger.update.user-metadata": {
     "other": "Update User Metadata"
   },
-  "scheduler.trigger.update.user-metadata.description":{
+  "scheduler.trigger.update.user-metadata.description": {
     "other": "User-defined metadata were modified (event contains updated metadata)."
   },
-  "scheduler.trigger.delete.node":{
+  "scheduler.trigger.delete.node": {
     "other": "Delete Node"
   },
-  "scheduler.trigger.delete.node.description":{
+  "scheduler.trigger.delete.node.description": {
     "other": "A file or a folder was definitively deleted."
   },
-  "scheduler.trigger.create.user":{
+  "scheduler.trigger.create.user": {
     "other": "Create User"
   },
-  "scheduler.trigger.create.user.description":{
+  "scheduler.trigger.create.user.description": {
     "other": "A user or a group was created."
   },
-  "scheduler.trigger.read.user":{
+  "scheduler.trigger.read.user": {
     "other": "Read User"
   },
-  "scheduler.trigger.read.user.description":{
+  "scheduler.trigger.read.user.description": {
     "other": "A user or a group was accessed or listed."
   },
-  "scheduler.trigger.update.user":{
+  "scheduler.trigger.update.user": {
     "other": "Update User"
   },
-  "scheduler.trigger.update.user.description":{
+  "scheduler.trigger.update.user.description": {
     "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
   },
-  "scheduler.trigger.delete.user":{
+  "scheduler.trigger.delete.user": {
     "other": "Delete User"
   },
-  "scheduler.trigger.delete.user.description":{
+  "scheduler.trigger.delete.user.description": {
     "other": "A user or a group was deleted."
   },
-  "scheduler.trigger.bind.user":{
+  "scheduler.trigger.bind.user": {
     "other": "User Bind"
   },
-  "scheduler.trigger.bind.user.description":{
+  "scheduler.trigger.bind.user.description": {
     "other": "A user has logged in."
   },
-  "scheduler.trigger.logout.user":{
+  "scheduler.trigger.logout.user": {
     "other": "User Logout"
   },
-  "scheduler.trigger.logout.user.description":{
+  "scheduler.trigger.logout.user.description": {
     "other": "A user has logged out."
   },
-  "scheduler.trigger.role.create":{
+  "scheduler.trigger.role.create": {
     "other": "Create Role"
   },
-  "scheduler.trigger.role.create.description":{
+  "scheduler.trigger.role.create.description": {
     "other": "A new role was created, by admin or by users."
   },
-  "scheduler.trigger.role.update":{
+  "scheduler.trigger.role.update": {
     "other": "Update Role"
   },
-  "scheduler.trigger.role.update.description":{
+  "scheduler.trigger.role.update.description": {
     "other": "A role has been updated."
   },
-  "scheduler.trigger.role.delete":{
+  "scheduler.trigger.role.delete": {
     "other": "Delete Role"
   },
-  "scheduler.trigger.role.delete.description":{
+  "scheduler.trigger.role.delete.description": {
     "other": "A role has been deleted."
   },
-  "scheduler.trigger.workspace.create":{
+  "scheduler.trigger.workspace.create": {
     "other": "Create Workspace"
   },
-  "scheduler.trigger.workspace.create.description":{
+  "scheduler.trigger.workspace.create.description": {
     "other": "A new Workspace or Cell was created."
   },
-  "scheduler.trigger.workspace.update":{
+  "scheduler.trigger.workspace.update": {
     "other": "Update Workspace"
   },
-  "scheduler.trigger.workspace.update.description":{
+  "scheduler.trigger.workspace.update.description": {
     "other": "A Workspace or a Cell has been updated."
   },
-  "scheduler.trigger.workspace.delete":{
+  "scheduler.trigger.workspace.delete": {
     "other": "Delete Workspace"
   },
-  "scheduler.trigger.workspace.delete.description":{
+  "scheduler.trigger.workspace.delete.description": {
     "other": "A Workspace or a Cell has been deleted."
   },
-  "scheduler.trigger.acl.create":{
+  "scheduler.trigger.acl.create": {
     "other": "Create/Update ACL"
   },
-  "scheduler.trigger.acl.create.description":{
+  "scheduler.trigger.acl.create.description": {
     "other": "An Access Control was opened."
   },
-  "scheduler.trigger.acl.delete":{
+  "scheduler.trigger.acl.delete": {
     "other": "Delete ACL"
   },
-  "scheduler.trigger.acl.delete.description":{
+  "scheduler.trigger.acl.delete.description": {
     "other": "An Access Control was removed."
   },
-  "scheduler.trigger.chat-message.put":{
+  "scheduler.trigger.chat-message.put": {
     "other": "New Chat Message"
   },
-  "scheduler.trigger.chat-message.put.description":{
+  "scheduler.trigger.chat-message.put.description": {
     "other": "A Message was posted in a ChatRoom."
   },
-  "scheduler.trigger.chat-message.delete":{
+  "scheduler.trigger.chat-message.delete": {
     "other": "Chat Message Deleted"
   },
-  "scheduler.trigger.chat-message.delete.description":{
+  "scheduler.trigger.chat-message.delete.description": {
     "other": "A Message was deleted from a ChatRoom."
   },
-  "scheduler.trigger.chat-room.put":{
+  "scheduler.trigger.chat-room.put": {
     "other": "New Chat Room"
   },
-  "scheduler.trigger.chat-room.put.description":{
+  "scheduler.trigger.chat-room.put.description": {
     "other": "A new ChatRoom was created."
   },
-  "scheduler.trigger.chat-room.delete":{
+  "scheduler.trigger.chat-room.delete": {
     "other": "Delete Chat Room"
   },
-  "scheduler.trigger.chat-room.delete.description":{
+  "scheduler.trigger.chat-room.delete.description": {
     "other": "A Chatroom has been deleted."
   },
-  "scheduler.trigger.events":{
+  "scheduler.trigger.events": {
     "other": "Events"
   },
-  "scheduler.trigger.manual":{
+  "scheduler.trigger.manual": {
     "other": "Manual Trigger"
   },
-  "scheduler.trigger.periodic":{
+  "scheduler.trigger.periodic": {
     "other": "Periodic Schedule"
   },
-  "scheduler.job.disabled":{
+  "scheduler.job.disabled": {
     "other": "disabled"
   },
-  "scheduler.tasks.running.count":{
+  "scheduler.tasks.running.count": {
     "other": "%s tasks running"
   },
-  "scheduler.task.action.pause":{
+  "scheduler.task.action.pause": {
     "other": "Pause Task"
   },
-  "scheduler.task.action.resume":{
+  "scheduler.task.action.resume": {
     "other": "Resume Task"
   },
-  "scheduler.task.action.stop":{
+  "scheduler.task.action.stop": {
     "other": "Stop Now"
   },
-  "scheduler.task.action.delete":{
+  "scheduler.task.action.delete": {
     "other": "Delete"
   },
-  "scheduler.task.action.enable":{
+  "scheduler.task.action.enable": {
     "other": "Enable Flow"
   },
-  "scheduler.task.action.run":{
+  "scheduler.task.action.run": {
     "other": "Run Now"
   },
-  "scheduler.task.action.disable":{
+  "scheduler.task.action.disable": {
     "other": "Disable Flow"
   },
-  "scheduler.task.id":{
+  "scheduler.task.id": {
     "other": "ID"
   },
-  "scheduler.task.start":{
+  "scheduler.task.start": {
     "other": "Start"
   },
-  "scheduler.task.end":{
+  "scheduler.task.end": {
     "other": "End"
   },
-  "scheduler.task.duration":{
+  "scheduler.task.duration": {
     "other": "Duration"
   },
-  "scheduler.task.status":{
+  "scheduler.task.status": {
     "other": "Status"
   },
-  "scheduler.task.message":{
+  "scheduler.task.message": {
     "other": "Message"
   },
-  "scheduler.tasks.running":{
+  "scheduler.tasks.running": {
     "other": "Running Tasks"
   },
-  "scheduler.tasks.history":{
+  "scheduler.tasks.history": {
     "other": "Tasks History"
   },
-  "scheduler.tasks.history.empty":{
+  "scheduler.tasks.history.empty": {
     "other": "No tasks have run yet"
   },
-  "scheduler.tasks.history.more":{
+  "scheduler.tasks.history.more": {
     "other": "%s other tasks not shown..."
   },
-  "scheduler.tasks.running.empty":{
+  "scheduler.tasks.running.empty": {
     "other": "No tasks currently running"
   },
-  "scheduler.tasks.bulk.delete":{
+  "scheduler.tasks.bulk.delete": {
     "other": "Delete Tasks"
   },
-  "scheduler.tasks.bulk.enable":{
+  "scheduler.tasks.bulk.enable": {
     "other": "Enable Multiple"
   },
-  "scheduler.tasks.bulk.disable":{
+  "scheduler.tasks.bulk.disable": {
     "other": "Disable Multiple"
   },
-  "scheduler.tasks.bulk.clear":{
+  "scheduler.tasks.bulk.clear": {
     "other": "Clear All"
   },
-  "scheduler.tasks.activity.title":{
+  "scheduler.tasks.activity.title": {
     "other": "Task Activity"
   },
-  "scheduler.tasks.activity.loading":{
+  "scheduler.tasks.activity.loading": {
     "other": "Loading activity..."
   },
-  "scheduler.tasks.activity.empty":{
+  "scheduler.tasks.activity.empty": {
     "other": "No logs found"
   },
-  "scheduler.schedule.monthly":{
+  "scheduler.schedule.monthly": {
     "other": "Every %1 of each month at %2"
   },
-  "scheduler.schedule.monthly.short":{
+  "scheduler.schedule.monthly.short": {
     "other": "Every %1 of each month"
   },
-  "scheduler.schedule.weekly":{
+  "scheduler.schedule.weekly": {
     "other": "Every %1 at %2"
   },
-  "scheduler.schedule.weekly.short":{
+  "scheduler.schedule.weekly.short": {
     "other": "Every %1"
   },
-  "scheduler.schedule.daily":{
+  "scheduler.schedule.daily": {
     "other": "Every day at %1"
   },
-  "scheduler.schedule.daily.short":{
+  "scheduler.schedule.daily.short": {
     "other": "At %1"
   },
-  "scheduler.schedule.timely":{
+  "scheduler.schedule.timely": {
     "other": "Every %1"
   },
-  "scheduler.schedule.title":{
+  "scheduler.schedule.title": {
     "other": "Flow Schedule"
   },
-  "scheduler.schedule.type":{
+  "scheduler.schedule.type": {
     "other": "Scheduling Type"
   },
-  "scheduler.schedule.type.manual":{
+  "scheduler.schedule.type.manual": {
     "other": "Manual"
   },
-  "scheduler.schedule.type.monthly":{
+  "scheduler.schedule.type.monthly": {
     "other": "Monthly"
   },
-  "scheduler.schedule.type.weekly":{
+  "scheduler.schedule.type.weekly": {
     "other": "Weekly"
   },
-  "scheduler.schedule.type.daily":{
+  "scheduler.schedule.type.daily": {
     "other": "Daily"
   },
-  "scheduler.schedule.type.timely":{
+  "scheduler.schedule.type.timely": {
     "other": "Every..."
   },
-  "scheduler.schedule.type.once":{
+  "scheduler.schedule.type.once": {
     "other": "Run Once"
   },
-  "scheduler.schedule.detail.monthday":{
+  "scheduler.schedule.detail.monthday": {
     "other": "Day of the month"
   },
-  "scheduler.schedule.detail.weekday":{
+  "scheduler.schedule.detail.weekday": {
     "other": "Day of the week"
   },
-  "scheduler.schedule.detail.daytime":{
+  "scheduler.schedule.detail.daytime": {
     "other": "Time of the day"
   },
-  "scheduler.schedule.detail.daydate":{
+  "scheduler.schedule.detail.daydate": {
     "other": "Unique Date"
   },
-  "scheduler.schedule.detail.minutes":{
+  "scheduler.schedule.detail.minutes": {
     "other": "Period in minutes"
   },
   "scheduler.job-parameters.dialog": {
@@ -2270,19 +2306,19 @@
   "scheduler.job-parameters.button": {
     "other": "Parameters"
   },
-  "developer.rest.apis":{
+  "developer.rest.apis": {
     "other": "Rest APIs Documentation"
   },
-  "developer.rest.apis.legend":{
+  "developer.rest.apis.legend": {
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
   },
-  "mailer.test.title":{
+  "mailer.test.title": {
     "other": "Send a test email"
   },
-  "mailer.test.legend":{
+  "mailer.test.legend": {
     "other": "Make sure to save your configuration changes before sending a test email."
   },
-  "mailer.test.loading":{
+  "mailer.test.loading": {
     "other": "Loading Mailer Library..."
   },
   "sites.title": {

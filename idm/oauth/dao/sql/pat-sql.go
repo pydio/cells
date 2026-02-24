@@ -31,8 +31,8 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/proto/auth"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/idm/oauth"
 )
 
@@ -52,17 +52,17 @@ func sha256Hash(input string) string {
 }
 
 type PersonalToken struct {
-	UUID              string       `gorm:"column:uuid; primaryKey; type:varchar(36) not null;"`
-	AccessToken       string       `gorm:"column:access_token;type:varchar(128) not null;unique;"`
+	UUID              string       `gorm:"column:uuid;primaryKey;type:varchar(36);not null;"`
+	AccessToken       string       `gorm:"column:access_token;type:varchar(128);not null;unique;"`
 	Type              auth.PatType `gorm:"column:pat_type;"`
-	Label             string       `gorm:"column:label;type:varchar(255) null;"`
-	UserUUID          string       `gorm:"column:user_uuid;type:varchar(255) not null;index;"`
-	UserLogin         string       `gorm:"column:user_login;type:varchar(255) not null;index;"`
+	Label             string       `gorm:"column:label;type:varchar(255);"`
+	UserUUID          string       `gorm:"column:user_uuid;type:varchar(255);not null;index;"`
+	UserLogin         string       `gorm:"column:user_login;type:varchar(255);not null;index;"`
 	SecretPair        string       `gorm:"column:secret_pair;type:varchar(255);"`
 	RevocationKey     string       `gorm:"column:revocation_key;type:varchar(255);index;"`
-	AutoRefreshWindow int32        `gorm:"column:auto_refresh;type: int default 0 null;"`
+	AutoRefreshWindow int32        `gorm:"column:auto_refresh;type:int;default:0;"`
 	ExpiresAt         time.Time    `gorm:"column:expire_at;"`
-	CreatedBy         string       `gorm:"column:created_by;type:varchar(128) null;"`
+	CreatedBy         string       `gorm:"column:created_by;type:varchar(128);"`
 	Scopes            string       `gorm:"column:scopes;"`
 	UpdatedAt         time.Time    `gorm:"autoUpdateTime"`
 	CreatedAt         time.Time    `gorm:"autoCreateTime"`
@@ -108,6 +108,10 @@ func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
 	u.UpdatedAt = time.Unix(res.UpdatedAt, 0)
 	u.RevocationKey = res.RevocationKey
 	u.SecretPair = res.SecretPair
+	if len(res.Scopes) > 0 {
+		ss, _ := json.Marshal(res.Scopes)
+		u.Scopes = string(ss)
+	}
 
 	return u
 }
@@ -118,7 +122,7 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options kv.Values) error {
 	s.instance = func() *gorm.DB {
 		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Model(&PersonalToken{})
 	}

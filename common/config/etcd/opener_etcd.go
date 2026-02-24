@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 	"net/url"
 	"os"
 	"strconv"
@@ -12,8 +14,6 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/utils/kv"
-	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 )
 
 const (

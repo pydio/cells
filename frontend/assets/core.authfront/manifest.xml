@@ -9,6 +9,10 @@
             <i18n namespace="gui.user" remote="plug/core.authfront/res/i18n"/>
         </resources>
     </client_settings>
+    <server_settings>
+        <global_param name="LOGIN_DIALOG_CUSTOM_CLASSNAME" type="string" label="Login Dialog CSS Class" description="Set a custom class name for Login Dialog. This will disable background blur effect." expose="false"/>
+        <global_param name="LOGIN_DIALOG_CUSTOM_CLASSNAME_PWD" type="string" label="Password Dialog CSS Class" description="Set a custom class name for Password Dialog (shared links). This will disable background blur effect." expose="false"/>
+    </server_settings>
     <registry_contributions>
         <actions>
             <action name="reset-password-ask">

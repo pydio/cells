@@ -22,14 +22,14 @@ package migrations
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v5/common/utils/std"
 
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/object"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
 
 func init() {
@@ -39,7 +39,7 @@ func init() {
 
 // cleanOverlappingObjectsServices tries to find conflicting grpc.data.object services that would have been
 // duplicated because of PeerAddress
-func cleanOverlappingObjectsServices(conf configx.Values) error {
+func cleanOverlappingObjectsServices(conf kv.Values) error {
 
 	core := conf.Val(std.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects))
 	sources := config.SourceNamesFiltered(core.Val("sources").StringArray())

@@ -190,6 +190,7 @@ func (h *Handler) LoadNodes(ctx context.Context, bulkRequest *rest.GetBulkMetaRe
 			er = err
 			return
 		}
+
 		childrenLoaded = int32(len(cc))
 		nn = append(nn, cc...)
 
@@ -307,5 +308,4 @@ func (h *Handler) fillChildren(ctx context.Context, listRequest *tree.ListNodesR
 	}
 
 	return oo, countDiffers, nil
-
 }

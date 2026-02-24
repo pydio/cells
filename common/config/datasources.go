@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/object"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/net"
 	standard "github.com/pydio/cells/v5/common/utils/std"
 )
@@ -96,7 +96,7 @@ func SourceNamesForDataServices(ctx context.Context, dataSrvType string) []strin
 }
 
 // SourceNamesFromDataConfigs list sourceNames from the config, excluding the timestamp key
-func SourceNamesFromDataConfigs(values configx.Values) []string {
+func SourceNamesFromDataConfigs(values kv.Values) []string {
 	names := values.Val("sources").StringArray()
 	return SourceNamesFiltered(names)
 }

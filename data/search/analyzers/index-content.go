@@ -11,7 +11,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 var (
@@ -25,7 +25,7 @@ func getStdRouter() nodes.Handler {
 	return router
 }
 
-func IndexContent(ctx context.Context, indexNode *tree.IndexableNode, engineConfigs configx.Values) error {
+func IndexContent(ctx context.Context, indexNode *tree.IndexableNode, engineConfigs kv.Values) error {
 
 	if engineConfigs == nil || !engineConfigs.Val("indexContent").Bool() || !indexNode.IsLeaf() {
 		return nil

@@ -26,6 +26,7 @@
 	</client_settings>
     <server_settings>
         <global_param name="ENABLE_STRUCTURED_DS" description="CONF_MESSAGE[Display structured storage format during data source creation.]" label="CONF_MESSAGE[Allow structured format storage (to be deprecated)]" type="boolean" default="false" expose="true"/>
+        <global_param name="USERMETA_NAMESPACE_PROMPT" type="boolean" label="CONF_MESSAGE[Prompt Meta Feature flag]" description="CONF_MESSAGE[Hides Metadata Prompt flag]" default="false" expose="true"/>
     </server_settings>
     <registry_contributions>
 		<client_configs>
@@ -134,7 +135,7 @@
                 </processing>
             </action>
 
-            
+
         </actions>
 
 	</registry_contributions>

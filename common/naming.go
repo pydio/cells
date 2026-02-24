@@ -183,6 +183,7 @@ const (
 	TopicDatasourceEvent     = "topic.pydio.datasource.event"
 	TopicIndexEvent          = "topic.pydio.index.event"
 	TopicLogLevelEvent       = "topic.pydio.log-level.event"
+	TopicUserMetaDiffs       = "topic.pydio.user.meta.diffs" // Special topic used for sync
 )
 
 // Define constants for metadata and fixed datasources
@@ -330,6 +331,7 @@ const (
 	DocStoreIdVersioningPolicies = "versioningPolicies"
 	DocStoreIdShares             = "share"
 	DocStoreIdResetPassKeys      = "resetPasswordKeys"
+	DocStoreIdTagsValues         = "user_meta_tags"
 )
 
 // Main code information. Set by the go linker in the resulting binary when doing 'make main'

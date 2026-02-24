@@ -18,120 +18,190 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {useCallback, useMemo} from 'react'
-import {useBlockNoteEditor} from "@blocknote/react";
+import { useCallback, useMemo } from 'react';
+import { useBlockNoteEditor } from '@blocknote/react';
 import {
-    MdFullscreen, MdGridView,
+    MdFullscreen,
+    MdGridView,
     MdList,
     MdOutlineViewColumn,
     MdOutlineViewCompact,
-    MdOutlineViewList, MdOutlineViewQuilt,
+    MdOutlineViewList,
+    MdOutlineViewQuilt,
     MdPreview,
-    MdShortText
-} from "react-icons/md";
-import uuid4 from "uuid4";
-import {ChildrenListSpecType, NodeBlockSpecType, NodeRefSpecType} from "../specs/NodeRef";
-export const useSingleNodeDisplay = ({node, crtValue, skipInline = false, isBlockFolder = false, blockOrInlineProps}) => {
-
+    MdShortText,
+} from 'react-icons/md';
+import uuid4 from 'uuid4';
+import {
+    ChildrenListSpecType,
+    NodeBlockSpecType,
+    NodeRefSpecType,
+    ResultsListSpecType,
+} from '../specs/NodeRef';
+export const useSingleNodeDisplay = ({
+    node,
+    crtValue,
+    skipInline = false,
+    isBlockFolder = false,
+    isResultsList = false,
+    blockOrInlineProps,
+}) => {
     const editor = useBlockNoteEditor();
 
-    const menuHandler = useCallback((value) => {
-        if(value === crtValue) {
-            return
-        }
-        const {block, inlineContent, updateInlineContent, nodeUuid, path, repositoryId, blockSize, inlineId} = blockOrInlineProps;
-         if(value === 'inline') {
-             const {display, ...otherProps} = block.props
-             if(!otherProps.inlineId) {
-                 otherProps.inlineId = uuid4()
-             }
-            editor.removeBlocks([block])
-            editor.insertInlineContent([{type: NodeRefSpecType, props: {...otherProps}}], {updateSelection: true});
-        } else if(blockSize) { // We already have a block size, it's a size toggle
-            const newBlockSize = value === 'full' ? 'lg' : 'md'
-            editor.updateBlock(block, {
-                type: NodeBlockSpecType,
-                props: {...block.props, blockSize: newBlockSize}
-            })
-        } else if(isBlockFolder) { // it's a display toggle
-            editor.updateBlock(block, {
-                type: ChildrenListSpecType,
-                props: {...block.props, display: value}
-            })
-        } else if(inlineId) {
-            let zeBlock, zeBlockUnique;
-            editor.forEachBlock((block) => {
-                if(!block.content || !block.content.forEach) {
-                    return
+    const menuHandler = useCallback(
+        (value) => {
+            if (value === crtValue) {
+                return;
+            }
+            const {
+                block,
+                inlineContent,
+                updateInlineContent,
+                nodeUuid,
+                path,
+                repositoryId,
+                blockSize,
+                inlineId,
+            } = blockOrInlineProps;
+            if (value === 'inline') {
+                const { display, ...otherProps } = block.props;
+                if (!otherProps.inlineId) {
+                    otherProps.inlineId = uuid4();
                 }
-                block.content.forEach((content) => {
-                    if(content.type === NodeRefSpecType && content.props.inlineId === inlineId){
-                        zeBlock = block
-                        zeBlockUnique = block.content.length === 1
-                    }
+                editor.removeBlocks([block]);
+                editor.insertInlineContent(
+                    [{ type: NodeRefSpecType, props: { ...otherProps } }],
+                    { updateSelection: true },
+                );
+            } else if (blockSize) {
+                // We already have a block size, it's a size toggle
+                const newBlockSize = value === 'full' ? 'lg' : 'md';
+                editor.updateBlock(block, {
+                    type: NodeBlockSpecType,
+                    props: { ...block.props, blockSize: newBlockSize },
                 });
-            })
-            if(zeBlock && node) {
-                if(node.isLeaf()){
-                    const newBlockSize = value === 'full' ? 'lg' : 'md'
-                    editor.insertBlocks([{
-                        type: NodeBlockSpecType,
-                        props: {...inlineContent.props, blockSize: newBlockSize},
-                    }], zeBlock, 'after')
-                } else {
-                    editor.insertBlocks([{
-                        type: ChildrenListSpecType,
-                        props: {nodeUuid, path, repositoryId}
-                    }], zeBlock, 'after')
-                }
-                if(zeBlockUnique) {
-                    editor.removeBlocks([zeBlock])
-                } else {
-                    updateInlineContent('')
+            } else if (isBlockFolder) {
+                // it's a display toggle
+                editor.updateBlock(block, {
+                    type: isResultsList
+                        ? ResultsListSpecType
+                        : ChildrenListSpecType,
+                    props: { ...block.props, display: value },
+                });
+            } else if (inlineId) {
+                let zeBlock, zeBlockUnique;
+                editor.forEachBlock((block) => {
+                    if (!block.content || !block.content.forEach) {
+                        return;
+                    }
+                    block.content.forEach((content) => {
+                        if (
+                            content.type === NodeRefSpecType &&
+                            content.props.inlineId === inlineId
+                        ) {
+                            zeBlock = block;
+                            zeBlockUnique = block.content.length === 1;
+                        }
+                    });
+                });
+                if (zeBlock && node) {
+                    if (node.isLeaf()) {
+                        const newBlockSize = value === 'full' ? 'lg' : 'md';
+                        editor.insertBlocks(
+                            [
+                                {
+                                    type: NodeBlockSpecType,
+                                    props: {
+                                        ...inlineContent.props,
+                                        blockSize: newBlockSize,
+                                    },
+                                },
+                            ],
+                            zeBlock,
+                            'after',
+                        );
+                    } else {
+                        editor.insertBlocks(
+                            [
+                                {
+                                    type: ChildrenListSpecType,
+                                    props: { nodeUuid, path, repositoryId },
+                                },
+                            ],
+                            zeBlock,
+                            'after',
+                        );
+                    }
+                    if (zeBlockUnique) {
+                        editor.removeBlocks([zeBlock]);
+                    } else {
+                        updateInlineContent('');
+                    }
                 }
             }
-        }
+        },
+        [editor, blockOrInlineProps, node, crtValue],
+    );
 
-    }, [editor, blockOrInlineProps, node, crtValue])
+    const displayMenuItems = useMemo(() => {
+        const isInline = crtValue === 'inline';
+        const isFolder = node && !node.isLeaf();
 
-
-    const displayMenuItems = useMemo(() =>  {
-
-        const isInline = crtValue === 'inline'
-        const isFolder = node && !node.isLeaf()
-
-        const inlineItem = {value:'inline', title:'Inline', icon:MdShortText}
-        const blockItem = {value:'block', title:!isFolder?'Preview':'Contents', icon:!isFolder?MdPreview:MdList}
-        const fullSizeItem = {value: 'full', title: 'Full Page', icon: MdFullscreen}
+        const inlineItem = {
+            value: 'inline',
+            title: 'Inline',
+            icon: MdShortText,
+        };
+        const blockItem = {
+            value: 'block',
+            title: !isFolder ? 'Preview' : 'Contents',
+            icon: !isFolder ? MdPreview : MdList,
+        };
+        // Disabled for now
+        //const fullSizeItem = {value: 'full', title: 'Full Page', icon: MdFullscreen}
 
         if (isFolder) {
-            if(isInline) {
-                return [inlineItem, blockItem]
+            if (isInline) {
+                return [inlineItem, blockItem];
             } else {
                 const listDisplay = [
-                    {value:'compact', title:'Compact', icon:MdOutlineViewCompact},
-                    {value:'list', title:'Details', icon:MdOutlineViewList},
-                    {value:'detail', title:'Table', icon:MdOutlineViewColumn},
-                    {value:'grid', title:'Grid', icon:MdGridView},
-                    {value:'masonry-160', title:'Waterfall', icon:MdOutlineViewQuilt}
-                ]
+                    {
+                        value: 'compact',
+                        title: 'Compact',
+                        icon: MdOutlineViewCompact,
+                    },
+                    {
+                        value: 'list',
+                        title: 'Details',
+                        icon: MdOutlineViewList,
+                    },
+                    {
+                        value: 'detail',
+                        title: 'Table',
+                        icon: MdOutlineViewColumn,
+                    },
+                    { value: 'grid', title: 'Grid', icon: MdGridView },
+                    {
+                        value: 'masonry-160',
+                        title: 'Waterfall',
+                        icon: MdOutlineViewQuilt,
+                    },
+                ];
                 if (skipInline) {
-                    return listDisplay
+                    return listDisplay;
                 } else {
-                    return [inlineItem, ...listDisplay]
+                    return [inlineItem, ...listDisplay];
                 }
             }
         } else {
-            return [inlineItem, blockItem, fullSizeItem]
+            return [inlineItem, blockItem]; // add fullSizeItem here when ready
         }
-
-    }, [node])
+    }, [node]);
 
     return {
-        title:'Display',
+        title: 'Display',
         values: displayMenuItems,
         onValueSelected: menuHandler,
-        crtValue: crtValue
-    }
-
-}
+        crtValue: crtValue,
+    };
+};

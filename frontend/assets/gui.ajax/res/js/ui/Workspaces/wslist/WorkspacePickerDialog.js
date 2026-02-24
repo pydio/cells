@@ -22,6 +22,8 @@ const React = require('react');
 const createReactClass = require('create-react-class');
 const {ActionDialogMixin, CancelButtonProviderMixin} = require('pydio').requireLib('boot');
 import WorkspacesListMaterial from './WorkspacesListMaterial'
+import ResourcesManager from 'pydio/http/resources-manager'
+import AjxpNode from 'pydio/model/node';
 
 const WorkspacePickerDialog = createReactClass({
     displayName: 'WorkspacePickerDialog',
@@ -47,10 +49,17 @@ const WorkspacePickerDialog = createReactClass({
 
     workspaceTouchTap: function(wsId){
         this.dismiss();
-        UploaderModel.Store.getInstance().handleDropEventResults(this.props.items, this.props.files, new AjxpNode('/'), null, null, wsId);
-        if(this.props.switchAtUpload){
-            pydio.triggerRepositoryChange(wsId);
-        }
+        const {items, files, switchAtUpload, pydio} = this.props
+        ResourcesManager.loadClass('UploaderModel').then(lib => {
+            const {Store} = lib;
+            Store.getInstance().handleDropEventResults(items, files, new AjxpNode('/'), null, null, wsId).then((result) => {
+                if(switchAtUpload){
+                    pydio.triggerRepositoryChange(wsId).then(() => {
+                        pydio.Controller.fireAction('upload')
+                    });
+                }
+            })
+        });
     },
 
     render: function(){
@@ -63,7 +72,6 @@ const WorkspacePickerDialog = createReactClass({
                 <WorkspacesListMaterial
                     pydio={pydio}
                     workspaces={pydio.user ? pydio.user.getRepositoriesList() : []}
-                    showTreeForWorkspace={false}
                     onWorkspaceTouchTap={this.workspaceTouchTap}
                     filterByType={'entries'}
                     sectionTitleStyle={{display:'none'}}

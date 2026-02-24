@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/cache"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
@@ -126,7 +127,7 @@ func (pc *ProviderContextualizer) Config(ctx context.Context, provider *hconfx.P
 	return p
 }
 
-func configToProvider(ctx context.Context, values configx.Values, rootURL string, sites []*install.ProxyConfig, site *install.ProxyConfig) (*hconfx.Provider, error) {
+func configToProvider(ctx context.Context, values kv.Values, rootURL string, sites []*install.ProxyConfig, site *install.ProxyConfig) (*hconfx.Provider, error) {
 
 	var span trace.Span
 	ctx, span = tracing.StartLocalSpan(ctx, "oauth.configToProvider")
@@ -156,7 +157,7 @@ func configToProvider(ctx context.Context, values configx.Values, rootURL string
 
 }
 
-func mapConfigValues(rootURL string, values configx.Values) configx.Values {
+func mapConfigValues(rootURL string, values kv.Values) kv.Values {
 
 	val := configx.New()
 	if secret := values.Val("secret").String(); secret != "" {

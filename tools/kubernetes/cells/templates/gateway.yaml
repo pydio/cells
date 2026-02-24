@@ -1,0 +1,21 @@
+{{- if .Values.useGatewayAPI }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: cells-gateway
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: https
+      port: 443
+      protocol: HTTPS
+      hostname: "*.pydiocells.com"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: cells-local-tls
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: All
+{{- end }}

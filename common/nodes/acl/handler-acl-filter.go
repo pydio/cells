@@ -122,6 +122,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	if a.skipContext(ctx) {
 		return a.Next.ListNodes(ctx, in, opts...)
 	}
+
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := nodes.AncestorsListFromContext(ctx, in.Node, "in", false)
@@ -140,6 +141,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	s := nodes.NewWrappingStreamer(stream.Context())
 	go func() {
 		defer s.CloseSend()
+
 		for {
 			resp, er := stream.Recv()
 			if er != nil {
@@ -156,6 +158,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 			if len(parents) > 0 && parents[0].Path != resp.Node.Path {
 				newBranch = append(newBranch, resp.Node)
 			}
+
 			newBranch = append(newBranch, parents...)
 			if !accessList.CanRead(ctx, newBranch...) {
 				continue
@@ -165,6 +168,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 				n.MustSetMeta(common.MetaFlagReadonly, "true")
 				resp.Node = n
 			}
+
 			_ = s.Send(resp)
 		}
 	}()

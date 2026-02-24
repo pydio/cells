@@ -913,10 +913,12 @@ func TestClearIndex(t *testing.T) {
 
 			So(createNodes(ctx, server), ShouldBeNil)
 
+			<-time.After(2 * time.Second)
+
 			e := server.ClearIndex(ctx)
 			So(e, ShouldBeNil)
 
-			<-time.After(5 * time.Second)
+			<-time.After(2 * time.Second)
 
 			queryObject := &tree.Query{
 				FileName: "node",
@@ -1009,6 +1011,23 @@ func TestMongoTagsNamespace(t *testing.T) {
 					Order:          0,
 					Indexable:      true,
 					JsonDefinition: `{"type": "tags"}`,
+					FieldType:      "tags",
+				},
+				{
+					Namespace:      "tagcloud",
+					Label:          "Tag Cloud",
+					Order:          1,
+					Indexable:      true,
+					JsonDefinition: `{"type":"tag_cloud","entity":{"entity_id":"e795c603-d54c-416b-a200-5e58ccbbd5c7"},"data":{"entityItems":["Eau","Cloud","Energie","Autre"]}}`,
+					FieldType:      "tag_cloud",
+				},
+				{
+					Namespace:      "auto_complete",
+					Label:          "Auto Complete",
+					Order:          2,
+					Indexable:      true,
+					JsonDefinition: `{"type":"auto_complete","entity":{"entity_id":"af648cd5-49b8-4013-9445-d076d21f91c9"},"data":{"entityItems":["Non-Protégé","Diffusion Restreinte","Secret"]}}`,
+					FieldType:      "auto_complete",
 				},
 			}
 
@@ -1019,7 +1038,9 @@ func TestMongoTagsNamespace(t *testing.T) {
 				Type:  1,
 				Size:  24,
 				MetaStore: map[string]string{
-					"tags": "\"value1,value2,Les Ingénieurs,Une Autre Valeur\"",
+					"tags":          "\"value1,value2,Les Ingénieurs,Une Autre Valeur\"",
+					"tagcloud":      "\"Eau,Cloud\"",
+					"auto_complete": "\"Non-Protégé,Diffusion Restreinte\"",
 				},
 			}
 			So(server.IndexNode(ctx, node, false), ShouldBeNil)
@@ -1030,7 +1051,9 @@ func TestMongoTagsNamespace(t *testing.T) {
 				Type:  1,
 				Size:  24,
 				MetaStore: map[string]string{
-					"tags": "\"value1\"",
+					"tags":          "\"value1\"",
+					"tagcloud":      "\"Energie\"",
+					"auto_complete": "\"Secret\"",
 				},
 			}
 			So(server.IndexNode(ctx, node, false), ShouldBeNil)
@@ -1054,6 +1077,24 @@ func TestMongoTagsNamespace(t *testing.T) {
 
 			queryObject = &tree.Query{
 				FreeString: "+Meta.tags:\"value2,value1\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 2)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tagcloud:\"Eau\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.auto_complete:\"Secret\"",
 			}
 			nn, _, er = performSearch(ctx, server, queryObject)
 			So(er, ShouldBeNil)
