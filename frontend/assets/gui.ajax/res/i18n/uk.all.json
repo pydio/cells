@@ -1,315 +1,330 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "Почніть додавати нові файли або теки до поточного робочого простору."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Додати файли"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "Ця панель інструментів дозволяє змінювати вигляд: переходьте до режиму мініатюр або детального списку залежно від ваших потреб, а також сортуйте файли за назвою, датою тощо..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Параметри відображення"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "Використовуйте цю форму пошуку, щоб знайти файли або теки в будь-якому робочому просторі та комірках. Відображаються лише перші 5 результатів; виберіть робочий простір, щоб отримати більше результатів і додаткові параметри пошуку."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "Якщо пошуковий запит не введено, замість нього відображається історія нещодавно відкритих файлів і тек."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "Глобальний пошук"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "Тут ви знайдете детальну інформацію про поточний вибір: дані про файл, статус спільного доступу, визначені користувачем метадані тощо."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "Ви можете закрити цю панель за допомогою кнопки інформації на панелі інструментів"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Файл"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Тека"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Пошук"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "Інформаційна панель"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Назад"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Закрити"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Готово"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Уперед"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Пропустити"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "При першому підключенні ваша історія, швидше за все, буде порожньою. Перейдіть у робочий простір або комірку, щоб почати додавати файли."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Відкрити робочий простір"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "Каталог усіх користувачів, які мають доступ до платформи. Створюйте власних користувачів та формуйте команди, які можна використовувати для спільного доступу до ресурсів"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "Панель сповіщень інформуватиме вас, коли користувач, з яким ви надали спільний доступ до ресурсів, відкриє їх. Сповіщення можуть надсилатися вам безпосередньо на електронну пошту."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "Повернутися до привітання за допомогою цієї кнопки"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "Доступ до інших параметрів: керування профілем та функціями безпеки, перегляд усіх ресурсів, якими ви поділилися, а також вихід із платформи."
   },
   "tour.uwidget.title": {
-    "other": "User Cartouche"
+    "other": "Профіль користувача"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Пропустити"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Почати знайомство"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "Перетягніть своє найкраще фото для профілю! Цей короткий тур ознайомить вас із веб-інтерфейсом."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "Ласкаво просимо до APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "Ви можете додати або видалити віджети тут. Ви також можете змінити їх шляхом перетягування навколо."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Віджети"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "Робочі простори — це теки верхнього рівня, які допомагають упорядковувати ваші дані. Вони можуть бути доступні лише вам або використовуватися спільно з іншими людьми."
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Комірки — це простори для спільної роботи, якими можна ділитися з іншими користувачами. Створюйте власні комірки на основі теки, команди користувачів або будь-якої актуальної теми."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "Робочі простори та Комірки"
   },
   "tour.theme.title": {
-    "other": "Light/Dark Theme Support"
+    "other": "Підтримка Світлої/Темної теми"
   },
   "tour.theme.legend": {
-    "other": "Choose a light or dark theme to best suit your vision."
+    "other": "Оберіть світлу або темну тему, щоб краще відповідати вашому баченню."
   },
   "tour.left-resize.title": {
-    "other": "Workspaces and Cells"
+    "other": "Робочі простори та Комірки"
   },
   "tour.left-resize.legend": {
-    "other": "Left column can be resized or closed to fit your screen."
+    "other": "Ліва колонка може бути змінена або закрита, щоб відповідати екрану."
   },
   "tour.right-resize.legend": {
-    "other": "Right column can be also be resized or closed to fit your screen."
+    "other": "Також права колонка може бути змінена або закрита, щоб відповідати екрану."
   },
   "tour.directory.title": {
-    "other": "Users Directory"
+    "other": "Каталог користувачів"
   },
   "tour.directory.legend": {
-    "other": "Manage users (internal and external) and teams in a central location."
+    "other": "Керування користувачами (внутрішніми та зовнішніми) й командами в центральному місці."
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "Фонові завдання"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "Виконуються завдання"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "Проблеми з підключенням"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "Здається, з’єднання через WebSocket розірвано. Переконайтеся, що сервер працює, а підключення WebSocket активне."
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "Успішна аутентифікація"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "Помилка аутентифікації"
   },
   "oauth.authentication.code": {
-    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "Автентифікація пройшла успішно. Будь ласка, скопіюйте та вставте код у термінал командного рядка"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "Скопіювати код в буфер обміну"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "Код скопійований в буфер обміну, Ви можете вставити його в командний рядок."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "Не вдалося скопіювати до буфера обміну."
   },
   "layouts.preferences": {
-    "other": "Manage Layouts"
+    "other": "Керування макетами"
   },
   "layouts.preferences.legend": {
-    "other": "Save and Recall Layouts as Presets"
+    "other": "Зберігайте та застосовуйте макети як пресети"
   },
   "layouts.action.rename": {
-    "other": "Rename Layout"
+    "other": "Перейменувати макет"
   },
   "layouts.action.remove": {
-    "other": "Remove Layout"
+    "other": "Видалити макет"
   },
   "layouts.action.remove.confirm": {
-    "other": "Do you want to remove this layout?"
+    "other": "Ви хочете видалити цей макет?"
   },
   "layouts.action.reset": {
-    "other": "Reset Layout"
+    "other": "Скинути макет"
   },
   "layouts.action.reset.confirm": {
-    "other": "Do you want to reset the current layout?"
+    "other": "Ви хочете скинути поточний макет?"
   },
   "layouts.action.create": {
-    "other": "Save Layout..."
+    "other": "Зберегти макет..."
   },
   "layouts.action.fork": {
-    "other": "New From Current..."
+    "other": "Новий на основі поточного..."
   },
   "layouts.action.create.default": {
-    "other": "My Layout"
+    "other": "Мої макети"
   },
   "layouts.prompt.save": {
-    "other": "Save Layout As..."
+    "other": "Зберегти макет як..."
   },
   "layouts.prompt.save.field": {
-    "other": "Choose a name to save/recall the current layout"
+    "other": "Виберіть назву для збереження або відновлення поточного макета"
   },
   "list.display-mode.list": {
-    "other": "List"
+    "other": "Список"
   },
   "list.display-mode.details": {
-    "other": "Details"
+    "other": "Подробиці"
   },
   "list.display-mode.thumbs": {
-    "other": "Thumbs"
+    "other": "Мініатюри"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Larger"
+    "other": "Великий"
   },
   "list.display-mode.thumbs-medium": {
-    "other": "Medium"
+    "other": "Середній"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Smaller"
+    "other": "Малий"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "Галерея зображень"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "Розширення файлів"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Відображати розширення"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "Закріпити закладки вгорі"
   },
   "list.writeonly.emptystate.title": {
-    "other": "Drop Files Here"
+    "other": "Перетягніть файли сюди"
   },
   "list.writeonly.emptystate.legend": {
-    "other": "This folder is write-only: you cannot see its contents and are only authorized to upload files or folders. Your own content will not be visible after upload!"
+    "other": "Ця тека призначена лише для запису: ви не бачите її вмісту і маєте дозвіл лише на завантаження файлів або тек. Ваш контент не буде відображатися після завантаження!"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "Виберіть файл для відображення інформації"
   },
   "infopanel.card.pin": {
-    "other": "Attach card (full height)"
+    "other": "Прикріпити картку (на всю висоту)"
   },
   "infopanel.card.unpin": {
-    "other": "Detach card"
+    "other": "Від'єднати картку"
   },
   "infopanel.card.detach": {
-    "other": "Detach in a separate panel"
+    "other": "Від’єднати в окрему панель"
   },
   "infopanel.detached.minimize": {
-    "other": "Minimize Panel"
+    "other": "Згорнути панель"
   },
   "infopanel.detached.maximize": {
-    "other": "Open Panel"
+    "other": "Відкрити панель"
   },
   "infopanel.detached.dock": {
-    "other": "Dock in the right-hand column"
+    "other": "Закріпити у правій колонці"
   },
   "infopanel.detailcard.preview": {
-    "other": "Preview"
+    "other": "Попередній перегляд"
   },
   "infopanel.detailcard.cell-info": {
-    "other": "Cell Info"
+    "other": "Інформація про комірку"
   },
   "infopanel.detailcard.cell-chat": {
-    "other": "Cell Chat"
+    "other": "Чат комірки"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Всі файли"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "Не завершено"
   },
   "file.temporary-etag.tooltip": {
-    "other": "This file is being uploaded (or the upload has failed)."
+    "other": "Цей файл завантажується (або завантаження перервано)."
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "За розширенням файлу..."
   },
   "mimegroup.word": {
-    "other": "Word documents"
+    "other": "Документ Word"
   },
   "mimegroup.spreadsheet": {
-    "other": "Spreadsheets"
+    "other": "Електронні таблиці"
   },
   "mimegroup.presentation": {
-    "other": "Presentations"
+    "other": "Презентації"
   },
   "mimegroup.pdf": {
-    "other": "PDFs"
+    "other": "PDF-файли"
   },
   "mimegroup.image": {
-    "other": "Images"
+    "other": "Зображення"
   },
   "mimegroup.video": {
-    "other": "Videos"
+    "other": "Відео"
   },
   "mimegroup.audio": {
-    "other": "Audios"
+    "other": "Аудіо"
   },
   "fastsearch.quick-jump.title": {
-    "other": "Quick Jump"
+    "other": "Швидкий перехід"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+    "other": "Натисніть [Enter], щоб перейти; додайте [/] в кінці для пошуку в підтеках; [Esc] — закрити"
   },
   "fastsearch.quick-move.title": {
-    "other": "Quick Move"
+    "other": "Швидке переміщення"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Cannot move to this target!"
+    "other": "Неможливо перемістися до цієї цілі!"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+    "other": "Натисніть [Enter], щоб перемістити %s обраних пунктів до цілі; [Esc] — закрити"
   },
   "fastsearch.quick-copy.title": {
-    "other": "Quick Copy"
+    "other": "Швидке копіювання"
   },
   "fastsearch.quick-copy.target-error": {
-    "other": "Cannot copy to this target!"
+    "other": "Не вдалося скопіювати до цієї цілі!"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+    "other": "Натисніть [Enter], щоб скопіювати %s обраних пунктів до цілі; [Esc] — закрити"
+  },
+  "modalsearch.opentip.cmd": {
+    "other": "Порада: використовуйте <kbd>⌘+k</kbd>, щоб відкрити це вікно пошуку, і <kbd>Esc</kbd>, щоб закрити."
+  },
+  "modalsearch.opentip.ctrl": {
+    "other": "Порада: використовуйте <kbd>Ctrl+k</kbd>, щоб відкрити це вікно пошуку, і <kbd>Esc</kbd>, щоб закрити."
+  },
+  "search.chip.scope.folder": {
+    "other": "Тека"
+  },
+  "search.chip.scope.ws": {
+    "other": "Усередині"
+  },
+  "search.chip.scope.all": {
+    "other": "Усі робочі простори"
   },
   "modalsearch.opentip.cmd": {
     "other": "Tip: Use <kbd>⌘+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
@@ -327,81 +342,81 @@
     "other": "All Workspaces"
   },
   "wslist-options.title": {
-    "other": "Display Options"
+    "other": "Параметри відображення"
   },
   "wslist-options.show-masked": {
-    "other": "Show masked items"
+    "other": "Показати приховані елементи"
   },
   "wslist.action.mask": {
-    "other": "Mask"
+    "other": "З маскою"
   },
   "wslist.action.unmask": {
-    "other": "Unmask"
+    "other": "Без маски"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Merge workspaces and cells"
+    "other": "Об'єднати робочі простори та комірки"
   },
   "wslist-options.own-cells-first": {
-    "other": "Cells created by me first"
+    "other": "Спочатку створені мною комірки"
   },
   "leftrail.buttons.home": {
-    "other": "Home"
+    "other": "Головна"
   },
   "leftrail.buttons.directory": {
-    "other": "Directory"
+    "other": "Каталог"
   },
   "leftrail.buttons.all-files": {
-    "other": "All Files"
+    "other": "Всі файли"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Light Mode"
+    "other": "Світлий режим"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Dark Mode"
+    "other": "Темний режим"
   },
   "task.status.Starting": {
-    "other": "Started {startTime}"
+    "other": "Запущено {startTime}"
   },
   "task.status.Pending": {
-    "other": "Will start soon..."
+    "other": "Незабаром..."
   },
   "task.status.Complete": {
-    "other": "Task completed in {duration}"
+    "other": "Завдання виконано за {duration}"
   },
   "task.status.Finished": {
-    "other": "Task completed in {duration}"
+    "other": "Завдання виконано за {duration}"
   },
   "task.status.Error": {
-    "other": "An error happened!"
+    "other": "Виникла помилка!"
   },
   "bigppanel.filter.default-hint": {
-    "other": "Quick Find..."
+    "other": "Швидкий пошук..."
   },
   "sorter.metas.more": {
-    "other": "More..."
+    "other": "Більше..."
   },
   "drag-layer.move.file": {
-    "other": "Move File"
+    "other": "Перемістити файл"
   },
   "drag-layer.move.folder": {
-    "other": "Move Folder"
+    "other": "Перемістити теку"
   },
   "drag-layer.move.plural": {
-    "other": "Move %s Items"
+    "other": "Перемістити об’єктів: %s"
   },
   "drag-layer.copy.file": {
-    "other": "Copy File"
+    "other": "Порожній файл"
   },
   "drag-layer.copy.folder": {
-    "other": "Copy Folder"
+    "other": "Копіювати теку"
   },
   "drag-layer.copy.plural": {
-    "other": "Copy %s Items"
+    "other": "Копіювати об’єктів: %s"
   },
   "drag-layer.more": {
-    "other": "...and %s more."
+    "other": "...та ще %s."
   },
   "drag-layer.hint": {
-    "other": "Use [alt/option] key to copy"
+    "other": "Використовуйте клавішу [Alt/Option], щоб скопіювати"
   }
 }

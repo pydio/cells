@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Email successfully sent to %s user(s)"
+    "other": "Електронний лист успішно надіслано %s користувачу(-ам)"
   },
   "2": {
-    "other": "No address found to send the email!"
+    "other": "Не знайдено адреси для відправлення листа!"
   },
   "3": {
-    "other": "No mailer configured to send emails, contact your administrator"
+    "other": "Поштовий сервіс не налаштовано. Зверніться до адміністратора"
   },
   "4": {
-    "other": "From"
+    "other": "Від"
   },
   "5": {
-    "other": "To"
+    "other": "Кому"
   },
   "6": {
-    "other": "Subject"
+    "other": "Тема"
   },
   "7": {
-    "other": "Message"
+    "other": "Повідомлення"
   },
   "8": {
-    "other": "Pick a user or type an address"
+    "other": "Виберіть користувача або введіть адресу"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "Дайджест сповіщень"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "Помилка під час надсилання листа!"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Увага: деякі записи було проігноровано. Запрошення отримають лише користувачі з правильно вказаною електронною адресою. Команди та групи також не опрацьовуються."
   }
 }

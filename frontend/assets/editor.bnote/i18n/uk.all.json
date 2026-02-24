@@ -1,23 +1,23 @@
 {
   "enable_kb": {
-    "other": "Convert to Page"
+    "other": "Перетворити на сторінку"
   },
   "disable_kb": {
-    "other": "Convert to Folder"
+    "other": "Перетворити в теку"
   },
   "mime-page": {
-    "other": "Page"
+    "other": "Сторінка"
   },
   "mkpage": {
-    "other": "New Page"
+    "other": "Нова сторінка"
   },
   "mkpage.legend": {
-    "other": "Create a new sub-page"
+    "other": "Створіть новий робочий простір"
   },
   "mkpage.placeholder": {
-    "other": "Page Name"
+    "other": "Назва сторінки"
   },
   "copy_ref": {
-    "other": "Copy Reference"
+    "other": "Скопіювати посилання"
   }
 }

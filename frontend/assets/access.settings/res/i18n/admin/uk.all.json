@@ -111,7 +111,7 @@
     "other": "Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes."
   },
   "ds.editor.legend.delete.2": {
-    "other": "Make sure to first remove all workspaces that are pointing to this datasource before deleting it."
+    "other": "Перш ніж видаляти це джерело даних, обов’язково видаліть усі робочі простори, що на нього посилаються."
   },
   "ds.editor.legend.delete.button": {
     "other": "Delete DataSource"
@@ -141,10 +141,10 @@
     "other": "Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Browse data from a local or network-attached file system."
+    "other": "Переглядайте дані з локальної або мережевої файлової системи."
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
+    "other": "Обмеження джерела даних конкретною адресою вузла запустить сервіс лише на цьому вузлі. Використання значення «Всі» запустить сервіс на всіх вузлах, де працює Cell; це зручно, якщо спільна файлова система змонтована на всіх вузлах за однаковим шляхом або якщо IP-адреса вашого вузла може змінитися після перезапуску. Щоб уникнути конфліктів, рекомендується або використовувати «Всі» для всіх джерел даних, або призначити конкретні вузли для кожного з них."
   },
   "ds.editor.storage.legend.fs.path": {
     "other": "Make sure that last folder is lowercase and that its parent is writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
@@ -168,7 +168,7 @@
     "other": "Read-only mode"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+    "other": "Використовуйте режим «лише для читання», якщо потрібно, щоб у Комірки ніколи не записувалися приховані файли та використовувалися стандартні eTags як контрольні суми (це може бути необхідно для кошиків із величезним обсягом наявних даних). Однак зверніть увагу: будь-які робочі простори, створені на основі цього джерела даних, мають бути встановлені в режим «лише для читання», оскільки функція переміщення не зможе працювати належним чином."
   },
   "ds.editor.storage.flatStorage": {
     "other": "Keep data structure on storage"
@@ -941,6 +941,9 @@
   "metadata.field.validation": {
     "other": "Field Validation"
   },
+  "metadata.editor.selection.key_exists": {
+    "other": "This key already exists"
+  },
   "metadata.toggle.required": {
     "other": "Required"
   },
@@ -1155,7 +1158,7 @@
     "other": "REST Resources"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "батьківська тека"
   },
   "react.10": {
     "other": "Inherit Permissions"
@@ -1173,7 +1176,7 @@
     "other": "Show resulting tree"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "групові дії"
   },
   "react.3": {
     "other": "Search Results for '%s'"

@@ -81,7 +81,7 @@
     "other": "Access Controls"
   },
   "35": {
-    "other": "Workspaces"
+    "other": "Робочий простір"
   },
   "36": {
     "other": "Pages"
@@ -93,7 +93,7 @@
     "other": "Application Parameters"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Всі параметри робочих просторів"
   },
   "4": {
     "other": "Clear value"
@@ -186,7 +186,7 @@
     "other": "Add for ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Усі робочі простори"
   },
   "parameters.scope.shared": {
     "other": "Shared Cells only"

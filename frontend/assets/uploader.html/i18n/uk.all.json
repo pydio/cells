@@ -1,105 +1,105 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Почати"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Пауза"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Очистити"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Очистити список..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Завершені завантаження"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "Помилки завантаження"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Всі завантаження"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "Ще %d — показати всі"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Якщо файл із такою назвою вже існує:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Припинити завантаження та сповістити мене"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Перейменувати теки, потім файли"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Перейменовувати лише файли (об’єднувати теки)"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Перезаписувати існуючий файл без попередження"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "Перейменовувати спочатку теки, а потім — конфліктні файли"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Перейменовувати лише файли (об’єднувати теки)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "Об’єднувати теки та перезаписувати файли"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "Запам’ятати вибір для наступних завантажень"
   },
   "options": {
-    "other": "Upload options"
+    "other": "Налаштування завантаження"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Ви не можете завантажити цей файл сюди"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "Завантаження файлів на сервер..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Створення тек"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Створення однієї теки"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Створення тек (%s)"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Підготовка файлів до завантаження"
   },
   "task.message.analyse-many": {
     "other": "Обробка %s елементів..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Аналіз одного об’єкта"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Будь ласка, зачекайте..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Готово до завантаження"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Завантаження призупинено"
   },
   "task.status.upload": {
     "other": "Завантаження файлів"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Завантаження: %s%"
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Схоже, ваш браузер не підтримує перетягування тек"
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Підготовка файлів і тек до завантаження..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "Перетягніть файли сюди"
   },
   "drop-or": {
     "other": "or"
@@ -108,7 +108,7 @@
     "other": "browse files"
   },
   "drop-pick-folder": {
-    "other": "виберіть теки"
+    "other": "оберіть теки"
   },
   "dialog.title": {
     "other": "Transfers"

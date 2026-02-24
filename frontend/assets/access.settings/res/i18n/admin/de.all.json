@@ -864,28 +864,28 @@
     "other": "Farbetiketten"
   },
   "metadata.type.auto_complete": {
-    "other": "Auto Complete"
+    "other": "Autovervollständigen"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags (legacy)"
+    "other": "Erweiterbare Tags (Legacy)"
   },
   "metadata.type.choice": {
     "other": "Aus Werten auswählen"
   },
   "metadata.type.multi_value": {
-    "other": "Multi Value select"
+    "other": "Mehrwert-Auswahl"
   },
   "metadata.type.tag_cloud": {
     "other": "Tag Cloud"
   },
   "metadata.type.tag_cloud.values": {
-    "other": "Tag Cloud values"
+    "other": "Tag-Cloud-Werte"
   },
   "metadata.tag_cloud.entity.hint": {
-    "other": "Comma-separated list of possible tags"
+    "other": "Komma-getrennte Liste möglicher Tags"
   },
   "metadata.tag_cloud.entity": {
-    "other": "Values"
+    "other": "Werte"
   },
   "metadata.type.json": {
     "other": "JSON (internes Format)"
@@ -936,16 +936,19 @@
     "other": "Wert in Dateiliste anzeigen"
   },
   "metadata.toggle.prompt": {
-    "other": "Prompt Metadata tagging on Upload"
+    "other": "Metadaten-Eingabe beim Upload erzwingen"
   },
   "metadata.field.validation": {
-    "other": "Field Validation"
+    "other": "Feldvalidierung"
+  },
+  "metadata.editor.selection.key_exists": {
+    "other": "Der Schlüssel existiert bereits"
   },
   "metadata.toggle.required": {
-    "other": "Required"
+    "other": "Erforderlich"
   },
   "metadata.toggle.defaults": {
-    "other": "Enforce Defaults"
+    "other": "Standard erzwingen"
   },
   "metadata.field.mandatory": {
     "other": "Pflichtfeld"
