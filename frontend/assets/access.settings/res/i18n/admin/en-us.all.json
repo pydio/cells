@@ -941,6 +941,9 @@
   "metadata.field.validation": {
     "other": "Field Validation"
   },
+    "metadata.editor.selection.key_exists": {
+    "other": "This key already exists"
+  },
   "metadata.toggle.required": {
     "other": "Required"
   },
