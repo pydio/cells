@@ -942,7 +942,7 @@
     "other": "Règles de validation"
   },
   "metadata.editor.selection.key_exists": {
-    "other": "This key already exists"
+    "other": "Cette clé existe déjà"
   },
   "metadata.toggle.required": {
     "other": "Obligatoire"
