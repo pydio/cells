@@ -427,25 +427,26 @@ func TestQueryBuilder(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			query := &service.Query{
-					SubQueries: []*anypb.Any{singleQAny},
-					Operation:  service.OperationType_AND,
+				SubQueries: []*anypb.Any{singleQAny},
+				Operation:  service.OperationType_AND,
 			}
 
 			var res []interface{}
 			So(dao.Search(ctx, query, &res, nil), ShouldBeNil)
 			So(len(res), ShouldEqual, len(aa))
 
-		
 			var nodeIDs []string
 			for _, r := range res {
-					nodeIDs = append(nodeIDs, r.(*idm.ACL).NodeID)
+				nodeIDs = append(nodeIDs, r.(*idm.ACL).NodeID)
 			}
 			expected := []string{"n4.0", "n4.1", "n4.2", "n4.3"}
 			So(nodeIDs, ShouldResemble, expected)
 
 			aa = []*idm.ACL{aa[2], aa[0], aa[3], aa[1]}
-
-			So(simpleCrud(t, ctx, dao, aa), ShouldBeNil)
+			del(t, ctx, dao, aa)
+			for _, acl := range aa {
+				So(simpleCrud(t, ctx, dao, acl.NodeID, acl.RoleID, acl.WorkspaceID, acl.Action.Name, acl.Action.Value), ShouldBeNil)
+			}
 
 		})
 
@@ -534,4 +535,3 @@ func del(t *testing.T, ctx context.Context, dao acl.DAO, acls []*idm.ACL) error 
 	}
 	return nil
 }
-
