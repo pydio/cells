@@ -112,7 +112,6 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
             return <AutoCompleteInput
                 {...baseProps}
                 value={state.formState.get(name) || ""}
-                disabled={state.saving || state.shouldSave}
                 onCommitChange={(v) => onCommitChange([v])}
                 data={[]}
                 dataLoader={localDataLoader}
@@ -121,7 +120,6 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
             return <TagsCloudInput
                 {...baseProps}
                 value={state.formState.get(name) || ""}
-                disabled={state.saving || state.shouldSave}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
@@ -129,7 +127,6 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
             return <TagsCloudInput
                 {...baseProps}
                 value={state.formState.get(name) || ""}
-                disabled={state.saving || state.shouldSave}
                 data={[]}
                 dataLoader={localDataLoader}
             />;
