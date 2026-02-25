@@ -240,7 +240,7 @@ require (
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cncf/xds/go v0.0.0-20251022180443-0feb69152e9f // indirect
 	github.com/cockroachdb/cockroach-go/v2 v2.4.2 // indirect
 	github.com/colinmarc/hdfs/v2 v2.2.0 // indirect
