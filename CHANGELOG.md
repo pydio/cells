@@ -1,32 +1,26 @@
-# Changes between v4.9.92-alpha20 and v4.9.93-alpha01
+# Changes between v4.9.93-alpha01 and v4.9.93-alpha02
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.9.92-alpha20...v4.9.93-alpha01)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.9.93-alpha01...v4.9.93-alpha02)
 
-- [#6f48034](https://github.com/pydio/cells/commit/6f480346e0e1653ac5ae90e64554e1f2be562b22): i18n: new messages + FR translation
-- [#4b99b3c](https://github.com/pydio/cells/commit/4b99b3c1f1d5b26dfe125ce33b2f5ce49668bd58): fix(api-client): ensure JsonValue is always present in MetaClient (#817)
-- [#3893fe8](https://github.com/pydio/cells/commit/3893fe84954bc5affbf7dd3e9f37266ac770e39b): fix(ui): display URL on search decoded (#814)
-- [#c3db3c7](https://github.com/pydio/cells/commit/c3db3c7a7bc1d9e22dfc3690b28772d28d70f78b): fix(user-meta-service): Fix Migration on First run or change to apply new entity value migrations (#813)
-- [#7cee653](https://github.com/pydio/cells/commit/7cee6536a52423d1757059219b45e0cca2c62ae9): Release v4.9.93-alpha00
-- [#dce438c](https://github.com/pydio/cells/commit/dce438cb02c8805ff8bd8a31c9a75acd5cf185fb): fix(namespace): Fix admin translations (#812)
-- [#37a2789](https://github.com/pydio/cells/commit/37a2789606025f1af759bc19587335dede7f5ee4): fix(meta): Fix mantine (#811)
-- [#d8866b5](https://github.com/pydio/cells/commit/d8866b579affffc5dda1a97ebc200bd2aa68650e): Feat/metadata improvements (#810)
-- [#fc394f8](https://github.com/pydio/cells/commit/fc394f85b15c5a107f84a65af1d3e5cc678591fa): chore: next development cycle
-- [#7b2e964](https://github.com/pydio/cells/commit/7b2e964b3a3c5a4e5da1c89a62674303c4411536): Release v4.9.92-alpha25
-- [#28a2c23](https://github.com/pydio/cells/commit/28a2c23c4055c63ecc788c8cf325fcdb9e4283e8): chore: hemp chart valpha20
-- [#1d66df2](https://github.com/pydio/cells/commit/1d66df2e260c5c1e9ffbe844a89fd8ce7babaa04): fix: collabora language
-- [#d5d9ad9](https://github.com/pydio/cells/commit/d5d9ad9214193ec0e022b03304d5a2df6135e7d5): fix(meta): fixing meta deletion to restrict it to a node
-- [#3b2ba54](https://github.com/pydio/cells/commit/3b2ba547387095b62e7f43c6dfb637749d0b6a4d): chore: helm chart v19
-- [#29c5def](https://github.com/pydio/cells/commit/29c5def91131b56d14c98ef339d47ad67f25dc97): fix: improving helm chart startup
-- [#36d88df](https://github.com/pydio/cells/commit/36d88df05fc70c30d9bad10e0546d11dc73cd40d): fix: small issues with the file info builder hook
-- [#db7649f](https://github.com/pydio/cells/commit/db7649f43ab1caa90f98267aaf09c40e50426b3d): fix: making sure controller doesn't time out before start
-- [#0cf792d](https://github.com/pydio/cells/commit/0cf792d369605f395ba4a92105ff035632d0109e): Helm cells 1.0.0 beta.18 improvement (#763)
-- [#36ce96f](https://github.com/pydio/cells/commit/36ce96fe7251919d7e27b90aa29946c38919ad13): feat(cool): expand CheckFileInfo response flag and make response builder modular
-- [#aaa385a](https://github.com/pydio/cells/commit/aaa385ac3d692fd722303c3b302c85317add807d): chore: delaying unit test for encryption
-- [#1f5758b](https://github.com/pydio/cells/commit/1f5758b55685de812ac262b38da6c807285f66c1): chore: delaying unit test for encryption
-- [#a1b420f](https://github.com/pydio/cells/commit/a1b420fb0930f09c5fb78f26ee4a5b48ca9fefdc): feat(dialogs): add css classname hooks on login/pwd dialogs
-- [#4c90f4f](https://github.com/pydio/cells/commit/4c90f4fdc67db55827017f4fc03b30ed4762ff7b): chore: adding lock to watcher
-- [#7665cf9](https://github.com/pydio/cells/commit/7665cf95dda4865c219ceffc5487033a6920ec7e): chore: adding lock to watcher
-- [#cd53105](https://github.com/pydio/cells/commit/cd53105c1e76f07d3e8e25f4cb32bf08cf2a3035): chore: adding lock to watcher
-- [#2f5d9f9](https://github.com/pydio/cells/commit/2f5d9f976f5a873d809f5c1fa880147ed6ced916): chore: merging configx store and kv
-- [#8f7ae1b](https://github.com/pydio/cells/commit/8f7ae1b0afdd40416a813ee03821edbd505cd305): fix: memory leak
-- [#2b31683](https://github.com/pydio/cells/commit/2b31683298a4f488759728aab6401dcb7c126808): fix: memory leak
+- [#e2c8915](https://github.com/pydio/cells/commit/e2c8915933ed8b22ec033074bd38f9772ce2f714): fix(metadata): change fieldedit logic to avoid wrong disabling fields (#840)
+- [#7cd1cac](https://github.com/pydio/cells/commit/7cd1cacd9d378a4620ec2d6fe8f37b40a1d89d1b): fix(acl): ACL crud test fix (#839)
+- [#0c28839](https://github.com/pydio/cells/commit/0c288399b235217e6180f93a0caaf9d40a8bdb5a): fix: address merge issues after latest i18n updates
+- [#b0d68c1](https://github.com/pydio/cells/commit/b0d68c10122d354a4e0fe39d4542a45cff9a6268): feat(i18n): more messages + DE/FR translations + More Ukrainian
+- [#6734796](https://github.com/pydio/cells/commit/67347965f4f00e062df1dd952e5763546d2c7d3e): style: auto-format reference i18n files
+- [#be4055b](https://github.com/pydio/cells/commit/be4055bea3de9f1cb3173281a87a9d52b2e06325): fix(namespace): Admin i18n translations (#836)
+- [#977b1e7](https://github.com/pydio/cells/commit/977b1e7b5969f419d6c3f54abff5a16e772f5f17): chore: update dist files (#835)
+- [#e62b1d8](https://github.com/pydio/cells/commit/e62b1d8ca9eae6f1e76b43308739a954e79317b6): feat(entityvalues): Add new Display json column for entity values (#832)
+- [#2f37527](https://github.com/pydio/cells/commit/2f37527343e713f17c1384859401d52215bd617c): fix(namespace): Select from value fixes (#830)
+- [#450fd1b](https://github.com/pydio/cells/commit/450fd1bf28a50ed2d819e8a54ecc73f1f8e0aff4): fix(namespace): Fix failing unit test (#834)
+- [#051099d](https://github.com/pydio/cells/commit/051099db13cea7c4501681aeedd43a58a22b87a9): fix(select): display options without color attribute in dropdown (#833)
+- [#a738dbf](https://github.com/pydio/cells/commit/a738dbfb22072c7d5d6e774d9c0e9d3a3f35052f): fix(search): tag cloud should not accept free values on search (#827)
+- [#eb2c0a2](https://github.com/pydio/cells/commit/eb2c0a2a30ecaaebe5fd90ced47ff82182224ba6): feat(meta): Patching MetaStore with Entity values (#825) (#826)
+- [#9932913](https://github.com/pydio/cells/commit/99329130b694b50349626a562255bb7d566666d9): feat(meta): Patching MetaStore with Entity values (#825)
+- [#fdd3349](https://github.com/pydio/cells/commit/fdd33493dd0060de477115ad5abf63a83e73e524): fix(ui): resolve datetime filter defaulting to epoch 1970 on search (#824)
+- [#9fab437](https://github.com/pydio/cells/commit/9fab4375f29f08bd1f99521d6f1b1606e5b09d94): fix(select): WPB-23512 allow deselecting values in optional select (#823)
+- [#4381fb6](https://github.com/pydio/cells/commit/4381fb6ca31471facfe93c13f9d7e1bfed01f5bb): fix(ui): avoid showing 2 labels for checkboxes (#822)
+- [#057cedc](https://github.com/pydio/cells/commit/057cedc48bc7262c5a94331170629411ef3db1f2): fix(ui): search modal shows duplicated hint (#821)
+- [#72ef09a](https://github.com/pydio/cells/commit/72ef09aaea30813960fee52e27b7b18ab94e825a): fix(namespaces): Use Prompt On Upload feature flag in admin namespace board (#820)
+- [#8a2b70e](https://github.com/pydio/cells/commit/8a2b70e910adc9560d624f0600e9eb93655e072b): fix(pages): fix styling broken after last update, improve code blocks, tables, remove full page display for now. (#819)
+- [#3863cd9](https://github.com/pydio/cells/commit/3863cd9b801682b561d587f8b4c2af3e4c53de5e): fix(migrations): Pat token migration fix (#815)
+- [#edc3585](https://github.com/pydio/cells/commit/edc358520bdeb2baa88363215520362690476970): fix(metadata): display form-level errors in UserMetaPanelV2 (#816)
