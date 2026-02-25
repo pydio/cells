@@ -2402,9 +2402,6 @@
   "searchengine.query.action.save-legend": {
     "other": "Зберегти цей пошуковий запит для подальшого використання"
   },
-  "searchengine.query.action.save-legend": {
-    "other": "Save this search query for later re-use"
-  },
   "searchengine.query.action.clear": {
     "other": "Очистити"
   },
