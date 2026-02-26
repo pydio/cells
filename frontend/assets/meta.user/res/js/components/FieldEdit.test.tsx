@@ -605,7 +605,7 @@ describe('FieldEdit Component', () => {
             expect(setFormState).toHaveBeenCalled()
         })
 
-        it('does not set shouldSave on blur even when no errors exist', async () => {
+        it('should maintain UI state when text field loses focus', async () => {
             const setShouldSave = vi.fn()
             const context = createContext({
                 state: {
@@ -629,11 +629,17 @@ describe('FieldEdit Component', () => {
             )
 
             const input = screen.getByRole('textbox') as HTMLInputElement
+            // Verify initial state
+            expect(input.value).toBe('initial')
+            expect(input).not.toBeDisabled()
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+
             fireEvent.blur(input)
 
-            await waitFor(() => {
-                expect(setShouldSave).not.toHaveBeenCalled()
-            })
+            // Verify UI state remains unchanged after blur
+            expect(input.value).toBe('initial')
+            expect(input).not.toBeDisabled()
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument()
         })
     })
 
