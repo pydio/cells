@@ -38,7 +38,7 @@ export const TextInput: React.FC<InputProps> = ({
         label,
         description,
         placeholder,
-        value:value||'',
+        value: value,
         disabled,
         required,
         error: errorText,

@@ -605,7 +605,7 @@ describe('FieldEdit Component', () => {
             expect(setFormState).toHaveBeenCalled()
         })
 
-        it('sets shouldSave on blur when no errors exist', async () => {
+        it('does not set shouldSave on blur even when no errors exist', async () => {
             const setShouldSave = vi.fn()
             const context = createContext({
                 state: {
@@ -632,7 +632,7 @@ describe('FieldEdit Component', () => {
             fireEvent.blur(input)
 
             await waitFor(() => {
-                expect(setShouldSave).toHaveBeenCalledWith(true)
+                expect(setShouldSave).not.toHaveBeenCalled()
             })
         })
     })
