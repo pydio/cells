@@ -88,7 +88,10 @@ const FIELD_TYPES_WITH_SCHEMA_PROPERTIES = [
 const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref) => {
     const [metaSchema, setSchema] = useState({});
     const [formData, setFormData] = useState({});
-    const hasValidNs = ns && ns.JsonSchema;
+    const hasValidNs = ns && 
+                    ns.JsonSchema && 
+                    ns.JsonSchema.properties && 
+                    ns.JsonSchema.properties[ns.Namespace];
     const m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
     const uiSchema = {
         required: {
