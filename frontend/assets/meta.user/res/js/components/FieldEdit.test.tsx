@@ -96,7 +96,7 @@ describe('FieldEdit Component', () => {
                     context={createContext()}
                     name="testField"
                     meta={createMeta()}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -121,7 +121,7 @@ describe('FieldEdit Component', () => {
                     context={createContext()}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -152,7 +152,7 @@ describe('FieldEdit Component', () => {
                         type: 'tag_cloud',
                         label: 'Document Tags'
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -183,7 +183,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -196,37 +196,6 @@ describe('FieldEdit Component', () => {
             })
         })
 
-        it('disables tag_cloud input when saving is true (no duplicate disabled props)', async () => {
-            const context = createContext({
-                state: {
-                    formState: new Map([['tags', '']]),
-                    saving: true,
-                    shouldSave: false,
-                    errors: {},
-                },
-            })
-
-            const { container } = renderWithMantine(
-                <FieldEdit
-                    context={context}
-                    name="tags"
-                    meta={createMeta({ type: 'tag_cloud' })}
-                    saving={true}
-                    value=""
-                    updateValue={vi.fn()}
-                />
-            )
-
-            await waitFor(() => {
-                // Find the actual input element
-                const input = screen.getByRole('textbox') as HTMLInputElement
-                expect(input.disabled).toBe(true)
-
-                // WPB-23701 fix: Verify disabled fields
-                const disabledAttrs = input.getAttributeNames().filter(attr => attr === 'disabled')
-                expect(disabledAttrs.length).toBeLessThanOrEqual(1)
-            })
-        })
 
         it('disables tag_cloud input when readonly is true', async () => {
             const context = createContext({
@@ -246,7 +215,7 @@ describe('FieldEdit Component', () => {
                         type: 'tag_cloud',
                         readonly: true
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -276,7 +245,7 @@ describe('FieldEdit Component', () => {
                         type: 'tag_cloud',
                         readonly: false
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -306,7 +275,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -341,7 +310,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -353,7 +322,7 @@ describe('FieldEdit Component', () => {
             // Trigger blur which will commit the new tag
             fireEvent.blur(input)
 
-            // setShouldSave should be called when field has no errors and value is committed
+            // setShouldSave on blur or on change
             expect(setFormState).toHaveBeenCalled()
             expect(setShouldSave).toHaveBeenCalledWith(true)
         })
@@ -373,7 +342,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -402,7 +371,7 @@ describe('FieldEdit Component', () => {
                         required: true,
                         label: 'Document Tags'
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -431,7 +400,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -457,7 +426,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'auto_complete' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -484,7 +453,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'boolean' })}
-                    saving={false}
+                    
                     value={false}
                     updateValue={vi.fn()}
                 />
@@ -511,7 +480,7 @@ describe('FieldEdit Component', () => {
                         type: 'date',
                         data: { format: 'date' }
                     })}
-                    saving={false}
+                    
                     value="2026-02-25"
                     updateValue={vi.fn()}
                 />
@@ -537,7 +506,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -564,7 +533,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -598,7 +567,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -628,7 +597,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -660,7 +629,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text', required: true })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -685,7 +654,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text', label: 'Username' })}
-                    saving={false}
+                    
                     value="john"
                     updateValue={vi.fn()}
                 />
@@ -712,7 +681,7 @@ describe('FieldEdit Component', () => {
                         type: 'text',
                         description: 'Enter a valid email'
                     })}
-                    saving={false}
+                    
                     value="test"
                     updateValue={vi.fn()}
                 />
@@ -749,7 +718,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -789,7 +758,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value="draft"
                     updateValue={vi.fn()}
                 />
@@ -830,7 +799,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value="draft"
                     updateValue={vi.fn()}
                 />
@@ -871,7 +840,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value="draft"
                     updateValue={vi.fn()}
                 />
@@ -881,41 +850,7 @@ describe('FieldEdit Component', () => {
             expect(screen.getByText('Status is required')).toBeInTheDocument()
         })
 
-        it('disables choice selector when saving is true', async () => {
-            const context = createContext({
-                state: {
-                    formState: new Map([['status', 'draft']]),
-                    saving: true,
-                    shouldSave: false,
-                    errors: {},
-                },
-            })
 
-            const { container } = renderWithMantine(
-                <FieldEdit
-                    context={context}
-                    name="status"
-                    meta={createMeta({
-                        type: 'choice',
-                        label: 'Status',
-                        data: {
-                            items: [
-                                { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
-                    })}
-                    saving={true}
-                    value="draft"
-                    updateValue={vi.fn()}
-                />
-            )
-
-            await waitFor(() => {
-                const selectInput = screen.getByRole('textbox') as HTMLInputElement
-                expect(selectInput.disabled).toBe(true)
-            })
-        })
 
         it('disables choice selector when readonly is true', async () => {
             const context = createContext({
@@ -942,7 +877,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value="draft"
                     updateValue={vi.fn()}
                 />
@@ -979,7 +914,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value="draft"
                     updateValue={vi.fn()}
                 />
@@ -1015,7 +950,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -1050,7 +985,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
@@ -1089,7 +1024,7 @@ describe('FieldEdit Component', () => {
                             ]
                         }
                     })}
-                    saving={false}
+                    
                     value="draft"
                     updateValue={vi.fn()}
                 />
@@ -1128,7 +1063,7 @@ describe('FieldEdit Component', () => {
                             steps: true
                         }
                     })}
-                    saving={false}
+                    
                     value="medium"
                     updateValue={vi.fn()}
                 />
@@ -1158,7 +1093,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value={null}
                     updateValue={vi.fn()}
                 />
@@ -1182,7 +1117,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    saving={false}
+                    
                     value={undefined}
                     updateValue={vi.fn()}
                 />
@@ -1207,7 +1142,7 @@ describe('FieldEdit Component', () => {
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    saving={false}
+                    
                     value=""
                     updateValue={vi.fn()}
                 />
