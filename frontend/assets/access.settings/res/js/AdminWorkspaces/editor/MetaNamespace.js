@@ -220,26 +220,26 @@ class MetaNamespace extends React.Component {
             try {
                 const fieldType = JSON.parse(namespace?.JsonDefinition).type;
                 const data = JSON.parse(namespace?.JsonDefinition).data || '';
-                if (!fieldType) return Promise.resolve(null);
-                if (!namespace.Namespace) return Promise.resolve(null);
+                if (!fieldType) return Promise.resolve(undefined);
+                if (!namespace.Namespace) return Promise.resolve(undefined);
 
                 let format = data?.format?.toString().length > 0 ? data.format : '';
-                return Metadata.getJsonSchemaByType(fieldType, namespace.Namespace, format)
-                    .then(schema => {
-                        this.setState(prevState => ({
-                            namespace: {
-                                ...prevState.namespace,
-                                JsonSchema: schema.JsonSchema
-                            }
-                        }));
-                        return schema.JsonSchema;
-                    });
+                    return Metadata.getJsonSchemaByType(fieldType, namespace.Namespace, format)
+                        .then(schema => {
+                            this.setState(prevState => ({
+                                namespace: {
+                                    ...prevState.namespace,
+                                    JsonSchema: schema.JsonSchema
+                                }
+                            }));
+                            return schema.JsonSchema;
+                        });
             } catch (e) {
                 console.error(e);
                 throw e;
             }
         }
-        return Promise.resolve(null);
+        return Promise.resolve(undefined);
     }
 
     getHideValue() {
