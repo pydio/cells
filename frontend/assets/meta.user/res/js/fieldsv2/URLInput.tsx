@@ -18,18 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useCallback, useState, useEffect } from 'react'
-import { TextInput } from '@mantine/core'
-import { sanitizeUrl } from "@braintree/sanitize-url"
-import { ensureHttpScheme, formatURL } from '../utils/formatUrl.js'
-import { InputProps } from "./CommonInputProps"
+import React, { useCallback, useState, useEffect } from 'react';
+import { TextInput } from '@mantine/core';
+import { sanitizeUrl } from '@braintree/sanitize-url';
+import { ensureHttpScheme, formatURL } from '../utils/formatUrl.js';
+import { InputProps } from './CommonInputProps';
 export { ensureHttpScheme, formatURL };
 
 /**
  * URLIcon component for displaying the open-in-new icon
  */
 interface URLIconProps {
-    fontSize?: number
+    fontSize?: number;
 }
 
 export const URLIcon: React.FC<URLIconProps> = ({ fontSize = 14 }) => (
@@ -38,16 +38,16 @@ export const URLIcon: React.FC<URLIconProps> = ({ fontSize = 14 }) => (
         className="mdi mdi-open-in-new"
         style={{ fontSize, color: 'inherit' }}
     />
-)
+);
 
 /**
  * URLLinkIcon component - renders a link with icon or just the icon
  */
 interface URLLinkIconProps {
-    fontSize?: number
-    url: string
-    displayText?: string
-    children?: React.ReactNode
+    fontSize?: number;
+    url: string;
+    displayText?: string;
+    children?: React.ReactNode;
 }
 
 export const URLLinkIcon: React.FC<URLLinkIconProps> = ({
@@ -57,14 +57,14 @@ export const URLLinkIcon: React.FC<URLLinkIconProps> = ({
     children,
 }) => {
     if (!url || !String(url).trim()) {
-        return null
+        return null;
     }
-    const sanitizedURL = sanitizeUrl(ensureHttpScheme(url))
+    const sanitizedURL = sanitizeUrl(ensureHttpScheme(url));
     if (!sanitizedURL) {
-        return null
+        return null;
     }
 
-    const labelText = displayText || children || url
+    const labelText = displayText || children || url;
 
     return (
         <a
@@ -73,7 +73,7 @@ export const URLLinkIcon: React.FC<URLLinkIconProps> = ({
             aria-label={`Open ${labelText} in a new tab`}
             rel="noopener noreferrer"
             onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
             }}
             style={{
                 color: 'inherit',
@@ -84,8 +84,8 @@ export const URLLinkIcon: React.FC<URLLinkIconProps> = ({
             {children}
             <URLIcon fontSize={fontSize} />
         </a>
-    )
-}
+    );
+};
 
 export const URLInput: React.FC<InputProps> = ({
     label,
@@ -95,52 +95,54 @@ export const URLInput: React.FC<InputProps> = ({
     required,
     value,
     onChange,
+    onCommitChange,
     errorText,
 }) => {
-    const [localValue, setLocalValue] = useState(value || '')
+    const [localValue, setLocalValue] = useState(value || '');
 
     useEffect(() => {
-        setLocalValue(value || '')
-    }, [value])
+        setLocalValue(value || '');
+    }, [value]);
 
     const handleChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-            const newValue = event.target.value
-            setLocalValue(newValue)
-            onChange(newValue, false)
+            const newValue = event.target.value;
+            setLocalValue(newValue);
+            onChange(newValue);
         },
-        [onChange]
-    )
+        [onChange],
+    );
 
     const handleConfirmValue = useCallback(() => {
-        const normalized = ensureHttpScheme(localValue)
+        const normalized = ensureHttpScheme(localValue);
         if (normalized !== localValue) {
-            setLocalValue(normalized)
-            onChange(normalized, false)
+            setLocalValue(normalized);
         }
-    }, [localValue, onChange])
+
+        onCommitChange(normalized);
+    }, [localValue, onCommitChange]);
 
     const handleKeyPress = useCallback(
         (event: React.KeyboardEvent) => {
-            if (event.key === 'Enter') {
-                handleConfirmValue()
+            if (event.key === 'Enter' && event.ctrlKey) {
+                handleConfirmValue();
             }
         },
-        [handleConfirmValue]
-    )
+        [handleConfirmValue],
+    );
 
     const props = {
         label,
         description,
         required,
-        placeholder: placeholder || "URL",
+        placeholder: placeholder || 'URL',
         value: localValue,
         disabled,
         error: errorText,
-    }
+    };
 
-    const hasValue = localValue && localValue.trim() !== ''
-    const hasError = !!errorText
+    const hasValue = localValue && localValue.trim() !== '';
+    const hasError = !!errorText;
 
     return (
         <div style={{ position: 'relative' }}>
@@ -151,10 +153,14 @@ export const URLInput: React.FC<InputProps> = ({
                 onBlur={handleConfirmValue}
                 rightSection={
                     hasValue && !hasError ? (
-                        <URLLinkIcon fontSize={18} url={localValue} displayText={localValue} />
+                        <URLLinkIcon
+                            fontSize={18}
+                            url={localValue}
+                            displayText={localValue}
+                        />
                     ) : null
                 }
             />
         </div>
-    )
-}
+    );
+};

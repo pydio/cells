@@ -29,7 +29,7 @@ export const SwitchInput: React.FC<InputProps> = ({
     errorText,
     disabled,
     required,
-    onChange,
+    onCommitChange,
     requestToggleClose
 }: InputProps) => {
 
@@ -44,7 +44,7 @@ export const SwitchInput: React.FC<InputProps> = ({
                 <div style={{ display: 'flex', alignItems: 'center', height: '100%' }} onBlur={() => requestToggleClose && requestToggleClose()}>
                     <Switch
                         checked={value}
-                        onChange={(e) => onChange(e.currentTarget.checked, true)}
+                        onChange={(e) => onCommitChange(e.currentTarget.checked)}
                         disabled={disabled}
                     />
                 </div>

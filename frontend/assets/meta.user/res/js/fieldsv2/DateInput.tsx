@@ -30,7 +30,6 @@ export const DateInput: React.FC<InputProps> = ({
     required,
     disabled,
     value,
-    onChange,
     onCommitChange,
     errorText
 }) => {
@@ -54,7 +53,6 @@ export const DateInput: React.FC<InputProps> = ({
         value={value ? new Date(parseFloat(value)*1000) : null}
         onChange={(v) => {
             const d = new Date(v).getTime()/1000;
-            onChange(d, true);
             onCommitChange(d);
         }}
         description={description}

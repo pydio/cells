@@ -70,7 +70,7 @@ export default createReactClass({
                     node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
                     saveMeta={(metadata) => this.saveMeta(metadata)}
                     saving={false}
-                    savePartialy={!this.props.selection.isUnique()}
+                    savePartialy={false}
                     onDataChanged={(metadata) => this.formMetadata = metadata}
                 >
                     <UserMetaPanelV2

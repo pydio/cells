@@ -40,7 +40,6 @@ export interface FieldEditProps {
     context: any,
     name: string,
     meta: NamespaceMeta,
-    saving: boolean,
     value: any,
     updateValue: (f: string, v: any, submit?: boolean) => void,
     supportTemplates?: boolean,
@@ -54,7 +53,6 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
     context,
     name,
     meta,
-    saving,
     // FIXME: Toggleable fields are disabled
     // updateValue,
     // requestToggleClose,
@@ -82,17 +80,19 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
         }
     }, [state.formState, state.errors, actions])
 
+    const onChange = useCallback((v) => {
+        actions.setFormState(state.formState.set(name, v))
+    }, [state.formState, actions])
+
     let baseProps: InputProps = {
         name,
         label,
         required,
         description: meta.description,
-        disabled: readonly || saving,
+        disabled: readonly,
         value,
         onCommitChange,
-        onChange: (v) => {
-            actions.setFormState(state.formState.set(name, v))
-        },
+        onChange,
         errorText,
         // FIXME: go over the code and remove this
         requestToggleClose: () => {},
