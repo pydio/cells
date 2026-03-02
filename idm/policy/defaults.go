@@ -22,6 +22,7 @@ package policy
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/ory/ladon"
@@ -743,6 +744,38 @@ func Upgrade4992(ctx context.Context) error {
 
 }
 
+func Upgrade4993(ctx context.Context) error {
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
+	}
+	groups, e := dao.ListPolicyGroups(ctx, nil)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.GetUuid() == "rest-apis-default-accesses" {
+			for _, p := range group.Policies {
+				if p.GetID() == "user-meta-read" {
+					if !slices.Contains(p.Resources, "rest:/user-meta/namespace") {
+						p.Resources = append(p.Resources, "rest:/user-meta/namespace")
+					} else if !slices.Contains(p.Resources, "rest:/user-meta/namespace/<.+>") {
+						p.Resources = append(p.Resources, "rest:/user-meta/namespace/<.+>")
+					}
+				}
+			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
+			}
+		}
+	}
+	log.Logger(ctx).Info("Upgraded policy model to v4.9.93")
+
+	return nil
+}
+
 var GrpcServiceMigrations = []*service.Migration{
 	{
 		TargetVersion: service.FirstRun(),
@@ -795,5 +828,9 @@ var GrpcServiceMigrations = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.3.99"),
 		Up:            Upgrade4399,
+	},
+	{
+		TargetVersion: service.ValidVersion("4.9.93"),
+		Up:            Upgrade4993,
 	},
 }
