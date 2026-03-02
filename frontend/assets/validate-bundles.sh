@@ -71,8 +71,29 @@ check_file() {
 	return 0
 }
 
+# Function to extract bundle names using Node.js
+extract_bundle_names() {
+	local config_file="$1"
+	local config_dir=$(dirname "$config_file")
+
+	# Change to config directory to ensure relative imports work
+	(
+		cd "$config_dir"
+		node -e "
+			try {
+				const config = require('./webpack.config.js')();
+				const entries = config.entry || {};
+				Object.keys(entries).forEach(name => console.log(name));
+			} catch (e) {
+				console.error('Error loading config:', e.message);
+				process.exit(1);
+			}
+		" 2>/dev/null
+	)
+}
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "Frontend Bundle Validation - Dynamic Bundle Extraction"
+echo "Frontend Bundle Validation - Node.js Bundle Extraction"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
@@ -95,22 +116,14 @@ for config_file in $plugins_with_config; do
 	echo "Checking plugin: $plugin_name"
 	echo ""
 
-	# Check if config has entries object (multiple bundles) or single bundle
-	if grep -q "const entries = {" "$config_file"; then
-		# Multiple bundles case - extract from entries object
-		bundle_names=$(sed -n '/const entries = {/,/}/p' "$config_file" | grep -oP "^\s*'\K[^']+" || sed -n '/const entries = {/,/}/p' "$config_file" | grep -oP '^\s*"\K[^"]+')
-	elif grep -q "configLoader({" "$config_file"; then
-		# Check if it's multiple bundles in configLoader
-		if grep -A 10 "configLoader({" "$config_file" | grep -q ","; then
-			# Multiple bundles in inline object - extract all
-			bundle_names=$(sed -n '/configLoader({/,/},/p' "$config_file" | grep ":" | grep -oP "^\s*'?\K[^':]+" | head -20)
-		else
-			# Single bundle case - extract from inline object
-			bundle_names=$(grep -oP "configLoader\(\{\K[^:]*" "$config_file")
-		fi
-	else
-		print_warning "No bundle configuration found in webpack.config.js"
+	# Extract bundle names using Node.js
+	bundle_names=$(extract_bundle_names "$config_file")
+	extraction_result=$?
+
+	if [ $extraction_result -ne 0 ]; then
+		print_warning "Failed to extract bundle names from webpack.config.js"
 		print_info "  File: $config_file"
+		print_info "  This might be due to missing dependencies or invalid config"
 		PLUGINS_SKIPPED=$((PLUGINS_SKIPPED + 1))
 		echo ""
 		continue
@@ -126,6 +139,9 @@ for config_file in $plugins_with_config; do
 
 	PLUGINS_VALIDATED=$((PLUGINS_VALIDATED + 1))
 	plugin_passed=true
+	bundle_count=$(echo "$bundle_names" | wc -l | tr -d ' ')
+	print_info "Found $bundle_count bundle(s): $(echo "$bundle_names" | tr '\n' ' ' | sed 's/ $//')"
+	echo ""
 
 	# Validate each bundle
 	for bundle_name in $bundle_names; do
@@ -209,11 +225,12 @@ else
 		plugin_dir=$(dirname "$config_file")
 		plugin_name=$(basename "$plugin_dir")
 
-		# Check what bundles this plugin has
-		if grep -q "const entries = {" "$config_file"; then
-			bundle_names=$(sed -n '/const entries = {/,/}/p' "$config_file" | grep -oP "^\s*'\K[^']+" || sed -n '/const entries = {/,/}/p' "$config_file" | grep -oP '^\s*"\K[^"]+')
-		elif grep -q "configLoader({" "$config_file"; then
-			bundle_names=$(grep -oP "configLoader\(\{\K[^:]*" "$config_file")
+		# Check what bundles this plugin has using Node.js
+		bundle_names=$(extract_bundle_names "$config_file")
+		extraction_result=$?
+
+		if [ $extraction_result -ne 0 ] || [ -z "$bundle_names" ]; then
+			continue
 		fi
 
 		plugin_needs_rebuild=false
@@ -238,11 +255,12 @@ else
 		plugin_dir=$(dirname "$config_file")
 		plugin_name=$(basename "$plugin_dir")
 
-		# Check what bundles this plugin has
-		if grep -q "const entries = {" "$config_file"; then
-			bundle_names=$(sed -n '/const entries = {/,/}/p' "$config_file" | grep -oP "^\s*'\K[^']+" || sed -n '/const entries = {/,/}/p' "$config_file" | grep -oP '^\s*"\K[^"]+')
-		elif grep -q "configLoader({" "$config_file"; then
-			bundle_names=$(grep -oP "configLoader\(\{\K[^:]*" "$config_file")
+		# Check what bundles this plugin has using Node.js
+		bundle_names=$(extract_bundle_names "$config_file")
+		extraction_result=$?
+
+		if [ $extraction_result -ne 0 ] || [ -z "$bundle_names" ]; then
+			continue
 		fi
 
 		plugin_needs_rebuild=false
