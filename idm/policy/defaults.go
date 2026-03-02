@@ -757,8 +757,10 @@ func Upgrade4993(ctx context.Context) error {
 		if group.GetUuid() == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
 				if p.GetID() == "user-meta-read" {
-					if !slices.Contains(p.Resources, "rest:/user-meta/namespace") {
+					if !slices.Contains(p.Resources, "rest:/user-meta/namespace") || !slices.Contains(p.Resources, "rest:/user-meta/namespace/<.+>") {
 						p.Resources = append(p.Resources, "rest:/user-meta/namespace")
+						p.Resources = append(p.Resources, "rest:/user-meta/namespace/<.+>")
+						log.Logger(ctx).Info("Added missing user-meta/namespace resources to user-meta-read policy")
 					}
 				}
 			}
@@ -828,7 +830,7 @@ var GrpcServiceMigrations = []*service.Migration{
 		Up:            Upgrade4399,
 	},
 	{
-		TargetVersion: service.ValidVersion("4.9.92"),
+		TargetVersion: service.ValidVersion("4.9.93"),
 		Up:            Upgrade4993,
 	},
 }
