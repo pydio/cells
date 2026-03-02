@@ -22,6 +22,7 @@ package policy
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/ory/ladon"
@@ -744,21 +745,6 @@ func Upgrade4992(ctx context.Context) error {
 }
 
 func Upgrade4993(ctx context.Context) error {
-	v2Policy := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
-		ID:          "user-meta-read",
-		Description: "PolicyGroup.LoggedUsers.Rule3",
-		Subjects:    []string{"profile:standard", "profile:shared"},
-		Resources: []string{
-			"rest:/user-meta/bookmarks",
-			"rest:/user-meta/namespace",
-			"rest:/user-meta/namespace/<.+>",
-			"rest:/user-meta/search",
-			"rest:/user-meta/tags/<.+>",
-		},
-		Actions: []string{"GET", "POST"},
-		Effect:  ladon.AllowAccess,
-	})
-
 	dao, er := manager.Resolve[DAO](ctx)
 	if er != nil {
 		return er
@@ -769,15 +755,13 @@ func Upgrade4993(ctx context.Context) error {
 	}
 	for _, group := range groups {
 		if group.GetUuid() == "rest-apis-default-accesses" {
-			var newPolicies []*idm.Policy
 			for _, p := range group.Policies {
 				if p.GetID() == "user-meta-read" {
-					newPolicies = append(newPolicies, v2Policy)
-				} else {
-					newPolicies = append(newPolicies, p)
+					if !slices.Contains(p.Resources, "rest:/user-meta/namespace") {
+						p.Resources = append(p.Resources, "rest:/user-meta/namespace")
+					}
 				}
 			}
-			group.Policies = newPolicies
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
 				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
 			} else {
@@ -844,7 +828,7 @@ var GrpcServiceMigrations = []*service.Migration{
 		Up:            Upgrade4399,
 	},
 	{
-		TargetVersion: service.ValidVersion("4.9.93"),
+		TargetVersion: service.ValidVersion("4.9.92"),
 		Up:            Upgrade4993,
 	},
 }
