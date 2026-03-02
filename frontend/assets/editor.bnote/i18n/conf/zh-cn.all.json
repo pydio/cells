@@ -1,11 +1,11 @@
 {
   "Text Editor": {
-    "other": "BlockNote Editor"
+    "other": "BlockNote 编辑器"
   },
   "Very basic text editor": {
-    "other": "Collaboration Pad"
+    "other": "协作便签"
   },
   "ext": {
-    "other": "Notepad"
+    "other": "记事本"
   }
 }
