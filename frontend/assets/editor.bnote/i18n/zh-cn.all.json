@@ -1,23 +1,23 @@
 {
   "enable_kb": {
-    "other": "Convert to Page"
+    "other": "转换为页面"
   },
   "disable_kb": {
-    "other": "Convert to Folder"
+    "other": "转换为文件夹"
   },
   "mime-page": {
-    "other": "Page"
+    "other": "页面"
   },
   "mkpage": {
-    "other": "New Page"
+    "other": "新页面"
   },
   "mkpage.legend": {
-    "other": "Create a new sub-page"
+    "other": "创建一个新子页面"
   },
   "mkpage.placeholder": {
-    "other": "Page Name"
+    "other": "页面名称"
   },
   "copy_ref": {
-    "other": "Copy Reference"
+    "other": "复制引用地址"
   }
 }
