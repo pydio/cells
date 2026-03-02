@@ -185,15 +185,25 @@ class MetaNamespace extends React.Component {
     }
 
     save() {
-        let { namespace } = this.state;
+        const { namespace: stateNs } = this.state;
+        let namespace = stateNs;
         if (this.fieldOptionsRef.current) {
             namespace = this.fieldOptionsRef.current.getUpdatedNamespace();
         }
 
-        Metadata.putNS(namespace).then(() => {
-            this.props.onRequestClose();
-            this.props.reloadList();
-        })
+        const hasSchema = namespace.JsonSchema && Object.keys(namespace.JsonSchema).length > 0;
+        const doSave = (jsonSchema) => {
+            const nsToSave = jsonSchema ? { ...namespace, JsonSchema: jsonSchema } : namespace;
+            Metadata.putNS(nsToSave).then(() => {
+                this.props.onRequestClose();
+                this.props.reloadList();
+            });
+        };
+        if (!hasSchema && namespace.JsonDefinition) {
+            this.getJsonSchema().then(doSave);
+        } else {
+            doSave();
+        }
     }
 
     getTypes() {
@@ -210,24 +220,26 @@ class MetaNamespace extends React.Component {
             try {
                 const fieldType = JSON.parse(namespace?.JsonDefinition).type;
                 const data = JSON.parse(namespace?.JsonDefinition).data || '';
-                if (!fieldType) return;
-                if (!namespace.Namespace) return;
+                if (!fieldType) return Promise.resolve(undefined);
+                if (!namespace.Namespace) return Promise.resolve(undefined);
 
-                let format = data?.format?.toString().lengh > 0 ? data.format : '';
-                Metadata.getJsonSchemaByType(fieldType, (namespace.Namespace), format)
-                    .then(schema => {
-                        this.setState(prevState => ({
-                        namespace: {
-                            ...prevState.namespace,
-                            JsonSchema: schema.JsonSchema
-                        }
-                    }));
-                });
+                let format = data?.format?.toString().length > 0 ? data.format : '';
+                    return Metadata.getJsonSchemaByType(fieldType, namespace.Namespace, format)
+                        .then(schema => {
+                            this.setState(prevState => ({
+                                namespace: {
+                                    ...prevState.namespace,
+                                    JsonSchema: schema.JsonSchema
+                                }
+                            }));
+                            return schema.JsonSchema;
+                        });
             } catch (e) {
                 console.error(e);
                 throw e;
             }
         }
+        return Promise.resolve(undefined);
     }
 
     getHideValue() {
