@@ -6,23 +6,34 @@ GITREV?=$(shell git rev-parse HEAD)
 CELLS_VERSION?=${DEV_VERSION}.${TIMESTAMP}
 GOBIN?=go
 
-.PHONY: all clean build main dev darwin arm win docker start ds licenses
+.PHONY: all clean build main dev darwin arm win docker start ds licenses build-frontend-assets validate-frontend-assets
+
+## Frontend Assets Building
+
+build-frontend-assets:
+	@echo "Building frontend assets..."
+	@cd frontend/assets && pnpm --filter meta.user install
+	@cd frontend/assets && pnpm --filter meta.user run build-prod
+
+validate-frontend-assets: build-frontend-assets
+	@echo "Validating frontend assets..."
+	@bash frontend/assets/validate-bundles.sh
 
 ## Historic Aliases
 
 all: clean main
 
-build: main
+build: validate-frontend-assets main
 
-main: linux-amd64
+main: validate-frontend-assets linux-amd64
 
-darwin: darwin-arm64
+darwin: validate-frontend-assets darwin-arm64
 
-arm64: linux-arm64
+arm64: validate-frontend-assets linux-arm64
 
-arm: linux-arm
+arm: validate-frontend-assets linux-arm
 
-win: windows-amd64
+win: validate-frontend-assets windows-amd64
 
 ## Standard names
 
@@ -74,7 +85,7 @@ windows-amd64:
 	 -o cells.exe\
 	 .
 
-dev:
+dev: validate-frontend-assets
 	env CGO_ENABLED=0 ${GOBIN} build\
 	 -tags dev\
 	 -gcflags "all=-N -l"\
@@ -86,7 +97,7 @@ dev:
 	 -o cells\
 	 .
 
-docker:
+docker: validate-frontend-assets
 	GOARCH=amd64 GOOS=linux ${GOBIN} build -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\

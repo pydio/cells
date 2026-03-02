@@ -1,0 +1,17 @@
+# Build artifacts
+res/dist/
+res/dist.old/
+
+# Node modules
+node_modules/
+.pnpm-debug.log
+
+# Vite cache
+.vite/
+dist/
+
+# System files
+.DS_Store
+*.swp
+*.swo
+*~
