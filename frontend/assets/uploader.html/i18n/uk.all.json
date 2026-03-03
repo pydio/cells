@@ -102,70 +102,70 @@
     "other": "Перетягніть файли сюди"
   },
   "drop-or": {
-    "other": "or"
+    "other": "або"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "огляд файлів"
   },
   "drop-pick-folder": {
     "other": "оберіть теки"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "Завантаження"
   },
   "attempt": {
-    "other": "attempt"
+    "other": "спроба"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "Очікує підтвердження"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Сталася помилка"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "Призупинено"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "Аналіз..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Тека чекає на завантаження..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Файл, що очікує на завантаження..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Аналіз теки..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Аналіз файлу..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Створення теки"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Завантаження файлу"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Теку створено"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "Файл завантажено"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Частину завантажено"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Завантаження частини"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "Завершення поточної частини перед паузою"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Не можу призупинити дане завантаження"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "Неможливо призупинити завантаження частини"
   },
   "status.error.aborted": {
     "other": "interrupted by user"
