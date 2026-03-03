@@ -1082,6 +1082,10 @@ func TestMongoTagsNamespace(t *testing.T) {
 			So(er, ShouldBeNil)
 			So(nn, ShouldHaveLength, 1)
 
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value1\"",
+			}
+
 			nn, _, er = performSearch(ctx, server, queryObject)
 			So(er, ShouldBeNil)
 			So(nn, ShouldHaveLength, 2)
