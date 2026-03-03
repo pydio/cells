@@ -237,52 +237,52 @@
     "other": "Адреса вузла"
   },
   "ds.editor.selector.peer.any": {
-    "other": "Any peer (unique node or distributed FS)"
+    "other": "Будь-який вузол (унікальний вузол або розподілений FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "Peer"
+    "other": "Вузол"
   },
   "ds.editor.selector.peer.invalid": {
-    "other": "invalid"
+    "other": "недійсний"
   },
   "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
+    "other": "Створити теку"
   },
   "ds.editor.selector.mkdir.legend": {
-    "other": "Create a new folder under %s"
+    "other": "Створити нову теку в %s"
   },
   "ds.editor.selector.mkdir.field": {
-    "other": "Folder name"
+    "other": "Ім'я теки"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is MacOSX"
+    "other": "Операційна система MacOSX"
   },
   "ds.editor.storage.azure.api": {
-    "other": "Azure Account Name"
+    "other": "Назва облікового запису Azure"
   },
   "ds.editor.storage.azure.secret": {
-    "other": "Azure Secret Key"
+    "other": "Секретний ключ Azure"
   },
   "ds.editor.storage.azure.bucket": {
-    "other": "Bucket Name"
+    "other": "Назва контейнера"
   },
   "ds.editor.storage.gcs.credentials": {
-    "other": "Paste content of GCS JSON credentials file"
+    "other": "Вставте вміст файлу ключів JSON для GCS"
   },
   "ds.editor.storage.gcs.bucket": {
-    "other": "Bucket Name"
+    "other": "Назва контейнера"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 Api Key"
+    "other": "Ключ API S3"
   },
   "ds.editor.storage.s3.bucket": {
-    "other": "Bucket Name"
+    "other": "Назва контейнера"
   },
   "ds.editor.storage.s3.endpoint.type": {
-    "other": "Endpoint Type"
+    "other": "Тип кінцевої точки"
   },
   "ds.editor.storage.s3.signatureVersion": {
-    "other": "Signature Version"
+    "other": "Версія підпису"
   },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
@@ -342,589 +342,589 @@
     "other": "Теги контейнерів (увімкнено вибір кількох контейнерів)"
   },
   "ds.editor.storage.s3.objectsTags": {
-    "other": "Objects Tags"
+    "other": "Теги об'єктів"
   },
   "ds.editor.storage.s3.legend.bucketPathPrefix": {
-    "other": "Use a path prefix inside the bucket (will create a virtual folder to store objects)"
+    "other": "Використовувати префікс шляху в кошику (створить віртуальну теку для зберігання об'єктів)"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix"
+    "other": "Префікс шляху"
   },
   "ds.editor.storage.s3.legend.storageClass": {
-    "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
+    "other": "Власний клас зберігання (залиште порожнім для використання STANDARD). Amazon S3 підтримує такі значення: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Майте на увазі, що використання GLACIER або аналогів зробить джерело даних доступним лише для запису, оскільки об'єкти потрібно відновлювати вручну, перш ніж вони стануть доступними для завантаження."
   },
   "ds.editor.storage.s3.storageClass": {
-    "other": "Storage Class"
+    "other": "Клас сховища"
   },
   "ds.editor.title": {
-    "other": "DataSource %s"
+    "other": "Джерело даних %s"
   },
   "ds.editor.versioning": {
-    "other": "Versioning Policy"
+    "other": "Політика версіонування"
   },
   "ds.editor.versioning.disabled": {
-    "other": "Do not enable versioning"
+    "other": "Не вмикати версіонування"
   },
   "ds.editor.tab.button-back": {
-    "other": "Back"
+    "other": "Назад"
   },
   "ds.editor.tab.button-next": {
-    "other": "Next"
+    "other": "Уперед"
   },
   "ds.editor.tab.button-create": {
-    "other": "Create"
+    "other": "Створити"
   },
   "ds.editor.tab.identifier": {
-    "other": "Identifier"
+    "other": "Ідентифікатор"
   },
   "ds.editor.tab.main": {
-    "other": "Main Options"
+    "other": "Основні параметри"
   },
   "ds.editor.tab.storage": {
-    "other": "Storage Type"
+    "other": "Тип сховища"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "Життєвий цикл даних"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Розширені налаштування"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
+    "other": "Якщо це сховище раніше використовувалося як пласке джерело даних, ініціалізуйте його з наявного файлу знімка (файл має бути всередині сховища)"
   },
   "ds.editor.foldersShardingPattern": {
-    "other": "By default, all files are stored inside a unique folder. Use a pattern 'N:P:Q' to auto-create sub folders id[:N]/id[:P]/id[:Q]/..."
+    "other": "За замовчуванням усі файли зберігаються в одній унікальній теці. Використовуйте шаблон «N:P:Q», щоб автоматично створювати підтеки id[:N]/id[:P]/id[:Q]/..."
   },
   "ds.editor.initFlatFromSnapshot.hint": {
-    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+    "other": "Шлях до знімка всередині сховища (наприклад, $snapshot.db)"
   },
   "ds.editor.foldersShardingPattern.hint": {
-    "other": "Sharding pattern (e.g. N:P:Q)"
+    "other": "Шаблон сегментації (наприклад, N:P:Q)"
   },
   "ds.encryption": {
-    "other": "Encrypted"
+    "other": "Шифрування"
   },
   "ds.encryption.key.emptyState": {
-    "other": "No master key created"
+    "other": "Головний ключ не створено"
   },
   "ds.encryption.key.create": {
-    "other": "Create Key"
+    "other": "Створити ключ"
   },
   "ds.encryption.key.created": {
-    "other": "Created on"
+    "other": "Створено"
   },
   "ds.encryption.key.delete": {
-    "other": "Delete Key"
+    "other": "Видалити ключ"
   },
   "ds.encryption.key.delete.warning": {
-    "other": "If the key is currently used for encrypted data, this is a very destructive operation! Are you sure you want to do that?"
+    "other": "Це призведе до втрати доступу до зашифрованих даних! Ви впевнені, що хочете продовжити?"
   },
   "ds.encryption.key.export": {
-    "other": "Export Key"
+    "other": "Експортувати ключ"
   },
   "ds.encryption.key.export.confirm": {
-    "other": "Confirm password"
+    "other": "Підтвердити пароль"
   },
   "ds.encryption.key.export.fail": {
-    "other": "Something went wrong during export"
+    "other": "Щось пішло не так під час експорту"
   },
   "ds.encryption.key.export.password": {
-    "other": "Provide a strong password"
+    "other": "Вкажіть надійний пароль"
   },
   "ds.encryption.key.export.result.copy": {
-    "other": "Copy result to a file to save the key"
+    "other": "Скопіювати результат у файл для збереження ключа"
   },
   "ds.encryption.key.id": {
-    "other": "Identifier"
+    "other": "Ідентифікатор"
   },
   "ds.encryption.key.import": {
-    "other": "Import Key"
+    "other": "Імпорт ключа"
   },
   "ds.encryption.key.import.content": {
-    "other": "Paste key here from your backup file"
+    "other": "Вставте ключ сюди з вашого файлу резервної копії"
   },
   "ds.encryption.key.import.fail": {
-    "other": "Something went wrong during import"
+    "other": "Щось пішло не так під час імпорту"
   },
   "ds.encryption.key.import.id": {
-    "other": "Unique identifier for this key"
+    "other": "Унікальний ідентифікатор для цього ключа"
   },
   "ds.encryption.key.import.label": {
-    "other": "Human-readable label for this key"
+    "other": "Опис ключа для користувача"
   },
   "ds.encryption.key.import.password": {
-    "other": "Password used at export time"
+    "other": "Пароль, використаний під час експорту"
   },
   "ds.encryption.key.import.success": {
-    "other": "Key was successfully imported"
+    "other": "Ключ успішно імпортовано"
   },
   "ds.encryption.key.label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "ds.encryption.key.owner": {
-    "other": "Owner"
+    "other": "Власник"
   },
   "ds.name": {
-    "other": "Name"
+    "other": "Ім'я"
   },
   "ds.status": {
-    "other": "Status"
+    "other": "Статус"
   },
   "ds.status.disabled": {
-    "other": "Disabled"
+    "other": "Вимкнено"
   },
   "ds.status.index": {
-    "other": "Index down"
+    "other": "Індекс вниз"
   },
   "ds.status.ko": {
-    "other": "Services stopped"
+    "other": "Сервіс зупинено"
   },
   "ds.status.ko-peers": {
-    "other": "Node %s not found"
+    "other": "Вузол %s не знайдено"
   },
   "ds.status.na": {
-    "other": "N/A"
+    "other": "Н/Д"
   },
   "ds.status.object": {
-    "other": "Objects down"
+    "other": "Об'єкти вниз"
   },
   "ds.status.ok": {
-    "other": "All services running"
+    "other": "Всі сервіси запущені"
   },
   "ds.status.starting": {
-    "other": "Starting datasource..."
+    "other": "Запуск джерела даних..."
   },
   "ds.status.sync": {
-    "other": "Sync down"
+    "other": "Синхронізація вниз"
   },
   "ds.storage": {
-    "other": "Storage Type"
+    "other": "Тип сховища"
   },
   "ds.storage.fs": {
-    "other": "Local File System"
+    "other": "Локальна файлова система"
   },
   "ds.storage.s3": {
-    "other": "S3-compatible Storage"
+    "other": "С3-сумісне сховище"
   },
   "ds.storage.azure": {
-    "other": "Azure Blob Storage"
+    "other": "Сховище Azure Blob"
   },
   "ds.storage.gcs": {
-    "other": "Google Cloud Storage"
+    "other": "Хмарне сховище Google"
   },
   "ds.storage.title": {
-    "other": "Storage"
+    "other": "Сховище"
   },
   "ds.versioning": {
-    "other": "Versioning"
+    "other": "Версії"
   },
   "ds.syncStatus": {
-    "other": "Last Sync"
+    "other": "Остання синхронізація"
   },
   "ds.emptyState": {
-    "other": "No datasources created yet"
+    "other": "Ще не створено жодного джерела даних"
   },
   "ds.versioning.description": {
-    "other": "Description"
+    "other": "Опис"
   },
   "ds.versioning.name": {
-    "other": "Name"
+    "other": "Ім'я"
   },
   "ds.versioning.periods": {
-    "other": "Retention Strategy"
+    "other": "Стратегія утримання"
   },
   "ds.versioning.storage": {
-    "other": "Storage"
+    "other": "Сховище"
   },
   "logs.1": {
-    "other": "Server Logs"
+    "other": "Журнали серверу"
   },
   "logs.10": {
-    "other": "Export and download"
+    "other": "Експорт та завантаження"
   },
   "logs.11": {
-    "other": "Export as..."
+    "other": "Експортувати як..."
   },
   "logs.2": {
-    "other": "Pick a day"
+    "other": "Виберіть день"
   },
   "logs.filter.legend": {
-    "other": "Filter by..."
+    "other": "Фільтрувати за..."
   },
   "logs.export.disabled": {
-    "other": "Pick a date or filter result"
+    "other": "Вибрати дату або результат фільтра"
   },
   "logs.export.clicklink": {
-    "other": "Click on the link to download"
+    "other": "Натисніть на посилання, щоб завантажити"
   },
   "logs.filter.period": {
-    "other": "Time Period"
+    "other": "Період часу"
   },
   "logs.filter.period.from": {
-    "other": "From"
+    "other": "Від"
   },
   "logs.filter.period.to": {
-    "other": "To"
+    "other": "До"
   },
   "logs.filter.period.time": {
-    "other": "At..."
+    "other": "О..."
   },
   "logs.filter.login": {
-    "other": "Login"
+    "other": "Логін"
   },
   "logs.filter.ip": {
     "other": "IP"
   },
   "logs.filter.fulltext": {
-    "other": "Full-text search"
+    "other": "Повнотекстовий пошук"
   },
   "logs.tz.tooltip": {
-    "other": "Show local/server timezone"
+    "other": "Показати місцевий/часовий пояс сервера"
   },
   "logs.tz.local": {
-    "other": "Local Timezone"
+    "other": "Місцевий часовий пояс"
   },
   "logs.tz.server": {
-    "other": "Server Timezone"
+    "other": "Часовий пояс сервера"
   },
   "logs.toggleTheme": {
-    "other": "Light/Dark Theme"
+    "other": "Світла/Темна тема"
   },
   "logs.sys.note": {
-    "other": "Please Note:"
+    "other": "Зверни увагу:"
   },
   "logs.sys.note.content": {
-    "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
+    "other": "Порожні записи в журналах можуть означати, що сервер не запущено у виробничому режимі. Обов'язково встановіть цей рівень логування, додавши аргумент --log=production або встановивши змінну середовища PYDIO_LOGS_LEVEL=production."
   },
   "logs.3": {
-    "other": "Filter Logs"
+    "other": "Фільтрувати журнали"
   },
   "logs.4": {
-    "other": "Click on a row for details"
+    "other": "Натисніть на рядок, щоб отримати детальну інформацію"
   },
   "logs.5": {
-    "other": "Event Detail"
+    "other": "Деталі події"
   },
   "logs.6": {
-    "other": "Export logs"
+    "other": "Експортувати журнали"
   },
   "logs.7": {
-    "other": "Export from"
+    "other": "Експортувати з"
   },
   "logs.8": {
-    "other": "To"
+    "other": "До"
   },
   "logs.9": {
-    "other": "File will be export as CSV format with semi-colmuns (;) separators and fields enclosed in double-quotes (\")."
+    "other": "Файл буде експортовано у форматі CSV роздільник крапка з комою (;) як роздільником та полями, взятими у подвійні лапки (\")."
   },
   "logs.level": {
-    "other": "Level"
+    "other": "Рівень"
   },
   "logs.level.exact": {
-    "other": "(only)"
+    "other": "(тільки)"
   },
   "logs.level.greaterthan": {
-    "other": "(and up)"
+    "other": "(та вище)"
   },
   "logs.service": {
-    "other": "Service"
+    "other": "Служба"
   },
   "logs.message": {
-    "other": "Message"
+    "other": "Повідомлення"
   },
   "logs.noentries": {
-    "other": "No entries"
+    "other": "Немає записів"
   },
   "logs.noresults": {
-    "other": "No results"
+    "other": "Немає результатів"
   },
   "logs.details.copy": {
-    "other": "Copy log to clipboard"
+    "other": "Копіювати журнал у буфер обміну"
   },
   "logs.details.show-focus": {
-    "other": "Show +/- 5 minutes"
+    "other": "Показати +/- 5 хвилин"
   },
   "logs.details.close": {
-    "other": "Close log detail"
+    "other": "Закрити деталі журналу"
   },
   "logs.details.user": {
-    "other": "User"
+    "other": "Користувач"
   },
   "logs.details.user-attributes": {
-    "other": "User Attributes"
+    "other": "Атрибути користувача"
   },
   "logs.details.date": {
-    "other": "Event Date"
+    "other": "Дата події"
   },
   "logs.details.msg": {
-    "other": "Event Message"
+    "other": "Опис події"
   },
   "logs.details.service": {
-    "other": "Emitting Service"
+    "other": "Сервіс, що генерує подію"
   },
   "logs.details.connection": {
-    "other": "Connection IP"
+    "other": "IP-адреса підключення"
   },
   "logs.details.agent": {
-    "other": "User-Agent"
+    "other": "Дані про браузер та ОС"
   },
   "logs.details.protocol": {
-    "other": "Protocol"
+    "other": "Протокол"
   },
   "logs.details.node": {
-    "other": "File/Folder"
+    "other": "Файл/Тека"
   },
   "logs.details.transfer-size": {
-    "other": "Transfer Size"
+    "other": "Обсяг передачі"
   },
   "logs.details.workspace": {
-    "other": "In Workspace"
+    "other": "У робочому просторі"
   },
   "menu.0": {
-    "other": "Dashboard"
+    "other": "Панель керування"
   },
   "menu.1": {
-    "other": "Activity"
+    "other": "Активність"
   },
   "menu.10": {
-    "other": "Extensions for sending files through the Web UI"
+    "other": "Розширення для надсилання файлів через веб-інтерфейс"
   },
   "menu.11": {
-    "other": "Authentication"
+    "other": "Автентифікація"
   },
   "menu.11b": {
-    "other": "Authentication"
+    "other": "Автентифікація"
   },
   "menu.12": {
-    "other": "Configs Backends"
+    "other": "Налаштування бекендів"
   },
   "menu.13": {
-    "other": "Loggers"
+    "other": "Засоби ведення журналів"
   },
   "menu.14": {
-    "other": "Notifications"
+    "other": "Сповіщення"
   },
   "menu.15": {
-    "other": "How users get notifications from various parts of the application."
+    "other": "Як користувачі отримують сповіщення з різних частин програми."
   },
   "menu.16": {
     "other": "Pydio Booster"
   },
   "menu.17": {
-    "other": "Instant messaging and external accelerator tool"
+    "other": "Інструмент миттєвого обміну повідомленнями та зовнішній прискорювач"
   },
   "menu.18": {
-    "other": "All Plugins"
+    "other": "Усі плагіни"
   },
   "menu.19": {
-    "other": "Available Plugins"
+    "other": "Доступні плагіни"
   },
   "menu.2": {
-    "other": "Server Logs"
+    "other": "Журнали серверу"
   },
   "menu.20": {
-    "other": "User Features"
+    "other": "Функції користувача"
   },
   "menu.21": {
-    "other": "End-user parameters"
+    "other": "Налаштування користувача"
   },
   "menu.22": {
-    "other": "Welcome Page"
+    "other": "Сторінка привітання"
   },
   "menu.23": {
-    "other": "Landing page for user after login. Configure displayed elements and links."
+    "other": "Головна сторінка для користувача після входу. Налаштування елементів та посилань."
   },
   "menu.3": {
-    "other": "Appearance"
+    "other": "Оформлення"
   },
   "menu.4": {
-    "other": "Theme, logos, appearance options"
+    "other": "Тема, логотипи, параметри вигляду"
   },
   "menu.5": {
-    "other": "Sharing Features"
+    "other": "Функції спільного доступу"
   },
   "menu.6": {
-    "other": "Options for all files and folders sharing"
+    "other": "Параметри спільного доступу до файлів і тек"
   },
   "menu.7": {
-    "other": "Editors"
+    "other": "Редактори"
   },
   "menu.8": {
-    "other": "Enable/disable editors and manage their parameters"
+    "other": "Увімкнення/вимкнення редакторів та керування їхніми параметрами"
   },
   "menu.9": {
-    "other": "Uploaders"
+    "other": "Завантажувачі"
   },
   "menu.metadata": {
-    "other": "Metadata"
+    "other": "Метадані"
   },
   "menu.metadata.description": {
-    "other": "User-editable fields attached to data"
+    "other": "Поля даних, що редагуються користувачем"
   },
   "metadata.definition": {
-    "other": "Definition"
+    "other": "Опис"
   },
   "metadata.delete.confirm": {
-    "other": "Are you sure you want to delete this metadata?"
+    "other": "Ви впевнені, що хочете видалити ці метадані?"
   },
   "metadata.editor.label.error": {
-    "other": "Metadata label cannot be empty"
+    "other": "Мітка метаданих не може бути порожньою"
   },
   "metadata.editor.ns.error": {
-    "other": "Choose a namespace for this metadata"
+    "other": "Виберіть простір імен для цих метаданих"
   },
   "metadata.editor.ns.exists": {
-    "other": "Name already exists, please pick another one"
+    "other": "Ця назва вже зайнята, будь ласка, виберіть іншу"
   },
   "metadata.editor.selection": {
-    "other": "Selection Values"
+    "other": "Вибір значень"
   },
   "metadata.editor.selection.key": {
-    "other": "Key"
+    "other": "Ключ"
   },
   "metadata.editor.selection.value": {
-    "other": "Value"
+    "other": "Значення"
   },
   "metadata.editor.selection.steps": {
-    "other": "Show as steps"
+    "other": "Показати як кроки"
   },
   "metadata.editor.tags.cleared": {
-    "other": "Cleared tags for namespaces %s"
+    "other": "Очищено теґи для простору імен %s"
   },
   "metadata.editor.tags.reset": {
-    "other": "Reset Tags"
+    "other": "Скинути теґи"
   },
   "metadata.editor.title.create": {
-    "other": "Create Namespace"
+    "other": "Створити простір імен"
   },
   "metadata.empty": {
-    "other": "No metadata defined"
+    "other": "Метадані не визначені"
   },
   "metadata.indexable": {
-    "other": "Indexable"
+    "other": "Індексований"
   },
   "metadata.label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "Ім'я"
   },
   "metadata.namespace.add": {
-    "other": "+ Namespace"
+    "other": "+ Простір імен"
   },
   "metadata.namespaces": {
-    "other": "Namespaces"
+    "other": "Простори імен"
   },
   "metadata.namespaces.legend": {
-    "other": "Metadata can be attached to any files or folders by the users. You can define here the kind of metadata you want to display, and whether each meta is readable/writeable by standard users as opposed to admin users."
+    "other": "Користувачі можуть додавати метадані до будь-яких файлів або тек. Тут ви можете визначити типи метаданих, які потрібно відображати, а також вказати, чи доступна кожна мітка для читання/запису звичайним користувачам на відміну від адміністраторів."
   },
   "metadata.order": {
-    "other": "Order"
+    "other": "Порядок"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "Група"
   },
   "metadata.group-field": {
-    "other": "Group Name (creates an expandable section). Use '/' for sub-groups."
+    "other": "Назва групи (створює розширений розділ). Використовуйте '/' для підгруп."
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "Немає групи"
   },
   "metadata.toggle.index": {
-    "other": "Index in search engine"
+    "other": "Індекс в пошуковій системі"
   },
   "metadata.toggle.read": {
-    "other": "Restrict visibility to admins"
+    "other": "Обмежити видимість лише для адміністраторів"
   },
   "metadata.toggle.write": {
-    "other": "Restrict edition to admins"
+    "other": "Обмежити редагування лише для адміністраторів"
   },
   "metadata.type": {
-    "other": "Type"
+    "other": "Тип"
   },
   "metadata.type.string": {
-    "other": "Short Text"
+    "other": "Короткий текст"
   },
   "metadata.type.textarea": {
-    "other": "Paragraph"
+    "other": "Абзац"
   },
   "metadata.type.integer": {
-    "other": "Number"
+    "other": "Номер"
   },
   "metadata.type.boolean": {
-    "other": "True/False value"
+    "other": "Істина/Хибність"
   },
   "metadata.type.date": {
-    "other": "Date or Time"
+    "other": "Дата або час"
   },
   "metadata.type.stars_rate": {
-    "other": "Stars Rating"
+    "other": "Рейтинг зірок"
   },
   "metadata.type.css_label": {
-    "other": "Color Labels"
+    "other": "Мітки кольорів"
   },
   "metadata.type.auto_complete": {
-    "other": "Auto Complete"
+    "other": "Автоматичне завершення"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags (legacy)"
+    "other": "Розширювані теги (застарілі)"
   },
   "metadata.type.choice": {
-    "other": "Select from values"
+    "other": "Вибрати зі значень"
   },
   "metadata.type.multi_value": {
-    "other": "Multi Value select"
+    "other": "Вибір кількох значень"
   },
   "metadata.type.tag_cloud": {
-    "other": "Tag Cloud"
+    "other": "Хмара тегів"
   },
   "metadata.type.tag_cloud.values": {
-    "other": "Tag Cloud values"
+    "other": "Значення хмари тегів"
   },
   "metadata.tag_cloud.entity.hint": {
-    "other": "Comma-separated list of possible tags"
+    "other": "Список можливих тегів, розділених комами"
   },
   "metadata.tag_cloud.entity": {
-    "other": "Values"
+    "other": "Значення"
   },
   "metadata.type.json": {
-    "other": "JSON (internal format)"
+    "other": "JSON (внутрішній формат)"
   },
   "metadata.type.url": {
     "other": "URL"
   },
   "metadata.type.date.format": {
-    "other": "Format"
+    "other": "Формат"
   },
   "metadata.type.date.format.date": {
-    "other": "Date"
+    "other": "Дата"
   },
   "metadata.type.date.format.date-time": {
-    "other": "Date & Time"
+    "other": "Дата та час"
   },
   "metadata.type.date.format.time": {
-    "other": "Time"
+    "other": "Час"
   },
   "metadata.type.date.display": {
-    "other": "Display"
+    "other": "Відображення"
   },
   "metadata.type.date.display.normal": {
-    "other": "Normal"
+    "other": "Звичайний"
   },
   "metadata.type.date.display.relative": {
-    "other": "Relative (xx days ago...)"
+    "other": "Відносне (xx днів тому...)"
   },
   "metadata.type.reaction": {
-    "other": "Reaction"
+    "other": "Реакція"
   },
   "metadata.type.integer.format": {
-    "other": "Format"
+    "other": "Формат"
   },
   "metadata.type.integer.format.general": {
-    "other": "General"
+    "other": "Основне"
   },
   "metadata.type.integer.format.bytesize": {
-    "other": "Byte Size"
+    "other": "Розмір в байтах"
   },
   "metadata.type.integer.format.percentage": {
     "other": "Percentage"
@@ -1077,133 +1077,133 @@
     "other": "Enabled"
   },
   "plugins.list.column.label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "plugins.list.column.id": {
-    "other": "Id"
+    "other": "Ідентифікатор"
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "Опис"
   },
   "plugins.list.action.edit": {
-    "other": "Edit plugin parameters"
+    "other": "Редагувати параметри плагіна"
   },
   "plugins.documentation": {
-    "other": "Documentation"
+    "other": "Документація"
   },
   "policies.policy.create": {
-    "other": "Create"
+    "other": "Створити"
   },
   "policies.policy.description": {
-    "other": "Policy Description"
+    "other": "Опис політики"
   },
   "policies.policy.name": {
-    "other": "Policy Name"
+    "other": "Назва політики"
   },
   "policies.policy.rules": {
-    "other": "# Rules"
+    "other": "# Правила"
   },
   "policies.policy.display": {
-    "other": "Show policy rules"
+    "other": "Показати правила політики"
   },
   "policies.policy.edit": {
-    "other": "Edit policy rules"
+    "other": "Редагувати правила політики"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Змінити мітки"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Зберегти зміни"
   },
   "policies.policy.delete": {
-    "other": "Delete policy"
+    "other": "Видалити політику"
   },
   "policies.policy.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+    "other": "Ви впевнені, що хочете видалити цю політику? Переконайтеся, що це не порушить безпеку програми!"
   },
   "policies.policy.new": {
-    "other": "+ New Policy"
+    "other": "+ Нова політика"
   },
   "policies.policy.type": {
-    "other": "Policy Type"
+    "other": "Тип політики"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Додати нове правило"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "Видалити правило"
   },
   "policies.acl.empty-string": {
-    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+    "other": "Політик не визначено. Створіть політику, щоб використовувати її як динамічний дозвіл для робочої області."
   },
   "policies.rule.delete.confirm": {
-    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
+    "other": "Ви впевнені, що хочете видалити це правило безпеки? Це може порушити модель безпеки програми!"
   },
   "policies.type.acl.legend": {
-    "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
+    "other": "Ці політики використовуються для динамічного надання доступу на читання/запис до робочих областей або вузлів на основі контексту запиту та/або метаданих вузла. Вони визначаються тут і використовуються в Панелі керування доступом для користувачів та ролей."
   },
   "policies.type.acl.title": {
-    "other": "Context-based ACLs"
+    "other": "ACL на основі контексту"
   },
   "policies.type.oidc.legend": {
-    "other": "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
+    "other": "Сервіс OpenId Connect використовується для автентифікації користувача перед будь-яким доступом до API. Таким чином, ви можете повністю вимкнути можливість входу для певної групи користувачів на основі контексту запиту, наприклад: заборонити вхід із певного діапазону IP-адрес або у визначений час."
   },
   "policies.type.oidc.title": {
-    "other": "OpenId Connect Resources"
+    "other": "OpenID ресурси підключення"
   },
   "policies.type.rest.legend": {
-    "other": "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally not touch these unless you know exactly what you do."
+    "other": "Ці політики захищають REST API для кожного URI / методу окремо. Вони надають базовий доступ до певних API для публічного виявлення та обмежують доступ до більшості API, щоб гарантувати, що до них звертається лише веб-застосунок. Як правило, вам не слід змінювати ці налаштування, якщо ви точно не розумієте, що робите."
   },
   "policies.type.rest.title": {
-    "other": "REST Resources"
+    "other": "Ресурси REST"
   },
   "react.1": {
     "other": "батьківська тека"
   },
   "react.10": {
-    "other": "Inherit Permissions"
+    "other": "Успадковувати дозволи"
   },
   "react.11": {
-    "other": "Empty Permissions"
+    "other": "Дозволи не призначені"
   },
   "react.12": {
-    "other": "Clear Permissions"
+    "other": "Очистити дозволи"
   },
   "react.13": {
-    "other": "Show full permissions"
+    "other": "Показати всі дозволи"
   },
   "react.14": {
-    "other": "Show resulting tree"
+    "other": "Відобразити дерево результатів"
   },
   "react.2": {
     "other": "групові дії"
   },
   "react.3": {
-    "other": "Search Results for '%s'"
+    "other": "Результати пошуку для '%s'"
   },
   "react.4": {
-    "other": "Close Results"
+    "other": "Закрити результати"
   },
   "react.5": {
-    "other": "deny"
+    "other": "заборонити"
   },
   "react.5a": {
-    "other": "read"
+    "other": "читання"
   },
   "react.5b": {
-    "other": "write"
+    "other": "запис"
   },
   "react.5c": {
-    "other": "access"
+    "other": "доступ"
   },
   "react.6": {
-    "other": "children"
+    "other": "діти"
   },
   "react.7": {
-    "other": "Create a rule"
+    "other": "Створити правило"
   },
   "react.8": {
-    "other": "You are about to manage permissions at the lower level. This folder will be read\n                        only by default, and you will manage permissions selectively on its children. Choose\n                        whether to copy the current permissions to its children, or to clear their permissions, which would make\n                        them inaccessible by default."
+    "other": "Ви збираєтеся керувати дозволами на нижньому рівні. Ця тека за замовчуванням буде доступна лише для\n                        читання, а ви зможете вибірково керувати дозволами для її вкладених об'єктів. Виберіть:\n                        скопіювати поточні дозволи на вкладені об'єкти чи очистити їхні дозволи, що зробить їх\n                        недоступними за замовчуванням."
   },
   "react.9": {
     "other": "You are about to disable the permissions management at the sub-level: all\n                        children will automatically inherit this folder permissions, and you current settings\n                        for these children will be lost. Are you sure to confirm ?"
@@ -1269,7 +1269,7 @@
     "other": "User will be created in group %s"
   },
   "user.21": {
-    "other": "User login"
+    "other": "Логін користувача"
   },
   "user.22": {
     "other": "User password"
@@ -1407,7 +1407,7 @@
     "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
   },
   "virtual.legend.2": {
-    "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
+    "other": "Використовуйте Ctrl+Space у редакторі, щоб отримати підказку щодо можливих значень. Наразі підтримуються такі значення: User.Name (динамічно перетворюється на логін поточного користувача, що увійшов у систему) та DataSources (для динамічного вибору джерела даних)."
   },
   "virtual.title": {
     "other": "Template Paths"
@@ -1815,7 +1815,7 @@
     "other": "Stopped Only"
   },
   "services.peerfilter.title": {
-    "other": "Select Node"
+    "other": "Виберіть вузол"
   },
   "services.toggle.details": {
     "other": "Show Details"
@@ -1839,7 +1839,7 @@
     "other": "Tag"
   },
   "services.column.peers": {
-    "other": "Peers"
+    "other": "Вузли"
   },
   "services.tag.gateway.title": {
     "other": "Gateways"
@@ -1869,7 +1869,7 @@
     "other": "Scheduler"
   },
   "services.tag.scheduler.description": {
-    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
+    "other": "Сервіси для керування фоновими завданнями. Сервер завдань може бути розподілений між різними вузлами."
   },
   "services.tag.broker.title": {
     "other": "Broker"
@@ -1944,10 +1944,10 @@
     "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
-    "other": "Find out more"
+    "other": "Дізнатися більше"
   },
   "scheduler.cellsflows.dialog.text": {
-    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
+    "other": "Від створення власних робочих процесів до планування завдань чи інтеграції зі сторонніми інструментами — наші компоненти, що налаштовуються, допомагають вам реагувати на події та автоматично вживати необхідних заходів."
   },
   "scheduler.job.label": {
     "other": "Label"
@@ -1986,7 +1986,7 @@
     "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
   },
   "scheduler.trigger.type.users": {
-    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+    "other": "Події користувачів: спрацьовують під час додавання або видалення користувача, а також коли користувачі входять у систему та виходять із неї. Можуть використовуватися для запуску процесів перевірки або призначення прав доступу."
   },
   "scheduler.trigger.type.roles": {
     "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
@@ -2070,13 +2070,13 @@
     "other": "User Bind"
   },
   "scheduler.trigger.bind.user.description": {
-    "other": "A user has logged in."
+    "other": "Користувач увійшов у систему."
   },
   "scheduler.trigger.logout.user": {
-    "other": "User Logout"
+    "other": "Вихід користувача"
   },
   "scheduler.trigger.logout.user.description": {
-    "other": "A user has logged out."
+    "other": "Користувач вийшов із системи."
   },
   "scheduler.trigger.role.create": {
     "other": "Create Role"
@@ -2238,7 +2238,7 @@
     "other": "Loading activity..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Записів не знайдено"
   },
   "scheduler.schedule.monthly": {
     "other": "Every %1 of each month at %2"
@@ -2301,7 +2301,7 @@
     "other": "Period in minutes"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow Parameters"
+    "other": "Параметри потоку"
   },
   "scheduler.job-parameters.button": {
     "other": "Parameters"
