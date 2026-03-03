@@ -168,12 +168,12 @@
     "other": "Неможливо призупинити завантаження частини"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "перервано користувачем"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "ви не можете завантажити тут"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "квоту досягнуто, не можна завантажити більше"
   }
 }
