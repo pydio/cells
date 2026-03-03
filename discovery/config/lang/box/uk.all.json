@@ -402,7 +402,7 @@
     "other": "Місцевий"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Адреса учасника"
+    "other": "Адреса вузла"
   },
   "dataSourceSingleQuery.FlatStorage": {
     "other": "Склад з квартирою"
