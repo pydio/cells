@@ -1206,22 +1206,22 @@
     "other": "Ви збираєтеся керувати дозволами на нижньому рівні. Ця тека за замовчуванням буде доступна лише для\n                        читання, а ви зможете вибірково керувати дозволами для її вкладених об'єктів. Виберіть:\n                        скопіювати поточні дозволи на вкладені об'єкти чи очистити їхні дозволи, що зробить їх\n                        недоступними за замовчуванням."
   },
   "react.9": {
-    "other": "You are about to disable the permissions management at the sub-level: all\n                        children will automatically inherit this folder permissions, and you current settings\n                        for these children will be lost. Are you sure to confirm ?"
+    "other": "Ви збираєтеся вимкнути керування дозволами на підрівні: всі\n                        вкладені об'єкти автоматично успадкують дозволи цієї теки, а ваші поточні налаштування\n                        для цих об'єктів будуть втрачені. Ви впевнені, що хочете підтвердити дію?"
   },
   "scheduler.1": {
-    "other": "Scheduler is used to trigger tasks automatically on a regular basis. It requires the launch of a master command regularly: if you are using Pydio Booster, it should trigger this for you. Otherwise, use a CRON to launch master command every minute."
+    "other": "Планувальник використовується для автоматичного запуску завдань на регулярній основі. Він потребує регулярного виконання головної команди: якщо ви використовуєте Pydio Booster, він має запускати її автоматично. В іншому разі використовуйте CRON для запуску головної команди щохвилини."
   },
   "scheduler.2": {
     "other": "Command-line is not enabled in the %1, the scheduler will not be able to run the jobs."
   },
   "scheduler.3": {
-    "other": "global configurations"
+    "other": "глобальні конфігурації"
   },
   "user.1": {
-    "other": "+ User"
+    "other": "+ Користувач"
   },
   "user.10": {
-    "other": "Access to %i workspaces"
+    "other": "Доступ до %i робочих просторів"
   },
   "user.11": {
     "other": "%i roles"
