@@ -54,7 +54,11 @@ func TestNSCrud(t *testing.T) {
 		Convey("Create Meta Namespace", t, func() {
 			mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
 			So(er, ShouldBeNil)
-
+			//count initial namespaces
+			initial, er := mockDAO.List(ctx)
+			So(er, ShouldBeNil)
+			// Only bookmark namespace should be present
+			So(initial, ShouldHaveLength, 1)
 			// Insert a meta
 			err, _ := mockDAO.Upsert(ctx, &idm.UserMetaNamespace{
 				Namespace:      "namespace",
@@ -82,7 +86,8 @@ func TestNSCrud(t *testing.T) {
 			// List meta for the node
 			result2, er := mockDAO.List(ctx)
 			So(er, ShouldBeNil)
-			So(result2, ShouldHaveLength, 2)
+			// Only bookmark namespace should be present
+			So(result2, ShouldHaveLength, 1)
 		})
 	})
 
@@ -150,6 +155,11 @@ func TestNSNewFields(t *testing.T) {
 		Convey("Create Meta Namespace with new fields", t, func() {
 			mockDAO, err0 := manager.Resolve[meta.NamespaceDAO](ctx)
 			So(err0, ShouldBeNil)
+
+			//count initial namespaces
+			initial, er := mockDAO.List(ctx)
+			So(er, ShouldBeNil)
+
 			tv := json_schema.LegacyTypeToLabel([]byte("{\"type\":\"string\"}"))
 			jsb, err1 := json_schema.GetJsonSchema(tv, "")
 			So(err1, ShouldBeNil)
@@ -172,7 +182,7 @@ func TestNSNewFields(t *testing.T) {
 			// Assert
 			result, err2 := mockDAO.List(ctx)
 			So(err2, ShouldBeNil)
-
+			So(result, ShouldHaveLength, len(initial)+1) // 2 because of the new namespace and the Bookmarks namespace
 			ns, ok := result["namespace-newfields"]
 			So(ok, ShouldBeTrue)
 

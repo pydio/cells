@@ -201,7 +201,8 @@ func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (erro
 func (s *nsSqlImpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error) {
 	whereClause := (&MetaNamespace{}).From(ns)
 
-	tx := s.Session(ctx).Where(whereClause).Delete(&MetaNamespace{})
+	tx := s.Session(ctx).Where(&MetaNamespace{Namespace: whereClause.Namespace}).Delete(&MetaNamespace{})
+
 	if tx.Error != nil {
 		return nsTag(tx.Error)
 	}
