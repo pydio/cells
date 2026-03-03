@@ -25,7 +25,10 @@ import UserMetaPanelV2 from "./UserMetaPanelV2";
 const { InfoPanelCard } = Pydio.requireLib('workspaces')
 import { MetadataContextProvider } from './context/metadata.tsx';
 
-const InfoPanel = ({ pydio,
+// NOTE: this component is also used in:
+// frontend/assets/gui.ajax/res/js/ui/Workspaces/views/OverlayIcon.js#62
+const InfoPanel = ({
+    pydio,
     node,
     popoverPanel,
     popoverRequestClose,
@@ -37,7 +40,7 @@ const InfoPanel = ({ pydio,
     const [valid, setValid] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    const saveMeta = useCallback((metadata, { shouldClosePopover = false } = {}) => {
+    const saveMeta = useCallback((metadata) => {
         if (!metadata) {
             return Promise.resolve()
         }
@@ -53,8 +56,6 @@ const InfoPanel = ({ pydio,
             }).finally(() => {
                 setSaving(false);
 
-                if (!shouldClosePopover) return
-
                 if (popoverPanel && popoverRequestClose) {
                     popoverRequestClose();
                 }
@@ -62,7 +63,7 @@ const InfoPanel = ({ pydio,
     }, [node, setSaving, setUpdateData])
 
     const submitMetadata = useCallback(() => {
-        saveMeta(updateData, { shouldClosePopover: true })
+        saveMeta(updateData)
         setUpdateData(null)
     }, [saveMeta, updateData])
 
