@@ -42,7 +42,6 @@ interface MetadataActions {
     setSaving: (saving: boolean) => void;
     setFormState: (formState: Map<string, any>) => void;
     setShouldSave: (shouldSave: boolean) => void;
-    setFields: (fields: {[key: string]: any}) => void;
     setJsonSchema: (jsonSchema: JSONSchemaType<any> | null) => void;
 }
 
@@ -113,7 +112,6 @@ const defaultContext: MetadataContextType = {
     actions: {
         setSaving: noop,
         setFormState: noop,
-        setFields: noop,
         setNamespaceJsonSchema: noop,
         setShouldSave: noop,
         setJsonSchema: noop
@@ -152,16 +150,16 @@ export const MetadataContextProvider = ({
         setNamespaceJsonSchema: (namespaceJsonSchema) =>
             dispatch({ type: 'set_namespace_schema', namespaceJsonSchema }),
 
-        setSaving: (saving) => dispatch({ type: 'set_saving', saving }),
+        setSaving: (saving: boolean) => dispatch({ type: 'set_saving', saving }),
 
-        setFormState: (formState) => {
+        setFormState: (formState : Map<string, unknown>) => {
             let { isValid, errors } = validatorRef.current(
                 // NODE: To validate and show the currect message "field is required"
                 removeEmptyKeys(formState)
             );
             dispatch({ type: 'set_errors', errors })
 
-            dispatch({ type: 'set_form_state', formState })
+            dispatch({ type: 'set_form_state', formState: new Map(formState) })
 
             // NOTE: For parents that require holding state because we can't
             // wrap them with a provider.
@@ -169,8 +167,7 @@ export const MetadataContextProvider = ({
             if (onDataChanged) onDataChanged(formState, isValid)
         },
 
-        setShouldSave: (shouldSave) => dispatch({ type: 'set_should_save', shouldSave }),
-        setFields: (fields) => dispatch({ type: 'set_fields', fields }),
+        setShouldSave: (shouldSave: boolean) => dispatch({ type: 'set_should_save', shouldSave }),
         setJsonSchema: (jsonSchema) => dispatch({ type: 'set_json_schema', jsonSchema })
     }), []);
 
@@ -193,7 +190,7 @@ export const MetadataContextProvider = ({
 
         validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
 
-        const metadata = node.getMetadata()
+        const metadata = new Map(node.getMetadata())
         actions.setFormState(metadata)
     }, [state.jsonSchema, node]);
 
@@ -213,7 +210,7 @@ export const MetadataContextProvider = ({
     React.useEffect(() => {
         if(state.saving) return;
 
-        const metadata = node.getMetadata()
+        const metadata = new Map(node.getMetadata())
         actions.setFormState(metadata)
     }, [node.getPath(), state.saving]);
 
