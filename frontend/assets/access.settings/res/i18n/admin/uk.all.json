@@ -927,124 +927,124 @@
     "other": "Розмір в байтах"
   },
   "metadata.type.integer.format.percentage": {
-    "other": "Percentage"
+    "other": "Відсоток"
   },
   "metadata.type.integer.format.progress": {
-    "other": "Progress"
+    "other": "Прогрес"
   },
   "metadata.toggle.list-visibility": {
-    "other": "Show value in files list"
+    "other": "Показувати значення у списку файлів"
   },
   "metadata.toggle.prompt": {
-    "other": "Prompt Metadata tagging on Upload"
+    "other": "Запитувати тегування метаданих при завантаженні"
   },
   "metadata.field.validation": {
-    "other": "Field Validation"
+    "other": "Перевірка полів"
   },
   "metadata.editor.selection.key_exists": {
-    "other": "This key already exists"
+    "other": "Цей ключ вже існує"
   },
   "metadata.toggle.required": {
-    "other": "Required"
+    "other": "Обов'язково"
   },
   "metadata.toggle.defaults": {
-    "other": "Enforce Defaults"
+    "other": "Застосувати типові"
   },
   "metadata.field.mandatory": {
-    "other": "Mandatory"
+    "other": "Вимагається"
   },
   "perfs.booster.description": {
-    "other": "Checks that Pydio Booster is started and enables WebSocket communication"
+    "other": "Перевіряє, чи запущено Pydio Booster, та вмикає спілкування через WebSocket"
   },
   "perfs.booster.error": {
-    "other": "Pydio Booster Error, see dedicated panel"
+    "other": "Помилка Pydio Booster — деталі в спеціальній панелі"
   },
   "perfs.booster.help": {
-    "other": "Pydio Booster provides an easy-to-deploy additional tool to add WebSocket support and Upload/Download accelators in Pydio."
+    "other": "Pydio Booster забезпечує простий у розгортанні додатковий інструмент для додавання підтримки WebSocket та прискорювачів завантаження/вивантаження в Pydio."
   },
   "perfs.booster.title": {
     "other": "Pydio Booster"
   },
   "perfs.cache.description": {
-    "other": "Checks that a Pydio is configured to use a cache layer"
+    "other": "Перевіряє, чи налаштовано Pydio на використання шару кешування"
   },
   "perfs.cache.error": {
-    "other": "It does not seem that you have activated the cache service."
+    "other": "Не схоже, що ви активували сервіс кешування."
   },
   "perfs.cache.help": {
-    "other": "Pydio can connect to an external cache server like Redis or Memcache, or use in-memory cache to greatly improve file browsing performances."
+    "other": "Pydio може підключатися до зовнішнього сервера кешу, наприклад Redis або Memcached, або використовувати кеш у пам’яті, щоб значно покращити продуктивність перегляду файлів."
   },
   "perfs.cache.title": {
-    "other": "Pydio Cache"
+    "other": "Кеш Pydio"
   },
   "perfs.cli.description": {
-    "other": "Defer time-consuming tasks to command line."
+    "other": "Відкласти трудомісткі завдання на командний рядок."
   },
   "perfs.cli.error": {
-    "other": "Warning, command line is not enabled!"
+    "other": "Попередження, командний рядок не ввімкнено!"
   },
   "perfs.cli.help": {
-    "other": "Enable the command line in core parameters. This will greatly improve end-user performances, as time-consuming tasks are delegated to other processes."
+    "other": "Увімкніть командний рядок у основних параметрах. Це значно покращить продуктивність для кінцевих користувачів, оскільки трудомісткі завдання будуть делеговані іншим процесам."
   },
   "perfs.cli.title": {
-    "other": "Command-line PHP"
+    "other": "Командний рядок PHP"
   },
   "perfs.debug.description": {
-    "other": "Checks if debug modes are disabled on the server"
+    "other": "Перевіряє, чи вимкнено режими налагодження на сервері"
   },
   "perfs.debug.error": {
-    "other": "Warning, one of PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG or PYDIO_SKIP_CACHE is set to True!"
+    "other": "Попередження: одна зі змінних PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG або PYDIO_SKIP_CACHE встановлена у Ввімкнено!"
   },
   "perfs.debug.help": {
-    "other": "Make sure to disable debug modes on the server. This is done manually by editing the conf/booststrap_context.php (or /etc/pydio/bootstrap_context.php) file."
+    "other": "Вимкніть режими налагодження на сервері. Це робиться вручну шляхом редагування файлу conf/bootstrap_context.php (або /etc/pydio/bootstrap_context.php)."
   },
   "perfs.debug.title": {
-    "other": "Debug Modes"
+    "other": "Режим налагодження"
   },
   "perfs.desc": {
-    "other": "Checking system configurations for possible improvements."
+    "other": "Перевірка конфігурацій системи на можливі покращення."
   },
   "perfs.load.description": {
-    "other": "Detect high server load (Linux servers only)"
+    "other": "Виявлення високого навантаження на сервері (тільки для серверів Linux)"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be necessary."
+    "other": "Можливо, варто додати процесор або оперативну пам’ять на сервер."
   },
   "perfs.load.help": {
-    "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
+    "other": "Високе навантаження на сервер може вказувати на те, що вашому серверу не вистачає процесора або оперативної пам’яті з урахуванням використання Pydio."
   },
   "perfs.load.title": {
-    "other": "Server Load"
+    "other": "Навантаження на сервер"
   },
   "perfs.mailer.description": {
-    "other": "Checks that mailer is using the Queue feature"
+    "other": "Перевіряє, чи використовує поштовий сервіс функцію черги"
   },
   "perfs.mailer.error": {
-    "other": "Mailer is not configured to defer emails sending."
+    "other": "Поштовий сервіс не налаштовано на відкладене надсилання листів."
   },
   "perfs.mailer.help": {
-    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
+    "other": "Використання черги пошти дозволяє уникнути безпосереднього надсилання електронних листів для кожної дії чи запиту. Натомість листи зберігаються в окремій базі даних, а обробка черги відбувається незалежно."
   },
   "perfs.mailer.title": {
-    "other": "Mailer Queue"
+    "other": "Черга надсилання пошти"
   },
   "perfs.more": {
-    "other": "More info"
+    "other": "Детальніше"
   },
   "perfs.opcache.description": {
-    "other": "Checks that a PHP Opcode cache is active"
+    "other": "Перевіряє, чи активовано кеш PHP Opcode"
   },
   "perfs.opcache.error": {
-    "other": "Could not detect any php extension from APC, APCu, Opcache or XCache."
+    "other": "Не вдається визначити будь-яке розширення php з APC, APCu, Opcache або XCache."
   },
   "perfs.opcache.help": {
-    "other": "Pydio is a rich PHP framework that requires loading a lot of files in memory. Make sure to enable a PHP Opcache like APC/u, Opcache or XCache."
+    "other": "Pydio — це функціональний PHP-фреймворк, який потребує завантаження великої кількості файлів у пам'ять. Обов'язково увімкніть PHP Opcache, наприклад, APC/u, Opcache або XCache."
   },
   "perfs.opcache.title": {
-    "other": "Opcode Cache Extension"
+    "other": "Розширення кешування Opcode"
   },
   "perfs.score": {
-    "other": "Performance Score"
+    "other": "Оцінка продуктивності"
   },
   "perfs.tests": {
     "other": "Performances Tests"
