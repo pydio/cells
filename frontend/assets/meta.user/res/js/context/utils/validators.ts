@@ -42,7 +42,8 @@ export const formatSpecialCasesForValidation = (formState: Map<string, any>, jso
     return entries
 }
 
-type Validator = (formState: Map<string, any>) => { isValid: boolean, errors: any }
+export type Validator = (formState: Map<string, any>) => { isValid: boolean, errors: any }
+
 export const buildValidator = (
     validator: ValidateFunction<any> | null
 ): Validator => (formState: Map<string, any>) => {
