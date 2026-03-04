@@ -1047,34 +1047,34 @@
     "other": "Оцінка продуктивності"
   },
   "perfs.tests": {
-    "other": "Performances Tests"
+    "other": "Тести продуктивності"
   },
   "perfs.title": {
-    "other": "System Performances"
+    "other": "Продуктивність системи"
   },
   "perfs.widget": {
-    "other": "Add widget to dashboard"
+    "other": "Додати віджет до панелі керування"
   },
   "plugins.1": {
-    "other": "General Options"
+    "other": "Загальні параметри"
   },
   "plugins.2": {
-    "other": "Master Driver"
+    "other": "Головний драйвер"
   },
   "plugins.3": {
-    "other": "Secondary Driver"
+    "other": "Вторинний драйвер"
   },
   "plugins.4": {
-    "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
+    "other": "Плагіни редактора — це інструменти перегляду та редагування, пов'язані з будь-якими типами файлів у застосунку.\n                   Ці плагіни керуються окремо в графічному інтерфейсі (розширення) і можуть визначати типи MIME, які вони підтримують.\n                    Параметр порядку також дозволяє встановити пріоритет для дії «Відкрити за допомогою...»."
   },
   "plugins.5": {
-    "other": "Save Changes"
+    "other": "Зберегти зміни"
   },
   "plugins.6": {
-    "other": "Revert"
+    "other": "Скасувати"
   },
   "plugins.list.column.enabled": {
-    "other": "Enabled"
+    "other": "Увімкнено"
   },
   "plugins.list.column.label": {
     "other": "Мітка"
@@ -1374,157 +1374,157 @@
     "other": "Keep %1 versions after %2"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versions"
+    "other": "Максимум %s версій"
   },
   "versions.period.remove-all": {
-    "other": "Remove all"
+    "other": "Видалити все"
   },
   "versions.period.remove-all-after": {
-    "other": "Remove all after %s"
+    "other": "Видалити всі після %s"
   },
   "versions.period.retentions-n": {
-    "other": "%s retention periods"
+    "other": "%s періодів зберігання"
   },
   "virtual.create": {
-    "other": "+ Template Path"
+    "other": "+ Шляхи шаблонів"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "Створити"
   },
   "virtual.label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "virtual.col.id": {
-    "other": "Template ID"
+    "other": "ID шаблону"
   },
   "virtual.col.code": {
-    "other": "Template Code"
+    "other": "Код шаблону"
   },
   "virtual.label.new": {
-    "other": "Label for template"
+    "other": "Мітка шаблону"
   },
   "virtual.legend.1": {
-    "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
+    "other": "Шляхи шаблонів обчислюються динамічно залежно від контексту. Їх можна використовувати як корінь робочих областей замість фіксованого шляху до джерела даних. За замовчуванням вони використовуються для створення робочого простору «Особисті файли», який вказує на окрему теку для кожного користувача, а також для обчислення розташування тек Cells користувачів."
   },
   "virtual.legend.2": {
     "other": "Використовуйте Ctrl+Space у редакторі, щоб отримати підказку щодо можливих значень. Наразі підтримуються такі значення: User.Name (динамічно перетворюється на логін поточного користувача, що увійшов у систему) та DataSources (для динамічного вибору джерела даних)."
   },
   "virtual.title": {
-    "other": "Template Paths"
+    "other": "Шляхи шаблонів"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "Зберегти шаблон"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "Видалити шаблон"
   },
   "virtual.delete.confirm": {
-    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+    "other": "Ви впевнені, що бажаєте видалити цей шлях шаблону? Ця операція є незворотною!"
   },
   "virtual.code": {
-    "other": "Template code"
+    "other": "Код шаблону"
   },
   "virtual.code.display": {
-    "other": "Display code"
+    "other": "Показати код"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Редагувати код"
   },
   "virtual.card.title": {
-    "other": "Dynamically computed path"
+    "other": "Динамічно обчислюваний шлях"
   },
   "virtual.card.cleanOnDelete": {
-    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
+    "other": "Після видалення користувача перейменувати дані на {deleted-NAME-UUID}."
   },
   "virtual.card.cleanOnDelete-legend-off": {
-    "other": "This option should not be used if the template path is not creating a folder for each user (using User.Name)."
+    "other": "Цю опцію не слід використовувати, якщо шлях шаблону не створює окрему теку для кожного користувача (за допомогою User.Name)."
   },
   "virtual.card.cleanOnDelete-legend-on": {
-    "other": "This option may be recommended as the template path seems to create a folder for each user (using User.Name)."
+    "other": "Цю опцію може бути рекомендовано, оскільки шлях шаблону, схоже, створює окрему теку для кожного користувача (за допомогою User.Name)."
   },
   "ws.1": {
-    "other": "Manage DataSources"
+    "other": "Керування джерелами даних"
   },
   "ws.10": {
-    "other": "Select a DataSource"
+    "other": "Виберіть джерело даних"
   },
   "ws.11": {
-    "other": "Workspace based on ..."
+    "other": "Робочий простір заснований на ..."
   },
   "ws.12": {
-    "other": "Template %s"
+    "other": "Шаблон %s"
   },
   "ws.13": {
-    "other": "Template Options"
+    "other": "Параметри шаблону"
   },
   "ws.14": {
-    "other": "Set Generic Options"
+    "other": "Встановити загальні параметри"
   },
   "ws.15": {
-    "other": "Workspace Options"
+    "other": "Параметри робочого простору"
   },
   "ws.16": {
-    "other": "Choose Storage Driver"
+    "other": "Оберіть накопичувач"
   },
   "ws.17": {
-    "other": "Select Storage Type"
+    "other": "Оберіть тип сховища"
   },
   "ws.18": {
-    "other": "Loading drivers"
+    "other": "Завантаження драйвера"
   },
   "ws.19": {
-    "other": "Save to add features"
+    "other": "Зберегти для додавання функцій"
   },
   "ws.2": {
-    "other": "Close DataSources"
+    "other": "Закрити джерела даних"
   },
   "ws.20": {
-    "other": "Create"
+    "other": "Створити"
   },
   "ws.21": {
-    "other": "Template General Options"
+    "other": "Основні параметри шаблону"
   },
   "ws.22": {
-    "other": "Workspace General Options"
+    "other": "Основні параметри робочого простору"
   },
   "ws.23": {
-    "other": "Delete workspace"
+    "other": "Видалити робочий простір"
   },
   "ws.24": {
-    "other": "Children Workspaces"
+    "other": "Дочірні робочі простори"
   },
   "ws.25": {
-    "other": "Shares"
+    "other": "Поширення"
   },
   "ws.26": {
-    "other": "Folders Permissions"
+    "other": "Дозволи для тек"
   },
   "ws.27": {
-    "other": "Additional Features"
+    "other": "Додаткові функції"
   },
   "ws.28": {
-    "other": "Summary"
+    "other": "Підсумок"
   },
   "ws.29": {
-    "other": "Parameters"
+    "other": "Параметри"
   },
   "ws.3": {
-    "other": "+ workspace"
+    "other": "+ робочий простір"
   },
   "ws.filter.workspaces": {
-    "other": "Filter workspaces..."
+    "other": "Фільтр робочих просторів..."
   },
   "ws.30": {
-    "other": "General Options"
+    "other": "Загальні налаштування"
   },
   "ws.31": {
-    "other": "Remove Feature"
+    "other": "Видалити функцію"
   },
   "ws.32": {
-    "other": "Add a feature..."
+    "other": "Додати функцію..."
   },
   "ws.33": {
-    "other": "Recent Activity"
+    "other": "Остання активність"
   },
   "ws.34": {
     "other": "Last events on this workspace"
@@ -1680,31 +1680,31 @@
     "other": "No workspaces defined"
   },
   "ws.board.summary": {
-    "other": "Workspace Roots"
+    "other": "Головний робочий простір"
   },
   "ws.board.syncable": {
-    "other": "Sync"
+    "other": "Синхронізація"
   },
   "ws.complete.datasources": {
-    "other": "DataSources"
+    "other": "Джерела даних"
   },
   "ws.complete.folders": {
-    "other": "Internal Folders"
+    "other": "Внутрішні теки"
   },
   "ws.complete.label": {
-    "other": "Select a DataSource or a Template Path"
+    "other": "Виберіть джерело даних або шлях шаблону"
   },
   "ws.complete.additional": {
-    "other": "Additional Root"
+    "other": "Додатковий кореневий каталог"
   },
   "ws.complete.resolves": {
-    "other": "Resolves to"
+    "other": "Вказує на"
   },
   "ws.complete.templates": {
-    "other": "Preset Template Paths"
+    "other": "Готові шаблони шляхів"
   },
   "ws.dashboard": {
-    "other": "Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."
+    "other": "Робочі простори визначають основну точку доступу до ваших даних для користувачів. Переконайтеся, що ви визначили принаймні одне джерело даних, щоб мати можливість створити робочий простір, який вказуватиме на шлях у цьому джерелі даних."
   },
   "ws.editor.data.legend": {
     "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
