@@ -1707,130 +1707,130 @@
     "other": "Робочі простори визначають основну точку доступу до ваших даних для користувачів. Переконайтеся, що ви визначили принаймні одне джерело даних, щоб мати можливість створити робочий простір, який вказуватиме на шлях у цьому джерелі даних."
   },
   "ws.editor.data.legend": {
-    "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
+    "other": "Робочий простір відкриває для користувачів один або кілька «коренів»: виберіть один або кілька шляхів із будь-якого джерела даних або шлях шаблону, який буде автоматично визначено під час виконання."
   },
   "ws.editor.data.title": {
-    "other": "Data Access"
+    "other": "Доступ до даних"
   },
   "ws.editor.default_rights": {
-    "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
+    "other": "Встановіть дозволи за замовчуванням для цього робочого простору (застосовуються до всіх внутрішніх користувачів застосунку). Ви можете перевизначити ці дозволи для окремих користувачів, ролей або груп у розділі «Користувачі»."
   },
   "ws.editor.default_rights.hint": {
-    "other": "Default Rights"
+    "other": "Права за замовчуванням"
   },
   "ws.editor.default_rights.none": {
-    "other": "None"
+    "other": "Немає"
   },
   "ws.editor.default_rights.read": {
-    "other": "Read only"
+    "other": "Лише читання"
   },
   "ws.editor.default_rights.readwrite": {
-    "other": "Read and Write"
+    "other": "Читання і запис"
   },
   "ws.editor.default_rights.write": {
-    "other": "Write only"
+    "other": "Лише запис"
   },
   "ws.editor.description": {
-    "other": "Additional description (optional)"
+    "other": "Додатковий опис (необов'язково)"
   },
   "ws.editor.help.1": {
-    "other": "Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources."
+    "other": "Робочі простори надають користувачам доступ до ваших даних. Вони відкривають одну або кілька тек, вибраних у ваших джерелах даних."
   },
   "ws.editor.help.2": {
-    "other": "It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis."
+    "other": "Важливо правильно організувати те, як дані будуть представлені вашим користувачам. Ви можете створювати робочі простори для різних підрозділів вашої організації (фінанси, маркетинг, технічні дані тощо), для окремих проєктів і так далі. Після цього ви зможете призначати права доступу до робочих просторів для окремих користувачів, ролей або груп."
   },
   "ws.editor.help.delete": {
-    "other": "Warning, dangerous operation! This is not reversible."
+    "other": "Увага, небезпечна операція! Це незворотно."
   },
   "ws.editor.label.legend": {
-    "other": "Human-friendly label for this workspace"
+    "other": "Зрозуміла назва для цього робочого простору"
   },
   "ws.editor.options.legend": {
-    "other": "Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data."
+    "other": "Назва та опис відображаються користувачам. Виберіть зрозумілу назву, щоб допомогти користувачам краще організувати дані."
   },
   "ws.editor.other": {
-    "other": "Other Properties"
+    "other": "Інші властивості"
   },
   "ws.editor.other.layout": {
-    "other": "Workspace Layout"
+    "other": "Макет робочого простору"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "За замовчанням"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Easy Transfer Layout (enterprise only)"
+    "other": "Макет для зручного перенесення (тільки для Enterprise)"
   },
   "ws.editor.other.skiprecycle": {
-    "other": "Skip Recycle Bin"
+    "other": "Видаляти без смітника"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
+    "other": "Вимкнути смітник для цього робочого простору: всі файли будуть видалятися остаточно. Це не стосується комірок, створених у цьому робочому просторі — файли з них завжди переміщуватимуться до смітника робочого простору, щоб уникнути людських помилок."
   },
   "ws.editor.other.sync": {
-    "other": "Allow desktop synchronisation"
+    "other": "Дозволити синхронізацію стільниці"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "Синхронізація з комп'ютером дозволяє користувачам синхронізувати свої файли для офлайн-доступу. Увага: наразі ця функція підтримується лише для особистих файлів, оскільки спільні робочі простори можуть спричинити конфлікти, якщо багато користувачів синхронізують документи в одній теці. Для особистих файлів ви також можете ввімкнути або вимкнути цю функцію для кожної ролі окремо за допомогою політик безпеки."
   },
   "ws.editor.other.sync-personal": {
-    "other": "(personal workspaces only)"
+    "other": "(тільки для особистих робочих просторів)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "Увага!"
   },
   "ws.editor.sync.warning.validate": {
-    "other": "I understand"
+    "other": "Я розумію"
   },
   "ws.editor.sync.warning.enable": {
-    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+    "other": "Увімкнення синхронізації у спільних робочих просторах може призвести до неочікуваних результатів, якщо багато користувачів одночасно синхронізують та редагують файли. Будь ласка, зверніть увагу, що НАРАЗІ ЦЯ ФУНКЦІЯ НЕ ПІДТРИМУЄТЬСЯ нашою службою професійної підтримки. Використовуйте цю функцію на свій власний ризик!"
   },
   "ws.editor.sync.warning.disable": {
-    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+    "other": "Якщо користувачі підключені до цього робочого простору, їхні завдання синхронізації більше не працюватимуть! Ви впевнені, що хочете змінити це?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+    "other": "Квота використання диска (залиште 0 для зняття обмежень). Ця квота розраховується для всіх файлів цього робочого простору (або для особистого вмісту користувача у таких просторах, як «Особисті файли»)."
   },
   "ws.editor.other.quota.noquota": {
-    "other": "No Quota set"
+    "other": "Квоту не встановлено"
   },
   "ws.editor.path.folder": {
-    "other": "Folder Path"
+    "other": "Шлях до теки"
   },
   "ws.editor.path.template": {
-    "other": "Template Path"
+    "other": "Шлях до шаблону"
   },
   "ws.editor.slug.legend": {
-    "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+    "other": "Технічна назва, що використовується, наприклад, в URL-адресах; обчислюється автоматично, але ви можете змінити її вручну."
   },
   "services.text-filter.hint": {
-    "other": "Filter..."
+    "other": "Фільтр..."
   },
   "services.filter.nofilter": {
-    "other": "All Services"
+    "other": "Усі сервіси"
   },
   "services.filter.started": {
-    "other": "Running Only"
+    "other": "Тільки активні"
   },
   "services.filter.stopped": {
-    "other": "Stopped Only"
+    "other": "Тільки зупинені"
   },
   "services.peerfilter.title": {
     "other": "Виберіть вузол"
   },
   "services.toggle.details": {
-    "other": "Show Details"
+    "other": "Показати подробиці"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "Завантаження статусу служб"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "Служба відсутня"
   },
   "services.column.name": {
-    "other": "Service Name"
+    "other": "Назва служби"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "Опис"
   },
   "services.column.version": {
     "other": "Version"
@@ -1998,76 +1998,76 @@
     "other": "Chat Messages Events"
   },
   "scheduler.trigger.type.chat-rooms": {
-    "other": "Chat Rooms Events"
+    "other": "Події чатів"
   },
   "scheduler.trigger.create.node": {
-    "other": "Create Node"
+    "other": "Створити вузол"
   },
   "scheduler.trigger.create.node.description": {
-    "other": "A new file was uploaded or a new folder was created."
+    "other": "Новий файл завантажений або створено нову теку."
   },
   "scheduler.trigger.read.node": {
-    "other": "Read Node"
+    "other": "Читати вузол"
   },
   "scheduler.trigger.read.node.description": {
-    "other": "A file was downloaded or a folder content was listed."
+    "other": "Файл завантажений або вміст теки був перелічений."
   },
   "scheduler.trigger.update.path": {
-    "other": "Update Path"
+    "other": "Оновити шлях"
   },
   "scheduler.trigger.update.path.description": {
-    "other": "A file or folder was moved or renamed."
+    "other": "Файл або тека були переміщені або перейменовані."
   },
   "scheduler.trigger.update.content": {
-    "other": "Update Content"
+    "other": "Оновити вміст"
   },
   "scheduler.trigger.update.content.description": {
-    "other": "A file content was updated by edition or upload overwriting."
+    "other": "Вміст файлу було оновлено шляхом редагування або перезапису при завантаженні."
   },
   "scheduler.trigger.update.metadata": {
-    "other": "Update Metadata"
+    "other": "Оновлення метаданих"
   },
   "scheduler.trigger.update.metadata.description": {
-    "other": "Internal metadata were modified on file or folder."
+    "other": "Внутрішні метадані були змінені у файлі чи теці."
   },
   "scheduler.trigger.update.user-metadata": {
-    "other": "Update User Metadata"
+    "other": "Оновити метадані користувача"
   },
   "scheduler.trigger.update.user-metadata.description": {
-    "other": "User-defined metadata were modified (event contains updated metadata)."
+    "other": "Метадані, визначені користувачем, були змінені (подія містить оновлені метадані)."
   },
   "scheduler.trigger.delete.node": {
-    "other": "Delete Node"
+    "other": "Видалити вузол"
   },
   "scheduler.trigger.delete.node.description": {
-    "other": "A file or a folder was definitively deleted."
+    "other": "Файл або теку було видалено остаточно."
   },
   "scheduler.trigger.create.user": {
-    "other": "Create User"
+    "other": "Створити користувача"
   },
   "scheduler.trigger.create.user.description": {
-    "other": "A user or a group was created."
+    "other": "Користувача або групу було створено."
   },
   "scheduler.trigger.read.user": {
-    "other": "Read User"
+    "other": "Перегляд користувача"
   },
   "scheduler.trigger.read.user.description": {
-    "other": "A user or a group was accessed or listed."
+    "other": "Було здійснено доступ до користувача чи групи або отримано їх список."
   },
   "scheduler.trigger.update.user": {
-    "other": "Update User"
+    "other": "Оновити користувача"
   },
   "scheduler.trigger.update.user.description": {
-    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+    "other": "Дані користувача або групи було оновлено. Зазвичай це відбувається, коли користувач змінює налаштування або адміністратор призначає роль."
   },
   "scheduler.trigger.delete.user": {
-    "other": "Delete User"
+    "other": "Видалити користувача"
   },
   "scheduler.trigger.delete.user.description": {
-    "other": "A user or a group was deleted."
+    "other": "Користувача або групу було видалено."
   },
   "scheduler.trigger.bind.user": {
-    "other": "User Bind"
+    "other": "Прив'язати користувача"
   },
   "scheduler.trigger.bind.user.description": {
     "other": "Користувач увійшов у систему."
@@ -2079,82 +2079,82 @@
     "other": "Користувач вийшов із системи."
   },
   "scheduler.trigger.role.create": {
-    "other": "Create Role"
+    "other": "Створити роль"
   },
   "scheduler.trigger.role.create.description": {
-    "other": "A new role was created, by admin or by users."
+    "other": "Була створена нова роль, адміністратором або користувачами."
   },
   "scheduler.trigger.role.update": {
-    "other": "Update Role"
+    "other": "Оновити роль"
   },
   "scheduler.trigger.role.update.description": {
-    "other": "A role has been updated."
+    "other": "Роль була оновлена."
   },
   "scheduler.trigger.role.delete": {
-    "other": "Delete Role"
+    "other": "Видалити роль"
   },
   "scheduler.trigger.role.delete.description": {
-    "other": "A role has been deleted."
+    "other": "Роль було видалено."
   },
   "scheduler.trigger.workspace.create": {
-    "other": "Create Workspace"
+    "other": "Створити робочий простір"
   },
   "scheduler.trigger.workspace.create.description": {
-    "other": "A new Workspace or Cell was created."
+    "other": "Створено новий робочий простір або комірку."
   },
   "scheduler.trigger.workspace.update": {
-    "other": "Update Workspace"
+    "other": "Оновити робочий простір"
   },
   "scheduler.trigger.workspace.update.description": {
-    "other": "A Workspace or a Cell has been updated."
+    "other": "Робочий простір або комірку було оновлено."
   },
   "scheduler.trigger.workspace.delete": {
-    "other": "Delete Workspace"
+    "other": "Видалити робочий простір"
   },
   "scheduler.trigger.workspace.delete.description": {
-    "other": "A Workspace or a Cell has been deleted."
+    "other": "Робочий простір або комірку було видалено."
   },
   "scheduler.trigger.acl.create": {
-    "other": "Create/Update ACL"
+    "other": "Створити/оновити ACL"
   },
   "scheduler.trigger.acl.create.description": {
-    "other": "An Access Control was opened."
+    "other": "Було відкрито правило контролю доступу."
   },
   "scheduler.trigger.acl.delete": {
-    "other": "Delete ACL"
+    "other": "Видалити ACL"
   },
   "scheduler.trigger.acl.delete.description": {
-    "other": "An Access Control was removed."
+    "other": "Правило контролю доступу було видалено."
   },
   "scheduler.trigger.chat-message.put": {
-    "other": "New Chat Message"
+    "other": "Нове повідомлення в чаті"
   },
   "scheduler.trigger.chat-message.put.description": {
-    "other": "A Message was posted in a ChatRoom."
+    "other": "У чат-кімнаті було опубліковано повідомлення."
   },
   "scheduler.trigger.chat-message.delete": {
-    "other": "Chat Message Deleted"
+    "other": "Повідомлення в чаті видалено"
   },
   "scheduler.trigger.chat-message.delete.description": {
-    "other": "A Message was deleted from a ChatRoom."
+    "other": "Повідомлення було видалено з чат-кімнати."
   },
   "scheduler.trigger.chat-room.put": {
-    "other": "New Chat Room"
+    "other": "Нова чат-кімната"
   },
   "scheduler.trigger.chat-room.put.description": {
-    "other": "A new ChatRoom was created."
+    "other": "Було створено нову чат-кімнату."
   },
   "scheduler.trigger.chat-room.delete": {
-    "other": "Delete Chat Room"
+    "other": "Видалити чат-кімнату"
   },
   "scheduler.trigger.chat-room.delete.description": {
-    "other": "A Chatroom has been deleted."
+    "other": "Чат-кімнату було видалено."
   },
   "scheduler.trigger.events": {
-    "other": "Events"
+    "other": "Події"
   },
   "scheduler.trigger.manual": {
-    "other": "Manual Trigger"
+    "other": "Запуск вручну"
   },
   "scheduler.trigger.periodic": {
     "other": "Periodic Schedule"
@@ -2313,69 +2313,69 @@
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
   },
   "mailer.test.title": {
-    "other": "Send a test email"
+    "other": "Надіслати тестовий лист"
   },
   "mailer.test.legend": {
-    "other": "Make sure to save your configuration changes before sending a test email."
+    "other": "Переконайтеся, що ви зберегли зміни в конфігурації перед надсиланням тестового листа."
   },
   "mailer.test.loading": {
-    "other": "Loading Mailer Library..."
+    "other": "Завантаження бібліотеки пошти..."
   },
   "sites.title": {
-    "other": "Sites"
+    "other": "Сайти"
   },
   "sites.externals": {
-    "other": "External URLs"
+    "other": "Зовнішні URL-адреси"
   },
   "sites.details": {
-    "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
+    "other": "<div>\nСайти визначають, як Cells здійснює прив'язку до мережевих інтерфейсів та як система представлена у зовнішньому світі.\nВикористовуйте команду «<i>./cells configure sites</i>» для керування вашими сайтами через командний рядок.\n<br/><br/>\nКожен сайт має наступні параметри:\n\n<ol>\n<li>1. <u>Прив'язка(и)</u>: одна або кілька комбінацій [IP/хост:порт] для підключення внутрішнього вебсервера.</li>\n<li>2. <u>Налаштування TLS</u>: конфігурація TLS для підтримки протоколу HTTPS.</li>\n<li>3. <u>Зовнішня URL-адреса</u>: адреса, яку ви надаєте кінцевим користувачам. Вона може відрізнятися від адреси прив'язки, зазвичай якщо застосунок знаходиться за реверс-проксі або всередині контейнера з перенаправленням портів.</li>\n<li>4. <u>Режим технічного обслуговування</u> [Увімк.|Вимк.]: відображення сторінки технічних робіт на цьому терміналі, навіть якщо Cells продовжує працювати.</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>Additional notes</i>\n<ol>\n<li>1. When there are no sites defined, Cells use a default configuration (https://0.0.0.0:8080 with self-signed).</li>\n<li>2. Sites can be overridden at runtime by using ‘--bind’ flag or ‘CELLS_BIND’ environment variable.\n</li>\n</ol></div>"
+    "other": "<div><i>Додаткові примітки</i>\n<ol>\n<li>1. Якщо жодного сайту не визначено, Cells використовує конфігурацію за замовчуванням (https://0.0.0.0:8080 із самопідписаним сертифікатом).</li>\n<li>2. Параметри сайтів можуть бути перевизначені під час запуску за допомогою прапорця «--bind» або змінної середовища «CELLS_BIND».\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
-    "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
+    "other": "<div>\nCells використовує визначену публічну URL-адресу для роботи деяких функцій. Система намагатиметься обрати найбільш підхідне значення на основі вашої конфігурації. \n<br/><br/>Наприклад:\n<ul>\n<li>&bull; Якщо визначено лише один сайт і він має зовнішню URL-адресу, то, швидше за все, саме вона є правильною.</li>\n<li>&bull; Коли визначено кілька сайтів, ви можете забажати примусово встановити єдину URL-адресу, яка буде використовуватися для всіх зовнішніх комунікацій.</li>\n<li>&bull; Якщо зовнішню URL-адресу не виявлено, система повернеться до внутрішньої адреси прив'язки. У такому разі ви, ймовірно, не захочете надсилати приватну IP-адресу (або 0.0.0.0:порт…) у зовнішній світ.</li>\n</ul>\n\n<br/>\nПоля нижче відображають виявлені значення. Виберіть значення для редагування або введіть власне та натисніть Enter, щоб зберегти.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "URL used to build links in emails"
+    "other": "URL-адреса для створення посилань у листах"
   },
   "sites.links.url": {
-    "other": "URL used to build public links"
+    "other": "URL-адреса для створення публічних посилань"
   },
   "sites.no-defaults": {
-    "other": "No defaults set"
+    "other": "Значення за замовчуванням не встановлені"
   },
   "sites.enter-to-save": {
-    "other": "(hit enter to save)"
+    "other": "(натисніть Enter, щоб зберегти)"
   },
   "sites.detected.sites": {
-    "other": "Sites currently detected"
+    "other": "Поточні виявлені сайти"
   },
   "sites.configs.command": {
-    "other": "Use './cells config sites' command to edit sites."
+    "other": "Використовуйте команду «./cells configure sites» для редагування сайтів."
   },
   "sites.column.bind": {
-    "other": "Bind"
+    "other": "Прив'язка"
   },
   "sites.column.tls": {
     "other": "TLS"
   },
   "sites.column.external": {
-    "other": "Reverse Proxy"
+    "other": "Зворотний проксі"
   },
   "sites.configs.tls.letsencrypt": {
     "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Self Signed"
+    "other": "Самопідписаний"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificate"
+    "other": "Сертифікат"
   },
   "sites.configs.tls.notls": {
-    "other": "No TLS"
+    "other": "Без TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "No TLS behind proxy"
+    "other": "Без TLS (через проксі)"
   }
 }
