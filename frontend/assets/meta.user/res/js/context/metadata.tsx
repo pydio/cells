@@ -174,7 +174,7 @@ export const MetadataContextProvider = ({
     const onNodeReplaced = React.useCallback((newNode) => {
         if (!newNode) return;
 
-        actions.setFormState(newNode.getMetadata())
+        actions.setFormState(new Map(newNode.getMetadata()))
     }, [node])
 
     React.useEffect(() => {
@@ -184,15 +184,6 @@ export const MetadataContextProvider = ({
 
         return () => node.stopObserving(NODE_REPLACED_EVENT, onNodeReplaced)
     }, [node])
-
-    React.useEffect(() => {
-        if (!state.jsonSchema) return
-
-        validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
-
-        const metadata = new Map(node.getMetadata())
-        actions.setFormState(metadata)
-    }, [state.jsonSchema, node]);
 
     React.useEffect(() => {
         if (!node) return
@@ -206,12 +197,18 @@ export const MetadataContextProvider = ({
             });
     }, [node]);
 
+    // Form state initialization once receive
+    React.useEffect(() => {
+        if (!state.jsonSchema) return
+
+        validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
+        actions.setFormState(new Map(node.getMetadata()))
+    }, [state.jsonSchema, node]);
 
     React.useEffect(() => {
         if(state.saving) return;
 
-        const metadata = new Map(node.getMetadata())
-        actions.setFormState(metadata)
+        actions.setFormState(new Map(node.getMetadata()))
     }, [node.getPath(), state.saving]);
 
 
