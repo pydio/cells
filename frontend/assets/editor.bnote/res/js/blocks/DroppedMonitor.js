@@ -36,7 +36,7 @@ export const DroppedMonitor = muiThemeable()(({
     const [status, setStatus] = useState('');
     const [session, setSession] = useState(null);
     const [item, setItem] = useState(null);
-    console.log('BLOCK ID', blockId);
+    //console.log('BLOCK ID', blockId);
 
     // Keep the latest blockId available to async callbacks
     const blockIdRef = useRef(blockId);

@@ -87,7 +87,7 @@ export const HeaderBlock = ({ editor }) => {
                 className={'segment' + (last ? ' last' : '')}
                 onClick={(e) => {
                     e.stopPropagation();
-                    console.log(rebuiltCopy);
+                    //console.log(rebuiltCopy);
                     pydio.goTo(rebuiltCopy);
                 }}
             >
