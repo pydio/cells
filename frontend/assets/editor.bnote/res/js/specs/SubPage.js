@@ -18,28 +18,30 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {RiFileEditLine} from "react-icons/ri";
-import {Callbacks} from "../Callbacks";
-import {NodeRefSpecType} from "./NodeRef";
-import uuid4 from "uuid4";
-
+import { RiFileEditLine } from 'react-icons/ri';
+import { Callbacks } from '../Callbacks';
+import { NodeRefSpecType } from './NodeRef';
+import uuid4 from 'uuid4';
+import { t } from '../messages';
 
 // Custom Slash Menu item to insert a block after the current one.
 export const insertSubPageItem = (editor) => ({
-    title: "Create Sub-Page",
+    title: t('node-spec.insert-page'),
     onItemClick: () => {
         Callbacks.mkPage((nodes) => {
-            if(!nodes){
+            if (!nodes) {
                 return;
             }
-            editor.insertInlineContent([{
-                type: NodeRefSpecType,
-                props: { nodeUuid: nodes[0].Uuid, inlineId: uuid4() }
-            }]);
-        })
+            editor.insertInlineContent([
+                {
+                    type: NodeRefSpecType,
+                    props: { nodeUuid: nodes[0].Uuid, inlineId: uuid4() },
+                },
+            ]);
+        });
     },
-    aliases: ["page", "pa"],
-    group: "Others",
+    aliases: ['page', 'pa'],
+    group: 'Others',
     icon: <RiFileEditLine size={18} />,
-    subtext: "Create a subpage inside this page",
+    subtext: t('node-spec.insert-page.subtext'),
 });
