@@ -38,6 +38,8 @@ import {
     NodeRefSpecType,
     ResultsListSpecType,
 } from '../specs/NodeRef';
+import { t } from '../messages';
+
 export const useSingleNodeDisplay = ({
     node,
     crtValue,
@@ -149,12 +151,12 @@ export const useSingleNodeDisplay = ({
 
         const inlineItem = {
             value: 'inline',
-            title: 'Inline',
+            title: t('display.inline'),
             icon: MdShortText,
         };
         const blockItem = {
             value: 'block',
-            title: !isFolder ? 'Preview' : 'Contents',
+            title: !isFolder ? t('display.preview') : t('display.contents'),
             icon: !isFolder ? MdPreview : MdList,
         };
         // Disabled for now
@@ -167,23 +169,27 @@ export const useSingleNodeDisplay = ({
                 const listDisplay = [
                     {
                         value: 'compact',
-                        title: 'Compact',
+                        title: t('display.compact'),
                         icon: MdOutlineViewCompact,
                     },
                     {
                         value: 'list',
-                        title: 'Details',
+                        title: t('display.list'),
                         icon: MdOutlineViewList,
                     },
                     {
                         value: 'detail',
-                        title: 'Table',
+                        title: t('display.table'),
                         icon: MdOutlineViewColumn,
                     },
-                    { value: 'grid', title: 'Grid', icon: MdGridView },
+                    {
+                        value: 'grid',
+                        title: t('display.grid'),
+                        icon: MdGridView,
+                    },
                     {
                         value: 'masonry-160',
-                        title: 'Waterfall',
+                        title: t('display.masonry'),
                         icon: MdOutlineViewQuilt,
                     },
                 ];
@@ -199,7 +205,7 @@ export const useSingleNodeDisplay = ({
     }, [node]);
 
     return {
-        title: 'Display',
+        title: t('actions.display'),
         values: displayMenuItems,
         onValueSelected: menuHandler,
         crtValue: crtValue,

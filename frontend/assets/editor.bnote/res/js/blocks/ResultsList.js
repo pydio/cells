@@ -18,72 +18,81 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback, useEffect, useState} from 'react'
-import Pydio from 'pydio'
+import React, { useCallback, useEffect, useState } from 'react';
+import Pydio from 'pydio';
 
-import './styles/ChildrenListStyles.less'
-import {FilesList} from './FilesList'
-import {ResultsListSpecType} from "../specs/NodeRef";
-import {MdOpenInBrowser} from "react-icons/md";
-const {withSearch} = Pydio.requireLib('hoc')
+import './styles/ChildrenListStyles.less';
+import { FilesList } from './FilesList';
+import { ResultsListSpecType } from '../specs/NodeRef';
+import { MdOpenInBrowser } from 'react-icons/md';
+const { withSearch } = Pydio.requireLib('hoc');
+import { t } from '../messages';
 
-export const ResultsList = withSearch(({editor, block, dataModel, searchTools}) => {
+export const ResultsList = withSearch(
+    ({ editor, block, dataModel, searchTools }) => {
+        const pydio = Pydio.getInstance();
 
-    const pydio = Pydio.getInstance()
+        const { searchValues, sortInfo = { field: '', desc: false } } =
+            block.props;
+        const [contextNode, setContextNode] = useState(null);
+        const { setValues, setSortField } = searchTools;
 
-    const {searchValues, sortInfo={field:'', desc:false}} = block.props
-    const [contextNode, setContextNode] = useState(null)
-    const {setValues, setSortField} = searchTools
+        useEffect(() => {
+            setContextNode(dataModel.getSearchNode());
+            setValues(searchValues);
+            setSortField(sortInfo.field, sortInfo.desc);
+        }, []);
 
-    useEffect(() => {
-        setContextNode(dataModel.getSearchNode())
-        setValues(searchValues)
-        setSortField(sortInfo.field, sortInfo.desc)
-    }, [])
+        useEffect(() => {
+            setValues(searchValues);
+        }, [searchValues]);
 
-
-    useEffect(() => {
-        setValues(searchValues)
-    }, [searchValues]);
-
-    const editSearchQuery = useCallback(()=> {
-        const event = new CustomEvent('pydioOpenSelector', {
-            detail: {
-                openValues: searchValues,
-                openSort: sortInfo,
-                onSelectSearch: (searchValues, sortField, sortDesc) => {
-                    editor.updateBlock(block, {
-                        type: ResultsListSpecType,
-                        props: {
-                            ...block.props,
-                            searchValues,
-                            sortInfo
-                        }
-                    })
+        const editSearchQuery = useCallback(() => {
+            const event = new CustomEvent('pydioOpenSelector', {
+                detail: {
+                    openValues: searchValues,
+                    openSort: sortInfo,
+                    onSelectSearch: (searchValues, sortField, sortDesc) => {
+                        editor.updateBlock(block, {
+                            type: ResultsListSpecType,
+                            props: {
+                                ...block.props,
+                                searchValues,
+                                sortInfo,
+                            },
+                        });
+                    },
+                    onSelectCancel: () => {},
                 },
-                onSelectCancel: () => {}
-            }
-        });
-        document.dispatchEvent(event);
+            });
+            document.dispatchEvent(event);
+        }, [searchValues, sortInfo, block]);
 
-    }, [searchValues, sortInfo, block])
-
-    return (
-        <FilesList
-            pydio={pydio}
-            dataModel={dataModel}
-            contextNode={contextNode}
-            nodePath={'search'}
-            resolvedNode={contextNode}
-            resolveError={null}
-            block={block}
-            isResultsList={true}
-            presetNodeActions={{
-                title:'Actions',
-                values:[{value:'edit', title:'Edit Query', icon:MdOpenInBrowser}],
-                onValueSelected:editSearchQuery,
-            }}
-        />
-    )
-
-}, 'ResultsList', 'all', false)
+        return (
+            <FilesList
+                pydio={pydio}
+                dataModel={dataModel}
+                contextNode={contextNode}
+                nodePath={'search'}
+                resolvedNode={contextNode}
+                resolveError={null}
+                block={block}
+                isResultsList={true}
+                presetNodeActions={{
+                    title: t('actions.title'),
+                    values: [
+                        {
+                            value: 'edit',
+                            title: t('results.edit-query'),
+                            icon: MdOpenInBrowser,
+                        },
+                    ],
+                    onValueSelected: editSearchQuery,
+                }}
+            />
+        );
+    },
+    'ResultsList',
+    'all',
+    false,
+);

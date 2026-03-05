@@ -19,62 +19,61 @@
  */
 
 // The types of alerts that users can choose from.
-import {useCallback} from "react";
-import {BlockMenu} from "./BlockMenu";
-import {MdCancel, MdCheckCircle, MdError, MdInfo} from "react-icons/md";
-import "./styles/AlertStyles.less";
+import { useCallback } from 'react';
+import { BlockMenu } from './BlockMenu';
+import { MdCancel, MdCheckCircle, MdError, MdInfo } from 'react-icons/md';
+import './styles/AlertStyles.less';
+import { t } from '../messages';
 
 export const alertTypes = [
     {
-        title: "Warning",
-        value: "warning",
+        title: t('alert-block.warning'),
+        value: 'warning',
         icon: MdError,
-        color: "#e69819",
+        color: '#e69819',
         backgroundColor: {
-            light: "#fff6e6",
-            dark: "#805d20",
+            light: '#fff6e6',
+            dark: '#805d20',
         },
     },
     {
-        title: "Error",
-        value: "error",
+        title: t('alert-block.error'),
+        value: 'error',
         icon: MdCancel,
-        color: "#d80d0d",
+        color: '#d80d0d',
         backgroundColor: {
-            light: "#ffe6e6",
-            dark: "#802020",
+            light: '#ffe6e6',
+            dark: '#802020',
         },
     },
     {
-        title: "Info",
-        value: "info",
+        title: t('alert-block.info'),
+        value: 'info',
         icon: MdInfo,
-        color: "#507aff",
+        color: '#507aff',
         backgroundColor: {
-            light: "#e6ebff",
-            dark: "#203380",
+            light: '#e6ebff',
+            dark: '#203380',
         },
     },
     {
-        title: "Success",
-        value: "success",
+        title: t('alert-block.success'),
+        value: 'success',
         icon: MdCheckCircle,
-        color: "#0bc10b",
+        color: '#0bc10b',
         backgroundColor: {
-            light: "#e6ffe6",
-            dark: "#208020",
+            light: '#e6ffe6',
+            dark: '#208020',
         },
     },
 ];
-export const AlertBlock = ({editor, block, contentRef}) => {
-    const alertType = alertTypes.find(
-        (a) => a.value === block.props.type
-    );
+export const AlertBlock = ({ editor, block, contentRef }) => {
+    const alertType = alertTypes.find((a) => a.value === block.props.type);
     const Icon = alertType.icon;
     const menuTarget = (
-        <div className={"alert-icon-wrapper"} contentEditable={false}>
+        <div className={'alert-icon-wrapper'} contentEditable={false}>
             <Icon
-                className={"alert-icon"}
+                className={'alert-icon'}
                 data-alert-icon-type={block.props.type}
                 size={32}
             />
@@ -82,18 +81,27 @@ export const AlertBlock = ({editor, block, contentRef}) => {
     );
     const menuHandler = useCallback((value) => {
         editor.updateBlock(block, {
-            type: "alert",
-            props: {type: value},
-        })
-    }, [])
+            type: 'alert',
+            props: { type: value },
+        });
+    }, []);
 
     return (
-        <div className={"alert"} data-alert-type={block.props.type}>
+        <div className={'alert'} data-alert-type={block.props.type}>
             {/*Icon which opens a menu to choose the Alert type*/}
-            <BlockMenu groups={[{title: 'Alert Type', values: alertTypes, onValueSelected: menuHandler}]} target={menuTarget} position={'bottom-start'}/>
+            <BlockMenu
+                groups={[
+                    {
+                        title: t('alert-block.type'),
+                        values: alertTypes,
+                        onValueSelected: menuHandler,
+                    },
+                ]}
+                target={menuTarget}
+                position={'bottom-start'}
+            />
             {/*Rich text field for user to type in*/}
-            <div className={"inline-content"} ref={contentRef}/>
+            <div className={'inline-content'} ref={contentRef} />
         </div>
     );
-
-}
+};

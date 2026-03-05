@@ -18,12 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {defaultProps} from "@blocknote/core";
-import {createReactBlockSpec} from "@blocknote/react";
-import {RiAlertFill} from "react-icons/ri";
-import {AlertBlock} from "../blocks/AlertBlock";
+import { defaultProps } from '@blocknote/core';
+import { createReactBlockSpec } from '@blocknote/react';
+import { RiAlertFill } from 'react-icons/ri';
+import { AlertBlock } from '../blocks/AlertBlock';
 
-export const AlertSpecType = 'alert'
+export const AlertSpecType = 'alert';
 
 // The Alert block.
 export const Alert = createReactBlockSpec(
@@ -33,36 +33,38 @@ export const Alert = createReactBlockSpec(
             textAlignment: defaultProps.textAlignment,
             textColor: defaultProps.textColor,
             type: {
-                default: "warning",
-                values: ["warning", "error", "info", "success"],
+                default: 'warning',
+                values: ['warning', 'error', 'info', 'success'],
             },
         },
-        content: "inline",
+        content: 'inline',
     },
     {
-        render: (props) => <AlertBlock {...props}/>,
-    }
+        render: (props) => <AlertBlock {...props} />,
+    },
 );
 
-export const alertBlockSpecs = {alert: Alert()}
-
+export const alertBlockSpecs = { alert: Alert() };
+import { t } from '../messages';
 // Custom Slash Menu item to insert a block after the current one.
 export const insertAlertItem = (editor) => ({
-    title: "Insert Warning Block",
+    title: t('alert-spec.title'),
     onItemClick: () => {
         const currentBlock = editor.getTextCursorPosition().block;
         editor.insertBlocks(
-            [{
-                type: AlertSpecType,
-                props: {type:'warning'},
-                content: [{ type: "text", text: "", styles:{}}],
-            }],
+            [
+                {
+                    type: AlertSpecType,
+                    props: { type: 'warning' },
+                    content: [{ type: 'text', text: '', styles: {} }],
+                },
+            ],
             currentBlock,
-            "after"
+            'after',
         );
     },
-    aliases: ["alert", "al"],
-    group: "Others",
+    aliases: ['alert', 'al'],
+    group: 'Others',
     icon: <RiAlertFill size={18} />,
-    subtext: "Capture reader's attention with a warning",
+    subtext: t('alert-spec.subtext'),
 });
