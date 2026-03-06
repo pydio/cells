@@ -32,7 +32,6 @@ export const SwitchInput: React.FC<InputProps> = ({
     onCommitChange,
     onFocus,
     onBlur,
-    requestToggleClose,
 }: InputProps) => {
 
     return (
@@ -46,9 +45,6 @@ export const SwitchInput: React.FC<InputProps> = ({
                 component={'div'}
                 onFocus={onFocus}
                 onBlur={(e) => {
-                    if (requestToggleClose) {
-                        requestToggleClose();
-                    }
                     if (onBlur) {
                         onBlur(e);
                     }

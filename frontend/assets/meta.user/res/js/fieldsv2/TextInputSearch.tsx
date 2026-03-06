@@ -31,8 +31,7 @@ export const TextInputSearch: React.FC<InputProps> = ({
     disabled,
     value,
     onChange,
-    errorText,
-    requestToggleClose
+    errorText
 }) => {
     const props = {
         label,
@@ -41,7 +40,6 @@ export const TextInputSearch: React.FC<InputProps> = ({
         value:value||'',
         disabled,
         error: errorText,
-        autoFocus: !!requestToggleClose,
     }
 
     const applyModifier = useCallback((m:string, t:string):string => {
@@ -97,6 +95,5 @@ export const TextInputSearch: React.FC<InputProps> = ({
         />}
         onChange={onChangeEvent}
         onKeyPress={simpleEnter}
-        onBlur={() => requestToggleClose && requestToggleClose()}
     />
 }

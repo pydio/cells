@@ -15,14 +15,12 @@ vi.mock('./SearchModifiers', async (importOriginal) => {
     }
 })
 
-const renderProbe = ({ text, leftSection, onTextChange, onSubmit, onBlur, autoFocus }) => (
+const renderProbe = ({ text, leftSection, onTextChange, onSubmit }) => (
     <div>
         <output aria-label="text-value">{text}</output>
         <div aria-label="left-section">{leftSection}</div>
         <button onClick={() => onTextChange('next')}>change</button>
         <button onClick={() => onSubmit()}>submit</button>
-        <button onClick={() => onBlur && onBlur()}>blur</button>
-        <output aria-label="auto-focus">{autoFocus ? 'yes' : 'no'}</output>
     </div>
 )
 
@@ -132,26 +130,6 @@ describe('SearchModifierInput', () => {
 
         fireEvent.click(screen.getByRole('button', { name: 'menu' }))
         expect(onChange).toHaveBeenCalledWith('10')
-    })
-
-    it('exposes requestToggleClose handlers to children', () => {
-        const onChange = vi.fn()
-        const requestToggleClose = vi.fn()
-
-        render(
-            <TextSearchModifierInput
-                value="alpha"
-                onChange={onChange}
-                items={TextSearchModifiers}
-                requestToggleClose={requestToggleClose}
-            >
-                {renderProbe}
-            </TextSearchModifierInput>
-        )
-
-        expect(screen.getByLabelText('auto-focus').textContent).toBe('yes')
-        fireEvent.click(screen.getByRole('button', { name: 'blur' }))
-        expect(requestToggleClose).toHaveBeenCalled()
     })
 
     describe('DateTimeSearchModifierInput', () => {

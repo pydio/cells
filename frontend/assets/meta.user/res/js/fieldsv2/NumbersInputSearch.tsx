@@ -24,7 +24,7 @@ import {InputProps} from "./CommonInputProps";
 import {NumberRangeModifiers} from "./SearchModifiers";
 import {RangeSearchModifierInput} from "./SearchModifierInput";
 
-export const NumbersInputSearch: React.FC<InputProps> = ({label, description, placeholder, disabled, value, requestToggleClose, onChange, errorText}) => {
+export const NumbersInputSearch: React.FC<InputProps> = ({label, description, placeholder, disabled, value, onChange, errorText}) => {
     const simpleEnter = (event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
             event.currentTarget.blur();
@@ -36,9 +36,8 @@ export const NumbersInputSearch: React.FC<InputProps> = ({label, description, pl
             value={value}
             onChange={onChange}
             items={NumberRangeModifiers}
-            requestToggleClose={requestToggleClose}
         >
-            {({text, leftSection, autoFocus, onBlur, onTextChange}) => (
+            {({text, leftSection, onTextChange}) => (
                 <NumberInput
                     label={label}
                     value={text === '' ? '' : parseFloat(text) || ''}
@@ -47,8 +46,6 @@ export const NumbersInputSearch: React.FC<InputProps> = ({label, description, pl
                     leftSection={leftSection}
                     onChange={(v) => onTextChange(v === '' ? '' : v?.toString() || '')}
                     onKeyPress={simpleEnter}
-                    autoFocus={autoFocus}
-                    onBlur={onBlur}
                     description={description}
                     placeholder={placeholder}
                 />

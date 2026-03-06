@@ -31,7 +31,6 @@ import { parseTagsValue as parseCSLtoArray, formatTagsArrayToString } from '../u
  * @property {string} placeholder
  * @property {boolean} disabled
  * @property {function} dataLoader
- * @property {boolean} requestToggleClose
  * @property {string} errorText
  * @property {string} value
  * @property {function} onCommitChange

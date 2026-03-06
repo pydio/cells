@@ -67,7 +67,6 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
         value,
         onChange: localChange,
         errorText,
-        // requestToggleClose: () => {}, // For search it does nothing
         onCommitChange: (values) => {
             localChange(values)
         },
@@ -106,4 +105,3 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
             return <TextInputSearch {...baseProps} subType={type}/>;
     }
 };
-
