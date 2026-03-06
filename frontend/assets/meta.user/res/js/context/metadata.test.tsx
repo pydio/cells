@@ -16,7 +16,7 @@ vi.mock('../MetaClient', () => ({
 }))
 
 import MetaClient from '../MetaClient'
-import { MetadataContextProvider, useMetadataContext } from './metadata'
+import { MetadataContextProvider, OnChangeContext, useMetadataContext } from './metadata'
 
 interface MockNode {
   getMetadata: Mock<() => Map<string, any>>;
@@ -38,9 +38,11 @@ const createMockNode = (overrides: Partial<MockNode> = {}): MockNode => ({
 })
 
 describe('MetadataContext', () => {
-    let mockNode: MockNode
-    let mockSaveMeta: Mock<(formData: Map<string, any>) => Promise<any>>
-    let mockOnDataChanged: Mock<(formData: Map<string, any>, isValid: boolean) => void>
+    let mockNode: MockNode;
+    let mockSaveMeta: Mock<(formData: Map<string, any>) => Promise<any>>;
+    let mockOnDataChanged: Mock<
+        (formData: Map<string, any>, onChangeContext: OnChangeContext) => void
+    >;
 
     beforeEach(() => {
         mockNode = createMockNode()
@@ -197,10 +199,25 @@ describe('MetadataContext', () => {
             })
 
             await waitFor(() => {
-                const [, isValid] = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
-                expect(isValid).toBe(true)
-            })
-        })
+                const [, ctx] =
+                    mockOnDataChanged.mock.calls[
+                        mockOnDataChanged.mock.calls.length - 1
+                    ];
+                expect(ctx).toEqual({
+                    errors: {
+                        'usermeta-datetime':
+                            "must have required property 'usermeta-datetime'",
+                        'usermeta-number':
+                            "must have required property 'usermeta-number'",
+                        'usermeta-paragraph':
+                            "must have required property 'usermeta-paragraph'",
+                        'usermeta-text':
+                            "must have required property 'usermeta-text'",
+                    },
+                    isValid: false,
+                });
+            });
+        });
 
         it('detects validation errors in required fields', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -357,6 +374,7 @@ describe('MetadataContext', () => {
                         node={mockNode}
                         saveMeta={mockSaveMeta}
                         value={{}}
+                        savePartially={true}
                         onDataChanged={mockOnDataChanged}
                     >
                         {children}
@@ -833,7 +851,7 @@ describe('MetadataContext', () => {
                 ['usermeta-number', '5'],
                 ['usermeta-datetime', '2024-01-01T00:00:00Z']
             ])
-            
+
             // Create a mock node that returns our original metadata
             const nodeWithMetadata = createMockNode({
                 getMetadata: vi.fn(() => originalMetadata)
@@ -859,10 +877,10 @@ describe('MetadataContext', () => {
 
             // Verify form state has the initial values
             expect(result.current.state.formState.get('usermeta-text')).toBe('original text')
-            
+
             // Keep a reference to the original metadata to check it later
             const originalMetadataRef = originalMetadata
-            
+
             // Update form state with new values
             const updatedFormState = new Map([
                 ['usermeta-text', 'modified text'],
@@ -870,20 +888,20 @@ describe('MetadataContext', () => {
                 ['usermeta-number', '10'],
                 ['usermeta-datetime', '2024-12-31T23:59:59Z']
             ])
-            
+
             act(() => {
                 result.current.actions.setFormState(updatedFormState)
             })
 
             // Verify form state was updated
             expect(result.current.state.formState.get('usermeta-text')).toBe('modified text')
-            
+
             // CRITICAL: Verify the original node metadata was NOT mutated
             expect(originalMetadataRef.get('usermeta-text')).toBe('original text')
             expect(originalMetadataRef.get('usermeta-paragraph')).toBe('original paragraph')
             expect(originalMetadataRef.get('usermeta-number')).toBe('5')
             expect(originalMetadataRef.get('usermeta-datetime')).toBe('2024-01-01T00:00:00Z')
-            
+
             // Also verify they're not the same Map instance (copy-on-write)
             expect(result.current.state.formState).not.toBe(originalMetadataRef)
             expect(result.current.state.formState).not.toBe(updatedFormState) // Also a copy was made
