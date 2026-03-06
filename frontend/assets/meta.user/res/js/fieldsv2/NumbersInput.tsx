@@ -32,6 +32,8 @@ export const NumbersInput: React.FC<InputProps> = ({
     onChange,
     onCommitChange,
     errorText,
+    onFocus,
+    onBlur,
     prefix,
     suffix,
 }) => {
@@ -41,24 +43,32 @@ export const NumbersInput: React.FC<InputProps> = ({
         disabled,
         required,
         error: errorText,
-    }
+    };
 
     const simpleEnter = (event: React.KeyboardEvent) => {
-        if(event.key === 'Enter' && event.ctrlKey){
+        if (event.key === 'Enter' && event.ctrlKey) {
             onCommitChange(value);
         }
-    }
+    };
 
-    return <NumberInput
-        {...props}
-        onChange={(e) => onChange(e)}
-        onKeyPress={simpleEnter}
-        onBlur={() => onChange(value)}
-        thousandSeparator=" "
-        prefix={prefix}
-        suffix={suffix}
-        description={description}
-        placeholder={placeholder}
-        disabled={disabled}
-    />
-}
+    return (
+        <NumberInput
+            {...props}
+            onChange={(e) => onChange(e)}
+            onKeyPress={simpleEnter}
+            onFocus={onFocus}
+            onBlur={(e) => {
+                onChange(value);
+                if (onBlur) {
+                    onBlur(e);
+                }
+            }}
+            thousandSeparator=" "
+            prefix={prefix}
+            suffix={suffix}
+            description={description}
+            placeholder={placeholder}
+            disabled={disabled}
+        />
+    );
+};

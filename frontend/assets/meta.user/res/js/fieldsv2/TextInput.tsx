@@ -32,7 +32,9 @@ export const TextInput: React.FC<InputProps> = ({
     value,
     onChange,
     errorText,
-    onCommitChange
+    onFocus,
+    onBlur,
+    onCommitChange,
 }) => {
     const props = {
         label,
@@ -56,22 +58,40 @@ export const TextInput: React.FC<InputProps> = ({
 
     switch (subType) {
         case 'textarea':
-            return <Textarea {...props}
-                onChange={onChangeEvent}
-                onKeyPress={onCtrlEnterCommit}
-                autosize
-                minRows={3}
-                maxRows={5}
-            />
+            return (
+                <Textarea
+                    {...props}
+                    onChange={onChangeEvent}
+                    onKeyPress={onCtrlEnterCommit}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    autosize
+                    minRows={3}
+                    maxRows={5}
+                />
+            );
         case 'json':
-            return <JsonInput {...props}
-                onChange={onChangeString}
-                onKeyPress={onCtrlEnterCommit}
-                autosize
-                minRows={3}
-                maxRows={10}
-            />
+            return (
+                <JsonInput
+                    {...props}
+                    onChange={onChangeString}
+                    onKeyPress={onCtrlEnterCommit}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    autosize
+                    minRows={3}
+                    maxRows={10}
+                />
+            );
         default:
-            return <MTextInput {...props} onChange={onChangeEvent} onKeyPress={onCtrlEnterCommit}  />
+            return (
+                <MTextInput
+                    {...props}
+                    onChange={onChangeEvent}
+                    onKeyPress={onCtrlEnterCommit}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                />
+            );
     }
-}
+};

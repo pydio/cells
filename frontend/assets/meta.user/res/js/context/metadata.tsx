@@ -25,6 +25,7 @@ interface MetadataState {
     shouldSave: boolean;
     editingTag: string;
     errors: {[key: string]: string};
+    isEditing: string;
 }
 
 type MetadataAction =

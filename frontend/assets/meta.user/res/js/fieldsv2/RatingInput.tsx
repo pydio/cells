@@ -30,6 +30,8 @@ export const RatingInput: React.FC<InputProps> = ({
     disabled,
     required,
     onCommitChange,
+    onFocus,
+    onBlur,
 }: InputProps) => {
 
     return (
@@ -41,11 +43,12 @@ export const RatingInput: React.FC<InputProps> = ({
             description={description}
             required={required}
         >
-            <Input
-                component={"div"}
-                disabled={disabled}
-            >
-                <div style={{ display: 'flex', alignItems: 'center' }} >
+            <Input component={'div'} disabled={disabled}>
+                <div
+                    style={{ display: 'flex', alignItems: 'center' }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                >
                     <span
                         className={'mdi mdi-star-off-outline'}
                         style={{ fontSize: 19, marginRight: 5, cursor: 'pointer' }}

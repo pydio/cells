@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useEffect, useState } from 'react'
-import { Autocomplete } from '@mantine/core'
-import { StringItemsInputProps } from "./CommonInputProps";
+import React, { useEffect, useState } from 'react';
+import { Autocomplete } from '@mantine/core';
+import { StringItemsInputProps } from './CommonInputProps';
 
 /**
  * @param {TagsCloudInputProps} props
@@ -34,6 +34,8 @@ export const AutoCompleteInput: React.FC<StringItemsInputProps> = ({
     errorText,
     value,
     onCommitChange,
+    onFocus,
+    onBlur,
 }) => {
     const [localValue, setLocalValue] = useState('');
     const [items, setItems] = useState<string[]>([]);
@@ -47,29 +49,35 @@ export const AutoCompleteInput: React.FC<StringItemsInputProps> = ({
         description,
         placeholder,
         error: errorText,
-    }
+    };
 
     useEffect(() => {
         if (dataLoader) {
-            dataLoader().then(ss => setItems(ss));
+            dataLoader().then((ss) => setItems(ss));
         }
-    }, [name])
+    }, [name]);
 
-    return <Autocomplete
-        {...props}
-        value={localValue}
-        data={items}
-        onChange={setLocalValue}
-        comboboxProps={{ withinPortal: false }}
-        onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            const { key, target } = e;
-            const { value } = target;
-            if(key === 'Enter'){
-                onCommitChange(value);
-            }
-        }}
-        onBlur={(e) => {
-            onCommitChange(e.target.value);
-        }}
-    />
-}
+    return (
+        <Autocomplete
+            {...props}
+            value={localValue}
+            data={items}
+            onChange={setLocalValue}
+            comboboxProps={{ withinPortal: false }}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                const { key, target } = e;
+                const { value } = target;
+                if (key === 'Enter') {
+                    onCommitChange(value);
+                }
+            }}
+            onFocus={onFocus}
+            onBlur={(e) => {
+                onCommitChange(e.target.value);
+                if (onBlur) {
+                    onBlur(e);
+                }
+            }}
+        />
+    );
+};

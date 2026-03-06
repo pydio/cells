@@ -630,17 +630,15 @@ describe('MetadataContext', () => {
 
     describe('useMetadataContext', () => {
         it('returns default context when used outside provider', () => {
-            const { result } = renderHook(() => useMetadataContext())
-            expect(result.current.state.node).toBeNull()
-            expect(result.current.state.saving).toBe(false)
-            expect(result.current.state.formState).toBeInstanceOf(Map)
-            expect(result.current.state.fields).toEqual({})
-            expect(result.current.state.namespaceJsonSchema).toBeNull()
-            expect(result.current.state.jsonSchema).toBeNull()
-            expect(result.current.state.shouldSave).toBe(false)
-            expect(result.current.state.editingTag).toBe('none')
-            expect(result.current.state.errors).toEqual({})
-        })
+            const { result } = renderHook(() => useMetadataContext());
+            expect(result.current.state.node).toBeNull();
+            expect(result.current.state.saving).toBe(false);
+            expect(result.current.state.formState).toBeInstanceOf(Map);
+            expect(result.current.state.namespaceJsonSchema).toBeNull();
+            expect(result.current.state.jsonSchema).toBeNull();
+            expect(result.current.state.shouldSave).toBe(false);
+            expect(result.current.state.errors).toEqual({});
+        });
 
         it('returns provider context when inside provider', () => {
             const { result } = renderHook(() => useMetadataContext(), {

@@ -56,6 +56,8 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     value,
     onlyValuesFromList,
     onCommitChange,
+    onFocus,
+    onBlur,
 }) => {
     const [localValue, setLocalValue] = useState(parseCSLtoArray(value));
     const [items, setItems] = useState<string[]>([]);
@@ -83,30 +85,39 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
         onCommitChange(formatTagsArrayToString(values));
     };
 
-    return <TagsInput
-        {...props}
-        value={localValue}
-        data={items}
-        onChange={onChangeJoin}
-        disabled={disabled}
-        comboboxProps={{ withinPortal: false }}
-        splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
-        onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            const { key, target } = e;
-            const { value } = target;
+    return (
+        <TagsInput
+            {...props}
+            value={localValue}
+            data={items}
+            onFocus={onFocus}
+            onChange={onChangeJoin}
+            disabled={disabled}
+            comboboxProps={{ withinPortal: false }}
+            splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                const { key, target } = e;
+                const { value } = target;
 
-            if(key === 'Enter' || key === ','){
+                if (key === 'Enter' || key === ',') {
+                    if (onlyValuesFromList && !items.includes(value)) return;
+
+                    onCommitChange(
+                        formatTagsArrayToString([...localValue, value]),
+                    );
+                }
+            }}
+            onBlur={(e) => {
+                const { value } = e.target;
+
                 if (onlyValuesFromList && !items.includes(value)) return;
 
                 onCommitChange(formatTagsArrayToString([...localValue, value]));
-            }
-        }}
-        onBlur={(e) => {
-            const { value } = e.target;
 
-            if (onlyValuesFromList && !items.includes(value)) return;
-
-            onCommitChange(formatTagsArrayToString([...localValue, value]));
-        }}
-    />
-}
+                if (onBlur) {
+                    onBlur(e);
+                }
+            }}
+        />
+    );
+};
