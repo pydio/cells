@@ -41,9 +41,11 @@ export const Selector: React.FC<SelectInputProps> = ({
     onChange,
     items,
     onCommitChange,
+    onFocus,
+    onBlur,
     errorText,
     disabled,
-    stepper
+    stepper,
 }) => {
     const handleColors = items.find(i => !!i.color);
     const renderOptions = useCallback(({ option }: RenderOptionProps) => {
@@ -105,12 +107,11 @@ export const Selector: React.FC<SelectInputProps> = ({
             comboboxProps={{ withinPortal: false }}
             styles={leftSection ? { input: { paddingLeft: 30 } } : undefined}
             renderOption={handleColors ? renderOptions : undefined}
+            onFocus={onFocus}
             onBlur={(e) => {
-                const { value } = e.currentTarget;
-                const key = items.find(i => i.value === value)?.key
-                if (!key) return
-
-                onCommitChange(key);
+                if (onBlur) {
+                    onBlur(e);
+                }
             }}
         />
     )

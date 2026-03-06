@@ -96,6 +96,8 @@ export const URLInput: React.FC<InputProps> = ({
     value,
     onChange,
     onCommitChange,
+    onFocus,
+    onBlur,
     errorText,
 }) => {
     const [localValue, setLocalValue] = useState(value || '');
@@ -150,7 +152,13 @@ export const URLInput: React.FC<InputProps> = ({
                 {...props}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
-                onBlur={handleConfirmValue}
+                onFocus={onFocus}
+                onBlur={(e) => {
+                    handleConfirmValue();
+                    if (onBlur) {
+                        onBlur(e);
+                    }
+                }}
                 rightSection={
                     hasValue && !hasError ? (
                         <URLLinkIcon

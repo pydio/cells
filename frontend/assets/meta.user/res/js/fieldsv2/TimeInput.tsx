@@ -41,7 +41,7 @@ const dateToTimestamp = (time: string) => {
     timestamp.setMinutes(parseInt(minutes));
 
     return timestamp.getTime() / 1000;
-}
+};
 
 export const TimeInput: React.FC<InputProps> = ({
     label,
@@ -50,19 +50,25 @@ export const TimeInput: React.FC<InputProps> = ({
     disabled,
     value,
     onChange,
-    errorText
+    onFocus,
+    onBlur,
+    errorText,
 }) => {
-    return <TimePicker
-        label={label}
-        disabled={disabled}
-        error={errorText}
-        required={required}
-        radius={"md"}
-        value={timestampToDate(value)}
-        onChange={(v) => {
-            onChange(dateToTimestamp(v));
-        }}
-        description={description}
-        popoverProps={{ withinPortal: false }}
-    />
-}
+    return (
+        <TimePicker
+            label={label}
+            disabled={disabled}
+            error={errorText}
+            required={required}
+            radius={'md'}
+            value={timestampToDate(value)}
+            onChange={(v) => {
+                onChange(dateToTimestamp(v));
+            }}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            description={description}
+            popoverProps={{ withinPortal: false }}
+        />
+    );
+};

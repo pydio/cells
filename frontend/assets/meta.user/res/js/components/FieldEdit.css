@@ -1,0 +1,9 @@
+.editField {
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.editField.toggable.disabled .mantine-Input-wrapper > .mantine-Input-input {
+    background-color: var(--md-sys-color-surface-2);
+}

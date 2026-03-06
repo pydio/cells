@@ -31,32 +31,38 @@ export const DateTimeInput: React.FC<InputProps> = ({
     disabled,
     value,
     onCommitChange,
-    errorText
+    onFocus,
+    onBlur,
+    errorText,
 }) => {
     const props = {
         label,
         disabled,
         error: errorText,
         required,
-    }
+    };
 
-    const popoverProps : PopoverProps = {withinPortal: false}
-    if(onCommitChange && !disabled) {
+    const popoverProps: PopoverProps = { withinPortal: false };
+    if (onCommitChange && !disabled) {
         popoverProps.onClose = () => {
             onCommitChange(value);
         };
     }
 
-    return <DateTimePicker
-        {...props}
-        radius={"md"}
-        value={value ? new Date(parseFloat(value)*1000) : null}
-        onChange={(v) => {
-            const d = new Date(v).getTime()/1000;
-            onCommitChange(d);
-        }}
-        description={description}
-        placeholder={placeholder}
-        popoverProps={popoverProps}
-    />
-}
+    return (
+        <DateTimePicker
+            {...props}
+            radius={'md'}
+            value={value ? new Date(parseFloat(value) * 1000) : null}
+            onChange={(v) => {
+                const d = new Date(v).getTime() / 1000;
+                onCommitChange(d);
+            }}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            description={description}
+            placeholder={placeholder}
+            popoverProps={popoverProps}
+        />
+    );
+};

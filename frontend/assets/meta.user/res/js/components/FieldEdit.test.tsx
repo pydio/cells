@@ -90,31 +90,6 @@ describe('FieldEdit Component', () => {
     })
 
     describe('rendering and basic functionality', () => {
-        it('renders wrapper component with correct scroll styling', () => {
-            const { container } = renderWithMantine(
-                <FieldEdit
-                    context={createContext()}
-                    name="testField"
-                    meta={createMeta()}
-                    
-                    value=""
-                    updateValue={vi.fn()}
-                />
-            )
-
-            // Find the wrapper div (skip style elements from MantineProvider)
-            let wrapper = container.firstChild as HTMLElement
-            while (wrapper && wrapper.tagName === 'STYLE') {
-                wrapper = wrapper.nextSibling as HTMLElement
-            }
-
-            // Verify wrapper is a div with inline styles for scroll
-            expect(wrapper.tagName).toBe('DIV')
-            expect(wrapper.style.width).toBe('100%')
-            expect(wrapper.style.overflowY).toBe('scroll')
-            expect(wrapper.style.overflowX).toBe('hidden')
-        })
-
         it('renders TextInput for text type by default', () => {
             const { container } = renderWithMantine(
                 <FieldEdit

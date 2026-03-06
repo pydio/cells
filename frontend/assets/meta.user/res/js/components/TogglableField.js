@@ -18,65 +18,38 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useEffect, useState} from 'react';
-import {FieldEdit} from './FieldEdit';
-// import {FieldDisplay} from './FieldDisplay';
+import React from 'react';
+import { FieldEdit } from './FieldEdit';
 
 /**
  * Main component that handles a metadata field in edit or display mode
  */
 export const TogglableField = ({
-      context,
-      fieldKey,
-      meta,
-      // node,
-      updateValue,
-      configsForGroup,
-      supportTemplates,
-      additionalProps,
-      // isEditing,
-      setFieldBeingEditted,
-  }) => {
-
-    const { state, actions } = context;
-    const value = state.formState.get(fieldKey)
+    context,
+    fieldKey,
+    meta,
+    configsForGroup,
+    supportTemplates,
+    additionalProps,
+}) => {
+    const [isFocused, setIsFocused] = React.useState(false);
+    const { state } = context;
+    const value = state.formState.get(fieldKey);
 
     // FIXME: Let's enable the togglable forms in a second step
-    // if (isEditing || state.errors[fieldKey]) {
-    return <FieldEdit
-        context={context}
-        name={fieldKey}
-        meta={meta}
-        value={value}
-        updateValue={(key, value, submit) => {
-            updateValue(key, value, submit);
-            actions.setFormState(state.formState.set(key, value))
-            setFieldBeingEditted('none')
-
-            if(submit) {
-                actions.setShouldSave(true)
-                setFieldBeingEditted('none')
-            }
-        }}
-        requestToggleClose={()=> {
-            actions.setShouldSave(true)
-            setFieldBeingEditted('none')
-        }}
-        configsForGroup={configsForGroup}
-        supportTemplates={supportTemplates}
-        additionalProps={additionalProps}
-    />;
-
-    // return (
-    //     <FieldDisplay
-    //         className={"togglable"}
-    //         fieldKey={fieldKey}
-    //         meta={meta}
-    //         value={value}
-    //         node={node}
-    //         onValueClick={() => {
-    //             setFieldBeingEditted(fieldKey)
-    //         }}
-    //     />
-    // );
+    return (
+        <FieldEdit
+            isToggable={true}
+            isEditing={isFocused || state.errors[fieldKey]}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            context={context}
+            name={fieldKey}
+            meta={meta}
+            value={value}
+            configsForGroup={configsForGroup}
+            supportTemplates={supportTemplates}
+            additionalProps={additionalProps}
+        />
+    );
 };

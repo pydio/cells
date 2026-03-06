@@ -30,7 +30,9 @@ export const SwitchInput: React.FC<InputProps> = ({
     disabled,
     required,
     onCommitChange,
-    requestToggleClose
+    onFocus,
+    onBlur,
+    requestToggleClose,
 }: InputProps) => {
 
     return (
@@ -40,15 +42,34 @@ export const SwitchInput: React.FC<InputProps> = ({
             required={required}
             error={errorText}
         >
-            <Input component={"div"} onBlur={() => requestToggleClose && requestToggleClose()}>
-                <div style={{ display: 'flex', alignItems: 'center', height: '100%' }} onBlur={() => requestToggleClose && requestToggleClose()}>
+            <Input
+                component={'div'}
+                onFocus={onFocus}
+                onBlur={(e) => {
+                    if (requestToggleClose) {
+                        requestToggleClose();
+                    }
+                    if (onBlur) {
+                        onBlur(e);
+                    }
+                }}
+            >
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: '100%',
+                    }}
+                >
                     <Switch
                         checked={value}
-                        onChange={(e) => onCommitChange(e.currentTarget.checked)}
+                        onChange={(e) =>
+                            onCommitChange(e.currentTarget.checked)
+                        }
                         disabled={disabled}
                     />
                 </div>
             </Input>
         </Input.Wrapper>
-    )
-}
+    );
+};

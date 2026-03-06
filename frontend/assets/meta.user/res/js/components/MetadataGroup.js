@@ -54,7 +54,7 @@ export const MetadataGroup = ({
     onToggleGroup,
     pydio,
     onRequestEditMode,
-    useTogglableFields,
+    isToggable,
     saving,
     metadataContext,
 }) => {
@@ -84,7 +84,7 @@ export const MetadataGroup = ({
             nonEmptyDataCount++;
         }
 
-        if(useTogglableFields) {
+        if (isToggable) {
             elements.push(
                 <TogglableField
                     key={key}
@@ -198,7 +198,7 @@ export const MetadataGroup = ({
                         pydio={pydio}
                         onRequestEditMode={onRequestEditMode}
                         saving={saving}
-                        useTogglableFields={useTogglableFields}
+                        isToggable={isToggable}
                     />
                 )}
             </React.Fragment>
