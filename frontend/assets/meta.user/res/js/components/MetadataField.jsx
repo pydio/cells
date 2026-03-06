@@ -19,10 +19,9 @@
  */
 
 import React from 'react';
-import {Checkbox} from 'material-ui';
-import {FieldEdit} from './FieldEdit';
-import {FieldDisplay} from './FieldDisplay';
-
+import { Checkbox } from 'material-ui';
+import { FieldEdit } from './FieldEdit';
+import { FieldDisplay } from './FieldDisplay.jsx';
 
 /**
  * Main component that handles a metadata field in edit or display mode
@@ -40,13 +39,24 @@ export const MetadataField = ({
     onCheck,
     configsForGroup,
     supportTemplates,
-    additionalProps
+    additionalProps,
 }) => {
-    const {label} = meta;
+    const { label } = meta;
+    const { state, actions } = context;
+
+    React.useEffect(() => {
+        if (multiple && !checked) {
+            // NOTE: here we clean the value from the form state
+            if (state.formState.delete(fieldKey)) {
+                actions.setFormState(state.formState);
+            }
+        }
+    }, [multiple, checked, fieldKey]);
 
     if (editMode) {
         const field = (
             <FieldEdit
+                shouldHideLabel={multiple}
                 context={context}
                 name={fieldKey}
                 meta={meta}
@@ -60,8 +70,19 @@ export const MetadataField = ({
 
         if (multiple) {
             return (
-                <div className={"infoPanelRow"} key={fieldKey} style={{marginBottom: 20}}>
-                    <Checkbox checked={checked} label={label} onCheck={(e, v) => onCheck(fieldKey, v)}/>
+                <div
+                    className="infoPanelRow"
+                    key={fieldKey}
+                    style={{
+                        marginBottom: checked ? 10 : 20,
+                    }}
+                >
+                    <Checkbox
+                        checked={checked}
+                        label={label}
+                        onCheck={(_, v) => onCheck(fieldKey, v)}
+                        style={{ marginBottom: checked ? 10 : 0 }}
+                    />
                     {checked && <div className="infoPanelValue">{field}</div>}
                 </div>
             );

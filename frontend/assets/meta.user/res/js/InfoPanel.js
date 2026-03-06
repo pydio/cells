@@ -40,33 +40,37 @@ const InfoPanel = ({
     const [valid, setValid] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    const saveMeta = useCallback((metadata) => {
-        if (!metadata) {
-            return Promise.resolve()
-        }
+    const saveMeta = useCallback(
+        (metadata) => {
+            if (!metadata) {
+                return Promise.resolve();
+            }
 
-        setSaving(true);
-        return MetaClient.getInstance()
-            .saveMeta([node], metadata)
-            .then(() => {
-                node.replaceMetadata(metadata, true);
-                setUpdateData(null);
-            }).catch((error) => {
-                throw error;
-            }).finally(() => {
-                setSaving(false);
+            setSaving(true);
+            return MetaClient.getInstance()
+                .saveMeta([node], metadata)
+                .then(() => {
+                    node.replaceMetadata(metadata, true);
+                    setUpdateData(null);
+                })
+                .catch((error) => {
+                    throw error;
+                })
+                .finally(() => {
+                    setSaving(false);
 
-                if (popoverPanel && popoverRequestClose) {
-                    popoverRequestClose();
-                }
-            })
-    }, [node, setSaving, setUpdateData])
+                    if (popoverPanel && popoverRequestClose) {
+                        popoverRequestClose();
+                    }
+                });
+        },
+        [node, setSaving, setUpdateData],
+    );
 
     const submitMetadata = useCallback(() => {
-        saveMeta(updateData)
-        setUpdateData(null)
-    }, [saveMeta, updateData])
-
+        saveMeta(updateData);
+        setUpdateData(null);
+    }, [saveMeta, updateData]);
 
     let actions = [];
     const { MessageHash } = pydio;

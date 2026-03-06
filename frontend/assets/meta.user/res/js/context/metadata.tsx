@@ -41,6 +41,10 @@ interface MetadataActions {
     setNamespaceJsonSchema: (namespaceJsonSchema: JSONSchemaType<any> | null) => void;
     setSaving: (saving: boolean) => void;
     setFormState: (formState: Map<string, any>) => void;
+    /**
+     * Set shouldSave triggers a partial save of the metadata
+     * when the form is valid.
+     */
     setShouldSave: (shouldSave: boolean) => void;
     setJsonSchema: (jsonSchema: JSONSchemaType<any> | null) => void;
 }
@@ -122,14 +126,24 @@ export const MetadataContext = React.createContext(defaultContext)
 
 const NODE_REPLACED_EVENT = 'node_replaced';
 
+type OnChangeContext = {
+    errors: { [key: string]: string };
+    isValid: boolean;
+};
+
+export type OnDataChanged = (
+    formData: Map<string, any>,
+    onChangeContext: OnChangeContext,
+) => void;
+
 type MetadataContextProviderProps = {
     node: PydioNode;
     saveMeta: (formData: Map<string, any>) => Promise<any>;
     value: any;
-    onDataChanged: (formData: Map<string, any>, isValid: boolean) => void;
+    onDataChanged: OnDataChanged;
     savePartially?: boolean;
     children: React.ReactNode;
-}
+};
 
 export const MetadataContextProvider = ({
     node,
@@ -214,36 +228,35 @@ export const MetadataContextProvider = ({
 
     // NOTE: here is the final validation and save of the metadata
     React.useEffect(() => {
-        if (!state.shouldSave) return;
+        // NOTE: savePartially only for info panel and popover form
+        // see: frontend/assets/meta.user/res/js/UserMetaDialog.js
+        if (!savePartially || !state.shouldSave) return;
 
         let { isValid, errors } = validatorRef.current(state.formState);
-        dispatch({ type: 'set_errors', errors })
+        dispatch({ type: 'set_errors', errors });
 
-        // NOTE: savePartialy is only for the mutiple node selection for now
-        // see: frontend/assets/meta.user/res/js/UserMetaDialog.js
-        if (!savePartially && !isValid) return;
+        if (!isValid) return;
 
-        if (state.shouldSave && saveMeta) {
-            actions.setSaving(true)
+        if (saveMeta) {
+            actions.setSaving(true);
             saveMeta(state.formState)
                 .then(() => {
-                    actions.setSaving(false)
-                    actions.setShouldSave(false)
+                    actions.setSaving(false);
+                    actions.setShouldSave(false);
                     node.replaceMetadata(state.formState, true);
                 })
                 .catch((e) => {
-                    actions.setSaving(false)
-                    actions.setShouldSave(false)
+                    actions.setSaving(false);
+                    actions.setShouldSave(false);
 
                     console.error('Error saving metadata', e);
                     dispatch({
                         type: 'set_errors',
-                        errors: { 'form': 'Error saving. Please try again.' },
+                        errors: { form: 'Error saving. Please try again.' },
                     });
                 });
-
         }
-    }, [state.shouldSave])
+    }, [state.shouldSave]);
 
     const contextValue = React.useMemo(() => ({
         state,
