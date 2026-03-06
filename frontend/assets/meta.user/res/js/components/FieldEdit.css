@@ -7,3 +7,7 @@
 .editField.toggable.disabled .mantine-Input-wrapper > .mantine-Input-input {
     background-color: var(--md-sys-color-surface-2);
 }
+
+.editField.toggable.disabled .mantine-Input-wrapper:hover > .mantine-Input-input {
+    background-color: #ffffff61;
+}
