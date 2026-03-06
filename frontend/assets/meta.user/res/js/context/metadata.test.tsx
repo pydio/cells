@@ -156,20 +156,19 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            mockOnDataChanged.mockClear()
-            const newFormState = new Map([['usermeta-text', 'hello']])
+            mockOnDataChanged.mockClear();
+            const newFormState = new Map([['usermeta-text', 'hello']]);
             act(() => {
-                result.current.actions.setFormState(newFormState)
-            })
+                result.current.actions.setFormState(newFormState);
+            });
 
-            expect(mockOnDataChanged).toHaveBeenCalled()
-            const [formState, isValid] = mockOnDataChanged.mock.calls[0]
-            expect(formState.get('usermeta-text')).toBe('hello')
-            expect(typeof isValid).toBe('boolean')
-        })
+            expect(mockOnDataChanged).toHaveBeenCalled();
+            const [formState] = mockOnDataChanged.mock.calls[0];
+            expect(formState.get('usermeta-text')).toBe('hello');
+        });
 
         it('validates data using the schema', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -228,10 +227,25 @@ describe('MetadataContext', () => {
             })
 
             await waitFor(() => {
-                const [, isValid] = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
-                expect(isValid).toBe(false)
-            })
-        })
+                const [, ctx] =
+                    mockOnDataChanged.mock.calls[
+                        mockOnDataChanged.mock.calls.length - 1
+                    ];
+                expect(ctx).toEqual({
+                    isValid: false,
+                    errors: {
+                        'usermeta-datetime':
+                            "must have required property 'usermeta-datetime'",
+                        'usermeta-number':
+                            "must have required property 'usermeta-number'",
+                        'usermeta-paragraph':
+                            "must have required property 'usermeta-paragraph'",
+                        'usermeta-text':
+                            "must have required property 'usermeta-text'",
+                    },
+                });
+            });
+        });
 
         it('removes empty string values before validation', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -406,6 +420,55 @@ describe('MetadataContext', () => {
                 expect(mockSaveMeta).toHaveBeenCalledWith(invalidData)
             })
         })
+        it('prevents partial save when validation errors exist even if save is requested', async () => {
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                        savePartially={true}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                ),
+            });
+
+            // Set data with validation errors
+            const dataWithErrors = new Map([
+                ['usermeta-text', 'test'],
+                // Missing other required fields which will cause validation errors
+            ]);
+            act(() => {
+                result.current.actions.setFormState(dataWithErrors);
+            });
+
+            // Wait for validation to complete and errors to be set
+            await waitFor(() => {
+                expect(
+                    Object.keys(result.current.state.errors).length,
+                ).toBeGreaterThan(0);
+            });
+
+            // Clear any previous calls to saveMeta
+            mockSaveMeta.mockClear();
+
+            // Trigger save attempt
+            act(() => {
+                result.current.actions.setShouldSave(true);
+            });
+
+            // Wait a bit to ensure saveMeta would be called if it were going to be
+            await waitFor(() => {
+                // Save should NOT be called because validation errors exist
+                expect(mockSaveMeta).not.toHaveBeenCalled();
+
+                // shouldSave remains true because the component doesn't reset it when validation fails
+                // The key behavior is that saveMeta is not called
+                expect(result.current.state.shouldSave).toBe(true);
+            });
+        });
 
         it('preserves original formState in callbacks while cleaning only for validation', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -691,10 +754,13 @@ describe('MetadataContext', () => {
             })
 
             // onDataChanged SHOULD be called (with noopValidator)
-            expect(mockOnDataChanged).toHaveBeenCalled()
-            const [, isValid] = mockOnDataChanged.mock.calls[0]
-            expect(isValid).toBe(true)  // noopValidator always returns true
-        })
+            expect(mockOnDataChanged).toHaveBeenCalled();
+            const [, ctx] = mockOnDataChanged.mock.calls[0];
+            expect(ctx).toEqual({
+                isValid: true,
+                errors: {},
+            });
+        });
 
         it('switches from noopValidator to real validator when jsonSchema becomes available', async () => {
             // Initially return null schema
@@ -723,8 +789,11 @@ describe('MetadataContext', () => {
                 result.current.actions.setFormState(incompleteData)
             })
             // noopValidator returns true regardless
-            const [, isValidWithoutSchema] = mockOnDataChanged.mock.calls[0]
-            expect(isValidWithoutSchema).toBe(true)
+            const [, ctxWithoutSchema] = mockOnDataChanged.mock.calls[0];
+            expect(ctxWithoutSchema).toEqual({
+                isValid: true,
+                errors: {},
+            });
 
             // Now manually set the real schema
             mockOnDataChanged.mockClear()
@@ -744,9 +813,19 @@ describe('MetadataContext', () => {
             })
 
             // Real validator should fail because required fields are missing
-            const [, isValidWithSchema] = mockOnDataChanged.mock.calls[0]
-            expect(isValidWithSchema).toBe(false)
-        })
+            const [, ctxWithSchema] = mockOnDataChanged.mock.calls[0];
+            expect(ctxWithSchema).toEqual({
+                isValid: false,
+                errors: {
+                    'usermeta-datetime':
+                        "must have required property 'usermeta-datetime'",
+                    'usermeta-number':
+                        "must have required property 'usermeta-number'",
+                    'usermeta-paragraph':
+                        "must have required property 'usermeta-paragraph'",
+                },
+            });
+        });
 
         it('does not mutate original node metadata when formState is updated', async () => {
             // Create initial metadata for the node

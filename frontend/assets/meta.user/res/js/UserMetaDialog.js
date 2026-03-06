@@ -50,7 +50,9 @@ export default createReactClass({
             .saveMeta(this.props.selection.getSelectedNodes(), metadata);
     },
 
-    submit(){
+    submit() {
+        if (!this.formIsValid) return;
+
         this.saveMeta(this.formMetadata).then(() => {
             this.dismiss();
         });
@@ -60,26 +62,44 @@ export default createReactClass({
         if (prevProps.selection !== this.props.selection) {
             // FIXME: Store the form state without re-rendering.
             this.formMetadata = new Map();
+            this.formIsValid = true;
         }
     },
 
-    render(){
+    render() {
         return (
             <PydioMantineProvider>
                 <MetadataContextProvider
-                    node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
+                    node={
+                        this.props.selection.isUnique()
+                            ? this.props.selection.getUniqueNode()
+                            : new Node()
+                    }
                     saveMeta={(metadata) => this.saveMeta(metadata)}
                     saving={false}
                     savePartialy={false}
-                    onDataChanged={(metadata) => this.formMetadata = metadata}
+                    onDataChanged={(metadata, { errors, isValid }) => {
+                        const isSingleFileSelection =
+                            this.props.selection.isUnique();
+                        this.formIsValid = isSingleFileSelection
+                            ? isValid
+                            : !Array.from(metadata.keys()).find(
+                                  (k) => errors[k],
+                              );
+                        this.formMetadata = metadata;
+                    }}
                 >
                     <UserMetaPanelV2
                         pydio={this.props.pydio}
                         multiple={!this.props.selection.isUnique()}
                         ref="panel"
-                        node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
+                        node={
+                            this.props.selection.isUnique()
+                                ? this.props.selection.getUniqueNode()
+                                : new Node()
+                        }
                         editMode={true}
-                        style={{fontSize: 14}}
+                        style={{ fontSize: 14 }}
                     />
                 </MetadataContextProvider>
             </PydioMantineProvider>
