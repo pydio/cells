@@ -31,8 +31,6 @@ type ModifierRenderArgs = {
     text: string
     composedValue: string
     leftSection: React.ReactNode
-    autoFocus: boolean
-    onBlur?: () => void
     onTextChange: (nextText: string) => void
     onSubmit: () => void
 }
@@ -43,7 +41,6 @@ type SearchModifierInputProps = {
     items: LeftSectionMenuItem[]
     applyModifier: (modifier: string, text: string) => string
     parseModifier: (input: string) => ModifierParseResult
-    requestToggleClose?: () => void
     children: (args: ModifierRenderArgs) => React.ReactNode
 }
 
@@ -53,7 +50,6 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
     items,
     applyModifier,
     parseModifier,
-    requestToggleClose,
     children
 }) => {
     const {modifier, text} = parseModifier(value || '')
@@ -74,8 +70,6 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
                 text,
                 composedValue,
                 leftSection,
-                autoFocus: !!requestToggleClose,
-                onBlur: () => requestToggleClose && requestToggleClose(),
                 onTextChange: (nextText) => onChange(applyModifier(modifier, nextText)),
                 onSubmit: () => onChange(composedValue, true)
             })}
@@ -87,7 +81,6 @@ type ModifierWrapperProps = {
     value?: string
     onChange: (value: string, submit?: boolean) => void
     items: LeftSectionMenuItem[]
-    requestToggleClose?: () => void
     children: (args: ModifierRenderArgs) => React.ReactNode
 }
 
@@ -95,7 +88,6 @@ export const TextSearchModifierInput: React.FC<ModifierWrapperProps> = ({
     value,
     onChange,
     items,
-    requestToggleClose,
     children
 }) => {
     const applyModifier = (modifier: string, text: string) => {
@@ -130,7 +122,6 @@ export const TextSearchModifierInput: React.FC<ModifierWrapperProps> = ({
             items={items}
             applyModifier={applyModifier}
             parseModifier={parseModifier}
-            requestToggleClose={requestToggleClose}
         >
             {children}
         </SearchModifierInput>
@@ -141,7 +132,6 @@ export const RangeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
     value,
     onChange,
     items,
-    requestToggleClose,
     children
 }) => {
     const applyModifier = (modifier: string, text: string) => {
@@ -167,7 +157,6 @@ export const RangeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
             items={items}
             applyModifier={applyModifier}
             parseModifier={parseModifier}
-            requestToggleClose={requestToggleClose}
         >
             {children}
         </SearchModifierInput>
@@ -178,7 +167,6 @@ export const DateTimeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
     value,
     onChange,
     items,
-    requestToggleClose,
     children
 }) => {
     const applyModifier = (modifier: string, text: string) => {
@@ -204,7 +192,6 @@ export const DateTimeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
             items={items}
             applyModifier={applyModifier}
             parseModifier={parseModifier}
-            requestToggleClose={requestToggleClose}
         >
             {children}
         </SearchModifierInput>

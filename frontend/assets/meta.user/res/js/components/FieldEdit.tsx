@@ -110,8 +110,6 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
         onFocus,
         onBlur,
         errorText,
-        // FIXME: go over the code and remove this
-        requestToggleClose: () => {},
     };
 
     switch (type) {

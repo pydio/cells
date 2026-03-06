@@ -33,7 +33,6 @@ export interface InputProps {
     onChange: (value: string|boolean|number, submit?: boolean) => void;
     onBlur?: (e: any) => void;
 
-    requestToggleClose?: () => void;
     onCommitChange?: (values: unknown) => void;
 
     prefix?: string;
@@ -67,9 +66,6 @@ readonly?: boolean;
 required?: boolean;
 errorText?: string;
 onValueChange: (fieldname: string, value: string|boolean|number, immediate?: boolean) => void;
-
-// If field is "togglable"
-requestToggleClose:() => void;
 
 // Display Context
 supportTemplates?: boolean;

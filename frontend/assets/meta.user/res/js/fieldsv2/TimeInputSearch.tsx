@@ -52,7 +52,6 @@ export const TimeInputSearch: React.FC<InputProps> = ({
     required,
     disabled,
     value,
-    requestToggleClose,
     onChange,
     errorText
 }) => {
@@ -64,20 +63,14 @@ export const TimeInputSearch: React.FC<InputProps> = ({
     }
 
     const popoverProps: PopoverProps = {withinPortal: false}
-    if (requestToggleClose && !disabled) {
-        popoverProps.onClose = () => {
-            requestToggleClose()
-        }
-    }
 
     return (
         <RangeSearchModifierInput
             value={value}
             onChange={onChange}
             items={DateRangeModifiers}
-            requestToggleClose={requestToggleClose}
         >
-            {({text, leftSection, onTextChange, onSubmit, autoFocus}) => (
+            {({text, leftSection, onTextChange, onSubmit}) => (
                 <TimePicker
                     {...props}
                     radius="md"
@@ -90,7 +83,6 @@ export const TimeInputSearch: React.FC<InputProps> = ({
                         }
                     }}
                     description={description}
-                    autoFocus={autoFocus}
                     popoverProps={popoverProps}
                 />
             )}

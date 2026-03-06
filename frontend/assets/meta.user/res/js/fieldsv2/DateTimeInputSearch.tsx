@@ -34,22 +34,17 @@ export const DateTimeInputSearch: React.FC<InputProps> = ({
     disabled,
     value,
     onChange,
-    requestToggleClose,
     errorText
 }) => {
     const popoverProps : PopoverProps = {withinPortal: false}
-    if(requestToggleClose && !disabled) {
-        popoverProps.onClose= requestToggleClose
-    }
 
     return (
         <DateTimeSearchModifierInput
             value={value}
             onChange={onChange}
             items={DateRangeModifiers}
-            requestToggleClose={requestToggleClose}
         >
-            {({text, leftSection, autoFocus, onBlur, onTextChange}) => (
+            {({text, leftSection, onTextChange}) => (
                 <DateTimePicker
                     label={label}
                     disabled={disabled}
@@ -64,8 +59,6 @@ export const DateTimeInputSearch: React.FC<InputProps> = ({
                     }}
                     description={description}
                     placeholder={placeholder}
-                    autoFocus={autoFocus}
-                    onBlur={onBlur}
                     popoverProps={popoverProps}
                 />
             )}
