@@ -3,27 +3,27 @@
     "other": "Pages"
   },
   "Display Folders as Pages": {
-    "other": "Display Folders as Pages"
+    "other": "Afficher les dossiers comme des pages"
   },
   "ext": {
     "other": "Bloc-notes"
   },
   "Page Contents Metadata Name": {
-    "other": "Page Contents Metadata Name"
+    "other": "Métadonnée pour stocker le contenu de la page"
   },
   "Set a metadata namespace to store folder pages contents. Metadata must be created before using that.": {
-    "other": "Set a metadata namespace to store folder pages contents. Metadata must be created before using that."
+    "other": "Définissez un Namespace de métadonnées pour stocker le contenu des pages du dossier. La métadonnée doivent être créées avant de l'utiliser."
   },
   "Is Page Metadata Name": {
-    "other": "Is Page Metadata Name"
+    "other": "Métadonnée pour stocker l'état de la page"
   },
   "Set a metadata namespace to enable/disable the page behavior.": {
-    "other": "Set a metadata namespace to enable/disable the page behavior."
+    "other": "Définissez un Namespace de métadonnées pour activer/désactiver l'affichage du dossier en tant que page."
   },
   "Abstract Metadata Name": {
-    "other": "Abstract Metadata Name"
+    "other": "Métadonnée pour stocker la description de la page"
   },
   "Set a metadata namespace to be used as description for pages": {
-    "other": "Set a metadata namespace to be used as description for pages"
+    "other": "Définir un Namespace de métadonnées pour stocker la description de chaque page"
   }
 }
