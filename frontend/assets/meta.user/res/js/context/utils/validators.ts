@@ -1,26 +1,29 @@
-import { AnySchema, ValidateFunction } from 'ajv'
+import { AnySchema, ValidateFunction } from 'ajv';
 
 export const mapErrors = (errors: any[]) => {
-    if (!errors) return {}
+    if (!errors) return {};
 
-    return errors.reduce((acc: {[key: string]: string}, e: any) => {
-        const params = e.params || {}
+    return errors.reduce((acc: { [key: string]: string }, e: any) => {
+        const params = e.params || {};
         if (!e.schemaPath.includes('#required') && params.missingProperty) {
-            const key = params.missingProperty.replace(/\//g, '')
-            return { ...acc, [key]: e.message }
+            const key = params.missingProperty.replace(/\//g, '');
+            return { ...acc, [key]: e.message };
         }
 
-        const [, type,] = e.instancePath.split('/')
-        return { ...acc, [type]: e.message }
-    }, {})
-}
+        const [, type] = e.instancePath.split('/');
+        return { ...acc, [type]: e.message };
+    }, {});
+};
 
-export const formatSpecialCasesForValidation = (formState: Map<string, any>, jsonSchema: AnySchema) => {
-    if (!jsonSchema) return formState
+export const formatSpecialCasesForValidation = (
+    formState: Map<string, any>,
+    jsonSchema: AnySchema,
+) => {
+    if (!jsonSchema) return formState;
 
-    const { properties } = jsonSchema
-    const safeProperties = properties || {}
-    const entries = {}
+    const { properties } = jsonSchema;
+    const safeProperties = properties || {};
+    const entries = {};
     formState.forEach((v, k) => {
         if (safeProperties[k]?.format === 'time') {
             const iso = new Date(parseFloat(v) * 1000).toISOString();
@@ -28,33 +31,36 @@ export const formatSpecialCasesForValidation = (formState: Map<string, any>, jso
             const [hours, minutes, secondsWithMs] = timePart.split(':');
             const seconds = secondsWithMs.split('.')[0];
             entries[k] = `${hours}:${minutes}:${seconds}`;
-            return
+            return;
         }
 
-        if (safeProperties[k]?.format === 'date-time' || safeProperties[k]?.format === 'date') {
-            entries[k] = new Date(parseFloat(v) * 1000).toISOString()
-            return
+        if (
+            safeProperties[k]?.format === 'date-time' ||
+            safeProperties[k]?.format === 'date'
+        ) {
+            entries[k] = new Date(parseFloat(v) * 1000).toISOString();
+            return;
         }
 
-        entries[k] = v
-    })
+        entries[k] = v;
+    });
 
-    return entries
-}
+    return entries;
+};
 
-export type Validator = (formState: Map<string, any>) => { isValid: boolean, errors: any }
+export type Validator = (formState: Map<string, any>) => {
+    isValid: boolean;
+    errors: any;
+};
 
-export const buildValidator = (
-    validator: ValidateFunction<any> | null
-): Validator => (formState: Map<string, any>) => {
-    if (!validator) return { isValid: true, errors: {} };
+export const buildValidator =
+    (validator: ValidateFunction<any> | null): Validator =>
+    (formState: Map<string, any>) => {
+        if (!validator) return { isValid: true, errors: {} };
 
-    let isValid = validator(
-        formatSpecialCasesForValidation(
-            formState,
-            validator.schema
-        )
-    )
-    const errors = mapErrors(validator.errors)
-    return { isValid, errors }
-}
+        let isValid = validator(
+            formatSpecialCasesForValidation(formState, validator.schema),
+        );
+        const errors = mapErrors(validator.errors);
+        return { isValid, errors };
+    };

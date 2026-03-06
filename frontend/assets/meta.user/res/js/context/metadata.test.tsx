@@ -1,30 +1,47 @@
-import * as React from 'react'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { Mock } from 'vitest'
-import { renderHook, act, waitFor, render, screen } from '@testing-library/react'
+import * as React from 'react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { Mock } from 'vitest';
+import {
+    renderHook,
+    act,
+    waitFor,
+    render,
+    screen,
+} from '@testing-library/react';
 
 // Suppress console.log from reducer
-vi.spyOn(console, 'log').mockImplementation(() => {})
+vi.spyOn(console, 'log').mockImplementation(() => {});
 
-import testSchema from '../__fixtures__/test-schema.json'
+import testSchema from '../__fixtures__/test-schema.json';
 
 // Mock MetaClient before importing the module
 vi.mock('../MetaClient', () => ({
     default: {
-        getInstance: vi.fn()
-    }
-}))
+        getInstance: vi.fn(),
+    },
+}));
 
-import MetaClient from '../MetaClient'
-import { MetadataContextProvider, useMetadataContext } from './metadata'
+import MetaClient from '../MetaClient';
+import {
+    MetadataContextProvider,
+    OnChangeContext,
+    OnDataChanged,
+    useMetadataContext,
+} from './metadata';
 
 interface MockNode {
-  getMetadata: Mock<() => Map<string, any>>;
-  getPath: Mock<() => string>;
-  replaceMetadata: Mock<(metadata: Map<string, any>, notify?: boolean) => void>;
-  observe: Mock<(eventName: string, callback: (node: MockNode) => void) => void>;
-  stopObserving: Mock<(eventName: string, callback: (node: MockNode) => void) => void>;
-  [key: string]: any;
+    getMetadata: Mock<() => Map<string, any>>;
+    getPath: Mock<() => string>;
+    replaceMetadata: Mock<
+        (metadata: Map<string, any>, notify?: boolean) => void
+    >;
+    observe: Mock<
+        (eventName: string, callback: (node: MockNode) => void) => void
+    >;
+    stopObserving: Mock<
+        (eventName: string, callback: (node: MockNode) => void) => void
+    >;
+    [key: string]: any;
 }
 
 // Helper to create a mock node
@@ -34,35 +51,41 @@ const createMockNode = (overrides: Partial<MockNode> = {}): MockNode => ({
     replaceMetadata: vi.fn(),
     observe: vi.fn(),
     stopObserving: vi.fn(),
-    ...overrides
-})
+    ...overrides,
+});
 
 describe('MetadataContext', () => {
-    let mockNode: MockNode
-    let mockSaveMeta: Mock<(formData: Map<string, any>) => Promise<any>>
-    let mockOnDataChanged: Mock<(formData: Map<string, any>, isValid: boolean) => void>
+    let mockNode: MockNode;
+    let mockSaveMeta: Mock<(formData: Map<string, any>) => Promise<any>>;
+    let mockOnDataChanged: Mock<OnDataChanged>;
 
     beforeEach(() => {
-        mockNode = createMockNode()
-        mockSaveMeta = vi.fn(() => Promise.resolve())
-        mockOnDataChanged = vi.fn()
+        mockNode = createMockNode();
+        mockSaveMeta = vi.fn(() => Promise.resolve());
+        mockOnDataChanged = vi.fn();
         // Setup default MetaClient mock
         MetaClient.getInstance.mockReturnValue({
-            getNamespaceSchema: vi.fn(() => Promise.resolve({ JsonSchema: testSchema }))
-        })
-        vi.clearAllMocks()
-    })
+            getNamespaceSchema: vi.fn(() =>
+                Promise.resolve({ JsonSchema: testSchema }),
+            ),
+        });
+        vi.clearAllMocks();
+    });
 
     afterEach(() => {
-        vi.restoreAllMocks()
-    })
+        vi.restoreAllMocks();
+    });
 
     describe('MetadataContextProvider', () => {
         it('renders children and provides context', () => {
             const TestChild = () => {
-                const context = useMetadataContext()
-                return <div data-testid="child">{context.state.node ? 'has node' : 'no node'}</div>
-            }
+                const context = useMetadataContext();
+                return (
+                    <div data-testid="child">
+                        {context.state.node ? 'has node' : 'no node'}
+                    </div>
+                );
+            };
 
             render(
                 <MetadataContextProvider
@@ -72,11 +95,11 @@ describe('MetadataContext', () => {
                     onDataChanged={mockOnDataChanged}
                 >
                     <TestChild />
-                </MetadataContextProvider>
-            )
+                </MetadataContextProvider>,
+            );
 
-            expect(screen.getByTestId('child')).toHaveTextContent('has node')
-        })
+            expect(screen.getByTestId('child')).toHaveTextContent('has node');
+        });
 
         it('initializes state with node and value props', () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -89,18 +112,20 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            expect(result.current.state.node).toBe(mockNode)
-            expect(result.current.state.fields).toEqual({ test: 'value' })
-        })
+            expect(result.current.state.node).toBe(mockNode);
+            expect(result.current.state.fields).toEqual({ test: 'value' });
+        });
 
         it('calls getNamespaceSchema on node change', async () => {
-            const mockGetNamespaceSchema = vi.fn(() => Promise.resolve({ JsonSchema: testSchema }))
+            const mockGetNamespaceSchema = vi.fn(() =>
+                Promise.resolve({ JsonSchema: testSchema }),
+            );
             MetaClient.getInstance.mockReturnValue({
-                getNamespaceSchema: mockGetNamespaceSchema
-            })
+                getNamespaceSchema: mockGetNamespaceSchema,
+            });
 
             renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -112,17 +137,17 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             await waitFor(() => {
-                expect(mockGetNamespaceSchema).toHaveBeenCalled()
-            })
-        })
+                expect(mockGetNamespaceSchema).toHaveBeenCalled();
+            });
+        });
 
         it('updates formState when node metadata changes', async () => {
-            const metadata = new Map([['usermeta-text', 'hello']])
-            mockNode.getMetadata.mockReturnValue(metadata)
+            const metadata = new Map([['usermeta-text', 'hello']]);
+            mockNode.getMetadata.mockReturnValue(metadata);
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -134,16 +159,19 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             await waitFor(() => {
-                expect(mockOnDataChanged).toHaveBeenCalled()
-            })
+                expect(mockOnDataChanged).toHaveBeenCalled();
+            });
 
-            const callArgs = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
-            expect(callArgs[0].get('usermeta-text')).toBe('hello')
-        })
+            const callArgs =
+                mockOnDataChanged.mock.calls[
+                    mockOnDataChanged.mock.calls.length - 1
+                ];
+            expect(callArgs[0].get('usermeta-text')).toBe('hello');
+        });
 
         it('calls onDataChanged when formState changes', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -181,26 +209,32 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Valid data - all required fields present with correct format
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             const validData = new Map([
                 ['usermeta-text', 'hello'],
                 ['usermeta-paragraph', 'this is a paragraph'],
                 ['usermeta-number', '5'],
-                ['usermeta-datetime', '2024-01-01T00:00:00Z']
-            ])
+                ['usermeta-datetime', '2024-01-01T00:00:00Z'],
+            ]);
             act(() => {
-                result.current.actions.setFormState(validData)
-            })
+                result.current.actions.setFormState(validData);
+            });
 
             await waitFor(() => {
-                const [, isValid] = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
-                expect(isValid).toBe(true)
-            })
-        })
+                const [, ctx] =
+                    mockOnDataChanged.mock.calls[
+                        mockOnDataChanged.mock.calls.length - 1
+                    ];
+                expect(ctx).toEqual({
+                    isValid: true,
+                    errors: {},
+                });
+            });
+        });
 
         it('detects validation errors in required fields', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -213,18 +247,18 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Missing required fields - should fail validation
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             const incompleteData = new Map([
-                ['usermeta-text', 'hello']
+                ['usermeta-text', 'hello'],
                 // Missing other required fields
-            ])
+            ]);
             act(() => {
-                result.current.actions.setFormState(incompleteData)
-            })
+                result.current.actions.setFormState(incompleteData);
+            });
 
             await waitFor(() => {
                 const [, ctx] =
@@ -258,29 +292,32 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             // Form state with empty values mixed with valid data
             const formStateWithEmptyValues = new Map([
                 ['usermeta-text', 'hello'],
-                ['usermeta-paragraph', ''],  // empty - should be removed for validation
-                ['usermeta-number', ''],     // empty - should be removed for validation
-                ['usermeta-datetime', 'should-remain-for-callback']
-            ])
+                ['usermeta-paragraph', ''], // empty - should be removed for validation
+                ['usermeta-number', ''], // empty - should be removed for validation
+                ['usermeta-datetime', 'should-remain-for-callback'],
+            ]);
 
             act(() => {
-                result.current.actions.setFormState(formStateWithEmptyValues)
-            })
+                result.current.actions.setFormState(formStateWithEmptyValues);
+            });
 
             // Original formState should be preserved in onDataChanged (with empty values)
-            expect(mockOnDataChanged).toHaveBeenCalled()
-            const [callbackFormState] = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
-            expect(callbackFormState.get('usermeta-paragraph')).toBe('')
-            expect(callbackFormState.get('usermeta-number')).toBe('')
-            expect(callbackFormState.size).toBe(4)
-        })
+            expect(mockOnDataChanged).toHaveBeenCalled();
+            const [callbackFormState] =
+                mockOnDataChanged.mock.calls[
+                    mockOnDataChanged.mock.calls.length - 1
+                ];
+            expect(callbackFormState.get('usermeta-paragraph')).toBe('');
+            expect(callbackFormState.get('usermeta-number')).toBe('');
+            expect(callbackFormState.size).toBe(4);
+        });
 
         it('removes empty string keys before validation', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -293,27 +330,27 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             // Form state with empty key
             const formStateWithEmptyKey = new Map([
                 ['usermeta-text', 'hello'],
                 ['', 'should-be-removed-for-validation'],
-                ['usermeta-paragraph', 'paragraph text']
-            ])
+                ['usermeta-paragraph', 'paragraph text'],
+            ]);
 
             act(() => {
-                result.current.actions.setFormState(formStateWithEmptyKey)
-            })
+                result.current.actions.setFormState(formStateWithEmptyKey);
+            });
 
             // Original formState should be preserved in callback (with empty key)
-            expect(mockOnDataChanged).toHaveBeenCalled()
-            const [callbackFormState] = mockOnDataChanged.mock.calls[0]
-            expect(callbackFormState.has('')).toBe(true)
-            expect(callbackFormState.size).toBe(3)
-        })
+            expect(mockOnDataChanged).toHaveBeenCalled();
+            const [callbackFormState] = mockOnDataChanged.mock.calls[0];
+            expect(callbackFormState.has('')).toBe(true);
+            expect(callbackFormState.size).toBe(3);
+        });
 
         it('removes whitespace-only values before validation', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -326,29 +363,29 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             // Form state with whitespace-only values
             const formStateWithWhitespace = new Map([
                 ['usermeta-text', 'hello'],
-                ['usermeta-paragraph', '   '],    // whitespace - should be removed for validation
-                ['usermeta-number', '\t\n'],     // whitespace - should be removed for validation
-                ['usermeta-datetime', 'test']
-            ])
+                ['usermeta-paragraph', '   '], // whitespace - should be removed for validation
+                ['usermeta-number', '\t\n'], // whitespace - should be removed for validation
+                ['usermeta-datetime', 'test'],
+            ]);
 
             act(() => {
-                result.current.actions.setFormState(formStateWithWhitespace)
-            })
+                result.current.actions.setFormState(formStateWithWhitespace);
+            });
 
             // Original formState should be preserved in callback
-            expect(mockOnDataChanged).toHaveBeenCalled()
-            const [callbackFormState] = mockOnDataChanged.mock.calls[0]
-            expect(callbackFormState.get('usermeta-paragraph')).toBe('   ')
-            expect(callbackFormState.get('usermeta-number')).toBe('\t\n')
-            expect(callbackFormState.size).toBe(4)
-        })
+            expect(mockOnDataChanged).toHaveBeenCalled();
+            const [callbackFormState] = mockOnDataChanged.mock.calls[0];
+            expect(callbackFormState.get('usermeta-paragraph')).toBe('   ');
+            expect(callbackFormState.get('usermeta-number')).toBe('\t\n');
+            expect(callbackFormState.size).toBe(4);
+        });
 
         it('validates and saves when shouldSave becomes true with valid data', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -358,34 +395,35 @@ describe('MetadataContext', () => {
                         saveMeta={mockSaveMeta}
                         value={{}}
                         onDataChanged={mockOnDataChanged}
+                        savePartially={true}
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Set valid data
             const validData = new Map([
                 ['usermeta-text', 'hello'],
                 ['usermeta-paragraph', 'this is a paragraph'],
                 ['usermeta-number', '5'],
-                ['usermeta-datetime', '2024-01-01T00:00:00Z']
-            ])
+                ['usermeta-datetime', '2024-01-01T00:00:00Z'],
+            ]);
             act(() => {
-                result.current.actions.setFormState(validData)
-            })
+                result.current.actions.setFormState(validData);
+            });
 
             // Trigger save
             act(() => {
-                result.current.actions.setShouldSave(true)
-            })
+                result.current.actions.setShouldSave(true);
+            });
 
             await waitFor(() => {
-                expect(mockSaveMeta).toHaveBeenCalledWith(validData)
-                expect(result.current.state.saving).toBe(false)
-                expect(result.current.state.shouldSave).toBe(false)
-            })
-        })
+                expect(mockSaveMeta).toHaveBeenCalledWith(validData);
+                expect(result.current.state.saving).toBe(false);
+                expect(result.current.state.shouldSave).toBe(false);
+            });
+        });
 
         it('saves even when validation fails if savePartially is true', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -399,27 +437,28 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Set invalid data
             const invalidData = new Map([
-                ['usermeta-text', 'h']  // too short
-            ])
+                ['usermeta-text', 'h'], // too short
+            ]);
             act(() => {
-                result.current.actions.setFormState(invalidData)
-            })
+                result.current.actions.setFormState(invalidData);
+            });
 
             // Trigger save
-            mockSaveMeta.mockClear()
+            mockSaveMeta.mockClear();
             act(() => {
-                result.current.actions.setShouldSave(true)
-            })
+                result.current.actions.setShouldSave(true);
+            });
 
             await waitFor(() => {
-                expect(mockSaveMeta).toHaveBeenCalledWith(invalidData)
-            })
-        })
+                expect(mockSaveMeta).toHaveBeenCalledWith(invalidData);
+            });
+        });
+
         it('prevents partial save when validation errors exist even if save is requested', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -481,35 +520,35 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             // Mix of empty keys, empty values, and valid data
             const mixedFormState = new Map([
                 ['usermeta-text', 'hello'],
                 ['', 'empty-key-value'],
                 ['usermeta-paragraph', ''],
                 ['usermeta-number', '5'],
-                ['usermeta-datetime', '2024-01-01T00:00:00Z']
-            ])
+                ['usermeta-datetime', '2024-01-01T00:00:00Z'],
+            ]);
 
             act(() => {
-                result.current.actions.setFormState(mixedFormState)
-            })
+                result.current.actions.setFormState(mixedFormState);
+            });
 
             // The callback should receive the exact original state
-            expect(mockOnDataChanged).toHaveBeenCalled()
-            const [callbackState] = mockOnDataChanged.mock.calls[0]
-            expect(callbackState).toBe(mixedFormState)  // Same reference
-            expect(callbackState.has('')).toBe(true)
-            expect(callbackState.get('usermeta-paragraph')).toBe('')
-            expect(callbackState.size).toBe(5)
-        })
+            expect(mockOnDataChanged).toHaveBeenCalled();
+            const [callbackState] = mockOnDataChanged.mock.calls[0];
+            expect(callbackState).toBe(mixedFormState); // Same reference
+            expect(callbackState.has('')).toBe(true);
+            expect(callbackState.get('usermeta-paragraph')).toBe('');
+            expect(callbackState.size).toBe(5);
+        });
 
         it('observes node_replaced event and updates formState when node is replaced', async () => {
-            const initialMetadata = new Map([['usermeta-text', 'initial']])
-            mockNode.getMetadata.mockReturnValue(initialMetadata)
+            const initialMetadata = new Map([['usermeta-text', 'initial']]);
+            mockNode.getMetadata.mockReturnValue(initialMetadata);
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -521,17 +560,20 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Verify that node.observe was called with 'node_replaced' event
-            expect(mockNode.observe).toHaveBeenCalledWith('node_replaced', expect.any(Function))
-        })
+            expect(mockNode.observe).toHaveBeenCalledWith(
+                'node_replaced',
+                expect.any(Function),
+            );
+        });
 
         it('fires node_replaced event handler with new node metadata', async () => {
-            const initialMetadata = new Map([['usermeta-text', 'initial']])
-            const newMetadata = new Map([['usermeta-text', 'updated']])
-            mockNode.getMetadata.mockReturnValue(initialMetadata)
+            const initialMetadata = new Map([['usermeta-text', 'initial']]);
+            const newMetadata = new Map([['usermeta-text', 'updated']]);
+            mockNode.getMetadata.mockReturnValue(initialMetadata);
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -543,41 +585,41 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Get the callback that was passed to node.observe
             const observeCall = mockNode.observe.mock.calls.find(
-                (call) => call[0] === 'node_replaced'
-            )
-            expect(observeCall).toBeDefined()
+                (call) => call[0] === 'node_replaced',
+            );
+            expect(observeCall).toBeDefined();
 
-            const nodeReplacedCallback = observeCall![1]
+            const nodeReplacedCallback = observeCall![1];
 
             // Create a new mock node with different metadata
             const newNode = createMockNode({
-                getMetadata: vi.fn(() => newMetadata)
-            })
+                getMetadata: vi.fn(() => newMetadata),
+            });
 
             // Clear previous calls to onDataChanged
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
 
             // Simulate the node_replaced event by calling the callback
             act(() => {
-                nodeReplacedCallback(newNode)
-            })
+                nodeReplacedCallback(newNode);
+            });
 
             // Verify that onDataChanged was called with the new metadata
             await waitFor(() => {
-                expect(mockOnDataChanged).toHaveBeenCalled()
-                const [callbackState] = mockOnDataChanged.mock.calls[0]
-                expect(callbackState.get('usermeta-text')).toBe('updated')
-            })
-        })
+                expect(mockOnDataChanged).toHaveBeenCalled();
+                const [callbackState] = mockOnDataChanged.mock.calls[0];
+                expect(callbackState.get('usermeta-text')).toBe('updated');
+            });
+        });
 
         it('cleans up node_replaced observer on unmount', () => {
-            const initialMetadata = new Map([['usermeta-text', 'initial']])
-            mockNode.getMetadata.mockReturnValue(initialMetadata)
+            const initialMetadata = new Map([['usermeta-text', 'initial']]);
+            mockNode.getMetadata.mockReturnValue(initialMetadata);
 
             const { unmount } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -589,28 +631,34 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Verify that node.observe was called
-            expect(mockNode.observe).toHaveBeenCalledWith('node_replaced', expect.any(Function))
+            expect(mockNode.observe).toHaveBeenCalledWith(
+                'node_replaced',
+                expect.any(Function),
+            );
 
             // Get the callback that was registered
             const observeCall = mockNode.observe.mock.calls.find(
-                (call) => call[0] === 'node_replaced'
-            )
-            const nodeReplacedCallback = observeCall![1]
+                (call) => call[0] === 'node_replaced',
+            );
+            const nodeReplacedCallback = observeCall![1];
 
             // Unmount the component
-            unmount()
+            unmount();
 
             // Verify that stopObserving was called with the same callback
-            expect(mockNode.stopObserving).toHaveBeenCalledWith('node_replaced', nodeReplacedCallback)
-        })
+            expect(mockNode.stopObserving).toHaveBeenCalledWith(
+                'node_replaced',
+                nodeReplacedCallback,
+            );
+        });
 
         it('handles new node being null in node_replaced callback', async () => {
-            const initialMetadata = new Map([['usermeta-text', 'initial']])
-            mockNode.getMetadata.mockReturnValue(initialMetadata)
+            const initialMetadata = new Map([['usermeta-text', 'initial']]);
+            mockNode.getMetadata.mockReturnValue(initialMetadata);
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -622,32 +670,32 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Get the callback
             const observeCall = mockNode.observe.mock.calls.find(
-                (call) => call[0] === 'node_replaced'
-            )
-            const nodeReplacedCallback = observeCall![1]
+                (call) => call[0] === 'node_replaced',
+            );
+            const nodeReplacedCallback = observeCall![1];
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
 
             // Call callback with null node - should return early and not crash
             act(() => {
-                nodeReplacedCallback(null)
-            })
+                nodeReplacedCallback(null);
+            });
 
             // onDataChanged should not be called
-            expect(mockOnDataChanged).not.toHaveBeenCalled()
-        })
+            expect(mockOnDataChanged).not.toHaveBeenCalled();
+        });
 
         it('handles multiple rapid node replacements', async () => {
-            const metadata1 = new Map([['usermeta-text', 'first']])
-            const metadata2 = new Map([['usermeta-text', 'second']])
-            const metadata3 = new Map([['usermeta-text', 'third']])
+            const metadata1 = new Map([['usermeta-text', 'first']]);
+            const metadata2 = new Map([['usermeta-text', 'second']]);
+            const metadata3 = new Map([['usermeta-text', 'third']]);
 
-            mockNode.getMetadata.mockReturnValue(metadata1)
+            mockNode.getMetadata.mockReturnValue(metadata1);
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -659,51 +707,55 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Get the callback
             const observeCall = mockNode.observe.mock.calls.find(
-                (call) => call[0] === 'node_replaced'
-            )
-            const nodeReplacedCallback = observeCall![1]
+                (call) => call[0] === 'node_replaced',
+            );
+            const nodeReplacedCallback = observeCall![1];
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
 
             // Create multiple nodes
-            const node2 = createMockNode({ getMetadata: vi.fn(() => metadata2) })
-            const node3 = createMockNode({ getMetadata: vi.fn(() => metadata3) })
+            const node2 = createMockNode({
+                getMetadata: vi.fn(() => metadata2),
+            });
+            const node3 = createMockNode({
+                getMetadata: vi.fn(() => metadata3),
+            });
 
             // Fire multiple replacements rapidly
             act(() => {
-                nodeReplacedCallback(node2)
-                nodeReplacedCallback(node3)
-            })
+                nodeReplacedCallback(node2);
+                nodeReplacedCallback(node3);
+            });
 
             // Should have been called twice, with the last metadata winning
             await waitFor(() => {
-                expect(mockOnDataChanged).toHaveBeenCalledTimes(2)
+                expect(mockOnDataChanged).toHaveBeenCalledTimes(2);
                 // Last call should have node3's metadata
-                const lastCall = mockOnDataChanged.mock.calls[1]
-                const lastMetadata = lastCall[0]
-                expect(lastMetadata.get('usermeta-text')).toBe('third')
-            })
-        })
-    })
+                const lastCall = mockOnDataChanged.mock.calls[1];
+                const lastMetadata = lastCall[0];
+                expect(lastMetadata.get('usermeta-text')).toBe('third');
+            });
+        });
+    });
 
     describe('useMetadataContext', () => {
         it('returns default context when used outside provider', () => {
-            const { result } = renderHook(() => useMetadataContext())
-            expect(result.current.state.node).toBeNull()
-            expect(result.current.state.saving).toBe(false)
-            expect(result.current.state.formState).toBeInstanceOf(Map)
-            expect(result.current.state.fields).toEqual({})
-            expect(result.current.state.namespaceJsonSchema).toBeNull()
-            expect(result.current.state.jsonSchema).toBeNull()
-            expect(result.current.state.shouldSave).toBe(false)
-            expect(result.current.state.editingTag).toBe('none')
-            expect(result.current.state.errors).toEqual({})
-        })
+            const { result } = renderHook(() => useMetadataContext());
+            expect(result.current.state.node).toBeNull();
+            expect(result.current.state.saving).toBe(false);
+            expect(result.current.state.formState).toBeInstanceOf(Map);
+            expect(result.current.state.fields).toEqual({});
+            expect(result.current.state.namespaceJsonSchema).toBeNull();
+            expect(result.current.state.jsonSchema).toBeNull();
+            expect(result.current.state.shouldSave).toBe(false);
+            expect(result.current.state.editingTag).toBe('none');
+            expect(result.current.state.errors).toEqual({});
+        });
 
         it('returns provider context when inside provider', () => {
             const { result } = renderHook(() => useMetadataContext(), {
@@ -716,22 +768,22 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            expect(result.current.state.node).toBe(mockNode)
-            expect(typeof result.current.dispatch).toBe('function')
-            expect(typeof result.current.actions.setSaving).toBe('function')
-        })
+            expect(result.current.state.node).toBe(mockNode);
+            expect(typeof result.current.dispatch).toBe('function');
+            expect(typeof result.current.actions.setSaving).toBe('function');
+        });
 
         it('updates formState without validation when no jsonSchema is loaded', async () => {
             // Setup MetaClient to return null schema
             MetaClient.getInstance.mockReturnValue({
-                getNamespaceSchema: vi.fn(() => Promise.resolve(null))
-            })
+                getNamespaceSchema: vi.fn(() => Promise.resolve(null)),
+            });
 
-            const metadata = new Map([['usermeta-text', 'hello']])
-            mockNode.getMetadata.mockReturnValue(metadata)
+            const metadata = new Map([['usermeta-text', 'hello']]);
+            mockNode.getMetadata.mockReturnValue(metadata);
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -743,15 +795,15 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
 
             // Set form state without schema - should still work
             act(() => {
-                result.current.actions.setFormState(metadata)
-            })
+                result.current.actions.setFormState(metadata);
+            });
 
             // onDataChanged SHOULD be called (with noopValidator)
             expect(mockOnDataChanged).toHaveBeenCalled();
@@ -764,10 +816,10 @@ describe('MetadataContext', () => {
 
         it('switches from noopValidator to real validator when jsonSchema becomes available', async () => {
             // Initially return null schema
-            const mockGetNamespaceSchema = vi.fn(() => Promise.resolve(null))
+            const mockGetNamespaceSchema = vi.fn(() => Promise.resolve(null));
             MetaClient.getInstance.mockReturnValue({
-                getNamespaceSchema: mockGetNamespaceSchema
-            })
+                getNamespaceSchema: mockGetNamespaceSchema,
+            });
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -779,15 +831,15 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Initially no schema, uses noopValidator
-            mockOnDataChanged.mockClear()
-            const incompleteData = new Map([['usermeta-text', 'hello']])
+            mockOnDataChanged.mockClear();
+            const incompleteData = new Map([['usermeta-text', 'hello']]);
             act(() => {
-                result.current.actions.setFormState(incompleteData)
-            })
+                result.current.actions.setFormState(incompleteData);
+            });
             // noopValidator returns true regardless
             const [, ctxWithoutSchema] = mockOnDataChanged.mock.calls[0];
             expect(ctxWithoutSchema).toEqual({
@@ -796,21 +848,21 @@ describe('MetadataContext', () => {
             });
 
             // Now manually set the real schema
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             act(() => {
-                result.current.actions.setJsonSchema(testSchema)
-            })
+                result.current.actions.setJsonSchema(testSchema);
+            });
 
             // Wait for effect to set up real validator
             await waitFor(() => {
-                expect(result.current.state.jsonSchema).toBe(testSchema)
-            })
+                expect(result.current.state.jsonSchema).toBe(testSchema);
+            });
 
             // Now setFormState uses the real validator
-            mockOnDataChanged.mockClear()
+            mockOnDataChanged.mockClear();
             act(() => {
-                result.current.actions.setFormState(incompleteData)
-            })
+                result.current.actions.setFormState(incompleteData);
+            });
 
             // Real validator should fail because required fields are missing
             const [, ctxWithSchema] = mockOnDataChanged.mock.calls[0];
@@ -833,13 +885,13 @@ describe('MetadataContext', () => {
                 ['usermeta-text', 'original text'],
                 ['usermeta-paragraph', 'original paragraph'],
                 ['usermeta-number', '5'],
-                ['usermeta-datetime', '2024-01-01T00:00:00Z']
-            ])
-            
+                ['usermeta-datetime', '2024-01-01T00:00:00Z'],
+            ]);
+
             // Create a mock node that returns our original metadata
             const nodeWithMetadata = createMockNode({
-                getMetadata: vi.fn(() => originalMetadata)
-            })
+                getMetadata: vi.fn(() => originalMetadata),
+            });
 
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -851,44 +903,56 @@ describe('MetadataContext', () => {
                     >
                         {children}
                     </MetadataContextProvider>
-                )
-            })
+                ),
+            });
 
             // Wait for initial form state to be set from node metadata
             await waitFor(() => {
-                expect(result.current.state.formState.size).toBe(4)
-            })
+                expect(result.current.state.formState.size).toBe(4);
+            });
 
             // Verify form state has the initial values
-            expect(result.current.state.formState.get('usermeta-text')).toBe('original text')
-            
+            expect(result.current.state.formState.get('usermeta-text')).toBe(
+                'original text',
+            );
+
             // Keep a reference to the original metadata to check it later
-            const originalMetadataRef = originalMetadata
-            
+            const originalMetadataRef = originalMetadata;
+
             // Update form state with new values
             const updatedFormState = new Map([
                 ['usermeta-text', 'modified text'],
                 ['usermeta-paragraph', 'modified paragraph'],
                 ['usermeta-number', '10'],
-                ['usermeta-datetime', '2024-12-31T23:59:59Z']
-            ])
-            
+                ['usermeta-datetime', '2024-12-31T23:59:59Z'],
+            ]);
+
             act(() => {
-                result.current.actions.setFormState(updatedFormState)
-            })
+                result.current.actions.setFormState(updatedFormState);
+            });
 
             // Verify form state was updated
-            expect(result.current.state.formState.get('usermeta-text')).toBe('modified text')
-            
+            expect(result.current.state.formState.get('usermeta-text')).toBe(
+                'modified text',
+            );
+
             // CRITICAL: Verify the original node metadata was NOT mutated
-            expect(originalMetadataRef.get('usermeta-text')).toBe('original text')
-            expect(originalMetadataRef.get('usermeta-paragraph')).toBe('original paragraph')
-            expect(originalMetadataRef.get('usermeta-number')).toBe('5')
-            expect(originalMetadataRef.get('usermeta-datetime')).toBe('2024-01-01T00:00:00Z')
-            
+            expect(originalMetadataRef.get('usermeta-text')).toBe(
+                'original text',
+            );
+            expect(originalMetadataRef.get('usermeta-paragraph')).toBe(
+                'original paragraph',
+            );
+            expect(originalMetadataRef.get('usermeta-number')).toBe('5');
+            expect(originalMetadataRef.get('usermeta-datetime')).toBe(
+                '2024-01-01T00:00:00Z',
+            );
+
             // Also verify they're not the same Map instance (copy-on-write)
-            expect(result.current.state.formState).not.toBe(originalMetadataRef)
-            expect(result.current.state.formState).not.toBe(updatedFormState) // Also a copy was made
-        })
-    })
-})
+            expect(result.current.state.formState).not.toBe(
+                originalMetadataRef,
+            );
+            expect(result.current.state.formState).not.toBe(updatedFormState); // Also a copy was made
+        });
+    });
+});

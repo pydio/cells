@@ -17,12 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, { useRef, useEffect, useState, useCallback } from 'react'
-import Pydio from 'pydio'
-import MetaClient from "./MetaClient";
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import Pydio from 'pydio';
+import MetaClient from './MetaClient';
 import { FlatButton } from 'material-ui';
-import UserMetaPanelV2 from "./UserMetaPanelV2";
-const { InfoPanelCard } = Pydio.requireLib('workspaces')
+import UserMetaPanelV2 from './UserMetaPanelV2';
+const { InfoPanelCard } = Pydio.requireLib('workspaces');
 import { MetadataContextProvider } from './context/metadata.tsx';
 
 // NOTE: this component is also used in:
@@ -78,56 +78,59 @@ const InfoPanel = ({
     const readOnly = node.getMetadata().get('node_readonly') === 'true';
     let hasAction = false;
     if (!readOnly && updateData && updateData.size > 0) {
-        hasAction = true
+        hasAction = true;
         actions.push(
             <FlatButton
                 key="edit"
                 label={MessageHash['meta.user.15']}
                 onClick={submitMetadata}
                 disabled={!valid}
-            />
+            />,
         );
     }
-    let panelStyle = {}
+    let panelStyle = {};
     if (popoverPanel) {
         panelStyle = {
             ...panelStyle,
             maxHeight: '80vh',
-            overflowY: 'auto'
-        }
+            overflowY: 'auto',
+        };
     }
     if (!hasAction) {
-        panelStyle = { ...panelStyle, paddingBottom: 16 }
+        panelStyle = { ...panelStyle, paddingBottom: 16 };
     }
 
     return (
         <MetadataContextProvider
             node={node}
             saveMeta={saveMeta}
-            savePartialy={true}
+            savePartially={true}
             saving={saving}
-            onDataChanged={(data, isValid) => {
-                setUpdateData(data)
-                setValid(isValid)
+            onDataChanged={(data, { isValid }) => {
+                setUpdateData(data);
+                setValid(isValid);
             }}
         >
             <InfoPanelCard
                 {...infoProps}
-                identifier={"meta-user"}
+                identifier={'meta-user'}
                 style={style}
                 title={MessageHash['meta.user.1']}
                 actions={actions.length ? actions : null}
-                icon="mdi mdi-tag-multiple-outline" iconColor="#00ACC1"
+                icon="mdi mdi-tag-multiple-outline"
+                iconColor="#00ACC1"
                 popoverPanel={popoverPanel}
             >
                 <UserMetaPanelV2
                     ref={panel}
-                    className={"infoPanelFlexRow"}
+                    className={'infoPanelFlexRow'}
                     node={node}
                     editMode={!readOnly}
                     pydio={pydio}
                     onChangeUpdateData={setUpdateData}
-                    onValidStatusChanged={(v) => { setValid(v) }}
+                    onValidStatusChanged={(v) => {
+                        setValid(v);
+                    }}
                     saving={saving}
                     style={panelStyle}
                     useTogglableFields={true}
@@ -135,6 +138,6 @@ const InfoPanel = ({
             </InfoPanelCard>
         </MetadataContextProvider>
     );
-}
+};
 
-export default InfoPanel
+export default InfoPanel;

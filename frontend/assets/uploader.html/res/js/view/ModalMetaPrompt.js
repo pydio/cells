@@ -72,7 +72,7 @@ export default ({ namespaces, onDismiss, metaLib }) => {
             <MetadataContextProvider
                 node={node}
                 loadJsonSchema={loader}
-                onDataChanged={(data, isValid) => {
+                onDataChanged={(data, { isValid }) => {
                     setData(data)
                     setValid(isValid)
                 }}

@@ -19,31 +19,32 @@
  */
 
 import React, { useCallback } from 'react';
-import { getCssLabels } from "../fields/CssLabelsField";
-import { TextInput } from "../fieldsv2/TextInput";
-import { Selector } from "../fieldsv2/Select"
-import { RatingInput } from "../fieldsv2/RatingInput";
-import { SwitchInput } from "../fieldsv2/SwitchInput";
-import { NumbersInput } from "../fieldsv2/NumbersInput";
-import { DateTimeInput } from "../fieldsv2/DateTimeInput";
-import { DateInput } from "../fieldsv2/DateInput";
-import { TimeInput } from "../fieldsv2/TimeInput";
-import { URLInput } from "../fieldsv2/URLInput";
-import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
-import { AutoCompleteInput } from "../fieldsv2/AutoCompleteInput";
-import { InputProps, Items } from "../fieldsv2/CommonInputProps";
-import MetaClient from "../MetaClient";
-import { NamespaceMeta } from "./MetaSpec";
-import { getNumberPrefix, getNumberSuffix } from "../formatters/numbers";
+import { getCssLabels } from '../fields/CssLabelsField';
+import { TextInput } from '../fieldsv2/TextInput';
+import { Selector } from '../fieldsv2/Select';
+import { RatingInput } from '../fieldsv2/RatingInput';
+import { SwitchInput } from '../fieldsv2/SwitchInput';
+import { NumbersInput } from '../fieldsv2/NumbersInput';
+import { DateTimeInput } from '../fieldsv2/DateTimeInput';
+import { DateInput } from '../fieldsv2/DateInput';
+import { TimeInput } from '../fieldsv2/TimeInput';
+import { URLInput } from '../fieldsv2/URLInput';
+import { TagsCloudInput } from '../fieldsv2/TagsCloudInput';
+import { AutoCompleteInput } from '../fieldsv2/AutoCompleteInput';
+import { InputProps, Items } from '../fieldsv2/CommonInputProps';
+import MetaClient from '../MetaClient';
+import { NamespaceMeta } from './MetaSpec';
+import { getNumberPrefix, getNumberSuffix } from '../formatters/numbers';
 
 export interface FieldEditProps {
-    context: any,
-    name: string,
-    meta: NamespaceMeta,
-    value: any,
-    updateValue: (f: string, v: any, submit?: boolean) => void,
-    supportTemplates?: boolean,
-    requestToggleClose?: (data?: any) => void,
+    context: any;
+    name: string;
+    meta: NamespaceMeta;
+    value: any;
+    updateValue: (f: string, v: any, submit?: boolean) => void;
+    supportTemplates?: boolean;
+    requestToggleClose?: (data?: any) => void;
+    shouldHideLabel?: boolean;
 }
 
 /**
@@ -53,6 +54,7 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
     context,
     name,
     meta,
+    shouldHideLabel,
     // FIXME: Toggleable fields are disabled
     // updateValue,
     // requestToggleClose,
@@ -60,33 +62,42 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
 
-    const localDataLoader = useCallback((filter?: string) => {
-        return MetaClient.getInstance().listTags(name).then(tags => {
-            return tags.filter(t => t)
-        });
-    }, [name, ])
+    const localDataLoader = useCallback(
+        (filter?: string) => {
+            return MetaClient.getInstance()
+                .listTags(name)
+                .then((tags) => {
+                    return tags.filter((t) => t);
+                });
+        },
+        [name],
+    );
 
     const formatType = data?.format as NumberFormat;
 
-    const value = state.formState.get(name)
+    const value = state.formState.get(name);
     const errorText = state.errors?.[name];
 
-    const onCommitChange = useCallback((v) => {
-        actions.setFormState(state.formState.set(name, v))
+    const onCommitChange = useCallback(
+        (v) => {
+            actions.setFormState(state.formState.set(name, v));
 
-        // NOTE: Only save on change if there are no errors
-        if (Object.keys(state.errors).length === 0) {
-            actions.setShouldSave(true)
-        }
-    }, [state.formState, state.errors, actions])
+            // NOTE: Only save on change if there are no errors
+            actions.setShouldSave(Object.keys(state.errors).length === 0);
+        },
+        [state.formState, state.errors, actions],
+    );
 
-    const onChange = useCallback((v) => {
-        actions.setFormState(state.formState.set(name, v))
-    }, [state.formState, actions])
+    const onChange = useCallback(
+        (v) => {
+            actions.setFormState(state.formState.set(name, v));
+        },
+        [state.formState, actions],
+    );
 
     let baseProps: InputProps = {
         name,
-        label,
+        label: shouldHideLabel ? null : label,
         required,
         description: meta.description,
         disabled: readonly,
@@ -102,54 +113,64 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
         case 'stars_rate':
             return <RatingInput {...baseProps} />;
         case 'choice':
-            const { data: { items = [], steps = false } } = meta;
+            const {
+                data: { items = [], steps = false },
+            } = meta;
             return <Selector {...baseProps} items={items} stepper={steps} />;
         case 'css_label':
             const cssLabels = getCssLabels();
-            const cssItems: Items[] = Object.keys(cssLabels).map((id) => { return { ...cssLabels[id], key: id, value: cssLabels[id].label } })
+            const cssItems: Items[] = Object.keys(cssLabels).map((id) => {
+                return {
+                    ...cssLabels[id],
+                    key: id,
+                    value: cssLabels[id].label,
+                };
+            });
             return <Selector {...baseProps} items={cssItems} />;
         case 'auto_complete':
-            return <AutoCompleteInput
-                {...baseProps}
-                value={state.formState.get(name) || ""}
-                onCommitChange={(v) => onCommitChange([v])}
-                data={[]}
-                dataLoader={localDataLoader}
-            />;
+            return (
+                <AutoCompleteInput
+                    {...baseProps}
+                    value={state.formState.get(name) || ''}
+                    onCommitChange={(v) => onCommitChange([v])}
+                    data={[]}
+                    dataLoader={localDataLoader}
+                />
+            );
         case 'tag_cloud':
-            return <TagsCloudInput
-                {...baseProps}
-                value={state.formState.get(name) || ""}
-                data={[]}
-                dataLoader={localDataLoader}
-            />;
+            return (
+                <TagsCloudInput
+                    {...baseProps}
+                    value={state.formState.get(name) || ''}
+                    data={[]}
+                    dataLoader={localDataLoader}
+                />
+            );
         case 'tags':
-            return <TagsCloudInput
-                {...baseProps}
-                value={state.formState.get(name) || ""}
-                data={[]}
-                dataLoader={localDataLoader}
-            />;
+            return (
+                <TagsCloudInput
+                    {...baseProps}
+                    value={state.formState.get(name) || ''}
+                    data={[]}
+                    dataLoader={localDataLoader}
+                />
+            );
         case 'date':
             if (formatType === 'time') {
-                return <TimeInput
-                    {...baseProps}
-                />;
+                return <TimeInput {...baseProps} />;
             }
             if (formatType === 'date') {
-                return <DateInput
-                    {...baseProps}
-                />;
+                return <DateInput {...baseProps} />;
             }
-            return <DateTimeInput
-                {...baseProps}
-            />;
+            return <DateTimeInput {...baseProps} />;
         case 'integer':
-            return <NumbersInput
-                {...baseProps}
-                prefix={getNumberPrefix(formatType)}
-                suffix={getNumberSuffix(formatType)}
-            />;
+            return (
+                <NumbersInput
+                    {...baseProps}
+                    prefix={getNumberPrefix(formatType)}
+                    suffix={getNumberSuffix(formatType)}
+                />
+            );
         case 'boolean':
             return <SwitchInput {...baseProps} />;
         case 'url':
@@ -159,15 +180,18 @@ const FieldEditInternal: React.FC<FieldEditProps> = ({
     }
 };
 
-export const FieldEdit = (props) => {
+export const FieldEdit = (props: FieldEditProps) => {
     // NOTE: fixes the issue with Field label/input split in
     // the Prompt To Upload dialog
-    return (<div style={{
-        width: '100%',
-        overflowY: 'scroll',
-        overflowX: 'hidden',
-    }}>
-        <FieldEditInternal {...props} />
-    </div>)
-}
-
+    return (
+        <div
+            style={{
+                width: '100%',
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+            }}
+        >
+            <FieldEditInternal {...props} />
+        </div>
+    );
+};

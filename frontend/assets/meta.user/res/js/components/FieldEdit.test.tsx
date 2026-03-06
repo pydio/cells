@@ -18,10 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
-import { MantineProvider } from '@mantine/core'
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+    render,
+    screen,
+    fireEvent,
+    cleanup,
+    waitFor,
+} from '@testing-library/react';
+import { MantineProvider } from '@mantine/core';
 
 /**
  * Mock only external dependencies that load data
@@ -30,27 +36,35 @@ import { MantineProvider } from '@mantine/core'
 vi.mock('../MetaClient', () => ({
     default: {
         getInstance: vi.fn(() => ({
-            listTags: vi.fn().mockResolvedValue(['document', 'image', 'report', 'archive', 'spreadsheet'])
-        }))
-    }
-}))
+            listTags: vi
+                .fn()
+                .mockResolvedValue([
+                    'document',
+                    'image',
+                    'report',
+                    'archive',
+                    'spreadsheet',
+                ]),
+        })),
+    },
+}));
 
 vi.mock('../fields/CssLabelsField');
 
 vi.mock('../formatters/numbers', () => ({
     getNumberPrefix: () => '$',
-    getNumberSuffix: () => 'USD'
-}))
+    getNumberSuffix: () => 'USD',
+}));
 
-import { FieldEdit } from './FieldEdit'
-import { NamespaceMeta } from './MetaSpec'
+import { FieldEdit } from './FieldEdit';
+import { NamespaceMeta } from './MetaSpec';
 
 /**
  * Render helper wraps components with MantineProvider for real rendering
  */
 const renderWithMantine = (ui: React.ReactElement) => {
-    return render(<MantineProvider>{ui}</MantineProvider>)
-}
+    return render(<MantineProvider>{ui}</MantineProvider>);
+};
 
 /**
  * Create mock metadata context
@@ -68,26 +82,27 @@ const createContext = (overrides: Partial<any> = {}) => ({
         setShouldSave: vi.fn(),
         ...overrides.actions,
     },
-})
+});
 
 /**
  * Create mock field metadata
  */
-const createMeta = (overrides: Partial<NamespaceMeta> = {}): NamespaceMeta => ({
-    type: 'text',
-    readonly: false,
-    required: false,
-    label: 'Test Field',
-    description: 'Test description',
-    data: {},
-    ...overrides,
-} as NamespaceMeta)
+const createMeta = (overrides: Partial<NamespaceMeta> = {}): NamespaceMeta =>
+    ({
+        type: 'text',
+        readonly: false,
+        required: false,
+        label: 'Test Field',
+        description: 'Test description',
+        data: {},
+        ...overrides,
+    }) as NamespaceMeta;
 
 describe('FieldEdit Component', () => {
     beforeEach(() => {
-        cleanup()
-        vi.clearAllMocks()
-    })
+        cleanup();
+        vi.clearAllMocks();
+    });
 
     describe('rendering and basic functionality', () => {
         it('renders wrapper component with correct scroll styling', () => {
@@ -96,24 +111,23 @@ describe('FieldEdit Component', () => {
                     context={createContext()}
                     name="testField"
                     meta={createMeta()}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Find the wrapper div (skip style elements from MantineProvider)
-            let wrapper = container.firstChild as HTMLElement
+            let wrapper = container.firstChild as HTMLElement;
             while (wrapper && wrapper.tagName === 'STYLE') {
-                wrapper = wrapper.nextSibling as HTMLElement
+                wrapper = wrapper.nextSibling as HTMLElement;
             }
 
             // Verify wrapper is a div with inline styles for scroll
-            expect(wrapper.tagName).toBe('DIV')
-            expect(wrapper.style.width).toBe('100%')
-            expect(wrapper.style.overflowY).toBe('scroll')
-            expect(wrapper.style.overflowX).toBe('hidden')
-        })
+            expect(wrapper.tagName).toBe('DIV');
+            expect(wrapper.style.width).toBe('100%');
+            expect(wrapper.style.overflowY).toBe('scroll');
+            expect(wrapper.style.overflowX).toBe('hidden');
+        });
 
         it('renders TextInput for text type by default', () => {
             const { container } = renderWithMantine(
@@ -121,19 +135,18 @@ describe('FieldEdit Component', () => {
                     context={createContext()}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(container.firstChild).toBeInTheDocument()
-        })
-    })
+            expect(container.firstChild).toBeInTheDocument();
+        });
+    });
 
     describe('tag_cloud field (WPB-23701 focus)', () => {
         it('renders TagsCloudInput when type is tag_cloud', async () => {
-            const setFormState = vi.fn()
+            const setFormState = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['tags', '']]),
@@ -141,8 +154,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave: vi.fn() }
-            })
+                actions: { setFormState, setShouldSave: vi.fn() },
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -150,20 +163,19 @@ describe('FieldEdit Component', () => {
                     name="tags"
                     meta={createMeta({
                         type: 'tag_cloud',
-                        label: 'Document Tags'
+                        label: 'Document Tags',
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // TagsInput component from Mantine renders input with specific role
             await waitFor(() => {
-                const input = screen.getByRole('textbox')
-                expect(input).toBeInTheDocument()
-            })
-        })
+                const input = screen.getByRole('textbox');
+                expect(input).toBeInTheDocument();
+            });
+        });
 
         it('loads tags data via MetaClient.listTags() using localDataLoader', async () => {
             // Verify that the mocked MetaClient.listTags is called when tag_cloud renders
@@ -175,27 +187,25 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() }
-            })
+                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() },
+            });
 
             const { container } = renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Verify TagsCloudInput renders with input element (data was loaded)
             await waitFor(() => {
-                const input = screen.getByRole('textbox')
-                expect(input).toBeInTheDocument()
-            })
-        })
-
+                const input = screen.getByRole('textbox');
+                expect(input).toBeInTheDocument();
+            });
+        });
 
         it('disables tag_cloud input when readonly is true', async () => {
             const context = createContext({
@@ -205,7 +215,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -213,19 +223,18 @@ describe('FieldEdit Component', () => {
                     name="tags"
                     meta={createMeta({
                         type: 'tag_cloud',
-                        readonly: true
+                        readonly: true,
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const input = screen.getByRole('textbox') as HTMLInputElement
-                expect(input.disabled).toBe(true)
-            })
-        })
+                const input = screen.getByRole('textbox') as HTMLInputElement;
+                expect(input.disabled).toBe(true);
+            });
+        });
 
         it('enables tag_cloud input when saving and readonly are both false', async () => {
             const context = createContext({
@@ -235,7 +244,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -243,23 +252,22 @@ describe('FieldEdit Component', () => {
                     name="tags"
                     meta={createMeta({
                         type: 'tag_cloud',
-                        readonly: false
+                        readonly: false,
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const input = screen.getByRole('textbox') as HTMLInputElement
-                expect(input.disabled).toBe(false)
-            })
-        })
+                const input = screen.getByRole('textbox') as HTMLInputElement;
+                expect(input.disabled).toBe(false);
+            });
+        });
 
         it('updates formState when user adds a tag', async () => {
-            const setFormState = vi.fn()
-            const setShouldSave = vi.fn()
+            const setFormState = vi.fn();
+            const setShouldSave = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['tags', '']]),
@@ -267,34 +275,37 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const input = screen.getByRole('textbox') as HTMLInputElement
+                const input = screen.getByRole('textbox') as HTMLInputElement;
                 // User types a tag and presses comma
-                fireEvent.change(input, { target: { value: 'document' } })
-                fireEvent.keyPress(input, { key: ',', code: 'Comma', charCode: 44 })
+                fireEvent.change(input, { target: { value: 'document' } });
+                fireEvent.keyPress(input, {
+                    key: ',',
+                    code: 'Comma',
+                    charCode: 44,
+                });
 
                 // setFormState should be called with new tag
-                expect(setFormState).toHaveBeenCalled()
-            })
-        })
+                expect(setFormState).toHaveBeenCalled();
+            });
+        });
 
         it('calls setShouldSave on blur if no validation errors', async () => {
-            const setShouldSave = vi.fn()
-            const setFormState = vi.fn()
+            const setShouldSave = vi.fn();
+            const setFormState = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['tags', '']]),
@@ -302,30 +313,29 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox') as HTMLInputElement
+            const input = screen.getByRole('textbox') as HTMLInputElement;
             // Type a tag in the input field
-            fireEvent.change(input, { target: { value: 'newtag' } })
+            fireEvent.change(input, { target: { value: 'newtag' } });
             // Trigger blur which will commit the new tag
-            fireEvent.blur(input)
+            fireEvent.blur(input);
 
             // setShouldSave on blur or on change
-            expect(setFormState).toHaveBeenCalled()
-            expect(setShouldSave).toHaveBeenCalledWith(true)
-        })
+            expect(setFormState).toHaveBeenCalled();
+            expect(setShouldSave).toHaveBeenCalledWith(true);
+        });
 
         it('displays validation error message when field has errors', async () => {
             const context = createContext({
@@ -335,22 +345,23 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: { tags: 'At least one tag is required' },
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Error message should be displayed
-            expect(screen.getByText('At least one tag is required')).toBeInTheDocument()
-        })
+            expect(
+                screen.getByText('At least one tag is required'),
+            ).toBeInTheDocument();
+        });
 
         it('marks tag_cloud field as required with required attribute', async () => {
             const context = createContext({
@@ -360,7 +371,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -369,20 +380,19 @@ describe('FieldEdit Component', () => {
                     meta={createMeta({
                         type: 'tag_cloud',
                         required: true,
-                        label: 'Document Tags'
+                        label: 'Document Tags',
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
                 // Required label is shown in the form
-                expect(screen.getByText('Document Tags')).toBeInTheDocument()
-            })
-        })
-    })
+                expect(screen.getByText('Document Tags')).toBeInTheDocument();
+            });
+        });
+    });
 
     describe('other field types', () => {
         it('renders TextInput for text type', () => {
@@ -393,22 +403,21 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox') as HTMLInputElement
-            expect(input).toBeInTheDocument()
-        })
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            expect(input).toBeInTheDocument();
+        });
 
         it('renders AutoCompleteInput for auto_complete type', async () => {
             const context = createContext({
@@ -418,25 +427,24 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() }
-            })
+                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'auto_complete' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const input = screen.getByRole('textbox')
-                expect(input).toBeInTheDocument()
-            })
-        })
+                const input = screen.getByRole('textbox');
+                expect(input).toBeInTheDocument();
+            });
+        });
 
         it('renders SwitchInput for boolean type', () => {
             const context = createContext({
@@ -446,21 +454,20 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             const { container } = renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'boolean' })}
-                    
                     value={false}
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(container.firstChild).toBeInTheDocument()
-        })
+            expect(container.firstChild).toBeInTheDocument();
+        });
 
         it('renders DateInput for date type with date format', () => {
             const context = createContext({
@@ -470,7 +477,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             const { container } = renderWithMantine(
                 <FieldEdit
@@ -478,17 +485,16 @@ describe('FieldEdit Component', () => {
                     name="testField"
                     meta={createMeta({
                         type: 'date',
-                        data: { format: 'date' }
+                        data: { format: 'date' },
                     })}
-                    
                     value="2026-02-25"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(container.firstChild).toBeInTheDocument()
-        })
-    })
+            expect(container.firstChild).toBeInTheDocument();
+        });
+    });
 
     describe('validation and error handling', () => {
         it('displays error message on text field when provided', () => {
@@ -498,26 +504,25 @@ describe('FieldEdit Component', () => {
                     saving: false,
                     shouldSave: false,
                     errors: { testField: 'Field is required' },
-                }
-            })
+                },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('Field is required')).toBeInTheDocument()
-        })
+            expect(screen.getByText('Field is required')).toBeInTheDocument();
+        });
 
         it('does not set shouldSave if field has validation errors', async () => {
-            const setShouldSave = vi.fn()
-            const setFormState = vi.fn()
+            const setShouldSave = vi.fn();
+            const setFormState = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['testField', 'value']]),
@@ -525,33 +530,110 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: { testField: 'Invalid value' },
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox') as HTMLInputElement
-            fireEvent.blur(input)
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            fireEvent.blur(input);
 
             // Blur event should not trigger any state changes (setFormState or setShouldSave)
             // The component only updates state on onChange or onCommitChange (Ctrl+Enter)
-            expect(setFormState).not.toHaveBeenCalled()
-            expect(setShouldSave).not.toHaveBeenCalled()
-        })
-    })
+            expect(setFormState).not.toHaveBeenCalled();
+            expect(setShouldSave).not.toHaveBeenCalled();
+        });
+
+        it('prevents save-intent when validation errors exist in tag_cloud field', async () => {
+            const setShouldSave = vi.fn();
+            const setFormState = vi.fn();
+            const context = createContext({
+                state: {
+                    formState: new Map([['tags', '']]),
+                    saving: false,
+                    shouldSave: false,
+                    errors: { tags: 'At least one tag is required' },
+                },
+                actions: { setFormState, setShouldSave },
+            });
+
+            renderWithMantine(
+                <FieldEdit
+                    context={context}
+                    name="tags"
+                    meta={createMeta({ type: 'tag_cloud' })}
+                    value=""
+                    updateValue={vi.fn()}
+                />,
+            );
+
+            // Add a tag to trigger onCommitChange
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            fireEvent.change(input, { target: { value: 'document' } });
+            fireEvent.keyPress(input, {
+                key: ',',
+                code: 'Comma',
+                charCode: 44,
+            });
+
+            // setFormState should be called to update the value
+            expect(setFormState).toHaveBeenCalled();
+
+            // setShouldSave should NOT be called with true because errors exist
+            expect(setShouldSave).toHaveBeenCalledWith(false);
+        });
+
+        it('allows save-intent when no validation errors exist in tag_cloud field', async () => {
+            const setShouldSave = vi.fn();
+            const setFormState = vi.fn();
+            const context = createContext({
+                state: {
+                    formState: new Map([['tags', '']]),
+                    saving: false,
+                    shouldSave: false,
+                    errors: {}, // No errors
+                },
+                actions: { setFormState, setShouldSave },
+            });
+
+            renderWithMantine(
+                <FieldEdit
+                    context={context}
+                    name="tags"
+                    meta={createMeta({ type: 'tag_cloud' })}
+                    value=""
+                    updateValue={vi.fn()}
+                />,
+            );
+
+            // Add a tag to trigger onCommitChange
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            fireEvent.change(input, { target: { value: 'document' } });
+            fireEvent.keyPress(input, {
+                key: ',',
+                code: 'Comma',
+                charCode: 44,
+            });
+
+            // setFormState should be called to update the value
+            expect(setFormState).toHaveBeenCalled();
+
+            // setShouldSave should be called with true because no errors exist
+            expect(setShouldSave).toHaveBeenCalledWith(true);
+        });
+    });
 
     describe('form state management', () => {
         it('updates formState when text field value changes', () => {
-            const setFormState = vi.fn()
+            const setFormState = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['testField', 'initial']]),
@@ -559,29 +641,28 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave: vi.fn() }
-            })
+                actions: { setFormState, setShouldSave: vi.fn() },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox') as HTMLInputElement
-            fireEvent.change(input, { target: { value: 'new value' } })
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            fireEvent.change(input, { target: { value: 'new value' } });
 
-            expect(setFormState).toHaveBeenCalled()
-        })
+            expect(setFormState).toHaveBeenCalled();
+        });
 
         it('does not set shouldSave on blur even when no errors exist', () => {
-            const setFormState = vi.fn()
-            const setShouldSave = vi.fn()
+            const setFormState = vi.fn();
+            const setShouldSave = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['testField', 'initial']]),
@@ -589,29 +670,28 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox') as HTMLInputElement
-            fireEvent.blur(input)
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            fireEvent.blur(input);
 
             // Blur event should not trigger any state changes (setFormState or setShouldSave)
             // The component only updates state on onChange or onCommitChange (Ctrl+Enter)
-            expect(setFormState).not.toHaveBeenCalled()
-            expect(setShouldSave).not.toHaveBeenCalled()
-        })
-    })
+            expect(setFormState).not.toHaveBeenCalled();
+            expect(setShouldSave).not.toHaveBeenCalled();
+        });
+    });
 
     describe('accessibility', () => {
         it('marks required field with required attribute', () => {
@@ -622,22 +702,21 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text', required: true })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox') as HTMLInputElement
-            expect(input.required).toBe(true)
-        })
+            const input = screen.getByRole('textbox') as HTMLInputElement;
+            expect(input.required).toBe(true);
+        });
 
         it('associates label with input using accessible name', () => {
             const context = createContext({
@@ -647,21 +726,22 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text', label: 'Username' })}
-                    
                     value="john"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toHaveAccessibleName('Username')
-        })
+            expect(screen.getByRole('textbox')).toHaveAccessibleName(
+                'Username',
+            );
+        });
 
         it('displays description as helper text on fields', () => {
             const context = createContext({
@@ -671,7 +751,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -679,17 +759,16 @@ describe('FieldEdit Component', () => {
                     name="testField"
                     meta={createMeta({
                         type: 'text',
-                        description: 'Enter a valid email'
+                        description: 'Enter a valid email',
                     })}
-                    
                     value="test"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('Enter a valid email')).toBeInTheDocument()
-        })
-    })
+            expect(screen.getByText('Enter a valid email')).toBeInTheDocument();
+        });
+    });
 
     describe('Select Type inputs (choice type)', () => {
         it('renders Selector when type is choice', async () => {
@@ -700,8 +779,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() }
-            })
+                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() },
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -714,25 +793,24 @@ describe('FieldEdit Component', () => {
                             items: [
                                 { key: 'draft', value: 'Draft' },
                                 { key: 'published', value: 'Published' },
-                                { key: 'archived', value: 'Archived' }
-                            ]
-                        }
+                                { key: 'archived', value: 'Archived' },
+                            ],
+                        },
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox')
-                expect(selectInput).toBeInTheDocument()
-            })
-        })
+                const selectInput = screen.getByRole('textbox');
+                expect(selectInput).toBeInTheDocument();
+            });
+        });
 
         it('calls setFormState when choice field value is set via component props', async () => {
-            const setFormState = vi.fn()
-            const setShouldSave = vi.fn()
+            const setFormState = vi.fn();
+            const setShouldSave = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['status', 'draft']]),
@@ -740,8 +818,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             // Verify the component renders correctly with a choice value
             const { rerender } = renderWithMantine(
@@ -754,25 +832,26 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value="draft"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox') as HTMLInputElement
-                expect(selectInput).toBeInTheDocument()
-            })
-        })
+                const selectInput = screen.getByRole(
+                    'textbox',
+                ) as HTMLInputElement;
+                expect(selectInput).toBeInTheDocument();
+            });
+        });
 
         it('passes onCommitChange to selector which triggers save when no errors exist', async () => {
-            const setFormState = vi.fn()
-            const setShouldSave = vi.fn()
+            const setFormState = vi.fn();
+            const setShouldSave = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['status', 'draft']]),
@@ -780,8 +859,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             // Component is configured to call onCommitChange on selection
             // which should trigger setShouldSave when there are no errors
@@ -795,26 +874,27 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value="draft"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Verify the selector renders and is configured with the correct props
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox') as HTMLInputElement
-                expect(selectInput).toBeInTheDocument()
-            })
-        })
+                const selectInput = screen.getByRole(
+                    'textbox',
+                ) as HTMLInputElement;
+                expect(selectInput).toBeInTheDocument();
+            });
+        });
 
         it('choice field with validation errors prevents save on change', async () => {
-            const setFormState = vi.fn()
-            const setShouldSave = vi.fn()
+            const setFormState = vi.fn();
+            const setShouldSave = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['status', 'draft']]),
@@ -822,8 +902,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: { status: 'Status is required' },
                 },
-                actions: { setFormState, setShouldSave }
-            })
+                actions: { setFormState, setShouldSave },
+            });
 
             // Component respects validation errors and won't save when errors exist
             renderWithMantine(
@@ -836,21 +916,18 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value="draft"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Error message is displayed
-            expect(screen.getByText('Status is required')).toBeInTheDocument()
-        })
-
-
+            expect(screen.getByText('Status is required')).toBeInTheDocument();
+        });
 
         it('disables choice selector when readonly is true', async () => {
             const context = createContext({
@@ -860,7 +937,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -873,21 +950,22 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value="draft"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox') as HTMLInputElement
-                expect(selectInput.disabled).toBe(true)
-            })
-        })
+                const selectInput = screen.getByRole(
+                    'textbox',
+                ) as HTMLInputElement;
+                expect(selectInput.disabled).toBe(true);
+            });
+        });
 
         it('enables choice selector when saving and readonly are both false', async () => {
             const context = createContext({
@@ -897,7 +975,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -910,21 +988,22 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value="draft"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox') as HTMLInputElement
-                expect(selectInput.disabled).toBe(false)
-            })
-        })
+                const selectInput = screen.getByRole(
+                    'textbox',
+                ) as HTMLInputElement;
+                expect(selectInput.disabled).toBe(false);
+            });
+        });
 
         it('displays validation error message for choice field', async () => {
             const context = createContext({
@@ -934,7 +1013,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: { status: 'Status is required' },
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -946,19 +1025,18 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Error message should be displayed
-            expect(screen.getByText('Status is required')).toBeInTheDocument()
-        })
+            expect(screen.getByText('Status is required')).toBeInTheDocument();
+        });
 
         it('marks required choice field with required attribute', async () => {
             const context = createContext({
@@ -968,7 +1046,7 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -981,24 +1059,23 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
                 // Required label is shown in the form
-                expect(screen.getByText('Status')).toBeInTheDocument()
-            })
-        })
+                expect(screen.getByText('Status')).toBeInTheDocument();
+            });
+        });
 
         it('supports changing choice selection values', async () => {
-            const setFormState = vi.fn()
+            const setFormState = vi.fn();
             const context = createContext({
                 state: {
                     formState: new Map([['status', 'draft']]),
@@ -1006,8 +1083,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState, setShouldSave: vi.fn() }
-            })
+                actions: { setFormState, setShouldSave: vi.fn() },
+            });
 
             // Render with one value and update via rerender
             const { rerender } = renderWithMantine(
@@ -1020,21 +1097,22 @@ describe('FieldEdit Component', () => {
                         data: {
                             items: [
                                 { key: 'draft', value: 'Draft' },
-                                { key: 'published', value: 'Published' }
-                            ]
-                        }
+                                { key: 'published', value: 'Published' },
+                            ],
+                        },
                     })}
-                    
                     value="draft"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox') as HTMLInputElement
-                expect(selectInput).toBeInTheDocument()
-            })
-        })
+                const selectInput = screen.getByRole(
+                    'textbox',
+                ) as HTMLInputElement;
+                expect(selectInput).toBeInTheDocument();
+            });
+        });
 
         it('renders choice selector with stepper buttons when steps is true', async () => {
             const context = createContext({
@@ -1044,8 +1122,8 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() }
-            })
+                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() },
+            });
 
             renderWithMantine(
                 <FieldEdit
@@ -1058,24 +1136,108 @@ describe('FieldEdit Component', () => {
                             items: [
                                 { key: 'low', value: 'Low' },
                                 { key: 'medium', value: 'Medium' },
-                                { key: 'high', value: 'High' }
+                                { key: 'high', value: 'High' },
                             ],
-                            steps: true
-                        }
+                            steps: true,
+                        },
                     })}
-                    
                     value="medium"
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             // Selector renders successfully with stepper configuration (steps: true)
             await waitFor(() => {
-                const selectInput = screen.getByRole('textbox')
-                expect(selectInput).toBeInTheDocument()
-            })
-        })
-    })
+                const selectInput = screen.getByRole('textbox');
+                expect(selectInput).toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('shouldHideLabel behavior', () => {
+        it('hides label when shouldHideLabel is true', () => {
+            const context = createContext({
+                state: {
+                    formState: new Map([['testField', '']]),
+                    saving: false,
+                    shouldSave: false,
+                    errors: {},
+                },
+            });
+
+            renderWithMantine(
+                <FieldEdit
+                    context={context}
+                    name="testField"
+                    meta={createMeta({
+                        type: 'text',
+                        label: 'Test Label',
+                    })}
+                    shouldHideLabel={true}
+                    value=""
+                    updateValue={vi.fn()}
+                />,
+            );
+
+            // Label should not be visible when shouldHideLabel is true
+            expect(screen.queryByText('Test Label')).not.toBeInTheDocument();
+        });
+
+        it('shows label when shouldHideLabel is false or undefined', () => {
+            const context = createContext({
+                state: {
+                    formState: new Map([['testField', '']]),
+                    saving: false,
+                    shouldSave: false,
+                    errors: {},
+                },
+            });
+
+            renderWithMantine(
+                <FieldEdit
+                    context={context}
+                    name="testField"
+                    meta={createMeta({
+                        type: 'text',
+                        label: 'Test Label',
+                    })}
+                    shouldHideLabel={false}
+                    value=""
+                    updateValue={vi.fn()}
+                />,
+            );
+
+            // Label should be visible when shouldHideLabel is false
+            expect(screen.getByText('Test Label')).toBeInTheDocument();
+        });
+
+        it('shows label by default when shouldHideLabel is not provided', () => {
+            const context = createContext({
+                state: {
+                    formState: new Map([['testField', '']]),
+                    saving: false,
+                    shouldSave: false,
+                    errors: {},
+                },
+            });
+
+            renderWithMantine(
+                <FieldEdit
+                    context={context}
+                    name="testField"
+                    meta={createMeta({
+                        type: 'text',
+                        label: 'Default Label',
+                    })}
+                    value=""
+                    updateValue={vi.fn()}
+                />,
+            );
+
+            // Label should be visible by default when shouldHideLabel is not provided
+            expect(screen.getByText('Default Label')).toBeInTheDocument();
+        });
+    });
 
     describe('edge cases and data handling', () => {
         it('handles null value gracefully', () => {
@@ -1086,21 +1248,20 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             const { container } = renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value={null}
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(container.firstChild).toBeInTheDocument()
-        })
+            expect(container.firstChild).toBeInTheDocument();
+        });
 
         it('handles undefined value gracefully', () => {
             const context = createContext({
@@ -1110,21 +1271,20 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-            })
+            });
 
             const { container } = renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="testField"
                     meta={createMeta({ type: 'text' })}
-                    
                     value={undefined}
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
-            expect(container.firstChild).toBeInTheDocument()
-        })
+            expect(container.firstChild).toBeInTheDocument();
+        });
 
         it('handles empty string value in tag_cloud field', async () => {
             const context = createContext({
@@ -1134,24 +1294,23 @@ describe('FieldEdit Component', () => {
                     shouldSave: false,
                     errors: {},
                 },
-                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() }
-            })
+                actions: { setFormState: vi.fn(), setShouldSave: vi.fn() },
+            });
 
             renderWithMantine(
                 <FieldEdit
                     context={context}
                     name="tags"
                     meta={createMeta({ type: 'tag_cloud' })}
-                    
                     value=""
                     updateValue={vi.fn()}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const input = screen.getByRole('textbox')
-                expect(input).toBeInTheDocument()
-            })
-        })
-    })
-})
+                const input = screen.getByRole('textbox');
+                expect(input).toBeInTheDocument();
+            });
+        });
+    });
+});
