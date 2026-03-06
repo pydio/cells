@@ -21,111 +21,111 @@
     "other": "Copier la référence"
   },
   "alert-spec.title": {
-    "other": "Insert Warning Block"
+    "other": "Ajouter un bloc d'alerte"
   },
   "alert-spec.subtext": {
-    "other": "Capture reader's attention with a warning"
+    "other": "Attirer l'attention avec un block d'alerte"
   },
   "alert-block.type": {
-    "other": "Alert Type"
+    "other": "Type d'alerte"
   },
   "alert-block.warning": {
-    "other": "Warning"
+    "other": "Alerte"
   },
   "alert-block.error": {
-    "other": "Error"
+    "other": "Erreur"
   },
   "alert-block.info": {
-    "other": "Info"
+    "other": "Information"
   },
   "alert-block.success": {
-    "other": "Success"
+    "other": "Succès"
   },
   "dropped.loading": {
-    "other": "Loading %s..."
+    "other": "Chargement de %s..."
   },
   "files-list.sort": {
-    "other": "Sort By..."
+    "other": "Trier par..."
   },
   "files-list.load-error": {
-    "other": "Cannot load %s:"
+    "other": "Impossible de charger %s:"
   },
   "files-list.toc": {
-    "other": "Table Of Contents"
+    "other": "Table des matières"
   },
   "header.insert-toc": {
-    "other": "Insert Table Of Contents"
+    "other": "Insérer la table des matières"
   },
   "header.add-description": {
-    "other": "Add Description"
+    "other": "Ajouter une description"
   },
   "header.created": {
-    "other": "Created %s"
+    "other": "Créé %s"
   },
   "results.edit-query": {
-    "other": "Edit Query"
+    "other": "Modifier la recherche"
   },
   "hook.renaming": {
-    "other": "Renaming page to %s..."
+    "other": "Renommage de la page en %s..."
   },
   "actions.title": {
     "other": "Actions"
   },
   "action.open": {
-    "other": "Open..."
+    "other": "Ouvrir..."
   },
   "action.open-parent": {
-    "other": "Open Parent"
+    "other": "Ouvrir le dossier parent"
   },
   "action.open-folder": {
-    "other": "Open Folder"
+    "other": "Ouvrir le dossier"
   },
   "display.inline": {
-    "other": "Inline"
+    "other": "Intégré dans le texte"
   },
   "display.preview": {
-    "other": "Preview"
+    "other": "Aperçu"
   },
   "display.contents": {
-    "other": "Contents"
+    "other": "Contenus"
   },
   "display.compact": {
     "other": "Compact"
   },
   "display.list": {
-    "other": "Details"
+    "other": "Détails"
   },
   "display.grid": {
-    "other": "Grid"
+    "other": "Grille"
   },
   "display.masonry": {
-    "other": "Waterfall"
+    "other": "Grille d'images"
   },
   "display.table": {
-    "other": "Table"
+    "other": "Tableau"
   },
   "actions.display": {
-    "other": "Display"
+    "other": "Affichage"
   },
   "node-spec.insert-toc.subtext": {
-    "other": "Insert the list of current folder contents"
+    "other": "Insérer la liste des contenus du dossier courant"
   },
   "node-spec.insert-page": {
-    "other": "Create Sub-Page"
+    "other": "Créer une sous-page"
   },
   "node-spec.insert-page.subtext": {
-    "other": "Create a sub-page inside this page"
+    "other": "Créer une sous-page dans cette page"
   },
   "node-spec.insert-node": {
-    "other": "File or Folder"
+    "other": "Fichier / Dossier"
   },
   "node-spec.insert-node.subtext": {
-    "other": "Insert a link to a file or folder available in your workspaces"
+    "other": "Insérer un lien vers un fichier ou un dossier disponibles dans vos Workspaces"
   },
   "node-spec.insert-results": {
-    "other": "Search Results"
+    "other": "Résultats de recherche"
   },
   "node-spec.insert-results.subtext": {
-    "other": "Insert the results of a search query that will be updated automatically"
+    "other": "Insérer les résultats d'une recherche, qui seront mis à jour automatiquement"
   }
 }
