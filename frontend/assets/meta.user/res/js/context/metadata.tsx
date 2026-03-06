@@ -127,7 +127,7 @@ export const MetadataContext = React.createContext(defaultContext)
 
 const NODE_REPLACED_EVENT = 'node_replaced';
 
-type OnChangeContext = {
+export type OnChangeContext = {
     errors: { [key: string]: string };
     isValid: boolean;
 };
@@ -176,10 +176,12 @@ export const MetadataContextProvider = ({
 
             dispatch({ type: 'set_form_state', formState: new Map(formState) })
 
-            // NOTE: For parents that require holding state because we can't
-            // wrap them with a provider.
-            // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
-            if (onDataChanged) onDataChanged(formState, isValid)
+                // NOTE: For parents that require holding state because we can't
+                // wrap them with a provider.
+                // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
+                if (onDataChanged) {
+                    onDataChanged(formState, { errors, isValid });
+                }
         },
 
         setShouldSave: (shouldSave: boolean) => dispatch({ type: 'set_should_save', shouldSave }),

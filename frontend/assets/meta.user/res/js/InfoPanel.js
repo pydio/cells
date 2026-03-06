@@ -104,9 +104,9 @@ const InfoPanel = ({
         <MetadataContextProvider
             node={node}
             saveMeta={saveMeta}
-            savePartialy={true}
+            savePartially={true}
             saving={saving}
-            onDataChanged={(data, isValid) => {
+            onDataChanged={(data, { isValid }) => {
                 setUpdateData(data)
                 setValid(isValid)
             }}
@@ -130,7 +130,7 @@ const InfoPanel = ({
                     onValidStatusChanged={(v) => { setValid(v) }}
                     saving={saving}
                     style={panelStyle}
-                    useTogglableFields={true}
+                    isToggable={!popoverPanel}
                 />
             </InfoPanelCard>
         </MetadataContextProvider>

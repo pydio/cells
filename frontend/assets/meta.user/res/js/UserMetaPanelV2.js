@@ -50,7 +50,7 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         onFormLoaded,
         onValidStatusChanged,
         additionalProps,
-        useTogglableFields,
+        isToggable,
         className,
     } = props;
 
@@ -129,7 +129,7 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
                 onToggleGroup={toggleGroup}
                 pydio={pydio}
                 onRequestEditMode={onRequestEditMode}
-                useTogglableFields={useTogglableFields}
+                isToggable={isToggable}
                 autoSave={autoSave}
                 saving={saving}
             />
