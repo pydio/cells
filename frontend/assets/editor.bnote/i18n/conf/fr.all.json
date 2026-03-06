@@ -12,7 +12,7 @@
     "other": "Métadonnée pour stocker le contenu de la page"
   },
   "Set a metadata namespace to store folder pages contents. Metadata must be created before using that.": {
-    "other": "Définissez un Namespace de métadonnées pour stocker le contenu des pages du dossier. La métadonnée doivent être créées avant de l'utiliser."
+    "other": "Définissez un Namespace de métadonnées pour stocker le contenu des pages du dossier. La métadonnée doit être créée avant de l'utiliser."
   },
   "Is Page Metadata Name": {
     "other": "Métadonnée pour stocker l'état de la page"
