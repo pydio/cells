@@ -45,6 +45,11 @@ export const DateTimeInput: React.FC<InputProps> = ({
     const popoverProps: PopoverProps = {
         withinPortal: false,
         onOpen: () => onFocus({}),
+        onClose: () => {
+            onBlur({})
+
+            if(onCommitChange && !disabled) onCommitChange(value);
+        },
         onDismiss: () => onBlur({}),
     };
 

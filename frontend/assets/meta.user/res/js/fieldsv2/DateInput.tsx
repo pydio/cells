@@ -41,18 +41,18 @@ export const DateInput: React.FC<InputProps> = ({
         error: errorText,
         required: required,
     }
+    console.log('(DateInput:44) - @@@@@@ label: ', label);
 
     const popoverProps: PopoverProps = {
         withinPortal: false,
         onOpen: () => onFocus({}),
+        onClose: () => {
+            onBlur({})
+
+            if(onCommitChange && !disabled) onCommitChange(value);
+        },
         onDismiss: () => onBlur({}),
     };
-
-    if(onCommitChange && !disabled) {
-        popoverProps.onClose = () => {
-            onCommitChange(value);
-        };
-    }
 
     return <DatePickerInput
         {...props}
