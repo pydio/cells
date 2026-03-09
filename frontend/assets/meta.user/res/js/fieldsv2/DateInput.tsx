@@ -41,7 +41,6 @@ export const DateInput: React.FC<InputProps> = ({
         error: errorText,
         required: required,
     }
-    console.log('(DateInput:44) - @@@@@@ label: ', label);
 
     const popoverProps: PopoverProps = {
         withinPortal: false,
