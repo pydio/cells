@@ -18,12 +18,12 @@
     "other": "Is Page Metadata Name"
   },
   "Set a metadata namespace to enable/disable the page behavior.": {
-    "other": "Set a metadata namespace to enable/disable the page behavior."
+    "other": "Einen Metadaten-Namespace festlegen, um das Seitenverhalten zu aktivieren oder zu deaktivieren."
   },
   "Abstract Metadata Name": {
     "other": "Abstract Metadata Name"
   },
   "Set a metadata namespace to be used as description for pages": {
-    "other": "Set a metadata namespace to be used as description for pages"
+    "other": "Einen Metadaten-Namespace festlegen, der als Beschreibung für Seiten verwendet wird"
   }
 }
