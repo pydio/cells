@@ -5,7 +5,6 @@
 }
 
 .editField.toggable.disabled .mantine-Input-wrapper > .mantine-Input-input {
-    background-color: var(--md-sys-color-surface-2);
     background: var(--md-sys-color-surface-3);
     border-color: transparent;
 }
