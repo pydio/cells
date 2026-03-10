@@ -63,8 +63,6 @@ const InfoPanel = ({
                     if (popoverPanel && popoverRequestClose) {
                         popoverRequestClose();
                     }
-
-                    setMode('idle');
                 });
         },
         [node, setSaving, setUpdateData],
