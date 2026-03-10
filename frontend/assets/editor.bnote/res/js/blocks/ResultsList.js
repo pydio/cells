@@ -78,6 +78,7 @@ export const ResultsList = withSearch(
                 resolveError={null}
                 block={block}
                 isResultsList={true}
+                emptyStateKey={'empty-state.results'}
                 presetNodeActions={{
                     title: t('actions.title'),
                     values: [

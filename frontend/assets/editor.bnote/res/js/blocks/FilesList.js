@@ -25,6 +25,7 @@ export const FilesList = muiThemeable()(({
     nodePath,
     resolvedNode,
     resolveError,
+    emptyStateKey = 'empty-state.folder',
     isResultsList = false,
     presetNodeActions,
     muiTheme,
@@ -145,8 +146,28 @@ export const FilesList = muiThemeable()(({
     const entryRenderSecondLine = useRichMetaLine({ pydio, columns });
 
     if (resolveError) {
-        return <div>Repository not found</div>;
+        return (
+            <MantineProvider
+                theme={{ colorScheme: muiTheme.darkMode ? 'dark' : 'light' }}
+                inherit
+            >
+                <Paper
+                    className={'small-outline'}
+                    radius={'md'}
+                    withBorder={true}
+                    p={'md'}
+                    style={{ fontSize: 15, lineHeight: '1.3em', width: '100%' }}
+                    {...hoverProps}
+                >
+                    <div>{t('empty-state.node-not-found')}</div>
+                </Paper>
+            </MantineProvider>
+        );
     }
+    const isEmpty =
+        contextNode &&
+        contextNode.isLoaded() &&
+        !contextNode.getChildren().size;
 
     return (
         <MantineProvider
@@ -209,6 +230,9 @@ export const FilesList = muiThemeable()(({
                             t('files-list.load-error').replace('%s', nodePath)}
                         {resolveError.message}
                     </div>
+                )}
+                {isEmpty && (
+                    <div style={{ opacity: 0.5 }}>{t(emptyStateKey)}</div>
                 )}
                 {contextNode && (
                     <ModernSimpleList

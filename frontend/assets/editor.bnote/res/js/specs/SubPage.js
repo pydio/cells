@@ -41,7 +41,7 @@ export const insertSubPageItem = (editor) => ({
         });
     },
     aliases: ['page', 'pa'],
-    group: 'Others',
+    group: editor.dictionary.slash_menu.table.group,
     icon: <RiFileEditLine size={18} />,
     subtext: t('node-spec.insert-page.subtext'),
 });
