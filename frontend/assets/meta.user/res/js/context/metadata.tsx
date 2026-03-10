@@ -75,13 +75,17 @@ const reducer = (state: MetadataState, action: MetadataAction): MetadataState =>
         case 'set_node':
             return { ...state, node: action.node, mode: "idle" }
         case 'set_saving':
-            return { ...state, saving: action.saving, mode: "saving" }
+            return {
+                ...state,
+                saving: action.saving,
+                mode: action.saving ? "saving" : state.mode,
+            }
         case 'set_form_state':
             return { ...state, formState: action.formState, mode: action.mode }
         case 'set_namespace_schema':
             return { ...state, namespaceJsonSchema: action.namespaceJsonSchema }
         case 'set_should_save':
-            return { ...state, shouldSave: action.shouldSave, mode: "saving" }
+            return { ...state, shouldSave: action.shouldSave }
         case 'set_json_schema':
             return { ...state, jsonSchema: action.jsonSchema, mode: "idle" }
         case 'set_errors':
