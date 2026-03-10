@@ -19,5 +19,113 @@
   },
   "copy_ref": {
     "other": "Скопіювати посилання"
+  },
+  "alert-spec.title": {
+    "other": "Insert Warning Block"
+  },
+  "alert-spec.subtext": {
+    "other": "Capture reader's attention with a warning"
+  },
+  "alert-block.type": {
+    "other": "Alert Type"
+  },
+  "alert-block.warning": {
+    "other": "Warning"
+  },
+  "alert-block.error": {
+    "other": "Error"
+  },
+  "alert-block.info": {
+    "other": "Info"
+  },
+  "alert-block.success": {
+    "other": "Success"
+  },
+  "dropped.loading": {
+    "other": "Loading %s..."
+  },
+  "files-list.sort": {
+    "other": "Sort By..."
+  },
+  "files-list.load-error": {
+    "other": "Cannot load %s:"
+  },
+  "files-list.toc": {
+    "other": "Table Of Contents"
+  },
+  "header.insert-toc": {
+    "other": "Insert Table Of Contents"
+  },
+  "header.add-description": {
+    "other": "Add Description"
+  },
+  "header.created": {
+    "other": "Created %s"
+  },
+  "results.edit-query": {
+    "other": "Edit Query"
+  },
+  "hook.renaming": {
+    "other": "Renaming page to %s..."
+  },
+  "actions.title": {
+    "other": "Actions"
+  },
+  "action.open": {
+    "other": "Open..."
+  },
+  "action.open-parent": {
+    "other": "Open Parent"
+  },
+  "action.open-folder": {
+    "other": "Open Folder"
+  },
+  "display.inline": {
+    "other": "Inline"
+  },
+  "display.preview": {
+    "other": "Preview"
+  },
+  "display.contents": {
+    "other": "Contents"
+  },
+  "display.compact": {
+    "other": "Compact"
+  },
+  "display.list": {
+    "other": "Details"
+  },
+  "display.grid": {
+    "other": "Grid"
+  },
+  "display.masonry": {
+    "other": "Waterfall"
+  },
+  "display.table": {
+    "other": "Table"
+  },
+  "actions.display": {
+    "other": "Display"
+  },
+  "node-spec.insert-toc.subtext": {
+    "other": "Insert the list of current folder contents"
+  },
+  "node-spec.insert-page": {
+    "other": "Create Sub-Page"
+  },
+  "node-spec.insert-page.subtext": {
+    "other": "Create a sub-page inside this page"
+  },
+  "node-spec.insert-node": {
+    "other": "File or Folder"
+  },
+  "node-spec.insert-node.subtext": {
+    "other": "Insert a link to a file or folder available in your workspaces"
+  },
+  "node-spec.insert-results": {
+    "other": "Search Results"
+  },
+  "node-spec.insert-results.subtext": {
+    "other": "Insert the results of a search query that will be updated automatically"
   }
 }

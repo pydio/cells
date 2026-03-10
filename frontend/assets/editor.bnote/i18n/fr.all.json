@@ -19,5 +19,113 @@
   },
   "copy_ref": {
     "other": "Copier la référence"
+  },
+  "alert-spec.title": {
+    "other": "Ajouter un bloc d'alerte"
+  },
+  "alert-spec.subtext": {
+    "other": "Attirer l'attention avec un block d'alerte"
+  },
+  "alert-block.type": {
+    "other": "Type d'alerte"
+  },
+  "alert-block.warning": {
+    "other": "Alerte"
+  },
+  "alert-block.error": {
+    "other": "Erreur"
+  },
+  "alert-block.info": {
+    "other": "Information"
+  },
+  "alert-block.success": {
+    "other": "Succès"
+  },
+  "dropped.loading": {
+    "other": "Chargement de %s..."
+  },
+  "files-list.sort": {
+    "other": "Trier par..."
+  },
+  "files-list.load-error": {
+    "other": "Impossible de charger %s:"
+  },
+  "files-list.toc": {
+    "other": "Table des matières"
+  },
+  "header.insert-toc": {
+    "other": "Insérer la table des matières"
+  },
+  "header.add-description": {
+    "other": "Ajouter une description"
+  },
+  "header.created": {
+    "other": "Créé %s"
+  },
+  "results.edit-query": {
+    "other": "Modifier la recherche"
+  },
+  "hook.renaming": {
+    "other": "Renommage de la page en %s..."
+  },
+  "actions.title": {
+    "other": "Actions"
+  },
+  "action.open": {
+    "other": "Ouvrir..."
+  },
+  "action.open-parent": {
+    "other": "Ouvrir le dossier parent"
+  },
+  "action.open-folder": {
+    "other": "Ouvrir le dossier"
+  },
+  "display.inline": {
+    "other": "Intégré dans le texte"
+  },
+  "display.preview": {
+    "other": "Aperçu"
+  },
+  "display.contents": {
+    "other": "Contenus"
+  },
+  "display.compact": {
+    "other": "Compact"
+  },
+  "display.list": {
+    "other": "Détails"
+  },
+  "display.grid": {
+    "other": "Grille"
+  },
+  "display.masonry": {
+    "other": "Grille d'images"
+  },
+  "display.table": {
+    "other": "Tableau"
+  },
+  "actions.display": {
+    "other": "Affichage"
+  },
+  "node-spec.insert-toc.subtext": {
+    "other": "Insérer la liste des contenus du dossier courant"
+  },
+  "node-spec.insert-page": {
+    "other": "Créer une sous-page"
+  },
+  "node-spec.insert-page.subtext": {
+    "other": "Créer une sous-page dans cette page"
+  },
+  "node-spec.insert-node": {
+    "other": "Fichier / Dossier"
+  },
+  "node-spec.insert-node.subtext": {
+    "other": "Insérer un lien vers un fichier ou un dossier disponibles dans vos Workspaces"
+  },
+  "node-spec.insert-results": {
+    "other": "Résultats de recherche"
+  },
+  "node-spec.insert-results.subtext": {
+    "other": "Insérer les résultats d'une recherche, qui seront mis à jour automatiquement"
   }
 }

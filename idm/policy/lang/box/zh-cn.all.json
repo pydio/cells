@@ -51,7 +51,7 @@
     "other": "除了全局二进制上传以外，可向前台服务写入"
   },
   "PolicyGroup.LoggedUsers.Rule7": {
-    "other": "Default REST accesses API V2 for a logged user"
+    "other": "登录用户默认使用 REST 访问API V2"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect 操作"

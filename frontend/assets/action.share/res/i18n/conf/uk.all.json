@@ -99,7 +99,7 @@
     "other": "Link Generation"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "Обов'язковий префікс для логінів тимчасових користувачів"
   },
   "Maximum download limit for file, 0 = unlimited": {
     "other": "Maximum download limit for file, 0 = unlimited"

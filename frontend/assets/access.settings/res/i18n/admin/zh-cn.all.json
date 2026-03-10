@@ -396,10 +396,10 @@
     "other": "默认情况下，所有文件都存储在一个唯一的文件夹中。使用 \"N:P:Q \"模式自动创建子文件夹 id[:N]/id[:P]/id[:Q]/..."
   },
   "ds.editor.initFlatFromSnapshot.hint": {
-    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+    "other": "存储中的快照路径 (例如 $snapshot.db)"
   },
   "ds.editor.foldersShardingPattern.hint": {
-    "other": "Sharding pattern (e.g. N:P:Q)"
+    "other": "分片表达的模式 (比如：N:P:Q)"
   },
   "ds.encryption": {
     "other": "已加密"
@@ -864,28 +864,28 @@
     "other": "颜色标签"
   },
   "metadata.type.auto_complete": {
-    "other": "Auto Complete"
+    "other": "自动完成"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags (legacy)"
+    "other": "可扩展标签 (旧版)"
   },
   "metadata.type.choice": {
     "other": "从值中选择"
   },
   "metadata.type.multi_value": {
-    "other": "Multi Value select"
+    "other": "可选择多项"
   },
   "metadata.type.tag_cloud": {
-    "other": "Tag Cloud"
+    "other": "标签云"
   },
   "metadata.type.tag_cloud.values": {
-    "other": "Tag Cloud values"
+    "other": "云标签值"
   },
   "metadata.tag_cloud.entity.hint": {
-    "other": "Comma-separated list of possible tags"
+    "other": "用逗号来分隔可能多个的标签"
   },
   "metadata.tag_cloud.entity": {
-    "other": "Values"
+    "other": "值"
   },
   "metadata.type.json": {
     "other": "JSON (内部格式)"
@@ -936,19 +936,19 @@
     "other": "在文件列表中显示值"
   },
   "metadata.toggle.prompt": {
-    "other": "Prompt Metadata tagging on Upload"
+    "other": "上传时提示元数据标记"
   },
   "metadata.field.validation": {
-    "other": "Field Validation"
+    "other": "字段验证"
   },
   "metadata.editor.selection.key_exists": {
-    "other": "This key already exists"
+    "other": "此键值已经存在"
   },
   "metadata.toggle.required": {
-    "other": "Required"
+    "other": "必填"
   },
   "metadata.toggle.defaults": {
-    "other": "Enforce Defaults"
+    "other": "强制使用默认值"
   },
   "metadata.field.mandatory": {
     "other": "必填"

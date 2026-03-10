@@ -39,18 +39,18 @@
     "other": "URL-адреса додатку синхронізації Mac (залиште порожнім, якщо ви хочете приховати блок)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "URL до програми синхронізації Windows (залиште порожнім, якщо ви хочете приховати блок)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Сторінка привітання"
   },
   "Welcome Page displaying a list of workspaces": {
     "other": "Вітальна сторінка зі списком робочих просторів"
   },
   "Windows PydioSync URL": {
-    "other": "Windows PydioSync URL"
+    "other": "URL-адреса PydioSync Windows"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "URL-адреса для програми iOS"
   }
 }

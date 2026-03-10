@@ -6,7 +6,7 @@
     "other": "添加文件"
   },
   "tour.display-bar": {
-    "other": "此工具栏允许您更改显示方式：根据您的用法，切换到缩略图或详细模式，并按名称、日期等方式分类文件..."
+    "other": "此工具栏允许您更改显示方式：根据您的用法，切换到缩略图或详细模式，并按名称、日期……等方式分类文件。"
   },
   "tour.display-bar.title": {
     "other": "显示选项"
@@ -312,19 +312,19 @@
     "other": "按 [Enter] 将 %s 个选定项目复制到目标，按 [Esc] 关闭"
   },
   "modalsearch.opentip.cmd": {
-    "other": "Tip: Use <kbd>⌘+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
+    "other": "提示：使用<kbd>⌘+k</kbd>打开此搜索对话框，使用<kbd>Esc</kbd>关闭。"
   },
   "modalsearch.opentip.ctrl": {
-    "other": "Tip: Use <kbd>Ctrl+k</kbd> to open this search dialog, <kbd>Esc</kbd> to close."
+    "other": "提示：使用<kbd>Ctrl+k</kbd>打开这个搜索对话框，使用<kbd>Esc</kbd>关闭。"
   },
   "search.chip.scope.folder": {
-    "other": "Folder"
+    "other": "文件夹"
   },
   "search.chip.scope.ws": {
-    "other": "Inside"
+    "other": "内部"
   },
   "search.chip.scope.all": {
-    "other": "All Workspaces"
+    "other": "所有工作区"
   },
   "wslist-options.title": {
     "other": "显示选项"
@@ -381,27 +381,27 @@
     "other": "更多..."
   },
   "drag-layer.move.file": {
-    "other": "Move File"
+    "other": "移动文件"
   },
   "drag-layer.move.folder": {
-    "other": "Move Folder"
+    "other": "移动文件夹"
   },
   "drag-layer.move.plural": {
-    "other": "Move %s Items"
+    "other": "移动 %s 个项目"
   },
   "drag-layer.copy.file": {
-    "other": "Copy File"
+    "other": "复制文件"
   },
   "drag-layer.copy.folder": {
-    "other": "Copy Folder"
+    "other": "复制文件夹"
   },
   "drag-layer.copy.plural": {
-    "other": "Copy %s Items"
+    "other": "复制 %s 个项目"
   },
   "drag-layer.more": {
-    "other": "...and %s more."
+    "other": "...以及其他 %s 个。"
   },
   "drag-layer.hint": {
-    "other": "Use [alt/option] key to copy"
+    "other": "使用 [Alt/option] 键复制"
   }
 }
