@@ -31,6 +31,7 @@ export interface InputProps {
 
     value?: any;
     onChange: (value: string|boolean|number, submit?: boolean) => void;
+    onFocus?: (e: any) => void;
     onBlur?: (e: any) => void;
 
     onCommitChange?: (values: unknown) => void;

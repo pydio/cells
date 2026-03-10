@@ -32,6 +32,7 @@ export const formatSpecialCasesForValidation = (formState: Map<string, any>, jso
         }
 
         if (safeProperties[k]?.format === 'date-time' || safeProperties[k]?.format === 'date') {
+            if (!v) return
             entries[k] = new Date(parseFloat(v) * 1000).toISOString()
             return
         }
