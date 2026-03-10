@@ -15,13 +15,13 @@
     "other": "Einen Metadaten-Namespace festlegen, um die Inhalte von Ordnerseiten zu speichern. Die Metadaten müssen vorher erstellt werden, bevor sie verwendet werden können."
   },
   "Is Page Metadata Name": {
-    "other": "Is Page Metadata Name"
+    "other": "Seitenstatus-Metadaten"
   },
   "Set a metadata namespace to enable/disable the page behavior.": {
     "other": "Einen Metadaten-Namespace festlegen, um das Seitenverhalten zu aktivieren oder zu deaktivieren."
   },
   "Abstract Metadata Name": {
-    "other": "Abstract Metadata Name"
+    "other": "Metadaten für Seitenabstract"
   },
   "Set a metadata namespace to be used as description for pages": {
     "other": "Einen Metadaten-Namespace festlegen, der als Beschreibung für Seiten verwendet wird"
