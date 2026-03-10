@@ -201,13 +201,18 @@ func (p *PATHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 }
 
 func (p *PATHandler) Revoke(ctx context.Context, request *auth.PatRevokeRequest) (*auth.PatRevokeResponse, error) {
-	// TODO - REVOKE BY RevocationKey
 	dao, err := p.getDao(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if err := dao.Delete(request.GetUuid()); err != nil {
-		return nil, err
+	if request.ByRevocationKey != "" {
+		if err := dao.Delete(request.ByRevocationKey, true); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := dao.Delete(request.GetUuid()); err != nil {
+			return nil, err
+		}
 	}
 
 	return &auth.PatRevokeResponse{

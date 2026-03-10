@@ -776,7 +776,18 @@ func Upgrade4993(ctx context.Context) error {
 	return nil
 }
 
-var GrpcServiceMigrations = []*service.Migration{
+var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
+	{
+		TargetVersion: service.ValidVersion("4.5.0"),
+		Up:            Upgrade4992,
+	},
+	{
+		TargetVersion: service.ValidVersion("4.9.93"),
+		Up:            Upgrade4993,
+	},
+}
+
+var DefaultsServiceMigrationsUpTo4416 = []*service.Migration{
 	{
 		TargetVersion: service.FirstRun(),
 		Up:            InitDefaults,
@@ -829,8 +840,5 @@ var GrpcServiceMigrations = []*service.Migration{
 		TargetVersion: service.ValidVersion("4.3.99"),
 		Up:            Upgrade4399,
 	},
-	{
-		TargetVersion: service.ValidVersion("4.9.93"),
-		Up:            Upgrade4993,
-	},
+	// DO NOT ADD Additional changes after v4.4.16 here, but in the service init
 }
