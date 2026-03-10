@@ -1,18 +1,18 @@
 {
   "Pages": {
-    "other": "Pages"
+    "other": "Seiten"
   },
   "Display Folders as Pages": {
-    "other": "Display Folders as Pages"
+    "other": "Ordner als Seiten anzeigen"
   },
   "ext": {
     "other": "Notizblock"
   },
   "Page Contents Metadata Name": {
-    "other": "Page Contents Metadata Name"
+    "other": "Metadatenname des Seiteninhalts"
   },
   "Set a metadata namespace to store folder pages contents. Metadata must be created before using that.": {
-    "other": "Set a metadata namespace to store folder pages contents. Metadata must be created before using that."
+    "other": "Einen Metadaten-Namespace festlegen, um die Inhalte von Ordnerseiten zu speichern. Die Metadaten müssen vorher erstellt werden, bevor sie verwendet werden können."
   },
   "Is Page Metadata Name": {
     "other": "Is Page Metadata Name"
