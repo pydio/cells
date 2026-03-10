@@ -36,6 +36,7 @@ const InfoPanel = ({
     ...infoProps
 }) => {
     const panel = useRef(null);
+    const [mode, setMode] = useState();
     const [updateData, setUpdateData] = useState(null);
     const [valid, setValid] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -62,6 +63,8 @@ const InfoPanel = ({
                     if (popoverPanel && popoverRequestClose) {
                         popoverRequestClose();
                     }
+
+                    setMode('idle');
                 });
         },
         [node, setSaving, setUpdateData],
@@ -77,7 +80,7 @@ const InfoPanel = ({
 
     const readOnly = node.getMetadata().get('node_readonly') === 'true';
     let hasAction = false;
-    if (!readOnly && updateData && updateData.size > 0) {
+    if (!readOnly && mode !== 'idle') {
         hasAction = true
         actions.push(
             <FlatButton
@@ -106,7 +109,8 @@ const InfoPanel = ({
             saveMeta={saveMeta}
             savePartially={true}
             saving={saving}
-            onDataChanged={(data, { isValid }) => {
+            onDataChanged={(data, { isValid, mode }) => {
+                setMode(mode)
                 setUpdateData(data)
                 setValid(isValid)
             }}

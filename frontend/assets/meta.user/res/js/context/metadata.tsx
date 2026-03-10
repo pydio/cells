@@ -23,31 +23,30 @@ interface MetadataState {
     namespaceJsonSchema: AnySchema | null;
     jsonSchema: AnySchema | null;
     shouldSave: boolean;
-    editingTag: string;
     errors: {[key: string]: string};
-    isEditing: string;
+    mode: "idle" | "editing" | "saving" | "invalid" ;
 }
 
 type MetadataAction =
     | { type: 'set_node'; node: PydioNode | null }
     | { type: 'set_saving'; saving: boolean }
-    | { type: 'set_form_state'; formState: Map<string, any> }
-    | { type: 'set_fields'; fields: {[key: string]: any} }
+    | { type: 'set_form_state'; formState: Map<string, any>, mode: MetadataState['mode'] }
     | { type: 'set_namespace_schema'; namespaceJsonSchema: AnySchema | null }
     | { type: 'set_should_save'; shouldSave: boolean }
-    | { type: 'set_json_schema'; jsonSchema: JSONSchemaType<any> | null }
+    | { type: 'set_json_schema'; jsonSchema: AnySchema | null }
     | { type: 'set_errors'; errors: {[key: string]: string} };
 
 interface MetadataActions {
     setNamespaceJsonSchema: (namespaceJsonSchema: JSONSchemaType<any> | null) => void;
     setSaving: (saving: boolean) => void;
+    setInitialFormState: (formState: Map<string, any>) => void;
     setFormState: (formState: Map<string, any>) => void;
     /**
      * Set shouldSave triggers a partial save of the metadata
      * when the form is valid.
      */
     setShouldSave: (shouldSave: boolean) => void;
-    setJsonSchema: (jsonSchema: JSONSchemaType<any> | null) => void;
+    setJsonSchema: (jsonSchema: AnySchema | null) => void;
 }
 
 interface MetadataContextType {
@@ -67,28 +66,31 @@ const initialState: MetadataState = {
     namespaceJsonSchema: null,
     jsonSchema: null,
     shouldSave: false,
-    editingTag: 'none',
-    errors: {}
+    errors: {},
+    mode: "idle"
 }
 
 const reducer = (state: MetadataState, action: MetadataAction): MetadataState => {
     switch (action.type) {
         case 'set_node':
-            return { ...state, node: action.node }
+            return { ...state, node: action.node, mode: "idle" }
         case 'set_saving':
-            return { ...state, saving: action.saving }
+            return { ...state, saving: action.saving, mode: "saving" }
         case 'set_form_state':
-            return { ...state, formState: action.formState }
-        case 'set_fields':
-            return { ...state, fields: action.fields }
+            return { ...state, formState: action.formState, mode: action.mode }
         case 'set_namespace_schema':
             return { ...state, namespaceJsonSchema: action.namespaceJsonSchema }
         case 'set_should_save':
-            return { ...state, shouldSave: action.shouldSave }
+            return { ...state, shouldSave: action.shouldSave, mode: "saving" }
         case 'set_json_schema':
-            return { ...state, jsonSchema: action.jsonSchema }
+            return { ...state, jsonSchema: action.jsonSchema, mode: "idle" }
         case 'set_errors':
-            return { ...state, errors: action.errors }
+            const errorCount = Object.keys(action.errors).length
+            if (errorCount === 0) {
+                return { ...state, errors: action.errors, mode: "editing" }
+            }
+
+            return { ...state, errors: action.errors, mode: "invalid" }
         default:
             return state
     }
@@ -116,10 +118,11 @@ const defaultContext: MetadataContextType = {
     dispatch: noop as React.Dispatch<MetadataAction>,
     actions: {
         setSaving: noop,
+        setInitialFormState: noop,
         setFormState: noop,
         setNamespaceJsonSchema: noop,
         setShouldSave: noop,
-        setJsonSchema: noop
+        setJsonSchema: noop,
     }
 }
 
@@ -128,6 +131,7 @@ export const MetadataContext = React.createContext(defaultContext)
 const NODE_REPLACED_EVENT = 'node_replaced';
 
 export type OnChangeContext = {
+    mode: MetadataState['mode'];
     errors: { [key: string]: string };
     isValid: boolean;
 };
@@ -143,6 +147,7 @@ type MetadataContextProviderProps = {
     value: any;
     onDataChanged: OnDataChanged;
     savePartially?: boolean;
+    validateOnSchemaLoad?: boolean;
     children: React.ReactNode;
 };
 
@@ -152,6 +157,7 @@ export const MetadataContextProvider = ({
     value,
     onDataChanged,
     savePartially = false,
+    validateOnSchemaLoad = false,
     children,
 }: MetadataContextProviderProps) => {
     const validatorRef = React.useRef<Validator>(noopValidator);
@@ -167,31 +173,52 @@ export const MetadataContextProvider = ({
 
         setSaving: (saving: boolean) => dispatch({ type: 'set_saving', saving }),
 
+        setInitialFormState: (formState : Map<string, unknown>) => {
+            const mode = 'idle'
+            dispatch({ type: 'set_form_state', formState, mode })
+            if (onDataChanged) {
+                onDataChanged(formState, {
+                    errors: {},
+                    isValid: false,
+                    mode,
+                });
+            }
+        },
+
         setFormState: (formState : Map<string, unknown>) => {
             let { isValid, errors } = validatorRef.current(
                 // NODE: To validate and show the currect message "field is required"
                 removeEmptyKeys(formState)
             );
-            dispatch({ type: 'set_errors', errors })
+            dispatch({ type: 'set_errors', errors });
 
-            dispatch({ type: 'set_form_state', formState: new Map(formState) })
+            const mode = isValid ? "editing" : "invalid"
+            dispatch({
+                type: 'set_form_state',
+                formState: new Map(formState),
+                mode,
+            })
 
-                // NOTE: For parents that require holding state because we can't
-                // wrap them with a provider.
-                // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
-                if (onDataChanged) {
-                    onDataChanged(formState, { errors, isValid });
-                }
+            // NOTE: For parents that require holding state because we can't
+            // wrap them with a provider.
+            // eg. frontend/assets/meta.user/res/js/InfoPanel.js#92-95
+            if (onDataChanged) {
+                onDataChanged(formState, {
+                    errors,
+                    isValid: mode !== 'invalid',
+                    mode
+                });
+            }
         },
 
         setShouldSave: (shouldSave: boolean) => dispatch({ type: 'set_should_save', shouldSave }),
-        setJsonSchema: (jsonSchema) => dispatch({ type: 'set_json_schema', jsonSchema })
-    }), []);
+        setJsonSchema: (jsonSchema: AnySchema) => dispatch({ type: 'set_json_schema', jsonSchema }),
+    }), [state.mode]);
 
     const onNodeReplaced = React.useCallback((newNode) => {
         if (!newNode) return;
 
-        actions.setFormState(new Map(newNode.getMetadata()))
+        actions.setInitialFormState(new Map(newNode.getMetadata()))
     }, [node])
 
     React.useEffect(() => {
@@ -219,13 +246,18 @@ export const MetadataContextProvider = ({
         if (!state.jsonSchema) return
 
         validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
-        actions.setFormState(new Map(node.getMetadata()))
+        if (validateOnSchemaLoad) {
+            actions.setFormState(new Map(node.getMetadata()))
+            return;
+        }
+
+        actions.setInitialFormState(new Map(node.getMetadata()))
     }, [state.jsonSchema, node]);
 
     React.useEffect(() => {
         if(state.saving) return;
 
-        actions.setFormState(new Map(node.getMetadata()))
+        actions.setInitialFormState(new Map(node.getMetadata()))
     }, [node.getPath(), state.saving]);
 
 
