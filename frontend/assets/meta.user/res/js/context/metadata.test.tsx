@@ -604,6 +604,62 @@ describe('MetadataContext', () => {
             })
         })
 
+        it('clears stale validation errors when node is replaced', async () => {
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            await waitFor(() => {
+                expect(result.current.state.jsonSchema).toBe(testSchema)
+            })
+
+            act(() => {
+                result.current.actions.setFormState(new Map([
+                    ['usermeta-text', 'only-one-field']
+                ]))
+            })
+
+            await waitFor(() => {
+                expect(Object.keys(result.current.state.errors).length).toBeGreaterThan(0)
+                expect(result.current.state.mode).toBe('invalid')
+            })
+
+            const observeCall = mockNode.observe.mock.calls.find(
+                (call) => call[0] === 'node_replaced'
+            )
+            const nodeReplacedCallback = observeCall![1]
+
+            const newNode = createMockNode({
+                getMetadata: vi.fn(() => new Map([['usermeta-text', 'fresh-node-value']]))
+            })
+
+            act(() => {
+                nodeReplacedCallback(newNode)
+            })
+
+            await waitFor(() => {
+                expect(result.current.state.errors).toEqual({})
+                expect(result.current.state.mode).toBe('idle')
+                expect(result.current.state.formState.get('usermeta-text')).toBe('fresh-node-value')
+            })
+
+            const [, lastContext] = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
+            expect(lastContext).toEqual({
+                errors: {},
+                isValid: false,
+                mode: 'idle',
+            })
+        })
+
         it('cleans up node_replaced observer on unmount', () => {
             const initialMetadata = new Map([['usermeta-text', 'initial']])
             mockNode.getMetadata.mockReturnValue(initialMetadata)

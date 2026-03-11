@@ -183,6 +183,7 @@ export const MetadataContextProvider = ({
 
         setInitialFormState: (formState : Map<string, unknown>) => {
             const mode = 'idle'
+            dispatch({ type: 'set_errors', errors: {} })
             dispatch({ type: 'set_form_state', formState, mode })
             if (onDataChanged) {
                 onDataChanged(formState, {
