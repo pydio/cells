@@ -202,7 +202,7 @@ export const insertChildrenList = (editor) => ({
         );
     },
     aliases: ['toc', 'contents', 'co'],
-    group: 'Advanced',
+    group: editor.dictionary.slash_menu.table.group,
     icon: <RiFolderOpenFill size={18} />,
     subtext: t('node-spec.insert-toc.subtext'),
 });
@@ -244,7 +244,7 @@ export const insertResultsList = (editor) => ({
         document.dispatchEvent(event);
     },
     aliases: ['search', 'results', 's'],
-    group: 'Advanced',
+    group: editor.dictionary.slash_menu.table.group,
     icon: <RiFolderOpenFill size={18} />,
     subtext: t('node-spec.insert-results.subtext'),
 });
@@ -272,13 +272,13 @@ export const insertNodePickerBlock = (editor) => ({
                         { updateSelection: true },
                     );
                 },
-                onSelectCancel: () => console.log('CANCELLED'),
+                onSelectCancel: () => {},
             },
         });
         document.dispatchEvent(event);
     },
     aliases: ['file', 'folder', 'f'],
-    group: 'Advanced',
+    group: editor.dictionary.slash_menu.table.group,
     icon: <RiFileFill size={18} />,
     subtext: t('node-spec.insert-node.subtext'),
 });
