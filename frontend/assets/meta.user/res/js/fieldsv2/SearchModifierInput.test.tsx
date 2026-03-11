@@ -72,7 +72,7 @@ describe('SearchModifierInput', () => {
         expect(screen.getByLabelText('text-value').textContent).toBe('')
 
         fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-        expect(onChange).toHaveBeenCalledWith('', true)
+        expect(onChange).toHaveBeenCalledWith('', { immediate: true })
     })
 
     it('keeps plain text when no modifier is present', () => {
@@ -102,7 +102,7 @@ describe('SearchModifierInput', () => {
         expect(onChange).toHaveBeenCalledWith('>=next')
 
         fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-        expect(onChange).toHaveBeenCalledWith('>=10', true)
+        expect(onChange).toHaveBeenCalledWith('>=10', { immediate: true })
     })
 
     it('parses single-character range modifier', () => {
@@ -190,7 +190,7 @@ describe('SearchModifierInput', () => {
             expect(screen.getByLabelText('text-value').textContent).toBe('')
 
             fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-            expect(onChange).toHaveBeenCalledWith('', true)
+            expect(onChange).toHaveBeenCalledWith('', { immediate: true })
         })
 
         it('handles modifier change with timestamp value', () => {
@@ -218,7 +218,7 @@ describe('SearchModifierInput', () => {
             expect(screen.getByLabelText('text-value').textContent).toBe('1707550800')
 
             fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-            expect(onChange).toHaveBeenCalledWith('>=1707550800', true)
+            expect(onChange).toHaveBeenCalledWith('>=1707550800', { immediate: true })
         })
 
         it('parses single-character range modifier (>)', () => {
@@ -272,7 +272,7 @@ describe('SearchModifierInput', () => {
 
             fireEvent.click(screen.getByRole('button', { name: 'submit' }))
             // Should preserve the >= modifier with the timestamp value
-            expect(onChange).toHaveBeenCalledWith('>=1707550800', true)
+            expect(onChange).toHaveBeenCalledWith('>=1707550800', { immediate: true })
         })
 
         it('handles null/undefined values gracefully', () => {

@@ -79,7 +79,7 @@ export const TextInputSearch: React.FC<InputProps> = ({
 
     const simpleEnter = useCallback((event: React.KeyboardEvent) => {
         if(event.key === 'Enter'){
-            onChange(value, true);
+            onChange(value, {immediate: true});
         }
     }, [value, onChange])
 

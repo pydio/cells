@@ -241,7 +241,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
 
         }
 
-        setValues(newValues, immediate = false){
+        setValues(newValues, options = {}){
             const {onUpdateSearch} = this.props;
             Object.keys(newValues).forEach(k => {
                 if(!newValues[k]){
@@ -272,7 +272,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
                 scope = values.scope;
             }
             let searchCallback = this.performSearchD;
-            if(immediate) {
+            if(options.immediate) {
                 this.performSearchD.cancel()
                 searchCallback = this.performSearch.bind(this)
             }

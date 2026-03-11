@@ -73,7 +73,7 @@ export const Selector: React.FC<SelectInputProps> = ({
                 className={"mdi mdi-chevron-left"}
                 style={{ fontSize: 11, cursor: "pointer" }}
                 title={prevLabel}
-                onClick={() => { onChange(items[pos - 1].key, true) }}
+                onClick={() => { onChange(items[pos - 1].key, {immediate: true}) }}
             />
         }
         if (pos < items.length - 1) {
@@ -82,7 +82,7 @@ export const Selector: React.FC<SelectInputProps> = ({
                 className={"mdi mdi-chevron-right"}
                 style={{ fontSize: 11, cursor: "pointer" }}
                 title={nextLabel}
-                onClick={() => { onChange(items[pos + 1].key, true) }}
+                onClick={() => { onChange(items[pos + 1].key, {immediate: true}) }}
             />
         }
     }

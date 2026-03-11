@@ -292,7 +292,7 @@ function UnifiedSearchForm (props){
                         values={values}
                         searchTools={searchTools}
                         getSearchOptions={getSearchOptions}
-                        onChange={(newValues) => setValues({...values, ...newValues})}
+                        onChange={(newValues, options) => setValues({...values, ...newValues}, options)}
                         rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
                         showScope={!uniqueSearchScope}
                         savedSearches={savedSearches}

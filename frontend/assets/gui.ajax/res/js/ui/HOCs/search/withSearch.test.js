@@ -64,7 +64,7 @@ describe('withSearch setValues scheduling', () => {
         instance.setValues({ basenameOrContent: 'report' })
         vi.advanceTimersByTime(300)
 
-        instance.setValues({ basenameOrContent: 'report-now' }, true)
+        instance.setValues({ basenameOrContent: 'report-now' }, { immediate: true })
         expect(runSearch).toHaveBeenCalledTimes(1)
 
         vi.advanceTimersByTime(500)

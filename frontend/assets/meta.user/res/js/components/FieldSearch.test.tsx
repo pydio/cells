@@ -8,7 +8,7 @@ vi.mock('../fieldsv2/TextInputSearch', () => ({
     TextInputSearch: ({ onChange }) => (
         <div>
             <button onClick={() => onChange('draft-url')}>type</button>
-            <button onClick={() => onChange('final-url', true)}>submit</button>
+            <button onClick={() => onChange('final-url', { immediate: true })}>submit</button>
         </div>
     )
 }))
@@ -19,7 +19,7 @@ describe('FieldSearch', () => {
         vi.clearAllMocks()
     })
 
-    it('passes submit flag to updateValue for text-based search fields', () => {
+    it('passes immediate option to updateValue for text-based search fields', () => {
         const updateValue = vi.fn()
 
         render(
@@ -33,7 +33,7 @@ describe('FieldSearch', () => {
 
         fireEvent.click(screen.getByRole('button', { name: 'submit' }))
 
-        expect(updateValue).toHaveBeenCalledWith('website', 'final-url', true)
+        expect(updateValue).toHaveBeenCalledWith('website', 'final-url', { immediate: true })
     })
 
     it('keeps regular updates non-immediate', () => {

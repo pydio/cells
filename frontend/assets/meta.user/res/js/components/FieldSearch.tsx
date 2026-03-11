@@ -25,7 +25,7 @@ import {Selector} from "../fieldsv2/Select"
 import {RatingInput} from "../fieldsv2/RatingInput";
 import {SwitchInput} from "../fieldsv2/SwitchInput";
 import {TagsCloudInput} from "../fieldsv2/TagsCloudInput";
-import {InputProps, Items} from "../fieldsv2/CommonInputProps";
+import {InputProps, Items, SearchUpdateOptions} from "../fieldsv2/CommonInputProps";
 import MetaClient from "../MetaClient";
 import {NamespaceMeta} from "./MetaSpec";
 import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
@@ -38,15 +38,15 @@ export interface FieldSearchProps {
     name:string,
     meta:NamespaceMeta,
     value:any,
-    updateValue:(f:string, v:any, submit?: boolean) => void,
+    updateValue:(f:string, v:any, options?: SearchUpdateOptions) => void,
 }
 
 /**
  * Renders a single metadata field in edit mode
  */
 export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, updateValue}) => {
-    const localChange = useCallback((value:any, submit?: boolean) => {
-        updateValue(name, value, submit);
+    const localChange = useCallback((value:any, options?: SearchUpdateOptions) => {
+        updateValue(name, value, options);
     }, [name, updateValue])
 
     const localDataLoader = useCallback((filter?:string) => {

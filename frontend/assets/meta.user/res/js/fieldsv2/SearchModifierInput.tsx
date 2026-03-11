@@ -20,6 +20,7 @@
 
 import React, {useMemo} from 'react'
 import {LeftSectionMenu, LeftSectionMenuItem} from './SearchModifiers'
+import {SearchUpdateOptions} from './CommonInputProps'
 
 type ModifierParseResult = {
     modifier: string
@@ -37,7 +38,7 @@ type ModifierRenderArgs = {
 
 type SearchModifierInputProps = {
     value?: string
-    onChange: (value: string, submit?: boolean) => void
+    onChange: (value: string, options?: SearchUpdateOptions) => void
     items: LeftSectionMenuItem[]
     applyModifier: (modifier: string, text: string) => string
     parseModifier: (input: string) => ModifierParseResult
@@ -71,7 +72,7 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
                 composedValue,
                 leftSection,
                 onTextChange: (nextText) => onChange(applyModifier(modifier, nextText)),
-                onSubmit: () => onChange(composedValue, true)
+                onSubmit: () => onChange(composedValue, {immediate: true})
             })}
         </>
     )
@@ -79,7 +80,7 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
 
 type ModifierWrapperProps = {
     value?: string
-    onChange: (value: string, submit?: boolean) => void
+    onChange: (value: string, options?: SearchUpdateOptions) => void
     items: LeftSectionMenuItem[]
     children: (args: ModifierRenderArgs) => React.ReactNode
 }
