@@ -20,7 +20,6 @@
 
 export interface SearchUpdateOptions extends Record<string, unknown> {
     debounced?: boolean;
-    immediate?: boolean;
 }
 
 export interface InputProps {
