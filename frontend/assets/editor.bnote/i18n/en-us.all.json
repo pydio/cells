@@ -41,6 +41,12 @@
   "alert-block.success": {
       "other": "Success"
   },
+    "side-button.move-up": {
+        "other": "Move Up"
+    },
+    "side-button.move-down": {
+        "other": "Move Down"
+    },
     "dropped.loading":{
         "other": "Loading %s..."
     },
@@ -127,5 +133,17 @@
     },
     "node-spec.insert-results.subtext": {
         "other": "Insert the results of a search query that will be updated automatically"
+    },
+    "empty-state.toc": {
+        "other": "This page does not contain any items"
+    },
+    "empty-state.folder": {
+        "other": "This folder is empty"
+    },
+    "empty-state.results": {
+        "other": "No results for this search query"
+    },
+    "empty-state.node-not-found": {
+        "other": "File or folder may have been deleted"
     }
 }

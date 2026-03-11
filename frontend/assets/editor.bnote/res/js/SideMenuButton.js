@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {useCallback} from 'react'
+import { useCallback } from 'react';
 import {
     useBlockNoteEditor,
     useComponentsContext,
@@ -28,11 +28,12 @@ import {
     TableColumnHeaderItem,
     useDictionary,
     useExtensionState,
-    useExtension
-} from "@blocknote/react";
-import { SideMenuExtension } from "@blocknote/core/extensions";
-import {MdMoreVert} from "react-icons/md";
-import {HeaderSpecType} from "./specs/Header";
+    useExtension,
+} from '@blocknote/react';
+import { SideMenuExtension } from '@blocknote/core/extensions';
+import { MdMoreVert } from 'react-icons/md';
+import { HeaderSpecType } from './specs/Header';
+import { t } from './messages';
 
 // Custom Side Menu button to remove the hovered block.
 export function SideMenuButton() {
@@ -49,17 +50,17 @@ export function SideMenuButton() {
     const sideMenuExtension = useExtension(SideMenuExtension);
 
     const isTitle = useCallback((b) => {
-        return b.type === HeaderSpecType
+        return b.type === HeaderSpecType;
     }, []);
 
     if (!block) return null;
 
-    const previous = editor.getPrevBlock(block)
-    const next = editor.getNextBlock(block)
+    const previous = editor.getPrevBlock(block);
+    const next = editor.getNextBlock(block);
 
     return (
         <Components.Generic.Menu.Root
-            position={"left"}
+            position={'left'}
             onOpenChange={(open) => {
                 if (open && sideMenuExtension) {
                     sideMenuExtension.freezeMenu();
@@ -70,42 +71,46 @@ export function SideMenuButton() {
         >
             <Components.Generic.Menu.Trigger>
                 <Components.SideMenu.Button
-                    label={"Options"}
-                    className={"bn-button"}
-                    icon={<MdMoreVert size={24}/>}
+                    label={'Options'}
+                    className={'bn-button'}
+                    icon={<MdMoreVert size={24} />}
                 />
             </Components.Generic.Menu.Trigger>
             <Components.Generic.Menu.Dropdown
-                className={"bn-menu-dropdown bn-drag-handle-menu"}
+                className={'bn-menu-dropdown bn-drag-handle-menu'}
             >
                 <>
-                    {previous && !isTitle(previous) &&
+                    {previous && !isTitle(previous) && (
                         <Components.Generic.Menu.Item
-                            className={"bn-menu-item"}
+                            className={'bn-menu-item'}
                             onClick={() => {
-                                editor.removeBlocks([block])
-                                editor.insertBlocks([block], previous, "before")
+                                editor.removeBlocks([block]);
+                                editor.insertBlocks(
+                                    [block],
+                                    previous,
+                                    'before',
+                                );
                             }}
                         >
-                            Move Up
+                            {t('side-button.move-up')}
                         </Components.Generic.Menu.Item>
-                    }
-                    {next && !isTitle(block) &&
+                    )}
+                    {next && !isTitle(block) && (
                         <Components.Generic.Menu.Item
-                            className={"bn-menu-item"}
+                            className={'bn-menu-item'}
                             onClick={() => {
-                                editor.removeBlocks([block])
-                                editor.insertBlocks([block], next, "after")
+                                editor.removeBlocks([block]);
+                                editor.insertBlocks([block], next, 'after');
                             }}
                         >
-                            Move Down
+                            {t('side-button.move-down')}
                         </Components.Generic.Menu.Item>
-                    }
-                    {!isTitle(block) &&
+                    )}
+                    {!isTitle(block) && (
                         <RemoveBlockItem>
                             {dict.drag_handle.delete_menuitem}
                         </RemoveBlockItem>
-                    }
+                    )}
                     <BlockColorsItem>
                         {dict.drag_handle.colors_menuitem}
                     </BlockColorsItem>
@@ -117,11 +122,6 @@ export function SideMenuButton() {
                     </TableColumnHeaderItem>
                 </>
             </Components.Generic.Menu.Dropdown>
-
         </Components.Generic.Menu.Root>
-
-    )
-
+    );
 }
-
-

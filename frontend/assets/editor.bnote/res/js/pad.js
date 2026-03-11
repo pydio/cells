@@ -38,7 +38,18 @@ import {
     defaultInlineContentSpecs,
 } from '@blocknote/core';
 import { filterSuggestionItems } from '@blocknote/core/extensions';
-import { en } from '@blocknote/core/locales';
+import {
+    en,
+    fr,
+    pt,
+    de,
+    es,
+    it,
+    zhTW,
+    ru,
+    ja,
+    vi,
+} from '@blocknote/core/locales';
 // This packages some of the most used languages in on-demand bundle
 import { codeBlockOptions } from './blocks/codeblock';
 
@@ -80,6 +91,19 @@ const schema = BlockNoteSchema.create({
 
 const defaultExcludedKeys = ['audio', 'video', 'image', 'file'];
 
+const languageMapping = {
+    de: de,
+    'en-us': en,
+    'es-es': es,
+    fr: fr,
+    it: it,
+    'pt-br': pt,
+    ja: ja, // Japanese
+    ru: ru, // Russian
+    'vi-vn': vi, // Vietnamese
+    'zh-cn': zhTW, // Chinese simplified => taiwan
+};
+
 // List containing all default Slash Menu Items, as well as our custom one.
 const getCustomSlashMenuItems = (editor) => {
     const all = [
@@ -94,11 +118,11 @@ const getCustomSlashMenuItems = (editor) => {
     ];
     // Ensure Groups ordering and grouping
     const groupsOrder = [
-        'Basic blocks',
-        'Heading',
-        'Subheadings',
-        'Advanced',
-        'Others',
+        editor.dictionary.slash_menu.paragraph.group,
+        editor.dictionary.slash_menu.heading.group,
+        editor.dictionary.slash_menu.table.group, // Advanced
+        editor.dictionary.slash_menu.toggle_heading.group, // Togglable groups
+        editor.dictionary.slash_menu.emoji.group, // Others
     ];
     let ordered = [];
     groupsOrder.forEach((group) => {
@@ -116,20 +140,15 @@ export default ({
 }) => {
     const [htmlReady, setHtmlReady] = useState('');
 
+    const dictionary =
+        languageMapping[Pydio.getInstance().currentLanguage || 'en'] || en;
+
     // Creates a new editor instance.
     const editor = useCreateBlockNote({
         schema,
         initialContent: initialContent.length ? initialContent : null,
         // We override the `placeholders` in our dictionary
-        dictionary: {
-            ...en,
-            placeholders: {
-                ...en.placeholders,
-                // We override the default placeholder
-                default:
-                    "Type text or '/' for commands, '@' for mentioning a user",
-            },
-        },
+        dictionary,
         pasteHandler: pasteHandler,
         setIdAttribute: true,
         tables: {

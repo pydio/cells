@@ -64,7 +64,7 @@ export const insertAlertItem = (editor) => ({
         );
     },
     aliases: ['alert', 'al'],
-    group: 'Others',
+    group: editor.dictionary.slash_menu.emoji.group,
     icon: <RiAlertFill size={18} />,
     subtext: t('alert-spec.subtext'),
 });

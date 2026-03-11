@@ -21,7 +21,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import Pydio from 'pydio';
 import { PydioContext } from '../hooks/context';
-import { HoverCard, Paper } from '@mantine/core';
+import { HoverCard, Paper, Tooltip } from '@mantine/core';
 const { FilePreview } = Pydio.requireLib('workspaces');
 import PathUtils from 'pydio/util/path';
 import LangUtils from 'pydio/util/lang';
@@ -30,6 +30,7 @@ import { useLoadSingleNode } from '../hooks/useLoadSingleNode';
 import { useSingleNodeActions } from '../hooks/useSingleNodeActions';
 import { useSingleNodeDisplay } from '../hooks/useSingleNodeDisplay';
 import { HiOutlineExternalLink } from 'react-icons/hi';
+import { t } from '../messages';
 
 const Preview = ({
     node,
@@ -181,7 +182,7 @@ const SingleNode = (props) => {
         blockOrInlineProps: props,
     });
 
-    if (!inline) {
+    if (!inline && !error) {
         const width = blockSize === 'lg' ? '100%' : 320;
         return (
             <Paper
@@ -190,12 +191,16 @@ const SingleNode = (props) => {
                 withBorder={true}
                 onClick={selectNode}
                 style={{ position: 'relative', width }}
-                className={'disable-outline'}
+                className={'small-outline'}
             >
                 <Preview
                     node={node}
                     rich={true}
-                    filePreviewStyle={{ width, height: 'auto', minHeight: 260 }}
+                    filePreviewStyle={{
+                        width,
+                        height: 'auto',
+                        minHeight: 260,
+                    }}
                     onUpdateRatio={(r) => setRatio(r)}
                     menuGroups={[actions, displayMenu]}
                 />
@@ -222,9 +227,26 @@ const SingleNode = (props) => {
                         }}
                         className={'mdi mdi-alert-outline'}
                     />
-                    <span style={{ flex: 1, padding: '0 8px' }}>
-                        {open ? 'Original path: ' + path : 'File not found'}
-                    </span>
+                    {path && (
+                        <Tooltip label={path}>
+                            <span
+                                style={{
+                                    flex: 1,
+                                    padding: '0 8px',
+                                    fontSize: 15,
+                                }}
+                            >
+                                {t('empty-state.node-not-found')}
+                            </span>
+                        </Tooltip>
+                    )}
+                    {!path && (
+                        <span
+                            style={{ flex: 1, padding: '0 8px', fontSize: 15 }}
+                        >
+                            {t('empty-state.node-not-found')}
+                        </span>
+                    )}
                 </>
             )}
             {!error && (
@@ -254,8 +276,7 @@ const SingleNode = (props) => {
             }}
         >
             {
-                node &&
-                    !node.isLeaf() &&
+                ((node && !node.isLeaf()) || error) &&
                     inlineLabel /* folder: just display label */
             }
             {node && node.isLeaf() && (
@@ -273,7 +294,7 @@ const SingleNode = (props) => {
                     </HoverCard.Dropdown>
                 </HoverCard>
             )}
-            {isPage && (
+            {isPage && !error && (
                 <HiOutlineExternalLink
                     onClick={() => {
                         Pydio.getInstance().goTo(node);
@@ -281,7 +302,7 @@ const SingleNode = (props) => {
                     style={{ marginRight: 5, opacity: 0.75, marginTop: -1 }}
                 />
             )}
-            {!isPage && (
+            {!isPage && !error && (
                 <BlockMenu
                     groups={[actions, displayMenu]}
                     settingsStyle={{ marginRight: 8 }}
