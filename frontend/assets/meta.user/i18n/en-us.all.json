@@ -46,5 +46,38 @@
   },
   "9": {
     "other": "No Value"
+  },
+  "search.modifier.equals": {
+    "other": "Equals"
+  },
+  "search.modifier.gte": {
+    "other": "Greater than"
+  },
+  "search.modifier.lte": {
+    "other": "Less than"
+  },
+  "search.modifier.gt": {
+    "other": "Greater than (strict)"
+  },
+  "search.modifier.lt": {
+    "other": "Less than (strict)"
+  },
+  "search.modifier.exact-date": {
+    "other": "Exact date"
+  },
+  "search.modifier.start-date": {
+    "other": "Start date"
+  },
+  "search.modifier.end-date": {
+    "other": "End date"
+  },
+  "search.modifier.exact-match": {
+    "other": "Exact Match"
+  },
+  "search.modifier.starts-with": {
+    "other": "Starts with"
+  },
+  "search.modifier.contains": {
+    "other": "Contains"
   }
 }

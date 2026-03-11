@@ -947,6 +947,12 @@
   "metadata.toggle.required": {
     "other": "Required"
   },
+  "metadata.boolean.yes": {
+    "other": "Yes"
+  },
+  "metadata.boolean.no": {
+    "other": "No"
+  },
   "metadata.toggle.defaults": {
     "other": "Enforce Defaults"
   },

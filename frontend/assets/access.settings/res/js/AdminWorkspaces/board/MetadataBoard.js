@@ -103,12 +103,12 @@ class MetadataBoard extends React.Component{
             return orderSort(a0, b0)
         });
 
-        const promptOnUploadColumn = {name:'PromptOnUpload', label:m('Prompt On Upload'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
-                return row.PromptOnUpload ? 'Yes' : 'No';
+        const promptOnUploadColumn = {name:'PromptOnUpload', label:m('toggle.prompt'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
+                return row.PromptOnUpload ? m('boolean.yes') : m('boolean.no');
             }), sorter:{type:'number', value:(row)=>row.PromptOnUpload?1:0}};
-        const requiredColumn = {name:'Required', label:m('Required'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
+        const requiredColumn = {name:'Required', label:m('toggle.required'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
                 const requiredArray = row.JsonSchema?.required || [];
-                return requiredArray.length > 0 ? 'Yes' : 'No';
+                return requiredArray.length > 0 ? m('boolean.yes') : m('boolean.no');
             }), sorter:{type:'number', value:(row)=>(row.JsonSchema?.required?.length > 0) ? 1 : 0}};
         let columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
@@ -117,7 +117,7 @@ class MetadataBoard extends React.Component{
             {name:'Namespace', label:m('namespace'), style:{fontSize: 15}, sorter:{type:'string'}},
             {name:'Label', label:m('label'), style:{width:'25%'}, headerStyle:{width:'25%'}, sorter:{type:'string'}},
             {name:'Indexable', label:m('indexable'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
-                return row.Indexable ? 'Yes' : 'No';
+                return row.Indexable ? m('boolean.yes') : m('boolean.no');
             }), sorter:{type:'number', value:(row)=>row.Indexable?1:0}},
             ...(PROMPTONUPLOAD_FF ? [promptOnUploadColumn, requiredColumn] : []),
             {name:'JsonDefinition', label:m('definition'), hideSmall:true, renderCell:(row => {
