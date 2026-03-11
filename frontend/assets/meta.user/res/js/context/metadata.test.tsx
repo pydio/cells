@@ -718,6 +718,134 @@ describe('MetadataContext', () => {
                 expect(lastMetadata.get('usermeta-text')).toBe('third')
             })
         })
+
+        it('prefills required schema defaults on first schema load when enabled', async () => {
+            const ptuSchema = {
+                type: 'object',
+                required: ['requiredField'],
+                properties: {
+                    requiredField: { type: 'string', default: 'DEFS' },
+                    optionalField: { type: 'string', default: 'ptu-default' },
+                },
+            }
+            MetaClient.getInstance.mockReturnValue({
+                getNamespaceSchema: vi.fn(() => Promise.resolve({ JsonSchema: ptuSchema })),
+            })
+            mockNode.getMetadata.mockReturnValue(new Map())
+
+            renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        validateOnSchemaLoad={true}
+                        prefillDefaultsOnInitialLoad={true}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                ),
+            })
+
+            await waitFor(() => {
+                expect(mockOnDataChanged).toHaveBeenCalled()
+                const [formState, onChangeContext] = mockOnDataChanged.mock.calls[mockOnDataChanged.mock.calls.length - 1]
+                expect(formState.get('requiredField')).toBe('DEFS')
+                expect(formState.get('optionalField')).toBe('ptu-default')
+                expect(onChangeContext.isValid).toBe(true)
+            })
+        })
+
+        it('does not reapply defaults after required field is cleared', async () => {
+            const ptuSchema = {
+                type: 'object',
+                required: ['requiredField'],
+                properties: {
+                    requiredField: { type: 'string', default: 'DEFS' },
+                    optionalField: { type: 'string', default: 'ptu-default' },
+                },
+            }
+            MetaClient.getInstance.mockReturnValue({
+                getNamespaceSchema: vi.fn(() => Promise.resolve({ JsonSchema: ptuSchema })),
+            })
+            mockNode.getMetadata.mockReturnValue(new Map())
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        validateOnSchemaLoad={true}
+                        prefillDefaultsOnInitialLoad={true}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                ),
+            })
+
+            await waitFor(() => {
+                expect(result.current.state.formState.get('requiredField')).toBe('DEFS')
+            })
+
+            act(() => {
+                result.current.actions.setFormState(new Map([
+                    ['requiredField', ''],
+                ]))
+            })
+
+            await waitFor(() => {
+                expect(result.current.state.formState.get('requiredField')).toBe('')
+            })
+
+            mockNode.getMetadata.mockReturnValue(new Map([
+                ['requiredField', ''],
+            ]))
+            act(() => {
+                result.current.actions.setJsonSchema(ptuSchema as any)
+            })
+
+            await waitFor(() => {
+                expect(result.current.state.formState.get('requiredField')).toBe('')
+            })
+        })
+
+        it('does not prefill defaults when feature flag is disabled', async () => {
+            const ptuSchema = {
+                type: 'object',
+                required: ['requiredField'],
+                properties: {
+                    requiredField: { type: 'string' },
+                    optionalField: { type: 'string', default: 'ptu-default' },
+                },
+            }
+            MetaClient.getInstance.mockReturnValue({
+                getNamespaceSchema: vi.fn(() => Promise.resolve({ JsonSchema: ptuSchema })),
+            })
+            mockNode.getMetadata.mockReturnValue(new Map([['requiredField', 'required-value']]))
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={mockSaveMeta}
+                        value={{}}
+                        validateOnSchemaLoad={true}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                ),
+            })
+
+            await waitFor(() => {
+                expect(result.current.state.formState.get('requiredField')).toBe('required-value')
+            })
+
+            expect(result.current.state.formState.has('optionalField')).toBe(false)
+        })
     })
 
     describe('useMetadataContext', () => {

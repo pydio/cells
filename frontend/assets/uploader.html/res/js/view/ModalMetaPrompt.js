@@ -74,6 +74,7 @@ export default ({ namespaces, onDismiss, metaLib }) => {
                 node={node}
                 loadJsonSchema={loader}
                 validateOnSchemaLoad={true}
+                prefillDefaultsOnInitialLoad={true}
                 onDataChanged={(data, { isValid }) => {
                     setData(data)
                     setValid(isValid)

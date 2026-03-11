@@ -2,6 +2,7 @@ import * as React from 'react'
 import MetaClient from "../MetaClient";
 import { buildValidator } from './utils/validators';
 import type { Validator } from './utils/validators';
+import { mergeOptionalSchemaDefaults } from './utils/defaults';
 
 // FIXME: Properly type this
 type PydioNode = {
@@ -152,6 +153,7 @@ type MetadataContextProviderProps = {
     onDataChanged: OnDataChanged;
     savePartially?: boolean;
     validateOnSchemaLoad?: boolean;
+    prefillDefaultsOnInitialLoad?: boolean;
     children: React.ReactNode;
 };
 
@@ -162,9 +164,11 @@ export const MetadataContextProvider = ({
     onDataChanged,
     savePartially = false,
     validateOnSchemaLoad = false,
+    prefillDefaultsOnInitialLoad = false,
     children,
 }: MetadataContextProviderProps) => {
     const validatorRef = React.useRef<Validator>(noopValidator);
+    const didPrefillDefaultsRef = React.useRef(false);
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
         node,
@@ -250,13 +254,22 @@ export const MetadataContextProvider = ({
         if (!state.jsonSchema) return
 
         validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
+        let initialFormState = new Map(node.getMetadata())
+        const initialKeys = Array.from(initialFormState.keys())
+
+        if (prefillDefaultsOnInitialLoad && !didPrefillDefaultsRef.current) {
+            initialFormState = mergeOptionalSchemaDefaults(initialFormState, state.jsonSchema)
+            const mergedKeys = Array.from(initialFormState.keys())
+            didPrefillDefaultsRef.current = true
+        }
+
         if (validateOnSchemaLoad) {
-            actions.setFormState(new Map(node.getMetadata()))
+            actions.setFormState(initialFormState)
             return;
         }
 
-        actions.setInitialFormState(new Map(node.getMetadata()))
-    }, [state.jsonSchema, node]);
+        actions.setInitialFormState(initialFormState)
+    }, [state.jsonSchema, node, prefillDefaultsOnInitialLoad]);
 
     React.useEffect(() => {
         if(state.saving) return;
