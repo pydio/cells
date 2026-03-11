@@ -71,8 +71,8 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
                 text,
                 composedValue,
                 leftSection,
-                onTextChange: (nextText) => onChange(applyModifier(modifier, nextText)),
-                onSubmit: () => onChange(composedValue, {immediate: true})
+                onTextChange: (nextText) => onChange(applyModifier(modifier, nextText), {debounced: true}),
+                onSubmit: () => onChange(composedValue)
             })}
         </>
     )

@@ -45,10 +45,17 @@ describe('withSearch setValues scheduling', () => {
         vi.useRealTimers()
     })
 
-    it('keeps default updates debounced', () => {
+    it('runs default updates immediately', () => {
         const { instance, runSearch } = createInstance()
 
         instance.setValues({ basenameOrContent: 'report' })
+        expect(runSearch).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps debounced updates only when explicitly requested', () => {
+        const { instance, runSearch } = createInstance()
+
+        instance.setValues({ basenameOrContent: 'report' }, { debounced: true })
         expect(runSearch).not.toHaveBeenCalled()
 
         vi.advanceTimersByTime(499)
@@ -58,13 +65,13 @@ describe('withSearch setValues scheduling', () => {
         expect(runSearch).toHaveBeenCalledTimes(1)
     })
 
-    it('runs immediate callback and cancels pending debounce', () => {
+    it('runs default callback and cancels pending debounce', () => {
         const { instance, runSearch } = createInstance()
 
-        instance.setValues({ basenameOrContent: 'report' })
+        instance.setValues({ basenameOrContent: 'report' }, { debounced: true })
         vi.advanceTimersByTime(300)
 
-        instance.setValues({ basenameOrContent: 'report-now' }, { immediate: true })
+        instance.setValues({ basenameOrContent: 'report-now' })
         expect(runSearch).toHaveBeenCalledTimes(1)
 
         vi.advanceTimersByTime(500)

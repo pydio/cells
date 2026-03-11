@@ -271,10 +271,11 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
             if(!scope) {
                 scope = values.scope;
             }
-            let searchCallback = this.performSearchD;
-            if(options.immediate) {
+            let searchCallback = this.performSearch.bind(this)
+            if(options.debounced === true) {
+                searchCallback = this.performSearchD;
+            } else {
                 this.performSearchD.cancel()
-                searchCallback = this.performSearch.bind(this)
             }
             this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, searchCallback);
             if(onUpdateSearch){
