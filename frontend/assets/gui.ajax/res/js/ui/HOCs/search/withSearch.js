@@ -241,7 +241,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
 
         }
 
-        setValues(newValues){
+        setValues(newValues, immediate = false){
             const {onUpdateSearch} = this.props;
             Object.keys(newValues).forEach(k => {
                 if(!newValues[k]){
@@ -271,7 +271,12 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
             if(!scope) {
                 scope = values.scope;
             }
-            this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, this.performSearchD);
+            let searchCallback = this.performSearchD;
+            if(immediate) {
+                this.performSearchD.cancel()
+                searchCallback = this.performSearch.bind(this)
+            }
+            this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, searchCallback);
             if(onUpdateSearch){
                 onUpdateSearch({values: newValues});
             }
@@ -502,12 +507,10 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
                 SearchConstants
             }
 
-            return (
-                <Component
-                    {...this.props}
-                    searchTools={searchTools}
-                />
-            );
+            return React.createElement(Component, {
+                ...this.props,
+                searchTools,
+            });
         }
 
     }

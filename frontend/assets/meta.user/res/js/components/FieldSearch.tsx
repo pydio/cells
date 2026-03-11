@@ -38,7 +38,7 @@ export interface FieldSearchProps {
     name:string,
     meta:NamespaceMeta,
     value:any,
-    updateValue:(f:string, v:any) => void,
+    updateValue:(f:string, v:any, submit?: boolean) => void,
 }
 
 /**
@@ -46,8 +46,8 @@ export interface FieldSearchProps {
  */
 export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, updateValue}) => {
     const localChange = useCallback((value:any, submit?: boolean) => {
-        updateValue(name, value);
-    }, [name])
+        updateValue(name, value, submit);
+    }, [name, updateValue])
 
     const localDataLoader = useCallback((filter?:string) => {
         return MetaClient.getInstance().listTags(name).then(tags => {

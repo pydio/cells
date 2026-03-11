@@ -248,15 +248,15 @@ export default class Renderer {
      */
     static typeFormRenderer(type) {
         const fSearchRenderer = (
-            props: { fieldname: string; value: any; onChange: ({}) => void },
+            props: { fieldname: string; value: any; onChange: (searchValues: {}, immediate?: boolean) => void },
             configs: Map<string, NamespaceMeta>,
         ) => {
             const fieldProps: FieldSearchProps = {
                 name: props.fieldname,
                 value: props.value,
-                updateValue: (f, v) => {
+                updateValue: (f, v, immediate) => {
                     const searchValues = { ['ajxp_meta_' + f]: v };
-                    props.onChange(searchValues);
+                    props.onChange(searchValues, immediate);
                 },
                 meta: configs.get(props.fieldname),
             };
