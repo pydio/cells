@@ -272,7 +272,7 @@ export default function withSearch(Component, historyIdentifier, defaultScope, b
                 scope = values.scope;
             }
             let searchCallback = this.performSearch.bind(this)
-            if(options.debounced === true) {
+            if(options && options.debounced) {
                 searchCallback = this.performSearchD;
             } else {
                 this.performSearchD.cancel()
