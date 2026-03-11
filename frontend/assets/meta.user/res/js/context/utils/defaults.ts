@@ -20,20 +20,12 @@ export const mergeOptionalSchemaDefaults = (
         ? schema.properties
         : {}
 
-    let considered = 0
-    let applied = 0
-    let skipped = 0
-
     Object.entries(properties).forEach(([fieldName, definition]) => {
         if (!definition || typeof definition !== 'object') return
         if (!hasOwn(definition, 'default')) return
 
-        considered++
         if (isEmpty(nextState.get(fieldName))) {
             nextState.set(fieldName, (definition as any).default)
-            applied++
-        } else {
-            skipped++
         }
     })
 
