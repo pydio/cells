@@ -1,4 +1,5 @@
-import { AnySchema, ValidateFunction } from 'ajv'
+import Ajv, { AnySchema, ValidateFunction } from 'ajv'
+import addFormats from 'ajv-formats'
 
 export const mapErrors = (errors: any[]) => {
     if (!errors) return {}
@@ -43,19 +44,63 @@ export const formatSpecialCasesForValidation = (formState: Map<string, any>, jso
     return entries
 }
 
-export type Validator = (formState: Map<string, any>) => { isValid: boolean, errors: any }
+export type Validator = (formState: Map<string, any>) => {
+    isValid: boolean
+    errors: any
+    validator: ValidateFunction<any>
+}
 
+/**
+ * Options for configuring validator behavior
+ */
+export interface BuildValidatorOptions {
+    /**
+     * When true, AJV applies schema defaults to missing/empty properties.
+     * Defaults: false
+     * Use case: "Prompt on Upload" to auto-fill metadata fields
+     *
+     * AJV's `useDefaults: "empty"` automatically applies defaults from the schema to any
+     * properties with empty values (null, undefined, "", []) during validation.
+     */
+    applyDefaults?: boolean;
+}
+
+export const newValidator = (schema: AnySchema, options?: BuildValidatorOptions) => {
+    const ajv = new Ajv({
+        allErrors: true,
+        useDefaults: options?.applyDefaults ? "empty" : false,
+    })
+    addFormats(ajv)
+    return ajv.compile(schema)
+}
+
+/**
+ * Creates a validator function for a JSON schema.
+ *
+ * AJV's `useDefaults: "empty"` automatically applies defaults from the schema to any
+ * properties with empty values (null, undefined, "", []) during validation.
+ *
+ * When applyDefaults=true: AJV uses `useDefaults: "empty"` to apply defaults during validation
+ * When applyDefaults=false: AJV uses `useDefaults: false` to skip defaults during validation
+ */
 export const buildValidator = (
-    validator: ValidateFunction<any> | null
-): Validator => (formState: Map<string, any>) => {
-    if (!validator) return { isValid: true, errors: {} };
+    schema: AnySchema | null,
+    options?: BuildValidatorOptions
+): Validator => {
+    if (!schema) return (formState: Map<string, any>) => ({ isValid: true, errors: {}, validator: null })
 
-    let isValid = validator(
-        formatSpecialCasesForValidation(
-            formState,
-            validator.schema
+    const validator = newValidator(schema, options ?? {})
+
+    return (formState: Map<string, any>) => {
+        // Validate and apply defaults conditionally
+        const isValid = validator(
+            formatSpecialCasesForValidation(
+                formState,
+                schema
+            )
         )
-    )
-    const errors = mapErrors(validator.errors)
-    return { isValid, errors }
+        const errors = mapErrors(validator.errors)
+
+        return { isValid, errors, validator }
+    }
 }
