@@ -53,12 +53,6 @@ export const DateTimeInput: React.FC<InputProps> = ({
         onDismiss: () => onBlur({}),
     };
 
-    if (onCommitChange && !disabled) {
-        popoverProps.onClose = () => {
-            onCommitChange(value);
-        };
-    }
-
     return (
         <DateTimePicker
             {...props}

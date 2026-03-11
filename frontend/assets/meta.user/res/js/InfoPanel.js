@@ -36,8 +36,8 @@ const InfoPanel = ({
     ...infoProps
 }) => {
     const panel = useRef(null);
+    const [mode, setMode] = useState('idle');
     const [updateData, setUpdateData] = useState(null);
-    const [valid, setValid] = useState(true);
     const [saving, setSaving] = useState(false);
 
     const saveMeta = useCallback(
@@ -52,6 +52,7 @@ const InfoPanel = ({
                 .then(() => {
                     node.replaceMetadata(metadata, true);
                     setUpdateData(null);
+                    setMode('idle');
                 })
                 .catch((error) => {
                     throw error;
@@ -68,23 +69,27 @@ const InfoPanel = ({
     );
 
     const submitMetadata = useCallback(() => {
+        if (saving || mode === 'invalid' || mode === 'idle') {
+            return;
+        }
+
         saveMeta(updateData);
         setUpdateData(null);
-    }, [saveMeta, updateData]);
+    }, [saveMeta, updateData, saving, mode]);
 
     let actions = [];
     const { MessageHash } = pydio;
 
     const readOnly = node.getMetadata().get('node_readonly') === 'true';
     let hasAction = false;
-    if (!readOnly && updateData && updateData.size > 0) {
+    if (!readOnly && mode !== 'idle') {
         hasAction = true
         actions.push(
             <FlatButton
                 key="edit"
                 label={MessageHash['meta.user.15']}
                 onClick={submitMetadata}
-                disabled={!valid}
+                disabled={mode === 'invalid' || saving}
             />
         );
     }
@@ -106,9 +111,9 @@ const InfoPanel = ({
             saveMeta={saveMeta}
             savePartially={true}
             saving={saving}
-            onDataChanged={(data, { isValid }) => {
+            onDataChanged={(data, { mode }) => {
+                setMode(mode)
                 setUpdateData(data)
-                setValid(isValid)
             }}
         >
             <InfoPanelCard
@@ -127,7 +132,6 @@ const InfoPanel = ({
                     editMode={!readOnly}
                     pydio={pydio}
                     onChangeUpdateData={setUpdateData}
-                    onValidStatusChanged={(v) => { setValid(v) }}
                     saving={saving}
                     style={panelStyle}
                     isToggable={!popoverPanel}

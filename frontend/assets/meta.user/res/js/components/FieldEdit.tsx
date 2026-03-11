@@ -51,6 +51,8 @@ interface FieldEditProps {
 
 type FieldEditInternalProps = Omit<FieldEditProps, 'isEditing' | 'isToggable'>;
 
+const noop = () => { }
+
 /**
  * Renders a single metadata field in edit mode
  */
@@ -58,15 +60,14 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
     context,
     name,
     meta,
-    onFocus,
-    onBlur,
+    onFocus = noop,
+    onBlur = noop,
     shouldHideLabel,
 }) => {
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
 
-    const localDataLoader = useCallback(
-        (filter?: string) => {
+    const localDataLoader = useCallback(() => {
             return MetaClient.getInstance()
                 .listTags(name)
                 .then((tags) => {

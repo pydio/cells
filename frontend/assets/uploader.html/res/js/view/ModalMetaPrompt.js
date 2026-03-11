@@ -34,6 +34,7 @@ export default ({ namespaces, onDismiss, metaLib }) => {
     const cancel = useCallback(() => {
         onDismiss()
     }, [])
+
     const submit = useCallback(() => {
         if (!valid) return
 
@@ -72,7 +73,8 @@ export default ({ namespaces, onDismiss, metaLib }) => {
             <MetadataContextProvider
                 node={node}
                 loadJsonSchema={loader}
-                onDataChanged={(data, isValid) => {
+                validateOnSchemaLoad={true}
+                onDataChanged={(data, { isValid }) => {
                     setData(data)
                     setValid(isValid)
                 }}

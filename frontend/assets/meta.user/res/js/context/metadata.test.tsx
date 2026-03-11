@@ -204,17 +204,9 @@ describe('MetadataContext', () => {
                         mockOnDataChanged.mock.calls.length - 1
                     ];
                 expect(ctx).toEqual({
-                    errors: {
-                        'usermeta-datetime':
-                            "must have required property 'usermeta-datetime'",
-                        'usermeta-number':
-                            "must have required property 'usermeta-number'",
-                        'usermeta-paragraph':
-                            "must have required property 'usermeta-paragraph'",
-                        'usermeta-text':
-                            "must have required property 'usermeta-text'",
-                    },
-                    isValid: false,
+                    errors: {},
+                    isValid: true,
+                    mode: 'editing',
                 });
             });
         });
@@ -233,8 +225,18 @@ describe('MetadataContext', () => {
                 )
             })
 
-            // Missing required fields - should fail validation
+            // Now manually set the real schema
             mockOnDataChanged.mockClear()
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Wait for effect to set up real validator
+            await waitFor(() => {
+                expect(result.current.state.jsonSchema).toBe(testSchema)
+            })
+
+            // Missing required fields - should fail validation
             const incompleteData = new Map([
                 ['usermeta-text', 'hello']
                 // Missing other required fields
@@ -257,9 +259,8 @@ describe('MetadataContext', () => {
                             "must have required property 'usermeta-number'",
                         'usermeta-paragraph':
                             "must have required property 'usermeta-paragraph'",
-                        'usermeta-text':
-                            "must have required property 'usermeta-text'",
                     },
+                    mode: 'invalid',
                 });
             });
         });
@@ -438,6 +439,7 @@ describe('MetadataContext', () => {
                 expect(mockSaveMeta).toHaveBeenCalledWith(invalidData)
             })
         })
+
         it('prevents partial save when validation errors exist even if save is requested', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (
@@ -452,6 +454,15 @@ describe('MetadataContext', () => {
                     </MetadataContextProvider>
                 ),
             });
+
+            act(() => {
+                result.current.actions.setJsonSchema(testSchema)
+            })
+
+            // Wait for effect to set up real validator
+            await waitFor(() => {
+                expect(result.current.state.jsonSchema).toBe(testSchema)
+            })
 
             // Set data with validation errors
             const dataWithErrors = new Map([
@@ -775,6 +786,7 @@ describe('MetadataContext', () => {
             expect(ctx).toEqual({
                 isValid: true,
                 errors: {},
+                mode: 'editing',
             });
         });
 
@@ -809,6 +821,7 @@ describe('MetadataContext', () => {
             expect(ctxWithoutSchema).toEqual({
                 isValid: true,
                 errors: {},
+                mode: 'editing',
             });
 
             // Now manually set the real schema
@@ -840,6 +853,7 @@ describe('MetadataContext', () => {
                     'usermeta-paragraph':
                         "must have required property 'usermeta-paragraph'",
                 },
+                mode: 'invalid',
             });
         });
 
