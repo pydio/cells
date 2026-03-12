@@ -117,17 +117,17 @@ class Metadata {
 }
 
 Metadata.MetaTypes = {
-    "string": "Text",
-    "textarea": "Long Text",
-    "integer": "Number",
-    "boolean": "Boolean",
-    "date": "Date",
-    "choice": "Selection",
-    "tags": "Extensible Tags",
-    "stars_rate": "Stars Rating",
-    "css_label": "Color Labels",
-    "json": "JSON",
-    "url": "External URL"
+    "string": pydio.MessageHash['ajxp_admin.metadata.type.string'] || 'type.string',
+    "textarea": pydio.MessageHash['ajxp_admin.metadata.type.textarea'] || 'type.textarea',
+    "integer": pydio.MessageHash['ajxp_admin.metadata.type.integer'] || 'type.integer',
+    "boolean": pydio.MessageHash['ajxp_admin.metadata.type.boolean'] || 'type.boolean',
+    "date": pydio.MessageHash['ajxp_admin.metadata.type.date'] || 'type.date',
+    "choice": pydio.MessageHash['ajxp_admin.metadata.type.choice'] || 'type.choice',
+    "tags": pydio.MessageHash['ajxp_admin.metadata.type.tags'] || 'type.tags',
+    "stars_rate": pydio.MessageHash['ajxp_admin.metadata.type.stars_rate'] || 'type.stars_rate',
+    "css_label": pydio.MessageHash['ajxp_admin.metadata.type.css_label'] || 'type.css_label',
+    "json": pydio.MessageHash['ajxp_admin.metadata.type.json'] || 'type.json',
+    "url": pydio.MessageHash['ajxp_admin.metadata.type.url'] || 'type.url'
 };
 
 export { Metadata as default }
