@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
 
@@ -16,7 +16,25 @@ const createError = (keyword: string, instancePath: string, schemaPath: string, 
   params: params || {},
 })
 
+const validationMessages = {
+  'meta.user.validation.required': 'This field is required.',
+  'meta.user.validation.type': 'Invalid type, expected {type}.',
+  'meta.user.validation.minLength': 'Must contain at least {limit} characters.',
+  'meta.user.validation.maxLength': 'Must contain no more than {limit} characters.',
+  'meta.user.validation.maximum': 'Must be {comparison} {limit}.',
+  'meta.user.validation.format.default': 'Invalid format: {format}.',
+  'meta.user.validation.enum': 'Must be one of: {allowedValues}.',
+}
+
 describe('mapErrors', () => {
+  beforeEach(() => {
+    globalThis.pydio = { MessageHash: validationMessages } as any
+  })
+
+  afterEach(() => {
+    delete (globalThis as any).pydio
+  })
+
   it('returns empty object for null or undefined errors', () => {
     expect(mapErrors(null as any)).toEqual({})
     expect(mapErrors(undefined as any)).toEqual({})
@@ -32,7 +50,7 @@ describe('mapErrors', () => {
     ]
     const result = mapErrors(errors)
     expect(result).toEqual({
-      'usermeta-text': 'must have required property',
+      'usermeta-text': 'This field is required.',
     })
   })
 
@@ -44,7 +62,7 @@ describe('mapErrors', () => {
     const result = mapErrors(errors)
     // Should use instancePath split
     expect(result).toEqual({
-      'usermeta-text': 'must be present',
+      'usermeta-text': 'This field is required.',
     })
   })
 
@@ -76,7 +94,7 @@ describe('mapErrors', () => {
     ]
     const result = mapErrors(errors)
     expect(result).toEqual({
-      'field1': 'missing property',
+      'field1': 'This field is required.',
       'field2': 'too long',
     })
   })
@@ -87,7 +105,7 @@ describe('mapErrors', () => {
     ]
     const result = mapErrors(errors)
     expect(result).toEqual({
-      'fieldwithslash': 'missing property',
+      'fieldwithslash': 'This field is required.',
     })
   })
 
@@ -375,8 +393,8 @@ describe('buildValidator', () => {
     const result = validate(formState)
     expect(result.isValid).toBe(false)
     // Should have errors for usermeta-text and usermeta-number
-    expect(result.errors['usermeta-text']).toContain('fewer than 3')
-    expect(result.errors['usermeta-number']).toContain('must be <= 10')
+    expect(result.errors['usermeta-text']).toBe('Must contain at least 3 characters.')
+    expect(result.errors['usermeta-number']).toBe('Must be <= 10.')
   })
 
   it('calls formatSpecialCasesForValidation with schema', () => {
@@ -456,14 +474,14 @@ describe('buildValidator with conditional AJV defaults', () => {
 
   it('applies defaults when applyDefaults: true', () => {
     const validate = buildValidator(schemaWithDefaults, { applyDefaults: true })
-    
+
     const formState = new Map([
       ['name', ''],  // empty, should get default
       ['email', null],  // null, should get default
     ])
 
     const result = validate(formState)
-    
+
     // With applyDefaults: true, AJV applies defaults
     expect(result.isValid).toBe(true)
     expect(result.errors).toEqual({})
@@ -471,14 +489,14 @@ describe('buildValidator with conditional AJV defaults', () => {
 
   it('does NOT apply defaults when applyDefaults: false (default)', () => {
     const validate = buildValidator(schemaWithDefaults, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['name', ''],  // empty, should NOT get default
       ['email', null],  // null, should NOT get default
     ])
 
     const result = validate(formState)
-    
+
     // With applyDefaults: false, AJV does not apply defaults
     // Validation should fail because name is required but empty (after cleanup)
     expect(result.isValid).toBe(false)
@@ -489,14 +507,14 @@ describe('buildValidator with conditional AJV defaults', () => {
 
   it('does not override non-empty values with defaults when applyDefaults: true', () => {
     const validate = buildValidator(schemaWithDefaults, { applyDefaults: true })
-    
+
     const formState = new Map([
       ['name', 'Alice'],  // non-empty, keep original
       ['email', 'alice@example.com'],
     ])
 
     const result = validate(formState)
-    
+
     // Non-empty values are preserved regardless of applyDefaults setting
     expect(result.isValid).toBe(true)
     expect(result.errors).toEqual({})
@@ -522,7 +540,7 @@ describe('buildValidator with conditional AJV defaults', () => {
     }
 
     const validate = buildValidator(nestedSchema, { applyDefaults: true })
-    
+
     const formState = new Map([['user', {}]])
 
     const result = validate(formState)
@@ -539,7 +557,7 @@ describe('buildValidator with conditional AJV defaults', () => {
     }
 
     const validate = buildValidator(arraySchema, { applyDefaults: true })
-    
+
     const formState = new Map([
       ['tags', []],
       ['colors', []],
@@ -562,7 +580,7 @@ describe('buildValidator with conditional AJV defaults', () => {
     }
 
     const validate = buildValidator(schemaWithDefaults, { applyDefaults: true })
-    
+
     const formState = new Map([
       ['usermeta-text', ''],
       ['usermeta-paragraph', null],
@@ -577,7 +595,7 @@ describe('buildValidator with conditional AJV defaults', () => {
 describe('Multi-value metadata validation', () => {
   it('validates array fields with valid enum values', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'Critical']],
       ['usermeta-long-text', 'This is a long enough text'],
@@ -591,7 +609,7 @@ describe('Multi-value metadata validation', () => {
 
   it('rejects array fields with invalid enum values', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'InvalidValue']],
       ['usermeta-long-text', 'This is a long enough text'],
@@ -605,7 +623,7 @@ describe('Multi-value metadata validation', () => {
 
   it('enforces uniqueItems constraint on array fields', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'Urgent']],  // duplicate
       ['usermeta-long-text', 'This is a long enough text'],
@@ -619,7 +637,7 @@ describe('Multi-value metadata validation', () => {
 
   it('validates all field types in multival schema', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'Normal']],
       ['usermeta-boolean', true],
@@ -635,7 +653,7 @@ describe('Multi-value metadata validation', () => {
 
   it('validates datetime format in multival schema', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
       ['usermeta-datetime', '2024-02-04T17:00:00Z'],
@@ -649,7 +667,7 @@ describe('Multi-value metadata validation', () => {
 
   it('rejects missing required fields with array type', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     // Missing required 'usermeta-number' field
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
@@ -662,7 +680,7 @@ describe('Multi-value metadata validation', () => {
 
   it('validates minLength constraint on text field', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
       ['usermeta-long-text', 'short'],  // too short, needs 10 chars minimum
@@ -676,7 +694,7 @@ describe('Multi-value metadata validation', () => {
 
   it('validates maxLength constraint on text field', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
       ['usermeta-long-text', 'This is a very long text that definitely exceeds the one hundred character limit set in the schema for this field and should fail'],
@@ -696,7 +714,7 @@ describe('Multi-value metadata validation', () => {
     ])
 
     const result = formatSpecialCasesForValidation(formState, multiValSchema)
-    
+
     // Check that array was preserved
     expect(Array.isArray(result['usermeta-auto-complete'])).toBe(true)
     expect(result['usermeta-auto-complete']).toEqual(arrayValue)
@@ -704,7 +722,7 @@ describe('Multi-value metadata validation', () => {
 
   it('handles empty array field validation', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const formState = new Map([
       ['usermeta-auto-complete', []],  // empty array
       ['usermeta-long-text', 'A valid long text string'],
@@ -718,7 +736,7 @@ describe('Multi-value metadata validation', () => {
 
   it('validates multiple valid enum options in array', () => {
     const validate = buildValidator(multiValSchema, { applyDefaults: false })
-    
+
     const validOptions = ['Urgent', 'Critical', 'Low Priority', 'Normal', 'Rejected']
     const formState = new Map([
       ['usermeta-auto-complete', validOptions],

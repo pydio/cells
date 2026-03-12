@@ -1,5 +1,13 @@
 import Ajv, { AnySchema } from 'ajv'
 import addFormats from 'ajv-formats'
+import { localizeAjvError } from '../../utils/ajvErrorLocalization'
+
+const translateValidationKey = (key: string) => {
+    const messageHash = (globalThis as any)?.pydio?.MessageHash
+    if (!messageHash) return undefined
+
+    return messageHash[key] || messageHash[key.replace(/^meta\.user\./, '')]
+}
 
 export const mapErrors = (errors: any[]) => {
     if (!errors) return {}
@@ -8,11 +16,11 @@ export const mapErrors = (errors: any[]) => {
         const params = e.params || {}
         if (!e.schemaPath.includes('#required') && params.missingProperty) {
             const key = params.missingProperty.replace(/\//g, '')
-            return { ...acc, [key]: e.message }
+            return { ...acc, [key]: localizeAjvError(e, translateValidationKey) }
         }
 
         const [, type,] = e.instancePath.split('/')
-        return { ...acc, [type]: e.message }
+        return { ...acc, [type]: localizeAjvError(e, translateValidationKey) }
     }, {})
 }
 
