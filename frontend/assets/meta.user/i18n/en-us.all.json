@@ -47,6 +47,66 @@
   "9": {
     "other": "No Value"
   },
+  "group.boolean": {
+    "other": "Boolean"
+  },
+  "group.text": {
+    "other": "Text"
+  },
+  "group.number": {
+    "other": "Number"
+  },
+  "group.lists": {
+    "other": "Lists"
+  },
+  "group.internal": {
+    "other": "Internal"
+  },
+  "type.boolean": {
+    "other": "Boolean"
+  },
+  "type.choice": {
+    "other": "Selection"
+  },
+  "type.css_label": {
+    "other": "Color Labels"
+  },
+  "type.date": {
+    "other": "Date"
+  },
+  "type.integer": {
+    "other": "Number"
+  },
+  "type.json": {
+    "other": "JSON"
+  },
+  "type.stars_rate": {
+    "other": "Stars Rating"
+  },
+  "type.string": {
+    "other": "Text"
+  },
+  "type.tag_cloud": {
+    "other": "Tag Cloud"
+  },
+  "type.tags": {
+    "other": "Extensible Tags"
+  },
+  "type.textarea": {
+    "other": "Long Text"
+  },
+  "type.url": {
+    "other": "External URL"
+  },
+  "boolean.yes": {
+    "other": "Yes"
+  },
+  "boolean.no": {
+    "other": "No"
+  },
+  "errors.save": {
+    "other": "Error saving. Please try again."
+  },
   "search.modifier.equals": {
     "other": "Equals"
   },

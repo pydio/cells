@@ -101,6 +101,8 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
     // Build tree structure from configs
     const groupedNS = groupConfigsByNamespace(configs, supportTemplates);
     const tree = pathsToTree(groupedNS);
+    const formError = state.errors['form'];
+    const translatedFormError = formError && ((pydio && pydio.MessageHash && pydio.MessageHash[formError]) || formError);
 
     // Legend for multiple selection mode
     let legend;
@@ -133,10 +135,10 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
                 autoSave={autoSave}
                 saving={saving}
             />
-            {state.errors['form'] && <div style={{
+            {translatedFormError && <div style={{
                 color: 'red',
                 padding: '5px 0',
-            }}>{state.errors['form']}</div>}
+            }}>{translatedFormError}</div>}
         </div>
     );
 });
