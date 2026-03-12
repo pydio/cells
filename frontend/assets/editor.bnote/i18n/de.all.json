@@ -42,10 +42,10 @@
     "other": "Erfolgreich"
   },
   "side-button.move-up": {
-    "other": "Move Up"
+    "other": "Nach oben"
   },
   "side-button.move-down": {
-    "other": "Move Down"
+    "other": "Nach unten"
   },
   "dropped.loading": {
     "other": "%s wird geladen..."
@@ -135,15 +135,15 @@
     "other": "Die Ergebnisse einer Suchanfrage einfügen, die automatisch aktualisiert werden"
   },
   "empty-state.toc": {
-    "other": "This page does not contain any items"
+    "other": "Diese Seite enthält keine Elemente"
   },
   "empty-state.folder": {
-    "other": "This folder is empty"
+    "other": "Dieser Ordner ist leer"
   },
   "empty-state.results": {
-    "other": "No results for this search query"
+    "other": "Keine Ergebnisse für diese Suchanfrage"
   },
   "empty-state.node-not-found": {
-    "other": "File or folder may have been deleted"
+    "other": "Datei oder Ordner wurden möglicherweise gelöscht"
   }
 }
