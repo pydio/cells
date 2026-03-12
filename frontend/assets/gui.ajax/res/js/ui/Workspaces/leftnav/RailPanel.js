@@ -39,6 +39,53 @@ import CircularProgress from '@mui/material/CircularProgress'
 import NotificationsList from "./NotificationsList";
 import AddressBookPanel from "../views/AddressBookPanel";
 
+const ExternalPanel = muiThemeable()(({muiTheme, title, url}) => {
+    const frameUrl = (url || '').trim();
+    const openExternal = () => {
+        if (frameUrl) {
+            window.open(frameUrl, '_blank', 'noopener,noreferrer');
+        }
+    };
+
+    return (
+        <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
+            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap: 8, padding:'16px 16px 8px'}}>
+                <div style={{fontSize: 20, fontWeight: 500}}>{title}</div>
+                {frameUrl && (
+                    <button
+                        type="button"
+                        onClick={openExternal}
+                        style={{
+                            border: 0,
+                            borderRadius: 999,
+                            background: muiTheme.palette.mui3['secondary-container'],
+                            color: muiTheme.palette.mui3['on-secondary-container'],
+                            padding: '8px 12px',
+                            cursor: 'pointer',
+                            fontSize: 12,
+                            fontWeight: 600
+                        }}
+                    >
+                        Open
+                    </button>
+                )}
+            </div>
+            {!frameUrl && (
+                <div style={{padding: '0 16px 16px', color: muiTheme.palette.mui3['on-surface-variant'], lineHeight: 1.5}}>
+                    Configure `gui.ajax/SUPERSET_URL` to display the Superset page here.
+                </div>
+            )}
+            {frameUrl && (
+                <iframe
+                    title={title}
+                    src={frameUrl}
+                    style={{flex: 1, width: '100%', border: 0, backgroundColor: '#fff'}}
+                />
+            )}
+        </div>
+    );
+});
+
 const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,alert,progress,indeterminate,last = false,onClick = () => {},hover,setHover}) => {
     const [iHover, setIHover] = useState(false)
 
@@ -148,6 +195,7 @@ let RailPanel = ({
         ...uWidgetProps.style
     };
     const {MessageHash, Controller, user} = pydio
+    const supersetUrl = pydio.getPluginConfigs("gui.ajax").get("SUPERSET_URL");
     const [hover, setHover] = useState(false)
     const [handlerHover, setHandlerHover] = useState(false)
     const [hoverBarDef, setHoverBarDef] = useState(null)
@@ -235,6 +283,10 @@ let RailPanel = ({
         )
     }
 
+    const supersetBar = () => {
+        return <ExternalPanel title={"Superset"} url={supersetUrl}/>;
+    }
+
     let toolbars =[
         {
             id:'home',
@@ -246,6 +298,23 @@ let RailPanel = ({
             onClick: () => {
                 Controller.getActionByName('switch_to_homepage').apply()
             },
+        },
+        {
+            id:'superset',
+            icon: 'chart-box-outline',
+            position:'top',
+            text: MessageHash['ajax_gui.leftrail.buttons.superset'] || 'Superset',
+            ignore: !supersetUrl,
+            active: activePanel === 'superset',
+            onClick: () => {
+                if (activePanel === 'superset') {
+                    setActivePanel('');
+                    return;
+                }
+                setActivePanel('superset');
+                setHover(false);
+            },
+            activeBar: supersetBar
         },
         {
             id:'files',
