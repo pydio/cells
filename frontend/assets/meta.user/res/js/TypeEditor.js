@@ -149,7 +149,7 @@ class TypeEditor extends React.Component {
                     return value;
                 }
             }
-            return messageHash['meta.user.' + id] || messageHash['ajxp_admin.metadata.' + id] || fallback;
+            return messageHash['meta.user.' + id] || fallback;
         };
           let type = '';
             if(namespace.JsonDefinition){
