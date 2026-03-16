@@ -1,9 +1,7 @@
 import * as React from 'react'
 import MetaClient from "../MetaClient";
 import { buildValidator, newValidator } from './utils/validators';
-import type { Validator, BuildValidatorOptions } from './utils/validators';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import type { Validator } from './utils/validators';
 
 // FIXME: Properly type this
 type PydioNode = {
