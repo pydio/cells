@@ -157,5 +157,53 @@
    },
    "metadata.validation.default-value.max": {
      "other": "Default value (%s) must not exceed %s"
+   },
+   "label": {
+     "other": "Label"
+   },
+   "namespace": {
+     "other": "Namespace"
+   },
+   "type": {
+     "other": "Type"
+   },
+   "field.mandatory": {
+     "other": "Mandatory"
+   },
+   "type.date.format": {
+     "other": "Date Format"
+   },
+   "type.date.format.date": {
+     "other": "Date"
+   },
+   "type.date.format.date-time": {
+     "other": "Date and Time"
+   },
+   "type.date.format.time": {
+     "other": "Time"
+   },
+   "type.date.display": {
+     "other": "Display Format"
+   },
+   "type.date.display.normal": {
+     "other": "Normal"
+   },
+   "type.date.display.relative": {
+     "other": "Relative"
+   },
+   "type.integer.format": {
+     "other": "Number Format"
+   },
+   "type.integer.format.general": {
+     "other": "General"
+   },
+   "type.integer.format.bytesize": {
+     "other": "Byte Size"
+   },
+   "type.integer.format.percentage": {
+     "other": "Percentage"
+   },
+   "type.integer.format.progress": {
+     "other": "Progress"
    }
-}
+ }

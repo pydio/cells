@@ -27,29 +27,29 @@ import {muiThemeable} from 'material-ui/styles'
 const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const MetaTypes = {
-    "boolean": "type.boolean",
-    "choice": "type.choice",
-    "css_label": "type.css_label",
-    "date": "type.date",
-    "integer": "type.integer",
-    "json": "type.json",
-    "stars_rate": "type.stars_rate",
-    "string": "type.string",
-    "tag_cloud": "type.tag_cloud",
-    "tags": "type.tags",
-    "textarea": "type.textarea",
-    "url": "type.url",
+    "boolean": "Boolean",
+    "choice": "Selection",
+    "css_label": "Color Labels",
+    "date": "Date",
+    "integer": "Number",
+    "json": "JSON",
+    "stars_rate": "Stars Rating",
+    "string": "Text",
+    "tag_cloud": "Tag Cloud",
+    "tags": "Extensible Tags",
+    "textarea": "Long Text",
+    "url": "External URL",
     // FIXME: Auto complete is not supported for now
     // "auto_complete": "Auto complete"
 }
 
 // Group definitions for organized type selection
 const MetaTypeGroups = {
-    "boolean": ["boolean"],
-    "text": ["string", "textarea", "url"],
-    "number": ["integer", "date", "stars_rate"],
-    "lists": ["choice", "tag_cloud", "css_label", /* FIXME "auto_complete", */ "tags"],
-    "internal": ["json"],
+    "Boolean": ["boolean"],
+    "Text": ["string", "textarea", "url"],
+    "Number": ["integer", "date", "stars_rate"],
+    "Lists": ["choice", "tag_cloud", "css_label", /* FIXME "auto_complete", */ "tags"],
+    "Internal": ["json"],
 }
 
 class TypeEditor extends React.Component {
@@ -119,7 +119,7 @@ class TypeEditor extends React.Component {
         return Object.entries(MetaTypeGroups).reduce((items, [groupLabel, types], groupIndex) => {
             items.push(
                 <Subheader key={`group-${groupIndex}`} style={{fontSize: 12, fontWeight: 600, lineHeight: '32px'}}>
-                    {m('group.' + groupLabel, groupLabel)}
+                    {groupLabel}
                 </Subheader>,
                 ...types
                     .filter(typeKey => metaTypes[typeKey])
@@ -127,7 +127,7 @@ class TypeEditor extends React.Component {
                         <MenuItem
                             key={typeKey}
                             value={typeKey}
-                            primaryText={m('type.' + typeKey, metaTypes[typeKey] || typeKey)}
+                            primaryText={m('type.' + typeKey) || metaTypes[typeKey]}
                         />
                     ))
             );
@@ -140,21 +140,15 @@ class TypeEditor extends React.Component {
         const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, showDefaultValue=false, format=['label', 'namespace', 'section', 'type', 'value', 'mandatory'], muiTheme} = this.props;
         const ModernStyles = ThemedModernStyles(muiTheme)
         let {m} = this.props;
-        const messageHash = pydio?.MessageHash || {};
-        const originalM = m;
-        m = (id, fallback = id) => {
-            if (originalM) {
-                const value = originalM(id);
-                if (value && value !== id) {
-                    return value;
-                }
-            }
-            return messageHash['meta.user.' + id] || fallback;
-        };
-          let type = '';
-            if(namespace.JsonDefinition){
-                type = JSON.parse(namespace.JsonDefinition).type || 'string';
-            }
+        if(!m){
+            m = (id) => pydio.MessageHash['meta.user.' + id] || id;
+        }
+
+        let type = '';
+        if(namespace.JsonDefinition){
+            type = JSON.parse(namespace.JsonDefinition).type || 'string';
+        }
+
         const comps = {}
         comps.label = (
             <ModernTextField
