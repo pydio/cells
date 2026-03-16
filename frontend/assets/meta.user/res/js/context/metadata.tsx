@@ -1,8 +1,8 @@
 import * as React from 'react'
 import MetaClient from "../MetaClient";
 import { buildValidator } from './utils/validators';
-import type { Validator } from './utils/validators';
-import { mergeOptionalSchemaDefaults } from './utils/defaults';
+import type { Validator, BuildValidatorOptions } from './utils/validators';
+import Ajv from 'ajv';
 
 // FIXME: Properly type this
 type PydioNode = {
@@ -13,8 +13,7 @@ type PydioNode = {
     stopObserving: (eventName: string, callback: (node: PydioNode) => void) => void;
 };
 
-import Ajv, { JSONSchemaType, ValidateFunction, AnySchema } from "ajv";
-import addFormats from 'ajv-formats'
+import { JSONSchemaType, AnySchema } from "ajv";
 
 interface MetadataState {
     node: PydioNode | null;
@@ -55,9 +54,6 @@ interface MetadataContextType {
     dispatch: React.Dispatch<MetadataAction>;
     actions: MetadataActions;
 }
-
-const ajv = new Ajv({allErrors: true});
-addFormats(ajv)
 
 const initialState: MetadataState = {
     node: null,
@@ -153,6 +149,11 @@ type MetadataContextProviderProps = {
     onDataChanged: OnDataChanged;
     savePartially?: boolean;
     validateOnSchemaLoad?: boolean;
+    /**
+     * Apply schema defaults immediately when schema loads (Prompt on Upload feature).
+     * This uses mergeOptionalSchemaDefaults() for load-time defaults.
+     * Validation-time defaults are always applied by AJV during validate().
+     */
     prefillDefaultsOnInitialLoad?: boolean;
     children: React.ReactNode;
 };
@@ -168,7 +169,6 @@ export const MetadataContextProvider = ({
     children,
 }: MetadataContextProviderProps) => {
     const validatorRef = React.useRef<Validator>(noopValidator);
-    const didPrefillDefaultsRef = React.useRef(false);
     const [state, dispatch] = React.useReducer(reducer, {
         ...initialState,
         node,
@@ -250,18 +250,40 @@ export const MetadataContextProvider = ({
             });
     }, [node]);
 
-    // Form state initialization once receive
+    // Form state initialization once schema is received
     React.useEffect(() => {
         if (!state.jsonSchema) return
 
-        validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
+        // Build validator with conditional AJV defaults based on prefillDefaultsOnInitialLoad
+        // When true: AJV applies defaults during validation
+        // When false: AJV does not apply defaults during validation
+        const validatorOptions: BuildValidatorOptions = {
+            applyDefaults: prefillDefaultsOnInitialLoad
+        };
+        validatorRef.current = buildValidator(state.jsonSchema, validatorOptions)
+        
         let initialFormState = new Map(node.getMetadata())
-        const initialKeys = Array.from(initialFormState.keys())
 
-        if (prefillDefaultsOnInitialLoad && !didPrefillDefaultsRef.current) {
-            initialFormState = mergeOptionalSchemaDefaults(initialFormState, state.jsonSchema)
-            const mergedKeys = Array.from(initialFormState.keys())
-            didPrefillDefaultsRef.current = true
+        // Apply load-time defaults if enabled (for Prompt on Upload feature)
+        // Use AJV directly to apply defaults instead of custom mergeOptionalSchemaDefaults
+        if (prefillDefaultsOnInitialLoad && state.jsonSchema) {
+            // Create a data object from the Map
+            const dataObject: any = {}
+            initialFormState.forEach((v, k) => {
+                if (k) dataObject[k] = v
+            })
+            
+            // Use AJV to apply defaults to the object
+            const ajv = new Ajv({ useDefaults: 'empty' })
+            const validator = ajv.compile(state.jsonSchema)
+            
+            // Calling the validator will apply defaults to dataObject in-place
+            validator(dataObject)
+            
+            // Update the Map with the defaults-applied values
+            Object.entries(dataObject).forEach(([k, v]) => {
+                initialFormState.set(k, v)
+            })
         }
 
         if (validateOnSchemaLoad) {
