@@ -941,11 +941,35 @@
   "metadata.field.validation": {
     "other": "字段验证"
   },
+  "metadata.validation.max-length.gte-min-length": {
+    "other": "Maximum length must be greater than or equal to minimum length"
+  },
+  "metadata.validation.max-value.gte-min-value": {
+    "other": "Maximum value must be greater than or equal to minimum value"
+  },
+  "metadata.validation.default-length.min": {
+    "other": "Default value length (%s) must be at least %s characters"
+  },
+  "metadata.validation.default-length.max": {
+    "other": "Default value length (%s) must not exceed %s characters"
+  },
+  "metadata.validation.default-value.min": {
+    "other": "Default value (%s) must be at least %s"
+  },
+  "metadata.validation.default-value.max": {
+    "other": "Default value (%s) must not exceed %s"
+  },
   "metadata.editor.selection.key_exists": {
     "other": "此键值已经存在"
   },
   "metadata.toggle.required": {
     "other": "必填"
+  },
+  "metadata.boolean.yes": {
+    "other": "Yes"
+  },
+  "metadata.boolean.no": {
+    "other": "No"
   },
   "metadata.toggle.defaults": {
     "other": "强制使用默认值"
