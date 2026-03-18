@@ -93,6 +93,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                     ns.JsonSchema.properties && 
                     ns.JsonSchema.properties[ns.Namespace];
     const m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
+    const formatMessage = (id, ...values) => values.reduce((message, value) => message.replace('%s', value), m(id));
     const uiSchema = {
         required: {
             "ui:widget": "hidden"
@@ -106,7 +107,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                 if (!errors.maxLength) {
                     errors.maxLength = { __errors: [] };
                 }
-                errors.maxLength.__errors.push('Maximum length must be greater than or equal to minimum length');
+                errors.maxLength.__errors.push(m('validation.max-length.gte-min-length'));
             }
         }
         
@@ -116,7 +117,7 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                 if (!errors.maximum) {
                     errors.maximum = { __errors: [] };
                 }
-                errors.maximum.__errors.push('Maximum value must be greater than or equal to minimum value');
+                errors.maximum.__errors.push(m('validation.max-value.gte-min-value'));
             }
         }
         
@@ -128,14 +129,14 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                 if (!errors.default) {
                     errors.default = { __errors: [] };
                 }
-                errors.default.__errors.push(`Default value length (${defaultLength}) must be at least ${formData.minLength} characters`);
+                errors.default.__errors.push(formatMessage('validation.default-length.min', defaultLength, formData.minLength));
             }
             
             if (formData.maxLength !== undefined && defaultLength > formData.maxLength) {
                 if (!errors.default) {
                     errors.default = { __errors: [] };
                 }
-                errors.default.__errors.push(`Default value length (${defaultLength}) must not exceed ${formData.maxLength} characters`);
+                errors.default.__errors.push(formatMessage('validation.default-length.max', defaultLength, formData.maxLength));
             }
         }
         
@@ -145,14 +146,14 @@ const MetaNamespaceFieldOptions = forwardRef(({ ns, fieldType, tagValues }, ref)
                 if (!errors.default) {
                     errors.default = { __errors: [] };
                 }
-                errors.default.__errors.push(`Default value (${formData.default}) must be at least ${formData.minimum}`);
+                errors.default.__errors.push(formatMessage('validation.default-value.min', formData.default, formData.minimum));
             }
             
             if (formData.maximum !== undefined && formData.default > formData.maximum) {
                 if (!errors.default) {
                     errors.default = { __errors: [] };
                 }
-                errors.default.__errors.push(`Default value (${formData.default}) must not exceed ${formData.maximum}`);
+                errors.default.__errors.push(formatMessage('validation.default-value.max', formData.default, formData.maximum));
             }
         }
         

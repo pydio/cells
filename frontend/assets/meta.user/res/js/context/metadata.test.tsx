@@ -406,6 +406,50 @@ describe('MetadataContext', () => {
             })
         })
 
+        it('stores save error as translation key when save fails', async () => {
+            const saveError = new Error('failed to save')
+            const failingSaveMeta = vi.fn(() => Promise.reject(saveError))
+            vi.spyOn(console, 'error').mockImplementation(() => {})
+
+            const { result } = renderHook(() => useMetadataContext(), {
+                wrapper: ({ children }) => (
+                    <MetadataContextProvider
+                        node={mockNode}
+                        saveMeta={failingSaveMeta}
+                        value={{}}
+                        savePartially={true}
+                        onDataChanged={mockOnDataChanged}
+                    >
+                        {children}
+                    </MetadataContextProvider>
+                )
+            })
+
+            const validData = new Map([
+                ['usermeta-text', 'hello'],
+                ['usermeta-paragraph', 'this is a paragraph'],
+                ['usermeta-number', '5'],
+                ['usermeta-datetime', '2024-01-01T00:00:00Z']
+            ])
+
+            act(() => {
+                result.current.actions.setFormState(validData)
+            })
+
+            act(() => {
+                result.current.actions.setShouldSave(true)
+            })
+
+            await waitFor(() => {
+                expect(failingSaveMeta).toHaveBeenCalledWith(validData)
+                expect(result.current.state.errors).toEqual({
+                    form: 'meta.user.errors.save',
+                })
+                expect(result.current.state.shouldSave).toBe(false)
+                expect(result.current.state.saving).toBe(false)
+            })
+        })
+
         it('saves even when validation fails if savePartially is true', async () => {
             const { result } = renderHook(() => useMetadataContext(), {
                 wrapper: ({ children }) => (

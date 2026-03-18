@@ -141,12 +141,14 @@ class TypeEditor extends React.Component {
         const ModernStyles = ThemedModernStyles(muiTheme)
         let {m} = this.props;
         if(!m){
-            m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
+            m = (id) => pydio.MessageHash['meta.user.' + id] || id;
         }
-          let type = '';
-            if(namespace.JsonDefinition){
-                type = JSON.parse(namespace.JsonDefinition).type || 'string';
-            }
+
+        let type = '';
+        if(namespace.JsonDefinition){
+            type = JSON.parse(namespace.JsonDefinition).type || 'string';
+        }
+
         const comps = {}
         comps.label = (
             <ModernTextField

@@ -31,7 +31,9 @@ class BooleanForm extends React.Component {
         const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
         let sProps = {...ModernStyles.toggleFieldV1Search}
         const errStyle = {...ModernStyles.textFieldV2.errorStyle, fontSize: 12, lineHeight: '12px', color: 'var(--md-sys-color-error)'}
-        let label = value ? 'Yes' : 'No'
+        const messages = Pydio.getMessages ? Pydio.getMessages() : {}
+        const m = (id, fallback = id) => messages['meta.user.' + id] || messages['ajxp_admin.metadata.' + id] || fallback
+        let label = value ? m('boolean.yes') : m('boolean.no')
         if(!search) {
             sProps = {...ModernStyles.toggleFieldV2}
             label = this.props.label + ' (' + label + ')'

@@ -126,6 +126,8 @@ const defaultContext: MetadataContextType = {
     }
 }
 
+const SAVE_ERROR_KEY = 'meta.user.errors.save';
+
 export const MetadataContext = React.createContext(defaultContext)
 
 const NODE_REPLACED_EVENT = 'node_replaced';
@@ -306,7 +308,7 @@ export const MetadataContextProvider = ({
                     console.error('Error saving metadata', e);
                     dispatch({
                         type: 'set_errors',
-                        errors: { form: 'Error saving. Please try again.' },
+                        errors: { form: SAVE_ERROR_KEY },
                     });
                 });
         }
