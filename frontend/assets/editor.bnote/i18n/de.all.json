@@ -41,6 +41,12 @@
   "alert-block.success": {
     "other": "Erfolgreich"
   },
+  "side-button.move-up": {
+    "other": "Nach oben"
+  },
+  "side-button.move-down": {
+    "other": "Nach unten"
+  },
   "dropped.loading": {
     "other": "%s wird geladen..."
   },
@@ -127,5 +133,17 @@
   },
   "node-spec.insert-results.subtext": {
     "other": "Die Ergebnisse einer Suchanfrage einfügen, die automatisch aktualisiert werden"
+  },
+  "empty-state.toc": {
+    "other": "Diese Seite enthält keine Elemente"
+  },
+  "empty-state.folder": {
+    "other": "Dieser Ordner ist leer"
+  },
+  "empty-state.results": {
+    "other": "Keine Ergebnisse für diese Suchanfrage"
+  },
+  "empty-state.node-not-found": {
+    "other": "Datei oder Ordner wurden möglicherweise gelöscht"
   }
 }
