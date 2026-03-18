@@ -1,6 +1,6 @@
 import * as React from 'react'
 import MetaClient from "../MetaClient";
-import { buildValidator } from './utils/validators';
+import { buildValidator, newValidator } from './utils/validators';
 import type { Validator } from './utils/validators';
 
 // FIXME: Properly type this
@@ -12,19 +12,18 @@ type PydioNode = {
     stopObserving: (eventName: string, callback: (node: PydioNode) => void) => void;
 };
 
-import Ajv, { JSONSchemaType, ValidateFunction, AnySchema } from "ajv";
-import addFormats from 'ajv-formats'
+import { JSONSchemaType, AnySchema } from "ajv";
 
 interface MetadataState {
     node: PydioNode | null;
     saving: boolean;
     formState: Map<string, any>;
-    fields: {[key: string]: any};
+    fields: { [key: string]: any };
     namespaceJsonSchema: AnySchema | null;
     jsonSchema: AnySchema | null;
     shouldSave: boolean;
-    errors: {[key: string]: string};
-    mode: "idle" | "editing" | "saving" | "invalid" ;
+    errors: { [key: string]: string };
+    mode: "idle" | "editing" | "saving" | "invalid";
 }
 
 type MetadataAction =
@@ -34,7 +33,7 @@ type MetadataAction =
     | { type: 'set_namespace_schema'; namespaceJsonSchema: AnySchema | null }
     | { type: 'set_should_save'; shouldSave: boolean }
     | { type: 'set_json_schema'; jsonSchema: AnySchema | null }
-    | { type: 'set_errors'; errors: {[key: string]: string} };
+    | { type: 'set_errors'; errors: { [key: string]: string } };
 
 interface MetadataActions {
     setNamespaceJsonSchema: (namespaceJsonSchema: JSONSchemaType<any> | null) => void;
@@ -54,9 +53,6 @@ interface MetadataContextType {
     dispatch: React.Dispatch<MetadataAction>;
     actions: MetadataActions;
 }
-
-const ajv = new Ajv({allErrors: true});
-addFormats(ajv)
 
 const initialState: MetadataState = {
     node: null,
@@ -100,15 +96,15 @@ const reducer = (state: MetadataState, action: MetadataAction): MetadataState =>
     }
 }
 
-const noop = (...args: any[]) => {}
+const noop = (...args: any[]) => { }
 
 // Validator that accepts everything without validation
 const noopValidator: Validator = (formState: Map<string, any>) => ({ isValid: true, errors: {} })
 
 const isEmpty = (value: any) =>
     value === null
-        || value === undefined
-        || (`${value}`).trim().length === 0
+    || value === undefined
+    || (`${value}`).trim().length === 0
 
 // Helper function to remove entries with empty string keys from a Map
 const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
@@ -152,6 +148,12 @@ type MetadataContextProviderProps = {
     onDataChanged: OnDataChanged;
     savePartially?: boolean;
     validateOnSchemaLoad?: boolean;
+    /**
+     * Apply schema defaults immediately when schema loads (Prompt on Upload feature).
+     * This uses mergeOptionalSchemaDefaults() for load-time defaults.
+     * Validation-time defaults are always applied by AJV during validate().
+     */
+    prefillDefaultsOnInitialLoad?: boolean;
     children: React.ReactNode;
 };
 
@@ -162,6 +164,7 @@ export const MetadataContextProvider = ({
     onDataChanged,
     savePartially = false,
     validateOnSchemaLoad = false,
+    prefillDefaultsOnInitialLoad = false,
     children,
 }: MetadataContextProviderProps) => {
     const validatorRef = React.useRef<Validator>(noopValidator);
@@ -177,8 +180,9 @@ export const MetadataContextProvider = ({
 
         setSaving: (saving: boolean) => dispatch({ type: 'set_saving', saving }),
 
-        setInitialFormState: (formState : Map<string, unknown>) => {
+        setInitialFormState: (formState: Map<string, unknown>) => {
             const mode = 'idle'
+            dispatch({ type: 'set_errors', errors: {} })
             dispatch({ type: 'set_form_state', formState, mode })
             if (onDataChanged) {
                 onDataChanged(formState, {
@@ -189,7 +193,7 @@ export const MetadataContextProvider = ({
             }
         },
 
-        setFormState: (formState : Map<string, unknown>) => {
+        setFormState: (formState: Map<string, unknown>) => {
             let { isValid, errors } = validatorRef.current(
                 // NODE: To validate and show the currect message "field is required"
                 removeEmptyKeys(formState)
@@ -245,21 +249,32 @@ export const MetadataContextProvider = ({
             });
     }, [node]);
 
-    // Form state initialization once receive
+    // Form state initialization once schema is received
     React.useEffect(() => {
         if (!state.jsonSchema) return
 
-        validatorRef.current = buildValidator(ajv.compile(state.jsonSchema))
+        validatorRef.current = buildValidator(state.jsonSchema, { applyDefaults: false })
+
+        let initialFormState = new Map(node.getMetadata())
+
+        // NOTE: This applies defaults values to the form state
+        if (prefillDefaultsOnInitialLoad && state.jsonSchema) {
+            const initialFormData = Object.fromEntries(initialFormState)
+            const validator = newValidator(state.jsonSchema, { applyDefaults: true })
+            validator(initialFormData)
+            initialFormState = new Map(Object.entries(initialFormData))
+        }
+
         if (validateOnSchemaLoad) {
-            actions.setFormState(new Map(node.getMetadata()))
+            actions.setFormState(initialFormState)
             return;
         }
 
-        actions.setInitialFormState(new Map(node.getMetadata()))
-    }, [state.jsonSchema, node]);
+        actions.setInitialFormState(initialFormState)
+    }, [state.jsonSchema, node, prefillDefaultsOnInitialLoad]);
 
     React.useEffect(() => {
-        if(state.saving) return;
+        if (state.saving) return;
 
         actions.setInitialFormState(new Map(node.getMetadata()))
     }, [node.getPath(), state.saving]);

@@ -337,16 +337,14 @@ describe('formatSpecialCasesForValidation', () => {
 })
 
 describe('buildValidator', () => {
-  let ajvInstance: Ajv
-  let validator: any
+  const applyDefaults = { applyDefaults: false }
 
   beforeEach(() => {
-    ajvInstance = new Ajv({ allErrors: true })
-    addFormats(ajvInstance)
-    validator = ajvInstance.compile(testSchema)
+    // Clear any previous AJV instances
+    vi.clearAllMocks()
   })
 
-  it('returns valid state with empty errors when validator is null', () => {
+  it('returns valid state with empty errors when schema is null', () => {
     const validate = buildValidator(null)
     const result = validate(new Map())
     expect(result.isValid).toBe(true)
@@ -354,7 +352,7 @@ describe('buildValidator', () => {
   })
 
   it('returns valid state for data that matches schema', () => {
-    const validate = buildValidator(validator)
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-text', 'abc'],
       ['usermeta-paragraph', 'A paragraph'],
@@ -367,7 +365,7 @@ describe('buildValidator', () => {
   })
 
   it('returns invalid state with errors for data violating schema', () => {
-    const validate = buildValidator(validator)
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-text', 'ab'], // minLength 3
       ['usermeta-paragraph', 'A paragraph'],
@@ -381,12 +379,9 @@ describe('buildValidator', () => {
     expect(result.errors['usermeta-number']).toContain('must be <= 10')
   })
 
-  it('calls formatSpecialCasesForValidation with validator schema', () => {
-    // Spy on formatSpecialCasesForValidation
-    const spy = vi.spyOn({ formatSpecialCasesForValidation }, 'formatSpecialCasesForValidation')
-    // We'll need to import the module differently, but we can test integration via actual call
-    // For simplicity, we just verify that date-time conversion works
-    const validate = buildValidator(validator)
+  it('calls formatSpecialCasesForValidation with schema', () => {
+    // Verify that date-time conversion works
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-datetime', '1700000000'],
       ['usermeta-text', 'abc'],
@@ -396,12 +391,12 @@ describe('buildValidator', () => {
     const result = validate(formState)
     expect(result.isValid).toBe(true)
     // The date-time value should have been converted to ISO string internally
-    // We can't directly observe, but we can trust that Ajv validation passes
+    // We can trust that Ajv validation passes
   })
 
-  it('calls mapErrors with validator.errors', () => {
+  it('calls mapErrors with validation errors', () => {
     // We'll test by checking that errors are mapped correctly
-    const validate = buildValidator(validator)
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-text', 'ab'], // invalid
       ['usermeta-paragraph', 'A paragraph'],
@@ -416,7 +411,7 @@ describe('buildValidator', () => {
   })
 
   it('handles empty formState with required fields', () => {
-    const validate = buildValidator(validator)
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map()
     const result = validate(formState)
     expect(result.isValid).toBe(false)
@@ -425,7 +420,7 @@ describe('buildValidator', () => {
   })
 
   it('handles formState with extra fields not in schema', () => {
-    const validate = buildValidator(validator)
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['extra', 'value'],
       ['usermeta-text', 'abc'],
@@ -438,68 +433,150 @@ describe('buildValidator', () => {
     expect(result.isValid).toBe(true)
   })
 
-  it('handles validator returning false with empty errors', () => {
-    const mockValidator = vi.fn(() => false)
-    mockValidator.schema = { properties: {} }
-    mockValidator.errors = []
-    const validate = buildValidator(mockValidator as any)
+  it('handles schema with no properties gracefully', () => {
+    const schema = { type: 'object' }
+    const validate = buildValidator(schema, applyDefaults)
     const formState = new Map([['field', 'value']])
     const result = validate(formState)
-    expect(result.isValid).toBe(false)
+    expect(result.isValid).toBe(true)
+  })
+})
+
+describe('buildValidator with conditional AJV defaults', () => {
+  const schemaWithDefaults = {
+    type: 'object',
+    properties: {
+      name: { type: 'string', default: 'John' },
+      email: { type: 'string', format: 'email', default: 'john@example.com' },
+      age: { type: 'number', default: 30 },
+      tags: { type: 'array', items: { type: 'string' }, default: ['user'] },
+    },
+    required: ['name'],
+  }
+
+  it('applies defaults when applyDefaults: true', () => {
+    const validate = buildValidator(schemaWithDefaults, { applyDefaults: true })
+    
+    const formState = new Map([
+      ['name', ''],  // empty, should get default
+      ['email', null],  // null, should get default
+    ])
+
+    const result = validate(formState)
+    
+    // With applyDefaults: true, AJV applies defaults
+    expect(result.isValid).toBe(true)
     expect(result.errors).toEqual({})
-    expect(mockValidator).toHaveBeenCalled()
   })
 
-  it('handles validator returning true with errors (still maps errors)', () => {
-    const mockValidator = vi.fn(() => true)
-    mockValidator.schema = { properties: {} }
-    mockValidator.errors = [{ keyword: 'type', instancePath: '/field', schemaPath: '#/properties/field/type', message: 'must be string' }]
-    const validate = buildValidator(mockValidator as any)
-    const formState = new Map([['field', 'value']])
+  it('does NOT apply defaults when applyDefaults: false (default)', () => {
+    const validate = buildValidator(schemaWithDefaults, { applyDefaults: false })
+    
+    const formState = new Map([
+      ['name', ''],  // empty, should NOT get default
+      ['email', null],  // null, should NOT get default
+    ])
+
+    const result = validate(formState)
+    
+    // With applyDefaults: false, AJV does not apply defaults
+    // Validation should fail because name is required but empty (after cleanup)
+    expect(result.isValid).toBe(false)
+    // The error should be for missing required property 'name'
+    // Check if there are any errors at all (structure might vary)
+    expect(Object.keys(result.errors).length).toBeGreaterThan(0)
+  })
+
+  it('does not override non-empty values with defaults when applyDefaults: true', () => {
+    const validate = buildValidator(schemaWithDefaults, { applyDefaults: true })
+    
+    const formState = new Map([
+      ['name', 'Alice'],  // non-empty, keep original
+      ['email', 'alice@example.com'],
+    ])
+
+    const result = validate(formState)
+    
+    // Non-empty values are preserved regardless of applyDefaults setting
+    expect(result.isValid).toBe(true)
+    expect(result.errors).toEqual({})
+  })
+
+  it('handles nested object defaults with applyDefaults: true', () => {
+    const nestedSchema = {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', default: 'Jane' },
+            profile: {
+              type: 'object',
+              properties: {
+                bio: { type: 'string', default: 'Default bio' },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const validate = buildValidator(nestedSchema, { applyDefaults: true })
+    
+    const formState = new Map([['user', {}]])
+
     const result = validate(formState)
     expect(result.isValid).toBe(true)
-    expect(result.errors).toEqual({ field: 'must be string' })
   })
 
-  it('handles validator schema missing properties', () => {
-    const mockValidator = vi.fn(() => true)
-    mockValidator.schema = {}
-    mockValidator.errors = null
-    const validate = buildValidator(mockValidator as any)
-    const formState = new Map([['field', 'value']])
+  it('handles array defaults correctly with applyDefaults: true', () => {
+    const arraySchema = {
+      type: 'object',
+      properties: {
+        tags: { type: 'array', items: { type: 'string' }, default: ['new', 'user'] },
+        colors: { type: 'array', items: { type: 'string' }, default: [] },
+      },
+    }
+
+    const validate = buildValidator(arraySchema, { applyDefaults: true })
+    
+    const formState = new Map([
+      ['tags', []],
+      ['colors', []],
+    ])
+
     const result = validate(formState)
-    // formatSpecialCasesForValidation will receive empty schema, pass through values
-    expect(mockValidator).toHaveBeenCalledWith({ field: 'value' })
     expect(result.isValid).toBe(true)
   })
 
-  it('handles validator schema null', () => {
-    const mockValidator = vi.fn(() => true)
-    mockValidator.schema = null
-    mockValidator.errors = null
-    const validate = buildValidator(mockValidator as any)
-    const formState = new Map([['field', 'value']])
+  it('works with real test schema with defaults when applyDefaults: true', () => {
+    const schemaWithDefaults = {
+      type: 'object',
+      properties: {
+        'usermeta-text': { type: 'string', minLength: 3, default: 'default' },
+        'usermeta-paragraph': { type: 'string', default: 'Default paragraph' },
+        'usermeta-number': { type: 'number', default: 5 },
+        'usermeta-datetime': { type: 'string', format: 'date-time', default: '2024-01-01T00:00:00Z' },
+      },
+      required: ['usermeta-number'],
+    }
+
+    const validate = buildValidator(schemaWithDefaults, { applyDefaults: true })
+    
+    const formState = new Map([
+      ['usermeta-text', ''],
+      ['usermeta-paragraph', null],
+      ['usermeta-number', undefined],
+    ])
+
     const result = validate(formState)
-    // formatSpecialCasesForValidation returns formState (Map) when jsonSchema null
-    // validator receives Map, may treat as object? Mock expects Map
-    // We'll just ensure no crash
-    expect(mockValidator).toHaveBeenCalled()
-    // The mock will be called with Map because formatSpecialCasesForValidation returns Map
-    // We'll accept any argument
     expect(result.isValid).toBe(true)
   })
 })
 
 describe('Multi-value metadata validation', () => {
-  let ajv: Ajv
-
-  beforeEach(() => {
-    ajv = new Ajv({ allErrors: true })
-    addFormats(ajv)
-  })
-
   it('validates array fields with valid enum values', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'Critical']],
@@ -507,13 +584,13 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(true)
-    expect(validator.errors).toBeNull()
+    const result = validate(formState)
+    expect(result.isValid).toBe(true)
+    expect(result.errors).toEqual({})
   })
 
   it('rejects array fields with invalid enum values', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'InvalidValue']],
@@ -521,17 +598,13 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(false)
-    expect(validator.errors).toBeDefined()
-    expect(validator.errors?.length).toBeGreaterThan(0)
-    
-    const errors = mapErrors(validator.errors)
-    expect(errors['usermeta-auto-complete']).toBeDefined()
+    const result = validate(formState)
+    expect(result.isValid).toBe(false)
+    expect(result.errors['usermeta-auto-complete']).toBeDefined()
   })
 
   it('enforces uniqueItems constraint on array fields', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'Urgent']],  // duplicate
@@ -539,17 +612,13 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(false)
-    expect(validator.errors).toBeDefined()
-    expect(validator.errors?.length).toBeGreaterThan(0)
-    
-    const errors = mapErrors(validator.errors)
-    expect(errors['usermeta-auto-complete']).toBeDefined()
+    const result = validate(formState)
+    expect(result.isValid).toBe(false)
+    expect(result.errors['usermeta-auto-complete']).toBeDefined()
   })
 
   it('validates all field types in multival schema', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent', 'Normal']],
@@ -560,12 +629,12 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-url', 'https://example.com']
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(true)
+    const result = validate(formState)
+    expect(result.isValid).toBe(true)
   })
 
   it('validates datetime format in multival schema', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
@@ -574,12 +643,12 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 100]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(true)
+    const result = validate(formState)
+    expect(result.isValid).toBe(true)
   })
 
   it('rejects missing required fields with array type', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     // Missing required 'usermeta-number' field
     const formState = new Map([
@@ -587,13 +656,12 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-long-text', 'A valid long text string']
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(false)
-    expect(validator.errors).toBeDefined()
+    const result = validate(formState)
+    expect(result.isValid).toBe(false)
   })
 
   it('validates minLength constraint on text field', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
@@ -601,16 +669,13 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(false)
-    expect(validator.errors).toBeDefined()
-    
-    const errors = mapErrors(validator.errors)
-    expect(errors['usermeta-long-text']).toBeDefined()
+    const result = validate(formState)
+    expect(result.isValid).toBe(false)
+    expect(result.errors['usermeta-long-text']).toBeDefined()
   })
 
   it('validates maxLength constraint on text field', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', ['Urgent']],
@@ -618,12 +683,9 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(false)
-    expect(validator.errors).toBeDefined()
-    
-    const errors = mapErrors(validator.errors)
-    expect(errors['usermeta-long-text']).toBeDefined()
+    const result = validate(formState)
+    expect(result.isValid).toBe(false)
+    expect(result.errors['usermeta-long-text']).toBeDefined()
   })
 
   it('formatSpecialCasesForValidation preserves array values', () => {
@@ -641,7 +703,7 @@ describe('Multi-value metadata validation', () => {
   })
 
   it('handles empty array field validation', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const formState = new Map([
       ['usermeta-auto-complete', []],  // empty array
@@ -649,13 +711,13 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
+    const result = validate(formState)
     // Empty array should pass validation if not required to have items
-    expect(isValid).toBe(true)
+    expect(result.isValid).toBe(true)
   })
 
   it('validates multiple valid enum options in array', () => {
-    const validator = ajv.compile(multiValSchema)
+    const validate = buildValidator(multiValSchema, { applyDefaults: false })
     
     const validOptions = ['Urgent', 'Critical', 'Low Priority', 'Normal', 'Rejected']
     const formState = new Map([
@@ -664,8 +726,8 @@ describe('Multi-value metadata validation', () => {
       ['usermeta-number', 42]
     ])
 
-    const isValid = validator(formatSpecialCasesForValidation(formState, multiValSchema))
-    expect(isValid).toBe(true)
-    expect(validator.errors).toBeNull()
+    const result = validate(formState)
+    expect(result.isValid).toBe(true)
+    expect(result.errors).toEqual({})
   })
 })
