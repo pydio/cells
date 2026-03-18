@@ -76,4 +76,6 @@ type S3Config struct {
 	// IsDebug is a convenience legacy flag to add some logging to this S3 client.
 	// Should be cleaned as soon as we defined the logging strategy for this repo.
 	IsDebug bool `json:"isDebug"`
+	// ForcePathStyle forces the client to use path-style addressing for the buckets.
+	ForcePathStyle bool `json:"forcePathStyle"`
 }

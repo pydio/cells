@@ -203,6 +203,8 @@ func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
 	}
 	if c.GetDsS3Custom() != "" {
 		conf.StorageConfiguration[object.StorageKeyCustomEndpoint] = c.GetCleanDsS3Custom()
+		conf.StorageConfiguration[object.StorageKeyPathStyle] = "true"
+		conf.StorageConfiguration[object.StorageKeyForcePathStyle] = "true"
 		if c.GetDsS3CustomRegion() != "" {
 			conf.StorageConfiguration[object.StorageKeyCustomRegion] = c.GetDsS3CustomRegion()
 		}
