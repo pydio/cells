@@ -78,10 +78,10 @@
     "other": "Oppgavetiden er lavere enn"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Åpen betingelse"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "JSON Sti"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -90,64 +90,64 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "Lik"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "lik"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "Treffer"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "treffer"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "mønster"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Sann"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "CIDRCondition"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "Subjekt lik"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "Ressursen inneholder"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "Streng lik"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "Streng matcher"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "StringPairs tilsvarer"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "Strengen matcher ikke"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "Datoperiode"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "Kontortid"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "Dato etter"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Glob matcher"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Boolean Verdi"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "Innholdstype"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "Informasjonskapsler streng"
   },
   "contextMetaField.HttpProtocol": {
     "other": "HTTP Protocol"
