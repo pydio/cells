@@ -185,12 +185,18 @@ func FactorizeMinioServers(ctx context.Context, existingConfigs map[string]*obje
 			if !update {
 				newSource.ApiSecret = config.ApiSecret
 			} else {
-				// We may have to update signature version
+				// We may have to update signature version and path-style settings
+				if config.GatewayConfiguration == nil {
+					config.GatewayConfiguration = make(map[string]string)
+				}
 				if sv, o := newSource.StorageConfiguration[object.StorageKeySignatureVersion]; o {
-					if config.GatewayConfiguration == nil {
-						config.GatewayConfiguration = make(map[string]string, 1)
-					}
 					config.GatewayConfiguration[object.StorageKeySignatureVersion] = sv
+				}
+				if ps, o := newSource.StorageConfiguration[object.StorageKeyPathStyle]; o {
+					config.GatewayConfiguration[object.StorageKeyPathStyle] = ps
+				}
+				if fps, o := newSource.StorageConfiguration[object.StorageKeyForcePathStyle]; o {
+					config.GatewayConfiguration[object.StorageKeyForcePathStyle] = fps
 				}
 			}
 		} else if update {
@@ -199,11 +205,17 @@ func FactorizeMinioServers(ctx context.Context, existingConfigs map[string]*obje
 			config.ApiKey = newSource.ApiKey
 			config.ApiSecret = newSource.ApiSecret
 			config.EndpointUrl = newSource.StorageConfiguration[object.StorageKeyCustomEndpoint]
+			if config.GatewayConfiguration == nil {
+				config.GatewayConfiguration = make(map[string]string)
+			}
 			if sv, o := newSource.StorageConfiguration[object.StorageKeySignatureVersion]; o {
-				if config.GatewayConfiguration == nil {
-					config.GatewayConfiguration = make(map[string]string, 1)
-				}
 				config.GatewayConfiguration[object.StorageKeySignatureVersion] = sv
+			}
+			if ps, o := newSource.StorageConfiguration[object.StorageKeyPathStyle]; o {
+				config.GatewayConfiguration[object.StorageKeyPathStyle] = ps
+			}
+			if fps, o := newSource.StorageConfiguration[object.StorageKeyForcePathStyle]; o {
+				config.GatewayConfiguration[object.StorageKeyForcePathStyle] = fps
 			}
 		} else {
 			config = &object.MinioConfig{
@@ -214,10 +226,18 @@ func FactorizeMinioServers(ctx context.Context, existingConfigs map[string]*obje
 				RunningPort: createConfigPort(existingConfigs, newSource.ObjectsPort),
 				EndpointUrl: newSource.StorageConfiguration[object.StorageKeyCustomEndpoint],
 			}
+			gatewayConfig := make(map[string]string)
 			if sv, o := newSource.StorageConfiguration[object.StorageKeySignatureVersion]; o {
-				config.GatewayConfiguration = map[string]string{
-					object.StorageKeySignatureVersion: sv,
-				}
+				gatewayConfig[object.StorageKeySignatureVersion] = sv
+			}
+			if ps, o := newSource.StorageConfiguration[object.StorageKeyPathStyle]; o {
+				gatewayConfig[object.StorageKeyPathStyle] = ps
+			}
+			if fps, o := newSource.StorageConfiguration[object.StorageKeyForcePathStyle]; o {
+				gatewayConfig[object.StorageKeyForcePathStyle] = fps
+			}
+			if len(gatewayConfig) > 0 {
+				config.GatewayConfiguration = gatewayConfig
 			}
 		}
 	} else if newSource.StorageType == object.StorageType_AZURE {

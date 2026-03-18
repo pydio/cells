@@ -74,6 +74,9 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 		Secure:    u.Scheme == "https",
 		Transport: t,
 	}
+	if g.s3config.ForcePathStyle {
+		opts.BucketLookup = minio.BucketLookupPath
+	}
 	mc, e := minio.NewCore(u.Host, opts)
 	if e != nil {
 		return nil, e
@@ -100,6 +103,9 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 		Creds:     credentials.NewStaticV4(jwt, g.s3config.ApiSecret, ""),
 		Secure:    u.Scheme == "https",
 		Transport: t,
+	}
+	if g.s3config.ForcePathStyle {
+		opts.BucketLookup = minio.BucketLookupPath
 	}
 	mc, e := minio.NewCore(u.Host, opts)
 	if e != nil {
@@ -149,6 +155,9 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		Creds:     credentials.NewStaticV4(jwt, g.s3config.ApiSecret, ""),
 		Secure:    u.Scheme == "https",
 		Transport: t,
+	}
+	if g.s3config.ForcePathStyle {
+		opts.BucketLookup = minio.BucketLookupPath
 	}
 	mc, e := minio.NewCore(u.Host, opts)
 	if e != nil {

@@ -51,6 +51,8 @@ const (
 	StorageKeyJsonCredentials  = "jsonCredentials"
 	StorageKeyStorageClass     = "storageClass"
 	StorageKeySignatureVersion = "signatureVersion"
+	StorageKeyPathStyle        = "path_style"
+	StorageKeyForcePathStyle   = "force_path_style"
 
 	StorageKeyCellsInternal    = "cellsInternal"
 	StorageKeyInitFromBucket   = "initFromBucket"
@@ -84,6 +86,12 @@ func (d *DataSource) ClientConfig(ctx context.Context, p SecretProvider) kv.Valu
 		}
 		if sv, o := d.StorageConfiguration[StorageKeySignatureVersion]; o && sv != "" {
 			_ = cfg.Val("signature").Set(sv)
+		}
+		if ps, o := d.StorageConfiguration[StorageKeyPathStyle]; o {
+			_ = cfg.Val(StorageKeyPathStyle).Set(ps == "true")
+		}
+		if fps, o := d.StorageConfiguration[StorageKeyForcePathStyle]; o {
+			_ = cfg.Val(StorageKeyForcePathStyle).Set(fps == "true")
 		}
 	}
 	return cfg
@@ -162,6 +170,12 @@ func (d *MinioConfig) ClientConfig(ctx context.Context, p SecretProvider, agentN
 		}
 		if sv, o := d.GatewayConfiguration[StorageKeySignatureVersion]; o && sv != "" {
 			_ = cfg.Val("signature").Set(sv)
+		}
+		if ps, o := d.GatewayConfiguration[StorageKeyPathStyle]; o {
+			_ = cfg.Val(StorageKeyPathStyle).Set(ps == "true")
+		}
+		if fps, o := d.GatewayConfiguration[StorageKeyForcePathStyle]; o {
+			_ = cfg.Val(StorageKeyForcePathStyle).Set(fps == "true")
 		}
 	}
 	return cfg
