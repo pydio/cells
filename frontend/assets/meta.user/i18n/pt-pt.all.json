@@ -46,5 +46,164 @@
   },
   "9": {
     "other": "Sem Valor"
+  },
+  "group.boolean": {
+    "other": "Boolean"
+  },
+  "group.text": {
+    "other": "Text"
+  },
+  "group.number": {
+    "other": "Number"
+  },
+  "group.lists": {
+    "other": "Lists"
+  },
+  "group.internal": {
+    "other": "Internal"
+  },
+  "type.boolean": {
+    "other": "Boolean"
+  },
+  "type.choice": {
+    "other": "Selection"
+  },
+  "type.css_label": {
+    "other": "Color Labels"
+  },
+  "type.date": {
+    "other": "Date"
+  },
+  "type.integer": {
+    "other": "Number"
+  },
+  "type.json": {
+    "other": "JSON"
+  },
+  "type.stars_rate": {
+    "other": "Stars Rating"
+  },
+  "type.string": {
+    "other": "Text"
+  },
+  "type.tag_cloud": {
+    "other": "Tag Cloud"
+  },
+  "type.tags": {
+    "other": "Extensible Tags"
+  },
+  "type.textarea": {
+    "other": "Long Text"
+  },
+  "type.url": {
+    "other": "External URL"
+  },
+  "boolean.yes": {
+    "other": "Yes"
+  },
+  "boolean.no": {
+    "other": "No"
+  },
+  "errors.save": {
+    "other": "Error saving. Please try again."
+  },
+  "search.modifier.equals": {
+    "other": "Equals"
+  },
+  "search.modifier.gte": {
+    "other": "Greater than"
+  },
+  "search.modifier.lte": {
+    "other": "Less than"
+  },
+  "search.modifier.gt": {
+    "other": "Greater than (strict)"
+  },
+  "search.modifier.lt": {
+    "other": "Less than (strict)"
+  },
+  "search.modifier.exact-date": {
+    "other": "Exact date"
+  },
+  "search.modifier.start-date": {
+    "other": "Start date"
+  },
+  "search.modifier.end-date": {
+    "other": "End date"
+  },
+  "search.modifier.exact-match": {
+    "other": "Exact Match"
+  },
+  "search.modifier.starts-with": {
+    "other": "Starts with"
+  },
+  "search.modifier.contains": {
+    "other": "Contains"
+  },
+  "metadata.validation.max-length.gte-min-length": {
+    "other": "Maximum length must be greater than or equal to minimum length"
+  },
+  "metadata.validation.max-value.gte-min-value": {
+    "other": "Maximum value must be greater than or equal to minimum value"
+  },
+  "metadata.validation.default-length.min": {
+    "other": "Default value length (%s) must be at least %s characters"
+  },
+  "metadata.validation.default-length.max": {
+    "other": "Default value length (%s) must not exceed %s characters"
+  },
+  "metadata.validation.default-value.min": {
+    "other": "Default value (%s) must be at least %s"
+  },
+  "metadata.validation.default-value.max": {
+    "other": "Default value (%s) must not exceed %s"
+  },
+  "label": {
+    "other": "Label"
+  },
+  "namespace": {
+    "other": "Namespace"
+  },
+  "type": {
+    "other": "Type"
+  },
+  "field.mandatory": {
+    "other": "Mandatory"
+  },
+  "type.date.format": {
+    "other": "Date Format"
+  },
+  "type.date.format.date": {
+    "other": "Date"
+  },
+  "type.date.format.date-time": {
+    "other": "Date and Time"
+  },
+  "type.date.format.time": {
+    "other": "Time"
+  },
+  "type.date.display": {
+    "other": "Display Format"
+  },
+  "type.date.display.normal": {
+    "other": "Normal"
+  },
+  "type.date.display.relative": {
+    "other": "Relative"
+  },
+  "type.integer.format": {
+    "other": "Number Format"
+  },
+  "type.integer.format.general": {
+    "other": "General"
+  },
+  "type.integer.format.bytesize": {
+    "other": "Byte Size"
+  },
+  "type.integer.format.percentage": {
+    "other": "Percentage"
+  },
+  "type.integer.format.progress": {
+    "other": "Progress"
   }
 }
