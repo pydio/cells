@@ -18,12 +18,12 @@ interface MetadataState {
     node: PydioNode | null;
     saving: boolean;
     formState: Map<string, any>;
-    fields: {[key: string]: any};
+    fields: { [key: string]: any };
     namespaceJsonSchema: AnySchema | null;
     jsonSchema: AnySchema | null;
     shouldSave: boolean;
-    errors: {[key: string]: string};
-    mode: "idle" | "editing" | "saving" | "invalid" ;
+    errors: { [key: string]: string };
+    mode: "idle" | "editing" | "saving" | "invalid";
 }
 
 type MetadataAction =
@@ -33,7 +33,7 @@ type MetadataAction =
     | { type: 'set_namespace_schema'; namespaceJsonSchema: AnySchema | null }
     | { type: 'set_should_save'; shouldSave: boolean }
     | { type: 'set_json_schema'; jsonSchema: AnySchema | null }
-    | { type: 'set_errors'; errors: {[key: string]: string} };
+    | { type: 'set_errors'; errors: { [key: string]: string } };
 
 interface MetadataActions {
     setNamespaceJsonSchema: (namespaceJsonSchema: JSONSchemaType<any> | null) => void;
@@ -53,9 +53,6 @@ interface MetadataContextType {
     dispatch: React.Dispatch<MetadataAction>;
     actions: MetadataActions;
 }
-
-const mapToObject = (map: Map<string, any>) =>
-    Array.from(map).reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {})
 
 const initialState: MetadataState = {
     node: null,
@@ -99,15 +96,15 @@ const reducer = (state: MetadataState, action: MetadataAction): MetadataState =>
     }
 }
 
-const noop = (...args: any[]) => {}
+const noop = (...args: any[]) => { }
 
 // Validator that accepts everything without validation
 const noopValidator: Validator = (formState: Map<string, any>) => ({ isValid: true, errors: {} })
 
 const isEmpty = (value: any) =>
     value === null
-        || value === undefined
-        || (`${value}`).trim().length === 0
+    || value === undefined
+    || (`${value}`).trim().length === 0
 
 // Helper function to remove entries with empty string keys from a Map
 const removeEmptyKeys = (formState: Map<string, any>): Map<string, any> => {
@@ -183,7 +180,7 @@ export const MetadataContextProvider = ({
 
         setSaving: (saving: boolean) => dispatch({ type: 'set_saving', saving }),
 
-        setInitialFormState: (formState : Map<string, unknown>) => {
+        setInitialFormState: (formState: Map<string, unknown>) => {
             const mode = 'idle'
             dispatch({ type: 'set_errors', errors: {} })
             dispatch({ type: 'set_form_state', formState, mode })
@@ -196,7 +193,7 @@ export const MetadataContextProvider = ({
             }
         },
 
-        setFormState: (formState : Map<string, unknown>) => {
+        setFormState: (formState: Map<string, unknown>) => {
             let { isValid, errors } = validatorRef.current(
                 // NODE: To validate and show the currect message "field is required"
                 removeEmptyKeys(formState)
@@ -262,10 +259,10 @@ export const MetadataContextProvider = ({
 
         // NOTE: This applies defaults values to the form state
         if (prefillDefaultsOnInitialLoad && state.jsonSchema) {
-            const data = mapToObject(initialFormState)
+            const initialFormData = Object.fromEntries(initialFormState)
             const validator = newValidator(state.jsonSchema, { applyDefaults: true })
-            validator(data)
-            Object.entries(data).forEach(([k, v]) => initialFormState.set(k, v))
+            validator(initialFormData)
+            initialFormState = new Map(Object.entries(initialFormData))
         }
 
         if (validateOnSchemaLoad) {
@@ -277,7 +274,7 @@ export const MetadataContextProvider = ({
     }, [state.jsonSchema, node, prefillDefaultsOnInitialLoad]);
 
     React.useEffect(() => {
-        if(state.saving) return;
+        if (state.saving) return;
 
         actions.setInitialFormState(new Map(node.getMetadata()))
     }, [node.getPath(), state.saving]);

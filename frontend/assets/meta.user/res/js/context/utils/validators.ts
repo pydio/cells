@@ -1,4 +1,4 @@
-import Ajv, { AnySchema, ValidateFunction } from 'ajv'
+import Ajv, { AnySchema } from 'ajv'
 import addFormats from 'ajv-formats'
 
 export const mapErrors = (errors: any[]) => {
@@ -47,7 +47,6 @@ export const formatSpecialCasesForValidation = (formState: Map<string, any>, jso
 export type Validator = (formState: Map<string, any>) => {
     isValid: boolean
     errors: any
-    validator: ValidateFunction<any>
 }
 
 /**
@@ -87,7 +86,7 @@ export const buildValidator = (
     schema: AnySchema | null,
     options?: BuildValidatorOptions
 ): Validator => {
-    if (!schema) return (formState: Map<string, any>) => ({ isValid: true, errors: {}, validator: null })
+    if (!schema) return (formState: Map<string, any>) => ({ isValid: true, errors: {} })
 
     const validator = newValidator(schema, options ?? {})
 
@@ -101,6 +100,6 @@ export const buildValidator = (
         )
         const errors = mapErrors(validator.errors)
 
-        return { isValid, errors, validator }
+        return { isValid, errors }
     }
 }

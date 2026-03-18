@@ -337,6 +337,8 @@ describe('formatSpecialCasesForValidation', () => {
 })
 
 describe('buildValidator', () => {
+  const applyDefaults = { applyDefaults: false }
+
   beforeEach(() => {
     // Clear any previous AJV instances
     vi.clearAllMocks()
@@ -350,7 +352,7 @@ describe('buildValidator', () => {
   })
 
   it('returns valid state for data that matches schema', () => {
-    const validate = buildValidator(testSchema, { applyDefaults: false })
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-text', 'abc'],
       ['usermeta-paragraph', 'A paragraph'],
@@ -363,7 +365,7 @@ describe('buildValidator', () => {
   })
 
   it('returns invalid state with errors for data violating schema', () => {
-    const validate = buildValidator(testSchema, { applyDefaults: false })
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-text', 'ab'], // minLength 3
       ['usermeta-paragraph', 'A paragraph'],
@@ -379,7 +381,7 @@ describe('buildValidator', () => {
 
   it('calls formatSpecialCasesForValidation with schema', () => {
     // Verify that date-time conversion works
-    const validate = buildValidator(testSchema, { applyDefaults: false })
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-datetime', '1700000000'],
       ['usermeta-text', 'abc'],
@@ -394,7 +396,7 @@ describe('buildValidator', () => {
 
   it('calls mapErrors with validation errors', () => {
     // We'll test by checking that errors are mapped correctly
-    const validate = buildValidator(testSchema, { applyDefaults: false })
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['usermeta-text', 'ab'], // invalid
       ['usermeta-paragraph', 'A paragraph'],
@@ -409,7 +411,7 @@ describe('buildValidator', () => {
   })
 
   it('handles empty formState with required fields', () => {
-    const validate = buildValidator(testSchema, { applyDefaults: false })
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map()
     const result = validate(formState)
     expect(result.isValid).toBe(false)
@@ -418,7 +420,7 @@ describe('buildValidator', () => {
   })
 
   it('handles formState with extra fields not in schema', () => {
-    const validate = buildValidator(testSchema, { applyDefaults: false })
+    const validate = buildValidator(testSchema, applyDefaults)
     const formState = new Map([
       ['extra', 'value'],
       ['usermeta-text', 'abc'],
@@ -433,7 +435,7 @@ describe('buildValidator', () => {
 
   it('handles schema with no properties gracefully', () => {
     const schema = { type: 'object' }
-    const validate = buildValidator(schema, { applyDefaults: false })
+    const validate = buildValidator(schema, applyDefaults)
     const formState = new Map([['field', 'value']])
     const result = validate(formState)
     expect(result.isValid).toBe(true)
