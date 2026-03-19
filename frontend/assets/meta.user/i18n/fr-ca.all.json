@@ -205,5 +205,38 @@
   },
   "type.integer.format.progress": {
     "other": "Progress"
+  },
+  "validation.required": {
+    "other": "This field is required."
+  },
+  "validation.type": {
+    "other": "Invalid type, expected {type}."
+  },
+  "validation.minLength": {
+    "other": "Must contain at least {limit} characters."
+  },
+  "validation.maxLength": {
+    "other": "Must contain no more than {limit} characters."
+  },
+  "validation.minimum": {
+    "other": "Must be {comparison} {limit}."
+  },
+  "validation.maximum": {
+    "other": "Must be {comparison} {limit}."
+  },
+  "validation.pattern": {
+    "other": "Value does not match expected pattern."
+  },
+  "validation.enum": {
+    "other": "Must be one of: {allowedValues}."
+  },
+  "validation.additionalProperties": {
+    "other": "Property {additionalProperty} is not allowed."
+  },
+  "validation.format.email": {
+    "other": "Invalid email format."
+  },
+  "validation.format.default": {
+    "other": "Invalid format: {format}."
   }
 }
