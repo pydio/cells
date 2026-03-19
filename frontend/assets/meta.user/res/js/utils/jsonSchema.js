@@ -23,6 +23,15 @@
 * @typedef {import('ajv').SchemaObject} SchemaObject
 */
 
+import { localizeAjvError } from './ajvErrorLocalization';
+
+const translateValidationKey = (key) => {
+    const messageHash = globalThis?.pydio?.MessageHash;
+    if (!messageHash) return undefined;
+
+    return messageHash[key] || messageHash[key.replace(/^meta\.user\./, '')];
+};
+
 /**
 * Parse value for validation
 * 
@@ -55,5 +64,5 @@ export const parseErrors = (jsonSchemaErrors) =>
                 ns = error.instancePath.replace('/', '')
                 break;
         }
-        return { ...acc, [ns]: error.message }
+        return { ...acc, [ns]: localizeAjvError(error, translateValidationKey) }
     }, {});
