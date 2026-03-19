@@ -942,22 +942,22 @@
     "other": "Règles de validation"
   },
   "metadata.validation.max-length.gte-min-length": {
-    "other": "Maximum length must be greater than or equal to minimum length"
+    "other": "La longueur maximale doit être supérieure ou égale à la longueur minimale"
   },
   "metadata.validation.max-value.gte-min-value": {
-    "other": "Maximum value must be greater than or equal to minimum value"
+    "other": "La valeur maximale doit être supérieure ou égale à la valeur minimale"
   },
   "metadata.validation.default-length.min": {
-    "other": "Default value length (%s) must be at least %s characters"
+    "other": "La longueur de la valeur par défaut (%s) doit contenir au moins %s caractères"
   },
   "metadata.validation.default-length.max": {
-    "other": "Default value length (%s) must not exceed %s characters"
+    "other": "La longueur de la valeur par défaut (%s) doit contenir au moins %s caractères"
   },
   "metadata.validation.default-value.min": {
-    "other": "Default value (%s) must be at least %s"
+    "other": "La valeur par défaut (%s) doit être au moins %s"
   },
   "metadata.validation.default-value.max": {
-    "other": "Default value (%s) must not exceed %s"
+    "other": "La valeur par défaut (%s) ne doit pas excéder %s"
   },
   "metadata.editor.selection.key_exists": {
     "other": "Cette clé existe déjà"
@@ -966,10 +966,10 @@
     "other": "Obligatoire"
   },
   "metadata.boolean.yes": {
-    "other": "Yes"
+    "other": "Oui"
   },
   "metadata.boolean.no": {
-    "other": "No"
+    "other": "Non"
   },
   "metadata.toggle.defaults": {
     "other": "Forcer les valeurs par défaut"
