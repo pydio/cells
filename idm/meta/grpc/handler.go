@@ -430,13 +430,12 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 }
 
 func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.MetaEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	entityDAO := dao.GetEntityValueDao()
 
-	values, err := entityDAO.GetEntityValues(ctx, req.EntityUuid)
+	values, err := entityValueDAO.GetEntityValues(ctx, req.EntityUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -447,13 +446,12 @@ func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityVal
 }
 
 func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
 
-	resp, err := evDAO.DeleteEntity(ctx, req.EntityUuid)
+	resp, err := entityValueDAO.DeleteEntity(ctx, req.EntityUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -462,13 +460,12 @@ func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValues
 }
 
 func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityDAO, err := manager.Resolve[meta.MetaEntityDAO](ctx, manager.WithName("meta-entities"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
 
-	entity, err := evDAO.CreateEntity(ctx, req.Entity)
+	entity, err := entityDAO.CreateEntity(ctx, req.Entity)
 	if err != nil {
 		return nil, err
 	}
@@ -479,13 +476,12 @@ func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest
 }
 
 func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
 
-	values, err := evDAO.CreateEntityValues(ctx, req.EntityValue)
+	values, err := entityValueDAO.CreateEntityValues(ctx, req.EntityValue)
 	if err != nil {
 		return nil, err
 	}
@@ -496,12 +492,11 @@ func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityV
 }
 
 func (h *Handler) LinkMetaToEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
-	link, er := evDAO.LinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	link, er := entityValueDAO.LinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
 	if er != nil {
 		return nil, er
 	}
@@ -525,12 +520,11 @@ func (h *Handler) GetMetadata(ctx context.Context, req *idm.GetMetadataRequest) 
 }
 
 func (h *Handler) UnlinkMetaFromEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
-	unlink, er := evDAO.UnlinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	unlink, er := entityValueDAO.UnlinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
 	if er != nil {
 		return nil, er
 	}

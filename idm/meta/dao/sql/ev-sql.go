@@ -34,12 +34,18 @@ import (
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
+	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/idm/meta"
 )
 
 var (
 	EntityValueErr = errors.RegisterBaseSentinel(errors.SqlDAO, "sql entity values")
 )
+
+func init() {
+	meta.Drivers.Register(NewEntityDAO)
+	meta.Drivers.Register(NewEntityValueDAO)
+}
 
 func evTagError(err error) error {
 	return errors.Tag(err, EntityValueErr)
@@ -72,20 +78,66 @@ func (*EntityValues) TableName(namer schema.Namer) string {
 }
 
 type MetaValuesRel struct {
-	MetaUUID   string `gorm:"primaryKey;column:meta_uuid;type:varchar(255);notNull;index:idx_meta_evalue,composite:meta_evalue"`
-	EValueUUID string `gorm:"primaryKey;column:e_value_uuid;type:varchar(255);notNull;index:idx_meta_evalue,composite:meta_evalue"`
+	MetaUUID   string `gorm:"primaryKey;column:meta_uuid;type:varchar(255);notNull"`
+	EValueUUID string `gorm:"primaryKey;column:e_value_uuid;type:varchar(255);notNull"`
 }
 
 func (*MetaValuesRel) TableName(namer schema.Namer) string {
 	return namer.JoinTableName("meta_values_rel")
 }
 
-func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
-
-	return &evSqlImpl{
-		Abstract: sql.NewAbstract(db),
-		DAO:      resources.NewDAO(db),
+func (s *evSqlImpl) MigrateEV(ctx context.Context) error {
+	db := s.Session(ctx)
+	if err := db.AutoMigrate(&EntityValues{}); err != nil {
+		return err
 	}
+
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Move this to entitySqlImpl
+func (s *entitySqlImpl) MigrateEntity(ctx context.Context) error {
+	if err := s.Session(ctx).AutoMigrate(&Entities{}); err != nil {
+		return err
+	}
+
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Add explicit Migrate for entitySqlImpl to resolve ambiguity
+func (s *entitySqlImpl) Migrate(ctx context.Context) error {
+	return s.MigrateEntity(ctx)
+}
+
+// Add explicit Migrate for evSqlImpl to resolve ambiguity
+func (s *evSqlImpl) Migrate(ctx context.Context) error {
+	return s.MigrateEV(ctx)
+}
+
+func NewEntityDAO(db *gorm.DB) meta.MetaEntityDAO {
+	return &entitySqlImpl{
+		Abstract:     sql.NewAbstract(db),
+		resourcesDAO: resources2.NewDAO(db),
+	}
+}
+
+func NewEntityValueDAO(db *gorm.DB) meta.MetaEntityValueDAO {
+	return &evSqlImpl{
+		Abstract:     sql.NewAbstract(db),
+		resourcesDAO: resources2.NewDAO(db),
+	}
+}
+
+type entitySqlImpl struct {
+	*sql.Abstract
+	resourcesDAO
+	// entityDAO meta.MetaEntityDAO
 }
 
 type evSqlImpl struct {
@@ -120,7 +172,7 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 }
 
 // CreateEntity creates a new entity
-func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
+func (s *entitySqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
 	res := (&Entities{}).FromEntity(entity)
 	// //check if entity with the same label exists
 	// var existing Entities
@@ -139,7 +191,7 @@ func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*
 }
 
 // SetEntities creates multiple entities
-func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
+func (s *entitySqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
 	createdEntities := make([]*idm.MetaEntity, 0, len(entities))
 
 	for _, entity := range entities {
@@ -154,7 +206,7 @@ func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity)
 }
 
 // GetEntity retrieves an entity by its UUID
-func (s *evSqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
+func (s *entitySqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
 	var model Entities
 	tx := s.Session(ctx).Where(&Entities{UUID: entityUuid}).First(&model)
 	if tx.Error != nil {
