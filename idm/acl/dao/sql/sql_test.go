@@ -413,7 +413,7 @@ func TestQueryBuilder(t *testing.T) {
 
 		})
 
-		Convey(" Reorder user roles", t, func() {
+		Convey("Reorder user roles", t, func() {
 			aa := []*idm.ACL{
 				{NodeID: "n4.0", RoleID: "role1", Action: &idm.ACLAction{Name: "read", Value: "read_val1"}},
 				{NodeID: "n4.1", RoleID: "role2", Action: &idm.ACLAction{Name: "read", Value: "read_val2"}},

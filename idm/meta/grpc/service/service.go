@@ -57,14 +57,28 @@ func init() {
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
 			service.WithStorageDrivers(meta.Drivers),
+			service.WithNamedStorageDrivers("meta-entities", meta.EntityDrivers),
+			service.WithNamedStorageDrivers("meta-entity-values", meta.EntityValueDrivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),
-					Up:            manager.StorageMigration(),
+					Up: func(ctx context.Context) error {
+						// Migrate main storage
+						if err := manager.StorageMigration()(ctx); err != nil {
+							return err
+						}
+						// Migrate entities storage (Entities table)
+						if err := manager.StorageMigration(manager.WithName("meta-entities"))(ctx); err != nil {
+							return err
+						}
+						// Migrate entity values storage (EntityValues table and relations)
+						return manager.StorageMigration(manager.WithName("meta-entity-values"))(ctx)
+					},
 				},
 				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
+						// Migrate main DAO
 						dao, err := manager.Resolve[meta.DAO](ctx)
 						if err != nil {
 							return err
@@ -72,7 +86,28 @@ func init() {
 						if err = dao.Migrate(ctx); err != nil {
 							return err
 						}
-						return defaultMetas(ctx, dao)
+						// Insert default metas
+						if err = defaultMetas(ctx, dao); err != nil {
+							return err
+						}
+						// Migrate EntityDAO (Entities table)
+						entityDAO, err := manager.Resolve[meta.MetaEntityDAO](ctx, manager.WithName("meta-entities"))
+						if err != nil {
+							return err
+						}
+						if err = entityDAO.Migrate(ctx); err != nil {
+							return err
+						}
+						// Migrate EntityValueDAO (EntityValues table and relations)
+						entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+						if err != nil {
+							return err
+						}
+						if err = entityValueDAO.Migrate(ctx); err != nil {
+							return err
+						}
+						return nil
+
 					},
 				},
 			}),
