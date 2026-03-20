@@ -19,7 +19,14 @@
  */
 import Pydio from "pydio";
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy, IdmSearchUserMetaRequest, UpdateUserMetaRequestUserMetaOp} from 'cells-sdk'
+import {
+    UserMetaServiceApi, 
+    IdmUpdateUserMetaRequest, 
+    IdmUserMeta, 
+    ServiceResourcePolicy, 
+    IdmSearchUserMetaRequest, 
+    IdmUpdateUserMetaRequestUserMetaOp
+} from 'cells-sdk'
 
 export default function toggleBookmarkNode(node, selection){
 
@@ -36,7 +43,7 @@ export default function toggleBookmarkNode(node, selection){
         searchRequest.Namespace = "bookmark";
         return api.searchUserMeta(searchRequest).then(res => {
             if (res.Metadatas && res.Metadatas.length) {
-                request.Operation = UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
+                request.Operation = IdmUpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(() => {
                     pydio.notify("reload-bookmarks");
@@ -44,7 +51,7 @@ export default function toggleBookmarkNode(node, selection){
             }
         });
     } else {
-        request.Operation = UpdateUserMetaRequestUserMetaOp.constructFromObject('PUT');
+        request.Operation = IdmUpdateUserMetaRequestUserMetaOp.constructFromObject('PUT');
         let userMeta = new IdmUserMeta();
         userMeta.NodeUuid = nodeUuid;
         userMeta.Namespace = "bookmark";
