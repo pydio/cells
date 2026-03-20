@@ -57,14 +57,27 @@ func init() {
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
 			service.WithStorageDrivers(meta.Drivers),
+			service.WithNamedStorageDrivers("meta-entities", meta.EntityDrivers),
+			service.WithNamedStorageDrivers("meta-entity-values", meta.EntityValueDrivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),
-					Up:            manager.StorageMigration(),
+					Up: func(ctx context.Context) error {
+						return manager.StorageMigration()(ctx)
+					},
 				},
 				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
+						// Migrate EntityDAO (Entities table)
+						entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
+						if err != nil {
+							return err
+						}
+						if err = entityDAO.Migrate(ctx); err != nil {
+							return err
+						}
+						// Migrate main DAO
 						dao, err := manager.Resolve[meta.DAO](ctx)
 						if err != nil {
 							return err
@@ -72,7 +85,20 @@ func init() {
 						if err = dao.Migrate(ctx); err != nil {
 							return err
 						}
-						return defaultMetas(ctx, dao)
+						// Insert default metas and entities
+						if err = defaultMetas(ctx, dao, entityDAO); err != nil {
+							return err
+						}
+						// Migrate EntityValueDAO (EntityValues table and relations)
+						entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+						if err != nil {
+							return err
+						}
+						if err = entityValueDAO.Migrate(ctx); err != nil {
+							return err
+						}
+						return nil
+
 					},
 				},
 			}),
@@ -100,11 +126,12 @@ func init() {
 	})
 }
 
-func defaultMetas(ctx context.Context, dao meta.DAO) error {
+func defaultMetas(ctx context.Context, dao meta.DAO, entityDAO meta.EntityDAO) error {
 	err, _ := dao.GetNamespaceDao().Upsert(ctx, &idm.UserMetaNamespace{
 		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
 		Indexable:      true,
+		FieldType:      "tags",
 		JsonDefinition: "{\"type\":\"tags\"}",
 		Description:    "Default Tags",
 		Policies: []*service2.ResourcePolicy{
@@ -112,13 +139,10 @@ func defaultMetas(ctx context.Context, dao meta.DAO) error {
 			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
 		},
 	})
-	if err == nil {
-		log.Logger(ctx).Info("Inserted default namespace for metadata")
-		return nil
+	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+		return err
 	}
-	if errors.Is(err, gorm.ErrDuplicatedKey) {
-		// This is a duplicate error, we ignore it
-		return nil
-	}
-	return err
+	log.Logger(ctx).Info("Inserted default namespace for metadata")
+
+	return nil
 }
