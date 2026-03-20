@@ -596,12 +596,12 @@ message UpdateUserMetaEvent{
     // Contextual metadata / headers
     map<string,string> EventMetadata = 1;
 
-    enum UserMetaOp {
+    enum UserMetaOpEvent {
         PUT = 0;
         DELETE = 1;
     }
     // Type of operation to apply (PUT / DELETE)
-    UserMetaOp Operation = 2;
+    UserMetaOpEvent Operation = 2;
     // Metadata to update or delete
     UserMeta UserMeta = 3;
 }

@@ -305,6 +305,14 @@
       ],
       "type": "string"
     },
+    "UpdateUserMetaRequestUserMetaOp": {
+      "default": "PUT",
+      "enum": [
+        "PUT",
+        "DELETE"
+      ],
+      "type": "string"
+    },
     "UserServicePutRolesBody": {
       "properties": {
         "Attributes": {
@@ -1620,20 +1628,12 @@
           "type": "array"
         },
         "Operation": {
-          "$ref": "#/definitions/idmUpdateUserMetaRequestUserMetaOp",
+          "$ref": "#/definitions/UpdateUserMetaRequestUserMetaOp",
           "title": "Type of operation to apply (PUT / DELETE)"
         }
       },
       "title": "Request for modifying UserMeta",
       "type": "object"
-    },
-    "idmUpdateUserMetaRequestUserMetaOp": {
-      "default": "PUT",
-      "enum": [
-        "PUT",
-        "DELETE"
-      ],
-      "type": "string"
     },
     "idmUpdateUserMetaResponse": {
       "properties": {
