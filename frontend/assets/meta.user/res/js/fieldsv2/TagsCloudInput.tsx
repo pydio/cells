@@ -37,10 +37,29 @@ import {
  * @property {string} errorText
  * @property {string} value
  * @property {function} onCommitChange
+ * @property {boolean} onlyValuesFromList
+ * @property {string} ariaLabel
+ * @property {boolean} clearable
+ * @property {string} clearAriaLabel
+ * @property {boolean} readOnly
+ * @property {function} onFocus
+ * @property {function} onBlur
  */
 
 type TagsCloudInputProps = StringItemsInputProps & {
     onlyValuesFromList?: boolean;
+    /** Forwarded to Mantine TagsInput as aria-label.
+     *  Required for screen readers when no visible label is rendered.
+     *  When label is set this is not needed but is still forwarded. */
+    ariaLabel?: string;
+    /** Allow the user to clear all tags with a single button.
+     *  When set, provide clearAriaLabel so the button is announced correctly. */
+    clearable?: boolean;
+    /** aria-label for the clear button; only relevant when clearable is true. */
+    clearAriaLabel?: string;
+    /** Makes the input non-interactive without dimming it visually.
+     *  Use instead of disabled when the value should still be readable. */
+    readOnly?: boolean;
 };
 
 /**
@@ -53,10 +72,14 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     description,
     placeholder,
     disabled,
+    readOnly,
     dataLoader,
     errorText,
     value,
     onlyValuesFromList,
+    ariaLabel,
+    clearable,
+    clearAriaLabel,
     onCommitChange,
     onFocus,
     onBlur,
@@ -71,6 +94,9 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
         placeholder,
         error: errorText,
         required,
+        // aria-label is announced by screen readers when no visible label is
+        // rendered. Mantine wires this onto the underlying <input> element.
+        'aria-label': ariaLabel,
     };
 
     useEffect(() => {
@@ -105,9 +131,11 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
             value={localValue}
             data={items}
             onFocus={onFocus}
-            onBlur={onBlur}
-            onChange={commitValues}
-            disabled={disabled || (onlyValuesFromList && itemsLoading)}
+            onChange={onChangeJoin}
+            disabled={disabled}
+            readOnly={readOnly}
+            clearable={clearable}
+            clearButtonProps={clearAriaLabel ? { 'aria-label': clearAriaLabel } : undefined}
             comboboxProps={{ withinPortal: false }}
             splitChars={onlyValuesFromList ? [''] : undefined}
         />

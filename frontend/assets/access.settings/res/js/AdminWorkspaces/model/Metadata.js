@@ -22,6 +22,10 @@ import PydioApi from 'pydio/http/api'
 import {
     UserMetaServiceApi,
     IdmUserMetaNamespace,
+    IdmMetaEntity,
+    IdmEntityValue,
+    IdmCreateEntityRequest,
+    IdmCreateEntityValueRequest,
     IdmUpdateUserMetaNamespaceRequest,
     UpdateUserMetaNamespaceRequestUserMetaNsOp,
 
@@ -101,6 +105,100 @@ class Metadata {
 
     }
     /**
+     * Creates a new entity with the given description, label, and policies.
+     * @param label String
+     * @param description String
+     * @param policies Array
+     */
+    static createEntity(label,description, policies) {
+        if (!label) {
+            throw new Error('Label is required to create an entity');
+        }
+        const entity = IdmMetaEntity.constructFromObject({
+            Description: description || '',
+            Label: label,
+            Policies: policies || []
+        });
+
+        const request = IdmCreateEntityRequest.constructFromObject({
+            Entity: entity,
+        });
+
+        return Metadata.api.putEntity(request).then(r => {
+            return r.Entity;
+        }).catch(e => {
+            console.error(e);
+            throw e;
+        });
+    }
+    /**
+     * Creates entity values for a given entity with the same policies applied to all values
+     * @param {string} entityId - The entity identifier
+     * @param {string} entityUuid - The UUID of the parent entity
+     * @param {string[]} values - Array of label strings for entity values to create
+     * @param {Array<IdmPolicy>} policies - Access control policies applied to all entity values
+     * @returns {Promise<void>} Promise resolving when all entity values are created
+     * @throws {Error} If entityId or values array is empty
+     * @example
+     * Metadata.createEntity(
+     *   'metadata-entity-1',
+     *   '3c6b2e2f-3592-4cfc-a0d1-bb3059a5c986',
+     *   ['x', 'xx', 'xxx'],
+     *   [{id: '21', Resource: '...', Action: 'READ', Subject: '*', Effect: 'allow'}]
+     * )
+     */
+    static putEntityValues(entityId, values, policies) {
+         if (!values || values.length === 0) {
+            throw new Error('Labels array is required and cannot be empty');
+         }
+
+        const evs = values.map(label => 
+            IdmEntityValue.constructFromObject({
+                Label: label,
+                EntityUuid: entityId,
+                Policies: [],
+            })
+        );
+
+        const request = IdmCreateEntityValueRequest.constructFromObject({
+            EntityValue: evs
+        });
+
+        return Metadata.api.createEntityValues(request)
+            .then(r => {
+                return r;
+            })
+            .catch(e => {
+                console.error(e);
+                throw e;
+            });
+    }
+
+     /**
+     * Delete entity for a given Namespace with the same policies applied to all values
+     * @param {string} entityUuid - The UUID of the parent entity
+     * @returns {Promise<void>} Promise resolving when the entity is deleted
+     * @throws {Error} If entityUuid is empty
+     * @example
+     * Metadata.deleteEntity(
+     *   '3c6b2e2f-3592-4cfc-a0d1-bb3059a5c986'
+     * )
+     */
+    static deleteEntity(entityUuid) {
+        if (!entityUuid) {
+            throw new Error('Entity UUID is required and cannot be empty');
+        }
+
+        return Metadata.api.deleteEntity(entityUuid)
+            .then(r => {
+                return r;
+            })
+            .catch(e => {
+                console.error(e);
+                throw e;
+            });
+    }
+    /**
      * Clear ReactMeta cache if it exists
      */
     static clearLocalCache() {
@@ -112,8 +210,6 @@ class Metadata {
             //console.log(e)
         }
     }
-    
-
 }
 
 Metadata.MetaTypes = {
