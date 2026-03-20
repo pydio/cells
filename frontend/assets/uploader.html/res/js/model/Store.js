@@ -439,11 +439,12 @@ class Store extends Observable{
      */
     initSession(repoId, targetNode){
         return loadMetaClient().then(mc => {
-            return mc.getInstance().listNamespaces().then(namespaces => {
-                return new Session(repoId, targetNode, namespaces);
-            }).catch(e => {
-                return new Session(repoId, targetNode)
-            })
+            return Promise.all([
+                mc.getInstance().listEntities().then(entities => entities).catch(e => []),
+                mc.getInstance().listNamespaces().then(namespaces => namespaces).catch(e => [])
+            ]).then(([entities, namespaces]) => {
+                return new Session(repoId, targetNode, namespaces, entities);
+            });
         }).catch(e => {
             return new Session(repoId, targetNode)
         })

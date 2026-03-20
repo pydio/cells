@@ -223,6 +223,10 @@ services: &services
         - type: sql
           prefix: idm_usr_
           policies: idm_usr_meta_policies
+      meta-entities:
+        - type: sql
+          prefix: idm_usr_
+          policies: idm_usr_entity_policies
   pydio.grpc.data.index:
     storages:
       main:

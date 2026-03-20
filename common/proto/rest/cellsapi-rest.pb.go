@@ -339,7 +339,7 @@ const file_cellsapi_rest_proto_rawDesc = "" +
 	"\n" +
 	"DeleteMeta\x12\x1a.rest.MetaNamespaceRequest\x1a\n" +
 	".tree.Node\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/meta/delete/{NodePath}\x12Z\n" +
-	"\vGetBulkMeta\x12\x18.rest.GetBulkMetaRequest\x1a\x16.rest.BulkMetaResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/meta/bulk/get2\xb7\t\n" +
+	"\vGetBulkMeta\x12\x18.rest.GetBulkMetaRequest\x1a\x16.rest.BulkMetaResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/meta/bulk/get2\xe5\r\n" +
 	"\x0fUserMetaService\x12g\n" +
 	"\x0eUpdateUserMeta\x12\x1a.idm.UpdateUserMetaRequest\x1a\x1b.idm.UpdateUserMetaResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\x1a\x11/user-meta/update\x12d\n" +
 	"\x0eSearchUserMeta\x12\x1a.idm.SearchUserMetaRequest\x1a\x18.rest.UserMetaCollection\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/user-meta/search\x12d\n" +
@@ -350,7 +350,12 @@ const file_cellsapi_rest_proto_rawDesc = "" +
 	"\x12GetNamespaceSchema\x12\x1e.idm.GetNamespaceSchemaRequest\x1a\x17.idm.JsonSchemaResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/user-meta/namespace/jsonschema\x12v\n" +
 	"\x10ListUserMetaTags\x12\x1d.rest.ListUserMetaTagsRequest\x1a\x1e.rest.ListUserMetaTagsResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/user-meta/tags/{Namespace}\x12s\n" +
 	"\x0ePutUserMetaTag\x12\x1b.rest.PutUserMetaTagRequest\x1a\x1c.rest.PutUserMetaTagResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/user-meta/tags/{Namespace}\x12\x83\x01\n" +
-	"\x12DeleteUserMetaTags\x12\x1f.rest.DeleteUserMetaTagsRequest\x1a .rest.DeleteUserMetaTagsResponse\"*\x82\xd3\xe4\x93\x02$*\"/user-meta/tags/{Namespace}/{Tags}2\xe1\x03\n" +
+	"\x12DeleteUserMetaTags\x12\x1f.rest.DeleteUserMetaTagsRequest\x1a .rest.DeleteUserMetaTagsResponse\"*\x82\xd3\xe4\x93\x02$*\"/user-meta/tags/{Namespace}/{Tags}\x12^\n" +
+	"\tPutEntity\x12\x18.idm.CreateEntityRequest\x1a\x19.idm.CreateEntityResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\x1a\x11/user-meta/entity\x12i\n" +
+	"\fDeleteEntity\x12\x18.idm.DeleteEntityRequest\x1a\x19.idm.DeleteEntityResponse\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/user-meta/entity/{EntityId}\x12^\n" +
+	"\fListEntities\x12\x18.idm.ListEntitiesRequest\x1a\x19.idm.ListEntitiesResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/user-meta/entity\x12x\n" +
+	"\x12CreateEntityValues\x12\x1d.idm.CreateEntityValueRequest\x1a\x1e.idm.CreateEntityValueResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/user-meta/entity/values\x12\x86\x01\n" +
+	"\x11DeleteEntityValue\x12\x1d.idm.DeleteEntityValueRequest\x1a\x1e.idm.DeleteEntityValueResponse\"2\x82\xd3\xe4\x93\x02,**/user-meta/entity/values/{EntityValueUuid}2\xe1\x03\n" +
 	"\vJobsService\x12]\n" +
 	"\rUserCreateJob\x12\x14.rest.UserJobRequest\x1a\x15.rest.UserJobResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\x1a\x14/jobs/user/{JobName}\x12V\n" +
 	"\fUserListJobs\x12\x15.jobs.ListJobsRequest\x1a\x18.rest.UserJobsCollection\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
@@ -492,118 +497,128 @@ var file_cellsapi_rest_proto_goTypes = []any{
 	(*ListUserMetaTagsRequest)(nil),             // 65: rest.ListUserMetaTagsRequest
 	(*PutUserMetaTagRequest)(nil),               // 66: rest.PutUserMetaTagRequest
 	(*DeleteUserMetaTagsRequest)(nil),           // 67: rest.DeleteUserMetaTagsRequest
-	(*UserJobRequest)(nil),                      // 68: rest.UserJobRequest
-	(*jobs.ListJobsRequest)(nil),                // 69: jobs.ListJobsRequest
-	(*jobs.CtrlCommand)(nil),                    // 70: jobs.CtrlCommand
-	(*jobs.DeleteTasksRequest)(nil),             // 71: jobs.DeleteTasksRequest
-	(*tree.ListNodesRequest)(nil),               // 72: tree.ListNodesRequest
-	(*tree.ReadNodeRequest)(nil),                // 73: tree.ReadNodeRequest
-	(*UserStateRequest)(nil),                    // 74: rest.UserStateRequest
-	(*RelationRequest)(nil),                     // 75: rest.RelationRequest
-	(*RecommendRequest)(nil),                    // 76: rest.RecommendRequest
-	(*PutCellRequest)(nil),                      // 77: rest.PutCellRequest
-	(*GetCellRequest)(nil),                      // 78: rest.GetCellRequest
-	(*DeleteCellRequest)(nil),                   // 79: rest.DeleteCellRequest
-	(*PutShareLinkRequest)(nil),                 // 80: rest.PutShareLinkRequest
-	(*GetShareLinkRequest)(nil),                 // 81: rest.GetShareLinkRequest
-	(*DeleteShareLinkRequest)(nil),              // 82: rest.DeleteShareLinkRequest
-	(*ListSharedResourcesRequest)(nil),          // 83: rest.ListSharedResourcesRequest
-	(*UpdateSharePoliciesRequest)(nil),          // 84: rest.UpdateSharePoliciesRequest
-	(*install.GetDefaultsRequest)(nil),          // 85: install.GetDefaultsRequest
-	(*install.InstallRequest)(nil),              // 86: install.InstallRequest
-	(*install.PerformCheckRequest)(nil),         // 87: install.PerformCheckRequest
-	(*install.GetAgreementRequest)(nil),         // 88: install.GetAgreementRequest
-	(*install.InstallEventsRequest)(nil),        // 89: install.InstallEventsRequest
-	(*update.UpdateRequest)(nil),                // 90: update.UpdateRequest
-	(*update.ApplyUpdateRequest)(nil),           // 91: update.ApplyUpdateRequest
-	(*FrontStateRequest)(nil),                   // 92: rest.FrontStateRequest
-	(*FrontBootConfRequest)(nil),                // 93: rest.FrontBootConfRequest
-	(*FrontMessagesRequest)(nil),                // 94: rest.FrontMessagesRequest
-	(*FrontPluginsRequest)(nil),                 // 95: rest.FrontPluginsRequest
-	(*FrontSessionRequest)(nil),                 // 96: rest.FrontSessionRequest
-	(*FrontEnrollAuthRequest)(nil),              // 97: rest.FrontEnrollAuthRequest
-	(*FrontBinaryRequest)(nil),                  // 98: rest.FrontBinaryRequest
-	(*SettingsMenuRequest)(nil),                 // 99: rest.SettingsMenuRequest
-	(*DeleteDataSourceResponse)(nil),            // 100: rest.DeleteDataSourceResponse
-	(*DataSourceCollection)(nil),                // 101: rest.DataSourceCollection
-	(*VersioningPolicyCollection)(nil),          // 102: rest.VersioningPolicyCollection
-	(*NodesCollection)(nil),                     // 103: rest.NodesCollection
-	(*ServiceCollection)(nil),                   // 104: rest.ServiceCollection
-	(*ctl.Service)(nil),                         // 105: ctl.Service
-	(*registry.ListResponse)(nil),               // 106: registry.ListResponse
-	(*ListPeersAddressesResponse)(nil),          // 107: rest.ListPeersAddressesResponse
-	(*CreatePeerFolderResponse)(nil),            // 108: rest.CreatePeerFolderResponse
-	(*CreateStorageBucketResponse)(nil),         // 109: rest.CreateStorageBucketResponse
-	(*ListProcessesResponse)(nil),               // 110: rest.ListProcessesResponse
-	(*encryption.AdminListKeysResponse)(nil),    // 111: encryption.AdminListKeysResponse
-	(*encryption.AdminCreateKeyResponse)(nil),   // 112: encryption.AdminCreateKeyResponse
-	(*encryption.AdminDeleteKeyResponse)(nil),   // 113: encryption.AdminDeleteKeyResponse
-	(*encryption.AdminExportKeyResponse)(nil),   // 114: encryption.AdminExportKeyResponse
-	(*encryption.AdminImportKeyResponse)(nil),   // 115: encryption.AdminImportKeyResponse
-	(*DiscoveryResponse)(nil),                   // 116: rest.DiscoveryResponse
-	(*OpenApiResponse)(nil),                     // 117: rest.OpenApiResponse
-	(*SchedulerActionsResponse)(nil),            // 118: rest.SchedulerActionsResponse
-	(*SchedulerActionFormResponse)(nil),         // 119: rest.SchedulerActionFormResponse
-	(*ListSitesResponse)(nil),                   // 120: rest.ListSitesResponse
-	(*RolesCollection)(nil),                     // 121: rest.RolesCollection
-	(*DeleteResponse)(nil),                      // 122: rest.DeleteResponse
-	(*UsersCollection)(nil),                     // 123: rest.UsersCollection
-	(*ACLCollection)(nil),                       // 124: rest.ACLCollection
-	(*idm.ListPolicyGroupsResponse)(nil),        // 125: idm.ListPolicyGroupsResponse
-	(*WorkspaceCollection)(nil),                 // 126: rest.WorkspaceCollection
-	(*activity.Object)(nil),                     // 127: activity.Object
-	(*SubscriptionsCollection)(nil),             // 128: rest.SubscriptionsCollection
-	(*LogMessageCollection)(nil),                // 129: rest.LogMessageCollection
-	(*RevokeResponse)(nil),                      // 130: rest.RevokeResponse
-	(*ResetPasswordTokenResponse)(nil),          // 131: rest.ResetPasswordTokenResponse
-	(*ResetPasswordResponse)(nil),               // 132: rest.ResetPasswordResponse
-	(*DocumentAccessTokenResponse)(nil),         // 133: rest.DocumentAccessTokenResponse
-	(*mailer.SendMailResponse)(nil),             // 134: mailer.SendMailResponse
-	(*SearchResults)(nil),                       // 135: rest.SearchResults
-	(*BulkMetaResponse)(nil),                    // 136: rest.BulkMetaResponse
-	(*HeadNodeResponse)(nil),                    // 137: rest.HeadNodeResponse
-	(*DeleteNodesResponse)(nil),                 // 138: rest.DeleteNodesResponse
-	(*RestoreNodesResponse)(nil),                // 139: rest.RestoreNodesResponse
-	(*CreateSelectionResponse)(nil),             // 140: rest.CreateSelectionResponse
-	(*ListTemplatesResponse)(nil),               // 141: rest.ListTemplatesResponse
-	(*tree.Node)(nil),                           // 142: tree.Node
-	(*idm.UpdateUserMetaResponse)(nil),          // 143: idm.UpdateUserMetaResponse
-	(*UserMetaCollection)(nil),                  // 144: rest.UserMetaCollection
-	(*idm.UpdateUserMetaNamespaceResponse)(nil), // 145: idm.UpdateUserMetaNamespaceResponse
-	(*UserMetaNamespaceCollection)(nil),         // 146: rest.UserMetaNamespaceCollection
-	(*idm.JsonSchemaResponse)(nil),              // 147: idm.JsonSchemaResponse
-	(*ListUserMetaTagsResponse)(nil),            // 148: rest.ListUserMetaTagsResponse
-	(*PutUserMetaTagResponse)(nil),              // 149: rest.PutUserMetaTagResponse
-	(*DeleteUserMetaTagsResponse)(nil),          // 150: rest.DeleteUserMetaTagsResponse
-	(*UserJobResponse)(nil),                     // 151: rest.UserJobResponse
-	(*UserJobsCollection)(nil),                  // 152: rest.UserJobsCollection
-	(*jobs.CtrlCommandResponse)(nil),            // 153: jobs.CtrlCommandResponse
-	(*jobs.DeleteTasksResponse)(nil),            // 154: jobs.DeleteTasksResponse
-	(*tree.ReadNodeResponse)(nil),               // 155: tree.ReadNodeResponse
-	(*UserStateResponse)(nil),                   // 156: rest.UserStateResponse
-	(*RelationResponse)(nil),                    // 157: rest.RelationResponse
-	(*RecommendResponse)(nil),                   // 158: rest.RecommendResponse
-	(*Cell)(nil),                                // 159: rest.Cell
-	(*DeleteCellResponse)(nil),                  // 160: rest.DeleteCellResponse
-	(*ShareLink)(nil),                           // 161: rest.ShareLink
-	(*DeleteShareLinkResponse)(nil),             // 162: rest.DeleteShareLinkResponse
-	(*ListSharedResourcesResponse)(nil),         // 163: rest.ListSharedResourcesResponse
-	(*UpdateSharePoliciesResponse)(nil),         // 164: rest.UpdateSharePoliciesResponse
-	(*install.GetDefaultsResponse)(nil),         // 165: install.GetDefaultsResponse
-	(*install.InstallResponse)(nil),             // 166: install.InstallResponse
-	(*install.PerformCheckResponse)(nil),        // 167: install.PerformCheckResponse
-	(*install.GetAgreementResponse)(nil),        // 168: install.GetAgreementResponse
-	(*install.InstallEventsResponse)(nil),       // 169: install.InstallEventsResponse
-	(*update.UpdateResponse)(nil),               // 170: update.UpdateResponse
-	(*update.ApplyUpdateResponse)(nil),          // 171: update.ApplyUpdateResponse
-	(*FrontStateResponse)(nil),                  // 172: rest.FrontStateResponse
-	(*FrontBootConfResponse)(nil),               // 173: rest.FrontBootConfResponse
-	(*FrontMessagesResponse)(nil),               // 174: rest.FrontMessagesResponse
-	(*FrontPluginsResponse)(nil),                // 175: rest.FrontPluginsResponse
-	(*FrontSessionResponse)(nil),                // 176: rest.FrontSessionResponse
-	(*FrontEnrollAuthResponse)(nil),             // 177: rest.FrontEnrollAuthResponse
-	(*FrontBinaryResponse)(nil),                 // 178: rest.FrontBinaryResponse
-	(*SettingsMenuResponse)(nil),                // 179: rest.SettingsMenuResponse
+	(*idm.CreateEntityRequest)(nil),             // 68: idm.CreateEntityRequest
+	(*idm.DeleteEntityRequest)(nil),             // 69: idm.DeleteEntityRequest
+	(*idm.ListEntitiesRequest)(nil),             // 70: idm.ListEntitiesRequest
+	(*idm.CreateEntityValueRequest)(nil),        // 71: idm.CreateEntityValueRequest
+	(*idm.DeleteEntityValueRequest)(nil),        // 72: idm.DeleteEntityValueRequest
+	(*UserJobRequest)(nil),                      // 73: rest.UserJobRequest
+	(*jobs.ListJobsRequest)(nil),                // 74: jobs.ListJobsRequest
+	(*jobs.CtrlCommand)(nil),                    // 75: jobs.CtrlCommand
+	(*jobs.DeleteTasksRequest)(nil),             // 76: jobs.DeleteTasksRequest
+	(*tree.ListNodesRequest)(nil),               // 77: tree.ListNodesRequest
+	(*tree.ReadNodeRequest)(nil),                // 78: tree.ReadNodeRequest
+	(*UserStateRequest)(nil),                    // 79: rest.UserStateRequest
+	(*RelationRequest)(nil),                     // 80: rest.RelationRequest
+	(*RecommendRequest)(nil),                    // 81: rest.RecommendRequest
+	(*PutCellRequest)(nil),                      // 82: rest.PutCellRequest
+	(*GetCellRequest)(nil),                      // 83: rest.GetCellRequest
+	(*DeleteCellRequest)(nil),                   // 84: rest.DeleteCellRequest
+	(*PutShareLinkRequest)(nil),                 // 85: rest.PutShareLinkRequest
+	(*GetShareLinkRequest)(nil),                 // 86: rest.GetShareLinkRequest
+	(*DeleteShareLinkRequest)(nil),              // 87: rest.DeleteShareLinkRequest
+	(*ListSharedResourcesRequest)(nil),          // 88: rest.ListSharedResourcesRequest
+	(*UpdateSharePoliciesRequest)(nil),          // 89: rest.UpdateSharePoliciesRequest
+	(*install.GetDefaultsRequest)(nil),          // 90: install.GetDefaultsRequest
+	(*install.InstallRequest)(nil),              // 91: install.InstallRequest
+	(*install.PerformCheckRequest)(nil),         // 92: install.PerformCheckRequest
+	(*install.GetAgreementRequest)(nil),         // 93: install.GetAgreementRequest
+	(*install.InstallEventsRequest)(nil),        // 94: install.InstallEventsRequest
+	(*update.UpdateRequest)(nil),                // 95: update.UpdateRequest
+	(*update.ApplyUpdateRequest)(nil),           // 96: update.ApplyUpdateRequest
+	(*FrontStateRequest)(nil),                   // 97: rest.FrontStateRequest
+	(*FrontBootConfRequest)(nil),                // 98: rest.FrontBootConfRequest
+	(*FrontMessagesRequest)(nil),                // 99: rest.FrontMessagesRequest
+	(*FrontPluginsRequest)(nil),                 // 100: rest.FrontPluginsRequest
+	(*FrontSessionRequest)(nil),                 // 101: rest.FrontSessionRequest
+	(*FrontEnrollAuthRequest)(nil),              // 102: rest.FrontEnrollAuthRequest
+	(*FrontBinaryRequest)(nil),                  // 103: rest.FrontBinaryRequest
+	(*SettingsMenuRequest)(nil),                 // 104: rest.SettingsMenuRequest
+	(*DeleteDataSourceResponse)(nil),            // 105: rest.DeleteDataSourceResponse
+	(*DataSourceCollection)(nil),                // 106: rest.DataSourceCollection
+	(*VersioningPolicyCollection)(nil),          // 107: rest.VersioningPolicyCollection
+	(*NodesCollection)(nil),                     // 108: rest.NodesCollection
+	(*ServiceCollection)(nil),                   // 109: rest.ServiceCollection
+	(*ctl.Service)(nil),                         // 110: ctl.Service
+	(*registry.ListResponse)(nil),               // 111: registry.ListResponse
+	(*ListPeersAddressesResponse)(nil),          // 112: rest.ListPeersAddressesResponse
+	(*CreatePeerFolderResponse)(nil),            // 113: rest.CreatePeerFolderResponse
+	(*CreateStorageBucketResponse)(nil),         // 114: rest.CreateStorageBucketResponse
+	(*ListProcessesResponse)(nil),               // 115: rest.ListProcessesResponse
+	(*encryption.AdminListKeysResponse)(nil),    // 116: encryption.AdminListKeysResponse
+	(*encryption.AdminCreateKeyResponse)(nil),   // 117: encryption.AdminCreateKeyResponse
+	(*encryption.AdminDeleteKeyResponse)(nil),   // 118: encryption.AdminDeleteKeyResponse
+	(*encryption.AdminExportKeyResponse)(nil),   // 119: encryption.AdminExportKeyResponse
+	(*encryption.AdminImportKeyResponse)(nil),   // 120: encryption.AdminImportKeyResponse
+	(*DiscoveryResponse)(nil),                   // 121: rest.DiscoveryResponse
+	(*OpenApiResponse)(nil),                     // 122: rest.OpenApiResponse
+	(*SchedulerActionsResponse)(nil),            // 123: rest.SchedulerActionsResponse
+	(*SchedulerActionFormResponse)(nil),         // 124: rest.SchedulerActionFormResponse
+	(*ListSitesResponse)(nil),                   // 125: rest.ListSitesResponse
+	(*RolesCollection)(nil),                     // 126: rest.RolesCollection
+	(*DeleteResponse)(nil),                      // 127: rest.DeleteResponse
+	(*UsersCollection)(nil),                     // 128: rest.UsersCollection
+	(*ACLCollection)(nil),                       // 129: rest.ACLCollection
+	(*idm.ListPolicyGroupsResponse)(nil),        // 130: idm.ListPolicyGroupsResponse
+	(*WorkspaceCollection)(nil),                 // 131: rest.WorkspaceCollection
+	(*activity.Object)(nil),                     // 132: activity.Object
+	(*SubscriptionsCollection)(nil),             // 133: rest.SubscriptionsCollection
+	(*LogMessageCollection)(nil),                // 134: rest.LogMessageCollection
+	(*RevokeResponse)(nil),                      // 135: rest.RevokeResponse
+	(*ResetPasswordTokenResponse)(nil),          // 136: rest.ResetPasswordTokenResponse
+	(*ResetPasswordResponse)(nil),               // 137: rest.ResetPasswordResponse
+	(*DocumentAccessTokenResponse)(nil),         // 138: rest.DocumentAccessTokenResponse
+	(*mailer.SendMailResponse)(nil),             // 139: mailer.SendMailResponse
+	(*SearchResults)(nil),                       // 140: rest.SearchResults
+	(*BulkMetaResponse)(nil),                    // 141: rest.BulkMetaResponse
+	(*HeadNodeResponse)(nil),                    // 142: rest.HeadNodeResponse
+	(*DeleteNodesResponse)(nil),                 // 143: rest.DeleteNodesResponse
+	(*RestoreNodesResponse)(nil),                // 144: rest.RestoreNodesResponse
+	(*CreateSelectionResponse)(nil),             // 145: rest.CreateSelectionResponse
+	(*ListTemplatesResponse)(nil),               // 146: rest.ListTemplatesResponse
+	(*tree.Node)(nil),                           // 147: tree.Node
+	(*idm.UpdateUserMetaResponse)(nil),          // 148: idm.UpdateUserMetaResponse
+	(*UserMetaCollection)(nil),                  // 149: rest.UserMetaCollection
+	(*idm.UpdateUserMetaNamespaceResponse)(nil), // 150: idm.UpdateUserMetaNamespaceResponse
+	(*UserMetaNamespaceCollection)(nil),         // 151: rest.UserMetaNamespaceCollection
+	(*idm.JsonSchemaResponse)(nil),              // 152: idm.JsonSchemaResponse
+	(*ListUserMetaTagsResponse)(nil),            // 153: rest.ListUserMetaTagsResponse
+	(*PutUserMetaTagResponse)(nil),              // 154: rest.PutUserMetaTagResponse
+	(*DeleteUserMetaTagsResponse)(nil),          // 155: rest.DeleteUserMetaTagsResponse
+	(*idm.CreateEntityResponse)(nil),            // 156: idm.CreateEntityResponse
+	(*idm.DeleteEntityResponse)(nil),            // 157: idm.DeleteEntityResponse
+	(*idm.ListEntitiesResponse)(nil),            // 158: idm.ListEntitiesResponse
+	(*idm.CreateEntityValueResponse)(nil),       // 159: idm.CreateEntityValueResponse
+	(*idm.DeleteEntityValueResponse)(nil),       // 160: idm.DeleteEntityValueResponse
+	(*UserJobResponse)(nil),                     // 161: rest.UserJobResponse
+	(*UserJobsCollection)(nil),                  // 162: rest.UserJobsCollection
+	(*jobs.CtrlCommandResponse)(nil),            // 163: jobs.CtrlCommandResponse
+	(*jobs.DeleteTasksResponse)(nil),            // 164: jobs.DeleteTasksResponse
+	(*tree.ReadNodeResponse)(nil),               // 165: tree.ReadNodeResponse
+	(*UserStateResponse)(nil),                   // 166: rest.UserStateResponse
+	(*RelationResponse)(nil),                    // 167: rest.RelationResponse
+	(*RecommendResponse)(nil),                   // 168: rest.RecommendResponse
+	(*Cell)(nil),                                // 169: rest.Cell
+	(*DeleteCellResponse)(nil),                  // 170: rest.DeleteCellResponse
+	(*ShareLink)(nil),                           // 171: rest.ShareLink
+	(*DeleteShareLinkResponse)(nil),             // 172: rest.DeleteShareLinkResponse
+	(*ListSharedResourcesResponse)(nil),         // 173: rest.ListSharedResourcesResponse
+	(*UpdateSharePoliciesResponse)(nil),         // 174: rest.UpdateSharePoliciesResponse
+	(*install.GetDefaultsResponse)(nil),         // 175: install.GetDefaultsResponse
+	(*install.InstallResponse)(nil),             // 176: install.InstallResponse
+	(*install.PerformCheckResponse)(nil),        // 177: install.PerformCheckResponse
+	(*install.GetAgreementResponse)(nil),        // 178: install.GetAgreementResponse
+	(*install.InstallEventsResponse)(nil),       // 179: install.InstallEventsResponse
+	(*update.UpdateResponse)(nil),               // 180: update.UpdateResponse
+	(*update.ApplyUpdateResponse)(nil),          // 181: update.ApplyUpdateResponse
+	(*FrontStateResponse)(nil),                  // 182: rest.FrontStateResponse
+	(*FrontBootConfResponse)(nil),               // 183: rest.FrontBootConfResponse
+	(*FrontMessagesResponse)(nil),               // 184: rest.FrontMessagesResponse
+	(*FrontPluginsResponse)(nil),                // 185: rest.FrontPluginsResponse
+	(*FrontSessionResponse)(nil),                // 186: rest.FrontSessionResponse
+	(*FrontEnrollAuthResponse)(nil),             // 187: rest.FrontEnrollAuthResponse
+	(*FrontBinaryResponse)(nil),                 // 188: rest.FrontBinaryResponse
+	(*SettingsMenuResponse)(nil),                // 189: rest.SettingsMenuResponse
 }
 var file_cellsapi_rest_proto_depIdxs = []int32{
 	4,   // 0: rest.HealthServiceResponse.Components:type_name -> rest.HealthServiceResponse.ComponentsEntry
@@ -684,162 +699,172 @@ var file_cellsapi_rest_proto_depIdxs = []int32{
 	65,  // 75: rest.UserMetaService.ListUserMetaTags:input_type -> rest.ListUserMetaTagsRequest
 	66,  // 76: rest.UserMetaService.PutUserMetaTag:input_type -> rest.PutUserMetaTagRequest
 	67,  // 77: rest.UserMetaService.DeleteUserMetaTags:input_type -> rest.DeleteUserMetaTagsRequest
-	68,  // 78: rest.JobsService.UserCreateJob:input_type -> rest.UserJobRequest
-	69,  // 79: rest.JobsService.UserListJobs:input_type -> jobs.ListJobsRequest
-	70,  // 80: rest.JobsService.UserControlJob:input_type -> jobs.CtrlCommand
-	71,  // 81: rest.JobsService.UserDeleteTasks:input_type -> jobs.DeleteTasksRequest
-	42,  // 82: rest.JobsService.ListTasksLogs:input_type -> log.ListLogRequest
-	72,  // 83: rest.AdminTreeService.ListAdminTree:input_type -> tree.ListNodesRequest
-	73,  // 84: rest.AdminTreeService.StatAdminTree:input_type -> tree.ReadNodeRequest
-	74,  // 85: rest.GraphService.UserState:input_type -> rest.UserStateRequest
-	75,  // 86: rest.GraphService.Relation:input_type -> rest.RelationRequest
-	76,  // 87: rest.GraphService.Recommend:input_type -> rest.RecommendRequest
-	77,  // 88: rest.ShareService.PutCell:input_type -> rest.PutCellRequest
-	78,  // 89: rest.ShareService.GetCell:input_type -> rest.GetCellRequest
-	79,  // 90: rest.ShareService.DeleteCell:input_type -> rest.DeleteCellRequest
-	80,  // 91: rest.ShareService.PutShareLink:input_type -> rest.PutShareLinkRequest
-	81,  // 92: rest.ShareService.GetShareLink:input_type -> rest.GetShareLinkRequest
-	82,  // 93: rest.ShareService.DeleteShareLink:input_type -> rest.DeleteShareLinkRequest
-	83,  // 94: rest.ShareService.ListSharedResources:input_type -> rest.ListSharedResourcesRequest
-	84,  // 95: rest.ShareService.UpdateSharePolicies:input_type -> rest.UpdateSharePoliciesRequest
-	85,  // 96: rest.InstallService.GetInstall:input_type -> install.GetDefaultsRequest
-	86,  // 97: rest.InstallService.PostInstall:input_type -> install.InstallRequest
-	87,  // 98: rest.InstallService.PerformInstallCheck:input_type -> install.PerformCheckRequest
-	88,  // 99: rest.InstallService.GetAgreement:input_type -> install.GetAgreementRequest
-	89,  // 100: rest.InstallService.InstallEvents:input_type -> install.InstallEventsRequest
-	90,  // 101: rest.UpdateService.UpdateRequired:input_type -> update.UpdateRequest
-	91,  // 102: rest.UpdateService.ApplyUpdate:input_type -> update.ApplyUpdateRequest
-	92,  // 103: rest.FrontendService.FrontState:input_type -> rest.FrontStateRequest
-	93,  // 104: rest.FrontendService.FrontBootConf:input_type -> rest.FrontBootConfRequest
-	94,  // 105: rest.FrontendService.FrontMessages:input_type -> rest.FrontMessagesRequest
-	95,  // 106: rest.FrontendService.FrontPlugins:input_type -> rest.FrontPluginsRequest
-	96,  // 107: rest.FrontendService.FrontSession:input_type -> rest.FrontSessionRequest
-	97,  // 108: rest.FrontendService.FrontEnrollAuth:input_type -> rest.FrontEnrollAuthRequest
-	98,  // 109: rest.FrontendService.FrontServeBinary:input_type -> rest.FrontBinaryRequest
-	98,  // 110: rest.FrontendService.FrontPutBinary:input_type -> rest.FrontBinaryRequest
-	99,  // 111: rest.FrontendService.SettingsMenu:input_type -> rest.SettingsMenuRequest
-	1,   // 112: rest.HealthService.ApiPing:input_type -> rest.HealthServiceRequest
-	1,   // 113: rest.HealthService.ApiLive:input_type -> rest.HealthServiceRequest
-	1,   // 114: rest.HealthService.ApiReady:input_type -> rest.HealthServiceRequest
-	1,   // 115: rest.HealthService.ServiceLive:input_type -> rest.HealthServiceRequest
-	1,   // 116: rest.HealthService.ServiceReady:input_type -> rest.HealthServiceRequest
-	5,   // 117: rest.ConfigService.PutConfig:output_type -> rest.Configuration
-	5,   // 118: rest.ConfigService.GetConfig:output_type -> rest.Configuration
-	6,   // 119: rest.ConfigService.PutDataSource:output_type -> object.DataSource
-	6,   // 120: rest.ConfigService.GetDataSource:output_type -> object.DataSource
-	100, // 121: rest.ConfigService.DeleteDataSource:output_type -> rest.DeleteDataSourceResponse
-	101, // 122: rest.ConfigService.ListDataSources:output_type -> rest.DataSourceCollection
-	102, // 123: rest.ConfigService.ListVersioningPolicies:output_type -> rest.VersioningPolicyCollection
-	9,   // 124: rest.ConfigService.GetVersioningPolicy:output_type -> tree.VersioningPolicy
-	103, // 125: rest.ConfigService.ListVirtualNodes:output_type -> rest.NodesCollection
-	104, // 126: rest.ConfigService.ListServices:output_type -> rest.ServiceCollection
-	105, // 127: rest.ConfigService.ControlService:output_type -> ctl.Service
-	106, // 128: rest.ConfigService.ListRegistry:output_type -> registry.ListResponse
-	107, // 129: rest.ConfigService.ListPeersAddresses:output_type -> rest.ListPeersAddressesResponse
-	103, // 130: rest.ConfigService.ListPeerFolders:output_type -> rest.NodesCollection
-	108, // 131: rest.ConfigService.CreatePeerFolder:output_type -> rest.CreatePeerFolderResponse
-	103, // 132: rest.ConfigService.ListStorageBuckets:output_type -> rest.NodesCollection
-	109, // 133: rest.ConfigService.CreateStorageBucket:output_type -> rest.CreateStorageBucketResponse
-	110, // 134: rest.ConfigService.ListProcesses:output_type -> rest.ListProcessesResponse
-	111, // 135: rest.ConfigService.ListEncryptionKeys:output_type -> encryption.AdminListKeysResponse
-	112, // 136: rest.ConfigService.CreateEncryptionKey:output_type -> encryption.AdminCreateKeyResponse
-	113, // 137: rest.ConfigService.DeleteEncryptionKey:output_type -> encryption.AdminDeleteKeyResponse
-	114, // 138: rest.ConfigService.ExportEncryptionKey:output_type -> encryption.AdminExportKeyResponse
-	115, // 139: rest.ConfigService.ImportEncryptionKey:output_type -> encryption.AdminImportKeyResponse
-	116, // 140: rest.ConfigService.EndpointsDiscovery:output_type -> rest.DiscoveryResponse
-	117, // 141: rest.ConfigService.OpenApiDiscovery:output_type -> rest.OpenApiResponse
-	116, // 142: rest.ConfigService.ConfigFormsDiscovery:output_type -> rest.DiscoveryResponse
-	118, // 143: rest.ConfigService.SchedulerActionsDiscovery:output_type -> rest.SchedulerActionsResponse
-	119, // 144: rest.ConfigService.SchedulerActionFormDiscovery:output_type -> rest.SchedulerActionFormResponse
-	120, // 145: rest.ConfigService.ListSites:output_type -> rest.ListSitesResponse
-	30,  // 146: rest.RoleService.SetRole:output_type -> idm.Role
-	30,  // 147: rest.RoleService.DeleteRole:output_type -> idm.Role
-	30,  // 148: rest.RoleService.GetRole:output_type -> idm.Role
-	121, // 149: rest.RoleService.SearchRoles:output_type -> rest.RolesCollection
-	32,  // 150: rest.UserService.PutUser:output_type -> idm.User
-	122, // 151: rest.UserService.DeleteUser:output_type -> rest.DeleteResponse
-	32,  // 152: rest.UserService.GetUser:output_type -> idm.User
-	123, // 153: rest.UserService.SearchUsers:output_type -> rest.UsersCollection
-	32,  // 154: rest.UserService.PutRoles:output_type -> idm.User
-	34,  // 155: rest.ACLService.PutAcl:output_type -> idm.ACL
-	122, // 156: rest.ACLService.DeleteAcl:output_type -> rest.DeleteResponse
-	124, // 157: rest.ACLService.SearchAcls:output_type -> rest.ACLCollection
-	125, // 158: rest.PolicyService.ListPolicies:output_type -> idm.ListPolicyGroupsResponse
-	37,  // 159: rest.WorkspaceService.PutWorkspace:output_type -> idm.Workspace
-	122, // 160: rest.WorkspaceService.DeleteWorkspace:output_type -> rest.DeleteResponse
-	126, // 161: rest.WorkspaceService.SearchWorkspaces:output_type -> rest.WorkspaceCollection
-	127, // 162: rest.ActivityService.Stream:output_type -> activity.Object
-	40,  // 163: rest.ActivityService.Subscribe:output_type -> activity.Subscription
-	128, // 164: rest.ActivityService.SearchSubscriptions:output_type -> rest.SubscriptionsCollection
-	129, // 165: rest.LogService.Syslog:output_type -> rest.LogMessageCollection
-	130, // 166: rest.TokenService.Revoke:output_type -> rest.RevokeResponse
-	131, // 167: rest.TokenService.ResetPasswordToken:output_type -> rest.ResetPasswordTokenResponse
-	132, // 168: rest.TokenService.ResetPassword:output_type -> rest.ResetPasswordResponse
-	133, // 169: rest.TokenService.GenerateDocumentAccessToken:output_type -> rest.DocumentAccessTokenResponse
-	134, // 170: rest.MailerService.Send:output_type -> mailer.SendMailResponse
-	135, // 171: rest.SearchService.Nodes:output_type -> rest.SearchResults
-	136, // 172: rest.TreeService.BulkStatNodes:output_type -> rest.BulkMetaResponse
-	103, // 173: rest.TreeService.CreateNodes:output_type -> rest.NodesCollection
-	137, // 174: rest.TreeService.HeadNode:output_type -> rest.HeadNodeResponse
-	138, // 175: rest.TreeService.DeleteNodes:output_type -> rest.DeleteNodesResponse
-	139, // 176: rest.TreeService.RestoreNodes:output_type -> rest.RestoreNodesResponse
-	140, // 177: rest.TreeService.CreateSelection:output_type -> rest.CreateSelectionResponse
-	141, // 178: rest.TemplatesService.ListTemplates:output_type -> rest.ListTemplatesResponse
-	142, // 179: rest.MetaService.GetMeta:output_type -> tree.Node
-	142, // 180: rest.MetaService.SetMeta:output_type -> tree.Node
-	142, // 181: rest.MetaService.DeleteMeta:output_type -> tree.Node
-	136, // 182: rest.MetaService.GetBulkMeta:output_type -> rest.BulkMetaResponse
-	143, // 183: rest.UserMetaService.UpdateUserMeta:output_type -> idm.UpdateUserMetaResponse
-	144, // 184: rest.UserMetaService.SearchUserMeta:output_type -> rest.UserMetaCollection
-	136, // 185: rest.UserMetaService.UserBookmarks:output_type -> rest.BulkMetaResponse
-	145, // 186: rest.UserMetaService.UpdateUserMetaNamespace:output_type -> idm.UpdateUserMetaNamespaceResponse
-	146, // 187: rest.UserMetaService.ListUserMetaNamespace:output_type -> rest.UserMetaNamespaceCollection
-	147, // 188: rest.UserMetaService.GetFieldSchema:output_type -> idm.JsonSchemaResponse
-	147, // 189: rest.UserMetaService.GetNamespaceSchema:output_type -> idm.JsonSchemaResponse
-	148, // 190: rest.UserMetaService.ListUserMetaTags:output_type -> rest.ListUserMetaTagsResponse
-	149, // 191: rest.UserMetaService.PutUserMetaTag:output_type -> rest.PutUserMetaTagResponse
-	150, // 192: rest.UserMetaService.DeleteUserMetaTags:output_type -> rest.DeleteUserMetaTagsResponse
-	151, // 193: rest.JobsService.UserCreateJob:output_type -> rest.UserJobResponse
-	152, // 194: rest.JobsService.UserListJobs:output_type -> rest.UserJobsCollection
-	153, // 195: rest.JobsService.UserControlJob:output_type -> jobs.CtrlCommandResponse
-	154, // 196: rest.JobsService.UserDeleteTasks:output_type -> jobs.DeleteTasksResponse
-	129, // 197: rest.JobsService.ListTasksLogs:output_type -> rest.LogMessageCollection
-	103, // 198: rest.AdminTreeService.ListAdminTree:output_type -> rest.NodesCollection
-	155, // 199: rest.AdminTreeService.StatAdminTree:output_type -> tree.ReadNodeResponse
-	156, // 200: rest.GraphService.UserState:output_type -> rest.UserStateResponse
-	157, // 201: rest.GraphService.Relation:output_type -> rest.RelationResponse
-	158, // 202: rest.GraphService.Recommend:output_type -> rest.RecommendResponse
-	159, // 203: rest.ShareService.PutCell:output_type -> rest.Cell
-	159, // 204: rest.ShareService.GetCell:output_type -> rest.Cell
-	160, // 205: rest.ShareService.DeleteCell:output_type -> rest.DeleteCellResponse
-	161, // 206: rest.ShareService.PutShareLink:output_type -> rest.ShareLink
-	161, // 207: rest.ShareService.GetShareLink:output_type -> rest.ShareLink
-	162, // 208: rest.ShareService.DeleteShareLink:output_type -> rest.DeleteShareLinkResponse
-	163, // 209: rest.ShareService.ListSharedResources:output_type -> rest.ListSharedResourcesResponse
-	164, // 210: rest.ShareService.UpdateSharePolicies:output_type -> rest.UpdateSharePoliciesResponse
-	165, // 211: rest.InstallService.GetInstall:output_type -> install.GetDefaultsResponse
-	166, // 212: rest.InstallService.PostInstall:output_type -> install.InstallResponse
-	167, // 213: rest.InstallService.PerformInstallCheck:output_type -> install.PerformCheckResponse
-	168, // 214: rest.InstallService.GetAgreement:output_type -> install.GetAgreementResponse
-	169, // 215: rest.InstallService.InstallEvents:output_type -> install.InstallEventsResponse
-	170, // 216: rest.UpdateService.UpdateRequired:output_type -> update.UpdateResponse
-	171, // 217: rest.UpdateService.ApplyUpdate:output_type -> update.ApplyUpdateResponse
-	172, // 218: rest.FrontendService.FrontState:output_type -> rest.FrontStateResponse
-	173, // 219: rest.FrontendService.FrontBootConf:output_type -> rest.FrontBootConfResponse
-	174, // 220: rest.FrontendService.FrontMessages:output_type -> rest.FrontMessagesResponse
-	175, // 221: rest.FrontendService.FrontPlugins:output_type -> rest.FrontPluginsResponse
-	176, // 222: rest.FrontendService.FrontSession:output_type -> rest.FrontSessionResponse
-	177, // 223: rest.FrontendService.FrontEnrollAuth:output_type -> rest.FrontEnrollAuthResponse
-	178, // 224: rest.FrontendService.FrontServeBinary:output_type -> rest.FrontBinaryResponse
-	178, // 225: rest.FrontendService.FrontPutBinary:output_type -> rest.FrontBinaryResponse
-	179, // 226: rest.FrontendService.SettingsMenu:output_type -> rest.SettingsMenuResponse
-	3,   // 227: rest.HealthService.ApiPing:output_type -> rest.HealthServiceResponse
-	3,   // 228: rest.HealthService.ApiLive:output_type -> rest.HealthServiceResponse
-	3,   // 229: rest.HealthService.ApiReady:output_type -> rest.HealthServiceResponse
-	3,   // 230: rest.HealthService.ServiceLive:output_type -> rest.HealthServiceResponse
-	3,   // 231: rest.HealthService.ServiceReady:output_type -> rest.HealthServiceResponse
-	117, // [117:232] is the sub-list for method output_type
-	2,   // [2:117] is the sub-list for method input_type
+	68,  // 78: rest.UserMetaService.PutEntity:input_type -> idm.CreateEntityRequest
+	69,  // 79: rest.UserMetaService.DeleteEntity:input_type -> idm.DeleteEntityRequest
+	70,  // 80: rest.UserMetaService.ListEntities:input_type -> idm.ListEntitiesRequest
+	71,  // 81: rest.UserMetaService.CreateEntityValues:input_type -> idm.CreateEntityValueRequest
+	72,  // 82: rest.UserMetaService.DeleteEntityValue:input_type -> idm.DeleteEntityValueRequest
+	73,  // 83: rest.JobsService.UserCreateJob:input_type -> rest.UserJobRequest
+	74,  // 84: rest.JobsService.UserListJobs:input_type -> jobs.ListJobsRequest
+	75,  // 85: rest.JobsService.UserControlJob:input_type -> jobs.CtrlCommand
+	76,  // 86: rest.JobsService.UserDeleteTasks:input_type -> jobs.DeleteTasksRequest
+	42,  // 87: rest.JobsService.ListTasksLogs:input_type -> log.ListLogRequest
+	77,  // 88: rest.AdminTreeService.ListAdminTree:input_type -> tree.ListNodesRequest
+	78,  // 89: rest.AdminTreeService.StatAdminTree:input_type -> tree.ReadNodeRequest
+	79,  // 90: rest.GraphService.UserState:input_type -> rest.UserStateRequest
+	80,  // 91: rest.GraphService.Relation:input_type -> rest.RelationRequest
+	81,  // 92: rest.GraphService.Recommend:input_type -> rest.RecommendRequest
+	82,  // 93: rest.ShareService.PutCell:input_type -> rest.PutCellRequest
+	83,  // 94: rest.ShareService.GetCell:input_type -> rest.GetCellRequest
+	84,  // 95: rest.ShareService.DeleteCell:input_type -> rest.DeleteCellRequest
+	85,  // 96: rest.ShareService.PutShareLink:input_type -> rest.PutShareLinkRequest
+	86,  // 97: rest.ShareService.GetShareLink:input_type -> rest.GetShareLinkRequest
+	87,  // 98: rest.ShareService.DeleteShareLink:input_type -> rest.DeleteShareLinkRequest
+	88,  // 99: rest.ShareService.ListSharedResources:input_type -> rest.ListSharedResourcesRequest
+	89,  // 100: rest.ShareService.UpdateSharePolicies:input_type -> rest.UpdateSharePoliciesRequest
+	90,  // 101: rest.InstallService.GetInstall:input_type -> install.GetDefaultsRequest
+	91,  // 102: rest.InstallService.PostInstall:input_type -> install.InstallRequest
+	92,  // 103: rest.InstallService.PerformInstallCheck:input_type -> install.PerformCheckRequest
+	93,  // 104: rest.InstallService.GetAgreement:input_type -> install.GetAgreementRequest
+	94,  // 105: rest.InstallService.InstallEvents:input_type -> install.InstallEventsRequest
+	95,  // 106: rest.UpdateService.UpdateRequired:input_type -> update.UpdateRequest
+	96,  // 107: rest.UpdateService.ApplyUpdate:input_type -> update.ApplyUpdateRequest
+	97,  // 108: rest.FrontendService.FrontState:input_type -> rest.FrontStateRequest
+	98,  // 109: rest.FrontendService.FrontBootConf:input_type -> rest.FrontBootConfRequest
+	99,  // 110: rest.FrontendService.FrontMessages:input_type -> rest.FrontMessagesRequest
+	100, // 111: rest.FrontendService.FrontPlugins:input_type -> rest.FrontPluginsRequest
+	101, // 112: rest.FrontendService.FrontSession:input_type -> rest.FrontSessionRequest
+	102, // 113: rest.FrontendService.FrontEnrollAuth:input_type -> rest.FrontEnrollAuthRequest
+	103, // 114: rest.FrontendService.FrontServeBinary:input_type -> rest.FrontBinaryRequest
+	103, // 115: rest.FrontendService.FrontPutBinary:input_type -> rest.FrontBinaryRequest
+	104, // 116: rest.FrontendService.SettingsMenu:input_type -> rest.SettingsMenuRequest
+	1,   // 117: rest.HealthService.ApiPing:input_type -> rest.HealthServiceRequest
+	1,   // 118: rest.HealthService.ApiLive:input_type -> rest.HealthServiceRequest
+	1,   // 119: rest.HealthService.ApiReady:input_type -> rest.HealthServiceRequest
+	1,   // 120: rest.HealthService.ServiceLive:input_type -> rest.HealthServiceRequest
+	1,   // 121: rest.HealthService.ServiceReady:input_type -> rest.HealthServiceRequest
+	5,   // 122: rest.ConfigService.PutConfig:output_type -> rest.Configuration
+	5,   // 123: rest.ConfigService.GetConfig:output_type -> rest.Configuration
+	6,   // 124: rest.ConfigService.PutDataSource:output_type -> object.DataSource
+	6,   // 125: rest.ConfigService.GetDataSource:output_type -> object.DataSource
+	105, // 126: rest.ConfigService.DeleteDataSource:output_type -> rest.DeleteDataSourceResponse
+	106, // 127: rest.ConfigService.ListDataSources:output_type -> rest.DataSourceCollection
+	107, // 128: rest.ConfigService.ListVersioningPolicies:output_type -> rest.VersioningPolicyCollection
+	9,   // 129: rest.ConfigService.GetVersioningPolicy:output_type -> tree.VersioningPolicy
+	108, // 130: rest.ConfigService.ListVirtualNodes:output_type -> rest.NodesCollection
+	109, // 131: rest.ConfigService.ListServices:output_type -> rest.ServiceCollection
+	110, // 132: rest.ConfigService.ControlService:output_type -> ctl.Service
+	111, // 133: rest.ConfigService.ListRegistry:output_type -> registry.ListResponse
+	112, // 134: rest.ConfigService.ListPeersAddresses:output_type -> rest.ListPeersAddressesResponse
+	108, // 135: rest.ConfigService.ListPeerFolders:output_type -> rest.NodesCollection
+	113, // 136: rest.ConfigService.CreatePeerFolder:output_type -> rest.CreatePeerFolderResponse
+	108, // 137: rest.ConfigService.ListStorageBuckets:output_type -> rest.NodesCollection
+	114, // 138: rest.ConfigService.CreateStorageBucket:output_type -> rest.CreateStorageBucketResponse
+	115, // 139: rest.ConfigService.ListProcesses:output_type -> rest.ListProcessesResponse
+	116, // 140: rest.ConfigService.ListEncryptionKeys:output_type -> encryption.AdminListKeysResponse
+	117, // 141: rest.ConfigService.CreateEncryptionKey:output_type -> encryption.AdminCreateKeyResponse
+	118, // 142: rest.ConfigService.DeleteEncryptionKey:output_type -> encryption.AdminDeleteKeyResponse
+	119, // 143: rest.ConfigService.ExportEncryptionKey:output_type -> encryption.AdminExportKeyResponse
+	120, // 144: rest.ConfigService.ImportEncryptionKey:output_type -> encryption.AdminImportKeyResponse
+	121, // 145: rest.ConfigService.EndpointsDiscovery:output_type -> rest.DiscoveryResponse
+	122, // 146: rest.ConfigService.OpenApiDiscovery:output_type -> rest.OpenApiResponse
+	121, // 147: rest.ConfigService.ConfigFormsDiscovery:output_type -> rest.DiscoveryResponse
+	123, // 148: rest.ConfigService.SchedulerActionsDiscovery:output_type -> rest.SchedulerActionsResponse
+	124, // 149: rest.ConfigService.SchedulerActionFormDiscovery:output_type -> rest.SchedulerActionFormResponse
+	125, // 150: rest.ConfigService.ListSites:output_type -> rest.ListSitesResponse
+	30,  // 151: rest.RoleService.SetRole:output_type -> idm.Role
+	30,  // 152: rest.RoleService.DeleteRole:output_type -> idm.Role
+	30,  // 153: rest.RoleService.GetRole:output_type -> idm.Role
+	126, // 154: rest.RoleService.SearchRoles:output_type -> rest.RolesCollection
+	32,  // 155: rest.UserService.PutUser:output_type -> idm.User
+	127, // 156: rest.UserService.DeleteUser:output_type -> rest.DeleteResponse
+	32,  // 157: rest.UserService.GetUser:output_type -> idm.User
+	128, // 158: rest.UserService.SearchUsers:output_type -> rest.UsersCollection
+	32,  // 159: rest.UserService.PutRoles:output_type -> idm.User
+	34,  // 160: rest.ACLService.PutAcl:output_type -> idm.ACL
+	127, // 161: rest.ACLService.DeleteAcl:output_type -> rest.DeleteResponse
+	129, // 162: rest.ACLService.SearchAcls:output_type -> rest.ACLCollection
+	130, // 163: rest.PolicyService.ListPolicies:output_type -> idm.ListPolicyGroupsResponse
+	37,  // 164: rest.WorkspaceService.PutWorkspace:output_type -> idm.Workspace
+	127, // 165: rest.WorkspaceService.DeleteWorkspace:output_type -> rest.DeleteResponse
+	131, // 166: rest.WorkspaceService.SearchWorkspaces:output_type -> rest.WorkspaceCollection
+	132, // 167: rest.ActivityService.Stream:output_type -> activity.Object
+	40,  // 168: rest.ActivityService.Subscribe:output_type -> activity.Subscription
+	133, // 169: rest.ActivityService.SearchSubscriptions:output_type -> rest.SubscriptionsCollection
+	134, // 170: rest.LogService.Syslog:output_type -> rest.LogMessageCollection
+	135, // 171: rest.TokenService.Revoke:output_type -> rest.RevokeResponse
+	136, // 172: rest.TokenService.ResetPasswordToken:output_type -> rest.ResetPasswordTokenResponse
+	137, // 173: rest.TokenService.ResetPassword:output_type -> rest.ResetPasswordResponse
+	138, // 174: rest.TokenService.GenerateDocumentAccessToken:output_type -> rest.DocumentAccessTokenResponse
+	139, // 175: rest.MailerService.Send:output_type -> mailer.SendMailResponse
+	140, // 176: rest.SearchService.Nodes:output_type -> rest.SearchResults
+	141, // 177: rest.TreeService.BulkStatNodes:output_type -> rest.BulkMetaResponse
+	108, // 178: rest.TreeService.CreateNodes:output_type -> rest.NodesCollection
+	142, // 179: rest.TreeService.HeadNode:output_type -> rest.HeadNodeResponse
+	143, // 180: rest.TreeService.DeleteNodes:output_type -> rest.DeleteNodesResponse
+	144, // 181: rest.TreeService.RestoreNodes:output_type -> rest.RestoreNodesResponse
+	145, // 182: rest.TreeService.CreateSelection:output_type -> rest.CreateSelectionResponse
+	146, // 183: rest.TemplatesService.ListTemplates:output_type -> rest.ListTemplatesResponse
+	147, // 184: rest.MetaService.GetMeta:output_type -> tree.Node
+	147, // 185: rest.MetaService.SetMeta:output_type -> tree.Node
+	147, // 186: rest.MetaService.DeleteMeta:output_type -> tree.Node
+	141, // 187: rest.MetaService.GetBulkMeta:output_type -> rest.BulkMetaResponse
+	148, // 188: rest.UserMetaService.UpdateUserMeta:output_type -> idm.UpdateUserMetaResponse
+	149, // 189: rest.UserMetaService.SearchUserMeta:output_type -> rest.UserMetaCollection
+	141, // 190: rest.UserMetaService.UserBookmarks:output_type -> rest.BulkMetaResponse
+	150, // 191: rest.UserMetaService.UpdateUserMetaNamespace:output_type -> idm.UpdateUserMetaNamespaceResponse
+	151, // 192: rest.UserMetaService.ListUserMetaNamespace:output_type -> rest.UserMetaNamespaceCollection
+	152, // 193: rest.UserMetaService.GetFieldSchema:output_type -> idm.JsonSchemaResponse
+	152, // 194: rest.UserMetaService.GetNamespaceSchema:output_type -> idm.JsonSchemaResponse
+	153, // 195: rest.UserMetaService.ListUserMetaTags:output_type -> rest.ListUserMetaTagsResponse
+	154, // 196: rest.UserMetaService.PutUserMetaTag:output_type -> rest.PutUserMetaTagResponse
+	155, // 197: rest.UserMetaService.DeleteUserMetaTags:output_type -> rest.DeleteUserMetaTagsResponse
+	156, // 198: rest.UserMetaService.PutEntity:output_type -> idm.CreateEntityResponse
+	157, // 199: rest.UserMetaService.DeleteEntity:output_type -> idm.DeleteEntityResponse
+	158, // 200: rest.UserMetaService.ListEntities:output_type -> idm.ListEntitiesResponse
+	159, // 201: rest.UserMetaService.CreateEntityValues:output_type -> idm.CreateEntityValueResponse
+	160, // 202: rest.UserMetaService.DeleteEntityValue:output_type -> idm.DeleteEntityValueResponse
+	161, // 203: rest.JobsService.UserCreateJob:output_type -> rest.UserJobResponse
+	162, // 204: rest.JobsService.UserListJobs:output_type -> rest.UserJobsCollection
+	163, // 205: rest.JobsService.UserControlJob:output_type -> jobs.CtrlCommandResponse
+	164, // 206: rest.JobsService.UserDeleteTasks:output_type -> jobs.DeleteTasksResponse
+	134, // 207: rest.JobsService.ListTasksLogs:output_type -> rest.LogMessageCollection
+	108, // 208: rest.AdminTreeService.ListAdminTree:output_type -> rest.NodesCollection
+	165, // 209: rest.AdminTreeService.StatAdminTree:output_type -> tree.ReadNodeResponse
+	166, // 210: rest.GraphService.UserState:output_type -> rest.UserStateResponse
+	167, // 211: rest.GraphService.Relation:output_type -> rest.RelationResponse
+	168, // 212: rest.GraphService.Recommend:output_type -> rest.RecommendResponse
+	169, // 213: rest.ShareService.PutCell:output_type -> rest.Cell
+	169, // 214: rest.ShareService.GetCell:output_type -> rest.Cell
+	170, // 215: rest.ShareService.DeleteCell:output_type -> rest.DeleteCellResponse
+	171, // 216: rest.ShareService.PutShareLink:output_type -> rest.ShareLink
+	171, // 217: rest.ShareService.GetShareLink:output_type -> rest.ShareLink
+	172, // 218: rest.ShareService.DeleteShareLink:output_type -> rest.DeleteShareLinkResponse
+	173, // 219: rest.ShareService.ListSharedResources:output_type -> rest.ListSharedResourcesResponse
+	174, // 220: rest.ShareService.UpdateSharePolicies:output_type -> rest.UpdateSharePoliciesResponse
+	175, // 221: rest.InstallService.GetInstall:output_type -> install.GetDefaultsResponse
+	176, // 222: rest.InstallService.PostInstall:output_type -> install.InstallResponse
+	177, // 223: rest.InstallService.PerformInstallCheck:output_type -> install.PerformCheckResponse
+	178, // 224: rest.InstallService.GetAgreement:output_type -> install.GetAgreementResponse
+	179, // 225: rest.InstallService.InstallEvents:output_type -> install.InstallEventsResponse
+	180, // 226: rest.UpdateService.UpdateRequired:output_type -> update.UpdateResponse
+	181, // 227: rest.UpdateService.ApplyUpdate:output_type -> update.ApplyUpdateResponse
+	182, // 228: rest.FrontendService.FrontState:output_type -> rest.FrontStateResponse
+	183, // 229: rest.FrontendService.FrontBootConf:output_type -> rest.FrontBootConfResponse
+	184, // 230: rest.FrontendService.FrontMessages:output_type -> rest.FrontMessagesResponse
+	185, // 231: rest.FrontendService.FrontPlugins:output_type -> rest.FrontPluginsResponse
+	186, // 232: rest.FrontendService.FrontSession:output_type -> rest.FrontSessionResponse
+	187, // 233: rest.FrontendService.FrontEnrollAuth:output_type -> rest.FrontEnrollAuthResponse
+	188, // 234: rest.FrontendService.FrontServeBinary:output_type -> rest.FrontBinaryResponse
+	188, // 235: rest.FrontendService.FrontPutBinary:output_type -> rest.FrontBinaryResponse
+	189, // 236: rest.FrontendService.SettingsMenu:output_type -> rest.SettingsMenuResponse
+	3,   // 237: rest.HealthService.ApiPing:output_type -> rest.HealthServiceResponse
+	3,   // 238: rest.HealthService.ApiLive:output_type -> rest.HealthServiceResponse
+	3,   // 239: rest.HealthService.ApiReady:output_type -> rest.HealthServiceResponse
+	3,   // 240: rest.HealthService.ServiceLive:output_type -> rest.HealthServiceResponse
+	3,   // 241: rest.HealthService.ServiceReady:output_type -> rest.HealthServiceResponse
+	122, // [122:242] is the sub-list for method output_type
+	2,   // [2:122] is the sub-list for method input_type
 	2,   // [2:2] is the sub-list for extension type_name
 	2,   // [2:2] is the sub-list for extension extendee
 	0,   // [0:2] is the sub-list for field type_name

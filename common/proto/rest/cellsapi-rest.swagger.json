@@ -1250,10 +1250,115 @@
       },
       "type": "object"
     },
+    "idmCreateEntityRequest": {
+      "properties": {
+        "Entity": {
+          "$ref": "#/definitions/idmMetaEntity"
+        }
+      },
+      "title": "Creates a new Entity request",
+      "type": "object"
+    },
+    "idmCreateEntityResponse": {
+      "properties": {
+        "Entity": {
+          "$ref": "#/definitions/idmMetaEntity"
+        }
+      },
+      "title": "Response of CreateEntityRequest, returns the created Entity with its UUID",
+      "type": "object"
+    },
+    "idmCreateEntityValueRequest": {
+      "properties": {
+        "EntityValue": {
+          "items": {
+            "$ref": "#/definitions/idmEntityValue",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Creates a new Entity representing a metadata field (e.g. \"Department\", \"Project\") and its possible values",
+      "type": "object"
+    },
+    "idmCreateEntityValueResponse": {
+      "properties": {
+        "EntityValue": {
+          "items": {
+            "$ref": "#/definitions/idmEntityValue",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Response of CreateEntityValueRequest, returns the list of created EntityValues with their UUIDs",
+      "type": "object"
+    },
+    "idmDeleteEntityResponse": {
+      "properties": {
+        "RowsDeleted": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "idmDeleteEntityValueResponse": {
+      "properties": {
+        "RowsDeleted": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "idmEntityValue": {
+      "properties": {
+        "DisplayJSON": {
+          "type": "string"
+        },
+        "EntityUuid": {
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "MetaUuid": {
+          "type": "string"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "type": "boolean"
+        },
+        "Uuid": {
+          "type": "string"
+        }
+      },
+      "title": "EntityValue represents a value for an entity (e.g., \"Engineering\", \"Sales\")",
+      "type": "object"
+    },
     "idmJsonSchemaResponse": {
       "properties": {
         "JsonSchema": {
           "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "idmListEntitiesResponse": {
+      "properties": {
+        "Entity": {
+          "items": {
+            "$ref": "#/definitions/idmMetaEntity",
+            "type": "object"
+          },
+          "type": "array"
         }
       },
       "type": "object"
@@ -1284,6 +1389,31 @@
           "type": "integer"
         }
       },
+      "type": "object"
+    },
+    "idmMetaEntity": {
+      "properties": {
+        "Description": {
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "PoliciesContextEditable": {
+          "type": "boolean"
+        },
+        "Uuid": {
+          "type": "string"
+        }
+      },
+      "title": "MetaEntity represents a metadata entity (e.g., \"Department\", \"Project\")",
       "type": "object"
     },
     "idmNodeType": {
@@ -1762,6 +1892,10 @@
         "EnforceDefault": {
           "title": "Use default value from JsonSchema to enforce defaults",
           "type": "boolean"
+        },
+        "EntityUUID": {
+          "title": "Associated Entity UUID",
+          "type": "string"
         },
         "FieldType": {
           "title": "Namespace Type  \"boolean\", \"choice\", \"css_label\", \"date\", \"integer\", \"json\", \"multi_value\", \"stars_rate\", \"string\", \"tag_cloud\", \"tags\", \"textarea\", \"url\"",
@@ -12192,6 +12326,248 @@
           }
         },
         "summary": "Special API for Bookmarks, will load userMeta and the associated nodes, and return\nas a node list",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/entity": {
+      "get": {
+        "operationId": "ListEntities",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "EntityId",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmListEntitiesResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "tags": [
+          "UserMetaService"
+        ]
+      },
+      "put": {
+        "operationId": "PutEntity",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/idmCreateEntityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmCreateEntityResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/entity/values": {
+      "put": {
+        "operationId": "CreateEntityValues",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/idmCreateEntityValueRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmCreateEntityValueResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/entity/values/{EntityValueUuid}": {
+      "delete": {
+        "operationId": "DeleteEntityValue",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "EntityValueUuid",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmDeleteEntityValueResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/entity/{EntityId}": {
+      "delete": {
+        "operationId": "DeleteEntity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "EntityId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmDeleteEntityResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
         "tags": [
           "UserMetaService"
         ]

@@ -1171,11 +1171,14 @@ const (
 	UserMetaService_GetNamespaceSchema_FullMethodName        = "/idm.UserMetaService/GetNamespaceSchema"
 	UserMetaService_GetEntityValues_FullMethodName           = "/idm.UserMetaService/GetEntityValues"
 	UserMetaService_DeleteEntity_FullMethodName              = "/idm.UserMetaService/DeleteEntity"
+	UserMetaService_GetEntity_FullMethodName                 = "/idm.UserMetaService/GetEntity"
+	UserMetaService_ListEntities_FullMethodName              = "/idm.UserMetaService/ListEntities"
 	UserMetaService_CreateEntity_FullMethodName              = "/idm.UserMetaService/CreateEntity"
 	UserMetaService_CreateEntityValues_FullMethodName        = "/idm.UserMetaService/CreateEntityValues"
 	UserMetaService_LinkMetaToEntityValue_FullMethodName     = "/idm.UserMetaService/LinkMetaToEntityValue"
 	UserMetaService_UnlinkMetaFromEntityValue_FullMethodName = "/idm.UserMetaService/UnlinkMetaFromEntityValue"
 	UserMetaService_GetMetadata_FullMethodName               = "/idm.UserMetaService/GetMetadata"
+	UserMetaService_DeleteEntityValue_FullMethodName         = "/idm.UserMetaService/DeleteEntityValue"
 )
 
 // UserMetaServiceClient is the client API for UserMetaService service.
@@ -1192,12 +1195,15 @@ type UserMetaServiceClient interface {
 	GetFieldSchema(ctx context.Context, in *GetFieldSchemaRequest, opts ...grpc.CallOption) (*JsonSchemaResponse, error)
 	GetNamespaceSchema(ctx context.Context, in *GetNamespaceSchemaRequest, opts ...grpc.CallOption) (*JsonSchemaResponse, error)
 	GetEntityValues(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*MetaEntityValueResponse, error)
-	DeleteEntity(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*DeleteEntityValuesResponse, error)
+	DeleteEntity(ctx context.Context, in *DeleteEntityRequest, opts ...grpc.CallOption) (*DeleteEntityResponse, error)
+	GetEntity(ctx context.Context, in *GetEntityRequest, opts ...grpc.CallOption) (*GetEntityResponse, error)
+	ListEntities(ctx context.Context, in *ListEntitiesRequest, opts ...grpc.CallOption) (*ListEntitiesResponse, error)
 	CreateEntity(ctx context.Context, in *CreateEntityRequest, opts ...grpc.CallOption) (*CreateEntityResponse, error)
 	CreateEntityValues(ctx context.Context, in *CreateEntityValueRequest, opts ...grpc.CallOption) (*CreateEntityValueResponse, error)
 	LinkMetaToEntityValue(ctx context.Context, in *MetaToEntityValueRequest, opts ...grpc.CallOption) (*MetaToEntityValueResponse, error)
 	UnlinkMetaFromEntityValue(ctx context.Context, in *MetaToEntityValueRequest, opts ...grpc.CallOption) (*MetaToEntityValueResponse, error)
 	GetMetadata(ctx context.Context, in *GetMetadataRequest, opts ...grpc.CallOption) (*UserMeta, error)
+	DeleteEntityValue(ctx context.Context, in *DeleteEntityValueRequest, opts ...grpc.CallOption) (*DeleteEntityValueResponse, error)
 }
 
 type userMetaServiceClient struct {
@@ -1296,10 +1302,30 @@ func (c *userMetaServiceClient) GetEntityValues(ctx context.Context, in *GetMeta
 	return out, nil
 }
 
-func (c *userMetaServiceClient) DeleteEntity(ctx context.Context, in *GetMetaEntityValuesRequest, opts ...grpc.CallOption) (*DeleteEntityValuesResponse, error) {
+func (c *userMetaServiceClient) DeleteEntity(ctx context.Context, in *DeleteEntityRequest, opts ...grpc.CallOption) (*DeleteEntityResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteEntityValuesResponse)
+	out := new(DeleteEntityResponse)
 	err := c.cc.Invoke(ctx, UserMetaService_DeleteEntity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) GetEntity(ctx context.Context, in *GetEntityRequest, opts ...grpc.CallOption) (*GetEntityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEntityResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_GetEntity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) ListEntities(ctx context.Context, in *ListEntitiesRequest, opts ...grpc.CallOption) (*ListEntitiesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListEntitiesResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_ListEntities_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1356,6 +1382,16 @@ func (c *userMetaServiceClient) GetMetadata(ctx context.Context, in *GetMetadata
 	return out, nil
 }
 
+func (c *userMetaServiceClient) DeleteEntityValue(ctx context.Context, in *DeleteEntityValueRequest, opts ...grpc.CallOption) (*DeleteEntityValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteEntityValueResponse)
+	err := c.cc.Invoke(ctx, UserMetaService_DeleteEntityValue_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserMetaServiceServer is the server API for UserMetaService service.
 // All implementations must embed UnimplementedUserMetaServiceServer
 // for forward compatibility.
@@ -1370,12 +1406,15 @@ type UserMetaServiceServer interface {
 	GetFieldSchema(context.Context, *GetFieldSchemaRequest) (*JsonSchemaResponse, error)
 	GetNamespaceSchema(context.Context, *GetNamespaceSchemaRequest) (*JsonSchemaResponse, error)
 	GetEntityValues(context.Context, *GetMetaEntityValuesRequest) (*MetaEntityValueResponse, error)
-	DeleteEntity(context.Context, *GetMetaEntityValuesRequest) (*DeleteEntityValuesResponse, error)
+	DeleteEntity(context.Context, *DeleteEntityRequest) (*DeleteEntityResponse, error)
+	GetEntity(context.Context, *GetEntityRequest) (*GetEntityResponse, error)
+	ListEntities(context.Context, *ListEntitiesRequest) (*ListEntitiesResponse, error)
 	CreateEntity(context.Context, *CreateEntityRequest) (*CreateEntityResponse, error)
 	CreateEntityValues(context.Context, *CreateEntityValueRequest) (*CreateEntityValueResponse, error)
 	LinkMetaToEntityValue(context.Context, *MetaToEntityValueRequest) (*MetaToEntityValueResponse, error)
 	UnlinkMetaFromEntityValue(context.Context, *MetaToEntityValueRequest) (*MetaToEntityValueResponse, error)
 	GetMetadata(context.Context, *GetMetadataRequest) (*UserMeta, error)
+	DeleteEntityValue(context.Context, *DeleteEntityValueRequest) (*DeleteEntityValueResponse, error)
 	mustEmbedUnimplementedUserMetaServiceServer()
 }
 
@@ -1407,8 +1446,14 @@ func (UnimplementedUserMetaServiceServer) GetNamespaceSchema(context.Context, *G
 func (UnimplementedUserMetaServiceServer) GetEntityValues(context.Context, *GetMetaEntityValuesRequest) (*MetaEntityValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEntityValues not implemented")
 }
-func (UnimplementedUserMetaServiceServer) DeleteEntity(context.Context, *GetMetaEntityValuesRequest) (*DeleteEntityValuesResponse, error) {
+func (UnimplementedUserMetaServiceServer) DeleteEntity(context.Context, *DeleteEntityRequest) (*DeleteEntityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEntity not implemented")
+}
+func (UnimplementedUserMetaServiceServer) GetEntity(context.Context, *GetEntityRequest) (*GetEntityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntity not implemented")
+}
+func (UnimplementedUserMetaServiceServer) ListEntities(context.Context, *ListEntitiesRequest) (*ListEntitiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEntities not implemented")
 }
 func (UnimplementedUserMetaServiceServer) CreateEntity(context.Context, *CreateEntityRequest) (*CreateEntityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEntity not implemented")
@@ -1424,6 +1469,9 @@ func (UnimplementedUserMetaServiceServer) UnlinkMetaFromEntityValue(context.Cont
 }
 func (UnimplementedUserMetaServiceServer) GetMetadata(context.Context, *GetMetadataRequest) (*UserMeta, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetadata not implemented")
+}
+func (UnimplementedUserMetaServiceServer) DeleteEntityValue(context.Context, *DeleteEntityValueRequest) (*DeleteEntityValueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteEntityValue not implemented")
 }
 func (UnimplementedUserMetaServiceServer) mustEmbedUnimplementedUserMetaServiceServer() {}
 func (UnimplementedUserMetaServiceServer) testEmbeddedByValue()                         {}
@@ -1559,7 +1607,7 @@ func _UserMetaService_GetEntityValues_Handler(srv interface{}, ctx context.Conte
 }
 
 func _UserMetaService_DeleteEntity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMetaEntityValuesRequest)
+	in := new(DeleteEntityRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1571,7 +1619,43 @@ func _UserMetaService_DeleteEntity_Handler(srv interface{}, ctx context.Context,
 		FullMethod: UserMetaService_DeleteEntity_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserMetaServiceServer).DeleteEntity(ctx, req.(*GetMetaEntityValuesRequest))
+		return srv.(UserMetaServiceServer).DeleteEntity(ctx, req.(*DeleteEntityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserMetaService_GetEntity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).GetEntity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_GetEntity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).GetEntity(ctx, req.(*GetEntityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserMetaService_ListEntities_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListEntitiesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).ListEntities(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_ListEntities_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).ListEntities(ctx, req.(*ListEntitiesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1666,6 +1750,24 @@ func _UserMetaService_GetMetadata_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserMetaService_DeleteEntityValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteEntityValueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserMetaServiceServer).DeleteEntityValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserMetaService_DeleteEntityValue_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserMetaServiceServer).DeleteEntityValue(ctx, req.(*DeleteEntityValueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserMetaService_ServiceDesc is the grpc.ServiceDesc for UserMetaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1698,6 +1800,14 @@ var UserMetaService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserMetaService_DeleteEntity_Handler,
 		},
 		{
+			MethodName: "GetEntity",
+			Handler:    _UserMetaService_GetEntity_Handler,
+		},
+		{
+			MethodName: "ListEntities",
+			Handler:    _UserMetaService_ListEntities_Handler,
+		},
+		{
 			MethodName: "CreateEntity",
 			Handler:    _UserMetaService_CreateEntity_Handler,
 		},
@@ -1716,6 +1826,10 @@ var UserMetaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMetadata",
 			Handler:    _UserMetaService_GetMetadata_Handler,
+		},
+		{
+			MethodName: "DeleteEntityValue",
+			Handler:    _UserMetaService_DeleteEntityValue_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
