@@ -47,15 +47,6 @@
   "9": {
     "other": "Нет значений"
   },
-  "group.boolean": {
-    "other": "Boolean"
-  },
-  "group.text": {
-    "other": "Text"
-  },
-  "group.number": {
-    "other": "Number"
-  },
   "group.lists": {
     "other": "Lists"
   },
