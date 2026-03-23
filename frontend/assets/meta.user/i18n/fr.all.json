@@ -47,15 +47,6 @@
   "9": {
     "other": "Pas de valeurs"
   },
-  "group.boolean": {
-    "other": "Binaire (vrai/faux)"
-  },
-  "group.text": {
-    "other": "Texte"
-  },
-  "group.number": {
-    "other": "Nombre"
-  },
   "group.lists": {
     "other": "Listes"
   },
