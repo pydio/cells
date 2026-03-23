@@ -47,15 +47,6 @@
   "9": {
     "other": "Nicht gesetzt"
   },
-  "group.boolean": {
-    "other": "Boolesch"
-  },
-  "group.text": {
-    "other": "Text"
-  },
-  "group.number": {
-    "other": "Nummer"
-  },
   "group.lists": {
     "other": "Listen"
   },
