@@ -48,16 +48,16 @@
     "other": "Nicht gesetzt"
   },
   "group.boolean": {
-    "other": "Boolean"
+    "other": "Boolesch"
   },
   "group.text": {
     "other": "Text"
   },
   "group.number": {
-    "other": "Number"
+    "other": "Nummer"
   },
   "group.lists": {
-    "other": "Lists"
+    "other": "Listen"
   },
   "group.internal": {
     "other": "Internal"
