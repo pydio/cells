@@ -47,15 +47,6 @@
   "9": {
     "other": "Không có giá trị"
   },
-  "group.boolean": {
-    "other": "Boolean"
-  },
-  "group.text": {
-    "other": "Text"
-  },
-  "group.number": {
-    "other": "Number"
-  },
   "group.lists": {
     "other": "Lists"
   },
