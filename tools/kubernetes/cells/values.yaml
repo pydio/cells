@@ -82,6 +82,7 @@ persistentVolumeClaimRetentionPolicy:
   whenDeleted: Delete
 
 serviceAccount:
+  enabled: true
   create: true
   annotations: {}
   name: "app"
