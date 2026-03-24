@@ -941,11 +941,35 @@
   "metadata.field.validation": {
     "other": "Règles de validation"
   },
+  "metadata.validation.max-length.gte-min-length": {
+    "other": "La longueur maximale doit être supérieure ou égale à la longueur minimale"
+  },
+  "metadata.validation.max-value.gte-min-value": {
+    "other": "La valeur maximale doit être supérieure ou égale à la valeur minimale"
+  },
+  "metadata.validation.default-length.min": {
+    "other": "La longueur de la valeur par défaut (%s) doit contenir au moins %s caractères"
+  },
+  "metadata.validation.default-length.max": {
+    "other": "La longueur de la valeur par défaut (%s) doit contenir au moins %s caractères"
+  },
+  "metadata.validation.default-value.min": {
+    "other": "La valeur par défaut (%s) doit être au moins %s"
+  },
+  "metadata.validation.default-value.max": {
+    "other": "La valeur par défaut (%s) ne doit pas excéder %s"
+  },
   "metadata.editor.selection.key_exists": {
     "other": "Cette clé existe déjà"
   },
   "metadata.toggle.required": {
     "other": "Obligatoire"
+  },
+  "metadata.boolean.yes": {
+    "other": "Oui"
+  },
+  "metadata.boolean.no": {
+    "other": "Non"
   },
   "metadata.toggle.defaults": {
     "other": "Forcer les valeurs par défaut"
