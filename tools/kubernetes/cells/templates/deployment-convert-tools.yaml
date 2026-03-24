@@ -28,8 +28,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.convertTools.podSecurityContext | nindent 8 }}
+      {{- if .Values.convertTools.podSecurityContext.enabled }}
+      securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.convertTools.podSecurityContext "context" $) | nindent 8 }}
+      {{- end }}
       {{- with .Values.convertTools.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -44,8 +45,9 @@ spec:
       {{- end }}
       containers:
         - name: {{ include "cells.name" . }}-convert-tools
-          securityContext:
-            {{- toYaml .Values.convertTools.securityContext | nindent 12 }}
+          {{- if .Values.convertTools.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.convertTools.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
           {{- if .Values.convertTools.image.local }}
           image: "{{ .Values.convertTools.image.repository }}"
           {{- else }}

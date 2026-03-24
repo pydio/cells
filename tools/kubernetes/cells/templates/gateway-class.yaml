@@ -1,0 +1,8 @@
+{{- if and .Values.gatewayAPI.enabled .Values.gatewayAPI.class.create }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{ .Values.gatewayAPI.class.name | default (include "cells.fullname" .) }}
+spec:
+  controllerName: {{ .Values.gatewayAPI.class.controllerName }}
+{{- end }}

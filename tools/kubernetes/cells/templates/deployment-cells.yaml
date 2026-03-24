@@ -27,6 +27,7 @@ spec:
         vault.hashicorp.com/service: "http://{{ include "cells.vault.host" . }}:{{ include "cells.vault.port" . }}"
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/agent-run-as-same-user: "true"
       {{- end }}
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }} 
@@ -39,8 +40,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.podSecurityContext "context" $) | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -55,8 +57,9 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
+          {{- end }}
           {{- if .Values.image.local }}
           image: "{{ .Values.image.repository }}"
           {{- else }}
@@ -65,7 +68,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh"]
           args:
-            ['-c', 'source /var/cells-install/source && cells start']
+            ['-c', 'source /var/cells-install/source && {{ .Values.command.binary | default "cells" }} start']
           env:
             - name: POD_NAME
               valueFrom:
@@ -142,6 +145,26 @@ spec:
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" .) | nindent 8 }}
         {{- end }}
       initContainers:
+        {{- if and .Values.podSecurityContext.enabled .Values.volumePermissions.enabled }}
+        - name: volume-permissions
+          image: "{{ .Values.volumePermissions.image.repository }}:{{ .Values.volumePermissions.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              chown -R {{ .Values.containerSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /var/cells/data
+          securityContext:
+            runAsUser: 0
+          {{- if .Values.volumePermissions.resources }}
+          resources: {{- toYaml .Values.volumePermissions.resources | nindent 12 }}
+          {{- else if ne .Values.volumePermissions.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.volumePermissions.resourcesPreset) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/cells/data
+        {{- end }}
         - name: wait-for-deps
           image: busybox:1.36
           command:
@@ -188,7 +211,7 @@ spec:
 
               # Wait for all; if any fails, the script exits non-zero
               wait
-              
+
         - name: install-certs
           {{- if .Values.image.local }}
           image: "{{ .Values.image.repository }}"
@@ -196,30 +219,33 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
+          {{- end }}
           command:
             - "/bin/sh"
             - "-c"
             - |
-              sleep 3
+              sleep 1
               if [ -f /var/cells-install/source ]; then
                 source /var/cells-install/source
               fi
               if [ -d /var/certs/ca ]; then
                 for i in /var/certs/ca/*/*; do
                   echo "Importing ca certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i) 2>/dev/null || true;
+                  {{ .Values.command.binary }} admin cert import $i --uuid $(basename $(dirname $i))-ca-$(basename $i) 2>/dev/null || true;
                 done
               fi
               if [ -d /var/certs/server ]; then
                 for i in /var/certs/server/*/*; do
                   echo "Importing client certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i) 2>/dev/null || true;
+                  {{ .Values.command.binary }} admin cert import $i --uuid $(basename $(dirname $i))-server-$(basename $i) 2>/dev/null || true;
                 done
               fi
               if [ -d /var/certs/client ]; then
                 for i in /var/certs/client/*/*; do
                   echo "Importing client certificate for $i"
-                  cells admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i) 2>/dev/null || true;
+                  {{ .Values.command.binary }} admin cert import $i --uuid $(basename $(dirname $i))-client-$(basename $i) 2>/dev/null || true;
                 done
               fi
           env:
@@ -326,6 +352,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
+          {{- end }}
           command:
             - "/bin/sh"
             - "-c"
@@ -334,8 +363,8 @@ spec:
               if [ -f /var/cells-install/source ]; then
                 source /var/cells-install/source
               fi
-              if ! cells admin config check; then 
-                cells configure
+              if ! {{ .Values.command.binary | default "cells" }} admin config check; then
+                {{ .Values.command.binary | default "cells" }}  configure
               fi
               sleep 3
           env:

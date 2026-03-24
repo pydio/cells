@@ -11,3 +11,9 @@ vault:
     annotations: {
       "eks.amazonaws.com/role-arn": "arn:aws:iam::${local.aws_account_id}:role/associateRoleForVault"
     }
+
+externalGrpcAuthzMiddleware:
+  enabled: false
+  extAuthz:
+    grpcService:
+      clusterName: ""
