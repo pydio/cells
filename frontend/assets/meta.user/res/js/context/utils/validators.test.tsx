@@ -282,9 +282,9 @@ describe('formatSpecialCasesForValidation', () => {
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
         // Expected: hours, minutes, seconds from ISO string
         // Date conversion: new Date(epochSeconds * 1000).toISOString() -> "2023-11-14T22:13:20.000Z"
-        // Split T[1] -> "22:13:20.000Z", split '.' -> "22:13:20"
+        // Split T[1] -> "22:13:20.000Z"
         expect(result).toEqual({
-            timeField: '22:13:20',
+            timeField: '22:13:20.000Z',
         });
     });
 
@@ -312,7 +312,7 @@ describe('formatSpecialCasesForValidation', () => {
             },
         };
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
-        const expected = new Date(epochSeconds * 1000).toISOString();
+        const expected = new Date(epochSeconds * 1000).toISOString().split('T')[0];
         expect(result).toEqual({
             dateField: expected,
         });
@@ -350,7 +350,7 @@ describe('formatSpecialCasesForValidation', () => {
         };
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
         expect(result).toEqual({
-            timeField: '22:13:20',
+            timeField: '22:13:20.000Z',
         });
     });
 
@@ -364,12 +364,8 @@ describe('formatSpecialCasesForValidation', () => {
         };
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
         // Expected time from negative epoch (date before 1970)
-        const expected = new Date(epochSeconds * 1000).toISOString();
-        const timePart = expected.split('T')[1];
-        const [hours, minutes, secondsWithMs] = timePart.split(':');
-        const seconds = secondsWithMs.split('.')[0];
         expect(result).toEqual({
-            timeField: `${hours}:${minutes}:${seconds}`,
+            timeField: '01:46:40.000Z',
         });
     });
 
@@ -383,7 +379,7 @@ describe('formatSpecialCasesForValidation', () => {
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
         // 1970-01-01T00:00:00.000Z
         expect(result).toEqual({
-            timeField: '00:00:00',
+            timeField: '00:00:00.000Z',
         });
     });
 
@@ -425,8 +421,8 @@ describe('formatSpecialCasesForValidation', () => {
         };
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
         const expectedDatetime = new Date(epochSeconds * 1000).toISOString();
-        const expectedDate = expectedDatetime; // same conversion
-        const expectedTime = '22:13:20';
+        const expectedDate = new Date(epochSeconds * 1000).toISOString().split('T')[0];
+        const expectedTime = '22:13:20.000Z';
         expect(result).toEqual({
             timeField: expectedTime,
             dateField: expectedDate,

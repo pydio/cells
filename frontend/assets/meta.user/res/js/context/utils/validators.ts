@@ -31,18 +31,21 @@ export const formatSpecialCasesForValidation = (formState: Map<string, any>, jso
     const safeProperties = properties || {}
     const entries = {}
     formState.forEach((v, k) => {
+        // Dates and times are special-cased
         if (safeProperties[k]?.format === 'time') {
-            const iso = new Date(parseFloat(v) * 1000).toISOString();
+            const iso = new Date(Number(v) * 1000).toISOString();
             const timePart = iso.split('T')[1];
-            const [hours, minutes, secondsWithMs] = timePart.split(':');
-            const seconds = secondsWithMs.split('.')[0];
-            entries[k] = `${hours}:${minutes}:${seconds}`;
+            entries[k] = timePart;
             return
         }
-
-        if (safeProperties[k]?.format === 'date-time' || safeProperties[k]?.format === 'date') {
+        if (safeProperties[k]?.format === 'date-time') {
             if (!v) return
             entries[k] = new Date(parseFloat(v) * 1000).toISOString()
+            return
+        }
+        if (safeProperties[k]?.format === 'date') {
+            if (!v) return
+            entries[k] = new Date(parseFloat(v) * 1000).toISOString().split('T')[0]
             return
         }
 
