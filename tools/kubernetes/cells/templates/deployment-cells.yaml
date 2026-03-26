@@ -374,7 +374,9 @@ spec:
               value: /var/cells
             - name: CELLS_INSTALL_YAML
               value: /var/cells-install/install-conf.yaml
+            {{- if .Values.auth.enabled }}
             {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
+            {{- end}}
             {{- include "cells.discovery.envvar" . | nindent 12 -}}
             {{- include "cells.broker.envvar" . | nindent 12 -}}
             {{- include "cells.cache.envvar" . | nindent 12 -}}
