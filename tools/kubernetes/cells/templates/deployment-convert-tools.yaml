@@ -27,7 +27,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.serviceAccount.enabled }}
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
+      {{- end }}
       {{- if .Values.convertTools.podSecurityContext.enabled }}
       securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.convertTools.podSecurityContext "context" $) | nindent 8 }}
       {{- end }}

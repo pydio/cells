@@ -27,7 +27,9 @@ spec:
       {{- toYaml .Values.externalVault.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.serviceAccount.enabled }}
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
