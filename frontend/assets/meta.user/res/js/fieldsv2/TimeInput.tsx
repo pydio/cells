@@ -18,19 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {InputProps} from "./CommonInputProps";
-import {TimePicker} from '@mantine/dates'
+import React from 'react';
+import { InputProps } from './CommonInputProps';
+import { TimePicker } from '@mantine/dates';
 
 const timestampToDate = (timestamp: number) => {
     if (!timestamp) return '';
 
-    const date = new Date(timestamp * 1000)
+    const date = new Date(timestamp * 1000);
     const hours = date.getHours();
     const minutes = date.getMinutes();
 
     return `${hours}:${minutes}`;
-}
+};
 
 const dateToTimestamp = (time: string) => {
     if (!time) return '';

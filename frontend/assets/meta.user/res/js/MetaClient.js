@@ -17,20 +17,25 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import PydioApi from 'pydio/http/api'
+import PydioApi from 'pydio/http/api';
 
-import {UserMetaServiceApi, IdmUpdateUserMetaRequest, RestPutUserMetaTagRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
+import {
+    UserMetaServiceApi,
+    IdmUpdateUserMetaRequest,
+    RestPutUserMetaTagRequest,
+    IdmUserMeta,
+    ServiceResourcePolicy,
+} from 'cells-sdk';
 
-class MetaClient{
-
+class MetaClient {
     static getInstance() {
-        if (!MetaClient.Instance){
+        if (!MetaClient.Instance) {
             MetaClient.Instance = new MetaClient();
         }
         return MetaClient.Instance;
     }
 
-    constructor(){
+    constructor() {
         this.client = PydioApi.getRestClient();
     }
 
@@ -39,47 +44,51 @@ class MetaClient{
      * @param nodes [{Node}]
      * @param values {Object}
      */
-    saveMeta(nodes, values){
+    saveMeta(nodes, values) {
         const api = new UserMetaServiceApi(this.client);
         return new Promise((resolve, reject) => {
             this.loadConfigs().then((configs) => {
                 let proms = [];
-                nodes.map(node => {
+                nodes.map((node) => {
                     let request = new IdmUpdateUserMetaRequest();
                     request.MetaDatas = [];
                     request.Operation = 'PUT';
                     configs.forEach((_, cName) => {
-                        if(!values.has(cName)){
+                        if (!values.has(cName)) {
                             return;
                         }
                         const meta = new IdmUserMeta();
-                        meta.NodeUuid = node.getMetadata().get("uuid");
+                        meta.NodeUuid = node.getMetadata().get('uuid');
                         meta.Namespace = cName;
 
                         // NOTE: This ensure JsonValue is always present
-                        meta.JsonValue = JSON.stringify(values.get(cName) || '');
+                        meta.JsonValue = JSON.stringify(
+                            values.get(cName) || '',
+                        );
 
                         meta.Policies = [
                             ServiceResourcePolicy.constructFromObject({
                                 Action: 'READ',
                                 Subject: '*',
-                                Effect: 'allow'
+                                Effect: 'allow',
                             }),
                             ServiceResourcePolicy.constructFromObject({
                                 Action: 'WRITE',
                                 Subject: '*',
-                                Effect: 'allow'
+                                Effect: 'allow',
                             }),
                         ];
                         request.MetaDatas.push(meta);
                     });
                     proms.push(api.updateUserMeta(request));
                 });
-                Promise.all(proms).then((res) => {
-                    resolve(res);
-                }).catch(e => {
-                    reject(e);
-                });
+                Promise.all(proms)
+                    .then((res) => {
+                        resolve(res);
+                    })
+                    .catch((e) => {
+                        reject(e);
+                    });
             });
         });
     }
@@ -97,8 +106,7 @@ class MetaClient{
         let defs = {};
         let configMap = new Map();
 
-
-        nss.map(ns => {
+        nss.map((ns) => {
             const name = ns.Namespace;
 
             const { JsonSchema = {} } = ns;
@@ -110,26 +118,28 @@ class MetaClient{
                 readonly: !ns.PoliciesContextEditable,
                 description: ns.Description,
                 jsonSchema: JsonSchema,
-                required: JsonSchema.required && JsonSchema.required.length > 0
+                required: JsonSchema.required && JsonSchema.required.length > 0,
             };
-            if (ns.JsonDefinition){
+            if (ns.JsonDefinition) {
                 const jDef = JSON.parse(ns.JsonDefinition);
-                const {hide, type, ...rest} = jDef;
-                base = {...base, type, ...rest, visible:!hide};
-                if(type === 'choice' && base.data && base.data.split){
+                const { hide, type, ...rest } = jDef;
+                base = { ...base, type, ...rest, visible: !hide };
+                if (type === 'choice' && base.data && base.data.split) {
                     // Convert old format to new format
-                    const items = base.data.split(',').map(i => {
-                        const [key, value] = i.split('|')
-                        return {key, value};
+                    const items = base.data.split(',').map((i) => {
+                        const [key, value] = i.split('|');
+                        return { key, value };
                     });
-                    base.data = {items};
+                    base.data = { items };
                 }
             }
             defs[name] = base;
         });
 
         // Resort map by order flag
-        const arrConfigs = Object.entries(defs).map(([ns, cfg]) => {return {ns, ...cfg}});
+        const arrConfigs = Object.entries(defs).map(([ns, cfg]) => {
+            return { ns, ...cfg };
+        });
         arrConfigs.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         for (const cfg of arrConfigs) {
             configMap.set(cfg.ns, cfg);
@@ -137,64 +147,60 @@ class MetaClient{
         return configMap;
     }
 
-
     /**
      * @return {Promise<Map>}
      */
-    loadConfigs(){
-
-        if(this.configs) {
+    loadConfigs() {
+        if (this.configs) {
             return Promise.resolve(this.configs);
         }
 
-        if(this.promise){
+        if (this.promise) {
             return this.promise;
         }
 
-        this.promise = new Promise(resolve => {
-            this.listNamespaces().then(namespaces => {
-                this.configs = this.namespacesAsPanelConfig(namespaces);
-                resolve(this.configs);
-                this.promise = null;
-            }).catch(() => {
-                resolve(new Map());
-                this.promise = null;
-            });
+        this.promise = new Promise((resolve) => {
+            this.listNamespaces()
+                .then((namespaces) => {
+                    this.configs = this.namespacesAsPanelConfig(namespaces);
+                    resolve(this.configs);
+                    this.promise = null;
+                })
+                .catch(() => {
+                    resolve(new Map());
+                    this.promise = null;
+                });
         });
 
         return this.promise;
-
     }
 
     listNamespaces() {
         const api = new UserMetaServiceApi(this.client);
-        return api.listUserMetaNamespace().then(result => {
-            return result.Namespaces || []
-        })
+        return api.listUserMetaNamespace().then((result) => {
+            return result.Namespaces || [];
+        });
     }
-
 
     /**
      * @param namespace String
      * @return {Promise<Array>}
      */
-    listTags(namespace){
-
+    listTags(namespace) {
         return new Promise((resolve) => {
-
             const api = new UserMetaServiceApi(this.client);
-            api.listUserMetaTags(namespace).then(response => {
-                if(response.Tags){
-                    resolve(response.Tags);
-                } else {
+            api.listUserMetaTags(namespace)
+                .then((response) => {
+                    if (response.Tags) {
+                        resolve(response.Tags);
+                    } else {
+                        resolve([]);
+                    }
+                })
+                .catch((e) => {
                     resolve([]);
-                }
-            }).catch(e => {
-                resolve([])
-            })
-
+                });
         });
-
     }
 
     /**
@@ -203,16 +209,16 @@ class MetaClient{
      * @param newTag string
      * @return {Promise}
      */
-    createTag(namespace, newTag){
-
+    createTag(namespace, newTag) {
         const api = new UserMetaServiceApi(this.client);
-        return api.putUserMetaTag(namespace, RestPutUserMetaTagRequest.constructFromObject({
-            Namespace: namespace,
-            Tag: newTag
-        }))
-
+        return api.putUserMetaTag(
+            namespace,
+            RestPutUserMetaTagRequest.constructFromObject({
+                Namespace: namespace,
+                Tag: newTag,
+            }),
+        );
     }
-
 }
 
-export {MetaClient as default}
+export { MetaClient as default };

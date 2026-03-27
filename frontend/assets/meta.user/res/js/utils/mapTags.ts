@@ -71,11 +71,7 @@ export const formatTagsArrayToString = (value: string | string[]): string => {
         arr = value;
     }
 
-    if (
-        Array.isArray(arr) &&
-        arr.length === 1 &&
-        typeof arr[0] === 'string'
-    ) {
+    if (Array.isArray(arr) && arr.length === 1 && typeof arr[0] === 'string') {
         try {
             arr = JSON.parse(arr[0]);
         } catch (e) {}

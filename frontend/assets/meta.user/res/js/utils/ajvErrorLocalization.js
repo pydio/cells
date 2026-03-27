@@ -29,7 +29,10 @@ const getTranslator = (t) => {
 
     return (key) => {
         const fallbackKey = key.replace(/^meta\.user\./, '');
-        return normalizeMessage(messageHash[key]) || normalizeMessage(messageHash[fallbackKey]);
+        return (
+            normalizeMessage(messageHash[key]) ||
+            normalizeMessage(messageHash[fallbackKey])
+        );
     };
 };
 
@@ -39,7 +42,8 @@ const formatParam = (value) => {
     return `${value}`;
 };
 
-const interpolate = (template, params) => template.replace(/\{(\w+)\}/g, (_, key) => formatParam(params[key]));
+const interpolate = (template, params) =>
+    template.replace(/\{(\w+)\}/g, (_, key) => formatParam(params[key]));
 
 const canInterpolate = (template, params) => {
     const tokens = template.match(/\{(\w+)\}/g) || [];
@@ -55,7 +59,11 @@ const canInterpolate = (template, params) => {
 const buildParams = (error = {}) => {
     const params = { ...(error.params || {}) };
 
-    if (error.keyword === 'required' && params.missingProperty && !params.field) {
+    if (
+        error.keyword === 'required' &&
+        params.missingProperty &&
+        !params.field
+    ) {
         params.field = params.missingProperty;
     }
 
@@ -65,8 +73,10 @@ const buildParams = (error = {}) => {
 const resolveTemplate = (error, translate) => {
     if (error.keyword === 'format') {
         const format = error.params?.format;
-        return translate(`meta.user.validation.format.${format}`)
-            || translate('meta.user.validation.format.default');
+        return (
+            translate(`meta.user.validation.format.${format}`) ||
+            translate('meta.user.validation.format.default')
+        );
     }
 
     const messageKey = KEYWORD_TO_I18N_KEY[error.keyword];
@@ -82,7 +92,8 @@ export const localizeAjvError = (error, t) => {
     if (!template) return error.message || 'Invalid value';
 
     const params = buildParams(error);
-    if (!canInterpolate(template, params)) return error.message || 'Invalid value';
+    if (!canInterpolate(template, params))
+        return error.message || 'Invalid value';
 
     return interpolate(template, params);
 };

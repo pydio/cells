@@ -19,14 +19,17 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { isEqual } from 'lodash'
-import MetaClient from "../MetaClient";
-import {useValidation} from "./useValidation";
+import { isEqual } from 'lodash';
+import MetaClient from '../MetaClient';
+import { useValidation } from './useValidation';
 
 const collectUserMeta = (node) => {
-    return new Map(Array.from(node.getMetadata())
-        .filter(([k]) => k.startsWith('usermeta')));
-}
+    return new Map(
+        Array.from(node.getMetadata()).filter(([k]) =>
+            k.startsWith('usermeta'),
+        ),
+    );
+};
 
 /**
  * Custom hook to manage metadata state and operations
@@ -46,19 +49,19 @@ export const useMetadataState = ({
     const pendingSubmitRef = useRef(false);
 
     useEffect(() => {
-        if (!node) return
+        if (!node) return;
 
-        MetaClient
-            .getInstance()
+        MetaClient.getInstance()
             .getNamespaceSchema()
-            .then(ns => setNamespaceJsonSchema(ns.JsonSchema))
+            .then((ns) => setNamespaceJsonSchema(ns.JsonSchema));
     }, [node.getPath()]);
 
     // Load configs and initialize state
     useEffect(() => {
-        const promsConfigs = loader ? loader() : MetaClient.getInstance().loadConfigs();
-        promsConfigs.then(newConfigs => {
-
+        const promsConfigs = loader
+            ? loader()
+            : MetaClient.getInstance().loadConfigs();
+        promsConfigs.then((newConfigs) => {
             const fields = {};
             const updateMeta = new Map();
             if (loadChecks) {
@@ -70,8 +73,13 @@ export const useMetadataState = ({
                 });
             }
 
-            setConfigs(prev => {
-                if (isEqual(Array.from(newConfigs.keys()), Array.from(prev.keys()))) {
+            setConfigs((prev) => {
+                if (
+                    isEqual(
+                        Array.from(newConfigs.keys()),
+                        Array.from(prev.keys()),
+                    )
+                ) {
                     return prev;
                 }
                 return newConfigs;
@@ -80,14 +88,15 @@ export const useMetadataState = ({
 
             // Only reset updateMeta if it's currently empty (initial load)
             // This prevents resetting pending changes when node prop updates
-            setUpdateMeta(prev => prev.size === 0 ? updateMeta : prev);
+            setUpdateMeta((prev) => (prev.size === 0 ? updateMeta : prev));
         });
     }, [loader, node, loadChecks]);
 
-    const {validate, valid, errors, globalErrors, globalValidate} = useValidation({
-        configs,
-        namespaceJsonSchema
-    });
+    const { validate, valid, errors, globalErrors, globalValidate } =
+        useValidation({
+            configs,
+            namespaceJsonSchema,
+        });
 
     // Trigger autoSave after updateMeta state has been updated
     useEffect(() => {
@@ -99,50 +108,55 @@ export const useMetadataState = ({
 
     useEffect(() => {
         const newConfigs = new Map(configs);
-        configs.forEach(config => {
-            config.errorText = null
-            if(!valid && errors && errorsScope === 'local') {
+        configs.forEach((config) => {
+            config.errorText = null;
+            if (!valid && errors && errorsScope === 'local') {
                 if (config.ns && errors[config.ns]) {
-                    config.errorText = errors[config.ns]
+                    config.errorText = errors[config.ns];
                 }
-            } else if(!valid && globalErrors && errorsScope === 'global') {
+            } else if (!valid && globalErrors && errorsScope === 'global') {
                 if (config.ns && globalErrors[config.ns]) {
-                    config.errorText = globalErrors[config.ns]
+                    config.errorText = globalErrors[config.ns];
                 }
             }
             newConfigs.set(config.ns, config);
-        })
+        });
         setConfigs(newConfigs);
     }, [errors, globalErrors, errorsScope, valid, node]);
 
-
-    const updateValue = useCallback((name, value, submit = false) => {
-        setUpdateMeta(prev => {
-            const newMap = new Map(prev);
-            newMap.set(name, value);
-            // This performs both a global validation and a validation only on "touched" fields
-            validate(Object.fromEntries(newMap), Array.from(newMap.keys()));
-            if (onChangeUpdateData) {
-                onChangeUpdateData(newMap);
+    const updateValue = useCallback(
+        (name, value, submit = false) => {
+            setUpdateMeta((prev) => {
+                const newMap = new Map(prev);
+                newMap.set(name, value);
+                // This performs both a global validation and a validation only on "touched" fields
+                validate(Object.fromEntries(newMap), Array.from(newMap.keys()));
+                if (onChangeUpdateData) {
+                    onChangeUpdateData(newMap);
+                }
+                return newMap;
+            });
+            if (submit && autoSave) {
+                // Mark that we need to submit after state updates
+                pendingSubmitRef.current = true;
             }
-            return newMap;
-        });
-        if (submit && autoSave) {
-            // Mark that we need to submit after state updates
-            pendingSubmitRef.current = true;
-        }
-    }, [onChangeUpdateData, autoSave, validate]);
+        },
+        [onChangeUpdateData, autoSave, validate],
+    );
 
-    const deleteValue = useCallback((name) => {
-        setUpdateMeta(prev => {
-            const newMap = new Map(prev);
-            newMap.delete(name);
-            if (onChangeUpdateData) {
-                onChangeUpdateData(newMap);
-            }
-            return newMap;
-        });
-    }, [onChangeUpdateData]);
+    const deleteValue = useCallback(
+        (name) => {
+            setUpdateMeta((prev) => {
+                const newMap = new Map(prev);
+                newMap.delete(name);
+                if (onChangeUpdateData) {
+                    onChangeUpdateData(newMap);
+                }
+                return newMap;
+            });
+        },
+        [onChangeUpdateData],
+    );
 
     const getUpdateData = useCallback(() => {
         return updateMeta;
@@ -156,15 +170,18 @@ export const useMetadataState = ({
         }
     }, [onChangeUpdateData]);
 
-    const onCheck = useCallback((key, value) => {
-        setFields(prev => ({
-            ...prev,
-            [key]: value
-        }));
-        if (!value) {
-            deleteValue(key);
-        }
-    }, [deleteValue]);
+    const onCheck = useCallback(
+        (key, value) => {
+            setFields((prev) => ({
+                ...prev,
+                [key]: value,
+            }));
+            if (!value) {
+                deleteValue(key);
+            }
+        },
+        [deleteValue],
+    );
 
     return {
         updateMeta,

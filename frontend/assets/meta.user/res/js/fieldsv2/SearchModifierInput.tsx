@@ -18,31 +18,31 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useMemo} from 'react'
-import {LeftSectionMenu, LeftSectionMenuItem} from './SearchModifiers'
+import React, { useMemo } from 'react';
+import { LeftSectionMenu, LeftSectionMenuItem } from './SearchModifiers';
 
 type ModifierParseResult = {
-    modifier: string
-    text: string
-}
+    modifier: string;
+    text: string;
+};
 
 type ModifierRenderArgs = {
-    modifier: string
-    text: string
-    composedValue: string
-    leftSection: React.ReactNode
-    onTextChange: (nextText: string) => void
-    onSubmit: () => void
-}
+    modifier: string;
+    text: string;
+    composedValue: string;
+    leftSection: React.ReactNode;
+    onTextChange: (nextText: string) => void;
+    onSubmit: () => void;
+};
 
 type SearchModifierInputProps = {
-    value?: string
-    onChange: (value: string, submit?: boolean) => void
-    items: LeftSectionMenuItem[]
-    applyModifier: (modifier: string, text: string) => string
-    parseModifier: (input: string) => ModifierParseResult
-    children: (args: ModifierRenderArgs) => React.ReactNode
-}
+    value?: string;
+    onChange: (value: string, submit?: boolean) => void;
+    items: LeftSectionMenuItem[];
+    applyModifier: (modifier: string, text: string) => string;
+    parseModifier: (input: string) => ModifierParseResult;
+    children: (args: ModifierRenderArgs) => React.ReactNode;
+};
 
 export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
     value,
@@ -50,18 +50,23 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
     items,
     applyModifier,
     parseModifier,
-    children
+    children,
 }) => {
-    const {modifier, text} = parseModifier(value || '')
-    const composedValue = applyModifier(modifier, text)
+    const { modifier, text } = parseModifier(value || '');
+    const composedValue = applyModifier(modifier, text);
 
-    const leftSection = useMemo(() => (
-        <LeftSectionMenu
-            items={items}
-            value={modifier}
-            onChange={(nextModifier) => onChange(applyModifier(nextModifier, text))}
-        />
-    ), [items, modifier, text, onChange, applyModifier])
+    const leftSection = useMemo(
+        () => (
+            <LeftSectionMenu
+                items={items}
+                value={modifier}
+                onChange={(nextModifier) =>
+                    onChange(applyModifier(nextModifier, text))
+                }
+            />
+        ),
+        [items, modifier, text, onChange, applyModifier],
+    );
 
     return (
         <>
@@ -70,50 +75,57 @@ export const SearchModifierInput: React.FC<SearchModifierInputProps> = ({
                 text,
                 composedValue,
                 leftSection,
-                onTextChange: (nextText) => onChange(applyModifier(modifier, nextText)),
-                onSubmit: () => onChange(composedValue, true)
+                onTextChange: (nextText) =>
+                    onChange(applyModifier(modifier, nextText)),
+                onSubmit: () => onChange(composedValue, true),
             })}
         </>
-    )
-}
+    );
+};
 
 type ModifierWrapperProps = {
-    value?: string
-    onChange: (value: string, submit?: boolean) => void
-    items: LeftSectionMenuItem[]
-    children: (args: ModifierRenderArgs) => React.ReactNode
-}
+    value?: string;
+    onChange: (value: string, submit?: boolean) => void;
+    items: LeftSectionMenuItem[];
+    children: (args: ModifierRenderArgs) => React.ReactNode;
+};
 
 export const TextSearchModifierInput: React.FC<ModifierWrapperProps> = ({
     value,
     onChange,
     items,
-    children
+    children,
 }) => {
     const applyModifier = (modifier: string, text: string) => {
-        if (!text) return ''
+        if (!text) return '';
         switch (modifier) {
             case '*':
-                return text + '*'
+                return text + '*';
             case '**':
-                return '*' + text + '*'
+                return '*' + text + '*';
             default:
-                return text
+                return text;
         }
-    }
+    };
 
     const parseModifier = (input: string): ModifierParseResult => {
-        if (!input) return { modifier: '', text: '' }
-        const startsWithWildcard = input.indexOf('*') === 0
-        const endsWithWildcard = input.lastIndexOf('*') === input.length - 1
+        if (!input) return { modifier: '', text: '' };
+        const startsWithWildcard = input.indexOf('*') === 0;
+        const endsWithWildcard = input.lastIndexOf('*') === input.length - 1;
         if (endsWithWildcard && !startsWithWildcard) {
-            return { modifier: '*', text: input.substring(0, input.length - 1) }
+            return {
+                modifier: '*',
+                text: input.substring(0, input.length - 1),
+            };
         }
         if (startsWithWildcard && endsWithWildcard) {
-            return { modifier: '**', text: input.substring(1, input.length - 1) }
+            return {
+                modifier: '**',
+                text: input.substring(1, input.length - 1),
+            };
         }
-        return { modifier: '', text: input }
-    }
+        return { modifier: '', text: input };
+    };
 
     return (
         <SearchModifierInput
@@ -125,30 +137,36 @@ export const TextSearchModifierInput: React.FC<ModifierWrapperProps> = ({
         >
             {children}
         </SearchModifierInput>
-    )
-}
+    );
+};
 
 export const RangeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
     value,
     onChange,
     items,
-    children
+    children,
 }) => {
     const applyModifier = (modifier: string, text: string) => {
-        if (!text) return ''
-        return `${modifier}${text}`
-    }
+        if (!text) return '';
+        return `${modifier}${text}`;
+    };
 
     const parseModifier = (input: string): ModifierParseResult => {
-        if (!input) return { modifier: '', text: '' }
+        if (!input) return { modifier: '', text: '' };
         if (input.indexOf('>=') === 0 || input.indexOf('<=') === 0) {
-            return { modifier: input.substring(0, 2), text: input.substring(2) }
+            return {
+                modifier: input.substring(0, 2),
+                text: input.substring(2),
+            };
         }
         if (input.indexOf('>') === 0 || input.indexOf('<') === 0) {
-            return { modifier: input.substring(0, 1), text: input.substring(1) }
+            return {
+                modifier: input.substring(0, 1),
+                text: input.substring(1),
+            };
         }
-        return { modifier: '', text: input }
-    }
+        return { modifier: '', text: input };
+    };
 
     return (
         <SearchModifierInput
@@ -160,30 +178,36 @@ export const RangeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
         >
             {children}
         </SearchModifierInput>
-    )
-}
+    );
+};
 
 export const DateTimeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
     value,
     onChange,
     items,
-    children
+    children,
 }) => {
     const applyModifier = (modifier: string, text: string) => {
-        if (!text) return ''
-        return `${modifier}${text}`
-    }
+        if (!text) return '';
+        return `${modifier}${text}`;
+    };
 
     const parseModifier = (input: string): ModifierParseResult => {
-        if (!input) return { modifier: '', text: '' }
+        if (!input) return { modifier: '', text: '' };
         if (input.indexOf('>=') === 0 || input.indexOf('<=') === 0) {
-            return { modifier: input.substring(0, 2), text: input.substring(2) }
+            return {
+                modifier: input.substring(0, 2),
+                text: input.substring(2),
+            };
         }
         if (input.indexOf('>') === 0 || input.indexOf('<') === 0) {
-            return { modifier: input.substring(0, 1), text: input.substring(1) }
+            return {
+                modifier: input.substring(0, 1),
+                text: input.substring(1),
+            };
         }
-        return { modifier: '', text: input }
-    }
+        return { modifier: '', text: input };
+    };
 
     return (
         <SearchModifierInput
@@ -195,5 +219,5 @@ export const DateTimeSearchModifierInput: React.FC<ModifierWrapperProps> = ({
         >
             {children}
         </SearchModifierInput>
-    )
-}
+    );
+};

@@ -5,49 +5,58 @@ import testSchema from '../__fixtures__/test-schema.json';
 
 import { useValidation } from './useValidation';
 
-const buildConfigsFromSchema = (schema = testSchema) => new Map(
-    Object.entries(schema.properties).map(([ns, propertySchema]) => ([
-        ns,
-        {
+const buildConfigsFromSchema = (schema = testSchema) =>
+    new Map(
+        Object.entries(schema.properties).map(([ns, propertySchema]) => [
             ns,
-            jsonSchema: {
-                title: propertySchema.title,
-                properties: { ...propertySchema },
+            {
+                ns,
+                jsonSchema: {
+                    title: propertySchema.title,
+                    properties: { ...propertySchema },
+                },
             },
-        },
-    ])),
-);
+        ]),
+    );
 
 const buildConfigs = () => buildConfigsFromSchema();
 
-const withDateConfig = (configs) => new Map([
-    ...configs,
-    ['dates', {
-        ns: 'dates',
-        jsonSchema: {
-            title: 'Dates',
-            properties: {
-                type: 'string',
-                format: 'date-time',
+const withDateConfig = (configs) =>
+    new Map([
+        ...configs,
+        [
+            'dates',
+            {
+                ns: 'dates',
+                jsonSchema: {
+                    title: 'Dates',
+                    properties: {
+                        type: 'string',
+                        format: 'date-time',
+                    },
+                },
             },
-        },
-    }],
-]);
+        ],
+    ]);
 
 describe('useValidation', () => {
     it('initializes globalErrors on mount for required namespaces', async () => {
         const configs = buildConfigs();
 
-        const { result } = renderHook(() => useValidation({
-            configs,
-            namespaceJsonSchema: testSchema
-        }));
+        const { result } = renderHook(() =>
+            useValidation({
+                configs,
+                namespaceJsonSchema: testSchema,
+            }),
+        );
 
         await waitFor(() => {
             expect(result.current.globalErrors).toMatchObject({
                 'usermeta-text': "must have required property 'usermeta-text'",
-                'usermeta-paragraph': "must have required property 'usermeta-paragraph'",
-                'usermeta-number': "must have required property 'usermeta-number'",
+                'usermeta-paragraph':
+                    "must have required property 'usermeta-paragraph'",
+                'usermeta-number':
+                    "must have required property 'usermeta-number'",
             });
         });
     });
@@ -55,10 +64,12 @@ describe('useValidation', () => {
     it('runs global validation and reports required/global errors', () => {
         const configs = buildConfigs();
 
-        const { result } = renderHook(() => useValidation({
-            configs,
-            namespaceJsonSchema: testSchema
-        }));
+        const { result } = renderHook(() =>
+            useValidation({
+                configs,
+                namespaceJsonSchema: testSchema,
+            }),
+        );
 
         act(() => {
             const values = {
@@ -69,15 +80,20 @@ describe('useValidation', () => {
         });
 
         expect(result.current.valid).toBe(false);
-        expect(result.current.globalErrors).toMatchObject({ 'usermeta-paragraph': "must have required property 'usermeta-paragraph'" });
+        expect(result.current.globalErrors).toMatchObject({
+            'usermeta-paragraph':
+                "must have required property 'usermeta-paragraph'",
+        });
     });
 
     it('validates locally per namespace and reports first property error', () => {
         const configs = buildConfigs();
-        const { result } = renderHook(() => useValidation({
-            configs,
-            namespaceJsonSchema: testSchema
-        }));
+        const { result } = renderHook(() =>
+            useValidation({
+                configs,
+                namespaceJsonSchema: testSchema,
+            }),
+        );
 
         act(() => {
             const values = { 'usermeta-text': 'ab' };
@@ -92,10 +108,12 @@ describe('useValidation', () => {
 
     it('parses date-time values before validation', () => {
         const configs = withDateConfig(buildConfigs());
-        const { result } = renderHook(() => useValidation({
-            configs,
-            namespaceJsonSchema: testSchema
-        }));
+        const { result } = renderHook(() =>
+            useValidation({
+                configs,
+                namespaceJsonSchema: testSchema,
+            }),
+        );
 
         const epochSeconds = 1_700_000_000;
 
@@ -115,10 +133,12 @@ describe('useValidation', () => {
 
     it('ignores the empty fields when validating globally', async () => {
         const configs = withDateConfig(buildConfigs());
-        const { result } = renderHook(() => useValidation({
-            configs,
-            namespaceJsonSchema: testSchema
-        }));
+        const { result } = renderHook(() =>
+            useValidation({
+                configs,
+                namespaceJsonSchema: testSchema,
+            }),
+        );
 
         const epochSeconds = 1_700_000_000;
 
@@ -132,11 +152,16 @@ describe('useValidation', () => {
             result.current.globalValidate(values);
         });
 
-        await waitFor(() => {
-            expect(result.current.valid).toBe(false);
-            expect(result.current.globalErrors).toMatchObject({
-                'usermeta-paragraph': expect.stringContaining('must have required property'),
-            })
-        }, { timeout: 1000 });
+        await waitFor(
+            () => {
+                expect(result.current.valid).toBe(false);
+                expect(result.current.globalErrors).toMatchObject({
+                    'usermeta-paragraph': expect.stringContaining(
+                        'must have required property',
+                    ),
+                });
+            },
+            { timeout: 1000 },
+        );
     });
 });

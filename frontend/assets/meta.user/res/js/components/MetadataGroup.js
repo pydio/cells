@@ -20,18 +20,28 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-import {muiThemeable} from 'material-ui/styles';
-import {MetadataField} from './MetadataField';
-import {TogglableField} from './TogglableField';
-const {EmptyStateView} = Pydio.requireLib('components');
+import { muiThemeable } from 'material-ui/styles';
+import { MetadataField } from './MetadataField';
+import { TogglableField } from './TogglableField';
+const { EmptyStateView } = Pydio.requireLib('components');
 import { useMetadataContext } from '../context/metadata';
 
-const StyledDiv = muiThemeable()(({style, children, muiTheme, ...other}) => {
-    let cs = {...style};
+const StyledDiv = muiThemeable()(({ style, children, muiTheme, ...other }) => {
+    let cs = { ...style };
     if (style.borderTop) {
-        cs = {...style, borderTop: style.borderTop + 'px solid ' + muiTheme.palette.mui3['outline-variant-50']};
+        cs = {
+            ...style,
+            borderTop:
+                style.borderTop +
+                'px solid ' +
+                muiTheme.palette.mui3['outline-variant-50'],
+        };
     }
-    return <div style={cs} {...other}>{children}</div>;
+    return (
+        <div style={cs} {...other}>
+            {children}
+        </div>
+    );
 });
 
 /**
@@ -64,13 +74,13 @@ export const MetadataGroup = ({
     const elements = [];
     let nonEmptyDataCount = 0;
 
-    const groupKeys = Object.keys(tree).filter(k => k !== '__NS__');
+    const groupKeys = Object.keys(tree).filter((k) => k !== '__NS__');
     groupKeys.sort();
     const configsForGroup = tree.__NS__ || new Map();
 
     // Render fields
     configsForGroup.forEach((meta, key) => {
-        const {type} = meta;
+        const { type } = meta;
         if (type === 'json' && !supportTemplates) {
             return;
         }
@@ -98,7 +108,7 @@ export const MetadataGroup = ({
                     additionalProps={additionalProps}
                     isEditing={fieldBeingEditted === key}
                     setFieldBeingEditted={setFieldBeingEditted}
-                />
+                />,
             );
         } else {
             elements.push(
@@ -117,7 +127,7 @@ export const MetadataGroup = ({
                     configsForGroup={configsForGroup}
                     supportTemplates={supportTemplates}
                     additionalProps={additionalProps}
-                />
+                />,
             );
         }
     });
@@ -132,20 +142,20 @@ export const MetadataGroup = ({
             display: 'flex',
             alignItems: 'center',
             cursor: 'pointer',
-            borderTop: 1
+            borderTop: 1,
         },
         fields: {
             columnWidth: 250,
             columnCount: 2,
-            columnGap: 12
-        }
+            columnGap: 12,
+        },
     };
 
     if (offset > 0) {
         styles.fields = {
-            marginLeft: (offset) * 16 + 8,
+            marginLeft: offset * 16 + 8,
             marginBottom: 10,
-            marginTop: -8
+            marginTop: -8,
         };
     }
 
@@ -155,7 +165,7 @@ export const MetadataGroup = ({
             marginLeft: (offset + 1) * 16,
             borderTop: 0,
             paddingTop: 0,
-            paddingBottom: 12
+            paddingBottom: 12,
         };
     }
 
@@ -165,20 +175,31 @@ export const MetadataGroup = ({
         const open = groupsExpanded[gPath];
         let sHead = styles.header;
         if (index === 0) {
-            sHead = {...styles.header, borderTop: 0};
+            sHead = { ...styles.header, borderTop: 0 };
         }
 
         return (
             <React.Fragment key={gName}>
-                {gName &&
-                    <StyledDiv style={sHead} className={'nsgroup-header'} onClick={() => onToggleGroup(gPath)}>
+                {gName && (
+                    <StyledDiv
+                        style={sHead}
+                        className={'nsgroup-header'}
+                        onClick={() => onToggleGroup(gPath)}
+                    >
                         <span
-                            className={"mdi mdi-chevron-" + (open ? "down" : "right")}
-                            style={{fontSize: 18, color: 'var(--md-sys-color-outline-variant)', marginLeft: -8, marginRight: 4}}
+                            className={
+                                'mdi mdi-chevron-' + (open ? 'down' : 'right')
+                            }
+                            style={{
+                                fontSize: 18,
+                                color: 'var(--md-sys-color-outline-variant)',
+                                marginLeft: -8,
+                                marginRight: 4,
+                            }}
                         />
                         <span> {gName}</span>
                     </StyledDiv>
-                }
+                )}
                 {groupsExpanded[gPath] && (
                     <MetadataGroup
                         current={gPath}
@@ -212,21 +233,29 @@ export const MetadataGroup = ({
     if (!editMode && !nonEmptyDataCount) {
         let divProps = {};
         if (onRequestEditMode) {
-            divProps = {onClick: onRequestEditMode, style: {cursor: 'pointer'}};
+            divProps = {
+                onClick: onRequestEditMode,
+                style: { cursor: 'pointer' },
+            };
         }
         return (
             <div {...divProps}>
                 <EmptyStateView
                     pydio={pydio}
-                    iconClassName={"mdi mdi-tag-outline"}
-                    primaryTextId={mess['meta.user.' + (onRequestEditMode ? '11' : '16')]}
-                    style={{padding: '10px 40px 20px', backgroundColor: 'transparent'}}
-                    iconStyle={{fontSize: 40}}
-                    legendStyle={{fontSize: 13}}
+                    iconClassName={'mdi mdi-tag-outline'}
+                    primaryTextId={
+                        mess['meta.user.' + (onRequestEditMode ? '11' : '16')]
+                    }
+                    style={{
+                        padding: '10px 40px 20px',
+                        backgroundColor: 'transparent',
+                    }}
+                    iconStyle={{ fontSize: 40 }}
+                    legendStyle={{ fontSize: 13 }}
                 />
             </div>
         );
     }
 
-    return <div style={{...styles.fields}}>{elements}</div>;
+    return <div style={{ ...styles.fields }}>{elements}</div>;
 };

@@ -30,7 +30,7 @@ export interface InputProps {
     errorText?: string;
 
     value?: any;
-    onChange: (value: string|boolean|number, submit?: boolean) => void;
+    onChange: (value: string | boolean | number, submit?: boolean) => void;
     onFocus?: (e: any) => void;
     onBlur?: (e: any) => void;
 
@@ -47,13 +47,13 @@ export interface Items {
 }
 
 export interface ItemsInputProps extends InputProps {
-    items: Items[]
-    itemsLoader?: (filter?: string) => Promise<Items[]>
+    items: Items[];
+    itemsLoader?: (filter?: string) => Promise<Items[]>;
 }
 
 export interface StringItemsInputProps extends InputProps {
-    data: string[]
-    dataLoader?: (filter?: string) => Promise<string[]>
+    data: string[];
+    dataLoader?: (filter?: string) => Promise<string[]>;
 }
 
 /*

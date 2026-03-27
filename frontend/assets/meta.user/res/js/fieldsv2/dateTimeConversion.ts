@@ -24,34 +24,36 @@
  * Rejects epoch timestamp 0 (January 1, 1970) as a defensive measure.
  */
 export const textToDate = (text: string): Date | null => {
-    if (!text) return null
-    const timestamp = parseFloat(text)
-    if (isNaN(timestamp)) return null
+    if (!text) return null;
+    const timestamp = parseFloat(text);
+    if (isNaN(timestamp)) return null;
     // Reject Unix epoch 0 (January 1, 1970) as it's likely a default/invalid value
-    if (timestamp === 0) return null
-    const date = new Date(timestamp * 1000)
-    return isNaN(date.getTime()) ? null : date
-}
+    if (timestamp === 0) return null;
+    const date = new Date(timestamp * 1000);
+    return isNaN(date.getTime()) ? null : date;
+};
 
 /**
  * Converts a Date object or string to a timestamp string.
  * Returns timestamp in seconds (Unix timestamp / 1000).
  * Rejects epoch timestamp 0 (January 1, 1970) as a defensive measure.
  */
-export const dateToTimestamp = (date: Date | string | null | undefined): string => {
-    if (!date) return ''
+export const dateToTimestamp = (
+    date: Date | string | null | undefined,
+): string => {
+    if (!date) return '';
     if (typeof date === 'string') {
-        const dateObj = new Date(date)
-        const time = dateObj.getTime()
-        if (isNaN(time)) return ''
+        const dateObj = new Date(date);
+        const time = dateObj.getTime();
+        if (isNaN(time)) return '';
         // Reject Unix epoch 0 (January 1, 1970) as it's likely a default/invalid value
-        if (time === 0) return ''
-        return (time / 1000).toString()
+        if (time === 0) return '';
+        return (time / 1000).toString();
     }
-    if (!(date instanceof Date)) return ''
-    const time = date.getTime()
-    if (isNaN(time)) return ''
+    if (!(date instanceof Date)) return '';
+    const time = date.getTime();
+    if (isNaN(time)) return '';
     // Reject Unix epoch 0 (January 1, 1970) as it's likely a default/invalid value
-    if (time === 0) return ''
-    return (time / 1000).toString()
-}
+    if (time === 0) return '';
+    return (time / 1000).toString();
+};

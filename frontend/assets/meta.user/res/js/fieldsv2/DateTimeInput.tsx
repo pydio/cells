@@ -18,10 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {InputProps} from "./CommonInputProps";
-import {DateTimePicker} from '@mantine/dates'
-import {PopoverProps} from "@mantine/core";
+import React from 'react';
+import { InputProps } from './CommonInputProps';
+import { DateTimePicker } from '@mantine/dates';
+import { PopoverProps } from '@mantine/core';
 
 export const DateTimeInput: React.FC<InputProps> = ({
     label,
@@ -46,9 +46,9 @@ export const DateTimeInput: React.FC<InputProps> = ({
         withinPortal: false,
         onOpen: () => onFocus({}),
         onClose: () => {
-            onBlur({})
+            onBlur({});
 
-            if(onCommitChange && !disabled) onCommitChange(value);
+            if (onCommitChange && !disabled) onCommitChange(value);
         },
         onDismiss: () => onBlur({}),
     };

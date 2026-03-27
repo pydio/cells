@@ -18,10 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback} from 'react'
-import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
-import {InputProps} from "./CommonInputProps";
-import {LeftSectionMenu, TextSearchModifiers} from "./SearchModifiers";
+import React, { useCallback } from 'react';
+import { TextInput as MTextInput, Textarea, JsonInput } from '@mantine/core';
+import { InputProps } from './CommonInputProps';
+import { LeftSectionMenu, TextSearchModifiers } from './SearchModifiers';
 
 export const TextInputSearch: React.FC<InputProps> = ({
     name,
@@ -31,69 +31,83 @@ export const TextInputSearch: React.FC<InputProps> = ({
     disabled,
     value,
     onChange,
-    errorText
+    errorText,
 }) => {
     const props = {
         label,
         description,
         placeholder,
-        value:value||'',
+        value: value || '',
         disabled,
         error: errorText,
-    }
+    };
 
-    const applyModifier = useCallback((m:string, t:string):string => {
-        if(!t) {
-            return ''
+    const applyModifier = useCallback((m: string, t: string): string => {
+        if (!t) {
+            return '';
         }
         switch (m) {
             case '*':
-                return t+'*'
+                return t + '*';
             case '**':
-                return '*' + t + '*'
+                return '*' + t + '*';
             default:
                 return t;
         }
-    }, [])
+    }, []);
 
-    const parseModifier = useCallback((input:string):{m:string, t:string} => {
-        if(!input) {
-            return {m:'', t:''};
-        }
-        const startsWithWildcard = input.indexOf('*') === 0
-        const endsWithWildcard = input.lastIndexOf('*') === input.length-1
-        if(endsWithWildcard && !startsWithWildcard) {
-            return {m:'*', t:input.substring(0, input.length-1)};
-        } else if(startsWithWildcard && endsWithWildcard) {
-            return {m:'**', t:input.substring(1, input.length-1)};
-        } else {
-            return {m:'', t:input};
-        }
-    }, [])
+    const parseModifier = useCallback(
+        (input: string): { m: string; t: string } => {
+            if (!input) {
+                return { m: '', t: '' };
+            }
+            const startsWithWildcard = input.indexOf('*') === 0;
+            const endsWithWildcard =
+                input.lastIndexOf('*') === input.length - 1;
+            if (endsWithWildcard && !startsWithWildcard) {
+                return { m: '*', t: input.substring(0, input.length - 1) };
+            } else if (startsWithWildcard && endsWithWildcard) {
+                return { m: '**', t: input.substring(1, input.length - 1) };
+            } else {
+                return { m: '', t: input };
+            }
+        },
+        [],
+    );
 
-    let {m, t} = parseModifier(value)
+    let { m, t } = parseModifier(value);
 
-    const onChangeEvent = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        onChange(applyModifier(m, e.target.value))
-    }, [m, name, onChange])
+    const onChangeEvent = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            onChange(applyModifier(m, e.target.value));
+        },
+        [m, name, onChange],
+    );
 
-    const simpleEnter = useCallback((event: React.KeyboardEvent) => {
-        if(event.key === 'Enter'){
-            onChange(value, true);
-        }
-    }, [value, onChange])
+    const simpleEnter = useCallback(
+        (event: React.KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                onChange(value, true);
+            }
+        },
+        [value, onChange],
+    );
 
     // Do not switch on type for json/textarea case, we always render a TextInput here
 
-    return <MTextInput
-        {...props}
-        value={t}
-        leftSection={<LeftSectionMenu
-            items={TextSearchModifiers}
-            value={m}
-            onChange={(m) => onChange(applyModifier(m, t))}
-        />}
-        onChange={onChangeEvent}
-        onKeyPress={simpleEnter}
-    />
-}
+    return (
+        <MTextInput
+            {...props}
+            value={t}
+            leftSection={
+                <LeftSectionMenu
+                    items={TextSearchModifiers}
+                    value={m}
+                    onChange={(m) => onChange(applyModifier(m, t))}
+                />
+            }
+            onChange={onChangeEvent}
+            onKeyPress={simpleEnter}
+        />
+    );
+};

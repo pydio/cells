@@ -19,22 +19,22 @@
  */
 
 import React, { useCallback } from 'react';
-import { getCssLabels } from "../fields/CssLabelsField";
-import { TextInput } from "../fieldsv2/TextInput";
-import { Selector } from "../fieldsv2/Select"
-import { RatingInput } from "../fieldsv2/RatingInput";
-import { SwitchInput } from "../fieldsv2/SwitchInput";
-import { NumbersInput } from "../fieldsv2/NumbersInput";
-import { DateTimeInput } from "../fieldsv2/DateTimeInput";
-import { DateInput } from "../fieldsv2/DateInput";
-import { TimeInput } from "../fieldsv2/TimeInput";
-import { URLInput } from "../fieldsv2/URLInput";
-import { TagsCloudInput } from "../fieldsv2/TagsCloudInput";
-import { AutoCompleteInput } from "../fieldsv2/AutoCompleteInput";
-import { InputProps, Items } from "../fieldsv2/CommonInputProps";
-import MetaClient from "../MetaClient";
-import { NamespaceMeta } from "./MetaSpec";
-import { getNumberPrefix, getNumberSuffix } from "../formatters/numbers";
+import { getCssLabels } from '../fields/CssLabelsField';
+import { TextInput } from '../fieldsv2/TextInput';
+import { Selector } from '../fieldsv2/Select';
+import { RatingInput } from '../fieldsv2/RatingInput';
+import { SwitchInput } from '../fieldsv2/SwitchInput';
+import { NumbersInput } from '../fieldsv2/NumbersInput';
+import { DateTimeInput } from '../fieldsv2/DateTimeInput';
+import { DateInput } from '../fieldsv2/DateInput';
+import { TimeInput } from '../fieldsv2/TimeInput';
+import { URLInput } from '../fieldsv2/URLInput';
+import { TagsCloudInput } from '../fieldsv2/TagsCloudInput';
+import { AutoCompleteInput } from '../fieldsv2/AutoCompleteInput';
+import { InputProps, Items } from '../fieldsv2/CommonInputProps';
+import MetaClient from '../MetaClient';
+import { NamespaceMeta } from './MetaSpec';
+import { getNumberPrefix, getNumberSuffix } from '../formatters/numbers';
 import './FieldEdit.css';
 
 interface FieldEditProps {
@@ -51,7 +51,7 @@ interface FieldEditProps {
 
 type FieldEditInternalProps = Omit<FieldEditProps, 'isEditing' | 'isToggable'>;
 
-const noop = () => { }
+const noop = () => {};
 
 /**
  * Renders a single metadata field in edit mode
@@ -68,14 +68,12 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
     const { type, readonly, required, label, data } = meta;
 
     const localDataLoader = useCallback(() => {
-            return MetaClient.getInstance()
-                .listTags(name)
-                .then((tags) => {
-                    return tags.filter((t) => t);
-                });
-        },
-        [name],
-    );
+        return MetaClient.getInstance()
+            .listTags(name)
+            .then((tags) => {
+                return tags.filter((t) => t);
+            });
+    }, [name]);
 
     const formatType = data?.format as NumberFormat;
 

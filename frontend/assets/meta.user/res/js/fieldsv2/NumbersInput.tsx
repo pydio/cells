@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import { NumberInput } from '@mantine/core'
-import { InputProps } from "./CommonInputProps";
+import React from 'react';
+import { NumberInput } from '@mantine/core';
+import { InputProps } from './CommonInputProps';
 
 export const NumbersInput: React.FC<InputProps> = ({
     label,

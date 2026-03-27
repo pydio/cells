@@ -48,7 +48,10 @@ export const FieldDisplay = ({
     onValueClick,
 }) => {
     const messages = Pydio.getMessages ? Pydio.getMessages() : {};
-    const m = (id, fallback = id) => messages['meta.user.' + id] || messages['ajxp_admin.metadata.' + id] || fallback;
+    const m = (id, fallback = id) =>
+        messages['meta.user.' + id] ||
+        messages['ajxp_admin.metadata.' + id] ||
+        fallback;
     const { label, type, data, description } = meta;
 
     const column = { name: fieldKey };
