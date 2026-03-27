@@ -21,7 +21,10 @@
 import React, { useEffect, useState } from 'react';
 import { TagsInput } from '@mantine/core';
 import { StringItemsInputProps } from './CommonInputProps';
-import { parseTagsValue as parseCSLtoArray, formatTagsArrayToString } from '../utils/mapTags';
+import {
+    parseTagsValue as parseCSLtoArray,
+    formatTagsArrayToString,
+} from '../utils/mapTags';
 
 /**
  * @typedef {Object} TagsCloudInputProps
@@ -38,7 +41,7 @@ import { parseTagsValue as parseCSLtoArray, formatTagsArrayToString } from '../u
 
 type TagsCloudInputProps = StringItemsInputProps & {
     onlyValuesFromList?: boolean;
-}
+};
 
 /**
  * @param {TagsCloudInputProps} props

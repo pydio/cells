@@ -1,25 +1,30 @@
-type NumberFormat = 'general' | 'currency' | 'bytesize' | 'percentage' | 'progress'
+type NumberFormat =
+    | 'general'
+    | 'currency'
+    | 'bytesize'
+    | 'percentage'
+    | 'progress';
 
 export const getNumberPrefix = (type: NumberFormat) => {
     switch (type) {
         case 'currency':
-            return '€'
+            return '€';
         case 'bytesize':
-            return ''
+            return '';
         default:
-            return ''
+            return '';
     }
-}
+};
 
 export const getNumberSuffix = (type: NumberFormat) => {
     switch (type) {
         case 'bytesize':
-            return 'B'
+            return 'B';
         case 'percentage':
-            return '%'
+            return '%';
         case 'progress':
-            return ''
+            return '';
         default:
-            return ''
+            return '';
     }
-}
+};

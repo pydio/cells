@@ -19,9 +19,9 @@
  */
 
 /** NOTE: To help with autocompletion and type validation
-* @typedef {import('ajv').ErrorObject} ErrorObject
-* @typedef {import('ajv').SchemaObject} SchemaObject
-*/
+ * @typedef {import('ajv').ErrorObject} ErrorObject
+ * @typedef {import('ajv').SchemaObject} SchemaObject
+ */
 
 import { localizeAjvError } from './ajvErrorLocalization';
 
@@ -33,36 +33,39 @@ const translateValidationKey = (key) => {
 };
 
 /**
-* Parse value for validation
-* 
-* @param {SchemaObject} schema
-* @param {string|number} value
-* @return {string}
-**/
+ * Parse value for validation
+ *
+ * @param {SchemaObject} schema
+ * @param {string|number} value
+ * @return {string}
+ **/
 export const parseValueForValidation = (schema, value) => {
     if (schema.format === 'date-time') {
-        return new Date(value * 1000).toISOString()
+        return new Date(value * 1000).toISOString();
     }
 
-    return value
-}
+    return value;
+};
 
-/** 
-* Parse errors from ajv
-*
-* @param {ErrorObject[]} jsonSchemaErrors
-* @return {Record<string, string>}
-**/
+/**
+ * Parse errors from ajv
+ *
+ * @param {ErrorObject[]} jsonSchemaErrors
+ * @return {Record<string, string>}
+ **/
 export const parseErrors = (jsonSchemaErrors) =>
     jsonSchemaErrors.reduce((acc, error) => {
         let ns;
         switch (error.keyword) {
             case 'required':
-                ns = error.params.missingProperty
+                ns = error.params.missingProperty;
                 break;
             default:
-                ns = error.instancePath.replace('/', '')
+                ns = error.instancePath.replace('/', '');
                 break;
         }
-        return { ...acc, [ns]: localizeAjvError(error, translateValidationKey) }
+        return {
+            ...acc,
+            [ns]: localizeAjvError(error, translateValidationKey),
+        };
     }, {});

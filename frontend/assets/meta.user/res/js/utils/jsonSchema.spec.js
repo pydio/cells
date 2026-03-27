@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import {
-    parseErrors,
-    parseValueForValidation,
-} from './jsonSchema';
+import { parseErrors, parseValueForValidation } from './jsonSchema';
 
 describe('parseValueForValidation', () => {
     it('converts epoch seconds to ISO string for date-time formats', () => {
@@ -39,9 +36,23 @@ describe('parseErrors', () => {
 
     it('maps ajv errors to namespace keyed object', () => {
         const errors = [
-            { keyword: 'required', params: { missingProperty: 'preferences' }, message: 'is required' },
-            { keyword: 'type', instancePath: '/profile', params: { type: 'string' }, message: 'must be a string' },
-            { keyword: 'type', instancePath: '/profile/name', params: { type: 'string' }, message: 'must be a string' },
+            {
+                keyword: 'required',
+                params: { missingProperty: 'preferences' },
+                message: 'is required',
+            },
+            {
+                keyword: 'type',
+                instancePath: '/profile',
+                params: { type: 'string' },
+                message: 'must be a string',
+            },
+            {
+                keyword: 'type',
+                instancePath: '/profile/name',
+                params: { type: 'string' },
+                message: 'must be a string',
+            },
         ];
 
         const result = parseErrors(errors);
@@ -55,7 +66,12 @@ describe('parseErrors', () => {
 
     it('falls back to original ajv message for unsupported keywords', () => {
         const errors = [
-            { keyword: 'multipleOf', instancePath: '/profile', params: { multipleOf: 2 }, message: 'must be multiple of 2' },
+            {
+                keyword: 'multipleOf',
+                instancePath: '/profile',
+                params: { multipleOf: 2 },
+                message: 'must be multiple of 2',
+            },
         ];
 
         const result = parseErrors(errors);

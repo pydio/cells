@@ -74,7 +74,9 @@ describe('MetaClient.namespacesAsPanelConfig', () => {
             },
         ];
 
-        const cfg = buildClient().namespacesAsPanelConfig(namespaces).get('with-def');
+        const cfg = buildClient()
+            .namespacesAsPanelConfig(namespaces)
+            .get('with-def');
 
         expect(cfg.visible).toBe(false);
         expect(cfg.type).toBe('text');
@@ -97,7 +99,9 @@ describe('MetaClient.namespacesAsPanelConfig', () => {
             },
         ];
 
-        const cfg = buildClient().namespacesAsPanelConfig(namespaces).get('choices');
+        const cfg = buildClient()
+            .namespacesAsPanelConfig(namespaces)
+            .get('choices');
 
         expect(cfg.type).toBe('choice');
         expect(cfg.data).toEqual({

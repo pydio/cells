@@ -17,33 +17,49 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import Pydio from 'pydio'
-import asMetaField from "../hoc/asMetaField";
+import React from 'react';
+import Pydio from 'pydio';
+import asMetaField from '../hoc/asMetaField';
 
 const getCssLabels = () => {
     const messages = Pydio.getMessages();
     return {
-        'low'       : {label:messages['meta.user.4'], sortValue:'5', color: '#66c'},
-        'todo'      : {label:messages['meta.user.5'], sortValue:'4', color: '#69c'},
-        'personal'  : {label:messages['meta.user.6'], sortValue:'3', color: '#6c6'},
-        'work'      : {label:messages['meta.user.7'], sortValue:'2', color: '#c96'},
-        'important' : {label:messages['meta.user.8'], sortValue:'1', color: '#c66'}
-    }
-}
+        low: { label: messages['meta.user.4'], sortValue: '5', color: '#66c' },
+        todo: { label: messages['meta.user.5'], sortValue: '4', color: '#69c' },
+        personal: {
+            label: messages['meta.user.6'],
+            sortValue: '3',
+            color: '#6c6',
+        },
+        work: { label: messages['meta.user.7'], sortValue: '2', color: '#c96' },
+        important: {
+            label: messages['meta.user.8'],
+            sortValue: '1',
+            color: '#c66',
+        },
+    };
+};
 
-class CSSLabelsField extends React.Component{
-    render(){
-        const {getRealValue} = this.props;
+class CSSLabelsField extends React.Component {
+    render() {
+        const { getRealValue } = this.props;
         let value = getRealValue();
         const data = getCssLabels();
-        if(value && data[value]){
+        if (value && data[value]) {
             let dV = data[value];
-            return <span><span className="mdi mdi-label" style={{color: dV.color}} /> {dV.label}</span>
-        }else{
+            return (
+                <span>
+                    <span
+                        className="mdi mdi-label"
+                        style={{ color: dV.color }}
+                    />{' '}
+                    {dV.label}
+                </span>
+            );
+        } else {
             return <span>{value}</span>;
         }
     }
 }
-export {getCssLabels}
+export { getCssLabels };
 export default asMetaField(CSSLabelsField);

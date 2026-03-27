@@ -312,7 +312,9 @@ describe('formatSpecialCasesForValidation', () => {
             },
         };
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
-        const expected = new Date(epochSeconds * 1000).toISOString().split('T')[0];
+        const expected = new Date(epochSeconds * 1000)
+            .toISOString()
+            .split('T')[0];
         expect(result).toEqual({
             dateField: expected,
         });
@@ -421,7 +423,9 @@ describe('formatSpecialCasesForValidation', () => {
         };
         const result = formatSpecialCasesForValidation(formState, jsonSchema);
         const expectedDatetime = new Date(epochSeconds * 1000).toISOString();
-        const expectedDate = new Date(epochSeconds * 1000).toISOString().split('T')[0];
+        const expectedDate = new Date(epochSeconds * 1000)
+            .toISOString()
+            .split('T')[0];
         const expectedTime = '22:13:20.000Z';
         expect(result).toEqual({
             timeField: expectedTime,

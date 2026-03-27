@@ -19,28 +19,29 @@
 /**
  * @type {import('react')} React
  */
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
-import Pydio from 'pydio'
-import asMetaField from "../hoc/asMetaField";
-import asMetaForm from "../hoc/asMetaForm";
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import Pydio from 'pydio';
+import asMetaField from '../hoc/asMetaField';
+import asMetaForm from '../hoc/asMetaForm';
 const { ModernTextField, ThemedModernStyles } = Pydio.requireLib('hoc');
-import { muiThemeable } from 'material-ui/styles'
-import { FontIcon } from 'material-ui'
-import { sanitizeUrl } from "@braintree/sanitize-url";
+import { muiThemeable } from 'material-ui/styles';
+import { FontIcon } from 'material-ui';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 import { ensureHttpScheme, formatURL } from '../utils/formatUrl.js';
 
 export { formatURL };
-
 
 /**
  * @param {{fontSize?: number}} props
  * @returns {React.ReactElement}
  */
-const URLIcon = ({ fontSize }) =>
+const URLIcon = ({ fontSize }) => (
     <FontIcon
         data-testid="open-in-new-icon"
         className="mdi mdi-open-in-new"
-        style={{ fontSize, color: 'inherit' }} />
+        style={{ fontSize, color: 'inherit' }}
+    />
+);
 
 /**
  * @param {{
@@ -64,7 +65,8 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
     const labelText = displayText || children || url;
 
     return (
-        <a href={sanitizedURL}
+        <a
+            href={sanitizedURL}
             target="_blank"
             aria-label={`Open ${labelText} in a new tab`}
             rel="noopener noreferrer"
@@ -73,16 +75,14 @@ const URLLinkIcon = ({ fontSize, url, displayText, children }) => {
             }}
             style={{
                 color: 'inherit',
-                textDecoration: 'none'
+                textDecoration: 'none',
             }}
         >
             {children}
             <URLIcon fontSize={fontSize} />
         </a>
-    )
-
-}
-
+    );
+};
 
 /**
  * @param {{getRealValue: () => string}} props
@@ -92,15 +92,22 @@ const URLFieldBase = ({ getRealValue }) => {
     const url = getRealValue();
     const { normalizedURL, displayURL: displayText } = formatURL(url);
 
-    return <URLLinkIcon fontSize={14} url={normalizedURL} displayText={displayText} children={displayText} />;
-}
+    return (
+        <URLLinkIcon
+            fontSize={14}
+            url={normalizedURL}
+            displayText={displayText}
+            children={displayText}
+        />
+    );
+};
 
 /**
  * URL field
  * @type {typeof URLFieldBase}
  */
 const URLField = asMetaField(muiThemeable()(URLFieldBase));
-export { URLField }
+export { URLField };
 
 /**
  * @param {{
@@ -114,7 +121,7 @@ export const getURLDisplayByContext = (ctx) => {
     }
 
     return URLField;
-}
+};
 
 /**
  * @param {{getRealValue: () => string}} props
@@ -125,14 +132,14 @@ const URLSimpleTextBase = ({ getRealValue }) => {
     const { displayURL } = formatURL(url);
 
     return <span data-testid="url-text">{displayURL}</span>;
-}
+};
 
 /**
  * URL field
  * @type {typeof URLSimpleTextBase}
  */
 const URLSimpleText = asMetaField(muiThemeable()(URLSimpleTextBase));
-export { URLSimpleText }
+export { URLSimpleText };
 
 /**
  * @param {{
@@ -146,7 +153,15 @@ export { URLSimpleText }
  * }} props
  * @returns {React.ReactElement}
  */
-const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplates, updateValue }) => {
+const URLFormBase = ({
+    value,
+    label,
+    errorText,
+    search,
+    muiTheme,
+    supportTemplates,
+    updateValue,
+}) => {
     const ModernStyles = ThemedModernStyles(muiTheme);
     const [localValue, setLocalValue] = useState(value || '');
 
@@ -154,10 +169,13 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
         setLocalValue(value || '');
     }, [value]);
 
-    const handleChange = useCallback((event, newValue) => {
-        setLocalValue(newValue);
-        updateValue(newValue, false);
-    }, [updateValue]);
+    const handleChange = useCallback(
+        (event, newValue) => {
+            setLocalValue(newValue);
+            updateValue(newValue, false);
+        },
+        [updateValue],
+    );
 
     const handleConfirmValue = useCallback(() => {
         if (search) {
@@ -173,9 +191,12 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
         }
     }, [updateValue, localValue, search]);
 
-    const handleKeyPress = useCallback((event) => {
-        if (event.key === 'Enter') handleConfirmValue()
-    }, [localValue, updateValue]);
+    const handleKeyPress = useCallback(
+        (event) => {
+            if (event.key === 'Enter') handleConfirmValue();
+        },
+        [localValue, updateValue],
+    );
 
     if (supportTemplates) {
         return (
@@ -204,31 +225,37 @@ const URLFormBase = ({ value, label, errorText, search, muiTheme, supportTemplat
             <ModernTextField
                 value={localValue}
                 fullWidth={true}
-                hintText={label || "URL"}
+                hintText={label || 'URL'}
                 errorText={errorText}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 onBlur={handleConfirmValue}
                 {...sProps}
-                variant={search ? "v1" : "v2"}
+                variant={search ? 'v1' : 'v2'}
             />
             {hasValue && !hasError && !search && (
-                <div style={{
-                    position: 'absolute',
-                    right: 8,
-                    bottom: 10,
-                    cursor: 'pointer'
-                }}>
-                    <URLLinkIcon fontSize={18} url={localValue} displayText={localValue} />
+                <div
+                    style={{
+                        position: 'absolute',
+                        right: 8,
+                        bottom: 10,
+                        cursor: 'pointer',
+                    }}
+                >
+                    <URLLinkIcon
+                        fontSize={18}
+                        url={localValue}
+                        displayText={localValue}
+                    />
                 </div>
             )}
         </div>
     );
-}
+};
 
 /**
  * URL form
  * @type {typeof URLFormBase}
  */
 const URLForm = asMetaForm(muiThemeable()(URLFormBase));
-export { URLForm }
+export { URLForm };

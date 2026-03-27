@@ -16,7 +16,7 @@ describe('Select Component', () => {
         { key: 'green', value: 'GREEN', color: '#00FF00' },
         { key: 'blue', value: 'BLUE', color: '#0000FF' },
         { key: 'no-color', value: 'This isnt displayed' },
-        { key: 'empty', value: '' }
+        { key: 'empty', value: '' },
     ];
 
     beforeEach(() => {
@@ -32,7 +32,7 @@ describe('Select Component', () => {
                 items={items}
                 onChange={mockOnChange}
                 onCommitChange={mockOnCommitChange}
-            />
+            />,
         );
 
         const combobox = screen.getByRole('textbox', { name: /colors/i });
@@ -48,7 +48,7 @@ describe('Select Component', () => {
                 value="red"
                 onChange={mockOnChange}
                 onCommitChange={mockOnCommitChange}
-            />
+            />,
         );
 
         const colorIcon = container.querySelector('.mdi-label');
@@ -65,7 +65,7 @@ describe('Select Component', () => {
                 onChange={mockOnChange}
                 onCommitChange={mockOnCommitChange}
                 errorText="This field is required"
-            />
+            />,
         );
 
         expect(screen.getByText('This field is required')).toBeInTheDocument();
@@ -82,18 +82,20 @@ describe('Select Component', () => {
                     items={[{ key: 'test', value: 'Test Value' }]}
                     onChange={mockOnChange}
                     onCommitChange={mockOnCommitChange}
-                />
+                />,
             );
 
             // Component renders without errors
-            expect(screen.getByRole('textbox', { name: /singleitem/i })).toBeInTheDocument();
+            expect(
+                screen.getByRole('textbox', { name: /singleitem/i }),
+            ).toBeInTheDocument();
         });
 
         it('displays both colored and non-colored items in the same select', () => {
             // Test the critical bug fix: mixed items (with and without colors) should work
             const mixedItems = [
                 { key: 'colored', value: 'With Color', color: '#FF0000' },
-                { key: 'plain', value: 'No Color' } // No color property
+                { key: 'plain', value: 'No Color' }, // No color property
             ];
 
             renderWithMantine(
@@ -103,13 +105,13 @@ describe('Select Component', () => {
                     items={mixedItems}
                     onChange={mockOnChange}
                     onCommitChange={mockOnCommitChange}
-                />
+                />,
             );
 
             // Both the select field and its content should render without error
-            expect(screen.getByRole('textbox', { name: /mixeditems/i })).toBeInTheDocument();
+            expect(
+                screen.getByRole('textbox', { name: /mixeditems/i }),
+            ).toBeInTheDocument();
         });
-
-
     });
 });
