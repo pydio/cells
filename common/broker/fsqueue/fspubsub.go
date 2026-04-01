@@ -266,8 +266,7 @@ func (t *topic) SendBatch(ctx context.Context, ms []*driver.Message) error {
 			return err
 		}
 
-		// Generate unique filename with timestamp for ordering
-		filename := fmt.Sprintf("%020d-%08d-%s.pb", time.Now().UnixNano(), m.AckID, uuid.New().String()[:8])
+		filename := fmt.Sprintf("%020d-%s.pb", m.AckID, uuid.New().String()[:8])
 		filenames = append(filenames, filename)
 
 		// Write atomically: tmp -> pending

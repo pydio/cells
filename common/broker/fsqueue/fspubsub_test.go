@@ -22,9 +22,11 @@ package filepubsub
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -247,7 +249,7 @@ func TestFpubQueue(t *testing.T) {
 }
 
 func TestRecovery(t *testing.T) {
-	Convey("Test recovery of processing messages", t, func() {
+	Convey("Test recovery of processing messages with ordering", t, func() {
 		testDir, err := os.MkdirTemp("", "filepubsub-recovery-*")
 		So(err, ShouldBeNil)
 		defer os.RemoveAll(testDir)
@@ -255,26 +257,70 @@ func TestRecovery(t *testing.T) {
 		topicPath := filepath.Join(testDir, "recovery-topic")
 		ctx := context.Background()
 
-		// Create topic and send message
+		// Phase 1: Send multiple messages
 		topic, err := NewTopic(topicPath)
 		So(err, ShouldBeNil)
 
-		err = topic.Send(ctx, &pubsub.Message{Body: []byte("recover me")})
-		So(err, ShouldBeNil)
+		messages := []string{"msg1", "msg2", "recover me", "msg4"}
+		for _, msg := range messages {
+			err = topic.Send(ctx, &pubsub.Message{Body: []byte(msg)})
+			So(err, ShouldBeNil)
+			time.Sleep(10 * time.Millisecond) // Ensure different timestamps for ordering
+		}
 
+		// Phase 2: Receive and selectively ack
 		sub, err := NewSubscription(topic, time.Minute)
 		So(err, ShouldBeNil)
 
-		// Receive but don't ack (simulate crash)
-		msg, err := sub.Receive(ctx)
+		// Receive msg1 and ack (should be gone)
+		msg1, err := sub.Receive(ctx)
 		So(err, ShouldBeNil)
-		_ = msg // intentionally not acking
+		So(string(msg1.Body), ShouldEqual, "msg1")
+		msg1.Ack()
 
-		// Shutdown without ack
+		// Receive msg2 and ack (should be gone)
+		msg2, err := sub.Receive(ctx)
+		So(err, ShouldBeNil)
+		So(string(msg2.Body), ShouldEqual, "msg2")
+		msg2.Ack()
+
+		// Receive "recover me" but DON'T ack (simulate crash with in-flight message)
+		msgRecover, err := sub.Receive(ctx)
+		So(err, ShouldBeNil)
+		So(string(msgRecover.Body), ShouldEqual, "recover me")
+		_ = msgRecover // Intentionally NOT acking
+
+		// Receive msg4 and ack (should be gone)
+		msg4, err := sub.Receive(ctx)
+		So(err, ShouldBeNil)
+		So(string(msg4.Body), ShouldEqual, "msg4")
+		msg4.Ack()
+
+		// Phase 3: Verify state before crash
+		// Pending should be empty (all processed)
+		pendingDir := filepath.Join(topicPath, "pending")
+		pendingEntries, _ := os.ReadDir(pendingDir)
+		So(len(pendingEntries), ShouldEqual, 0) // All moved to processing
+
+		// Processing should have "recover me" (unacked)
+		// Phase 3: Verify state before crash
+		processingDir := filepath.Join(topicPath, "processing")
+		procEntries, _ := os.ReadDir(processingDir)
+		So(len(procEntries), ShouldEqual, 1)
+
+		// Optionally verify the file contains "recover me"
+		filePath := filepath.Join(processingDir, procEntries[0].Name())
+		data, err := os.ReadFile(filePath)
+		So(err, ShouldBeNil)
+		msg, err := decodeMessage(data)
+		So(err, ShouldBeNil)
+		So(string(msg.Body), ShouldEqual, "recover me") // ✅ Correct - checks file content
+
+		// Phase 4: Simulate crash - shutdown without acking the last message
 		sub.Shutdown(ctx)
 		topic.Shutdown(ctx)
 
-		// Re-open - should recover stuck message
+		// Phase 5: Recovery - re-open and verify
 		topic2, err := NewTopic(topicPath)
 		So(err, ShouldBeNil)
 		defer topic2.Shutdown(ctx)
@@ -283,10 +329,23 @@ func TestRecovery(t *testing.T) {
 		So(err, ShouldBeNil)
 		defer sub2.Shutdown(ctx)
 
-		msg2, err := sub2.Receive(ctx)
+		// Should recover "recover me" (was in processing, moved back to pending)
+		recoveredMsg, err := sub2.Receive(ctx)
 		So(err, ShouldBeNil)
-		So(string(msg2.Body), ShouldEqual, "recover me")
-		msg2.Ack()
+		So(string(recoveredMsg.Body), ShouldEqual, "recover me")
+		recoveredMsg.Ack()
+
+		// Should NOT receive msg1, msg2, or msg4 (they were acked)
+		ctx2, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+		defer cancel()
+
+		extraMsg, err := sub2.Receive(ctx2)
+		So(err, ShouldNotBeNil) // Timeout or cancelled
+		So(extraMsg, ShouldBeNil)
+
+		// Verify processing dir is now clean
+		procEntries2, _ := os.ReadDir(processingDir)
+		So(len(procEntries2), ShouldEqual, 0)
 	})
 }
 
@@ -327,5 +386,234 @@ func TestErrorCases(t *testing.T) {
 			_, err := pubsub.OpenTopic(ctx, "file://")
 			So(err, ShouldNotBeNil)
 		})
+	})
+}
+func TestFuzzyOrderingWithFolderStructure(t *testing.T) {
+	Convey("Test ordering with deep folder structure and many messages", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-fuzzy-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		// Create 3-layer deep folder structure with various files
+		deepPath := filepath.Join(testDir, "layer1", "layer2", "layer3")
+		os.MkdirAll(deepPath, 0o755)
+
+		// Add some noise/junk files in the structure
+		os.WriteFile(filepath.Join(testDir, "layer1", "junk.txt"), []byte("noise"), 0o644)
+		os.WriteFile(filepath.Join(testDir, "layer1", "layer2", ".hidden"), []byte("hidden"), 0o644)
+		os.WriteFile(filepath.Join(testDir, "layer1", "layer2", "layer3", "readme.md"), []byte("readme"), 0o644)
+
+		// Create topic in deep folder
+		topicPath := filepath.Join(deepPath, "topic")
+		ctx := context.Background()
+
+		topic, err := NewTopic(topicPath)
+		So(err, ShouldBeNil)
+		defer topic.Shutdown(ctx)
+
+		// Phase 1: Send many messages rapidly with various payload sizes
+		// TODO configure
+		numMessages := 20
+		expectedBodies := make([]string, numMessages)
+
+		for i := 0; i < numMessages; i++ {
+			payload := fmt.Sprintf("msg-%05d-payload-with-longer-content-for-variety-%s",
+				i, strings.Repeat("x", i%100))
+			expectedBodies[i] = payload
+
+			err = topic.Send(ctx, &pubsub.Message{Body: []byte(payload)})
+			So(err, ShouldBeNil)
+
+			// Vary timing slightly to test timestamp handling
+			if i%5 == 0 {
+				time.Sleep(1 * time.Millisecond)
+			}
+		}
+
+		// Verify pending directory state
+		pendingDir := filepath.Join(topicPath, pendingDir)
+		pendingFiles, err := os.ReadDir(pendingDir)
+		So(err, ShouldBeNil)
+		So(len(pendingFiles), ShouldEqual, numMessages)
+
+		// Phase 2: Create subscription and receive in order
+		sub, err := NewSubscription(topic, time.Minute)
+		So(err, ShouldBeNil)
+		defer sub.Shutdown(ctx)
+
+		receivedBodies := make([]string, 0, numMessages)
+
+		for i := 0; i < numMessages; i++ {
+			msg, err := sub.Receive(ctx)
+			So(err, ShouldBeNil)
+			So(msg, ShouldNotBeNil)
+
+			body := string(msg.Body)
+			receivedBodies = append(receivedBodies, body)
+			msg.Ack()
+
+			// Verify processing directory has exactly 1 file at a time (due to batcher)
+			procDir := filepath.Join(topicPath, processingDir)
+			procFiles, _ := os.ReadDir(procDir)
+			So(len(procFiles), ShouldBeLessThanOrEqualTo, 1) // Can be 0 if already cleaned
+		}
+
+		// Phase 3: Assert ordering matches send order
+		So(len(receivedBodies), ShouldEqual, numMessages)
+		var orderErrors []string
+		for i := 0; i < numMessages; i++ {
+			if receivedBodies[i] != expectedBodies[i] {
+				orderErrors = append(orderErrors, fmt.Sprintf("pos %d: got %s, expected %s", i, receivedBodies[i], expectedBodies[i]))
+			}
+		}
+		So(orderErrors, ShouldBeEmpty)
+
+		// Phase 4: Verify pending/processing directories are now clean
+		pendingFiles, _ = os.ReadDir(pendingDir)
+		So(len(pendingFiles), ShouldEqual, 0)
+
+		procFiles, _ := os.ReadDir(filepath.Join(topicPath, processingDir))
+		So(len(procFiles), ShouldEqual, 0)
+
+		// Phase 5: Verify no extra messages are available
+		ctx2, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
+		defer cancel()
+
+		extraMsg, err := sub.Receive(ctx2)
+		So(err, ShouldNotBeNil) // Should timeout
+		So(extraMsg, ShouldBeNil)
+
+		// Phase 6: Verify original junk files still exist (not affected by topic)
+		layer1Junk, err := os.ReadFile(filepath.Join(testDir, "layer1", "junk.txt"))
+		So(err, ShouldBeNil)
+		So(string(layer1Junk), ShouldEqual, "noise")
+
+		layer2Hidden, err := os.ReadFile(filepath.Join(testDir, "layer1", "layer2", ".hidden"))
+		So(err, ShouldBeNil)
+		So(string(layer2Hidden), ShouldEqual, "hidden")
+	})
+}
+
+func TestWatcherOrderPreservation(t *testing.T) {
+	Convey("Test watcher preserves order on rapid batch publish", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-watcher-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		topicPath := filepath.Join(testDir, "watcher-topic")
+		ctx := context.Background()
+
+		// Create topic and subscription
+		topic, err := NewTopic(topicPath)
+		So(err, ShouldBeNil)
+		defer topic.Shutdown(ctx)
+
+		sub, err := NewSubscription(topic, time.Minute)
+		So(err, ShouldBeNil)
+		defer sub.Shutdown(ctx)
+
+		// Rapidly publish many messages (not as batch, but rapid individual sends)
+		for i := 0; i < 50; i++ {
+			err = topic.Send(ctx, &pubsub.Message{Body: []byte(fmt.Sprintf("msg-%03d", i))})
+			So(err, ShouldBeNil)
+		}
+
+		// Wait briefly for watcher to fire
+		time.Sleep(100 * time.Millisecond)
+
+		// Receive messages and verify ordering
+		var received []string
+		for i := 0; i < 50; i++ {
+			msg, err := sub.Receive(ctx)
+			So(err, ShouldBeNil)
+			So(msg, ShouldNotBeNil)
+
+			received = append(received, string(msg.Body))
+			msg.Ack()
+		}
+
+		// Verify all messages received in order
+		So(len(received), ShouldEqual, 50)
+		var orderErrors []string
+		for i, msgBody := range received {
+			expectedBody := fmt.Sprintf("msg-%03d", i)
+			if msgBody != expectedBody {
+				orderErrors = append(orderErrors, fmt.Sprintf("pos %d: got %s, expected %s", i, msgBody, expectedBody))
+			}
+		}
+		So(orderErrors, ShouldBeEmpty)
+
+		// Verify no more messages available
+		ctx2, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+		defer cancel()
+		_, err = sub.Receive(ctx2)
+		So(err, ShouldNotBeNil) // Should timeout
+	})
+}
+
+func TestRapidBatchOrdering(t *testing.T) {
+	Convey("Test rapid batch publishing preserves order", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-batch-order-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		topicPath := filepath.Join(testDir, "batch-order-topic")
+		ctx := context.Background()
+
+		topic, err := NewTopic(topicPath)
+		So(err, ShouldBeNil)
+		defer topic.Shutdown(ctx)
+
+		sub, err := NewSubscription(topic, time.Minute)
+		So(err, ShouldBeNil)
+		defer sub.Shutdown(ctx)
+
+		// Publish messages as rapidly as possible without delays
+		totalMessages := 0
+		for batch := 0; batch < 3; batch++ {
+			for i := 0; i < 20; i++ {
+				err = topic.Send(ctx, &pubsub.Message{
+					Body: []byte(fmt.Sprintf("%04d", totalMessages)),
+				})
+				So(err, ShouldBeNil)
+				totalMessages++
+			}
+			// Minimal delay between batches - still rapid
+			time.Sleep(500 * time.Microsecond)
+		}
+
+		// Wait for all files to be written
+		time.Sleep(200 * time.Millisecond)
+
+		// Receive all messages and extract their sequence numbers
+		var received []int
+		for i := 0; i < totalMessages; i++ {
+			msg, err := sub.Receive(ctx)
+			So(err, ShouldBeNil)
+			So(msg, ShouldNotBeNil)
+
+			seqNum := 0
+			_, err = fmt.Sscanf(string(msg.Body), "%d", &seqNum)
+			So(err, ShouldBeNil)
+			received = append(received, seqNum)
+
+			msg.Ack()
+		}
+
+		// Verify strictly sequential ordering
+		So(len(received), ShouldEqual, 60)
+		var orderErrors []string
+		for i, seqNum := range received {
+			if seqNum != i {
+				orderErrors = append(orderErrors, fmt.Sprintf("pos %d: got %d, expected %d", i, seqNum, i))
+			}
+		}
+		So(orderErrors, ShouldBeEmpty)
+
+		// Verify no more messages
+		ctx2, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+		defer cancel()
+		_, err = sub.Receive(ctx2)
+		So(err, ShouldNotBeNil)
 	})
 }
