@@ -25,7 +25,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -89,20 +88,6 @@ DESCRIPTION
 			}
 
 			if err := bootstrap.RegisterTemplate(ctx, strings.TrimPrefix(filepath.Ext(file), "."), string(b)); err != nil {
-				return err
-			}
-		} else {
-			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
-			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
-				return err
-			}
-
-			var b strings.Builder
-			if err := tmpl.Execute(&b, nil); err != nil {
-				return err
-			}
-
-			if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
 				return err
 			}
 		}
