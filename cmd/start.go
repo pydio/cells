@@ -52,6 +52,8 @@ import (
 )
 
 var (
+	DefaultBootstrapYAML string
+
 	//go:embed start-storages.yaml
 	storagesYAML string
 
@@ -304,6 +306,20 @@ ENVIRONMENT
 			}
 
 			if err := bootstrap.RegisterTemplate(ctx, strings.TrimPrefix(filepath.Ext(file), "."), string(b)); err != nil {
+				return err
+			}
+		} else {
+			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
+			if _, err := tmpl.Parse(DefaultBootstrapYAML); err != nil {
+				return err
+			}
+
+			var b strings.Builder
+			if err := tmpl.Execute(&b, nil); err != nil {
+				return err
+			}
+
+			if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
 				return err
 			}
 		}

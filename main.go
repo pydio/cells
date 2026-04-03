@@ -1,13 +1,7 @@
 package main
 
 import (
-	"context"
-	"strings"
-	"text/template"
-
 	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/runtime/manager"
-
 	// All Telemetry-related drivers
 	// Logs
 	_ "github.com/pydio/cells/v5/common/telemetry/log/file"
@@ -214,23 +208,7 @@ func main() {
 	common.PackageType = "PydioHome"
 	common.PackageLabel = "Pydio Cells Home Edition"
 
-	cmd.RegisterBootstrapHook("loaded", func(ctx context.Context, bs *manager.Bootstrap) error {
-		tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
-		if _, err := tmpl.Parse(bootstrapYAML); err != nil {
-			return err
-		}
-
-		var b strings.Builder
-		if err := tmpl.Execute(&b, nil); err != nil {
-			return err
-		}
-
-		if err := bs.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
-			return err
-		}
-
-		return nil
-	})
+	cmd.DefaultBootstrapYAML = bootstrapYAML
 
 	cmd.Execute()
 }

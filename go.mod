@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v5
 
-go 1.25.0
+go 1.26.1
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.1-20241127180247-a33202765966.1
@@ -36,7 +36,6 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-gorm/caches v1.0.1
 	github.com/go-jose/go-jose/v3 v3.0.4
-	github.com/go-logr/zapr v1.3.0
 	github.com/go-openapi/loads v0.23.3
 	github.com/go-openapi/spec v0.22.4
 	github.com/go-redis/cache/v9 v9.0.0
@@ -174,10 +173,8 @@ require (
 	gorm.io/plugin/opentelemetry v0.1.16
 	istio.io/api v1.27.1
 	istio.io/client-go v1.27.1
-	k8s.io/api v0.34.1
 	k8s.io/apimachinery v0.34.1
 	k8s.io/client-go v0.34.1
-	sigs.k8s.io/controller-runtime v0.22.1
 )
 
 require (
@@ -327,7 +324,6 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
-	github.com/google/btree v1.1.3 // indirect
 	github.com/google/cel-go v0.27.0 // indirect
 	github.com/google/certificate-transparency-go v1.1.8-0.20240110162603-74a5dd331745 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
@@ -428,6 +424,8 @@ require (
 	github.com/nyaruka/phonenumbers v1.6.5 // indirect
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
 	github.com/oleiade/reflections v1.0.1 // indirect
+	github.com/onsi/ginkgo/v2 v2.22.0 // indirect
+	github.com/onsi/gomega v1.36.1 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/ory/go-acc v0.2.9-0.20230103102148-6b1c9a70dbbe // indirect
 	github.com/ory/go-convenience v0.1.0 // indirect
@@ -551,7 +549,6 @@ require (
 	golang.org/x/term v0.41.0 // indirect
 	golang.org/x/tools v0.42.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	google.golang.org/api v0.271.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260226221140-a57be14db171 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
@@ -561,7 +558,7 @@ require (
 	gorm.io/driver/clickhouse v0.7.0 // indirect
 	gorm.io/hints v1.1.2 // indirect
 	howett.net/plist v1.0.0 // indirect
-	k8s.io/apiextensions-apiserver v0.34.1 // indirect
+	k8s.io/api v0.34.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 // indirect
 	k8s.io/utils v0.0.0-20250820121507-0af2bda4dd1d // indirect
