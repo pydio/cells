@@ -186,7 +186,7 @@ We should purge the databases in sql, no-sql before starting a new cells deploym
 
 ## Caveats
 
-- Vault data is not peristed. The master key is lost after a k8s restart. In production, the deployment requires KMS service for vault unsealing process.
+- Vault unseal key is **unsecurely** persisted in PV. In production, the deployment requires KMS service for vault unsealing process.
 - 10 minutes session timeout/upload failure issue. You may have this issue when browsing the web page through a URL different from `ReverseProxyURL` which is set in `cells/cells.yaml`.
 - All dependencies run in "standalone" mode
 - Cells operates with a single pod
