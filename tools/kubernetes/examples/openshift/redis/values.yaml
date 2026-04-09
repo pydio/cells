@@ -1,0 +1,14 @@
+enabled: true
+shortcacheEnabled: true
+
+# OpenShift
+volumePermissions:
+  enabled: false
+
+
+auth:
+  enabled: false
+architecture: standalone
+global:
+  defaultStorageClass: crc-csi-hostpath-provisioner
+commonAnnotations: {}

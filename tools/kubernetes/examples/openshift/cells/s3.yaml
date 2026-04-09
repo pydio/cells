@@ -1,0 +1,30 @@
+externalS3:
+  enabled: true
+  host: "cells-minio.cells.svc.cluster.local"
+  # added
+  useCustomURL: "http://cells-minio.cells.svc.cluster.local?minio=true"
+  port: 9000
+  customRegion: "us-west-1"
+  ds:
+    pydiods1: "pydiods1"
+    personal: "personal"
+    cellsdata: "cellsdata"
+    binaries: "binaries"
+    thumbnails: "thumbnails"
+    versions: "versions"
+  tls:
+    enabled: false
+    client:
+      existingSecret: "minio-crt"
+      cert: "tls.crt"
+      key: "tls.key"
+    ca:
+      existingSecret: "minio-crt"
+      cert: "ca.crt"
+  auth:
+    enabled: true
+    # user: ""
+    # password: ""
+    existingSecret: "minio-root-secret"
+    existingSecretUsernameKey: "rootUser"
+    existingSecretPasswordKey: "rootPassword"
