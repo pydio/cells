@@ -19,17 +19,17 @@ var (
 	refreshTestcases = test.TemplateSQL(NewSQLDAO)
 )
 
-// Simulate the refresh token flow that happens when access_token expires
-func TestRefreshTokenFlow(t *testing.T) {
+// Session and cookie behavior around the refresh endpoint (not full OAuth flow)
+func TestSessionBehaviorAroundRefreshEndpoint(t *testing.T) {
 
 	test.RunStorageTests(refreshTestcases, t, func(ctx context.Context) {
 
-		Convey("Refresh token flow", t, func() {
+		Convey("Session behavior around refresh endpoint", t, func() {
 
 			dao, er := manager.Resolve[DAO](ctx)
 			So(er, ShouldBeNil)
 
-			Convey("Session stores refresh_token correctly", func() {
+			Convey("Session stores refresh_token and sets SameSite=Strict", func() {
 				// Simulate initial login - set tokens in session
 				req := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
 				req.Host = "pydio.com"
@@ -57,7 +57,7 @@ func TestRefreshTokenFlow(t *testing.T) {
 				})
 			})
 
-			Convey("Refresh token can be retrieved from session", func() {
+			Convey("Refresh token can be retrieved and updated via session", func() {
 				// Initial session setup
 				req1 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
 				req1.Host = "pydio.com"
@@ -116,7 +116,7 @@ func TestRefreshTokenFlow(t *testing.T) {
 				})
 			})
 
-			Convey("Refresh fails with invalid session cookie", func() {
+			Convey("Refresh endpoint gets a new session when cookie is missing/invalid", func() {
 				// Request without valid cookie
 				req := httptest.NewRequest("POST", "https://pydio.com/a/frontend/auth/refresh", nil)
 				req.Host = "pydio.com"
@@ -132,7 +132,7 @@ func TestRefreshTokenFlow(t *testing.T) {
 				So(refreshToken, ShouldBeNil)
 			})
 
-			Convey("Multiple refreshes work correctly", func() {
+			Convey("Multiple refresh-like requests reuse and update the same session", func() {
 				// Initial session
 				req1 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
 				req1.Host = "pydio.com"
@@ -182,17 +182,17 @@ func TestRefreshTokenFlow(t *testing.T) {
 	})
 }
 
-// Test that SameSite doesn't interfere with session persistence across requests
+// Test that SameSite=Strict doesn't interfere with session persistence across same-site requests
 func TestSessionPersistenceForRefresh(t *testing.T) {
 
 	test.RunStorageTests(refreshTestcases, t, func(ctx context.Context) {
 
-		Convey("Session persistence for refresh flow", t, func() {
+		Convey("Session persistence for refresh-like flow", t, func() {
 
 			dao, er := manager.Resolve[DAO](ctx)
 			So(er, ShouldBeNil)
 
-			Convey("Session data persists across multiple requests", func() {
+			Convey("Session data persists across multiple same-site requests", func() {
 				// Create session with tokens
 				req1 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
 				req1.Host = "pydio.com"
@@ -231,24 +231,24 @@ func TestSessionPersistenceForRefresh(t *testing.T) {
 					So(er, ShouldBeNil)
 				}
 
-				Convey("SameSite=Strict remains constant", func() {
+				Convey("SameSite=Strict remains constant in Set-Cookie", func() {
 					So(strings.Contains(cookieString, "SameSite=Strict"), ShouldBeTrue)
 				})
 			})
 		})
 	})
 
-	// Test scenarios that Charles is concerned about - proxy configurations
+	// Test scenarios that Charles is concerned about - proxy configurations preserving Host
 func TestProxyRefreshScenario(t *testing.T) {
 
 	test.RunStorageTests(refreshTestcases, t, func(ctx context.Context) {
 
-		Convey("Proxy refresh scenarios", t, func() {
+		Convey("Proxy refresh scenarios with preserved Host header", t, func() {
 
 			dao, er := manager.Resolve[DAO](ctx)
 			So(er, ShouldBeNil)
 
-			Convey("Refresh works when Host is preserved by proxy", func() {
+			Convey("Refresh-like request reuses session when Host is preserved by proxy", func() {
 				// Browser visits https://pydio.com, proxy passes Host: pydio.com
 				req1 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
 				req1.Host = "pydio.com"
