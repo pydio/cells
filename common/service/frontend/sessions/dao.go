@@ -29,6 +29,7 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	ci := &cookiesImpl{}
@@ -38,6 +39,7 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 			Path:     defaultOptions.Path,
 			MaxAge:   defaultOptions.MaxAge,
 			HttpOnly: defaultOptions.HttpOnly,
+			SameSite: defaultOptions.SameSite,
 		}
 		if u.Scheme == "https" {
 			cs.Options.Secure = true
@@ -62,6 +64,7 @@ func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
 		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	return &sqlsessions.Impl{
