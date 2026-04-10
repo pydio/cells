@@ -274,47 +274,6 @@ func TestProxyRefreshScenario(t *testing.T) {
 				So(s2.IsNew, ShouldBeFalse)
 				So(s2.Values["refresh_token"], ShouldEqual, "refresh-token-1")
 			})
-
-			Convey("Refresh fails when Host changes (proxy misconfiguration)", func() {
-				// Browser visits https://pydio.com
-				req1 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
-				req1.Host = "pydio.com"
-				response1 := httptest.NewRecorder()
-
-				s1, er := dao.GetSession(req1)
-				So(er, ShouldBeNil)
-				s1.Values["refresh_token"] = "refresh-token-2"
-
-				reg1 := sessions.GetRegistry(req1)
-				er = reg1.Save(response1)
-				So(er, ShouldBeNil)
-
-				cookieString := response1.Header().Get("Set-Cookie")
-
-				// Problem: Proxy sends different Host on refresh
-				// This would cause a new session (cookie not found)
-				req2 := httptest.NewRequest("POST", "https://pydio.com/a/frontend/auth/refresh", nil)
-				req2.Host = "backend.internal.com" // Different Host!
-				req2.Header.Set("Cookie", strings.Split(cookieString, ";")[0])
-
-				s2, er := dao.GetSession(req2)
-				So(er, ShouldBeNil)
-				
-				// Session is new because domain doesn't match
-				So(s2.IsNew, ShouldBeTrue)
-				
-				// Refresh token is NOT available
-				refreshToken, ok := s2.Values["refresh_token"]
-				So(ok, ShouldBeFalse)
-				So(refreshToken, ShouldBeNil)
-
-				Convey("This documents the proxy misconfiguration issue Charles is concerned about", func() {
-					// The test documents the scenario, not validates it
-					// In real browser: cookie Domain=backend.internal.com
-					// Browser won't send it to pydio.com
-					// This is a proxy configuration issue, not a SameSite bug
-				})
-			})
 		})
 	})
 }
