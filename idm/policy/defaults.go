@@ -202,10 +202,21 @@ var (
 				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-post",
 					Description: "PolicyGroup.LoggedUsers.Rule6",
-					Subjects:    []string{"profile:standard", "profile:shared"},
+					Subjects:    []string{"profile:standard"},
 					Resources: []string{
 						"rest:/frontend/binaries/USER/<.+>",
 						"rest:/frontend/enroll",
+						"rest:/frontend/session",
+					},
+					Actions: []string{"POST"},
+					Effect:  ladon.AllowAccess,
+				}),
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-post-shared",
+					Description: "PolicyGroup.LoggedUsers.Rule6Shared",
+					Subjects:    []string{"profile:shared"},
+					Resources: []string{
+						"rest:/frontend/binaries/USER/<.+>",
 						"rest:/frontend/session",
 					},
 					Actions: []string{"POST"},
@@ -776,6 +787,88 @@ func Upgrade4993(ctx context.Context) error {
 	return nil
 }
 
+// Upgrade5000 splits frontend-post policy to restrict /frontend/enroll for shared profile users (WPB-23974).
+// This prevents shared link users from enrolling MFA and causing DoS on the shared link.
+// The old unified "frontend-post" policy (profile:standard + profile:shared) is replaced with two:
+// - "frontend-post" for profile:standard (unchanged, backward compatible name)
+// - "frontend-post-shared" for profile:shared (excludes /frontend/enroll)
+func Upgrade5000(ctx context.Context) error {
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
+	}
+	groups, e := dao.ListPolicyGroups(ctx, nil)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.GetUuid() == "rest-apis-default-accesses" {
+			var newPolicies []*idm.Policy
+			var hasStandardPolicy, hasSharedPolicy bool
+
+			for _, p := range group.Policies {
+				// Check for the old unified frontend-post policy (both subjects together)
+				if p.GetID() == "frontend-post" {
+					hasSubjects := make(map[string]bool)
+					for _, s := range p.OrmSubjects {
+						hasSubjects[s.Template] = true
+					}
+
+					// If it has both profiles, it's the old unified policy - replace it
+					if hasSubjects["profile:standard"] && hasSubjects["profile:shared"] {
+						// Standard profile keeps all POST endpoints including /frontend/enroll
+						newPolicies = append(newPolicies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+							ID:          "frontend-post",
+							Description: "PolicyGroup.LoggedUsers.Rule6",
+							Subjects:    []string{"profile:standard"},
+							Resources: []string{
+								"rest:/frontend/binaries/USER/<.+>",
+								"rest:/frontend/enroll",
+								"rest:/frontend/session",
+							},
+							Actions: []string{"POST"},
+							Effect:  ladon.AllowAccess,
+						}))
+						hasStandardPolicy = true
+						// Shared profile excludes /frontend/enroll (WPB-23974 security fix)
+						newPolicies = append(newPolicies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+							ID:          "frontend-post-shared",
+							Description: "PolicyGroup.LoggedUsers.Rule6Shared",
+							Subjects:    []string{"profile:shared"},
+							Resources: []string{
+								"rest:/frontend/binaries/USER/<.+>",
+								"rest:/frontend/session",
+							},
+							Actions: []string{"POST"},
+							Effect:  ladon.AllowAccess,
+						}))
+						hasSharedPolicy = true
+						continue
+					}
+				}
+				if p.GetID() == "frontend-post" {
+					hasStandardPolicy = true
+				} else if p.GetID() == "frontend-post-shared" {
+					hasSharedPolicy = true
+				}
+				newPolicies = append(newPolicies, p)
+			}
+
+			// Only update if we found the old unified policy
+			if hasStandardPolicy && hasSharedPolicy {
+				group.Policies = newPolicies
+				if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+					log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
+				} else {
+					log.Logger(ctx).Info("Updated policy group " + group.GetUuid() + " - split frontend-post for shared profile (WPB-23974)")
+				}
+			}
+		}
+	}
+	log.Logger(ctx).Info("Upgraded policy model to v5.0.0 - restricted /frontend/enroll for shared profile users")
+	return nil
+}
+
 var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.5.0"),
@@ -784,6 +877,10 @@ var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.9.93"),
 		Up:            Upgrade4993,
+	},
+	{
+		TargetVersion: service.ValidVersion("5.0.0"),
+		Up:            Upgrade5000,
 	},
 }
 
