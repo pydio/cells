@@ -9,9 +9,6 @@ import (
 	"github.com/gorilla/sessions"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v5/common"
-	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/service/frontend/sessions/sqlsessions"
 	"github.com/pydio/cells/v5/common/service/frontend/sessions/utils"
 	"github.com/pydio/cells/v5/common/storage/sc"
@@ -23,27 +20,7 @@ import (
 // NewCookieDAO creates an encrypted cookies carried along with requests
 func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
-	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
-	timeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
-	// Read SameSite policy from config
-	sameSiteStr := config.Get(ctx, "frontend", "secureCookies", "SameSite").Default("Strict").String()
-
-	var sameSite http.SameSite
-	switch sameSiteStr {
-	case "Lax":
-		sameSite = http.SameSiteLaxMode
-	case "None":
-		sameSite = http.SameSiteNoneMode
-	default:
-		sameSite = http.SameSiteStrictMode
-	}
-
-	defaultOptions := &sessions.Options{
-		Path:     restApi + "/frontend",
-		MaxAge:   60 * timeout,
-		HttpOnly: true,
-		SameSite: sameSite,
-	}
+	defaultOptions := utils.SessionOptionsFromConfig(ctx)
 
 	ci := &cookiesImpl{}
 	ci.storeFactory = func(u *url.URL, keyPairs ...[]byte) (sessions.Store, error) {
@@ -71,28 +48,7 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
 // NewSQLDAO stores sessions in DB
 func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
-	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
-	timeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
-
-	// Read SameSite policy from config
-	sameSiteStr := config.Get(ctx, "frontend", "secureCookies", "SameSite").Default("Strict").String()
-
-	var sameSite http.SameSite
-	switch sameSiteStr {
-	case "Lax":
-		sameSite = http.SameSiteLaxMode
-	case "None":
-		sameSite = http.SameSiteNoneMode
-	default:
-		sameSite = http.SameSiteStrictMode
-	}
-
-	defaultOptions := &sessions.Options{
-		Path:     restApi + "/frontend",
-		MaxAge:   60 * timeout,
-		HttpOnly: true,
-		SameSite: sameSite,
-	}
+	defaultOptions := utils.SessionOptionsFromConfig(ctx)
 
 	return &sqlsessions.Impl{
 		Abstract: sql.NewAbstract(db).WithModels(func() []any {
