@@ -106,7 +106,6 @@ func TestSessionBehaviorAroundRefreshEndpoint(t *testing.T) {
 					req3 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
 					req3.Host = "pydio.com"
 					req3.Header.Set("Cookie", strings.Split(cookieString, ";")[0])
-					response3 := httptest.NewRecorder()
 
 					s3, er := dao.GetSession(req3)
 					So(er, ShouldBeNil)
@@ -163,7 +162,6 @@ func TestSessionBehaviorAroundRefreshEndpoint(t *testing.T) {
 				req3 := httptest.NewRequest("POST", "https://pydio.com/a/frontend/auth/refresh", nil)
 				req3.Host = "pydio.com"
 				req3.Header.Set("Cookie", strings.Split(cookieString, ";")[0])
-				response3 := httptest.NewRecorder()
 
 				s3, er := dao.GetSession(req3)
 				So(er, ShouldBeNil)
@@ -237,6 +235,7 @@ func TestSessionPersistenceForRefresh(t *testing.T) {
 			})
 		})
 	})
+}
 
 	// Test scenarios that Charles is concerned about - proxy configurations preserving Host
 func TestProxyRefreshScenario(t *testing.T) {

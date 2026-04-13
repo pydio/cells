@@ -25,11 +25,24 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
 	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
 	timeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
+	// Read SameSite policy from config
+	sameSiteStr := config.Get(ctx, "frontend", "secureCookies", "SameSite").Default("Strict").String()
+
+	var sameSite http.SameSite
+	switch sameSiteStr {
+	case "Lax":
+		sameSite = http.SameSiteLaxMode
+	case "None":
+		sameSite = http.SameSiteNoneMode
+	default:
+		sameSite = http.SameSiteStrictMode
+	}
+
 	defaultOptions := &sessions.Options{
 		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: sameSite,
 	}
 
 	ci := &cookiesImpl{}
@@ -60,11 +73,25 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
 	restApi := routing.RouteIngressURIContext(ctx, common.RouteApiREST, common.DefaultRouteREST)
 	timeout := config.Get(ctx, config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "SESSION_TIMEOUT")...).Default(60).Int()
+
+	// Read SameSite policy from config
+	sameSiteStr := config.Get(ctx, "frontend", "secureCookies", "SameSite").Default("Strict").String()
+
+	var sameSite http.SameSite
+	switch sameSiteStr {
+	case "Lax":
+		sameSite = http.SameSiteLaxMode
+	case "None":
+		sameSite = http.SameSiteNoneMode
+	default:
+		sameSite = http.SameSiteStrictMode
+	}
+
 	defaultOptions := &sessions.Options{
 		Path:     restApi + "/frontend",
 		MaxAge:   60 * timeout,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: sameSite,
 	}
 
 	return &sqlsessions.Impl{
