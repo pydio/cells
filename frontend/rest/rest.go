@@ -30,11 +30,9 @@ import (
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
-	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
@@ -147,11 +145,6 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 
 // FrontPlugins dumps a full list of available frontend plugins
 func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) error {
-
-	if req.Request.Header.Get("x-pydio-plugins-reload") != "" {
-		frontend.HotReload()
-		broker.MustPublish(context.Background(), common.TopicReloadAssets, &emptypb.Empty{})
-	}
 
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
