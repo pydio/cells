@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
 	. "github.com/smartystreets/goconvey/convey"
@@ -272,6 +273,127 @@ func TestProxyRefreshScenario(t *testing.T) {
 				So(er, ShouldBeNil)
 				So(s2.IsNew, ShouldBeFalse)
 				So(s2.Values["refresh_token"], ShouldEqual, "refresh-token-1")
+			})
+		})
+	})
+}
+
+// TestSameSiteConfigurable verifies that SameSite policy can be configured
+func TestSameSiteConfigurable(t *testing.T) {
+	test.RunStorageTests(refreshTestcases, t, func(ctx context.Context) {
+		Convey("SameSite policy is configurable from frontend/secureCookies config", t, func() {
+			// Test 1: Default is Strict
+			dao, er := manager.Resolve[DAO](ctx)
+			So(er, ShouldBeNil)
+
+			req := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
+			req.Host = "pydio.com"
+			response := httptest.NewRecorder()
+
+			s, er := dao.GetSession(req)
+			So(er, ShouldBeNil)
+			s.Values["test"] = "data"
+
+			reg := sessions.GetRegistry(req)
+			er = reg.Save(response)
+			So(er, ShouldBeNil)
+
+			cookie := response.Header().Get("Set-Cookie")
+			So(cookie, ShouldNotBeEmpty)
+			So(strings.Contains(cookie, "SameSite=Strict"), ShouldBeTrue)
+
+			// Test 2: Can be overridden to Lax
+			Convey("Can override to Lax", func() {
+				err := config.Set(ctx, map[string]interface{}{
+					"frontend": map[string]interface{}{
+						"secureCookies": map[string]interface{}{
+							"SameSite": "Lax",
+						},
+					},
+				})
+				So(err, ShouldBeNil)
+
+				// Re-resolve with new config
+				dao2, err := manager.Resolve[DAO](ctx)
+				So(err, ShouldBeNil)
+
+				req2 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
+				req2.Host = "pydio.com"
+				response2 := httptest.NewRecorder()
+
+				s2, err := dao2.GetSession(req2)
+				So(err, ShouldBeNil)
+				s2.Values["test"] = "data"
+
+				reg2 := sessions.GetRegistry(req2)
+				err = reg2.Save(response2)
+				So(err, ShouldBeNil)
+
+				cookie2 := response2.Header().Get("Set-Cookie")
+				So(cookie2, ShouldNotBeEmpty)
+				So(strings.Contains(cookie2, "SameSite=Lax"), ShouldBeTrue)
+			})
+
+			// Test 3: Can be overridden to None
+			Convey("Can override to None", func() {
+				err := config.Set(ctx, map[string]interface{}{
+					"frontend": map[string]interface{}{
+						"secureCookies": map[string]interface{}{
+							"SameSite": "None",
+						},
+					},
+				})
+				So(err, ShouldBeNil)
+
+				dao3, err := manager.Resolve[DAO](ctx)
+				So(err, ShouldBeNil)
+
+				req3 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
+				req3.Host = "pydio.com"
+				response3 := httptest.NewRecorder()
+
+				s3, err := dao3.GetSession(req3)
+				So(err, ShouldBeNil)
+				s3.Values["test"] = "data"
+
+				reg3 := sessions.GetRegistry(req3)
+				err = reg3.Save(response3)
+				So(err, ShouldBeNil)
+
+				cookie3 := response3.Header().Get("Set-Cookie")
+				So(cookie3, ShouldNotBeEmpty)
+				So(strings.Contains(cookie3, "SameSite=None"), ShouldBeTrue)
+			})
+
+			// Test 4: Invalid value falls back to Strict
+			Convey("Invalid value falls back to Strict", func() {
+				err := config.Set(ctx, map[string]interface{}{
+					"frontend": map[string]interface{}{
+						"secureCookies": map[string]interface{}{
+							"SameSite": "InvalidValue",
+						},
+					},
+				})
+				So(err, ShouldBeNil)
+
+				dao4, err := manager.Resolve[DAO](ctx)
+				So(err, ShouldBeNil)
+
+				req4 := httptest.NewRequest("GET", "https://pydio.com/a/frontend", nil)
+				req4.Host = "pydio.com"
+				response4 := httptest.NewRecorder()
+
+				s4, err := dao4.GetSession(req4)
+				So(err, ShouldBeNil)
+				s4.Values["test"] = "data"
+
+				reg4 := sessions.GetRegistry(req4)
+				err = reg4.Save(response4)
+				So(err, ShouldBeNil)
+
+				cookie4 := response4.Header().Get("Set-Cookie")
+				So(cookie4, ShouldNotBeEmpty)
+				So(strings.Contains(cookie4, "SameSite=Strict"), ShouldBeTrue)
 			})
 		})
 	})
