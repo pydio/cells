@@ -20,7 +20,7 @@ import (
 // NewCookieDAO creates an encrypted cookies carried along with requests
 func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
-	defaultOptions := utils.SessionOptionsFromConfig(ctx)
+	defaultOptions := SessionOptionsFromConfig(ctx)
 
 	ci := &cookiesImpl{}
 	ci.storeFactory = func(u *url.URL, keyPairs ...[]byte) (sessions.Store, error) {
@@ -48,7 +48,7 @@ func NewCookieDAO(ctx context.Context, some *sc.Conn) DAO {
 
 // NewSQLDAO stores sessions in DB
 func NewSQLDAO(ctx context.Context, db *gorm.DB) DAO {
-	defaultOptions := utils.SessionOptionsFromConfig(ctx)
+	defaultOptions := SessionOptionsFromConfig(ctx)
 
 	return &sqlsessions.Impl{
 		Abstract: sql.NewAbstract(db).WithModels(func() []any {
