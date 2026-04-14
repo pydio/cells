@@ -873,7 +873,7 @@ func Upgrade5000(ctx context.Context) error {
 			}
 		}
 	}
-	log.Logger(ctx).Info("Upgraded policy model to v5.0.0 - restricted /frontend/enroll for shared profile users")
+	log.Logger(ctx).Info("Upgraded policy model to v4.9.94 - restricted /frontend/enroll for shared profile users")
 	return nil
 }
 
@@ -887,7 +887,7 @@ var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 		Up:            Upgrade4993,
 	},
 	{
-		TargetVersion: service.ValidVersion("5.0.0"),
+		TargetVersion: service.ValidVersion("4.9.94"),
 		Up:            Upgrade5000,
 	},
 }
