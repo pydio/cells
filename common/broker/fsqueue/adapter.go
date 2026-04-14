@@ -30,6 +30,8 @@
 // Query parameters:
 //   - name: Required stream name (used for directory naming)
 //   - ackdeadline: Optional ack deadline (defaults to 1m)
+//   - sendbatchsize: Optional send batch size for publisher (defaults to 10)
+//   - recvbatchsize: Optional receive batch size for subscriber (defaults to 1)
 //
 // Example:
 //
@@ -41,11 +43,13 @@ import (
 	"errors"
 	"net/url"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
 	"go.uber.org/zap"
 	"gocloud.dev/pubsub"
+	"gocloud.dev/pubsub/batcher"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common/broker"
@@ -90,17 +94,43 @@ func (f *fpubQueue) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue,
 		}
 	}
 
+	sendBatchSize := 10 //gocloud default
+	if sb := u.Query().Get("sendbatchsize"); sb != "" {
+		if n, err := strconv.Atoi(sb); err == nil && n > 0 {
+			sendBatchSize = n
+		}
+	}
+
+	recvBatchSize := 1 // maintain strict ordering
+	if rb := u.Query().Get("recvbatchsize"); rb != "" {
+		if n, err := strconv.Atoi(rb); err == nil && n > 0 {
+			recvBatchSize = n
+		}
+	}
+
 	// Build base path: /path/from/url/fpub-streamname
 	basePath := filepath.Join(u.Path, "fpub-"+streamName)
+	topicOptions := &TopicOptions{
+		BatcherOptions: batcher.Options{
+			MaxBatchSize: sendBatchSize,
+		},
+	}
 
 	// Create topic
-	topic, err := NewTopic(basePath)
+	topic, err := NewTopicWithOptions(basePath, topicOptions)
 	if err != nil {
 		return nil, err
 	}
 
+	subOpts := &SubscriptionOptions{
+		ReceiveBatcherOptions: batcher.Options{
+			MaxBatchSize: recvBatchSize,
+			MaxHandlers:  1, // Keep strict ordering
+		},
+	}
+
 	// Create subscription
-	sub, err := NewSubscription(topic, ackDeadline)
+	sub, err := NewSubscriptionWithOptions(topic, ackDeadline, subOpts)
 	if err != nil {
 		_ = topic.Shutdown(ctx)
 		return nil, err

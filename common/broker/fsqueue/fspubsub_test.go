@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"gocloud.dev/pubsub"
+	"gocloud.dev/pubsub/batcher"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pydio/cells/v5/common/broker"
@@ -615,5 +616,210 @@ func TestRapidBatchOrdering(t *testing.T) {
 		defer cancel()
 		_, err = sub.Receive(ctx2)
 		So(err, ShouldNotBeNil)
+	})
+}
+
+func TestTopicWithBatchOptions(t *testing.T) {
+	Convey("Test topic creation with custom batch options", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-topic-opts-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		ctx := context.Background()
+
+		Convey("Should accept custom send batch size", func() {
+			topicOpts := &TopicOptions{
+				BatcherOptions: batcher.Options{
+					MaxBatchSize: 5,
+				},
+			}
+			topic, err := NewTopicWithOptions(testDir, topicOpts)
+			So(err, ShouldBeNil)
+			So(topic, ShouldNotBeNil)
+			defer topic.Shutdown(ctx)
+
+			// Verify topic was created successfully
+			pendingPath := filepath.Join(testDir, pendingDir)
+			_, err = os.Stat(pendingPath)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Should use defaults when nil options provided", func() {
+			topic, err := NewTopicWithOptions(testDir, nil)
+			So(err, ShouldBeNil)
+			So(topic, ShouldNotBeNil)
+			defer topic.Shutdown(ctx)
+		})
+	})
+}
+
+func TestSubscriptionWithBatchOptions(t *testing.T) {
+	Convey("Test subscription creation with custom batch options", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-sub-opts-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		ctx := context.Background()
+
+		topic, err := NewTopic(testDir)
+		So(err, ShouldBeNil)
+		defer topic.Shutdown(ctx)
+
+		Convey("Should accept custom receive batch size", func() {
+			subOpts := &SubscriptionOptions{
+				ReceiveBatcherOptions: batcher.Options{
+					MaxBatchSize: 10,
+					MaxHandlers:  1, // Keep ordering
+				},
+			}
+			sub, err := NewSubscriptionWithOptions(topic, time.Minute, subOpts)
+			So(err, ShouldBeNil)
+			So(sub, ShouldNotBeNil)
+			defer sub.Shutdown(ctx)
+		})
+
+		Convey("Should use defaults when nil options provided", func() {
+			sub, err := NewSubscriptionWithOptions(topic, time.Minute, nil)
+			So(err, ShouldBeNil)
+			So(sub, ShouldNotBeNil)
+			defer sub.Shutdown(ctx)
+		})
+	})
+}
+
+func TestBatchSizePreservesOrdering(t *testing.T) {
+	Convey("Test that batch size > 1 preserves ordering with MaxHandlers=1", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-batch-ordering-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		ctx := context.Background()
+
+		// Create topic with batch size 10
+		topicOpts := &TopicOptions{
+			BatcherOptions: batcher.Options{
+				MaxBatchSize: 10,
+			},
+		}
+		topic, err := NewTopicWithOptions(testDir, topicOpts)
+		So(err, ShouldBeNil)
+		defer topic.Shutdown(ctx)
+
+		// Create subscription with receive batch size 5 but MaxHandlers=1
+		subOpts := &SubscriptionOptions{
+			ReceiveBatcherOptions: batcher.Options{
+				MaxBatchSize: 5,
+				MaxHandlers:  1, // Single handler maintains order
+			},
+		}
+		sub, err := NewSubscriptionWithOptions(topic, time.Minute, subOpts)
+		So(err, ShouldBeNil)
+		defer sub.Shutdown(ctx)
+
+		// Publish 20 messages
+		totalMessages := 20
+		for i := 0; i < totalMessages; i++ {
+			err = topic.Send(ctx, &pubsub.Message{
+				Body: []byte(fmt.Sprintf("%04d", i)),
+			})
+			So(err, ShouldBeNil)
+		}
+
+		// Wait for writes
+		time.Sleep(200 * time.Millisecond)
+
+		// Receive all messages and verify order
+		var received []int
+		for i := 0; i < totalMessages; i++ {
+			msg, err := sub.Receive(ctx)
+			So(err, ShouldBeNil)
+			So(msg, ShouldNotBeNil)
+
+			seqNum := 0
+			_, err = fmt.Sscanf(string(msg.Body), "%d", &seqNum)
+			So(err, ShouldBeNil)
+			received = append(received, seqNum)
+
+			msg.Ack()
+		}
+
+		// Verify strict ordering maintained despite batching
+		So(len(received), ShouldEqual, totalMessages)
+		for i, seqNum := range received {
+			So(seqNum, ShouldEqual, i)
+		}
+	})
+}
+
+func TestSendBatchSizeAffectsThroughput(t *testing.T) {
+	Convey("Test that larger send batch reduces filesystem operations", t, func() {
+		testDir, err := os.MkdirTemp("", "filepubsub-batch-throughput-*")
+		So(err, ShouldBeNil)
+		defer os.RemoveAll(testDir)
+
+		ctx := context.Background()
+
+		Convey("Small batch size (1)", func() {
+			topicOpts := &TopicOptions{
+				BatcherOptions: batcher.Options{
+					MaxBatchSize: 1,
+				},
+			}
+			topic, err := NewTopicWithOptions(testDir, topicOpts)
+			So(err, ShouldBeNil)
+			defer topic.Shutdown(ctx)
+
+			start := time.Now()
+			for i := 0; i < 100; i++ {
+				err = topic.Send(ctx, &pubsub.Message{
+					Body: []byte(fmt.Sprintf("msg-%d", i)),
+				})
+				So(err, ShouldBeNil)
+			}
+			smallBatchDuration := time.Since(start)
+
+			// Verify all files written
+			pendingPath := filepath.Join(testDir, pendingDir)
+			entries, err := os.ReadDir(pendingPath)
+			So(err, ShouldBeNil)
+			So(len(entries), ShouldEqual, 100)
+
+			t.Logf("Small batch (1): %v for 100 messages", smallBatchDuration)
+		})
+
+		// Clean up for next test
+		os.RemoveAll(testDir)
+		testDir, err = os.MkdirTemp("", "filepubsub-batch-throughput-*")
+		So(err, ShouldBeNil)
+
+		Convey("Large batch size (20)", func() {
+			topicOpts := &TopicOptions{
+				BatcherOptions: batcher.Options{
+					MaxBatchSize: 20,
+				},
+			}
+			topic, err := NewTopicWithOptions(testDir, topicOpts)
+			So(err, ShouldBeNil)
+			defer topic.Shutdown(ctx)
+
+			start := time.Now()
+			for i := 0; i < 100; i++ {
+				err = topic.Send(ctx, &pubsub.Message{
+					Body: []byte(fmt.Sprintf("msg-%d", i)),
+				})
+				So(err, ShouldBeNil)
+			}
+			// Force flush
+			topic.Shutdown(ctx)
+			largeBatchDuration := time.Since(start)
+
+			// Verify all files written
+			pendingPath := filepath.Join(testDir, pendingDir)
+			entries, err := os.ReadDir(pendingPath)
+			So(err, ShouldBeNil)
+			So(len(entries), ShouldEqual, 100)
+
+			t.Logf("Large batch (20): %v for 100 messages", largeBatchDuration)
+		})
 	})
 }

@@ -433,7 +433,6 @@ func (s *subscription) startWatcher() error {
 				notify.Stop(s.notifyChan)
 				return
 			case ev := <-s.notifyChan:
-				// Only care about .pb files
 				if strings.HasSuffix(ev.Path(), ".pb") {
 					s.notifyNewMessages()
 				}
