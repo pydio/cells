@@ -96,9 +96,17 @@ func (m *roleSearchMockConn) Invoke(context.Context, string, interface{}, interf
 }
 
 func (m *roleSearchMockConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	// SearchRole() uses a streaming gRPC client under the hood.
+	// This mock stream captures the outbound request in SendMsg() and returns
+	// matching role responses when the generated client later calls RecvMsg().
 	return &roleSearchClientStream{ctx: ctx, role: m.role}, nil
 }
 
+// roleSearchClientStream is a tiny grpc.ClientStream test double.
+//
+// The generated RoleService client talks to SearchRole() through the exported
+// grpc.ClientStream methods below, so this mock must implement that interface
+// even if the test itself never calls RecvMsg()/SendMsg() directly.
 type roleSearchClientStream struct {
 	grpc.ClientStream
 	ctx      context.Context
@@ -108,10 +116,13 @@ type roleSearchClientStream struct {
 	position int
 }
 
+// These exported methods exist only because grpc.ClientStream requires them.
 func (s *roleSearchClientStream) Header() (metadata.MD, error) { return metadata.MD{}, nil }
 func (s *roleSearchClientStream) Trailer() metadata.MD         { return metadata.MD{} }
 func (s *roleSearchClientStream) CloseSend() error             { return nil }
 func (s *roleSearchClientStream) Context() context.Context     { return s.ctx }
+
+// SendMsg captures the outbound SearchRoleRequest sent by the generated client.
 func (s *roleSearchClientStream) SendMsg(m interface{}) error {
 	req, ok := m.(*idm.SearchRoleRequest)
 	if !ok {
@@ -121,22 +132,14 @@ func (s *roleSearchClientStream) SendMsg(m interface{}) error {
 	return nil
 }
 
+// RecvMsg feeds back mocked SearchRoleResponse values to the generated client.
 func (s *roleSearchClientStream) RecvMsg(m interface{}) error {
 	if s.results == nil {
-		if s.request == nil {
-			return io.EOF
+		responses, err := s.responsesFromRequest()
+		if err != nil {
+			return err
 		}
-		for _, query := range s.request.GetQuery().GetSubQueries() {
-			single := new(idm.RoleSingleQuery)
-			if err := query.UnmarshalTo(single); err != nil {
-				return err
-			}
-			for _, uuid := range single.GetUuid() {
-				if s.role != nil && uuid == s.role.GetUuid() {
-					s.results = append(s.results, &idm.SearchRoleResponse{Role: proto.Clone(s.role).(*idm.Role)})
-				}
-			}
-		}
+		s.results = responses
 	}
 	if s.position >= len(s.results) {
 		return io.EOF
@@ -148,4 +151,26 @@ func (s *roleSearchClientStream) RecvMsg(m interface{}) error {
 	*resp = *proto.Clone(s.results[s.position]).(*idm.SearchRoleResponse)
 	s.position++
 	return nil
+}
+
+// responsesFromRequest turns the captured request into the minimal response set
+// needed by this test: one matching role, or no result.
+func (s *roleSearchClientStream) responsesFromRequest() ([]*idm.SearchRoleResponse, error) {
+	if s.request == nil {
+		return nil, io.EOF
+	}
+
+	var results []*idm.SearchRoleResponse
+	for _, query := range s.request.GetQuery().GetSubQueries() {
+		single := new(idm.RoleSingleQuery)
+		if err := query.UnmarshalTo(single); err != nil {
+			return nil, err
+		}
+		for _, uuid := range single.GetUuid() {
+			if s.role != nil && uuid == s.role.GetUuid() {
+				results = append(results, &idm.SearchRoleResponse{Role: proto.Clone(s.role).(*idm.Role)})
+			}
+		}
+	}
+	return results, nil
 }
