@@ -87,9 +87,11 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) error
 	}
 	if role == nil {
 		return errors.WithMessagef(errors.RoleNotFound, "cannot find role with uuid %s", uuid)
-	} else {
-		return rsp.WriteEntity(role)
 	}
+	if checkError := s.IsAllowed(ctx, uuid, serviceproto.ResourcePolicyAction_READ, cl); checkError != nil {
+		return checkError
+	}
+	return rsp.WriteEntity(role)
 
 }
 
