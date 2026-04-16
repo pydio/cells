@@ -22,6 +22,7 @@ package policy
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"strings"
 
@@ -799,6 +800,9 @@ func splitFrontendPostPolicies(policies []*idm.Policy) ([]*idm.Policy, bool) {
 			for _, s := range p.OrmSubjects {
 				hasSubjects[s.Template] = true
 			}
+			for _, s := range p.Subjects {
+				hasSubjects[s] = true
+			}
 
 			// If it has both profiles, it's the old unified policy - replace it
 			if hasSubjects["profile:standard"] && hasSubjects["profile:shared"] {
@@ -849,7 +853,7 @@ func splitFrontendPostPolicies(policies []*idm.Policy) ([]*idm.Policy, bool) {
 // The old unified "frontend-post" policy (profile:standard + profile:shared) is replaced with two:
 // - "frontend-post" for profile:standard (unchanged, backward compatible name)
 // - "frontend-post-shared" for profile:shared (excludes /frontend/enroll)
-func Upgrade5000(ctx context.Context) error {
+func Upgrade4994(ctx context.Context) error {
 	dao, er := manager.Resolve[DAO](ctx)
 	if er != nil {
 		return er
@@ -858,18 +862,28 @@ func Upgrade5000(ctx context.Context) error {
 	if e != nil {
 		return e
 	}
+	log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: scanning %d policy groups", len(groups)))
 	for _, group := range groups {
 		if group.GetUuid() == "rest-apis-default-accesses" {
+			policyIDs := make([]string, 0, len(group.Policies))
+			for _, p := range group.Policies {
+				policyIDs = append(policyIDs, p.GetID())
+			}
+			log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: found target group %s with policies=%v", group.GetUuid(), policyIDs))
+
 			newPolicies, changed := splitFrontendPostPolicies(group.Policies)
+			log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: splitFrontendPostPolicies changed=%v (before=%d after=%d)", changed, len(group.Policies), len(newPolicies)))
 
 			// Only update if we found the old unified policy
 			if changed {
 				group.Policies = newPolicies
 				if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-					log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
+					log.Logger(ctx).Error("Upgrade4994: could not update policy group "+group.GetUuid(), zap.Error(er))
 				} else {
-					log.Logger(ctx).Info("Updated policy group " + group.GetUuid() + " - split frontend-post for shared profile (WPB-23974)")
+					log.Logger(ctx).Info("Upgrade4994: updated policy group " + group.GetUuid() + " - split frontend-post for shared profile (WPB-23974)")
 				}
+			} else {
+				log.Logger(ctx).Info("Upgrade4994: no change required for group " + group.GetUuid())
 			}
 		}
 	}
@@ -888,7 +902,7 @@ var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	},
 	{
 		TargetVersion: service.ValidVersion("4.9.94"),
-		Up:            Upgrade5000,
+		Up:            Upgrade4994,
 	},
 }
 
