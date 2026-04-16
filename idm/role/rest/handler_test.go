@@ -64,7 +64,7 @@ func TestRoleGetRequiresReadAccess(t *testing.T) {
 		err := h.GetRole(req, rsp)
 
 		So(err, ShouldNotBeNil)
-		So(errors.Is(err, errors.StatusForbidden), ShouldBeTrue)
+		So(errors.Is(err, errors.RoleNotFound), ShouldBeTrue)
 	})
 
 	Convey("allows authorized reads", t, func() {
@@ -155,6 +155,7 @@ func (s *roleSearchClientStream) RecvMsg(m interface{}) error {
 
 // responsesFromRequest turns the captured request into the minimal response set
 // needed by this test: one matching role, or no result.
+// It respects ResourcePolicyQuery subjects to simulate DB-level READ filtering.
 func (s *roleSearchClientStream) responsesFromRequest() ([]*idm.SearchRoleResponse, error) {
 	if s.request == nil {
 		return nil, io.EOF
@@ -164,13 +165,30 @@ func (s *roleSearchClientStream) responsesFromRequest() ([]*idm.SearchRoleRespon
 	for _, query := range s.request.GetQuery().GetSubQueries() {
 		single := new(idm.RoleSingleQuery)
 		if err := query.UnmarshalTo(single); err != nil {
-			return nil, err
+			continue
 		}
 		for _, uuid := range single.GetUuid() {
-			if s.role != nil && uuid == s.role.GetUuid() {
+			if s.role != nil && uuid == s.role.GetUuid() && s.callerCanRead() {
 				results = append(results, &idm.SearchRoleResponse{Role: proto.Clone(s.role).(*idm.Role)})
 			}
 		}
 	}
 	return results, nil
+}
+
+// callerCanRead checks whether the ResourcePolicyQuery subjects match any READ
+// policy on the role, mimicking what PrepareResourcePolicyQuery does at the DB level.
+func (s *roleSearchClientStream) callerCanRead() bool {
+	rpq := s.request.GetQuery().GetResourcePolicyQuery()
+	if rpq == nil {
+		return true // no policy filter — allow (backwards compat)
+	}
+	for _, subject := range rpq.GetSubjects() {
+		for _, pol := range s.role.GetPolicies() {
+			if pol.Action == serviceproto.ResourcePolicyAction_READ && pol.Subject == subject && pol.Effect == serviceproto.ResourcePolicy_allow {
+				return true
+			}
+		}
+	}
+	return false
 }

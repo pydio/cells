@@ -72,10 +72,15 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) error
 		Uuid: []string{uuid},
 	})
 	cl := idmc.RoleServiceClient(ctx)
+	resourcePolicyQuery, er := s.RestToServiceResourcePolicy(ctx, nil)
+	if er != nil {
+		return er
+	}
 	var role *idm.Role
 	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{
 		Query: &serviceproto.Query{
-			SubQueries: []*anypb.Any{query},
+			SubQueries:          []*anypb.Any{query},
+			ResourcePolicyQuery: resourcePolicyQuery,
 		},
 	})
 	if er := commons.ForEach(streamer, err, func(resp *idm.SearchRoleResponse) error {
@@ -87,9 +92,6 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) error
 	}
 	if role == nil {
 		return errors.WithMessagef(errors.RoleNotFound, "cannot find role with uuid %s", uuid)
-	}
-	if checkError := s.IsAllowed(ctx, uuid, serviceproto.ResourcePolicyAction_READ, cl); checkError != nil {
-		return checkError
 	}
 	return rsp.WriteEntity(role)
 
