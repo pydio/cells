@@ -27,6 +27,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 type Collection struct {
@@ -56,27 +58,32 @@ func (m Model) Init(ctx context.Context, db *Database) error {
 			}
 		}
 		name := col.Name
+		b, e := db.CollectionExists(ctx, name)
+		if e != nil {
+			return e
+		}
+		if b {
+			return nil
+		}
+		log.Logger(ctx).Info("Creating MongoDB collection " + col.Name)
 		if e := db.CreateCollection(ctx, name, opts); e != nil {
-			if _, ok := e.(mongo.CommandError); !ok {
-				return e
-			} else {
-				// Collection already exists
-			}
-		} else {
-			for _, model := range col.Indexes {
-				keys := bson.D{}
-				for key, sort := range model {
-					if sort == 2 {
-						keys = append(keys, primitive.E{Key: key, Value: "2dsphere"})
-					} else {
-						keys = append(keys, primitive.E{Key: key, Value: sort})
-					}
-				}
-				if _, e := db.Collection(name).Indexes().CreateOne(ctx, mongo.IndexModel{Keys: keys}); e != nil {
-					return e
+			return e
+		}
+		for _, model := range col.Indexes {
+			keys := bson.D{}
+			var iOpts *options.IndexOptions
+			for key, sort := range model {
+				if sort == 2 {
+					keys = append(keys, primitive.E{Key: key, Value: "2dsphere"})
 				} else {
-					// fmt.Println("Successfully created index " + iName)
+					keys = append(keys, primitive.E{Key: key, Value: sort})
 				}
+				if col.IDName != "" && key == col.IDName {
+					iOpts = &options.IndexOptions{Unique: &b}
+				}
+			}
+			if _, e := db.Collection(name).Indexes().CreateOne(ctx, mongo.IndexModel{Keys: keys, Options: iOpts}); e != nil {
+				return e
 			}
 		}
 	}

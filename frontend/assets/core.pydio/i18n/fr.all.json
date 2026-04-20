@@ -2399,6 +2399,9 @@
   "searchengine.query.action.save-new": {
     "other": "Sauvegarder"
   },
+  "searchengine.query.action.save-legend": {
+    "other": "Enregistrer cette recherche"
+  },
   "searchengine.query.action.clear": {
     "other": "Vider"
   },

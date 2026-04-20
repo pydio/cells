@@ -21,11 +21,12 @@
 package archive
 
 import (
+	"context"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v5/common/proto/jobs"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestExtractAction_GetName(t *testing.T) {
@@ -41,11 +42,12 @@ func TestExtractAction_Init(t *testing.T) {
 
 		action := &ExtractAction{}
 		job := &jobs.Job{}
+		ctx := context.Background()
 		// No Parameters
-		e := action.Init(job, &jobs.Action{})
+		e := action.Init(ctx, job, &jobs.Action{})
 
 		// Valid Cmd
-		e = action.Init(job, &jobs.Action{
+		e = action.Init(ctx, job, &jobs.Action{
 			Parameters: map[string]string{
 				"format": "tar.gz",
 				"target": "path",

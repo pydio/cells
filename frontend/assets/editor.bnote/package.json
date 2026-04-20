@@ -1,5 +1,5 @@
 {
-  "name": "editor.text",
+  "name": "editor.bnote",
   "description": "Very basic text editor",
   "source_path": "res/js",
   "main": "index.js",
@@ -8,8 +8,10 @@
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@babel/plugin-proposal-decorators": "^7.14.5",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
+    "@mantine/core": "^8.3.13",
     "assemble-less": "~0.7.0",
     "babel-loader": "^9.1.2",
     "babel-plugin-add-module-exports": "^1.0.4",
@@ -27,11 +29,17 @@
     "build-prod": "rm -rf res/dist && NODE_ENV=production webpack --config webpack.config.js"
   },
   "dependencies": {
-    "@blocknote/code-block": "0.32.0-hackdays.0",
-    "@blocknote/core": "0.31.1",
-    "@blocknote/mantine": "0.31.1",
-    "@blocknote/react": "0.31.1",
-    "@mantine/core": "^7.17.5",
+    "@blocknote/core": "0.46.2",
+    "@blocknote/mantine": "0.46.2",
+    "@blocknote/react": "0.46.2",
+    "@shikijs/core": "^3.22.0",
+    "@shikijs/engine-javascript": "^3.22.0",
+    "@shikijs/langs": "^3.22.0",
+    "@shikijs/langs-precompiled": "^3.22.0",
+    "@shikijs/themes": "^3.22.0",
+    "@shikijs/types": "^3.22.0",
+    "axios": "^1.13.5",
+    "cells-sdk-ts": "github:pydio/cells-sdk-ts#v5-dev",
     "react-icons": "^5.5.0",
     "uuid4": "1.1.4"
   }

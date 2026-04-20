@@ -432,7 +432,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	} else {
 		actionManager := actions.GetActionsManager()
 		var err error
-		form, err = actionManager.LoadActionForm(actionName)
+		form, err = actionManager.LoadActionForm(req.Request.Context(), actionName)
 		if err != nil {
 			return err
 		}

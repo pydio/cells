@@ -1,11 +1,12 @@
 package bleveimpl
 
 import (
-	"github.com/pydio/cells/v5/common/proto/tree"
-	. "github.com/smartystreets/goconvey/convey"
-
 	"context"
 	"testing"
+
+	"github.com/pydio/cells/v5/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestEvalFreeString(t *testing.T) {

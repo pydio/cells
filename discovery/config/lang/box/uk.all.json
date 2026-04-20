@@ -1,87 +1,87 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "30 днів максимум"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Видалити версії через 30 днів"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Залишити всі"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Зберігати всі версії назавжди"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Регулярне очищення"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Регулярно очищувати версії через певні проміжки часу"
   },
   "aclAction.Name": {
-    "other": "Name"
+    "other": "Назва дії"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "Значення"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Дії"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Ідентифікатори вузлів"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Ідентифікатори ролей"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Ідентифікатори робочого простору"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "не"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Пошук за помилкою (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Успіх"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Json body має ключ..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Пошук в Json тілі (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Розмір тіла Json більше, ніж"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Розмір тіла Json більше, ніж"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "Пошук в Json тілі (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "Розмір тіла Json більше, ніж"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "Розмір тіла Json більше, ніж"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "Час завдання більше ніж"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "Час завдання менше, ніж"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Вільна умова"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "Шлях до JSON"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -90,292 +90,292 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "Дорівнює"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "дорівнює"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "Збіги"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "відповідає"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "патерн"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Вірно"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "Умова CIDR (діапазон IP-адрес)"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "Суб'єкт дорівнює"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "Ресурс містить"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "Рівняння рядків"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "Збіг рядка"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "Пари рядків дорівнюють"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "Рядок не збігається"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "Період дати"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "Графік роботи"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "Дата після"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Порівняння за шаблоном Glob"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Булеве значення"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "Тип вмісту"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "Кукі рядки"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "Протокол HTTP"
   },
   "contextMetaField.RemoteAddress": {
-    "other": "Remote Address"
+    "other": "Віддалена адреса"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "Ім'я хоста запиту"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Запит Хоста"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Порт запиту"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "Метод запиту"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "URI запиту"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "Час сервера"
   },
   "contextMetaField.UserAgent": {
-    "other": "User Agent"
+    "other": "Ідентифікатор браузера"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "Стан"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "Назва файлу"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "Має автозастосування"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "Є роллю групи"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "Команда"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "Є роллю користувача"
   },
   "roleSingleQuery.Label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "ні"
   },
   "treeQuery.Content": {
-    "other": "Content"
+    "other": "Зміст"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "Дата зміни (використати порівняння)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "Розширення файлу"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "Ім'я файлу"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Ім'я файлу або вміст"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "Високоподібний пошуковий рядок"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "Запит геолокації"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "Змінено до"
   },
   "treeQuery.MaxSize": {
     "other": "MaxSize"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "Змінено з"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "Розмір більше, ніж"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "Глибина шляху"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "Префікс шляху"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Абсолютні шляхи"
   },
   "treeQuery.Type": {
-    "other": "Type"
+    "other": "Тип"
   },
   "treeQuery.Type.COLLECTION": {
-    "other": "Folder"
+    "other": "Тека"
   },
   "treeQuery.Type.LEAF": {
-    "other": "File"
+    "other": "Файл"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "Всі"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "UUID вузла"
   },
   "treeQuery.ETag": {
     "other": "ETag"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "Має будь-яке значення"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Назва атрибута"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Значення атрибута"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "З'єднано з"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Повний шлях"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "Шлях групи"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "Має профіль"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "Має роль"
   },
   "userSingleQuery.Login": {
-    "other": "Login"
+    "other": "Увійти"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "Тип об'єкта"
   },
   "userSingleQuery.NodeType.GROUP": {
-    "other": "Group"
+    "other": "Група"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "Всі"
   },
   "userSingleQuery.NodeType.USER": {
-    "other": "User"
+    "other": "Користувач"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "userSingleQuery.Password": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "Рекурсивний"
   },
   "userSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "ні"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Назва атрибуту"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Значення атрибута"
   },
   "workspaceSingleQuery.Description": {
-    "other": "Description"
+    "other": "Опис"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "Має атрибут"
   },
   "workspaceSingleQuery.Label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "workspaceSingleQuery.LastUpdated": {
-    "other": "Last updated"
+    "other": "Останнє оновлення"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "workspaceSingleQuery.Scope": {
-    "other": "Scope"
+    "other": "Область застосування"
   },
   "workspaceSingleQuery.Slug": {
-    "other": "Slug"
+    "other": "Мітка"
   },
   "workspaceSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "workspaceSingleQuery.description": {
-    "other": "Description"
+    "other": "Опис"
   },
   "workspaceSingleQuery.label": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "ні"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "Тип робочого простору"
   },
   "workspaceSingleQuery.scope.ADMIN": {
-    "other": "Workspace"
+    "other": "Робочий простір"
   },
   "workspaceSingleQuery.scope.ANY": {
-    "other": "Any"
+    "other": "Всі"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "Публічне посилання"
   },
   "workspaceSingleQuery.scope.ROOM": {
-    "other": "Cell"
+    "other": "Комірка"
   },
   "workspaceSingleQuery.slug": {
     "other": "Slug"
@@ -384,90 +384,90 @@
     "other": "Uuid"
   },
   "dataSourceSingleQuery.Name": {
-    "other": "Name"
+    "other": "Ім'я"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "Вимкнено"
   },
   "dataSourceSingleQuery.StorageType": {
-    "other": "Storage Type"
+    "other": "Тип сховища"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "Пульт"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "Будь-яке"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "Місцевий"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "Адреса вузла"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "Склад з квартирою"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "Пропустити синхронізацію при перезапуску"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "Версійний"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "Зашифрований"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "Режим шифрування"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "Ключ користувача"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
     "other": "User-pwd"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
-    "other": "Clear"
+    "other": "Очистити"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "Головний ключ"
   },
   "dataSourceSingleQuery.EncryptionKey": {
-    "other": "Encryption Key"
+    "other": "Ключ шифрування"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "Versioning Policy"
+    "other": "Політика версійності"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "Ключ конфігурації"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "Значення конфігурації"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
-    "other": "Object Service"
+    "other": "Об’єкт служби"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ні"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "Запланований тригер"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Запущено Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
-    "other": "Webhook Api Slug"
+    "other": "Вебгак Api Слаг"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Запустити ім'я параметра"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Запустити значення параметра"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "Manual Trigger"
+    "other": "Ручний тригер"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "Події"
   }
 }

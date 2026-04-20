@@ -92,7 +92,11 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer BleveFieldTransformerF
 			regexp += "$"
 		}
 		if wc == "T*" { // Special case for boolean query
-			filters = append(filters, bson.E{Key: fName, Value: true})
+			if not { // false or not exists
+				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$ne": true}})
+			} else {
+				filters = append(filters, bson.E{Key: fName, Value: true})
+			}
 		} else if insensitive {
 			filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 		} else {

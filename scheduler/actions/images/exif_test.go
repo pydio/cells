@@ -34,6 +34,7 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/scheduler/actions"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -55,7 +56,8 @@ func TestExifProcessor_Init(t *testing.T) {
 
 		action := &ExifProcessor{}
 		job := &jobs.Job{}
-		e := action.Init(job, &jobs.Action{})
+
+		e := action.Init(context.Background(), job, &jobs.Action{})
 		So(e, ShouldBeNil)
 
 	})
@@ -68,7 +70,7 @@ func TestExifProcessor_Run(t *testing.T) {
 		action := &ExifProcessor{}
 		job := &jobs.Job{}
 		// Test action without parameters
-		e := action.Init(job, &jobs.Action{})
+		e := action.Init(context.Background(), job, &jobs.Action{})
 		So(e, ShouldBeNil)
 		action.metaClient = nodes.NewHandlerMock()
 

@@ -24,7 +24,7 @@ import (
 	version "github.com/hashicorp/go-version"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 }
 
 // upgradeDefaultWebTheme change preset theme value to material
-func upgradeDefaultWebTheme(conf configx.Values) error {
+func upgradeDefaultWebTheme(conf kv.Values) error {
 
 	theme := conf.Val(config.FrontendPluginPath(config.KeyFrontPluginGuiAjax, "GUI_THEME")...)
 	if theme.String() == "light" {

@@ -63,15 +63,35 @@ type MultiContextProvider interface {
 	Watch(ctx context.Context, add func(context.Context, string) error, remove func(context.Context, string) error, iterate bool) error
 }
 
-type basicMulti struct{}
+type basicContextProvider struct {
+	ctx context.Context
+}
+
+func (b *basicContextProvider) ID() string {
+	return "default"
+}
+
+func (b *basicContextProvider) SetRootContext(ctx context.Context) {
+	b.ctx = ctx
+}
+
+func (b *basicContextProvider) Context(ctx context.Context) context.Context {
+	return b.ctx
+}
+
+type basicMulti struct {
+	ctxProvider ContextProvider
+}
 
 func (b *basicMulti) Current(ctx context.Context) string {
-
 	return "default"
 }
 
 func (b *basicMulti) CurrentContextProvider(ctx context.Context) ContextProvider {
-	return nil
+	if b.ctxProvider == nil {
+		b.ctxProvider = &basicContextProvider{ctx}
+	}
+	return b.ctxProvider
 }
 
 func (b *basicMulti) RootContext(ctx context.Context) context.Context {

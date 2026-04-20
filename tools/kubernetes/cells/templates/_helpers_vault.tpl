@@ -31,8 +31,8 @@ VAULT ACTIVATION
 
 {{- define "cells.vault.envvar" -}}
 {{- if (include "cells.vault.enabled" .) -}}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_KEYRING" "value" (include "cells.vault.url" (list . "/secret?key=keyring")))) "context" .) }}
-{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CERTS_STORE" "value" (include "cells.vault.url" (list . "/caddycerts")))) "context" .) }}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_KEYRING" "value" (include "cells.vault.url" (list . "/secret?key=keyring&")))) "context" .) }}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CERTS_STORE" "value" (include "cells.vault.url" (list . "/caddycerts?")))) "context" .) }}
 {{- else -}}
 {{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CERTS_STORE" "value" "file:///var/cells/certs")) "context" .) }}
 {{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CADDYPATH" "value" "/var/cells")) "context" .) }}
@@ -43,31 +43,55 @@ VAULT ACTIVATION
 VAULT TLS ACTIVATION
 */}}
 {{- define "cells.vault.tls.enabled" -}}
+{{- if and  .Values.vault.enabled .Values.vault.global.tlsDisable -}}
+{{- true -}}
+{{- else if and .Values.externalVault.enabled .Values.externalVault.tls.enabled -}}
+{{- true -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.scheme" -}}
+{{- if (include "cells.vault.tls.enabled" .) -}}
+{{ "vaults" }}
+{{- else -}}
 {{ "vault" }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.ca.existingSecret" -}}
+{{- if .Values.externalVault.enabled -}}
+{{ .Values.externalVault.tls.ca.existingSecret }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.server.existingSecret" -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.client.existingSecret" -}}
+{{- if .Values.externalVault.enabled -}}
+{{ .Values.externalVault.tls.client.existingSecret }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.ca.cert" -}}
+{{- if .Values.externalVault.enabled -}}
+{{ .Values.externalVault.tls.ca.cert }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.ca.key" -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.client.cert" -}}
+{{- if .Values.externalVault.enabled -}}
+{{ .Values.externalVault.tls.client.cert }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.client.key" -}}
+{{- if .Values.externalVault.enabled -}}
+{{ .Values.externalVault.tls.client.key }}
+{{- end -}}
 {{- end -}}
 
 {{- define "cells.vault.tls.server.cert" -}}
@@ -80,7 +104,7 @@ VAULT TLS ACTIVATION
 VAULT TLS PARAMÈTRES
 */}}
 {{- define "cells.vault.tls.params" -}}
-{{ if (include "cells.vault.tls.enabled" .) }}
+{{- if (include "cells.vault.tls.enabled" .) -}}
 {{ include "cells.urlTLSParams" (dict
   "enabled"         (include "cells.vault.tls.enabled" .)
   "prefix"          "vault"
@@ -133,6 +157,7 @@ VAULT URL COMPLÈTE
 */}}
 {{- define "cells.vault.url" -}}
 {{- $path := index . 1 }}
+{{- $tlsParams := (include "cells.vault.tls.params" (index . 0)) -}}
 {{- with index . 0 }}
 {{- printf "%s://%s%s:%s%s%s"
     (include "cells.vault.tls.scheme" .)
@@ -140,7 +165,7 @@ VAULT URL COMPLÈTE
     (include "cells.vault.host" .)
     (include "cells.vault.port" .)
     $path
-    (include "cells.vault.tls.params" .)
+    $tlsParams
 }}
 {{- end }}
 {{- end }}

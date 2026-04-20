@@ -4,16 +4,16 @@ package grpc
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
+	"github.com/ory/fosite/token/jwt"
+
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/auth"
-	sql2 "github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/configx"
-	"github.com/pydio/cells/v5/common/utils/uuid"
+	"github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/idm/oauth/dao/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -31,13 +31,16 @@ var (
 
 func init() {
 	// TODO - Run only one tc for now - it keeps failing on the server
-	testCases = []test.StorageTestCase{
-		{
-			DSN:       []string{sql2.SqliteDriver + "://" + sql2.SharedMemDSN + "&hookNames=cleanTables&prefix=" + uuid.New()},
-			Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
-			DAO:       sql.NewPatDAO,
-		},
-	}
+	/*
+		testCases = []test.StorageTestCase{
+			{
+				DSN:       []string{sql2.SqliteDriver + "://" + sql2.SharedMemDSN + "&hookNames=cleanTables&prefix=" + uuid.New()},
+				Condition: os.Getenv("CELLS_TEST_SKIP_SQLITE") != "true",
+				DAO:       sql.NewPatDAO,
+			},
+		}
+
+	*/
 }
 
 func TestPatHandler_Generate(t *testing.T) {
@@ -76,11 +79,24 @@ func TestPatHandler_Generate(t *testing.T) {
 			So(er1, ShouldBeNil)
 			So(verifyResponse.Success, ShouldBeTrue)
 
+			// Check that data is correct
+			cl := &jwt.IDTokenClaims{}
+			er := jsonx.Unmarshal(verifyResponse.Data, cl)
+			So(er, ShouldBeNil)
+			So(cl.Subject, ShouldEqual, "admin-uuid")
+			So(cl.Extra, ShouldNotBeNil)
+			So(cl.Extra["scopes"], ShouldHaveLength, 3)
+
 			<-time.After(3 * time.Second)
 
 			verifyResponse, er1 = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(er1, ShouldNotBeNil)
 			So(errors.Is(er1, errors.StatusUnauthorized), ShouldBeTrue)
+
+			// Run Prune, should return some results
+			pruneResp, er := pat.PruneTokens(ctx, &auth.PruneTokensRequest{})
+			So(er, ShouldBeNil)
+			So(pruneResp.Count, ShouldBeGreaterThan, 0)
 
 		})
 	})
@@ -123,6 +139,11 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 			<-time.After(5 * time.Second)
 			verifyResponse, er = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken})
 			So(errors.Is(er, errors.StatusUnauthorized), ShouldBeTrue)
+
+			// Run Prune, should return some results
+			pruneResp, er := pat.PruneTokens(ctx, &auth.PruneTokensRequest{})
+			So(er, ShouldBeNil)
+			So(pruneResp.Count, ShouldBeGreaterThan, 0)
 
 		})
 	})

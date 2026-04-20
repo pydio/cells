@@ -27,6 +27,7 @@ import (
 	"github.com/ory/ladon"
 
 	"github.com/pydio/cells/v5/common/proto/idm"
+	pb "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/service"
 )
 
@@ -39,6 +40,6 @@ type DAO interface {
 	MigrateLegacy(ctx context.Context) error
 	IsAllowed(ctx context.Context, r *ladon.Request) error
 	StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error)
-	ListPolicyGroups(ctx context.Context, filter string) ([]*idm.PolicyGroup, error)
+	ListPolicyGroups(ctx context.Context, query pb.Enquirer) ([]*idm.PolicyGroup, error)
 	DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error
 }

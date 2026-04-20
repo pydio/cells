@@ -2399,6 +2399,9 @@
   "searchengine.query.action.save-new": {
     "other": "Speichern"
   },
+  "searchengine.query.action.save-legend": {
+    "other": "Diese Suchanfrage zur späteren Wiederverwendung speichern"
+  },
   "searchengine.query.action.clear": {
     "other": "Löschen der Warteschlange"
   },

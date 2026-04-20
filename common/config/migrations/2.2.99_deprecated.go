@@ -27,7 +27,7 @@ func init() {
 	add(v, getMigration(updateThumbsStore))
 }
 
-func updateVersionsStore(conf configx.Values) error {
+func updateVersionsStore(conf kv.Values) error {
 
 	//  NIL CONTEXT FOR V5 => DEPRECATE
 	var ctx context.Context
@@ -76,7 +76,7 @@ func updateVersionsStore(conf configx.Values) error {
 	return nil
 }
 
-func updateThumbsStore(conf configx.Values) error {
+func updateThumbsStore(conf kv.Values) error {
 
 	//  NIL CONTEXT FOR V5 => DEPRECATE
 	var ctx context.Context

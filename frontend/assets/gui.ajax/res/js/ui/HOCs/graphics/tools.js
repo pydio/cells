@@ -69,8 +69,8 @@ export function colorsFromString(s){
     const hex = "00000".substring(0, 6 - c.length) + c;
     let color = new Color('#' + hex).hsl();
     const hue = color.hue();
-    const bg = new Color({h: hue, s: color.saturationl(), l: 90});
-    const fg = new Color({h: hue, s: color.saturationl(), l: 40});
+    const bg = new Color({h: hue, s: color.saturationl(), l: 96});
+    const fg = new Color({h: hue, s: color.saturationl(), l: 30});
     const result = {color: fg.string(), backgroundColor:bg.string()};
     colorsCache[s] = result;
     return result;

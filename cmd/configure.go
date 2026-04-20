@@ -43,7 +43,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/install"
 	cruntime "github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/telemetry/log"
 	unet "github.com/pydio/cells/v5/common/utils/net"
 
 	_ "embed"
@@ -269,7 +268,7 @@ func browserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) (err err
 
 	ctx := context.WithValue(cmd.Context(), "managertype", "standard")
 
-	m, err := manager.NewManager(ctx, cruntime.NsMain, log.Logger(cruntime.WithServiceName(ctx, "pydio.server.manager")))
+	m, err := manager.NewManager(ctx, cruntime.NsMain)
 	if err != nil {
 		return err
 	}

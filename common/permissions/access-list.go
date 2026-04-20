@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -411,8 +410,8 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 
 }
 
-// FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
-func (a *AccessList) FlattenedFrontValues() configx.Values {
+// FlattenedFrontValues generates a kv.Values with frontend actions/parameters configs
+func (a *AccessList) FlattenedFrontValues() kv.Values {
 	output := kv.NewStore()
 	for _, role := range a.orderedRoles {
 		for _, acl := range a.frontACLs {

@@ -326,6 +326,16 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 		}
 	}
 
+	if u, o := data[getKey("CorsOptions")]; o {
+		mm, _ := json.Marshal(u)
+		options := &CorsOptions{}
+		if e := json.Unmarshal(mm, options); e == nil {
+			m.CorsOptions = options
+		} else {
+			return errors.New("unexpected type for CorsOptions (expected CorsOptions)")
+		}
+	}
+
 	return nil
 }
 

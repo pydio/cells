@@ -23,11 +23,12 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "pdfjs-dist": "2.12.313",
-    "react-pdf": "5.7.2"
+    "copy-webpack-plugin": "^13.0.1",
+    "pdfjs-dist": "5.4.296",
+    "react-pdf": "10.2.0"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "build-prod": "NODE_ENV=production webpack --config webpack.config.js"
+    "build-prod": "NODE_ENV=production webpack --config webpack.config.js #FIXME see config"
   }
 }

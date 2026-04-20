@@ -176,7 +176,7 @@ func (m *DynamicJobsHandler) applyInputDescriptor(ctx context.Context, d *jobs.M
 			log.Logger(ctx).Warn("Action not found in actions manager", zap.String("action", a.GetID()))
 			return ctx, nil, nil, false, nil
 		}
-		if er := impl.Init(&jobs.Job{}, a); er != nil {
+		if er := impl.Init(ctx, &jobs.Job{}, a); er != nil {
 			log.Logger(ctx).Warn("Failed to initialize action", zap.Error(er))
 			return ctx, nil, nil, false, nil
 		}

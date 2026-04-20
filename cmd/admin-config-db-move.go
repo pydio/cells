@@ -173,7 +173,7 @@ func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flat
 			service.WithStorageDrivers(migOption.SupportedDrivers[migOption.storageKey]),
 		)
 	})
-	mgr, err := manager.NewManager(ctx, "test", nil)
+	mgr, err := manager.NewManager(ctx, "test")
 	if err != nil {
 		return err
 	}

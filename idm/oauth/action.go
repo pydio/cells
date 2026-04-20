@@ -51,9 +51,7 @@ var (
 	pruneTokensActionName = "actions.auth.prune.tokens"
 )
 
-type PruneTokensAction struct {
-	common.RuntimeHolder
-}
+type PruneTokensAction struct{}
 
 func (c *PruneTokensAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
@@ -68,7 +66,7 @@ func (c *PruneTokensAction) GetDescription(lang ...string) actions.ActionDescrip
 	}
 }
 
-func (c *PruneTokensAction) GetParametersForm() *forms.Form {
+func (c *PruneTokensAction) GetParametersForm(context.Context) *forms.Form {
 	return nil
 }
 
@@ -78,7 +76,7 @@ func (c *PruneTokensAction) GetName() string {
 }
 
 // Init pass parameters
-func (c *PruneTokensAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *PruneTokensAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 

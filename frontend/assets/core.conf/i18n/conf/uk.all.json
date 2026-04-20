@@ -54,13 +54,13 @@
     "other": "Default Workspace"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "Робоча область за замовчуванням, що відображається після входу. «Домівка» — це вітальна сторінка з оглядом активності та пошуковою системою."
   },
   "Display roles and/or groups": {
     "other": "Display roles and/or groups"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "Не відображати справжній логін в дужках"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
     "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
@@ -84,13 +84,13 @@
     "other": "Generic Conf Features"
   },
   "Hide real login": {
-    "other": "Hide real login"
+    "other": "Приховати справжній логін"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
     "other": "If previous option is set to True, directly display a full list of users from all groups"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "Якщо цей параметр встановлено, дія виконуватиметься автоматично під час входу користувачів. Це може бути logout (для блокування доступу), pass_change (для примусової зміни пароля) або будь-яка інша дія"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
     "other": "If the 'guest' user is enabled, remember her preferences accross sessions."

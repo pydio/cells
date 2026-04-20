@@ -188,7 +188,7 @@ func skipCoreInit() bool {
 
 // initManagerContext starts an empty manager with Root context in the "cmd" namespace
 func initManagerContext(ctx context.Context) (context.Context, error) {
-	mgr, err := manager.NewManager(runtime.MultiContextManager().RootContext(ctx), runtime.NsCmd, nil)
+	mgr, err := manager.NewManager(runtime.MultiContextManager().RootContext(ctx), runtime.NsCmd)
 	if err != nil {
 		return nil, err
 	}
@@ -206,31 +206,18 @@ func initLogLevel() {
 	}
 
 	// Init log level
-	logLevel := runtime.LogLevel()
-	logJson := runtime.LogJSON()
+	stdoutLevel := runtime.LogLevel()
+	common.LogJSON = runtime.LogJSON()
 	common.LogToFile = runtime.LogToFile()
 
-	// Backward compatibility
-	if os.Getenv("PYDIO_LOGS_LEVEL") != "" {
-		logLevel = os.Getenv("PYDIO_LOGS_LEVEL")
-	}
-	if logLevel == "production" {
-		logLevel = "info"
-		logJson = true
-		common.LogToFile = true
-	}
-
-	// Making sure the log level is passed everywhere (fork processes for example)
-	_ = os.Setenv("CELLS_LOG", logLevel)
+	// Making sure the log level is passed in forks
+	_ = os.Setenv("CELLS_LOG", stdoutLevel)
 	_ = os.Setenv("CELLS_LOG_TO_FILE", strconv.FormatBool(common.LogToFile))
-
-	if logJson {
+	if common.LogJSON {
 		_ = os.Setenv("CELLS_LOG_JSON", "true")
-		common.LogConfig = common.LogConfigProduction
-	} else {
-		common.LogConfig = common.LogConfigConsole
 	}
-	switch logLevel {
+
+	switch stdoutLevel {
 	case "info":
 		common.LogLevel = zap.InfoLevel
 	case "warn":
@@ -241,18 +228,15 @@ func initLogLevel() {
 		common.LogLevel = zap.ErrorLevel
 	}
 
-	encoding := "console"
-	baseDir := ""
-	if logJson {
-		encoding = "json"
+	ll := []log.LoggerConfig{
+		log.DefaultStdoutLogger(stdoutLevel, common.LogJSON),
 	}
-	if common.LogToFile {
-		baseDir = runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
-	}
-	log.Init(otel.Service{}, log.DefaultLegacyConfig(logLevel, encoding, baseDir), cw.RichContext)
 
-	// Using it once
-	// todo necessary?
+	if common.LogToFile {
+		baseDir := runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
+		ll = append(ll, log.DefaultJsonLogger(baseDir, ""))
+	}
+	log.Init(otel.Service{}, ll, cw.RichContext)
 	log.Logger(runtime.AsCoreContext(_ctx))
 }
 

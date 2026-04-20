@@ -14,7 +14,7 @@ var JsonRequest = &cobra.Command{
 	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		action := &cmd2.RpcAction{}
-		action.Init(&jobs.Job{}, &jobs.Action{
+		action.Init(cmd.Context(), &jobs.Job{}, &jobs.Action{
 			Parameters: map[string]string{
 				"service": "pydio.grpc.mailer",
 				"method":  "mailer.MailerService.ConsumeQueue",
@@ -24,7 +24,7 @@ var JsonRequest = &cobra.Command{
 		action.Run(cmd.Context(), nil, &jobs.ActionMessage{})
 
 		action2 := &cmd2.RpcAction{}
-		action2.Init(&jobs.Job{}, &jobs.Action{
+		action2.Init(cmd.Context(), &jobs.Job{}, &jobs.Action{
 			Parameters: map[string]string{
 				"service": "pydio.grpc.role",
 				"method":  "idm.RoleService.SearchRole",

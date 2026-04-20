@@ -8,8 +8,8 @@ package idm
 
 import (
 	context "context"
+	errors "errors"
 	fmt "fmt"
-	"github.com/pydio/cells/v5/common/errors"
 	stubs "github.com/pydio/cells/v5/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
@@ -392,6 +392,69 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		}
 	case "/idm.UserMetaService/UpdateUserMetaNamespace":
 		resp, er := s.UserMetaServiceServer.UpdateUserMetaNamespace(ctx, args.(*UpdateUserMetaNamespaceRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetFieldSchema":
+		resp, er := s.UserMetaServiceServer.GetFieldSchema(ctx, args.(*GetFieldSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetNamespaceSchema":
+		resp, er := s.UserMetaServiceServer.GetNamespaceSchema(ctx, args.(*GetNamespaceSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetEntityValues":
+		resp, er := s.UserMetaServiceServer.GetEntityValues(ctx, args.(*GetMetaEntityValuesRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/DeleteEntity":
+		resp, er := s.UserMetaServiceServer.DeleteEntity(ctx, args.(*GetMetaEntityValuesRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/CreateEntity":
+		resp, er := s.UserMetaServiceServer.CreateEntity(ctx, args.(*CreateEntityRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/CreateEntityValues":
+		resp, er := s.UserMetaServiceServer.CreateEntityValues(ctx, args.(*CreateEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/LinkMetaToEntityValue":
+		resp, er := s.UserMetaServiceServer.LinkMetaToEntityValue(ctx, args.(*MetaToEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/UnlinkMetaFromEntityValue":
+		resp, er := s.UserMetaServiceServer.UnlinkMetaFromEntityValue(ctx, args.(*MetaToEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetMetadata":
+		resp, er := s.UserMetaServiceServer.GetMetadata(ctx, args.(*GetMetadataRequest))
 		if er == nil {
 			e = stubs.AssignToInterface(resp, reply)
 		} else {

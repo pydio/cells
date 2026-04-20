@@ -25,7 +25,7 @@ import (
 
 	version "github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 func init() {
@@ -41,8 +41,8 @@ func appendQueryPart(dsn, queryString string) string {
 	}
 }
 
-// upgradeDefaultWebTheme change preset theme value to material
-func upgradeDefaultDatabasesToV5(conf configx.Values) error {
+// upgradeDefaultDatabasesToV5 fixes the databases section
+func upgradeDefaultDatabasesToV5(conf kv.Values) error {
 	type db struct {
 		Driver string `json:"driver"`
 		Dsn    string `json:"dsn"`
@@ -55,6 +55,7 @@ func upgradeDefaultDatabasesToV5(conf configx.Values) error {
 	if databases == nil {
 		return nil
 	}
+	useMongo := false
 	for _, d := range databases {
 		switch d.Driver {
 		case "mysql":
@@ -62,16 +63,19 @@ func upgradeDefaultDatabasesToV5(conf configx.Values) error {
 			d.Dsn = appendQueryPart(d.Dsn, "prefix={{.Meta.prefix}}&policies={{.Meta.policies}}&singular={{.Meta.singular}}")
 		case "mongodb":
 			d.Dsn = appendQueryPart(d.Dsn, "prefix={{.Meta.prefix}}")
+			useMongo = true
 		}
 	}
-	// Append bleve/bolt definitions
-	databases["bolt"] = &db{
-		Driver: "bolt",
-		Dsn:    "boltdb://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}",
-	}
-	databases["bleve"] = &db{
-		Driver: "bleve",
-		Dsn:    "bleve://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}",
+	if !useMongo {
+		// Append bleve/bolt definitions
+		databases["bolt"] = &db{
+			Driver: "bolt",
+			Dsn:    "boltdb://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}",
+		}
+		databases["bleve"] = &db{
+			Driver: "bleve",
+			Dsn:    "bleve://{{ autoMkdir (serviceDataDir .Service) }}/{{ .Meta.file }}",
+		}
 	}
 
 	return conf.Val("databases").Set(databases)

@@ -153,7 +153,7 @@
     "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite (dev purpose only)"
+    "other": "SQLite (solo para dev propósito)"
   },
   "form.dbConnectionType.manual": {
     "other": "Manual"
@@ -195,16 +195,16 @@
     "other": "Introduzca la ubicación del archivo socket que se utilizará para conectar"
   },
   "form.dbSocketFileSQLite.label": {
-    "other": "Database Path"
+    "other": "Ruta de la base de datos"
   },
   "form.dbSocketFileSQLite.legend": {
-    "other": "Enter the location of the SQLite database"
+    "other": "Introduzca la ubicación de la base de datos SQLite"
   },
   "form.dbSqliteFile.label": {
     "other": "Ruta de archivo"
   },
   "form.dbSqliteFile.legend": {
-    "other": "Enter the location of the file to use as database"
+    "other": "Introduzca la ubicación del archivo a usar como base de datos"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"

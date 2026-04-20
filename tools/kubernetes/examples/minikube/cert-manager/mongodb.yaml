@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mongodb-tls
+  namespace: cells
+spec:
+  secretName: mongodb-tls
+  commonName: mongodb-svc.cells.svc.cluster.local
+  dnsNames:
+    - mongodb-svc
+    - mongodb-svc.cells
+    - mongodb-svc.cells.svc
+    - mongodb-svc.cells.svc.cluster.local
+  issuerRef:
+    name: selfsigned-root
+    kind: Issuer
+  # optional privateKey policy:
+  privateKey:
+    rotationPolicy: Never # Always | Never

@@ -5,7 +5,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
@@ -24,7 +23,6 @@ var (
 )
 
 type CleanUserDataAction struct {
-	common.RuntimeHolder
 	targetParent string
 }
 
@@ -44,7 +42,7 @@ func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescr
 }
 
 // GetParametersForm returns a UX form
-func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
+func (c *CleanUserDataAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -67,7 +65,7 @@ func (c *CleanUserDataAction) GetName() string {
 }
 
 // Init passes parameters
-func (c *CleanUserDataAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *CleanUserDataAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	if tp, o := action.Parameters["targetParent"]; o {
 		c.targetParent = tp
 	}

@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type Indexer struct {
@@ -65,7 +65,7 @@ func (i *Indexer) SetCollection(c string) {
 	i.collection = c
 }
 
-func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
+func (i *Indexer) Init(ctx context.Context, cfg kv.Values) error {
 	if i.collection == "" {
 		return errors.New("indexer must provide a collection name")
 	}

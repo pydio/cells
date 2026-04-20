@@ -6,7 +6,6 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/idmc"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
@@ -28,7 +27,6 @@ func init() {
 }
 
 type DeleteUsersAction struct {
-	common.RuntimeHolder
 	task   *jobs.Task
 	params map[string]string
 }
@@ -46,7 +44,7 @@ func (a *DeleteUsersAction) GetDescription(lang ...string) actions.ActionDescrip
 	}
 }
 
-func (a *DeleteUsersAction) GetParametersForm() *forms.Form {
+func (a *DeleteUsersAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{{Fields: []forms.Field{
 		&forms.FormField{
 			Name:        "login",
@@ -77,7 +75,7 @@ func (a *DeleteUsersAction) ProvidesProgress() bool {
 	return true
 }
 
-func (a *DeleteUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (a *DeleteUsersAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	a.params = action.Parameters
 	return nil
 }

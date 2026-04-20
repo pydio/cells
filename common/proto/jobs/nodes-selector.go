@@ -42,9 +42,9 @@ type NodeMatcher struct {
 	*tree.Query
 }
 
-func (n *NodeMatcher) Matches(object interface{}) bool {
+func (n *NodeMatcher) Matches(ctx context.Context, object interface{}) bool {
 	if node, ok := object.(*tree.Node); ok {
-		return evaluateSingleQuery(n.Query, node)
+		return evaluateSingleQuery(ctx, n.Query, node)
 	} else {
 		return false
 	}
@@ -301,7 +301,7 @@ func (n *NodesSelector) Filter(ctx context.Context, input *ActionMessage) (*Acti
 			continue
 		}
 		if multi != nil {
-			if multi.Matches(node) {
+			if multi.Matches(ctx, node) {
 				newNodes = append(newNodes, node)
 			} else {
 				excluded = append(excluded, node)
@@ -365,7 +365,7 @@ func contains(slice []string, value string, prefix bool, lower bool) bool {
 	return false
 }
 
-func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
+func evaluateSingleQuery(ctx context.Context, q *tree.Query, node *tree.Node) (result bool) {
 
 	defer func() {
 		// Invert result if q.Not
@@ -466,10 +466,10 @@ func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
 	// Bleve-style query string
 	if len(q.FreeString) > 0 {
 		if freeStringEvaluator == nil {
-			log.Logger(context.Background()).Error("Warning, no FreeStringEvaluator was registered for nodes selector")
+			log.Logger(ctx).Error("Warning, no FreeStringEvaluator was registered for nodes selector")
 			return false
 		} else {
-			return freeStringEvaluator(context.Background(), q.FreeString, node)
+			return freeStringEvaluator(ctx, q.FreeString, node)
 		}
 	}
 

@@ -12,7 +12,6 @@ import (
 )
 
 type ScopedRouterConsumer struct {
-	common.RuntimeHolder
 	owner        string
 	ownerScope   bool
 	presetClient nodes.Handler

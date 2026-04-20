@@ -23,6 +23,7 @@ package vault
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"net/url"
 	"strings"
 	"sync"
@@ -60,7 +61,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) 
 	return New(u, storePath, key, rootToken)
 }
 
-func New(u *url.URL, storePath, key, rootToken string, opts ...configx.Option) (config.Store, error) {
+func New(u *url.URL, storePath, key, rootToken string, opts ...kv.Option) (config.Store, error) {
 
 	vc := vault.DefaultConfig()
 	if u.Scheme == "vault" {
@@ -91,7 +92,7 @@ type store struct {
 	storePath string
 	keyName   string
 	cli       *vault.Client
-	v         configx.Values
+	v         kv.Values
 	locker    *sync.RWMutex
 }
 
@@ -119,14 +120,14 @@ func (s *store) read() {
 	}
 }
 
-func (s *store) Context(ctx context.Context) configx.Values {
+func (s *store) Context(ctx context.Context) kv.Values {
 	return &val{
 		Values: s.v.Context(ctx),
 		store:  s,
 	}
 }
 
-func (s *store) Options() *configx.Options {
+func (s *store) Options() *kv.Options {
 	return s.v.Options()
 }
 
@@ -154,14 +155,14 @@ func (s *store) Del() error {
 	return er
 }
 
-func (s *store) Val(path ...string) configx.Values {
+func (s *store) Val(path ...string) kv.Values {
 	s.read()
 	v := s.v.Val(path...)
-	// Wrap into an autoSave configx.Values
+	// Wrap into an autoSave kv.Values
 	return &val{Values: v, store: s}
 }
 
-func (s *store) Default(def any) configx.Values {
+func (s *store) Default(def any) kv.Values {
 	return &val{Values: s.v.Default(def), store: s}
 }
 
@@ -199,9 +200,9 @@ func (s *store) NewLocker(name string) sync.Locker {
 	return &sync.RWMutex{}
 }
 
-// val wraps configx.Values to trigger save on any update
+// val wraps kv.Values to trigger save on any update
 type val struct {
-	configx.Values
+	kv.Values
 	store *store
 }
 

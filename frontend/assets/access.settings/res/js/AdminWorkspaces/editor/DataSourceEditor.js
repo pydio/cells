@@ -251,8 +251,7 @@ class DataSourceEditor extends React.Component{
         let storages = {
             LOCAL: {primaryText:this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image:'fs.png'},
             S3: {primaryText:this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image:'s3-compat.png'},
-            AZURE: {primaryText:this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image:'azure.png'},
-            GCS: {primaryText:this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image:'gcs.png'},
+            AZURE: {primaryText:this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image:'azure.png'}
         };
         let storageData = {};
         storageTypes.forEach(type => {
@@ -434,14 +433,6 @@ class DataSourceEditor extends React.Component{
                     <ModernTextField fullWidth={true} variant={'v2'} type={"password"} hintText={m('storage.azure.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                 </div>
                 }
-                {model.StorageType === 'GCS' &&
-                <div style={styles.storageSection}>
-                    <div style={styles.legend}>{m('storage.legend.gcs')}</div>
-                    <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.gcs.bucket') + ' *'} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
-                    <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.gcs.credentials') + ' *'} value={model.StorageConfiguration.jsonCredentials} onChange={(e,v)=>{model.StorageConfiguration.jsonCredentials = v}} multiLine={true}/>
-                    <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
-                </div>
-                }
             </Paper>
         );
         const DataLifecycle = (
@@ -479,43 +470,53 @@ class DataSourceEditor extends React.Component{
 
                 {!model.StorageConfiguration.cellsInternal &&
                 <div>
-                    <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.flatStorage')}</div>
-                    <Checkbox
-                        label={m('storage.flatStorage')}
-                        labelPosition={"right"}
-                        disabled={!create}
-                        checked={!model.FlatStorage}
-                        onCheck={(e,v)=>{model.FlatStorage = !v}}
-                        {...ModernStyles.toggleFieldV2}
-                    />
+                    {!model.FlatStorage &&
+                        <>
+                            <div style={{...styles.subLegend}}>{m('storage.legend.flatStorage')}</div>
+                            <Checkbox
+                                label={m('storage.flatStorage')}
+                                labelPosition={"right"}
+                                disabled={!create}
+                                checked={!model.FlatStorage}
+                                onCheck={(e,v)=>{model.FlatStorage = !v}}
+                                {...ModernStyles.toggleFieldV2}
+                            />
+                        </>
+                    }
                     {create && model.FlatStorage &&
-                        <ModernTextField
-                            fullWidth={true}
-                            variant={'v2'}
-                            hintText={m('initFlatFromSnapshot')}
-                            value={model.StorageConfiguration.initFromSnapshot || ''}
-                            onChange={(e,v)=>{
-                                if (v) {
-                                    model.StorageConfiguration.initFromSnapshot = v;
-                                } else {
-                                    delete (model.StorageConfiguration.initFromSnapshot)
-                                }
-                            }}/>
+                        <>
+                            <div style={{...styles.subLegend}}>{m('initFlatFromSnapshot')}</div>
+                            <ModernTextField
+                                fullWidth={true}
+                                variant={'v2'}
+                                hintText={m('initFlatFromSnapshot.hint')}
+                                value={model.StorageConfiguration.initFromSnapshot || ''}
+                                onChange={(e,v)=>{
+                                    if (v) {
+                                        model.StorageConfiguration.initFromSnapshot = v;
+                                    } else {
+                                        delete (model.StorageConfiguration.initFromSnapshot)
+                                    }
+                                }}/>
+                        </>
                     }
                     {model.FlatStorage && (create || model.StorageConfiguration.foldersShardingPattern) &&
-                        <ModernTextField
-                            fullWidth={true}
-                            variant={'v2'}
-                            disabled={!create}
-                            hintText={m('foldersShardingPattern')}
-                            value={model.StorageConfiguration.foldersShardingPattern || ''}
-                            onChange={(e,v)=>{
-                                if (v) {
-                                    model.StorageConfiguration.foldersShardingPattern = v;
-                                } else {
-                                    delete (model.StorageConfiguration.foldersShardingPattern)
-                                }
-                            }}/>
+                        <>
+                            <div style={{...styles.subLegend}}>{m('foldersShardingPattern')}</div>
+                            <ModernTextField
+                                fullWidth={true}
+                                variant={'v2'}
+                                disabled={!create}
+                                hintText={m('foldersShardingPattern.hint')}
+                                value={model.StorageConfiguration.foldersShardingPattern || ''}
+                                onChange={(e,v)=>{
+                                    if (v) {
+                                        model.StorageConfiguration.foldersShardingPattern = v;
+                                    } else {
+                                        delete (model.StorageConfiguration.foldersShardingPattern)
+                                    }
+                                }}/>
+                            </>
                     }
                 </div>
                 }

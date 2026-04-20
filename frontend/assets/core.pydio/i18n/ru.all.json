@@ -2399,6 +2399,9 @@
   "searchengine.query.action.save-new": {
     "other": "Сохранить запрос"
   },
+  "searchengine.query.action.save-legend": {
+    "other": "Save this search query for later re-use"
+  },
   "searchengine.query.action.clear": {
     "other": "Очистить"
   },

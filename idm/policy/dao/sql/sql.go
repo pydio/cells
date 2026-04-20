@@ -22,16 +22,19 @@ package sql
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/ory/ladon"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -164,7 +167,6 @@ END`)
 }
 
 func (s *sqlimpl) Migrate(ctx context.Context) error {
-
 	if err := s.instance(ctx).AutoMigrate(&idm.PolicyAction{}, &idm.PolicyResource{}, &idm.PolicySubject{}, &idm.Policy{}, &idm.PolicyGroup{}); err != nil {
 		return err
 	}
@@ -206,43 +208,42 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		}
 	}
 
-	// Insert Policy Group
-	er := s.instance(ctx).Transaction(func(tx *gorm.DB) error {
-		if deleteFirst {
+	if deleteFirst {
+		if er := sql.WithTxRetry(ctx, s.instance(ctx), 3, "storing policy group "+storeGroup.GetUuid(), func(tx *gorm.DB) error {
+			// Insert Policy Group - with transaction retries
 			if er := s.deleteInTransaction(ctx, tx, storeGroup); er != nil {
 				return er
 			}
+			return tx.Error
+		}); er != nil {
+			return nil, er
 		}
-		tx = tx.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "uuid"}},
-			DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
-		}).Create(storeGroup)
-		return tx.Error
-	})
+	}
 
-	return storeGroup, er
+	tx2 := s.instance(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
+	}).Create(storeGroup)
+	if tx2.Error != nil {
+		return nil, tx2.Error
+	}
+
+	if deleteFirst {
+		if err := s.cleanupOrphans(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	return storeGroup, nil
 
 }
 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
-func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups []*idm.PolicyGroup, e error) {
+func (s *sqlimpl) ListPolicyGroups(ctx context.Context, query service.Enquirer) (groups []*idm.PolicyGroup, e error) {
 
-	tx := s.instance(ctx)
-
-	if strings.HasPrefix(filter, "resource_group:") {
-
-		res := strings.TrimPrefix(filter, "resource_group:")
-		if resId, ok := idm.PolicyResourceGroup_value[res]; ok {
-			tx = tx.Where(&idm.PolicyGroup{ResourceGroup: idm.PolicyResourceGroup(resId)})
-		}
-	} else if strings.HasPrefix(filter, "uuid:") {
-		id := strings.TrimPrefix(filter, "uuid:")
-
-		tx = tx.Where(&idm.PolicyGroup{Uuid: id})
-	} else if strings.HasPrefix(filter, "like:") {
-		like := "%" + strings.TrimPrefix(filter, "like:") + "%"
-
-		tx = tx.Where(clause.Like{Column: "name", Value: like}).Or(clause.Like{Column: "description", Value: like})
+	tx, err := service.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	if err != nil {
+		return nil, err
 	}
 
 	tx = tx.Preload("Policies.OrmActions").Preload("Policies.OrmResources").Preload("Policies.OrmSubjects").Preload("Policies").Find(&groups)
@@ -274,11 +275,13 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 // DeletePolicyGroup deletes a policy group and all related policies.
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
-	// TODO - cascade ?
-	return s.instance(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := s.instance(ctx).Transaction(func(tx *gorm.DB) error {
 		return s.deleteInTransaction(ctx, tx, group)
-	})
+	}); err != nil {
+		return err
+	}
 
+	return s.cleanupOrphans(ctx)
 }
 
 func (s *sqlimpl) deleteInTransaction(ctx context.Context, tx *gorm.DB, group *idm.PolicyGroup) error {
@@ -296,18 +299,59 @@ func (s *sqlimpl) deleteInTransaction(ctx context.Context, tx *gorm.DB, group *i
 			return err
 		}
 	}
-	// Clean orphan rows
-	if tx11 := tx.Where("id NOT IN (?)", tx.Model(&idm.PolicyActionRel{}).Select("DISTINCT action")).Delete(&idm.PolicyAction{}); tx11.Error != nil {
-		return tx11.Error
-	}
-	if tx21 := tx.Where("id NOT IN (?)", tx.Model(&idm.PolicySubjectRel{}).Select("DISTINCT subject")).Delete(&idm.PolicySubject{}); tx21.Error != nil {
-		return tx21.Error
-	}
-	if tx31 := tx.Where("id NOT IN (?)", tx.Model(&idm.PolicyResourceRel{}).Select("DISTINCT resource")).Delete(&idm.PolicyResource{}); tx31.Error != nil {
-		return tx31.Error
-	}
+
+	// Orphan rows cleaning is done outside of the transaction to avoid Deadlocks
+	// see cleanupOrphans function
+
 	tx = tx.Where(&idm.PolicyGroup{Uuid: group.GetUuid()}).Delete(&idm.PolicyGroup{})
+
 	return tx.Error
+}
+
+func (s *sqlimpl) cleanupOrphans(ctx context.Context) error {
+	db := s.instance(ctx)
+	// --- 3. Clean up orphan rows using LEFT JOIN (no NOT IN) ---
+	// Table names are dynamically derived from the model metadata.
+	actionTable := sql.TableNameFromModel(db, &idm.PolicyAction{})
+	actionRelTable := sql.TableNameFromModel(db, &idm.PolicyActionRel{})
+	subjectTable := sql.TableNameFromModel(db, &idm.PolicySubject{})
+	subjectRelTable := sql.TableNameFromModel(db, &idm.PolicySubjectRel{})
+	resourceTable := sql.TableNameFromModel(db, &idm.PolicyResource{})
+	resourceRelTable := sql.TableNameFromModel(db, &idm.PolicyResourceRel{})
+
+	driver := strings.ToLower(db.Name())
+	var sqls []string
+
+	switch driver {
+
+	case sql.MySQLDriver:
+		sqls = []string{
+			fmt.Sprintf(`DELETE a FROM %s AS a LEFT JOIN %s AS r ON a.id = r.action WHERE r.action IS NULL`, actionTable, actionRelTable),
+			fmt.Sprintf(`DELETE s FROM %s AS s LEFT JOIN %s AS r ON s.id = r.subject WHERE r.subject IS NULL`, subjectTable, subjectRelTable),
+			fmt.Sprintf(`DELETE r FROM %s AS r LEFT JOIN %s AS rr ON r.id = rr.resource WHERE rr.resource IS NULL`, resourceTable, resourceRelTable),
+		}
+
+	case sql.SqliteDriver:
+		fallthrough
+	case sql.PostgreDriver:
+		sqls = []string{
+			fmt.Sprintf(`DELETE FROM %s WHERE NOT EXISTS (SELECT 1 FROM %s WHERE %s.action = %s.id)`, actionTable, actionRelTable, actionRelTable, actionTable),
+			fmt.Sprintf(`DELETE FROM %s WHERE NOT EXISTS (SELECT 1 FROM %s WHERE %s.subject = %s.id)`, subjectTable, subjectRelTable, subjectRelTable, subjectTable),
+			fmt.Sprintf(`DELETE FROM %s WHERE NOT EXISTS (SELECT 1 FROM %s WHERE %s.resource = %s.id)`, resourceTable, resourceRelTable, resourceRelTable, resourceTable),
+		}
+
+	default:
+		return fmt.Errorf("unsupported SQL dialect: %s", driver)
+	}
+
+	for _, q := range sqls {
+		if res := db.Exec(q); res.Error != nil {
+			return res.Error
+		} else {
+			log.Logger(ctx).Debugf("Cleaned %d rows", res.RowsAffected)
+		}
+	}
+	return nil
 }
 
 func (s *sqlimpl) deletePolicyById(ctx context.Context, tx *gorm.DB, id string) error {
@@ -328,4 +372,171 @@ func (s *sqlimpl) deletePolicyById(ctx context.Context, tx *gorm.DB, id string) 
 func (s *sqlimpl) IsAllowed(ctx context.Context, r *ladon.Request) error {
 	mg := NewManager(s.instance(ctx))
 	return (&ladon.Ladon{Manager: mg}).IsAllowed(ctx, r)
+}
+
+type queryConverter idm.PolicyGroupSingleQuery
+
+func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.DB) (*gorm.DB, bool, error) {
+
+	q := new(idm.PolicyGroupSingleQuery)
+
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
+		return nil, false, nil
+	}
+	count := 0
+
+	where := db.Where
+	if q.GetNot() {
+		where = db.Not
+	}
+
+	if res := q.GetResourceGroup(); res != "" {
+		if resId, ok := idm.PolicyResourceGroup_value[res]; ok {
+			if !q.GetLike() {
+				cl := clause.Eq{Column: "resource_group", Value: resId}
+				db = where(cl)
+			} else {
+				cl := clause.Like{Column: "resource_group", Value: resId}
+				db = where(cl)
+			}
+		}
+
+		count++
+	}
+
+	if uuid := q.GetUuid(); uuid != "" {
+		if !q.GetLike() {
+			cl := clause.Eq{Column: "uuid", Value: uuid}
+			db = where(cl)
+		} else {
+			cl := clause.Like{Column: "uuid", Value: uuid}
+			db = where(cl)
+		}
+		count++
+	}
+
+	if name := q.GetName(); name != "" {
+		if !q.GetLike() {
+			cl := clause.Eq{Column: "name", Value: name}
+			db = where(cl)
+		} else {
+			cl := clause.Like{Column: "name", Value: name}
+			db = where(cl)
+		}
+
+		count++
+	}
+
+	if desc := q.GetDescription(); desc != "" {
+		if !q.GetLike() {
+			cl := clause.Eq{Column: "description", Value: desc}
+			db = where(cl)
+		} else {
+			cl := clause.Like{Column: "description", Value: desc}
+			db = where(cl)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicyAction()) > 0 {
+		actionTable := sql.TableNameFromModel(db, &idm.PolicyAction{})
+		actionRelTable := sql.TableNameFromModel(db, &idm.PolicyActionRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		actions := strings.Join(q.GetPolicyAction(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+actionRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+actionTable+" AS ps ON ps.id = psr.action").
+			Where("ps.template = ?", actions).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicyResource()) > 0 {
+		resourceTable := sql.TableNameFromModel(db, &idm.PolicyResource{})
+		resourceRelTable := sql.TableNameFromModel(db, &idm.PolicyResourceRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		resources := strings.Join(q.GetPolicyResource(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+resourceRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+resourceTable+" AS ps ON ps.id = psr.resource").
+			Where("ps.template = ?", resources).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	if len(q.GetPolicySubject()) > 0 {
+		subjectTable := sql.TableNameFromModel(db, &idm.PolicySubject{})
+		subjectRelTable := sql.TableNameFromModel(db, &idm.PolicySubjectRel{})
+		policyGroupTable := sql.TableNameFromModel(db, &idm.PolicyGroup{})
+		policyRelTable := sql.TableNameFromModel(db, &idm.PolicyRel{})
+		policyTable := sql.TableNameFromModel(db, &idm.Policy{})
+
+		subjects := strings.Join(q.GetPolicySubject(), "|")
+
+		// Joins won't apply to the main queries because it is wrapped in a where clause - so we do an intermediate query to retrieve the ids
+		var policyGroups []*idm.PolicyGroup
+		tx := db.Session(&gorm.Session{}).Joins("LEFT JOIN "+policyRelTable+" AS pr ON pr.group_uuid = "+policyGroupTable+".uuid").
+			Joins("LEFT JOIN "+policyTable+" AS p ON p.id = pr.policy_id").
+			Joins("LEFT JOIN "+subjectRelTable+" AS psr ON psr.policy = p.id").
+			Joins("LEFT JOIN "+subjectTable+" AS ps ON ps.id = psr.subject").
+			Where("ps.template = ?", subjects).
+			Find(&policyGroups)
+
+		if tx.Error != nil {
+			return nil, false, tx.Error
+		}
+
+		var total int64
+		tx.Count(&total)
+		if total == 0 {
+			db = where("1 == 0")
+		} else {
+			db = where(policyGroups)
+		}
+
+		count++
+	}
+
+	return db, count > 0, nil
 }

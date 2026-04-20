@@ -21,9 +21,11 @@
 package images
 
 import (
+	"context"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/proto/jobs"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -37,10 +39,11 @@ func TestCleanThumbsTask_GetName(t *testing.T) {
 func TestCleanThumbsTask_Init(t *testing.T) {
 
 	Convey("", t, func() {
+		ctx := context.Background()
 
 		action := &CleanThumbsTask{}
 		job := &jobs.Job{}
-		e := action.Init(job, &jobs.Action{})
+		e := action.Init(ctx, job, &jobs.Action{})
 		So(e, ShouldBeNil)
 
 	})

@@ -1,32 +1,32 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "Індексувати вміст"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "При активації індексатор знайде метадані ContentRef, зчитає вміст за вказаним посиланням і додасть його до пошукового індексу."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "Метадані посилання на вміст"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
+    "other": "Назва метаданих, що вказують на внутрішній файл, який містить текстове представлення оригінального документа. Такий вміст може бути у форматі звичайного тексту або стиснутий за допомогою gzip, залежно від інструмента вилучення тексту (наприклад, Tika). Пошукова система зазвичай індексує цей вміст для забезпечення повнотекстового пошуку. Обов’язково додавайте префікс \"pydio:\" до назви метаданих, щоб запобігти витоку даних."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "Розширення для звичайного тексту"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "Розширення файлів із текстовим вмістом для прямої індексації (через кому)."
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "Інструмент аналізу назв файлів"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "Тип аналізатора для обробки назв файлів"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "Аналізатор вмісту файлів"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "Тип аналізатора для обробки тексту всередині документів"
   }
 }

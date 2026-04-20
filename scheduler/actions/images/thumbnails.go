@@ -32,7 +32,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/disintegration/imaging"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
@@ -48,8 +47,7 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/scheduler/actions"
-
-	_ "golang.org/x/image/webp"
+	"github.com/pydio/cells/v5/scheduler/actions/images/encoding"
 )
 
 const (
@@ -79,9 +77,9 @@ type ThumbnailsMeta struct {
 }
 
 type ThumbnailExtractor struct {
-	common.RuntimeHolder
 	thumbSizes map[string]int
 	metaClient tree.NodeReceiverClient
+	codec      encoding.ImageCodec
 }
 
 // GetDescription returns action description
@@ -100,7 +98,7 @@ func (t *ThumbnailExtractor) GetDescription(_ ...string) actions.ActionDescripti
 }
 
 // GetParametersForm returns a UX form
-func (t *ThumbnailExtractor) GetParametersForm() *forms.Form {
+func (t *ThumbnailExtractor) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -124,7 +122,7 @@ func (t *ThumbnailExtractor) GetName() string {
 }
 
 // Init passes parameters to the action.
-func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
+func (t *ThumbnailExtractor) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	if action.Parameters != nil {
 		t.thumbSizes = make(map[string]int)
 		if params, ok := action.Parameters["ThumbSizes"]; ok {
@@ -139,7 +137,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
 		t.thumbSizes = map[string]int{"sm": 300}
 	}
 	if !nodes.IsUnitTestEnv {
-		t.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(t.GetRuntimeContext(), common.ServiceMetaGRPC))
+		t.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 	}
 	return nil
 }
@@ -152,6 +150,9 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 		log.Logger(ctx).Debug("[THUMB EXTRACTOR] task ignored")
 		return input.WithIgnore(), nil
 	}
+
+	fileFormat := strings.ToLower(filepath.Ext(input.Nodes[0].GetStringMeta(common.MetaNamespaceNodeName)))
+	t.codec = encoding.NewImageCodec(fileFormat)
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Resizing image...")
 	node := input.Nodes[0]
@@ -200,7 +201,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	} else {
 		// Security in case Router is not transmitting nodes immutably
 		routerNode := proto.Clone(node).(*tree.Node)
-		router = getRouter(t.GetRuntimeContext())
+		router = getRouter(ctx)
 		reader, err = router.GetObject(ctx, routerNode, &models.GetRequestData{Length: -1})
 		errPath = routerNode.Path
 	}
@@ -210,7 +211,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	defer reader.Close()
 
 	displayMemStat(ctx, "BEFORE DECODE")
-	src, err := imaging.Decode(reader)
+	src, err := t.codec.Decode(reader)
 	if err != nil {
 		return nil, errors.Wrap(err, errPath)
 	}
@@ -220,6 +221,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	bounds := src.Bounds()
 	width := bounds.Max.X
 	height := bounds.Max.Y
+
 	// Send update event right now
 	node.MustSetMeta(MetadataImageDimensions, struct {
 		Width  int
@@ -307,20 +309,20 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	var dst *image.NRGBA
 	if img.Bounds().Max.X >= img.Bounds().Max.Y {
 		// Resize the cropped image to width = 256px preserving the aspect ratio.
-		dst = imaging.Resize(img, targetSize, 0, imaging.Lanczos)
+		dst = t.codec.Resize(img, targetSize, 0, encoding.Lanczos).(*image.NRGBA)
 	} else {
 		// Resize the cropped image to height = 256px preserving the aspect ratio.
-		dst = imaging.Resize(img, 0, targetSize, imaging.Lanczos)
+		dst = t.codec.Resize(img, 0, targetSize, encoding.Lanczos).(*image.NRGBA)
 	}
-	ol := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy(), colornames.Lightgrey)
-	ol = imaging.Overlay(ol, dst, image.Pt(0, 0), 1.0)
+	ol := t.codec.New(dst.Bounds().Dx(), dst.Bounds().Dy(), colornames.Lightgrey)
+	ol = t.codec.Overlay(ol, dst, image.Pt(0, 0), 1.0)
 	dst = nil
 	runtime.GC()
 
 	displayMemStat(ctx, "BEFORE ENCODE")
 	var thumbBytes []byte
 	buf := bytes.NewBuffer(thumbBytes)
-	err := imaging.Encode(buf, ol, imaging.JPEG)
+	err := t.codec.Encode(buf, ol, encoding.JPEG)
 	ol = nil
 	runtime.GC()
 	if err != nil {

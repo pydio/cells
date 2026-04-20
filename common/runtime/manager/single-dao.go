@@ -34,8 +34,10 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/server"
 	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
-	"github.com/pydio/cells/v5/common/utils/uuid"
+
+	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 )
 
 var (
@@ -65,6 +67,7 @@ services:
 `
 
 	multipleYAML = `
+debug: true
 caches:
   local:
     uri: pm://
@@ -75,11 +78,23 @@ storages:
   storage{{ $idx }}: 
     uri: {{ $dsn }}
   {{- end }}
-servers:
-  generic:
-    type: generic
+listeners:
+  bufconn:
+    type: bufconn
+    bufsize: 1048576
+connections:
+  grpc:
+    type: grpc
+    uri: passthrough://bufnet
+    listener: bufconn
     services:
-      - filter:  "true ~= .*"
+      - filter: "true ~= .*"
+servers:
+  grpc:
+    type: grpc
+    listener: bufconn
+    services:
+      - filter: "true ~= .*"
 services:
   {{- range $name, $storage := .Services }}
   {{$name}}:
@@ -142,7 +157,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 		)
 	})
 
-	mgr, err := NewManager(ctx, "test", nil)
+	mgr, err := NewManager(ctx, "test")
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +179,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	return ctx, nil
 }
 
-func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servicesWithDAO map[string]map[string]map[string]any) (context.Context, error) {
+func MockServicesToContextDAO(ctx context.Context, ns string, dsn map[string]string, servicesWithDAO map[string]map[string]map[string]any) (context.Context, error) {
 	// read template
 	b := &strings.Builder{}
 	data := map[string]interface{}{
@@ -181,11 +196,25 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 	v.Set(runtime.KeyKeyring, "mem://")
 	v.Set(runtime.KeyRegistry, "mem://")
 	v.Set(runtime.KeyConfig, "mem://")
-	mem, _ := config.OpenStore(ctx, "mem://")
-	ctx = propagator.With(ctx, config.ContextKey, mem)
+
+	store, err := openurl.OpenPool(ctx, []string{"mem://"}, config.OpenStore)
+	if err != nil {
+		return nil, err
+	}
+
+	conf, err := store.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	conf.Val("defaults/telemetry/loggers[0]").Set([]byte(`{
+		"level": "debug",
+		"outputs": ["stdout:///"]
+	}`))
+
+	ctx = propagator.With(ctx, config.ContextKey, store)
 
 	runtime.SetRuntime(v)
-	ns := uuid.New()
 
 	//var svc service.Service
 	for name, daoDef := range servicesWithDAO {
@@ -206,7 +235,7 @@ func MockServicesToContextDAO(ctx context.Context, dsn map[string]string, servic
 		})
 	}
 
-	mgr, err := NewManager(ctx, ns, nil)
+	mgr, err := NewManager(ctx, ns)
 	if err != nil {
 		return nil, err
 	}

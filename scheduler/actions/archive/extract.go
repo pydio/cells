@@ -64,7 +64,7 @@ func (ex *ExtractAction) GetDescription(_ ...string) actions.ActionDescription {
 }
 
 // GetParametersForm returns a UX form
-func (ex *ExtractAction) GetParametersForm() *forms.Form {
+func (ex *ExtractAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -103,7 +103,7 @@ func (ex *ExtractAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (ex *ExtractAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (ex *ExtractAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	if format, ok := action.Parameters["format"]; ok {
 		ex.format = format
 	}

@@ -1,6 +1,8 @@
 package routing
 
 import (
+	"context"
+
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	route "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	matcherv3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
@@ -18,7 +20,8 @@ var (
 )
 
 // ToXDS is a WIP implementation for generating XDS configuration from active proxy
-func ToXDS(site *install.ProxyConfig, upstreamsResolver UpstreamsResolver) (*route.VirtualHost, error) {
+// TODO - Support CORS OPTIONS (transform to proper headers)
+func ToXDS(ctx context.Context, site *install.ProxyConfig, upstreamsResolver UpstreamsResolver) (*route.VirtualHost, error) {
 
 	tlsRequire := route.VirtualHost_NONE
 	emptyTlsResolver := func(site *ActiveProxy) error {
@@ -38,7 +41,7 @@ func ToXDS(site *install.ProxyConfig, upstreamsResolver UpstreamsResolver) (*rou
 		}
 	}
 
-	activeProxy, er := ResolveProxy(site, emptyTlsResolver, rewriteResolver, upstreamsResolver)
+	activeProxy, er := ResolveProxy(ctx, site, emptyTlsResolver, rewriteResolver, upstreamsResolver)
 	if er != nil {
 		return nil, er
 	}

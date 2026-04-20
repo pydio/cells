@@ -23,10 +23,12 @@ package languages
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
+	"golang.org/x/text/language"
 
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/config"
@@ -206,4 +208,39 @@ func UserLanguage(ctx context.Context, user *idm.User) string {
 	}
 
 	return defaultLanguage
+}
+
+func DetectLocale(r *http.Request) (lang, uiLocale string) {
+	header := r.Header.Get("Accept-Language")
+	if header == "" {
+		return "en", "en-US"
+	}
+
+	tags, _, err := language.ParseAcceptLanguage(header)
+	if err != nil || len(tags) == 0 {
+		return "en", "en-US"
+	}
+
+	// Best tag (already sorted by q weight)
+	tag := tags[0]
+
+	// ui_locale: full BCP47 tag
+	uiLocale = tag.String()
+
+	// lang: base language
+	base, _ := tag.Base()
+	lang = base.String()
+
+	// Optional: normalize ui_locale to use hyphen form (already does),
+	// and if it's only "fr" with no region, you can map to a default:
+	if !strings.Contains(uiLocale, "-") {
+		switch lang {
+		case "en":
+			uiLocale = "en-US"
+		case "fr":
+			uiLocale = "fr-FR"
+		}
+	}
+
+	return lang, uiLocale
 }

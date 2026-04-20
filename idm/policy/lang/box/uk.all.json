@@ -1,65 +1,65 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Публічний доступ"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Публічний доступ до кінцевих точок відкриття"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "Анонімний доступ до відкриття (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Анонімний доступ до кінцевих точок скидання пароля (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Анонімний доступ до стану фронтенду (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Анонімний доступ до вбудованої сесії інтерфейсу (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Кінцеві точки встановлення (перший запуск)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Для встановлення кінцевих точок потрібен спільний доступ при першому запуску"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Анонімний доступ до встановлення кінцевих точок (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Доступ користувача та адміністратора"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "Визначте, як стандартні користувачі/загальні користувачі / адміністратор можуть отримувати доступ до решти API"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Повний доступ до адміністративного профілю"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Типовий REST доступ для зареєстрованого користувача"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "Список і пошук користувацьких метаданих"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "Оновити користувацькі метадані"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Доступ до читання для всіх FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Доступ на запис до FrontendService крім глобальних двійкових завантажень"
   },
   "PolicyGroup.LoggedUsers.Rule7": {
-    "other": "Default REST accesses API V2 for a logged user"
+    "other": "За замовчуванням REST accesses API V2 для зареєстрованого користувача"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "OpenIdConnect Операції"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Увімкнути/вимкнути автентифікацію в OpenID Connect"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Доступ до дії при авторизації використовується за замовчуванням для всіх користувачів"
   }
 }

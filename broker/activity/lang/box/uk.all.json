@@ -1,87 +1,87 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Доступ надано користувачеві {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Доступ до {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} був доступний {{.Actor}}"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "Комірка"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Створено користувачем {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Створено {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} було створено {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Видалено користувачем {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Видалено {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} було видалено {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Поділитися у {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} поділився {{.Object}} з вами"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Це ваш щоденний дайджест Pydio"
   },
   "Document": {
-    "other": "Document"
+    "other": "Документ"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Тека"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Змінено користувачем {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Змінено {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} було змінено {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Метадані змінені користувачем {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Змінено метаданні у {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} Змінив метаданні у {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "{{.Actor}} прокоментував"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Прокоментовано {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} опублікував новий коментар до {{.Object}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Переміщено користувачем {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Переміщено {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} був переміщений користувачем {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "Робочий простір"
   },
   "DateFormat": {
     "other": "2006-01-02 15:04"

@@ -15,8 +15,8 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/bleve"
 	"github.com/pydio/cells/v5/common/storage/test"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filesystem"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -44,7 +44,7 @@ func (c *CodexTest) BuildQuery(query interface{}, offset, limit int32, sortField
 	return query, nil, nil
 }
 
-func (c *CodexTest) GetModel(sc configx.Values) (interface{}, bool) {
+func (c *CodexTest) GetModel(sc kv.Values) (interface{}, bool) {
 	return nil, false
 }
 

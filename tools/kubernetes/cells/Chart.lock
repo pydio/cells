@@ -32,5 +32,8 @@ dependencies:
 - name: cert-manager
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 1.5.3
+- name: collabora-online
+  repository: https://collaboraonline.github.io/online
+  version: 1.1.52
 digest: sha256:9ac1520ab189af6173b99b63cb9cfcc5def24f7a09c9937bb0295c815b1ee44f
 generated: "2025-06-12T10:45:47.684217+02:00"

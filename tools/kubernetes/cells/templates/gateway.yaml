@@ -1,0 +1,29 @@
+{{- if .Values.gatewayAPI.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gatewayAPI.gateway.name | default (include "cells.fullname" .) }}
+spec:
+  gatewayClassName: {{ .Values.gatewayAPI.class.name | default (include "cells.fullname" .) }}
+  listeners:
+  {{- $ := . }}
+  {{- range $listener := .Values.gatewayAPI.gateway.listeners }}
+  {{- $listenerData := default dict $listener }}
+  {{- $listenerTls := default dict (get $listenerData "tls") }}
+  - name: {{ get $listenerData "name" }}
+    port: {{ get $listenerData "port" }}
+    protocol: {{ get $listenerData "protocol" }}
+    hostname: {{ get $listenerData "hostname" }}
+    {{- if $listenerTls.enabled }}
+    {{- $certificateSecretName := default (printf "%s-gateway-%s-tls" (include "cells.fullname" $) (get $listenerData "name")) $listenerTls.existingSecret }}
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: {{ $certificateSecretName }}
+          kind: Secret
+    {{- end }}
+    allowedRoutes:
+      namespaces:
+        from: {{ get $listenerData "allowedNamespaces" }}
+  {{- end }}
+{{- end }}

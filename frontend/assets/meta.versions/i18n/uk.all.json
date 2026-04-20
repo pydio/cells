@@ -1,65 +1,65 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "Версії"
   },
   "10": {
-    "other": "Date"
+    "other": "Дата"
   },
   "11": {
-    "other": "Author"
+    "other": "Автор"
   },
   "12": {
-    "other": "Modification"
+    "other": "Зміни"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "Ви впевнені, що хочете це зробити? Повернення до старої версії призведе до створення нової версії документа на основі вибраної версії."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Попередніх версій не знайдено"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Версії створюються при оновленні вмісту файлу"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Попередні версії для «%s»"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Попередні версії документа"
   },
   "3": {
-    "other": "Download"
+    "other": "Завантаження"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "Завантажити обрану версію на комп'ютер"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Перегляд (браузер)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "Відкрити вибрану версію у вікні браузера"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "Повернутися до..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "Відновити файл до вибраної версії на сервері"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Файл створено"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Файл видалено"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Вміст змінено"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Файл переміщено"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Файл перейменовано"
   }
 }

@@ -42,7 +42,7 @@ func TestDeleteAction_Init(t *testing.T) {
 	Convey("", t, func() {
 		action := &DeleteAction{}
 		job := &jobs.Job{Owner: "owner"}
-		action.Init(job, &jobs.Action{})
+		action.Init(nil, job, &jobs.Action{})
 	})
 }
 
@@ -52,7 +52,7 @@ func TestDeleteAction_Run(t *testing.T) {
 
 		action := &DeleteAction{}
 		job := &jobs.Job{}
-		action.Init(job, &jobs.Action{})
+		action.Init(nil, job, &jobs.Action{})
 		mock := &nodes.HandlerMock{
 			Nodes: map[string]*tree.Node{"/test": {Path: "/test", Type: tree.NodeType_LEAF}},
 		}

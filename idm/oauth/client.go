@@ -19,7 +19,7 @@ func NewClientConfigDriver(ctx context.Context) client.Manager {
 }
 
 type clientConfigDriver struct {
-	//store configx.Values
+	//store kv.Values
 }
 
 func (c clientConfigDriver) AuthenticateClient(ctx context.Context, id string, secret []byte) (*client.Client, error) {

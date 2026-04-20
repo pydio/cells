@@ -24,10 +24,10 @@
     "other": "请确保您的数据库正在运行 MySQL 版本 5.6 或更高版本"
   },
   "database.legend1": {
-    "other": "Pydio requires at least one SQL storage for configuration and data indexation."
+    "other": "Pydio需要至少一个SQL存储来进行配置和数据索引。"
   },
   "database.legend2": {
-    "other": "Supported databases are MySQL/MariaDB or PostgreSQL or SQLite."
+    "other": "支持的数据库 MySQL/MariaDB 或 PostgreSQL 或 SQLite。"
   },
   "database.installDetected": {
     "other": "似乎在这个数据库中已经安装了Cells。请确认继续或 "
@@ -153,7 +153,7 @@
     "other": "PostGreSQL - Socket"
   },
   "form.dbConnectionType.sqlite": {
-    "other": "SQLite (dev purpose only)"
+    "other": "SQLite (仅供开发者使用)"
   },
   "form.dbConnectionType.manual": {
     "other": "手动"
@@ -195,16 +195,16 @@
     "other": "输入要连接的Socket文件的位置"
   },
   "form.dbSocketFileSQLite.label": {
-    "other": "Database Path"
+    "other": "数据库路径"
   },
   "form.dbSocketFileSQLite.legend": {
-    "other": "Enter the location of the SQLite database"
+    "other": "输入 SQLite 数据库的位置"
   },
   "form.dbSqliteFile.label": {
-    "other": "File Path"
+    "other": "文件路径"
   },
   "form.dbSqliteFile.legend": {
-    "other": "Enter the location of the file to use as database"
+    "other": "输入要用作数据库的文件位置"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"

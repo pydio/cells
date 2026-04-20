@@ -24,7 +24,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -37,7 +36,6 @@ var (
 )
 
 type FakeAction struct {
-	common.RuntimeHolder
 	timer  string
 	ticker string
 }
@@ -56,7 +54,7 @@ func (f *FakeAction) GetDescription(lang ...string) actions.ActionDescription {
 }
 
 // GetParametersForm returns a UX form
-func (f *FakeAction) GetParametersForm() *forms.Form {
+func (f *FakeAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -105,7 +103,7 @@ func (f *FakeAction) ProvidesProgress() bool {
 }
 
 // Init passes parameters to the action
-func (f *FakeAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (f *FakeAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	f.timer = "10"
 	f.ticker = ""
 	if strTime, ok := action.Parameters["timer"]; ok {

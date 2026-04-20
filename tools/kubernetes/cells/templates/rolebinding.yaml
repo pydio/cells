@@ -1,3 +1,4 @@
+{{- if .Values.controller.enabled }}
 apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
 kind: RoleBinding
 metadata:
@@ -15,3 +16,4 @@ subjects:
   - kind: ServiceAccount
     name: {{ template "cells.serviceAccountName" . }}
     namespace: {{ include "common.names.namespace" . | quote }}
+{{- end }}

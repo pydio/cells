@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: my-mariadb-tls
+  namespace: cells
+spec:
+  secretName: my-mariadb-tls
+  commonName: my-mariadb.cells.svc.cluster.local
+  dnsNames:
+    - my-mariadb
+    - my-mariadb.cells
+    - my-mariadb.cells.svc
+    - my-mariadb.cells.svc.cluster.local
+  issuerRef:
+    name: selfsigned-root
+    kind: Issuer
+  # optional privateKey policy:
+  privateKey:
+    rotationPolicy: Never # Always | Never

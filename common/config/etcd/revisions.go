@@ -23,6 +23,7 @@ package etcd
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -30,7 +31,6 @@ import (
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/errors"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
-	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 )
 
 type revs struct {

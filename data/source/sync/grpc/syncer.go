@@ -46,7 +46,6 @@ import (
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/sync/task"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/watch"
 	"github.com/pydio/cells/v5/data/source/sync/clients"
@@ -383,14 +382,19 @@ func (s *Syncer) watchConfigs() {
 
 		s.watcher = watcher
 		for {
-			event, err := watcher.Next()
+			_, err := watcher.Next()
 			if err != nil {
 				break
 			}
 
 			var cfg object.DataSource
 
-			if err := event.(configx.Values).Scan(&cfg); err == nil && cfg.Name == s.DsName {
+			if err := config.Get(s.GlobalCtx, "services", serviceName).Scan(&cfg); err != nil {
+				log.Logger(s.GlobalCtx).Error("Could not scan event", zap.Error(err))
+				continue
+			}
+
+			if cfg.Name == s.DsName {
 				log.Logger(s.GlobalCtx).Info("Config changed on "+serviceName+", comparing", zap.Object("old", s.SyncConfig), zap.Object("new", &cfg))
 				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
 					// @TODO - Object service must be restarted before restarting sync
@@ -403,8 +407,6 @@ func (s *Syncer) watchConfigs() {
 					<-time.After(2 * time.Second)
 					config.TouchSourceNamesForDataServices(s.GlobalCtx, common.ServiceDataSync)
 				}
-			} else if err != nil {
-				log.Logger(s.GlobalCtx).Error("Could not scan event", zap.Error(err))
 			}
 		}
 

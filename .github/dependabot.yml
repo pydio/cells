@@ -4,4 +4,4 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    target-branch: "v5-dev"
+    target-branch: "v4-dev"

@@ -1,0 +1,10 @@
+enabled: true
+shortcacheEnabled: true
+volumePermissions:
+  enabled: true
+auth:
+  enabled: false
+architecture: standalone
+global:
+  defaultStorageClass: standard
+commonAnnotations: {}

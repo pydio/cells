@@ -853,7 +853,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
 
-	return ist.Transaction(func(tx *gorm.DB) error {
+	return storagesql.WithTxRetry(ctx, ist, 3, "move node tree in"+tableName, func(tx *gorm.DB) error {
 		// TODO - ApplyOrderedUpdates should really be handled in the hooks of the respective models
 		_, err := helper.ApplyOrderedUpdates(tx, tableName, []storagesql.OrderedUpdate{
 			{Key: "name", Value: nodeTo.GetName()},
@@ -1112,6 +1112,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 
 	// We're done - ending the recursive
 	if len(remainingPath) == 0 {
+		if parentNode == nil {
+			return nil, nil, errors.WithStack(errors.NodeNotFound)
+		}
 		return parentNode, []tree.ITreeNode{}, nil
 	}
 
@@ -1158,7 +1161,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 				Path:  path.Clean(path.Join(currentNode.GetNode().GetPath(), currentName)),
 			})
 		} else {
-			currentNode.GetNode().SetMTime(time.Now().Unix())
+			if currentNode.GetNode().GetMTime() <= 0 {
+				currentNode.GetNode().SetMTime(time.Now().Unix())
+			}
 		}
 
 		if currentNode.GetNode().GetUuid() == "" {

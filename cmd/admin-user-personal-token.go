@@ -122,7 +122,9 @@ TOKEN SCOPE
 			GenerateSecretPair: tokSecretPair,
 		})
 		if e != nil {
-			log.Fatal(e.Error())
+			if !tokCreationQuiet {
+				log.Fatal(e.Error())
+			}
 			return
 		}
 		var uDisplay = u.Login

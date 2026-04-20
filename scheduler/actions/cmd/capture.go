@@ -54,7 +54,6 @@ var (
 )
 
 type CaptureAction struct {
-	common.RuntimeHolder
 	target string
 	prefix string
 	format string
@@ -75,7 +74,7 @@ func (c *CaptureAction) GetDescription(lang ...string) actions.ActionDescription
 }
 
 // GetParametersForm returns a UX form
-func (c *CaptureAction) GetParametersForm() *forms.Form {
+func (c *CaptureAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -135,7 +134,7 @@ func (c *CaptureAction) GetName() string {
 }
 
 // Init passes parameters
-func (c *CaptureAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *CaptureAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	c.target = action.Parameters["target"]
 	if c.target == "" {
 		return errors.WithMessage(errors.InvalidParameters, "Missing parameter target for Capture Action")

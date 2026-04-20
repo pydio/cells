@@ -199,7 +199,7 @@ let PoliciesBoard = createReactClass({
 
         const columns = [
             {name:'Name',label:m('policy.name'), style:{fontSize: 15}, sorter:{type:'string', default:true}},
-            {name:'Rules', label:m('policy.rules'), style:{width:80, textAlign:'center'}, headerStyle:{width:80, textAlign:'center'}, renderCell:(row)=>row.Policies.length, sorter:{type:'number'}},
+            {name:'Rules', label:m('policy.rules'), style:{width:80, textAlign:'center'}, headerStyle:{width:80, textAlign:'center'}, renderCell:(row)=>row.Policies?row.Policies.length:'-', sorter:{type:'number'}},
             {name:'Description',label:m('policy.description'), sorter:{type:'string'}},
         ];
 

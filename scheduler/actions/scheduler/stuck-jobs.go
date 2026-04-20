@@ -37,7 +37,6 @@ var (
 )
 
 type PruneJobsAction struct {
-	common.RuntimeHolder
 	maxTasksParam  string
 	maxRunningTime string
 }
@@ -57,7 +56,7 @@ func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescripti
 }
 
 // GetParametersForm returns a UX form
-func (c *PruneJobsAction) GetParametersForm() *forms.Form {
+func (c *PruneJobsAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -88,7 +87,7 @@ func (c *PruneJobsAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *PruneJobsAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *PruneJobsAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	if n, o := action.Parameters["number"]; o {
 		c.maxTasksParam = n
 	} else {
@@ -114,7 +113,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 		maxRunningTime = 3600
 	}
 
-	cli := jobs.NewJobServiceClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceJobsGRPC))
+	cli := jobs.NewJobServiceClient(grpc.ResolveConn(ctx, common.ServiceJobsGRPC))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
 		Since: int32(maxRunningTime),

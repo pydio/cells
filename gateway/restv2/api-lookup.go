@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"slices"
 	"strings"
 	"time"
 
@@ -43,17 +42,27 @@ import (
 )
 
 var (
-	presignDefaultExpiration int64 = 900
-	presignBucketName              = common.DefaultRouteBucketIO
+	presignDefaultExpiration   int64  = 900
+	presignUseCacheControl     bool   = true
+	presignDefaultCacheControl string = "private, max-age=450"
+	presignBucketName                 = common.DefaultRouteBucketIO
 )
 
 func init() {
 	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_EXPIRATION", "900s", "Override default expiration for pre-signed queries")
 	runtime.RegisterEnvVariable("CELLS_PRESIGN_BUCKET_SECONDARY", "false", "Use secondary bucket for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_USE_CACHE_CONTROL", "true", "Use cache control for pre-signed queries")
+	runtime.RegisterEnvVariable("CELLS_PRESIGN_DEFAULT_CACHE_CONTROL", "private, max-age=450", "Override default cache control rules for pre-signed queries")
 	if exp := os.Getenv("CELLS_PRESIGN_DEFAULT_EXPIRATION"); exp != "" {
 		if d, er := time.ParseDuration(exp); er == nil {
 			presignDefaultExpiration = int64(math.Round(d.Seconds()))
 		}
+	}
+	if useCacheControl, isSet := os.LookupEnv("CELLS_PRESIGN_USE_CACHE_CONTROL"); isSet && strings.ToLower(useCacheControl) != "true" {
+		presignUseCacheControl = false
+	}
+	if cacheControl := os.Getenv("CELLS_PRESIGN_DEFAULT_CACHE_CONTROL"); cacheControl != "" {
+		presignDefaultCacheControl = cacheControl
 	}
 	if sb := os.Getenv("CELLS_PRESIGN_BUCKET_SECONDARY"); sb == "true" {
 		presignBucketName = common.DefaultRouteBucketData
@@ -328,51 +337,34 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 // GetByUuid is a simple call on a node - it requires default stats
 func (h *Handler) GetByUuid(req *restful.Request, resp *restful.Response) error {
 	nodeUuid := req.PathParameter("Uuid")
+	flags := req.QueryParameters("Flags")
+
+	restFlags := h.toRestFlags(flags)
+	statFlags := h.parseFlags(restFlags)
+
+	if len(statFlags) == 0 {
+		statFlags = []uint32{
+			tree.StatFlagVersionsAll,
+			tree.StatFlagFolderSize,
+			tree.StatFlagFolderCounts,
+		}
+	}
+
+	if len(restFlags) == 0 {
+		restFlags = []rest.Flag{rest.Flag_WithPreSignedURLs}
+	}
 
 	router := h.UuidClient(true)
 	ctx := req.Request.Context()
 	rr, er := router.ReadNode(ctx, &tree.ReadNodeRequest{
-		Node: &tree.Node{Uuid: nodeUuid},
-		StatFlags: []uint32{
-			tree.StatFlagVersionsAll,
-			tree.StatFlagFolderSize,
-			tree.StatFlagFolderCounts,
-		},
+		Node:      &tree.Node{Uuid: nodeUuid},
+		StatFlags: statFlags,
 	})
 	if er != nil {
 		return er
 	}
-	oo := h.TNOptionsFromFlags(req, []rest.Flag{rest.Flag_WithPreSignedURLs})
+	oo := h.TNOptionsFromFlags(req, restFlags)
 	return resp.WriteEntity(h.TreeNodeToNode(ctx, rr.GetNode(), oo...))
-}
-
-func (h *Handler) TNOptionsFromFlags(req *restful.Request, ff []rest.Flag) (oo []TNOption) {
-	if slices.Contains(ff, rest.Flag_WithPreSignedURLs) {
-		if sig, err := NewV4SignerForRequest(req.Request, presignDefaultExpiration); err != nil {
-			log.Logger(req.Request.Context()).Error("Cannot create signer", zap.Error(err))
-		} else {
-			oo = append(oo, WithPreSigner(sig))
-		}
-	}
-	return oo
-}
-
-func (h *Handler) parseFlags(ff []rest.Flag) (flags tree.Flags) {
-	for _, f := range ff {
-		switch f {
-		case rest.Flag_WithMetaCoreOnly:
-			flags = append(flags, tree.StatFlagMetaMinimal)
-		case rest.Flag_WithVersionsAll:
-			flags = append(flags, tree.StatFlagVersionsAll)
-		case rest.Flag_WithVersionsDraft:
-			flags = append(flags, tree.StatFlagVersionsDraft)
-		case rest.Flag_WithVersionsPublished:
-			flags = append(flags, tree.StatFlagVersionsPublished)
-		case rest.Flag_WithMetaNone:
-			flags = append(flags, tree.StatFlagNone)
-		}
-	}
-	return
 }
 
 func (h *Handler) resolveRootPath(ctx context.Context, router nodes.Handler, root *rest.NodeLocator) (string, error) {
