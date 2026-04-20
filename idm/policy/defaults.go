@@ -854,17 +854,21 @@ func splitFrontendPostPolicies(policies []*idm.Policy) ([]*idm.Policy, bool) {
 // - "frontend-post" for profile:standard (unchanged, backward compatible name)
 // - "frontend-post-shared" for profile:shared (excludes /frontend/enroll)
 func Upgrade4994(ctx context.Context) error {
-	dao, er := manager.Resolve[DAO](ctx)
-	if er != nil {
-		return er
+	const targetGroupUUID = "rest-apis-default-accesses"
+
+	dao, err := manager.Resolve[DAO](ctx)
+	if err != nil {
+		return err
 	}
-	groups, e := dao.ListPolicyGroups(ctx, nil)
-	if e != nil {
-		return e
+
+	groups, err := dao.ListPolicyGroups(ctx, nil)
+	if err != nil {
+		return err
 	}
+
 	log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: scanning %d policy groups", len(groups)))
 	for _, group := range groups {
-		if group.GetUuid() != "rest-apis-default-accesses" {
+		if group.GetUuid() != targetGroupUUID {
 			continue
 		}
 
@@ -882,8 +886,8 @@ func Upgrade4994(ctx context.Context) error {
 		}
 
 		group.Policies = newPolicies
-		if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-			log.Logger(ctx).Error("Upgrade4994: could not update policy group "+group.GetUuid(), zap.Error(er))
+		if _, err = dao.StorePolicyGroup(ctx, group); err != nil {
+			log.Logger(ctx).Error("Upgrade4994: could not update policy group "+group.GetUuid(), zap.Error(err))
 			continue
 		}
 
