@@ -61,17 +61,14 @@ func TestWGetAction_GetName(t *testing.T) {
 func TestWGetAction_Init(t *testing.T) {
 
 	Convey("", t, func() {
-
 		action := &WGetAction{}
-		ctx := global
-		action.SetRuntimeContext(ctx)
 		job := &jobs.Job{}
 		// Missing Parameters
-		e := action.Init(job, &jobs.Action{})
+		e := action.Init(global, job, &jobs.Action{})
 		So(e, ShouldNotBeNil)
 
 		// Invalid URL should trigger a parse error
-		action.Init(job, &jobs.Action{
+		action.Init(global, job, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "htétp://",
 			},
@@ -82,7 +79,7 @@ func TestWGetAction_Init(t *testing.T) {
 		So(e, ShouldNotBeNil)
 
 		// Valid URL
-		e = action.Init(job, &jobs.Action{
+		e = action.Init(global, job, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "http://google.com",
 			},
@@ -99,10 +96,9 @@ func TestWGetAction_Run(t *testing.T) {
 
 		action := &WGetAction{}
 		ctx := global
-		action.SetRuntimeContext(ctx)
 
 		job := &jobs.Job{}
-		action.Init(job, &jobs.Action{
+		action.Init(ctx, job, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "https://docs.pydio.com/cells-v4/admin-guide/images/1_quick_start/sharing_features/create_cell_4.png",
 			},

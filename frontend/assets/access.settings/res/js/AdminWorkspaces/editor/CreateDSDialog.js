@@ -63,6 +63,11 @@ class CreateDSDialog extends React.Component {
             <FlatButton label={Pydio.getMessages()['54']} onClick={() => {onRequestClose()}} primary={true}/>,
             <FlatButton label={m('submit')} primary={true} onClick={() => this.submit()}/>
         ];
+        const options = [makeRadio('flat')]
+        if(Pydio.getInstance().getPluginConfigs('access.settings').get('ENABLE_STRUCTURED_DS')) {
+            options.push(makeRadio('structured'));
+        }
+        options.push(makeRadio('internal'))
 
         return (
             <Dialog
@@ -72,11 +77,7 @@ class CreateDSDialog extends React.Component {
                 actions={actions}
             >
                 <div style={{marginBottom: 20}}>{m('legend')}</div>
-                <RadioButtonGroup valueSelected={value} onChange={(e, v) => this.setState({value: v})}>
-                    {makeRadio('flat')}
-                    {makeRadio('structured')}
-                    {makeRadio('internal')}
-                </RadioButtonGroup>
+                <RadioButtonGroup valueSelected={value} onChange={(e, v) => this.setState({value: v})}>{options}</RadioButtonGroup>
             </Dialog>
         );
     }

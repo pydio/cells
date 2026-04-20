@@ -40,11 +40,13 @@ import (
 var (
 	firstRun   *version.Version
 	allUpdates *version.Version
+	runAlways  *version.Version
 )
 
 func init() {
 	firstRun, _ = version.NewVersion("0.0.0")
 	allUpdates, _ = version.NewVersion("0.0.0+all")
+	runAlways, _ = version.NewVersion("0.0.0+always")
 }
 
 // Migration defines a target version and functions to upgrade and/or downgrade.
@@ -68,6 +70,11 @@ func FirstRun() *version.Version {
 // FirstRunOrChange is interpreted to run on each version change
 func FirstRunOrChange() *version.Version {
 	return allUpdates
+}
+
+// RunAlways is performed at every start
+func RunAlways() *version.Version {
+	return runAlways
 }
 
 // DefaultConfigMigration registers a FirstRun to set configuration for service
@@ -186,17 +193,33 @@ func updateVersion(ctx context.Context, store config.Store, serviceName string, 
 // current version is 0.0.0 (first run), it only applies first run migration (if any) and returns target version.
 func applyMigrations(ctx context.Context, current *version.Version, target *version.Version, migrations []*Migration) (*version.Version, error) {
 
-	if target.Equal(current) {
-		return nil, nil
-	}
-
-	// Special case if we're in dev and moving from 0.2.0 to a dev
-	if strings.HasSuffix(target.String(), "-dev") && current.String() == "0.2.0" {
-		return target, nil
-	}
-
 	if migrations == nil {
 		return target, nil
+	}
+
+	var allRuns []*Migration
+	for _, m := range migrations {
+		if m.TargetVersion == runAlways {
+			allRuns = append(allRuns, m)
+		}
+	}
+	applyAlways := func() error {
+		return nil
+	}
+	if len(allRuns) > 0 {
+		applyAlways = func() error {
+			// Apply allRuns if there are some
+			for _, m := range allRuns {
+				if err := m.Up(ctx); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}
+
+	if target.Equal(current) {
+		return nil, applyAlways()
 	}
 
 	// Handle AllUpdates case, a.k.a run at every versions updates
@@ -205,6 +228,10 @@ func applyMigrations(ctx context.Context, current *version.Version, target *vers
 	var mm, tcs, fr []*Migration
 	isFirstRun := current.Equal(FirstRun())
 	for _, m := range migrations {
+		// ignore runAlways, already gathered before
+		if m.TargetVersion == runAlways {
+			continue
+		}
 		// if AllUpdates && firstRun, consider it as a FirstRun() and replace it to make sure it
 		// appears in the right order
 		if m.TargetVersion == allUpdates && isFirstRun {
@@ -233,8 +260,8 @@ func applyMigrations(ctx context.Context, current *version.Version, target *vers
 		for _, m := range migrations {
 			// Double check to insure we really only perform FirstRun initialisation
 			if !m.TargetVersion.Equal(FirstRun()) {
-				// no first run init, doing nothing
-				return target, nil
+				// no first run init, doing nothing or applyAlways()
+				return target, applyAlways()
 			}
 
 			log.Logger(ctx).Debug(fmt.Sprintf("About to initialise service at version %s", target.String()))
@@ -245,7 +272,7 @@ func applyMigrations(ctx context.Context, current *version.Version, target *vers
 			}
 		}
 
-		return target, nil
+		return target, applyAlways()
 	}
 
 	log.Logger(ctx).Debug(fmt.Sprintf("About to perform migration from %s to %s", current.String(), target.String()))
@@ -281,5 +308,5 @@ func applyMigrations(ctx context.Context, current *version.Version, target *vers
 
 	}
 
-	return target, nil
+	return target, applyAlways()
 }

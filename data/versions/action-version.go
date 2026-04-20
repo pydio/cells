@@ -45,9 +45,7 @@ import (
 	"github.com/pydio/cells/v5/scheduler/actions"
 )
 
-type VersionAction struct {
-	common.RuntimeHolder
-}
+type VersionAction struct{}
 
 func (c *VersionAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
@@ -63,7 +61,7 @@ func (c *VersionAction) GetDescription(lang ...string) actions.ActionDescription
 	}
 }
 
-func (c *VersionAction) GetParametersForm() *forms.Form {
+func (c *VersionAction) GetParametersForm(context.Context) *forms.Form {
 	return nil
 }
 
@@ -85,7 +83,7 @@ func (c *VersionAction) GetName() string {
 }
 
 // Init sets this VersionAction parameters.
-func (c *VersionAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *VersionAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 

@@ -1,0 +1,48 @@
+{
+  "properties": {
+    "usermeta-auto-complete": {
+      "items": {
+        "enum": [
+          "Urgent",
+          "Critical",
+          "Low Priority",
+          "Normal",
+          "Rejected"
+        ],
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "usermeta-boolean": {
+      "type": "boolean"
+    },
+    "usermeta-datetime": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "usermeta-long-text": {
+      "maxLength": 100,
+      "minLength": 10,
+      "type": "string"
+    },
+    "usermeta-number": {
+      "type": "number"
+    },
+    "usermeta-text": {
+      "maxLength": 20,
+      "minLength": 5,
+      "type": "string"
+    },
+    "usermeta-url": {
+      "format": "uri",
+      "type": "string"
+    }
+  },
+  "required": [
+    "usermeta-long-text",
+    "usermeta-number"
+  ],
+  "title": "user-namespaces-schema",
+  "type": "object"
+}

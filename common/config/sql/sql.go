@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -62,18 +63,18 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) 
 		return nil, err
 	}
 
-	var opts []configx.Option
+	var opts []kv.Option
 
 	encode := u.Query().Get("encode")
 	switch encode {
 	case "string":
-		opts = append(opts, configx.WithString())
+		opts = append(opts, kv.WithString())
 	case "yaml":
-		opts = append(opts, configx.WithYAML())
+		opts = append(opts, kv.WithYAML())
 	case "json":
-		opts = append(opts, configx.WithJSON())
+		opts = append(opts, kv.WithJSON())
 	default:
-		opts = append(opts, configx.WithJSON())
+		opts = append(opts, kv.WithJSON())
 	}
 
 	if data := u.Query().Get("data"); data != "" {
@@ -81,7 +82,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) 
 		//if err != nil {
 		//	return nil, err
 		//}
-		opts = append(opts, configx.WithInitData([]byte(data)))
+		opts = append(opts, kv.WithInitData([]byte(data)))
 	}
 
 	driver := u.Scheme
@@ -127,7 +128,7 @@ func (o *URLOpener) Open(ctx context.Context, urlstr string, base config.Store) 
 
 type SQL struct {
 	dao      DAO
-	config   configx.Values
+	config   kv.Values
 	watchers []*receiver
 }
 
@@ -156,11 +157,11 @@ func New(ctx context.Context, driver string, dsn string, prefix string) (config.
 	}, nil
 }
 
-func (s *SQL) Context(ctx context.Context) configx.Values {
+func (s *SQL) Context(ctx context.Context) kv.Values {
 	return s.config.Context(ctx)
 }
 
-func (s *SQL) Options() *configx.Options {
+func (s *SQL) Options() *kv.Options {
 	return s.config.Options()
 }
 
@@ -168,11 +169,11 @@ func (s *SQL) Key() []string {
 	return s.config.Key()
 }
 
-func (s *SQL) Default(def any) configx.Values {
+func (s *SQL) Default(def any) kv.Values {
 	return s.config.Default(def)
 }
 
-func (s *SQL) Val(path ...string) configx.Values {
+func (s *SQL) Val(path ...string) kv.Values {
 	if s.config == nil {
 		s.Get()
 	}
@@ -182,7 +183,7 @@ func (s *SQL) Val(path ...string) configx.Values {
 func (s *SQL) Get() any {
 	dao := s.dao.(DAO)
 
-	v := configx.New(configx.WithJSON())
+	v := configx.New(kv.WithJSON())
 
 	b, err := dao.Get(context.TODO())
 	if err != nil {
@@ -208,7 +209,7 @@ func (s *SQL) Set(value interface{}) error {
 		return err
 	}
 
-	v := configx.New(configx.WithJSON())
+	v := configx.New(kv.WithJSON())
 	v.Set(b)
 
 	s.config = v
@@ -293,7 +294,7 @@ func (r *receiver) Next() (interface{}, error) {
 
 			r.value = v
 
-			ret := configx.New(configx.WithJSON())
+			ret := configx.New(kv.WithJSON())
 			if err := ret.Set(v); err != nil {
 				return nil, err
 			}
@@ -311,7 +312,7 @@ func (r *receiver) Stop() {
 }
 
 type wrappedConfig struct {
-	configx.Values
+	kv.Values
 	s *SQL
 }
 

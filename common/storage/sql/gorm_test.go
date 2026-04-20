@@ -69,7 +69,7 @@ func SkipTestController(t *testing.T) {
 
 	ctx := context.Background()
 
-	mg, err := manager.NewManager(ctx, "test", nil)
+	mg, err := manager.NewManager(ctx, "test")
 	if err != nil {
 		t.Error("cannot run test", err)
 		t.Fail()

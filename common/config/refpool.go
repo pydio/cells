@@ -9,7 +9,7 @@ import (
 	diff "github.com/r3labs/diff/v3"
 	"github.com/spf13/cast"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -204,21 +204,21 @@ func (ev storeWithRefPool) Close(ctx context.Context) error {
 	return ev.Store.Close(ctx)
 }
 
-func (ev storeWithRefPool) Context(ctx context.Context) configx.Values {
+func (ev storeWithRefPool) Context(ctx context.Context) kv.Values {
 	return storeWithRefPoolValues{
 		Values:  ev.Store.Context(ctx),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev storeWithRefPool) Default(d any) configx.Values {
+func (ev storeWithRefPool) Default(d any) kv.Values {
 	return storeWithRefPoolValues{
 		Values:  ev.Store.Default(d),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev storeWithRefPool) Val(path ...string) configx.Values {
+func (ev storeWithRefPool) Val(path ...string) kv.Values {
 	return storeWithRefPoolValues{
 		Values:  ev.Store.Val(path...),
 		refPool: ev.refPool,
@@ -226,12 +226,12 @@ func (ev storeWithRefPool) Val(path ...string) configx.Values {
 }
 
 type storeWithRefPoolValues struct {
-	configx.Values
+	kv.Values
 	refPool map[string]*openurl.Pool[Store]
 }
 
 // resolveRef resolves a $ref value and returns the referenced data.
-func (ev storeWithRefPoolValues) resolveRef(ref any) (configx.Values, string, bool) {
+func (ev storeWithRefPoolValues) resolveRef(ref any) (kv.Values, string, bool) {
 	refStr, err := strconv.Unquote(cast.ToString(ref))
 	if err != nil {
 		refStr = cast.ToString(ref)
@@ -252,21 +252,21 @@ func (ev storeWithRefPoolValues) resolveRef(ref any) (configx.Values, string, bo
 	return nil, "", false
 }
 
-func (ev storeWithRefPoolValues) Context(ctx context.Context) configx.Values {
+func (ev storeWithRefPoolValues) Context(ctx context.Context) kv.Values {
 	return storeWithRefPoolValues{
 		Values:  ev.Values.Context(ctx),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev storeWithRefPoolValues) Default(d any) configx.Values {
+func (ev storeWithRefPoolValues) Default(d any) kv.Values {
 	return storeWithRefPoolValues{
 		Values:  ev.Values.Default(d),
 		refPool: ev.refPool,
 	}
 }
 
-func (ev storeWithRefPoolValues) Val(path ...string) configx.Values {
+func (ev storeWithRefPoolValues) Val(path ...string) kv.Values {
 	return storeWithRefPoolValues{
 		Values:  ev.Values.Val(path...),
 		refPool: ev.refPool,
@@ -274,7 +274,7 @@ func (ev storeWithRefPoolValues) Val(path ...string) configx.Values {
 }
 
 // Get overrides the Viper Get method to support slice indexing
-func (ev storeWithRefPoolValues) get() configx.Values {
+func (ev storeWithRefPoolValues) get() kv.Values {
 	parts := ev.Key()
 
 	var current any = ev.Values.Val("#").Get() // Start from the root configuration
@@ -471,7 +471,7 @@ func (ev storeWithRefPoolValues) Map() map[string]interface{} {
 	return ev.Values.Map()
 }
 
-func (ev storeWithRefPoolValues) Scan(out any, options ...configx.Option) error {
+func (ev storeWithRefPoolValues) Scan(out any, options ...kv.Option) error {
 	if vv := ev.get(); vv != nil {
 		return vv.Scan(out, options...)
 	}

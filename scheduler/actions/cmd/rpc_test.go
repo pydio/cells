@@ -24,10 +24,10 @@ import (
 	"context"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/scheduler/actions"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestRpcAction_GetName(t *testing.T) {
@@ -43,12 +43,14 @@ func TestRpcAction_Init(t *testing.T) {
 
 		action := &RpcAction{}
 		job := &jobs.Job{}
+		ctx := context.Background()
+
 		// Missing Parameters
-		e := action.Init(job, &jobs.Action{})
+		e := action.Init(ctx, job, &jobs.Action{})
 		So(e, ShouldNotBeNil)
 
 		// Valid Cmd
-		e = action.Init(job, &jobs.Action{
+		e = action.Init(ctx, job, &jobs.Action{
 			Parameters: map[string]string{
 				"service": "pydio.service.test",
 				"method":  "MethodName",
@@ -69,16 +71,19 @@ func TestRpcAction_Run(t *testing.T) {
 
 		action := &RpcAction{}
 		job := &jobs.Job{}
-		action.Init(job, &jobs.Action{
+		ctx := context.Background()
+
+		e := action.Init(ctx, job, &jobs.Action{
 			Parameters: map[string]string{
 				"service": "pydio.service.test",
 				"method":  "MethodName",
 				"request": `{"parameter1":"value1"}`,
 			},
 		})
+		So(e, ShouldBeNil)
 		status := make(chan string)
 		progress := make(chan float32)
-		outputMessage, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{})
+		outputMessage, err := action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{})
 		close(status)
 		close(progress)
 		So(err, ShouldNotBeNil)

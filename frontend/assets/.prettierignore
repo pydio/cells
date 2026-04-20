@@ -1,0 +1,57 @@
+# Ignore node modules and build artifacts
+node_modules/
+dist/
+**/dist/
+build/
+
+
+# Ignore i18n / translations / conf / res xml/json
+**/i18n/
+**/res/**/i18n/
+**/res/**/conf/
+**/*.xml
+**/*.json
+**/**/**/locale
+**/**/**/locale/
+*.less
+**/**/**/**/**/lang/
+*.css
+# Ignore HTML, plugin docs and webpack configs
+**/*.html
+**/plugin_doc.html
+**/webpack.config.js
+**/webpack.config.*   # ts / mjs variants
+
+# Ignore markdown and the ignore file itself
+*.md
+**/*.md
+.prettierignore
+
+
+package.json
+**/package.json
+pnpm-lock.yaml
+**/pnpm-lock.yaml
+pnpm-workspace.yaml
+**/pnpm-workspace.yaml
+package-lock.json
+**/package-lock.json
+
+
+*.xsd
+**/*.xsd
+webpack-commons.js
+**/webpack-commons.js
+
+*.min.js
+**/*.min.js
+*.map
+**/*.map
+*.js.map
+**/*.js.map
+
+# Optional extras (vendor, compiled assets)
+vendor/
+**/vendor/
+lib/
+**/lib/

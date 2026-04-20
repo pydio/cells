@@ -41,18 +41,32 @@ type LoggerConfig struct {
 	Filters  map[string]string `json:"filters,omitempty" yaml:"filters,omitempty"`
 }
 
-func DefaultLegacyConfig(level, encoding, logToDir string) []LoggerConfig {
-	outputs := []string{
-		"stdout:///",
+// DefaultStdoutLogger creates a logger config for stdout
+func DefaultStdoutLogger(level string, json bool) LoggerConfig {
+	encoding := "console"
+	if json {
+		encoding = "json"
 	}
-	if logToDir != "" {
-		outputs = append(outputs, "file://"+filepath.Join(logToDir, "pydio.log"))
-	}
-	return []LoggerConfig{{
+	return LoggerConfig{
 		Encoding: encoding,
 		Level:    level,
-		Outputs:  outputs,
-	}}
+		Outputs:  []string{"stdout:///"},
+	}
+}
+
+// DefaultJsonLogger creates a json logger outputting to file and/or grpc service
+func DefaultJsonLogger(dirName, serviceName string) LoggerConfig {
+	lc := LoggerConfig{
+		Encoding: "json",
+		Level:    "info",
+	}
+	if dirName != "" {
+		lc.Outputs = append(lc.Outputs, "file://"+filepath.Join(dirName, "pydio.log"))
+	}
+	if serviceName != "" {
+		lc.Outputs = append(lc.Outputs, "service:///?service="+serviceName)
+	}
+	return lc
 }
 
 func LoadCores(ctx context.Context, svc otel.Service, cfg []LoggerConfig) (cores []zapcore.Core, closers []io.Closer, hasDebug bool) {

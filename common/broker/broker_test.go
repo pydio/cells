@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 
@@ -16,7 +17,8 @@ func TestBroker(t *testing.T) {
 	Convey("Test Broker", t, func() {
 		var ev *tree.NodeChangeEvent
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
+		ctx = runtime.MultiContextManager().RootContext(ctx)
 		unsub, err := Subscribe(ctx, "test", func(ctx context.Context, msg Message) error {
 			defer cancel()
 

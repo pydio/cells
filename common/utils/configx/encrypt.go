@@ -1,12 +1,14 @@
 package configx
 
+import "github.com/pydio/cells/v5/common/utils/kv"
+
 type encrypter struct {
-	Values
-	Encrypter
-	Decrypter
+	kv.Values
+	kv.Encrypter
+	kv.Decrypter
 }
 
-func (e encrypter) Val(path ...string) Values {
+func (e encrypter) Val(path ...string) kv.Values {
 	return caster{encrypter{Values: e.Values.Val(path...), Encrypter: e, Decrypter: e}}
 }
 
@@ -31,7 +33,7 @@ func (e encrypter) Get() any {
 	return v
 }
 
-func encrypt(data any, e Encrypter) any {
+func encrypt(data any, e kv.Encrypter) any {
 	switch v := data.(type) {
 	case string:
 		str, _ := e.Encrypt([]byte(v))

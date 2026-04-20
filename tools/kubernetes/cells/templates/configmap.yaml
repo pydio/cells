@@ -68,8 +68,19 @@ data:
     {{- end }}
 
     customconfigs:
-      {{- toYaml .Values.service.customconfigs | nindent 6 }}
+      {{- $baseConfigs := .Values.service.customconfigs | default dict }}
+      {{- $collaboraConfigsStr := (include "cells.collabora.customconfigs" .) }}
+      {{- $collaboraConfigs := dict }}
+      {{- if $collaboraConfigsStr }}
+      {{- $collaboraConfigs = $collaboraConfigsStr | fromYaml | default dict }}
+      {{- end }}
+      {{- $mergedConfigs := merge $baseConfigs $collaboraConfigs }}
+      {{- toYaml $mergedConfigs | nindent 6 }}
 
+  {{- if .Values.bootstrap }}
+  bootstrap.yaml: |
+    {{ .Values.bootstrap | nindent 4 }}
+  {{- else }}
   bootstrap.yaml: |
     #------------------------------------------
     # Actual Bootstrap Keys
@@ -90,10 +101,22 @@ data:
       http:
         type: tcp
         bind: 0.0.0.0
+        {{ if .Values.useCaddyProxy }}
         port: 8032
+        {{ else }}
+        port: {{ .Values.service.port }}
+        {{ end }}
+      {{ if and (not .Values.useCaddyProxy) .Values.service.admin.enabled }}
+      httpadmin:
+        type: tcp
+        bind: 0.0.0.0
+        port: 8081
+      {{ end }}
     servers:
+      {{ if .Values.useCaddyProxy }}
       proxy:
         type: caddy+proxy
+      {{ end }}
       http:
         type: http
         listener: http
@@ -152,9 +175,9 @@ data:
         storages:
           main:
             - type: bleve
-              file: search.bleve?mapping=node&rotationSize=-1
+              file: searchengine.bleve?mapping=node&rotationSize=-1
             - type: mongo
-              prefix: search_
+              prefix: searchengine_
       pydio.grpc.chat:
         storages:
           main:
@@ -173,7 +196,7 @@ data:
             - type: bolt
               file: activities.db
             - type: mongo
-              prefix: activities_
+              prefix: activity_
       pydio.grpc.versions:
         storages:
           main:
@@ -215,7 +238,7 @@ data:
             - type: bleve
               file: tasklogs.bleve?mapping=log&rotationSize=-1
             - type: mongo
-              prefix: jobs_
+              prefix: tasklogs_
       pydio.grpc.role:
         after:
           - pydio.grpc.acl
@@ -288,6 +311,7 @@ data:
       pydio.rest.workspace:
         after:
           - pydio.grpc.workspace
+  {{- end }}
 
   {{ if not (empty .Values.extraConfig) }}
   {{ toYaml .Values.extraConfig | nindent 2 }}
@@ -397,8 +421,9 @@ data:
     path "pki*"                    { capabilities = ["read", "list"] } 
     path "pki/sign/application"    { capabilities = ["create", "update"] }
     path "pki/issue/application"   { capabilities = ["create"] }
-{{- end }}
 ---
+{{- end }}
+{{- if .Values.controller.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -422,3 +447,5 @@ data:
         services:
           {{- $services := .Values.controller.services }}
           - filter: "{{ range $k, $v := $services }}{{ printf "{{ .Name }} ~= %s" $v }}{{ if lt $k (sub (len $services) 1)}} or {{ end }}{{ end }}"
+---
+{{- end }}

@@ -39,7 +39,6 @@ var (
 )
 
 type CleanThumbsTask struct {
-	common.RuntimeHolder
 }
 
 // GetDescription returns action description
@@ -56,7 +55,7 @@ func (c *CleanThumbsTask) GetDescription(lang ...string) actions.ActionDescripti
 }
 
 // GetParametersForm returns a UX form
-func (c *CleanThumbsTask) GetParametersForm() *forms.Form {
+func (c *CleanThumbsTask) GetParametersForm(context.Context) *forms.Form {
 	return nil
 }
 
@@ -66,7 +65,7 @@ func (c *CleanThumbsTask) GetName() string {
 }
 
 // Init passes parameters to the action.
-func (c *CleanThumbsTask) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *CleanThumbsTask) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 
@@ -77,7 +76,7 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithIgnore(), nil
 	}
 
-	r := getRouter(c.GetRuntimeContext())
+	r := getRouter(ctx)
 	dsi, e := r.GetClientsPool(ctx).GetDataSourceInfo(common.PydioThumbstoreNamespace)
 	if e != nil || dsi.Client == nil {
 		log.TasksLogger(ctx).Error("Cannot get ThumbStoreClient", zap.Error(e))

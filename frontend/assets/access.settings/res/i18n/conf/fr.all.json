@@ -4,5 +4,11 @@
   },
   "Admin Driver": {
     "other": "Driver d'administration"
+  },
+  "Display structured storage format during data source creation.": {
+    "other": "Affiche le format de stockage structuré lors de la création de datasource."
+  },
+  "Allow structured format storage (to be deprecated)": {
+    "other": "Autoriser le stockage de format structuré (non recommandé)"
   }
 }

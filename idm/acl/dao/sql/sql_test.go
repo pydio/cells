@@ -413,6 +413,43 @@ func TestQueryBuilder(t *testing.T) {
 
 		})
 
+		Convey(" Reorder user roles", t, func() {
+			aa := []*idm.ACL{
+				{NodeID: "n4.0", RoleID: "role1", Action: &idm.ACLAction{Name: "read", Value: "read_val1"}},
+				{NodeID: "n4.1", RoleID: "role2", Action: &idm.ACLAction{Name: "read", Value: "read_val2"}},
+				{NodeID: "n4.2", RoleID: "role2", Action: &idm.ACLAction{Name: "read", Value: "read_val-NOT"}},
+				{NodeID: "n4.3", RoleID: "role3", Action: &idm.ACLAction{Name: "write", Value: "write_val"}},
+			}
+			So(add(t, ctx, dao, aa), ShouldBeNil)
+
+			singleQ := new(idm.ACLSingleQuery)
+			singleQAny, err := anypb.New(singleQ)
+			So(err, ShouldBeNil)
+
+			query := &service.Query{
+				SubQueries: []*anypb.Any{singleQAny},
+				Operation:  service.OperationType_AND,
+			}
+
+			var res []interface{}
+			So(dao.Search(ctx, query, &res, nil), ShouldBeNil)
+			So(len(res), ShouldEqual, len(aa))
+
+			var nodeIDs []string
+			for _, r := range res {
+				nodeIDs = append(nodeIDs, r.(*idm.ACL).NodeID)
+			}
+			expected := []string{"n4.0", "n4.1", "n4.2", "n4.3"}
+			So(nodeIDs, ShouldResemble, expected)
+
+			aa = []*idm.ACL{aa[2], aa[0], aa[3], aa[1]}
+			del(t, ctx, dao, aa)
+			for _, acl := range aa {
+				So(simpleCrud(t, ctx, dao, acl.NodeID, acl.RoleID, acl.WorkspaceID, acl.Action.Name, acl.Action.Value), ShouldBeNil)
+			}
+
+		})
+
 	})
 }
 

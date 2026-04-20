@@ -26,7 +26,7 @@ import (
 
 	version "github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/migrations"
 )
 
@@ -35,9 +35,9 @@ type migrationConfig struct {
 	up     migrationConfigFunc
 }
 
-type migrationConfigFunc func(*configx.Values) func(context.Context) error
+type migrationConfigFunc func(*kv.Values) func(context.Context) error
 
-type migrationFunc func(configx.Values) error
+type migrationFunc func(kv.Values) error
 
 var (
 	configMigrations []*migrationConfig
@@ -48,7 +48,7 @@ func add(target *version.Version, m migrationConfigFunc) {
 }
 
 func getMigration(f migrationFunc) migrationConfigFunc {
-	return func(c *configx.Values) func(context.Context) error {
+	return func(c *kv.Values) func(context.Context) error {
 		return func(context.Context) error {
 			return f(*c)
 		}
@@ -57,7 +57,7 @@ func getMigration(f migrationFunc) migrationConfigFunc {
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
 // Returns true if there was a change and save is required, error if something nasty happened
-func UpgradeConfigsIfRequired(config configx.Values, targetVersion *version.Version) (bool, error) {
+func UpgradeConfigsIfRequired(config kv.Values, targetVersion *version.Version) (bool, error) {
 
 	v := config.Val("version")
 
@@ -95,7 +95,7 @@ func UpgradeConfigsIfRequired(config configx.Values, targetVersion *version.Vers
 }
 
 // UpdateKeys replace a key with a new one
-func UpdateKeys(config configx.Values, m map[string]string) error {
+func UpdateKeys(config kv.Values, m map[string]string) error {
 	for oldPath, newPath := range m {
 		oldVal := config.Val(oldPath)
 		newVal := config.Val(newPath)
@@ -113,7 +113,7 @@ func UpdateKeys(config configx.Values, m map[string]string) error {
 }
 
 // UpdateVals replace a val with a new one
-func UpdateVals(config configx.Values, m map[string]string) (bool, error) {
+func UpdateVals(config kv.Values, m map[string]string) (bool, error) {
 	var all interface{}
 	err := config.Scan(&all)
 	if err != nil {

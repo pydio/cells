@@ -19,6 +19,24 @@
 #
 # The latest code can be found at <https://pydio.com>.
 #
+
+# Check for missing openapi-generator-cli
+if ! command -v openapi-generator &> /dev/null
+then
+    echo "ERROR: openapi-generator not found."
+    echo "Please install it from https://openapi-generator.tech/docs/installation"
+    echo "Required version is 7.12.0"
+    exit
+else 
+    OAG_VERSION=$(openapi-generator version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    if [[ "$OAG_VERSION" != "7.12.0" ]]; then
+        echo "ERROR: openapi-generator version is $OAG_VERSION but 7.12.0 is required."
+        echo "Please install the correct version from https://openapi-generator.tech/docs/installation"
+        exit
+    fi
+fi
+
+
 if [[ -n "${GENERATE_SDKS_V2}" ]]; then
 
 #  echo "Generate TS version with fetch"
@@ -28,7 +46,7 @@ if [[ -n "${GENERATE_SDKS_V2}" ]]; then
 
   openapi-generator generate -i ./cellsapi-rest-v2.swagger.json -g typescript-axios -c swagger-ts-axios.json -o $GENERATE_SDKS_V2/cells-sdk-ts
   cd $GENERATE_SDKS_V2/cells-sdk-ts || exit
-  npm run build
+  npm install && npm run build
   cd - || exit
 
   echo "Generate Swift version"

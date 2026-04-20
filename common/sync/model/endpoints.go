@@ -145,7 +145,7 @@ type PathSyncSource interface {
 	// Walk walks the nodes with a callback
 	Walk(ctx context.Context, walknFc WalkNodesFunc, root string, recursive bool) (err error)
 	// Watch sets up an event watcher on the nodes
-	Watch(recursivePath string) (*WatchObject, error)
+	Watch(ctx context.Context, recursivePath string) (*WatchObject, error)
 }
 
 // ChecksumProvider is able to compute a checksum for a given node (typically an Etag)
@@ -181,14 +181,14 @@ type PathSyncTarget interface {
 type DataSyncTarget interface {
 	PathSyncTarget
 	// GetWriterOn provides a writeCloser for writing content to a given path.
-	GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
+	GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
 }
 
 // DataSyncSource provides a way to read the actual content of the nodes
 type DataSyncSource interface {
 	PathSyncSource
 	// GetReaderOn provides a ReadCloser for reading content of a node located at a given path
-	GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error)
+	GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error)
 }
 
 // UuidProvider declares an endpoint to be able to load a node by its unique UUID
@@ -280,4 +280,9 @@ type SnapshotFactory interface {
 type HashStoreReader interface {
 	// SetRefHashStore passes a reference to a loaded snapshot
 	SetRefHashStore(source PathSyncSource)
+}
+
+type Shutdowner interface {
+	// Shutdown can be used implemented by endpoints
+	Shutdown() error
 }

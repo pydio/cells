@@ -120,7 +120,7 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 		if parentNode == nil {
 			// We do not want to break, but just make sure no results are returned.
 			// => Return a Where clause that always resolves to FALSE
-			log.Logger(ctx).Error("Nil MPath On Convert, add 1 = 0 condition", zap.Any("g", groupPath))
+			// log.Logger(ctx).Error("Nil MPath On Convert, add 1 = 0 condition", zap.Any("g", groupPath))
 			db = db.Where("1 = 0")
 			return db, true, nil
 		}

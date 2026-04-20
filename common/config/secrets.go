@@ -22,10 +22,11 @@ package config
 
 import (
 	"context"
-	"github.com/pydio/cells/v5/common/utils/std"
 
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -45,7 +46,7 @@ func NewKeyForSecret() string {
 }
 
 // GetSecret returns the non encrypted value for a uuid
-func GetSecret(ctx context.Context, uuid string) configx.Values {
+func GetSecret(ctx context.Context, uuid string) kv.Values {
 	if uuid == "" {
 		return configx.New()
 	}

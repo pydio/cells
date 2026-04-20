@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"fmt"
+	net2 "net"
 	"net/url"
 	"os"
 	"path"
@@ -28,19 +29,21 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
 var (
 	reservedVariables = map[string]string{
+		"replicasAddr":             "",
 		"prefix":                   "",
 		"policies":                 "",
 		"singular":                 "",
 		"hookNames":                "",
 		"ssl":                      "",
-		"maxConnections":           "10",
-		"maxIdleConnections":       "5",
-		"connMaxLifetime":          "1m",
+		"maxConnections":           "50",
+		"maxIdleConnections":       "15",
+		"connMaxLifetime":          "1h",
 		crypto.KeyCertUUID:         "",
 		crypto.KeyCertCAUUID:       "",
 		crypto.KeyCertKeyUUID:      "",
@@ -66,7 +69,7 @@ type StorageDSN interface {
 	// DSN returns clean DSN for opening DB
 	DSN() string
 	// OpenDB Opens a DB connection
-	OpenDB(ctx context.Context) (*sql.DB, error)
+	OpenDB(ctx context.Context) ([]*sql.DB, error)
 	// Set updates a field from the DSN, like DB, User, Password, etc. it returns an error if the key is not supported
 	Set(key, value string) error
 	// GetReservedVar returns a parsed variable if it is set
@@ -101,6 +104,7 @@ type cellDsn struct {
 	original string
 	clean    string
 	scheme   string
+	hosts    []string
 	vars     map[string]string
 }
 
@@ -120,7 +124,7 @@ func (d *cellDsn) Parse() (er error) {
 	if er != nil {
 		return er
 	}
-	// Remove scheme for everything else than mysql
+	// Remove scheme for everything else than postgre
 	if d.scheme != PostgreDriver {
 		d.clean = strings.TrimPrefix(d.clean, d.scheme+"://")
 	}
@@ -135,71 +139,83 @@ func (d *cellDsn) DSN() string {
 	return d.clean
 }
 
-func (d *cellDsn) OpenDB(ctx context.Context) (*sql.DB, error) {
-	var conn *sql.DB
+func (d *cellDsn) OpenDB(ctx context.Context) ([]*sql.DB, error) {
+	var conn []*sql.DB
 	var tlsConfig *tls.Config
-	var er error
 
-	if d.vars["ssl"] == "true" {
-		tlsConfig, er = varsToTLSConfig(d.vars)
-		if er != nil {
-			return nil, er
+	if ssl, ok := d.vars["ssl"]; ok && ssl == "true" {
+		var err error
+		tlsConfig, err = varsToTLSConfig(d.vars)
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	// Open sql connection pool - special case to force PG to use PGX driver, not PQ
 	switch d.scheme {
 	case PostgreDriver:
-		pgxConfig, err := pgx.ParseConfig(d.clean)
-		if err != nil {
-			return nil, err
-		}
-		if tlsConfig != nil {
-			pgxConfig.TLSConfig = tlsConfig
-		}
-
-		conn = stdlib.OpenDB(*pgxConfig)
-	case MySQLDriver:
-		openClean := d.clean // copy for possible TLS modification
-		if tlsConfig != nil {
-			configID := uuid.New()
-			if err := mysql.RegisterTLSConfig(configID, &tls.Config{}); err != nil {
+		for _, host := range d.hosts {
+			pgxConfig, err := pgx.ParseConfig(host)
+			if err != nil {
 				return nil, err
 			}
-			if !strings.Contains(openClean, "?") {
-				openClean += "?tls=" + configID
-			} else {
-				openClean += "&tls=" + configID
+			if tlsConfig != nil {
+				pgxConfig.TLSConfig = tlsConfig
 			}
-		}
-		conn, er = sql.Open(d.scheme, openClean)
-		if er != nil {
-			return nil, er
-		}
 
-		maxIdleConnections, err := strconv.Atoi(d.vars["maxIdleConnections"])
-		if err != nil {
-			return nil, err
+			conn = append(conn, stdlib.OpenDB(*pgxConfig))
 		}
+	case MySQLDriver:
+		for _, host := range d.hosts {
+			tlsHost := host // copy for possible TLS modification
+			if tlsConfig != nil {
+				configID := uuid.New()
+				if err := mysql.RegisterTLSConfig(configID, &tls.Config{}); err != nil {
+					return nil, err
+				}
+				if !strings.Contains(host, "?") {
+					host += "?tls=" + configID
+				} else {
+					host += "&tls=" + configID
+				}
+			}
 
-		maxOpenConnections, err := strconv.Atoi(d.vars["maxConnections"])
-		if err != nil {
-			return nil, err
+			c, err := sql.Open(d.scheme, tlsHost)
+			if err != nil {
+				return nil, err
+			}
+
+			maxIdleConnections, err := strconv.Atoi(d.vars["maxIdleConnections"])
+			if err != nil {
+				return nil, err
+			}
+
+			maxOpenConnections, err := strconv.Atoi(d.vars["maxConnections"])
+			if err != nil {
+				return nil, err
+			}
+
+			connMaxLifetime, err := time.ParseDuration(d.vars["connMaxLifetime"])
+			if err != nil {
+				return nil, err
+			}
+
+			log.Logger(ctx).Info("MySQL Config", zap.Any("maxOpenConns", maxOpenConnections), zap.Any("maxIdleConns", maxIdleConnections), zap.Any("connMaxLifetime", connMaxLifetime))
+			c.SetMaxIdleConns(maxIdleConnections)
+			c.SetMaxOpenConns(maxOpenConnections)
+			c.SetConnMaxLifetime(connMaxLifetime)
+
+			conn = append(conn, c)
 		}
-
-		connMaxLifetime, err := time.ParseDuration(d.vars["connMaxLifetime"])
-		if err != nil {
-			return nil, err
-		}
-
-		log.Logger(ctx).Info("MySQL Config", zap.Any("maxOpenConns", maxOpenConnections), zap.Any("maxIdleConns", maxIdleConnections), zap.Any("connMaxLifetime", connMaxLifetime))
-		conn.SetMaxIdleConns(maxIdleConnections)
-		conn.SetMaxOpenConns(maxOpenConnections)
-		conn.SetConnMaxLifetime(connMaxLifetime)
 	default:
-		conn, er = sql.Open(d.scheme, d.clean)
+		c, err := sql.Open(d.scheme, d.clean)
+		if err != nil {
+			return nil, err
+		}
+
+		conn = append(conn, c)
 	}
-	return conn, er
+	return conn, nil
 
 }
 
@@ -338,7 +354,7 @@ storages:
 		return nil, err
 	}
 	bootstrap.MustReset(ctx, nil)
-	mgr, err := manager.NewManager(ctx, runtime.NsInstall, nil, localRuntime)
+	mgr, err := manager.NewManager(ctx, runtime.NsInstall, localRuntime)
 	if err != nil {
 		return nil, err
 	}
@@ -527,6 +543,7 @@ func (d *cellDsn) getServerInfo(ctx context.Context, db *gorm.DB) (version strin
 func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 	switch parserType {
 	case "mysql":
+		dsn := strings.TrimPrefix(dsn, "mysql://")
 		conf, err := mysql.ParseDSN(dsn)
 		if err != nil {
 			return "", err
@@ -539,6 +556,36 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 				delete(conf.Params, k)
 			}
 		}
+
+		hostsStr, port, err := net2.SplitHostPort(conf.Addr)
+		if err != nil {
+			return "", err
+		}
+
+		hosts := strings.Split(hostsStr, ",")
+		hosts = append(hosts, strings.Split(d.vars["replicasAddr"], ",")...)
+
+		d.hosts = []string{}
+		for _, host := range hosts {
+			if !strings.Contains(host, ":") {
+				hostConf := conf.Clone()
+				hostConf.Addr = net2.JoinHostPort(host, port)
+				d.hosts = append(d.hosts, hostConf.FormatDSN())
+			} else {
+				replicaHost, replicaPort, err := net2.SplitHostPort(host)
+				if err != nil {
+					continue
+				}
+				// Using port defined for all hosts
+				if replicaPort == "" {
+					replicaPort = port
+				}
+				hostConf := conf.Clone()
+				hostConf.Addr = net2.JoinHostPort(replicaHost, replicaPort)
+				d.hosts = append(d.hosts, hostConf.FormatDSN())
+			}
+		}
+
 		return conf.FormatDSN(), nil
 	case "gorm":
 		u, er := url.Parse(dsn)
@@ -568,6 +615,7 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 		if er != nil {
 			return dsn, er
 		}
+
 		query := u.Query()
 		for k := range d.vars {
 			if query.Has(k) {
@@ -578,6 +626,15 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 			}
 		}
 		u.RawQuery = query.Encode()
+
+		for _, host := range strings.Split(u.Host, ",") {
+			hostURL := std.DeepClone(u)
+			hostURL.User = u.User
+			hostURL.Host = host
+
+			d.hosts = append(d.hosts, hostURL.String())
+		}
+
 		return u.String(), nil
 	}
 }

@@ -71,6 +71,9 @@
         "Deleted": {
           "$ref": "#/definitions/StatusFilterDeletedStatus"
         },
+        "Draft": {
+          "$ref": "#/definitions/StatusFilterDraftStatus"
+        },
         "HasPublicLink": {
           "type": "boolean"
         },
@@ -78,6 +81,7 @@
           "type": "boolean"
         },
         "IsDraft": {
+          "title": "IsDraft - to be deprecated in favor of DraftOnly status",
           "type": "boolean"
         }
       },
@@ -109,6 +113,15 @@
         "Not",
         "Only",
         "Any"
+      ],
+      "type": "string"
+    },
+    "StatusFilterDraftStatus": {
+      "default": "DraftNot",
+      "enum": [
+        "DraftNot",
+        "DraftOnly",
+        "DraftAny"
       ],
       "type": "string"
     },
@@ -460,6 +473,18 @@
     },
     "idmUserMetaNamespace": {
       "properties": {
+        "Description": {
+          "title": "Human-readable Description",
+          "type": "string"
+        },
+        "EnforceDefault": {
+          "title": "Use default value from JsonSchema to enforce defaults",
+          "type": "boolean"
+        },
+        "FieldType": {
+          "title": "Namespace Type  \"boolean\", \"choice\", \"css_label\", \"date\", \"integer\", \"json\", \"multi_value\", \"stars_rate\", \"string\", \"tag_cloud\", \"tags\", \"textarea\", \"url\"",
+          "type": "string"
+        },
         "Indexable": {
           "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",
           "type": "boolean"
@@ -467,6 +492,10 @@
         "JsonDefinition": {
           "title": "Json-encoded type to provide accurate interface for edition",
           "type": "string"
+        },
+        "JsonSchema": {
+          "title": "JSON Schema for validating metadata values",
+          "type": "object"
         },
         "Label": {
           "title": "Human-readable Label",
@@ -491,6 +520,10 @@
         },
         "PoliciesContextEditable": {
           "title": "Context-resolved to quickly check if this meta is editable or not",
+          "type": "boolean"
+        },
+        "PromptOnUpload": {
+          "title": "Prompt options for this namespace",
           "type": "boolean"
         }
       },
@@ -576,6 +609,14 @@
         }
       },
       "type": "object"
+    },
+    "protobufNullValue": {
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value.",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "type": "string"
     },
     "restActionOptionsCopyMove": {
       "properties": {
@@ -953,7 +994,8 @@
         "WithVersionsAll",
         "WithVersionsDraft",
         "WithVersionsPublished",
-        "WithPreSignedURLs"
+        "WithPreSignedURLs",
+        "WithEditorURLs"
       ],
       "type": "string"
     },
@@ -1284,6 +1326,20 @@
           "$ref": "#/definitions/restDataSourceFeatures",
           "title": "Additional features set at the datasource level"
         },
+        "EditorURLs": {
+          "additionalProperties": {
+            "$ref": "#/definitions/restPreSignedURL"
+          },
+          "title": "CoolURL - if applicable, ready to use collabora src w/ expiration",
+          "type": "object"
+        },
+        "EditorURLsKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of available editor keys (for now always empty)",
+          "type": "array"
+        },
         "FolderMeta": {
           "items": {
             "$ref": "#/definitions/restCountMeta",
@@ -1485,6 +1541,12 @@
       "properties": {
         "FilterBy": {
           "$ref": "#/definitions/restVersionsTypes"
+        },
+        "Flags": {
+          "items": {
+            "$ref": "#/definitions/restFlag"
+          },
+          "type": "array"
         },
         "Limit": {
           "format": "int64",
@@ -1971,6 +2033,28 @@
           "title": "Storage ETag",
           "type": "string"
         },
+        "EditorURLs": {
+          "additionalProperties": {
+            "$ref": "#/definitions/restPreSignedURL"
+          },
+          "title": "CoolURL - if applicable, ready to use collabora src w/ expiration",
+          "type": "object"
+        },
+        "EditorURLsKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "List of available editor keys (for now always empty)",
+          "type": "array"
+        },
+        "FilePreviews": {
+          "items": {
+            "$ref": "#/definitions/restFilePreview",
+            "type": "object"
+          },
+          "title": "If applicable, previews kept for this version",
+          "type": "array"
+        },
         "IsHead": {
           "title": "This revision is actually the current HEAD",
           "type": "boolean"
@@ -1987,6 +2071,9 @@
         "OwnerUuid": {
           "title": "Who performed this action - uuid",
           "type": "string"
+        },
+        "PreSignedGET": {
+          "$ref": "#/definitions/restPreSignedURL"
         },
         "Size": {
           "format": "int64",
@@ -3091,10 +3178,24 @@
             "type": "string"
           },
           {
+            "collectionFormat": "multi",
             "in": "query",
-            "name": "Path",
+            "items": {
+              "enum": [
+                "WithMetaDefaults",
+                "WithMetaCoreOnly",
+                "WithMetaNone",
+                "WithVersionsAll",
+                "WithVersionsDraft",
+                "WithVersionsPublished",
+                "WithPreSignedURLs",
+                "WithEditorURLs"
+              ],
+              "type": "string"
+            },
+            "name": "Flags",
             "required": false,
-            "type": "string"
+            "type": "array"
           }
         ],
         "responses": {

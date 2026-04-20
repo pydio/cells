@@ -172,8 +172,7 @@ func (dao *gormImpl[T]) AddNodeStream(ctx context.Context, max int) (chan tree.I
 		if tx.Error != nil {
 			e <- tx.Error
 		} else {
-			fmt.Println("Batched", len(nodes))
-
+			log.Logger(ctx).Debug("AddNodeStream batched", zap.Int("nodes", len(nodes)))
 		}
 	}()
 
@@ -401,10 +400,13 @@ func (dao *gormImpl[T]) getNodeLastChild(ctx context.Context, mPath *tree.MPath)
 	node := dao.factory.Struct()
 	tx := dao.instance(ctx).Model(node)
 	helper := tx.Dialector.(storagesql.Helper)
+
+	order := helper.MPathOrderingLastInteger("mpath1", "mpath2", "mpath3", "mpath4")
+
 	tx = tx.
 		Where(tree.MPathLike{Value: mPath}).
 		Where("level = ?", mPath.Length()+1).
-		Order(helper.MPathOrdering("mpath4", "mpath3", "mpath2", "mpath1") + " desc").
+		Order(order + " desc").
 		First(&node)
 
 	if err := tx.Error; err != nil {
@@ -851,7 +853,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
 
-	return ist.Transaction(func(tx *gorm.DB) error {
+	return storagesql.WithTxRetry(ctx, ist, 3, "move node tree in"+tableName, func(tx *gorm.DB) error {
 		// TODO - ApplyOrderedUpdates should really be handled in the hooks of the respective models
 		_, err := helper.ApplyOrderedUpdates(tx, tableName, []storagesql.OrderedUpdate{
 			{Key: "name", Value: nodeTo.GetName()},
@@ -1110,6 +1112,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 
 	// We're done - ending the recursive
 	if len(remainingPath) == 0 {
+		if parentNode == nil {
+			return nil, nil, errors.WithStack(errors.NodeNotFound)
+		}
 		return parentNode, []tree.ITreeNode{}, nil
 	}
 
@@ -1156,7 +1161,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 				Path:  path.Clean(path.Join(currentNode.GetNode().GetPath(), currentName)),
 			})
 		} else {
-			currentNode.GetNode().SetMTime(time.Now().Unix())
+			if currentNode.GetNode().GetMTime() <= 0 {
+				currentNode.GetNode().SetMTime(time.Now().Unix())
+			}
 		}
 
 		if currentNode.GetNode().GetUuid() == "" {
@@ -1170,7 +1177,7 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 	}
 
 	if currentNode.GetNode() == nil {
-		fmt.Println("Setting UUID HERE, Is it expected?", currentNode.GetMPath().ToString())
+		log.Logger(ctx).Debug("Setting UUID HERE, Is it expected? " + currentNode.GetMPath().ToString())
 		currentNode.SetNode(&tree.Node{Uuid: uuid.New()})
 	}
 

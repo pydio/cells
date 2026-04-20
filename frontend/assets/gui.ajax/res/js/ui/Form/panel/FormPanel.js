@@ -208,7 +208,6 @@ export default createReactClass({
     validStatusChange(missing){
         const {onValidStatusChange, forceValidStatusCheck} = this.props;
         const newValid = this.reduceValid();
-        //console.log(this._reducedValid, newValid, this._internalValid);
         if( (newValid !== this._reducedValid || forceValidStatusCheck)  && onValidStatusChange) {
             onValidStatusChange(newValid, missing)
         }

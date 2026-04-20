@@ -402,9 +402,6 @@ class DataSourcesBoard extends React.Component {
                         case "AZURE":
                             s = 'storage.azure';
                             break;
-                        case "GCS":
-                            s = 'storage.gcs';
-                            break;
                         default:
                             break;
                     }

@@ -44,9 +44,6 @@ var (
 )
 
 type OnDeleteVersionsAction struct {
-	common.RuntimeHolder
-	//	Handler    nodes.Handler
-	//	Pool       nodes.SourcesPool
 	rootFolder string
 }
 
@@ -63,7 +60,7 @@ func (c *OnDeleteVersionsAction) GetDescription(lang ...string) actions.ActionDe
 	}
 }
 
-func (c *OnDeleteVersionsAction) GetParametersForm() *forms.Form {
+func (c *OnDeleteVersionsAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -87,7 +84,7 @@ func (c *OnDeleteVersionsAction) GetName() string {
 }
 
 // Init passes the parameters to a newly created PruneVersionsAction.
-func (c *OnDeleteVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *OnDeleteVersionsAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 
 	var ok bool
 	if c.rootFolder, ok = action.Parameters["rootFolder"]; !ok {

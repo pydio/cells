@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/install"
 	"github.com/pydio/cells/v5/common/proto/service"
@@ -51,8 +52,7 @@ import (
 )
 
 var (
-	//go:embed start-bootstrap.yaml
-	bootstrapYAML string
+	DefaultBootstrapYAML string
 
 	//go:embed start-storages.yaml
 	storagesYAML string
@@ -240,6 +240,11 @@ ENVIRONMENT
 			}
 		}
 
+		hasCustomBind := routing.EnvOverrideDefaultBind()
+		if hasCustomBind {
+			cmd.Printf("Binding service to '%s'\n", niBindUrl)
+		}
+
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -305,7 +310,7 @@ ENVIRONMENT
 			}
 		} else {
 			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
-			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
+			if _, err := tmpl.Parse(DefaultBootstrapYAML); err != nil {
 				return err
 			}
 
@@ -336,7 +341,7 @@ ENVIRONMENT
 
 		ctx = context.WithValue(ctx, "managertype", "standard")
 
-		m, err := manager.NewManager(ctx, runtime.NsMain, log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
+		m, err := manager.NewManager(ctx, runtime.NsMain)
 		if err != nil {
 			span.End()
 			return err

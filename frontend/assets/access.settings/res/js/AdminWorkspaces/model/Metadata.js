@@ -19,13 +19,28 @@
  */
 
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
+import {
+    UserMetaServiceApi,
+    IdmUserMetaNamespace,
+    IdmUpdateUserMetaNamespaceRequest,
+    UpdateUserMetaNamespaceRequestUserMetaNsOp,
+
+} from 'cells-sdk'
+
+
+/** 
+ * @typedef {import('cells-sdk').IdmUserMetaNamespace} IdmUserMetaNamespace
+ * @typedef {import('cells-sdk').IdmUpdateUserMetaNamespaceRequest} IdmUpdateUserMetaNamespaceRequest
+ * @typedef {import('cells-sdk').UpdateUserMetaNamespaceRequestUserMetaNsOp} UpdateUserMetaNamespaceRequestUserMetaNsOp 
+*/
 
 class Metadata {
+    // Initialize Api instance statically to reuse across calls
+    static api = new UserMetaServiceApi(PydioApi.getRestClient());
 
-    static loadNamespaces(){
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
-        return api.listUserMetaNamespace();
+    //** @type {Promise<IdmUserMetaNamespace[]>} */
+    static loadNamespaces() {
+        return Metadata.api.listUserMetaNamespace();
     }
 
     /**
@@ -33,12 +48,12 @@ class Metadata {
      * @return {Promise}
      */
     static putNS(namespace) {
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
+        //** @type {Promise<IdmUserMetaNamespace>} */
         let request = new IdmUpdateUserMetaNamespaceRequest();
         request.Operation = UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
         request.Namespaces = [namespace];
         Metadata.clearLocalCache();
-        return api.updateUserMetaNamespace(request)
+        return Metadata.api.updateUserMetaNamespace(request)
     }
 
     /**
@@ -46,40 +61,73 @@ class Metadata {
      * @return {Promise}
      */
     static deleteNS(namespace) {
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
         let request = new IdmUpdateUserMetaNamespaceRequest();
         request.Operation = UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
         request.Namespaces = [namespace];
         Metadata.clearLocalCache();
-        return api.updateUserMetaNamespace(request)
+        return Metadata.api.updateUserMetaNamespace(request)
+    }
+    /**
+     * 
+     * @param {string} fileType 
+     * @returns {Promise<any>}
+     */
+    static getMetaSchema(fileType) {
+        //** @type {Promise<any>} */
+        return Metadata.api.getFieldSchema(fileType);
     }
 
+    static getJsonSchemaByType(fieldType, namespace, format = '') {     
+        return Metadata.api.getNamespaceSchema({ FieldType: fieldType, Namespace: namespace, Format: format });
+    }
+    /**
+     * @param namespace String
+     * @return {Promise<Array>}
+     */
+    static listTags(namespace){
+
+        return new Promise((resolve) => {
+            Metadata.api.listUserMetaTags(namespace).then(response => {
+                if(response.Tags){
+                    resolve(response.Tags);
+                } else {
+                    resolve([]);
+                }
+            }).catch(e => {
+                resolve([])
+            })
+
+        });
+
+    }
     /**
      * Clear ReactMeta cache if it exists
      */
-    static clearLocalCache(){
-        try{
-            if(window.ReactMeta){
+    static clearLocalCache() {
+        try {
+            if (window.ReactMeta) {
                 ReactMeta.Renderer.getClient().clearConfigs();
             }
-        }catch (e){
+        } catch (e) {
             //console.log(e)
         }
     }
+    
 
 }
 
 Metadata.MetaTypes = {
-    "string":       "Text",
-    "textarea":     "Long Text",
-    "integer":      "Number",
-    "boolean":      "Boolean",
-    "date":         "Date",
-    "choice":       "Selection",
-    "tags":         "Extensible Tags",
-    "stars_rate":   "Stars Rating",
-    "css_label":    "Color Labels",
-    "json":         "JSON"
+    "string": pydio.MessageHash['ajxp_admin.metadata.type.string'] || 'type.string',
+    "textarea": pydio.MessageHash['ajxp_admin.metadata.type.textarea'] || 'type.textarea',
+    "integer": pydio.MessageHash['ajxp_admin.metadata.type.integer'] || 'type.integer',
+    "boolean": pydio.MessageHash['ajxp_admin.metadata.type.boolean'] || 'type.boolean',
+    "date": pydio.MessageHash['ajxp_admin.metadata.type.date'] || 'type.date',
+    "choice": pydio.MessageHash['ajxp_admin.metadata.type.choice'] || 'type.choice',
+    "tags": pydio.MessageHash['ajxp_admin.metadata.type.tags'] || 'type.tags',
+    "stars_rate": pydio.MessageHash['ajxp_admin.metadata.type.stars_rate'] || 'type.stars_rate',
+    "css_label": pydio.MessageHash['ajxp_admin.metadata.type.css_label'] || 'type.css_label',
+    "json": pydio.MessageHash['ajxp_admin.metadata.type.json'] || 'type.json',
+    "url": pydio.MessageHash['ajxp_admin.metadata.type.url'] || 'type.url'
 };
 
-export {Metadata as default}
+export { Metadata as default }

@@ -15,7 +15,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -113,6 +113,14 @@ func (m *viperClone) Empty() {
 	m.viper = viper.New()
 }
 
+func (m *viperClone) RLock() {
+	m.lock.RLock()
+}
+
+func (m *viperClone) RUnlock() {
+	m.lock.RUnlock()
+}
+
 type viperStore struct {
 	v Viper
 	watch.Watcher
@@ -120,8 +128,8 @@ type viperStore struct {
 	externalLocker *sync.RWMutex
 }
 
-func newViper(v Viper, opt ...configx.Option) config.Store {
-	opts := configx.Options{}
+func newViper(v Viper, opt ...kv.Option) config.Store {
+	opts := kv.Options{}
 	for _, o := range opt {
 		o(&opts)
 	}
@@ -161,19 +169,19 @@ func (m *viperStore) Set(value any) error {
 	return m.Val().Set(value)
 }
 
-func (m *viperStore) Context(ctx context.Context) configx.Values {
+func (m *viperStore) Context(ctx context.Context) kv.Values {
 	return m.Val().Context(ctx)
 }
 
-func (m *viperStore) Options() *configx.Options {
+func (m *viperStore) Options() *kv.Options {
 	return m.Val().Options()
 }
 
-func (m *viperStore) Val(path ...string) configx.Values {
+func (m *viperStore) Val(path ...string) kv.Values {
 	return &values{v: m, k: std.StringToKeys(path...), locker: m.locker}
 }
 
-func (m *viperStore) Default(d any) configx.Values {
+func (m *viperStore) Default(d any) kv.Values {
 	return m.Val().Default(d)
 }
 
@@ -244,22 +252,22 @@ func (v *values) Del() error {
 	return nil
 }
 
-func (v *values) Context(ctx context.Context) configx.Values {
+func (v *values) Context(ctx context.Context) kv.Values {
 	return &values{v: v.v, k: v.k, ctx: ctx, locker: v.locker}
 }
 
-func (v *values) Val(path ...string) configx.Values {
+func (v *values) Val(path ...string) kv.Values {
 	return &values{v: v.v, k: std.StringToKeys(append(v.k, path...)...), ctx: v.ctx, locker: v.v.locker}
 }
 
-func (v *values) Default(d any) configx.Values {
+func (v *values) Default(d any) kv.Values {
 	v.v.v.SetDefault(strings.Join(std.StringToKeys(v.k...), delimiter), d)
 
 	return &values{v: v.v, k: v.k, ctx: v.ctx, locker: v.v.locker}
 }
 
-func (v *values) Options() *configx.Options {
-	return &configx.Options{
+func (v *values) Options() *kv.Options {
+	return &kv.Options{
 		Context: v.ctx,
 	}
 }
@@ -342,7 +350,7 @@ func (v *values) Map() map[string]any {
 	return res
 }
 
-func (v *values) Scan(out any, options ...configx.Option) error {
+func (v *values) Scan(out any, options ...kv.Option) error {
 	v.locker.RLock()
 	defer v.locker.RUnlock()
 

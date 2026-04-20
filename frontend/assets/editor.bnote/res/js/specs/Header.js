@@ -38,4 +38,4 @@ export const Header = createReactBlockSpec(
     }
 );
 
-export const headerBlockSpecs = {header:Header}
+export const headerBlockSpecs = {header: Header()}

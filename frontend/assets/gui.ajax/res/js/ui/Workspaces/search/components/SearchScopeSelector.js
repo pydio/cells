@@ -23,7 +23,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Pydio from 'pydio'
 import Repository from 'pydio/model/repository'
-import {MenuItem, Divider, Subheader} from 'material-ui';
+import {Menu, MenuItem, Divider, Subheader} from 'material-ui';
+import {chipsStyles} from "./AdvancedChipsStyles";
 const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
@@ -35,12 +36,13 @@ class SearchScopeSelector extends Component {
             onChange        : PropTypes.func.isRequired,
             onClick         : PropTypes.func.isRequired,
             style           : PropTypes.object,
-            labelStyle      : PropTypes.object
+            labelStyle      : PropTypes.object,
+            mode            : PropTypes.string,
         };
     }
 
     render(){
-        const {getMessage, pydio, onChange} = this.props;
+        const {getMessage, pydio, onChange, mode} = this.props;
         let {value} = this.props;
 
         let items = [], folder = [], currentWs = [], otherW = [], otherC = [];
@@ -74,11 +76,15 @@ class SearchScopeSelector extends Component {
 
         otherC = otherC.map(ws => <MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
         otherW = otherW.map(ws => <MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+        let shStyle = {}
+        if(mode === 'popover') {
+            shStyle = {paddingLeft: 24, lineHeight: '32px', opacity: 0.4, fontSize: 12};
+        }
         if(otherW.length) {
-            otherW.unshift(<Subheader>Workspaces</Subheader>)
+            otherW.unshift(<Subheader style={shStyle}>Workspaces</Subheader>)
         }
         if(otherC.length) {
-            otherC.unshift(<Subheader>Cells</Subheader>)
+            otherC.unshift(<Subheader style={shStyle}>Cells</Subheader>)
         }
 
         if (homePage) {
@@ -107,14 +113,33 @@ class SearchScopeSelector extends Component {
             value = homePage ? 'all' : activeWs.getSlug()+'/'
         }
 
-        return (
-            <ModernSelectField
-                value={value}
-                onChange={(e,i,v) => {onChange(v)}}
-                fullWidth={true}
-                {...ModernStyles.selectFieldV1Search}
-            >{items}</ModernSelectField>
-        )
+        if(mode === 'popover') {
+            const poStyles = chipsStyles({})
+
+            return (
+                <Menu
+                    value={value}
+                    desktop={true}
+                    onChange={(e,v) => {onChange(v)}}
+                    autoWidth={false}
+                    style={poStyles.popoverMenuRootStyle}
+                    listStyle={{...poStyles.popoverMenuStyle}}
+                >{items}</Menu>
+            )
+
+        } else {
+
+            return (
+                <ModernSelectField
+                    value={value}
+                    onChange={(e,i,v) => {onChange(v)}}
+                    fullWidth={true}
+                    {...ModernStyles.selectFieldV1Search}
+                >{items}</ModernSelectField>
+            )
+
+        }
+
     }
 
 }

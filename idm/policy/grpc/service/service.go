@@ -40,14 +40,18 @@ const Name = common.ServiceGrpcNamespace_ + common.ServicePolicy
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 
-		migs := append([]*service.Migration{
-			{
-				TargetVersion: service.FirstRunOrChange(),
-				Up:            manager.StorageMigration(),
-			},
-		}, policy.GrpcServiceMigrations...)
+		// Initial storage (datamodel) migration
+		migs := []*service.Migration{{
+			TargetVersion: service.FirstRunOrChange(),
+			Up:            manager.StorageMigration(),
+		}}
+
+		// Specific "defaults" values updates from v1 to v4.4.16
+		migs = append(migs, policy.DefaultsServiceMigrationsUpTo4416...)
+
+		// Migration from v4 to v5 (MigrateLegacy)
 		migs = append(migs, &service.Migration{
-			TargetVersion: service.ValidVersion("4.5.0"),
+			TargetVersion: service.ValidVersion("4.4.99"),
 			Up: func(ctx context.Context) error {
 				dao, er := manager.Resolve[policy.DAO](ctx)
 				if er != nil {
@@ -55,11 +59,10 @@ func init() {
 				}
 				return dao.MigrateLegacy(ctx)
 			},
-		},
-			&service.Migration{
-				TargetVersion: service.ValidVersion("4.5.0"),
-				Up:            policy.Upgrade4992,
-			})
+		})
+
+		// Now finally append more recent migrations
+		migs = append(migs, policy.DefaultsServiceMigrationsAfter4416...)
 
 		service.NewService(
 			service.Name(Name),

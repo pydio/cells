@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 const (
@@ -60,7 +61,7 @@ const (
 	CurrentHashingVersion = "v4"
 )
 
-func (d *DataSource) ClientConfig(ctx context.Context, p SecretProvider) configx.Values {
+func (d *DataSource) ClientConfig(ctx context.Context, p SecretProvider) kv.Values {
 	cfg := configx.New()
 	_ = cfg.Val("type").Set("mc")
 	if d.StorageType == StorageType_AZURE {
@@ -124,9 +125,9 @@ func (d *DataSource) ConfigurationByKey(k string) (string, bool) {
 	return v, o
 }
 
-type SecretProvider func(ctx context.Context, uuid string) configx.Values
+type SecretProvider func(ctx context.Context, uuid string) kv.Values
 
-func (d *MinioConfig) ClientConfig(ctx context.Context, p SecretProvider, agentName, agentVersion string) configx.Values {
+func (d *MinioConfig) ClientConfig(ctx context.Context, p SecretProvider, agentName, agentVersion string) kv.Values {
 	cfg := configx.New()
 	_ = cfg.Val("type").Set("mc")
 	_ = cfg.Val("endpoint").Set(d.BuildUrl())
@@ -268,7 +269,7 @@ func (d *MinioConfig) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
-func (m *DataSourceSingleQuery) Matches(object interface{}) bool {
+func (m *DataSourceSingleQuery) Matches(ctx context.Context, object interface{}) bool {
 	ds, ok := object.(*DataSource)
 	if !ok {
 		return false

@@ -89,22 +89,33 @@ func (e *EventProducer) Start() error {
 
 	// Load all schedules
 	cli := jobs.NewJobServiceClient(grpc.ResolveConn(e.Context, common.ServiceJobsGRPC))
-	streamer, err := cli.ListJobs(e.Context, &jobs.ListJobsRequest{TimersOnly: true})
+	streamer, err := cli.ListJobs(e.Context, &jobs.ListJobsRequest{})
 	if err != nil {
 		return err
 	}
 
 	// Iterate through the registered jobs
 	for {
-		resp, err := streamer.Recv()
-		if err != nil {
+		resp, er := streamer.Recv()
+		if er != nil {
 			break
 		}
 		if resp == nil {
 			continue
 		}
-		log.Logger(e.Context).Info("Registering Job", zap.String("job", resp.Job.ID))
-		e.StartOrUpdateJob(resp.Job)
+		j := resp.GetJob()
+		if j.GetSchedule() != nil {
+			log.Logger(e.Context).Info("Registering scheduled job "+j.GetLabel(), zap.String("job", j.GetID()))
+			e.StartOrUpdateJob(j)
+		}
+		if j.GetAutoRestart() && !j.Inactive {
+			log.Logger(e.Context).Info("Auto starting job "+j.GetLabel(), zap.String("job", j.GetID()))
+			_ = broker.Publish(e.Context, common.TopicTimerEvent, &jobs.JobTriggerEvent{
+				JobID:  j.GetID(),
+				RunNow: true,
+			})
+
+		}
 	}
 	return nil
 }

@@ -50,13 +50,10 @@ import (
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/cache/gocache"
-	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	"github.com/pydio/cells/v5/common/utils/slug"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
 	_ "github.com/pydio/cells/v5/common/utils/cache/bigcache"
-	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 	_ "github.com/pydio/cells/v5/common/utils/cache/redis"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -71,14 +68,14 @@ type testdao DAO
 func TestMain(m *testing.M) {
 	v := viper.New()
 	runtime.SetRuntime(v)
-	cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
+	//cache_helper.SetStaticResolver("pm://", &gocache.URLOpener{})
 
 	now := time.Now()
 	m.Run()
 	fmt.Println(time.Since(now))
 }
 
-func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) {
+func testAll(t *testing.T, f func(ctx context.Context, dao testdao) func(*testing.T), cache ...bool) {
 	var cnt = 0
 	log.SetLoggerInit(func(_ context.Context) (*zap.Logger, []io.Closer) {
 		conf := zap.NewDevelopmentConfig()
@@ -87,22 +84,24 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) 
 		return logger, nil
 	}, nil)
 	tct := test.TemplateSQL(NewDAO[*tree.TreeNode])
-	test.RunStorageTests(tct, t, func(ctx context.Context) {
-		dao, err := manager.Resolve[DAO](ctx)
-		if err != nil {
-			panic(err)
-		}
+	if len(cache) < 2 { // Adding a second parameter will perform cache only
+		test.RunStorageTests(tct, t, func(ctx context.Context) {
+			dao, err := manager.Resolve[DAO](ctx)
+			if err != nil {
+				panic(err)
+			}
 
-		// First make sure that we delete everything
-		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
-		_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
+			// First make sure that we delete everything
+			_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
+			_ = dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
 
-		// Run the test
-		scheme := strings.SplitN(tct[cnt].DSN[0], "://", 2)[0]
-		label := caser.String(scheme)
-		t.Run(label, f(dao))
-		cnt++
-	})
+			// Run the test
+			scheme := strings.SplitN(tct[cnt].DSN[0], "://", 2)[0]
+			label := caser.String(scheme)
+			t.Run(label, f(ctx, dao))
+			cnt++
+		})
+	}
 	if len(cache) > 0 && cache[0] {
 		cnt = 0
 		test.RunStorageTests(tct, t, func(ctx context.Context) {
@@ -121,7 +120,7 @@ func testAll(t *testing.T, f func(dao testdao) func(*testing.T), cache ...bool) 
 			// Run the test
 			scheme := strings.SplitN(tct[cnt].DSN[0], "://", 2)[0]
 			label := caser.String(scheme)
-			t.Run("Session/"+label, f(dao))
+			t.Run("Session/"+label, f(ctx, dao))
 			cnt++
 		})
 
@@ -148,9 +147,9 @@ func bToMb(b uint64) uint64 {
 }
 
 func TestGetNodeTree(t *testing.T) {
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			for node := range dao.GetNodeTree(context.Background(), tree.NewMPath(1)) {
+			for node := range dao.GetNodeTree(ctx, tree.NewMPath(1)) {
 				fmt.Println(node.(tree.ITreeNode).GetMPath())
 			}
 		}
@@ -158,9 +157,9 @@ func TestGetNodeTree(t *testing.T) {
 }
 
 func TestGetNodeChildren(t *testing.T) {
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			for node := range dao.GetNodeChildren(context.Background(), tree.NewMPath(1, 3289, 8, 18, 4, 1, 1)) {
+			for node := range dao.GetNodeChildren(ctx, tree.NewMPath(1, 3289, 8, 18, 4, 1, 1)) {
 				fmt.Println(node.(*tree.TreeNode).MPath)
 			}
 		}
@@ -168,8 +167,7 @@ func TestGetNodeChildren(t *testing.T) {
 }
 
 func TestPath(t *testing.T) {
-	ctx := context.Background()
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			Convey("Test ByPath basic cases", t, func() {
@@ -183,6 +181,8 @@ func TestPath(t *testing.T) {
 					Name: "ROOT",
 				}
 				node0, err0 := dao.GetNodeByPath(ctx, "/")
+				So(err0, ShouldNotBeNil)
+				node0, err0 = dao.GetNodeByPath(ctx, "")
 				So(err0, ShouldNotBeNil)
 				So(errors.Is(err0, errors.NodeNotFound), ShouldBeTrue)
 				So(node0, ShouldBeNil)
@@ -221,9 +221,7 @@ func TestPath(t *testing.T) {
 }
 
 func TestGenericFeatures(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			// Adding a file
 			Convey("Test adding a file - Success", t, func() {
@@ -484,7 +482,7 @@ func TestGenericFeatures(t *testing.T) {
 			// Setting a file
 			Convey("Test Getting the Children of a node", t, func() {
 				var i int
-				for _ = range dao.GetNodeChildren(context.Background(), mockLongNodeMPath) {
+				for _ = range dao.GetNodeChildren(ctx, mockLongNodeMPath) {
 					i++
 				}
 
@@ -498,7 +496,7 @@ func TestGenericFeatures(t *testing.T) {
 
 				var i int
 				PrintMemUsage("Test Getting the Children of a node")
-				for _ = range dao.GetNodeTree(context.Background(), tree.NewMPath(1)) {
+				for _ = range dao.GetNodeTree(ctx, tree.NewMPath(1)) {
 					i++
 				}
 
@@ -593,7 +591,7 @@ func TestGenericFeatures(t *testing.T) {
 				So(dao.Flush(ctx, true), ShouldBeNil)
 
 				// List Root
-				nodes := dao.GetNodeChildren(context.Background(), tree.NewMPath(1))
+				nodes := dao.GetNodeChildren(ctx, tree.NewMPath(1))
 				count := 0
 				for range nodes {
 					count++
@@ -602,7 +600,7 @@ func TestGenericFeatures(t *testing.T) {
 
 				// printTree(ctxWithCache)
 				// List Parent1 Children
-				nodes = dao.GetNodeTree(context.Background(), tree.NewMPath(1))
+				nodes = dao.GetNodeTree(ctx, tree.NewMPath(1))
 				count = 0
 				for _ = range nodes {
 					count++
@@ -611,7 +609,7 @@ func TestGenericFeatures(t *testing.T) {
 				So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
 
 				// List Parent1 Children
-				nodes = dao.GetNodeChildren(context.Background(), tree.NewMPath(1, 1))
+				nodes = dao.GetNodeChildren(ctx, tree.NewMPath(1, 1))
 				count = 0
 				for range nodes {
 					count++
@@ -700,14 +698,46 @@ func TestGenericFeatures(t *testing.T) {
 				So(parentNode.GetNode().GetEtag(), ShouldEqual, newEtag2)
 
 			})
+
+			// Getting a node last child
+			Convey("Test Getting the last child of a long node", t, func() {
+				err := dao.insertNode(ctx, manyChildren)
+				So(err, ShouldBeNil)
+				var cc []*tree.TreeNode
+				for i := 1; i <= 15; i++ {
+					ch := &tree.TreeNode{
+						Node: &tree.Node{
+							Uuid: fmt.Sprintf("uuid-%d", i),
+							Type: tree.NodeType_LEAF,
+							Etag: fmt.Sprintf("etag-%d", i),
+							Size: 12,
+						},
+						MPath: &tree.MPath{MPath1: fmt.Sprintf("1.3.%d", i)},
+						Name:  fmt.Sprintf("name-%d", i),
+					}
+					cc = append(cc, ch)
+					So(dao.insertNode(ctx, ch), ShouldBeNil)
+				}
+				So(dao.Flush(ctx, true), ShouldBeNil)
+
+				node, err := dao.getNodeLastChild(ctx, manyChildren.MPath)
+				So(err, ShouldBeNil)
+				So(node.GetName(), ShouldEqual, "name-15")
+				// DELETE CHILDREN AND PARENT
+				for _, ch := range cc {
+					So(dao.DelNode(ctx, ch), ShouldBeNil)
+				}
+				So(dao.DelNode(ctx, manyChildren), ShouldBeNil)
+				So(dao.Flush(ctx, true), ShouldBeNil)
+			})
+
 		}
 	}, true)
 }
 
 func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
-	ctx := context.Background()
 
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			Convey("Test mPath with free slots", t, func() {
@@ -742,9 +772,7 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 }
 
 func TestStreams(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Adding nodes in stream", t, func() {
 
@@ -774,9 +802,7 @@ func TestStreams(t *testing.T) {
 }
 
 func TestArborescence(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			arborescence := []string{
@@ -814,7 +840,7 @@ func TestArborescence(t *testing.T) {
 			})
 
 			Convey("List Arbo w/ conditions", t, func() {
-				c := dao.GetNodeTree(context.Background(), tree.NewMPath(1))
+				c := dao.GetNodeTree(ctx, tree.NewMPath(1))
 				var a []string
 				for n := range c {
 					if node, ok := n.(tree.ITreeNode); ok {
@@ -829,7 +855,7 @@ func TestArborescence(t *testing.T) {
 			Convey("List Arbo w/ ordering", t, func() {
 				mf := tree.NewMetaFilter(&tree.Node{})
 				mf.AddSort(tree.MetaSortMPath, tree.MetaSortName, true)
-				c := dao.GetNodeTree(context.Background(), tree.NewMPath(1), mf)
+				c := dao.GetNodeTree(ctx, tree.NewMPath(1), mf)
 				var a []string
 				for n := range c {
 					if node, ok := n.(tree.ITreeNode); ok {
@@ -845,9 +871,7 @@ func TestArborescence(t *testing.T) {
 }
 
 func TestSecondArborescence(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			arborescence := []string{
@@ -886,7 +910,7 @@ func TestSecondArborescence(t *testing.T) {
 			})
 
 			Convey("List Arbo w/o conditions", t, func() {
-				c := dao.GetNodeTree(context.Background(), tree.NewMPath(1))
+				c := dao.GetNodeTree(ctx, tree.NewMPath(1))
 				var a []string
 				for n := range c {
 					if node, ok := n.(tree.ITreeNode); ok {
@@ -902,10 +926,79 @@ func TestSecondArborescence(t *testing.T) {
 	}, true)
 }
 
-func TestOrdering(t *testing.T) {
-	ctx := context.Background()
+func TestMassiveArborescenceInSession(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
 
-	testAll(t, func(dao testdao) func(t *testing.T) {
+			folders := []string{
+				"/ROOT",
+			}
+			files := []string{
+				"/ROOT",
+			}
+
+			Convey("Load Folders Tree from file", t, func() {
+
+				readFile, err := os.Open("./testdata/core-folders.txt")
+
+				if err != nil {
+					fmt.Println(err)
+				}
+				fileScanner := bufio.NewScanner(readFile)
+				fileScanner.Split(bufio.ScanLines)
+
+				for fileScanner.Scan() {
+					line := fileScanner.Text()
+					folders = append(folders, "/ROOT/"+line)
+				}
+
+				So(len(folders), ShouldBeGreaterThan, 2)
+			})
+
+			Convey("Load Files Tree from file", t, func() {
+
+				readFile, err := os.Open("./testdata/core-files.txt")
+
+				if err != nil {
+					fmt.Println(err)
+				}
+				fileScanner := bufio.NewScanner(readFile)
+				fileScanner.Split(bufio.ScanLines)
+
+				for fileScanner.Scan() {
+					line := fileScanner.Text()
+					files = append(files, "/ROOT/"+line)
+				}
+			})
+
+			Convey("Create Nodes", t, func() {
+
+				for _, pa := range folders {
+					//t.Logf("Adding folder %s", pa)
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
+					So(err, ShouldBeNil)
+				}
+
+				e := dao.Flush(ctx, true)
+				So(e, ShouldBeNil)
+
+				for _, pa := range files {
+					//t.Logf("Adding files %s", pa)
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_LEAF})
+					So(err, ShouldBeNil)
+				}
+
+				e = dao.Flush(ctx, true)
+				So(e, ShouldBeNil)
+
+			})
+
+		}
+	}, true, true)
+}
+
+func TestOrdering(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			/*
 				folderName1 := "a1_01_"         // 1
@@ -947,16 +1040,17 @@ func TestOrdering(t *testing.T) {
 
 			Convey("Create Nodes", t, func() {
 				size := 36
-				for _, pa := range arborescence {
+				for k, pa := range arborescence {
 					t.Logf("Adding node %s", pa)
-					if testTime {
-						<-time.After(1 * time.Second)
-					}
+					/*if testTime {
+						<-time.After(10 * time.Millisecond)
+					}*/
 					nodeType := tree.NodeType_COLLECTION
 					if strings.HasSuffix(pa, ".txt") {
 						nodeType = tree.NodeType_LEAF
 					}
-					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Size: int64(size), Type: nodeType})
+					// Adding the nodes - making sure the delay for the mtime is different between them to test ordering
+					_, _, err := dao.GetOrCreateNodeByPath(ctx, pa, &tree.Node{Uuid: uuid.New(), Size: int64(size), Type: nodeType, MTime: time.Now().Unix() + int64(k*1000)})
 					So(err, ShouldBeNil)
 					size--
 				}
@@ -1089,9 +1183,7 @@ func hashParent(name string, mpath *tree.MPath) string {
 }
 
 func TestSmallArborescence(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			Convey("Re-adding a file - Success", t, func() {
@@ -1172,9 +1264,7 @@ func TestSmallArborescence(t *testing.T) {
 }
 
 func TestMoveInsideOwnChild(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			Convey("Test Move inside own child is forbidden", t, func() {
@@ -1230,9 +1320,7 @@ func TestMoveInsideOwnChild(t *testing.T) {
 }
 
 func TestOtherArborescence(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Re-adding a file - Success", t, func() {
 				arborescence := []string{
@@ -1253,9 +1341,7 @@ func TestOtherArborescence(t *testing.T) {
 }
 
 func TestIntermediaryFoldersCreation(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Adding a file with intermediary folders", t, func() {
 
@@ -1274,9 +1360,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Testing a flat folder with tons of children", t, func() {
 				var i int
@@ -1310,7 +1394,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 }
 
 func TestFindMissingNumbers(t *testing.T) {
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Find missing numbers in sorted slice of ints", t, func() {
 				test := []int{2, 4, 5, 7}
@@ -1351,9 +1435,7 @@ func TestFindMissingNumbers(t *testing.T) {
 }
 
 func TestUnderscoreIssue(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("", t, func() {
 				arborescence := []string{
@@ -1380,9 +1462,7 @@ func TestUnderscoreIssue(t *testing.T) {
 }
 
 func TestLostAndFoundDuplicates(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Test LostAndFound - Duplicates", t, func() {
 				// Create Duplicates on purpose
@@ -1409,9 +1489,7 @@ func TestLostAndFoundDuplicates(t *testing.T) {
 }
 
 func TestMoveAutoRename(t *testing.T) {
-	ctx := context.Background()
-
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Test Move AutoRename", t, func() {
 				// Create Duplicates on purpose
@@ -1451,7 +1529,6 @@ func TestMoveAutoRename(t *testing.T) {
 }
 
 func TestVeryDeepPath(t *testing.T) {
-	ctx := context.Background()
 	var pp1 []string
 	for i := 0; i < 127; i++ {
 		pp1 = append(pp1, "1")
@@ -1463,7 +1540,7 @@ func TestVeryDeepPath(t *testing.T) {
 	}
 	fPath := "/" + strings.Join(pp, "/")
 	sql.TestPrintQueries = true
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("VeryDeepPath 127 - TODO Bigger is failing", t, func() {
 				_, _, er := dao.GetOrCreateNodeByPath(ctx, fPath1, &tree.Node{Uuid: uuid.New(), Type: tree.NodeType_COLLECTION})
@@ -1485,7 +1562,6 @@ func TestVeryDeepPath(t *testing.T) {
 }
 
 func TestMoveVeryDeepPath(t *testing.T) {
-	ctx := context.Background()
 	var pp []string
 	for i := 0; i < 510; i++ { // This creates a 1020 = 255*4 mpath = max index length
 		pp = append(pp, "1")
@@ -1494,7 +1570,7 @@ func TestMoveVeryDeepPath(t *testing.T) {
 	fPathChild := fPath + "/child"
 	uid := uuid.New()
 	uidChild := uuid.New()
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Test MoveVeryDeepPath - Max Length", t, func() {
 				node, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uid, Type: tree.NodeType_COLLECTION})
@@ -1550,7 +1626,6 @@ func TestMoveVeryDeepPath(t *testing.T) {
 }
 
 func TestMoveVeryDeepPathWithChildren(t *testing.T) {
-	ctx := context.Background()
 	var pp []string
 	for i := 0; i < 500; i++ {
 		pp = append(pp, "1")
@@ -1559,7 +1634,7 @@ func TestMoveVeryDeepPathWithChildren(t *testing.T) {
 	fPathChild := fPath + "/child"
 	uid := uuid.New()
 	uidChild := uuid.New()
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Test MoveVeryDeepPath - With Children", t, func() {
 				node, _, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Uuid: uid, Type: tree.NodeType_COLLECTION})
@@ -1611,14 +1686,13 @@ func TestMoveVeryDeepPathWithChildren(t *testing.T) {
 }
 
 func TestMoveVeryDeepPathScenario(t *testing.T) {
-	ctx := context.Background()
 	var pp []string
 	for i := 0; i < 255; i++ {
 		pp = append(pp, "1")
 	}
 	fPath := "/personal/user/source/" + strings.Join(pp, "/")
 
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 			Convey("Test MoveVeryDeepPath - Scenario", t, func() {
 				_, created, er := dao.GetOrCreateNodeByPath(ctx, fPath, &tree.Node{Type: tree.NodeType_COLLECTION})
@@ -1658,8 +1732,7 @@ func TestMoveVeryDeepPathScenario(t *testing.T) {
 }
 
 func TestLostAndFoundChildren(t *testing.T) {
-	ctx := context.Background()
-	testAll(t, func(dao testdao) func(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
 
 			Convey("Test LostAndFound - Lost Children", t, func() {

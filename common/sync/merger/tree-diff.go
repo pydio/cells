@@ -343,7 +343,7 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 			NodeLeft:  left.N,
 			NodeRight: right.N,
 		})
-	} else if !left.IsLeaf() && left.GetUuid() != right.GetUuid() {
+	} else if !left.IsLeaf() && left.GetType() != NodeType_METADATA && left.GetUuid() != right.GetUuid() {
 		// Folder has different UUID - Register conflict and keep browsing
 		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictFolderUUID,

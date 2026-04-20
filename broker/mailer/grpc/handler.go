@@ -36,7 +36,7 @@ import (
 	proto "github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type Handler struct {
@@ -203,7 +203,7 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 	return rsp, nil
 }
 
-func (h *Handler) parseConf(conf configx.Values) (senderName string, senderConfig configx.Values) {
+func (h *Handler) parseConf(conf kv.Values) (senderName string, senderConfig kv.Values) {
 
 	senderConfig = conf.Val("sender")
 	senderName = senderConfig.Val("@value").Default("noop").String()
@@ -211,12 +211,12 @@ func (h *Handler) parseConf(conf configx.Values) (senderName string, senderConfi
 	return
 }
 
-func (h *Handler) getSender(ctx context.Context, conf configx.Values) (sender mailer.Sender, e error) {
+func (h *Handler) getSender(ctx context.Context, conf kv.Values) (sender mailer.Sender, e error) {
 
 	//conf := config.Get(ctx, "services", h.svcName)
 	initialConfig := conf.Val("valid").Bool()
 	var senderName string
-	var senderConfig configx.Values
+	var senderConfig kv.Values
 
 	defer func() {
 		var newConfig bool
@@ -237,7 +237,7 @@ func (h *Handler) getSender(ctx context.Context, conf configx.Values) (sender ma
 	return
 }
 
-func (h *Handler) CheckSender(ctx context.Context, conf configx.Values) error {
+func (h *Handler) CheckSender(ctx context.Context, conf kv.Values) error {
 	sender, e := h.getSender(ctx, conf)
 	if e != nil {
 		return e

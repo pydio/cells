@@ -77,7 +77,7 @@ export const Callbacks = {
 
     },
 
-    mkPage(){
+    mkPage(callback = undefined) {
         const pydio = Pydio.getInstance()
 
         let submit = value => {
@@ -103,7 +103,9 @@ export const Callbacks = {
                         JsonValue: "true",
                     }]
                 }]}).then((res) => {
-                    if(console) console.debug('Created nodes', res);
+                    if(callback && res.data && res.data.Nodes) {
+                        callback(res.data.Nodes);
+                    }
                 })
             })
         };

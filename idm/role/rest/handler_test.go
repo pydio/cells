@@ -21,39 +21,174 @@
 package rest
 
 import (
-	"fmt"
+	"context"
+	"io"
+	"net/http/httptest"
 	"testing"
 
-	"google.golang.org/protobuf/types/known/anypb"
+	restful "github.com/emicklei/go-restful/v3"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common"
+	claimpkg "github.com/pydio/cells/v5/common/auth/claim"
+	grpcclient "github.com/pydio/cells/v5/common/client/grpc"
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	serviceproto "github.com/pydio/cells/v5/common/proto/service"
-	json "github.com/pydio/cells/v5/common/utils/jsonx"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-// Simple dummy tests to play with gRPC format that is used for role queries
-func TestRole(t *testing.T) {
-	uuid := "MyRoleId"
-	// Simply creates a deleteRoleRequest in protobuf JSON serialised format
-	query, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{uuid}})
-	r := idm.DeleteRoleRequest{Query: &serviceproto.Query{SubQueries: []*anypb.Any{query}}}
-	r1, err := json.Marshal(r)
-	if err != nil {
-		fmt.Println(err)
-		return
+func TestRoleGetRequiresReadAccess(t *testing.T) {
+	h := NewRoleHandler()
+	ctx := context.Background()
+	role := &idm.Role{
+		Uuid:  "role-readable",
+		Label: "Role Readable",
+		Policies: []*serviceproto.ResourcePolicy{
+			{Resource: "role-readable", Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:allowed", Effect: serviceproto.ResourcePolicy_allow},
+		},
 	}
-	fmt.Println("Marshalled string: " + string(r1))
+	grpcclient.RegisterMock(common.ServiceRoleGRPC, &roleSearchMockConn{role: role})
 
-	// Same using json serialised object as starting point
-	initialStr := `{"Uuid": ["MyRoleId"]}`
-	var q idm.RoleSingleQuery
-	err = json.Unmarshal([]byte(initialStr), &q)
-	query2, _ := anypb.New(&q)
-	rr := idm.DeleteRoleRequest{Query: &serviceproto.Query{SubQueries: []*anypb.Any{query2}}}
-	r2, err := json.Marshal(rr)
-	if err != nil {
-		fmt.Println(err)
-		return
+	Convey("denies unauthorized reads", t, func() {
+		httpReq := httptest.NewRequest("GET", "/role/role-readable", nil)
+		httpReq.Header.Set("Accept", restful.MIME_JSON)
+		req := restful.NewRequest(httpReq)
+		req.Request = req.Request.WithContext(withClaims(ctx, "blocked"))
+		req.PathParameters()["Uuid"] = "role-readable"
+		rsp := restful.NewResponse(httptest.NewRecorder())
+
+		err := h.GetRole(req, rsp)
+
+		So(err, ShouldNotBeNil)
+		So(errors.Is(err, errors.RoleNotFound), ShouldBeTrue)
+	})
+
+	Convey("allows authorized reads", t, func() {
+		httpReq := httptest.NewRequest("GET", "/role/role-readable", nil)
+		httpReq.Header.Set("Accept", restful.MIME_JSON)
+		req := restful.NewRequest(httpReq)
+		req.Request = req.Request.WithContext(withClaims(ctx, "allowed"))
+		req.PathParameters()["Uuid"] = "role-readable"
+		recorder := httptest.NewRecorder()
+		rsp := restful.NewResponse(recorder)
+
+		err := h.GetRole(req, rsp)
+
+		So(err, ShouldBeNil)
+		So(recorder.Code, ShouldNotEqual, 500)
+	})
+}
+
+func withClaims(ctx context.Context, user string) context.Context {
+	return claimpkg.ToContext(ctx, claimpkg.Claims{Name: user, Subject: user, Profile: common.PydioProfileStandard})
+}
+
+type roleSearchMockConn struct {
+	role *idm.Role
+}
+
+func (m *roleSearchMockConn) Invoke(context.Context, string, interface{}, interface{}, ...grpc.CallOption) error {
+	return nil
+}
+
+func (m *roleSearchMockConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	// SearchRole() uses a streaming gRPC client under the hood.
+	// This mock stream captures the outbound request in SendMsg() and returns
+	// matching role responses when the generated client later calls RecvMsg().
+	return &roleSearchClientStream{ctx: ctx, role: m.role}, nil
+}
+
+// roleSearchClientStream is a tiny grpc.ClientStream test double.
+//
+// The generated RoleService client talks to SearchRole() through the exported
+// grpc.ClientStream methods below, so this mock must implement that interface
+// even if the test itself never calls RecvMsg()/SendMsg() directly.
+type roleSearchClientStream struct {
+	grpc.ClientStream
+	ctx      context.Context
+	role     *idm.Role
+	request  *idm.SearchRoleRequest
+	results  []*idm.SearchRoleResponse
+	position int
+}
+
+// These exported methods exist only because grpc.ClientStream requires them.
+func (s *roleSearchClientStream) Header() (metadata.MD, error) { return metadata.MD{}, nil }
+func (s *roleSearchClientStream) Trailer() metadata.MD         { return metadata.MD{} }
+func (s *roleSearchClientStream) CloseSend() error             { return nil }
+func (s *roleSearchClientStream) Context() context.Context     { return s.ctx }
+
+// SendMsg captures the outbound SearchRoleRequest sent by the generated client.
+func (s *roleSearchClientStream) SendMsg(m interface{}) error {
+	req, ok := m.(*idm.SearchRoleRequest)
+	if !ok {
+		return nil
 	}
-	fmt.Println("Marshalled string: " + string(r2))
+	s.request = proto.Clone(req).(*idm.SearchRoleRequest)
+	return nil
+}
+
+// RecvMsg feeds back mocked SearchRoleResponse values to the generated client.
+func (s *roleSearchClientStream) RecvMsg(m interface{}) error {
+	if s.results == nil {
+		responses, err := s.responsesFromRequest()
+		if err != nil {
+			return err
+		}
+		s.results = responses
+	}
+	if s.position >= len(s.results) {
+		return io.EOF
+	}
+	resp, ok := m.(*idm.SearchRoleResponse)
+	if !ok {
+		return io.EOF
+	}
+	*resp = *proto.Clone(s.results[s.position]).(*idm.SearchRoleResponse)
+	s.position++
+	return nil
+}
+
+// responsesFromRequest turns the captured request into the minimal response set
+// needed by this test: one matching role, or no result.
+// It respects ResourcePolicyQuery subjects to simulate DB-level READ filtering.
+func (s *roleSearchClientStream) responsesFromRequest() ([]*idm.SearchRoleResponse, error) {
+	if s.request == nil {
+		return nil, io.EOF
+	}
+
+	var results []*idm.SearchRoleResponse
+	for _, query := range s.request.GetQuery().GetSubQueries() {
+		single := new(idm.RoleSingleQuery)
+		if err := query.UnmarshalTo(single); err != nil {
+			continue
+		}
+		for _, uuid := range single.GetUuid() {
+			if s.role != nil && uuid == s.role.GetUuid() && s.callerCanRead() {
+				results = append(results, &idm.SearchRoleResponse{Role: proto.Clone(s.role).(*idm.Role)})
+			}
+		}
+	}
+	return results, nil
+}
+
+// callerCanRead checks whether the ResourcePolicyQuery subjects match any READ
+// policy on the role, mimicking what PrepareResourcePolicyQuery does at the DB level.
+func (s *roleSearchClientStream) callerCanRead() bool {
+	rpq := s.request.GetQuery().GetResourcePolicyQuery()
+	if rpq == nil {
+		return true // no policy filter — allow (backwards compat)
+	}
+	for _, subject := range rpq.GetSubjects() {
+		for _, pol := range s.role.GetPolicies() {
+			if pol.Action == serviceproto.ResourcePolicyAction_READ && pol.Subject == subject && pol.Effect == serviceproto.ResourcePolicy_allow {
+				return true
+			}
+		}
+	}
+	return false
 }

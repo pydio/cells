@@ -31,13 +31,17 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -68,6 +72,8 @@ type Options struct {
 	LocalRuntimeContext context.Context
 	// If a sync is connecting two endpoint of a same server, we have to make sure to avoid Uuid collision
 	RenewFolderUuids bool
+	// Define supported metadata
+	MetadataGlobs []glob.Glob
 }
 
 type Abstract struct {
@@ -215,14 +221,14 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (mode
 }
 
 // Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the Tree Service via a Router).
-func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	c.watchConn = make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
 	// Reset watchCtxCancelled if it's a Resume after a Pause
 	c.watchCtxCancelled = false
-	ctx, cancel := context.WithCancel(c.GlobalCtx)
+	ctx, cancel := context.WithCancel(ct)
 
 	obj := &model.WatchObject{
 		EventInfoChan:  make(chan model.EventInfo),
@@ -231,9 +237,11 @@ func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 		ConnectionInfo: c.watchConn,
 	}
 	go func() {
-		defer close(finished)
-		defer close(obj.EventInfoChan)
-		defer close(c.watchConn)
+		defer func() {
+			close(obj.EventInfoChan)
+			close(c.watchConn)
+			cancel()
+		}()
 		for {
 			select {
 			case changeEvent := <-changes:
@@ -253,13 +261,32 @@ func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 			case <-obj.DoneChan:
 				log.Logger(c.GlobalCtx).Info("Stopping event watcher")
 				c.watchCtxCancelled = true
-				cancel()
 				return
 			}
 		}
 	}()
 
 	go c.receiveEvents(ctx, changes, finished)
+
+	if len(c.Options.MetadataGlobs) > 0 {
+		_ = broker.SubscribeCancellable(ctx, common.TopicUserMetaDiffs, func(ctx context.Context, msg broker.Message) error {
+			target := &idm.UpdateUserMetaEvent{}
+			if ct, er := msg.Unmarshal(ctx, target); er == nil {
+				ns := target.GetUserMeta().GetNamespace()
+				for _, g := range c.Options.MetadataGlobs {
+					if !g.Match(ns) {
+						continue
+					}
+					if event, send := c.metaDiffToEventInfo(ct, target); send {
+						obj.EventInfoChan <- event
+					}
+				}
+			} else {
+				return er
+			}
+			return nil
+		}, broker.Queue("cells-endpoint-listener"))
+	}
 
 	return obj, nil
 }
@@ -284,11 +311,11 @@ func (c *Abstract) changeValidPath(n *tree.Node) bool {
 // changeToEventInfo transforms a *tree.NodeChangeEvent to the sync model EventInfo.
 func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.EventInfo, send bool) {
 
-	TimeFormatFS := "2006-01-02T15:04:05.000Z"
-	now := time.Now().UTC().Format(TimeFormatFS)
 	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PydioSyncHiddenFile {
 		// Special case for .pydio creations, to be updated in snapshot but ignored for event processed further
-		c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true)
+		if e := c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true); e != nil {
+			log.Logger(c.GlobalCtx).Warn("Failed to create node in snapshot", zap.Error(e))
+		}
 	}
 	if !c.changeValidPath(change.Target) || !c.changeValidPath(change.Source) {
 		return
@@ -296,52 +323,62 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.ClientUUID
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
 		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
-		event = model.EventInfo{
-			Type:     model.EventCreate,
-			Path:     change.Target.Path,
-			Etag:     change.Target.Etag,
-			Time:     now,
-			Folder:   !change.Target.IsLeaf(),
-			Size:     change.Target.Size,
-			Metadata: change.Metadata,
-			Source:   c.Source,
-		}
+		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
 		if c.updateSnapshot != nil {
 			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Target.Path + "-" + change.Target.Etag)
-			c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true)
+			if e := c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true); e != nil {
+				log.Logger(c.GlobalCtx).Warn("Failed to create node in snapshot", zap.Error(e))
+			}
 		}
 	} else if change.Type == tree.NodeChangeEvent_DELETE {
 		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Source.Path)
-		event = model.EventInfo{
-			Type:     model.EventRemove,
-			Path:     change.Source.Path,
-			Time:     now,
-			Metadata: change.Metadata,
-			Source:   c.Source,
-		}
+		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
 		if c.updateSnapshot != nil {
 			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
-			c.updateSnapshot.DeleteNode(c.GlobalCtx, change.Source.Path)
+			if e := c.updateSnapshot.DeleteNode(c.GlobalCtx, change.Source.Path); e != nil {
+				log.Logger(c.GlobalCtx).Warn("Failed to delete node in snapshot", zap.Error(e))
+			}
 		}
 	} else if change.Type == tree.NodeChangeEvent_UPDATE_PATH {
 		log.Logger(c.GlobalCtx).Debug("Got Move Event " + change.Type.String() + " - " + change.Source.Path + " - " + change.Target.Path)
-		event = model.EventInfo{
-			Type:       model.EventSureMove,
-			Path:       change.Target.Path,
-			Folder:     !change.Target.IsLeaf(),
-			Size:       change.Target.Size,
-			Etag:       change.Target.Etag,
-			MoveSource: change.Source,
-			MoveTarget: change.Target,
-			Metadata:   change.Metadata,
-			Source:     c.Source,
-		}
+		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
 		if c.updateSnapshot != nil {
 			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
-			c.updateSnapshot.MoveNode(c.GlobalCtx, change.Source.Path, change.Target.Path)
+			if e := c.updateSnapshot.MoveNode(c.GlobalCtx, change.Source.Path, change.Target.Path); e != nil {
+				log.Logger(c.GlobalCtx).Warn("Failed to move node in snapshot", zap.Error(e))
+			}
 		}
 	}
 	return
+}
+
+func (c *Abstract) metaDiffToEventInfo(ct context.Context, ev *idm.UpdateUserMetaEvent) (event model.EventInfo, send bool) {
+	m := ev.GetUserMeta()
+	if m.GetResolvedNode() == nil {
+		ct, cli, er := c.Factory.GetNodeProviderClient(ct)
+		if er != nil {
+			log.Logger(ct).Warn("Failed to create client in meta diff", zap.Error(er))
+			return model.EventInfo{}, false
+		}
+		rsp, er := cli.ReadNode(ct, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: m.GetNodeUuid()}})
+		if er != nil {
+			log.Logger(ct).Warn("Failed to resolve node in meta diff", zap.Error(er))
+			return model.EventInfo{}, false
+		}
+		m.ResolvedNode = rsp.GetNode()
+	}
+	pa := m.ResolvedNode.GetPath()
+	// Check it is under current root and fix the path
+	if !strings.HasPrefix(pa, c.Root) {
+		log.Logger(ct).Debug("Skipping node as path is not under root", zap.String("path", pa), zap.String("root", c.Root))
+		return model.EventInfo{}, false
+	}
+	m.ResolvedNode.Path = c.unrooted(pa)
+
+	log.Logger(ct).Debug("Sending meta event info", zap.Any("op", ev.GetOperation().String()), zap.Any("meta", m))
+	modelEvent, _ := events.UserMetaToModelEvent(ev, time.Now(), c.Source)
+	return modelEvent, true
+
 }
 
 // receiveEvents starts a streamer to the GRPC gateway
@@ -473,7 +510,7 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 }
 
 // GetWriterOn retrieves a WriteCloser wired to the S3 gateway to PUT a file.
-func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
 	if path.Base(p) == common.PydioSyncHiddenFile {
@@ -513,7 +550,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 }
 
 // GetReaderOn retrieves an io.ReadCloser from the S3 Get operation
-func (c *Abstract) GetReaderOn(ctx context.Context, p string) (out io.ReadCloser, err error) {
+func (c *Abstract) GetReaderOn(ctx context.Context, p string, node tree.N) (out io.ReadCloser, err error) {
 	n := &tree.Node{Path: c.rooted(p)}
 	ct, cli, err := c.Factory.GetObjectsClient(c.getContext(ctx))
 	if err != nil {

@@ -67,7 +67,7 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 		return nil, nil, err
 	}
 
-	caddySites, err := sitesToCaddySites(sites, resolver)
+	caddySites, err := sitesToCaddySites(ctx, sites, resolver)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -187,7 +187,7 @@ func ResolveSites(ctx context.Context, resolver routing.UpstreamsResolver, exter
 
 // sitesToCaddySites computes all SiteConf from all *install.ProxyConfig by analyzing
 // TLSConfig, ReverseProxyURL and Maintenance fields values
-func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.UpstreamsResolver) (caddySites []*ActiveSite, er error) {
+func sitesToCaddySites(ctx context.Context, sites []*install.ProxyConfig, upstreamResolver routing.UpstreamsResolver) (caddySites []*ActiveSite, er error) {
 
 	rewriteResolver := func(cr *routing.ActiveRoute, route routing.Route, rule *install.Rule) {
 		if rule.Action == "Forbidden" {
@@ -276,7 +276,7 @@ func sitesToCaddySites(sites []*install.ProxyConfig, upstreamResolver routing.Up
 	}
 
 	for _, site := range sites {
-		activeProxy, err := routing.ResolveProxy(site, tlsResolver, rewriteResolver, upstreamResolver)
+		activeProxy, err := routing.ResolveProxy(ctx, site, tlsResolver, rewriteResolver, upstreamResolver)
 		if err != nil {
 			return nil, err
 		}

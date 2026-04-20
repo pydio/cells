@@ -139,6 +139,13 @@ func DefaultJWTVerifier() *JWTVerifier {
 	}
 }
 
+// PATOnlyVerifier will only enlist PAT type
+func PATOnlyVerifier() *JWTVerifier {
+	return &JWTVerifier{
+		types: []ProviderType{ProviderTypePAT},
+	}
+}
+
 func (j *JWTVerifier) getProviders() []Provider {
 	var res []Provider
 	for _, provider := range providers {

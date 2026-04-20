@@ -24,9 +24,10 @@ import (
 	"context"
 	"crypto/tls"
 	"net/url"
+	"strings"
 	"time"
 
-	redis "github.com/go-redis/redis/v8"
+	redis "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -34,26 +35,34 @@ import (
 )
 
 var (
-	clients = make(map[string]*redis.Client)
+	clients = make(map[string]redis.UniversalClient)
 )
 
-func NewClient(ctx context.Context, u *url.URL, tc *tls.Config) (*redis.Client, error) {
+func NewClient(ctx context.Context, u *url.URL, tc *tls.Config) (redis.UniversalClient, error) {
 	str := u.Redacted()
 	cli, ok := clients[str]
 	if ok {
 		return cli, nil
 	}
 
+	hosts := strings.Split(u.Host, ",")
+	user := u.User.Username()
 	pwd, _ := u.User.Password()
-	oo := &redis.Options{
-		Addr:     u.Host,
-		Username: u.User.Username(),
+
+	addrs, ok := u.Query()["replicasAddr"]
+	if ok {
+		for _, addr := range addrs {
+			hosts = append(hosts, strings.Split(addr, ",")...)
+		}
+	}
+
+	oo := &redis.UniversalOptions{
+		Addrs:    hosts,
+		Username: user,
 		Password: pwd,
 	}
-	if tc != nil {
-		oo.TLSConfig = tc
-	}
-	cli = redis.NewClient(oo)
+
+	cli = redis.NewUniversalClient(oo)
 
 	if err := std.Retry(ctx, func() error {
 		if err := cli.Ping(ctx).Err(); err != nil {

@@ -222,7 +222,7 @@ func (plugin *Cplugin) Translate(messages I18nMessages) {
 		newSettings := &Cserver_settings{}
 		for _, orig := range plugin.Cserver_settings.Cglobal_param {
 			param := &Cglobal_param{}
-			copier.Copy(&param, orig)
+			_ = copier.Copy(&param, orig)
 			param.Attrlabel = i18nConfMessages(orig.Attrlabel, messages.ConfMessages)
 			param.Attrdescription = i18nConfMessages(orig.Attrdescription, messages.ConfMessages)
 			param.Attrchoices = i18nConfMessages(orig.Attrchoices, messages.ConfMessages)
@@ -232,7 +232,7 @@ func (plugin *Cplugin) Translate(messages I18nMessages) {
 		}
 		for _, orig := range plugin.Cserver_settings.Cparam {
 			param := &Cparam{}
-			copier.Copy(&param, orig)
+			_ = copier.Copy(&param, orig)
 			param.Attrlabel = i18nConfMessages(orig.Attrlabel, messages.ConfMessages)
 			param.Attrdescription = i18nConfMessages(orig.Attrdescription, messages.ConfMessages)
 			param.Attrchoices = i18nConfMessages(orig.Attrchoices, messages.ConfMessages)
@@ -300,6 +300,9 @@ func (plugin *Cplugin) PluginConfigs(status RequestStatus) map[string]interface{
 
 	if settings := plugin.GetServerSettings(); settings != nil {
 		for _, param := range settings.Cglobal_param {
+			if param.Attrexpose != "true" {
+				continue
+			}
 			confs[param.Attrname] = plugin.PluginConfig(status, param)
 		}
 	}
@@ -314,7 +317,7 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 	switch param.Attrtype {
 	case "boolean":
 		var e error
-		val, _ = strconv.ParseBool(param.Attrdefault)
+		val, e = strconv.ParseBool(param.Attrdefault)
 		if e != nil {
 			val = false
 		}

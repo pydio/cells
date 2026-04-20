@@ -22,6 +22,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -29,9 +33,13 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
+
+	_ "embed"
 )
 
 var (
+	//go:embed start-cmd.yaml
+	cmdYaml             string
 	adminCmdGRPCTimeout string
 )
 
@@ -65,16 +73,50 @@ DESCRIPTION
 
 		// TODO - Should do better with the runtime
 		bindViperFlags(cmd.Flags())
-		cellsViper.Set(runtime.KeyBootstrapYAML, ctlBootstrap)
 
 		ctx := runtime.MultiContextManager().RootContext(cmd.Context())
 
-		mgr, err := manager.NewManager(ctx, runtime.NsCmd, nil)
+		bootstrap, err := manager.NewBootstrap(ctx)
 		if err != nil {
 			return err
 		}
 
-		if err := mgr.Bootstrap(ctlBootstrap); err != nil {
+		// Optionally fully override the template based on arguments
+		if yaml := runtime.GetString(runtime.KeyBootstrapYAML); yaml != "" {
+			if err := bootstrap.RegisterTemplate(ctx, "yaml", yaml); err != nil {
+				return err
+			}
+		} else if file := runtime.GetString(runtime.KeyBootstrapFile); file != "" {
+			b, err := os.ReadFile(file)
+			if err != nil {
+				return err
+			}
+
+			if err := bootstrap.RegisterTemplate(ctx, strings.TrimPrefix(filepath.Ext(file), "."), string(b)); err != nil {
+				return err
+			}
+		} else {
+			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
+			if _, err := tmpl.Parse(cmdYaml); err != nil {
+				return err
+			}
+
+			var b strings.Builder
+			if err := tmpl.Execute(&b, nil); err != nil {
+				return err
+			}
+
+			if err := bootstrap.RegisterTemplate(ctx, "yaml", b.String()); err != nil {
+				return err
+			}
+		}
+
+		mgr, err := manager.NewManager(ctx, runtime.NsCmd)
+		if err != nil {
+			return err
+		}
+
+		if err := mgr.Bootstrap(bootstrap.String()); err != nil {
 			return err
 		}
 

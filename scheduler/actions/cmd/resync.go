@@ -26,7 +26,6 @@ import (
 	"go.uber.org/zap"
 	grpc2 "google.golang.org/grpc"
 
-	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
@@ -41,7 +40,6 @@ var (
 )
 
 type ResyncAction struct {
-	common.RuntimeHolder
 	ServiceName string
 	Path        string
 	DryRun      bool
@@ -62,7 +60,7 @@ func (c *ResyncAction) GetDescription(lang ...string) actions.ActionDescription 
 }
 
 // GetParametersForm returns a UX form
-func (c *ResyncAction) GetParametersForm() *forms.Form {
+func (c *ResyncAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -110,7 +108,7 @@ func (c *ResyncAction) SetTask(task *jobs.Task) {
 }
 
 // Init passes parameters
-func (c *ResyncAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *ResyncAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	if c.ServiceName == "" {
 		return errors.WithMessage(errors.InvalidParameters, "Missing parameters for Sync Action")
@@ -132,7 +130,7 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 	//ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
 
-	syncClient := sync.NewSyncEndpointClient(grpc.ResolveConn(c.GetRuntimeContext(), srvName))
+	syncClient := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, srvName))
 	log.TasksLogger(ctx).Info("Sending Resync command to " + srvName)
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{
 		Path:   jobs.EvaluateFieldStr(ctx, input, c.Path),

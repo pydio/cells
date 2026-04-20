@@ -73,12 +73,12 @@ func (c *SyncSharesAction) GetDescription(lang ...string) actions.ActionDescript
 }
 
 // GetParametersForm returns a UX form
-func (c *SyncSharesAction) GetParametersForm() *forms.Form {
+func (c *SyncSharesAction) GetParametersForm(context.Context) *forms.Form {
 	return nil
 }
 
 // Init passes relevant parameters.
-func (c *SyncSharesAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *SyncSharesAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	if err := c.ParseStores(action.Parameters); err != nil {
 		return err
 	}

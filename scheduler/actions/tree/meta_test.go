@@ -47,7 +47,7 @@ func TestMetaAction_Init(t *testing.T) {
 				"metaJSON": `{"key":"value"}`,
 			},
 		}
-		metaAction.Init(job, action)
+		metaAction.Init(nil, job, action)
 		So(metaAction.MetaJSON, ShouldEqual, `{"key":"value"}`)
 	})
 }
@@ -61,7 +61,7 @@ func TestMetaAction_Run(t *testing.T) {
 				"metaJSON": `{"key":"value"}`,
 			},
 		}
-		metaAction.Init(job, action)
+		metaAction.Init(nil, job, action)
 		mock := nodes.NewHandlerMock()
 		metaAction.Client = mock
 		status := make(chan string)

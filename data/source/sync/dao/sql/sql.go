@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/data/source/sync"
 )
 
@@ -67,7 +67,7 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options kv.Values) error {
 	s.instance = func(ctx context.Context) *gorm.DB { return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
 
 	s.instance(ctx).AutoMigrate(&Checksum{})

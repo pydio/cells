@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type PluginOptions struct {
@@ -147,7 +147,7 @@ func (sc *Client) DefaultOptions(ctx context.Context) PluginOptions {
 	return options
 }
 
-func (sc *Client) aclParams(ctx context.Context) (configx.Values, error) {
+func (sc *Client) aclParams(ctx context.Context) (kv.Values, error) {
 	acl, e := permissions.AccessListFromContextClaims(ctx)
 	if e != nil {
 		return nil, e
@@ -158,7 +158,7 @@ func (sc *Client) aclParams(ctx context.Context) (configx.Values, error) {
 	return acl.FlattenedFrontValues().Val("parameters", "action.share"), nil
 }
 
-func (sc *Client) filterOptionsFromScopes(options PluginOptions, contextParams configx.Values, scopes []string) PluginOptions {
+func (sc *Client) filterOptionsFromScopes(options PluginOptions, contextParams kv.Values, scopes []string) PluginOptions {
 
 	// Check expiration time
 	for _, scope := range scopes {

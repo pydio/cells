@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/object"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 // Client wraps a minio.Core client in the nodes.StorageClient interface
@@ -46,7 +46,7 @@ type Client struct {
 }
 
 func init() {
-	nodes.RegisterStorageClient("mc", func(cfg configx.Values) (nodes.StorageClient, error) {
+	nodes.RegisterStorageClient("mc", func(cfg kv.Values) (nodes.StorageClient, error) {
 		ep := cfg.Val("endpoint").String()
 		key := cfg.Val("key").String()
 		secret := cfg.Val("secret").String()
@@ -63,7 +63,7 @@ func init() {
 }
 
 // New creates a new minio.Core with the most standard options
-func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, customRegion string, other configx.Values) (nodes.StorageClient, error) {
+func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, customRegion string, other kv.Values) (nodes.StorageClient, error) {
 	rt, e := customHeadersTransport(secure)
 	if e != nil {
 		return nil, e

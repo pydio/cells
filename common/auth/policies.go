@@ -43,7 +43,7 @@ func checkOIDCPolicies(ctx context.Context, user *idm.User) error {
 	policyContext := make(map[string]string)
 	permissions.PolicyContextFromMetadata(policyContext, ctx)
 
-	checker, err := permissions.CachedPoliciesChecker(ctx, "oidc", policyContext)
+	checker, err := permissions.CachedPoliciesChecker(ctx, "oidc", policyContext, []string{})
 	if err != nil {
 		return err
 	}

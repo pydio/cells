@@ -143,7 +143,8 @@ func FindNodeByInsensitiveName(ctx context.Context, cli Handler, testNode *tree.
 	searchNode.MustSetMeta(tree.MetaFilterGrep, "(?i)^"+baseName+"$")
 	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false, StatFlags: []uint32{tree.StatFlagMetaMinimal}}
 	err = cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
-		if node.Path == searchNode.Path {
+		// ListNode returns the parent folder as first node, make sure to ignore it
+		if strings.Trim(node.Path, "/") == strings.Trim(dir, "/") {
 			return nil
 		}
 		res = node

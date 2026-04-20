@@ -30,6 +30,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/rs/cors"
+
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
@@ -41,39 +43,7 @@ type ctxResolvedRouteURI struct{}
 
 type Rewriter func(req *http.Request, currentRegistrar RouteRegistrar)
 
-// RegisterRoute registers a generic route by a unique ID, which URI will be resolved at runtime
-func RegisterRoute(id, description, defaultURI string, opts ...RouteOption) {
-	opt := &RouteOptions{}
-	for _, o := range opts {
-		o(opt)
-	}
-	declaredRoutes = append(declaredRoutes, &subRoute{
-		id:             id,
-		description:    description,
-		uri:            defaultURI,
-		subPathSupport: !opt.NoSubPath,
-		websocket:      opt.WebSocket,
-	})
-}
-
-// ListRoutes returns all declared routes
-func ListRoutes() []Route {
-	var rr []Route
-	for _, sr := range declaredRoutes {
-		rr = append(rr, sr)
-	}
-	return rr
-}
-
-// RouteById finds a route by its ID
-func RouteById(id string) (Route, bool) {
-	for _, sr := range declaredRoutes {
-		if sr.id == id {
-			return sr, true
-		}
-	}
-	return nil, false
-}
+type CorsResolver func(context.Context) *cors.Options
 
 // RouteRegistrar is used to declare routes and their patterns
 type RouteRegistrar interface {
@@ -99,29 +69,72 @@ type Route interface {
 	Handle(pattern string, handler http.Handler, opts ...HandleOption)
 	// Deregister a specific pattern from the current route
 	Deregister(pattern string)
+	// DefaultCors resolve Cors that will be applied to this route - may be overriden by Sites config
+	DefaultCors(ctx context.Context) *cors.Options
 }
 
 // RouteOptions are used to pass options to the route declaration
 type RouteOptions struct {
-	DefaultURI string
-	NoSubPath  bool
-	WebSocket  bool
+	noSubPath    bool
+	webSocket    bool
+	corsResolver CorsResolver
 }
 
 // RouteOption is the functional access to RouteOptions
 type RouteOption func(o *RouteOptions)
 
+// RegisterRoute registers a generic route by a unique ID, which URI will be resolved at runtime
+func RegisterRoute(id, description, defaultURI string, opts ...RouteOption) {
+	opt := &RouteOptions{}
+	for _, o := range opts {
+		o(opt)
+	}
+	declaredRoutes = append(declaredRoutes, &subRoute{
+		id:             id,
+		description:    description,
+		uri:            defaultURI,
+		subPathSupport: !opt.noSubPath,
+		websocket:      opt.webSocket,
+		corsResolver:   opt.corsResolver,
+	})
+}
+
+// ListRoutes returns all declared routes
+func ListRoutes() []Route {
+	var rr []Route
+	for _, sr := range declaredRoutes {
+		rr = append(rr, sr)
+	}
+	return rr
+}
+
+// RouteById finds a route by its ID
+func RouteById(id string) (Route, bool) {
+	for _, sr := range declaredRoutes {
+		if sr.id == id {
+			return sr, true
+		}
+	}
+	return nil, false
+}
+
 // WithWebSocket defines this route as supporting HTTP1 only
 func WithWebSocket() RouteOption {
 	return func(o *RouteOptions) {
-		o.WebSocket = true
+		o.webSocket = true
+	}
+}
+
+func WithDefaultCorsResolver(resolver CorsResolver) RouteOption {
+	return func(o *RouteOptions) {
+		o.corsResolver = resolver
 	}
 }
 
 // WithoutSubPathSupport declares this route as not being able to be served on a sub-folder URI
 func WithoutSubPathSupport() RouteOption {
 	return func(o *RouteOptions) {
-		o.NoSubPath = true
+		o.noSubPath = true
 	}
 }
 
@@ -135,6 +148,7 @@ type HandleOptions struct {
 	StripPrefix         bool
 	EnsureTrailingSlash bool
 	RewriteCatchAll     bool
+	RouteCors           *cors.Options
 }
 
 // HandleOption provides functional access for HandleOptions
@@ -294,6 +308,7 @@ type subRoute struct {
 	description    string
 	subPathSupport bool
 	websocket      bool
+	corsResolver   CorsResolver // This is only used at "DeclaredRoute" level, not registered route
 
 	patternsCache map[string]*registeredHandler
 	patternsMutex sync.RWMutex
@@ -318,6 +333,13 @@ func (s *subRoute) SupportSubPath() bool {
 
 func (s *subRoute) IsWebSocket() bool {
 	return s.websocket
+}
+
+func (s *subRoute) DefaultCors(ctx context.Context) *cors.Options {
+	if s.corsResolver == nil {
+		return nil
+	}
+	return s.corsResolver(ctx)
 }
 
 func (s *subRoute) Endpoint(pattern string) string {

@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"go.uber.org/multierr"
@@ -87,12 +88,43 @@ var (
 	metricsOnce sync.Once
 )
 
+// overrideStdoutFromRuntime replaces existing stdout config or appends one if runtime flags are not defaults
+func (c *Config) overrideStdoutFromRuntime(runtimeLevel string, runtimeJSON bool) {
+
+	// These are the defaults, do not override config
+	if !runtimeJSON && runtimeLevel == "info" {
+		return
+	}
+	enc := "console"
+	if runtimeJSON {
+		enc = "json"
+	}
+	var found bool
+	for idx, l := range c.Loggers {
+		for _, o := range l.Outputs {
+			if strings.HasPrefix(o, "stdout") {
+				found = true
+				c.Loggers[idx].Level = runtimeLevel
+				c.Loggers[idx].Encoding = enc
+			}
+		}
+	}
+	if !found { // Append an stdout
+		c.Loggers = append(c.Loggers, log.LoggerConfig{
+			Level:    runtimeLevel,
+			Encoding: enc,
+			Outputs:  []string{"stdout:///"},
+		})
+	}
+}
+
 // Reload reads config and call underlying loaders for each aspect (logging, metrics, profiling, tracing)
-func (c Config) Reload(ctx context.Context) error {
+func (c *Config) Reload(ctx context.Context, runtimeLevel string, runtimeJSON bool) error {
 	if c.OTelService.Name == "" {
 		c.OTelService.Name = common.PackageType
 	}
 
+	c.overrideStdoutFromRuntime(runtimeLevel, runtimeJSON)
 	log.ReloadMainLogger(c.OTelService, c.Loggers)
 
 	var errs []error

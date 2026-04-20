@@ -32,8 +32,8 @@ import (
 	proto "github.com/pydio/cells/v5/common/proto/chat"
 	"github.com/pydio/cells/v5/common/storage/boltdb"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -56,7 +56,7 @@ const (
 	generalObject = "general"
 )
 
-func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
+func (h *boltdbimpl) Init(ctx context.Context, config kv.Values) error {
 	return h.Update(func(tx *bbolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {

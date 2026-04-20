@@ -21,6 +21,8 @@
 package service
 
 import (
+	"context"
+
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -30,7 +32,7 @@ import (
 // Matcher interface provides a way to filter idm objects with standard XXXSingleQueries.
 type Matcher interface {
 	// Matches tries to apply a *SingleQuery on an existing object
-	Matches(object interface{}) bool
+	Matches(ctx context.Context, object interface{}) bool
 }
 
 // MultiMatcher parses a Query and transform it to a recursive tree of Matches
@@ -63,10 +65,10 @@ func (mm *MultiMatcher) Parse(q *Query, parser MatcherParser) error {
 }
 
 // Matches implements the Matcher interface
-func (mm *MultiMatcher) Matches(object interface{}) bool {
+func (mm *MultiMatcher) Matches(ctx context.Context, object interface{}) bool {
 	var res []bool
 	for _, m := range mm.matchers {
-		res = append(res, m.Matches(object))
+		res = append(res, m.Matches(ctx, object))
 	}
 	return ReduceQueryBooleans(res, mm.Operation)
 }

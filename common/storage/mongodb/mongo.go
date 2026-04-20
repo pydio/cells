@@ -28,6 +28,7 @@ import (
 	"reflect"
 	"strings"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -134,6 +135,15 @@ func (d *Database) Collection(name string, opts ...*options.CollectionOptions) *
 		name = d.prefix + name
 	}
 	return d.Database.Collection(name, opts...)
+}
+
+// CollectionExists looks for the collection by name
+func (d *Database) CollectionExists(ctx context.Context, name string) (bool, error) {
+	names, err := d.Database.ListCollectionNames(ctx, bson.D{{Key: "name", Value: d.prefix + name}})
+	if err != nil {
+		return false, err
+	}
+	return len(names) > 0, nil
 }
 
 // CreateCollection overrides name by appending prefix

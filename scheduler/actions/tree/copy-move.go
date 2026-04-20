@@ -26,6 +26,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -38,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/i18n/languages"
+	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/scheduler/actions"
 	"github.com/pydio/cells/v5/scheduler/actions/tools"
 	"github.com/pydio/cells/v5/scheduler/lang"
@@ -69,7 +71,7 @@ func (c *CopyMoveAction) GetDescription(_ ...string) actions.ActionDescription {
 	}
 }
 
-func (c *CopyMoveAction) GetParametersForm() *forms.Form {
+func (c *CopyMoveAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -127,7 +129,7 @@ func (c *CopyMoveAction) ProvidesProgress() bool {
 }
 
 // Init passes parameters to the action
-func (c *CopyMoveAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *CopyMoveAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 
 	if action.Parameters == nil {
 		return errors.WithMessage(errors.InvalidParameters, "Could not find parameters for CopyMove action")
@@ -235,11 +237,31 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if nodes.IsUnitTestEnv {
 		output = output.WithNode(targetNode)
 	} else {
-		r2, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode})
-		if er != nil {
-			return input.WithError(er), er
+		var isFlat bool
+		if router, ok := cli.(nodes.Client); ok {
+			if b, err := router.BranchInfoForNode(ctx, sourceNode); err == nil {
+				isFlat = b.FlatStorage
+			} else {
+				return input.WithError(err), err
+			}
 		}
-		output = output.WithNode(r2.GetNode())
+		updateMovedNode := func() error {
+			if r2, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode}); er != nil {
+				return er
+			} else {
+				output = output.WithNode(r2.GetNode())
+			}
+			return nil
+		}
+		var err error
+		if !isFlat {
+			err = std.Retry(ctx, updateMovedNode, 1*time.Second, 10*time.Second)
+		} else {
+			err = updateMovedNode()
+		}
+		if err != nil {
+			return input.WithError(err), err
+		}
 	}
 	output.AppendOutput(&jobs.ActionOutput{
 		Success: true,

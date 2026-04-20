@@ -236,6 +236,11 @@ let AsyncModal = createReactClass({
         }else{
             prepareState({modal:false});
         }
+        if(component.getClassName) {
+            prepareState({className:component.getClassName()});
+        } else {
+            prepareState({className:''});
+        }
         if(component.useBlur){
             prepareState({blur: component.useBlur()});
         }else{
@@ -349,9 +354,9 @@ let AsyncModal = createReactClass({
                 title={title}
                 actions={actions}
                 modal={modal}
-                className={className}
+                className={className + ' asyncModalRoot'}
                 open={open}
-                contentClassName={className}
+                contentClassName={className + ' asyncModalContent'}
                 repositionOnUpdate={false}
                 autoScrollBodyContent={scrollBody}
                 onRequestClose={this.props.onDismiss}

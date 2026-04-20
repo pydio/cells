@@ -28,7 +28,6 @@ import (
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	_ "embed"
@@ -67,7 +66,7 @@ EXAMPLES
 
 		ctx := propagator.With(cmd.Context(), runtime.MultiContextKey, migrateContextName)
 
-		m, err := manager.NewManager(ctx, runtime.NsMain, log.Logger(runtime.WithServiceName(ctx, "pydio.server.manager")))
+		m, err := manager.NewManager(ctx, runtime.NsMain)
 		if err != nil {
 			return err
 		}

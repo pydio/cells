@@ -36,12 +36,12 @@ func EvalFreeString(ctx context.Context, query string, node *tree.Node) bool {
 
 	if qu, e := getQuery(query); e == nil {
 		b := getMemIndex()
-		iNode := tree.NewMemIndexableNode(node)
+		iNode := tree.NewMemIndexableNode(node.Clone())
 		if e := b.Index(node.Uuid, iNode); e == nil {
-			log.Logger(ctx).Debug("Indexed node, now performing request", zap.Any("node", iNode), zap.Any("q", qu))
+			//log.Logger(ctx).Debug("Indexed node, now performing request", zap.Any("node", iNode), zap.Any("q", qu))
 			defer b.Delete(node.Uuid)
 		} else {
-			log.Logger(ctx).Error("Cannot index node", zap.Any("node", iNode), zap.Error(e))
+			//log.Logger(ctx).Error("Cannot index node", zap.Any("node", iNode), zap.Error(e))
 			return false
 		}
 		req := bleve.NewSearchRequest(qu)
