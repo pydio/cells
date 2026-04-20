@@ -21,6 +21,7 @@
 package rest
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"os"
@@ -363,6 +364,10 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 	}
 
 	if readNode != nil {
+		// Defense in depth: only serve known-safe image extensions
+		if extension != "" && !isAllowedExtension(extension) {
+			return errors.WithMessage(errors.StatusNotFound, "binary not found")
+		}
 		// If anonymous GET, add system user in context before querying object service
 		if ctxUser := claim.UserNameFromContext(ctx); ctxUser == "" {
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
@@ -401,8 +406,19 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	fileInput = f1
 	fileSize = f2.Size
 
-	cType := strings.Split(f2.Header.Get("Content-Type"), "/")
-	extension := cType[1]
+	// Validate file content: detect real type from magic bytes, ignore Content-Type header
+	var buf [512]byte
+	n, readErr := io.ReadAtLeast(f1, buf[:], 1)
+	if readErr != nil {
+		return errors.Tag(readErr, errors.UnmarshalError)
+	}
+	extension, detectErr := detectBinaryExtension(bytes.NewReader(buf[:n]))
+	if detectErr != nil {
+		return errors.WithMessage(errors.InvalidParameters, detectErr.Error())
+	}
+	// Re-combine buffered bytes with remaining content
+	fileInput = io.MultiReader(bytes.NewReader(buf[:n]), f1)
+
 	binaryId := uuid.New()[0:12] + "." + extension
 	ctxClaims, ok := claim.FromContext(ctx)
 	if !ok {
@@ -472,6 +488,13 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 	} else if binaryType == "GLOBAL" {
 
+		if fileSize > globalBinaryMaxSize {
+			return errors.WithMessagef(errors.StatusForbidden, "you are not allowed to use files bigger than %dB for global binaries", globalBinaryMaxSize)
+		}
+		if fi, si, er := filterInputBinaryExif(ctx, fileInput); er == nil {
+			fileInput = fi
+			fileSize = si
+		}
 		router := compose.PathClient()
 		node := &tree.Node{
 			Path: common.PydioDocstoreBinariesNamespace + "/global_binaries." + binaryId,
