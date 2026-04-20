@@ -282,6 +282,16 @@ func TestProxyRefreshScenario(t *testing.T) {
 func TestSameSiteConfigurable(t *testing.T) {
 	test.RunStorageTests(refreshTestcases, t, func(ctx context.Context) {
 		Convey("SameSite policy is configurable from frontend/secureCookies config", t, func() {
+			// Reset to a known baseline to avoid cross-test config leakage
+			err := config.Set(ctx, map[string]interface{}{
+				"frontend": map[string]interface{}{
+					"secureCookies": map[string]interface{}{
+						"SameSite": "Strict",
+					},
+				},
+			})
+			So(err, ShouldBeNil)
+
 			// Test 1: Default is Strict
 			dao, er := manager.Resolve[DAO](ctx)
 			So(er, ShouldBeNil)
