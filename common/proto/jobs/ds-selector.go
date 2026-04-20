@@ -117,7 +117,7 @@ func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query,
 			msg.PeerAddress = EvaluateFieldStr(ctx, input, msg.PeerAddress)
 			msg.EncryptionKey = EvaluateFieldStr(ctx, input, msg.EncryptionKey)
 			msg.VersioningPolicyName = EvaluateFieldStr(ctx, input, msg.VersioningPolicyName)
-			bb = append(bb, msg.Matches(dsObject))
+			bb = append(bb, msg.Matches(ctx, dsObject))
 		} else if e := anypb.UnmarshalTo(q, subQ, proto.UnmarshalOptions{}); e == nil {
 			bb = append(bb, m.evaluate(ctx, subQ, input, dsObject))
 		}

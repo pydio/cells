@@ -751,12 +751,12 @@ loop:
 			if scan != nil {
 				// A folder was move from "outside" to "inside" the filterPath
 				// This is a create, and we have to emulate CREATE for all children
-				listNodeStreamer := mocks.NewListNodeStreamer()
+				listNodeStreamer := mocks.NewListNodeStreamer(streamer.Context())
 				wg := sync.WaitGroup{}
 				wg.Add(2)
 				go func() {
 					defer wg.Done()
-					s.ListNodes(&tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
+					_ = s.ListNodes(&tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
 				}()
 				go func() {
 					defer wg.Done()

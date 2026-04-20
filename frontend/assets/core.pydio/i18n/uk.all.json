@@ -1,1956 +1,1956 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Остання версія"
   },
   "1": {
-    "other": "Filename"
+    "other": "Ім'я файлу"
   },
   "10": {
-    "other": "Text file"
+    "other": "Текстовий файл"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Не вдалося знайти файл"
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "Теки джерела та призначення збігаються!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Помилка під час створення файлу:"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Не вдалося знайти теку"
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Перейти до вказаного місця"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "Надіслати посиланням електронний лист для прямого доступу до цієї теки."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "Надіслати листа"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "Ваше ім'я та/або електронна адреса"
   },
   "108": {
-    "other": "The destination email"
+    "other": "Адреса призначення"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "Активне посилання"
   },
   "11": {
-    "other": "Javascript"
+    "other": "JavaScript"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "Додати коментар"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "Було надіслано такий електронний лист:"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "Не вдалося надіслати електронний лист:"
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "Нічого не вибрано!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "Під час копіювання сталася невідома помилка!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "Файл успішно збережено"
   },
   "116": {
-    "other": "files"
+    "other": "файли"
   },
   "117": {
-    "other": "The folder"
+    "other": "Тека"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "Завантажити кілька файлів"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "Натисніть на кожен файл, щоб завантажити його."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "Зображення GIF"
   },
   "120": {
-    "other": "You are not allowed to delete the whole arborescence!"
+    "other": "Ви не можете видалити все дерево каталогів!"
   },
   "121": {
-    "other": "Image File "
+    "other": "Файл зображення"
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Смітник"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "переміщено до "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "Перезаписати наявні файли?"
   },
   "125": {
-    "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
+    "other": "Файл або тека з такою назвою вже існує (регістр не враховується). Будь ласка, виберіть іншу назву!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "Мініатюри"
   },
   "127": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "128": {
-    "other": "files selected."
+    "other": "файли вибрано."
   },
   "129": {
-    "other": "View"
+    "other": "Перегляд"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "JPG зображення"
   },
   "130": {
-    "other": "Folders"
+    "other": "Теки"
   },
   "131": {
-    "other": "Details"
+    "other": "Деталі"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Немає файлу чи теки"
   },
   "133": {
-    "other": "Name"
+    "other": "Ім'я"
   },
   "134": {
-    "other": "Type"
+    "other": "Тип"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "Розміри"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "Збільшити зображення"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "Ост. зміна"
   },
   "139": {
-    "other": "Edit Online"
+    "other": "Редагувати онлайн"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML-сторінка"
   },
   "140": {
-    "other": "Play whole folder"
+    "other": "Відтворити всю теку"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "Зчитування теки"
   },
   "142": {
-    "other": "Logged as "
+    "other": "Увійшов як "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "Гостьовий перегляд. Увійти."
   },
   "144": {
-    "other": "Not logged in."
+    "other": "Ви не увійшли в систему."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "Мої закладки"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Видалити закладку"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Закладки"
   },
   "148": {
-    "other": "Parent"
+    "other": "Батьківський елемент"
   },
   "149": {
-    "other": "Reload"
+    "other": "Оновити"
   },
   "15": {
-    "other": "HTML page"
+    "other": "HTML-сторінка"
   },
   "150": {
-    "other": "Display"
+    "other": "Відображення"
   },
   "151": {
-    "other": "Switch display mode..."
+    "other": "Перемкнути режим відображення..."
   },
   "152": {
-    "other": "Toggle Bookmark"
+    "other": "Додати/видалити закладку"
   },
   "153": {
-    "other": "Add/remove item to MyBookmarks"
+    "other": "Додати/вилучити з моїх закладок"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Закладка"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Додати об'єкт до Моїх закладок"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Вилучити закладку"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Вилучити об'єкт із Моїх закладок"
   },
   "154": {
-    "other": "New Folder"
+    "other": "Нова тека"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "Створити нову теку"
   },
   "156": {
-    "other": "New empty file"
+    "other": "Новий порожній файл"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "Створити новий порожній файл"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "Перейменувати вибраний файл або теку"
   },
   "159": {
-    "other": "Copy selection to..."
+    "other": "Копіювати виділене до..."
   },
   "16": {
-    "other": "REAL file"
+    "other": "Справжній файл"
   },
   "160": {
-    "other": "Move selected files to ..."
+    "other": "Перемістити виділені файли..."
   },
   "161": {
-    "other": "Delete selected files."
+    "other": "Видалити вибрані файли."
   },
   "162": {
-    "other": "Edit text files online."
+    "other": "Редагувати текстові файли онлайн."
   },
   "163": {
-    "other": "Log in"
+    "other": "Увійти"
   },
   "164": {
-    "other": "Log out"
+    "other": "Вийти"
   },
   "165": {
-    "other": "Settings"
+    "other": "Налаштування"
   },
   "166": {
-    "other": "About"
+    "other": "Про програму"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Про Pydio"
   },
   "168": {
-    "other": "Connect to APPLICATION_TITLE"
+    "other": "Підключитися до APPLICATION_TITLE"
   },
   "169": {
-    "other": "Disconnect from APPLICATION_TITLE"
+    "other": "Від'єднатися від APPLICATION_TITLE"
   },
   "17": {
-    "other": "REAL file"
+    "other": "Реальний файл"
   },
   "170": {
-    "other": "Current Folder"
+    "other": "Батьківська тека"
   },
   "171": {
-    "other": "Browse"
+    "other": "Оглянути"
   },
   "172": {
-    "other": "Your Selection"
+    "other": "Ваш вибір"
   },
   "173": {
-    "other": "New folder name"
+    "other": "Нова назва теки"
   },
   "174": {
-    "other": "New file name"
+    "other": "Нова назва файлу"
   },
   "175": {
-    "other": "Select destination folder"
+    "other": "Обрати теку призначення"
   },
   "176": {
-    "other": "The selected files will be moved to the Recycle Bin."
+    "other": "Вибрані файли будуть переміщені в кошик."
   },
   "177": {
-    "other": "Are you sure you want to permanently delete the selected files?"
+    "other": "Ви дійсно бажаєте остаточно видалити вибрані файли?"
   },
   "178": {
-    "other": "Previous"
+    "other": "Назад"
   },
   "179": {
-    "other": "Next"
+    "other": "Уперед"
   },
   "18": {
     "other": "PERL script"
   },
   "180": {
-    "other": "Enter login/password"
+    "other": "Введіть логін/пароль"
   },
   "181": {
-    "other": "Login"
+    "other": "Логін"
   },
   "182": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "183": {
-    "other": "Please select a destination folder different from the origin!"
+    "other": "Будь ласка, оберіть теку призначення, яка відрізняється від оригіналу!"
   },
   "184": {
-    "other": "Search in current folder and sub-folders"
+    "other": "Пошук у поточній теці і підтеках"
   },
   "185": {
-    "other": "Stop searching"
+    "other": "Зупинити пошук"
   },
   "186": {
-    "other": "Image Preview"
+    "other": "Попередній перегляд зображення"
   },
   "187": {
-    "other": "Online Edition - "
+    "other": "Онлайн редактор - "
   },
   "189": {
-    "other": "Edit My Preferences"
+    "other": "Змінити мої налаштування"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "ZIP файл"
   },
   "190": {
-    "other": "Language"
+    "other": "Мова"
   },
   "191": {
-    "other": "Default Display"
+    "other": "Відображення за замовчуванням"
   },
   "192": {
-    "other": "List"
+    "other": "Список"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "Мініатюри"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Зміна пароля"
   },
   "195": {
-    "other": "User Preferences"
+    "other": "Налаштування користувача"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "Ваша мова відрізняється від поточної мови інтерфейсу!\\n Бажаєте перезавантажити сторінку, щоб змінити мову?"
   },
   "197": {
-    "other": "Your password change will take effect after you logout."
+    "other": "Зміна пароля набуде чинності після вашого виходу з системи."
   },
   "198": {
-    "other": "New"
+    "other": "Новий"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Підтвердити"
   },
   "2": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "20": {
-    "other": "WAV file"
+    "other": "WAV файл"
   },
   "200": {
-    "other": "Switch Repository to..."
+    "other": "Змінити репозиторій..."
   },
   "201": {
-    "other": "Warning, some of your changes are not saved!\\n Are you sure you want to close?"
+    "other": "Увага! Деякі зміни не збережено.\\n\nВи впевнені, що хочете закрити сторінку?"
   },
   "202": {
-    "other": "Warning, recursive copy!"
+    "other": "Увага: рекурсивне копіювання!"
   },
   "203": {
-    "other": "Destintation folder is the same as original folder!"
+    "other": "Цільова тека збігається з початковою!"
   },
   "204": {
-    "other": "The file \""
+    "other": "Файл «"
   },
   "205": {
-    "other": "\" exceeds size limit ("
+    "other": "» перевищує ліміт розміру ("
   },
   "206": {
-    "other": "Mb).\\nIt will not be uploaded."
+    "other": "МБ).\\n його не буде завантажено."
   },
   "207": {
-    "other": "You have no write permission on this folder"
+    "other": "У вас немає прав на запис у цій теці"
   },
   "208": {
-    "other": "You have no read permission on this folder"
+    "other": "Ви не маєте дозволу на читання цієї теки"
   },
   "209": {
-    "other": "Internal server error, please contact Administrator!"
+    "other": "Внутрішня помилка сервера, будь ласка, зверніться до адміністратора!"
   },
   "21": {
-    "other": "PHP script"
+    "other": "PHP-скрипт"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "Помилка завантаження"
   },
   "211": {
-    "other": "The file is too big! Please contact your administrator or use the desktop sync client."
+    "other": "Файл завеликий! Будь ласка, зверніться до адміністратора або скористайтеся клієнтом для синхронізації комп'ютера."
   },
   "212": {
-    "other": "No file found on server!"
+    "other": "Не знайдено файл на сервері!"
   },
   "213": {
-    "other": "Error while copying file to current folder"
+    "other": "Помилка при копіюванні файлу в поточну теку"
   },
   "214": {
-    "other": "Browse"
+    "other": "Огляд"
   },
   "215": {
-    "other": "Start Upload"
+    "other": "Почати завантаження"
   },
   "216": {
-    "other": "Clear"
+    "other": "Очистити"
   },
   "217": {
-    "other": "Clear Completed"
+    "other": "Очищення завершено"
   },
   "218": {
-    "other": "Remove from queue"
+    "other": "Видалити з черги"
   },
   "219": {
-    "other": "Completed"
+    "other": "Завершено"
   },
   "22": {
-    "other": "PHP script"
+    "other": "PHP-скрипт"
   },
   "220": {
-    "other": "Empty"
+    "other": "Порожньо"
   },
   "221": {
-    "other": "Empty Recycle Bin"
+    "other": "Очистити смітник"
   },
   "222": {
-    "other": "Restore"
+    "other": " Відновити"
   },
   "223": {
-    "other": "Restore file to its original location"
+    "other": "Відновити файл до початкового розташування"
   },
   "224": {
-    "other": "Go to"
+    "other": "Перейти до"
   },
   "225": {
-    "other": "Rename bookmark"
+    "other": "Перейменувати закладку"
   },
   "226": {
-    "other": "Details"
+    "other": "Деталі"
   },
   "227": {
-    "other": "Switch to detailed table view"
+    "other": "Перейти до детального табличного вигляду"
   },
   "228": {
-    "other": "Thumbs"
+    "other": "Мініатюри"
   },
   "229": {
-    "other": "Switch to thumbnails view"
+    "other": "Перейти до режиму мініатюр"
   },
   "23": {
-    "other": "File"
+    "other": "Файл"
   },
   "230": {
-    "other": "Play"
+    "other": "Відтворити"
   },
   "231": {
-    "other": "Play Slideshow"
+    "other": "Відтворити слайд-шоу"
   },
   "232": {
-    "other": "Stop"
+    "other": "Зупинити"
   },
   "233": {
-    "other": "Stop Slideshow"
+    "other": "Зупинити слайд-шоу"
   },
   "234": {
-    "other": "View selected images"
+    "other": "Переглянути обрані зображення"
   },
   "235": {
-    "other": "Fullscreen"
+    "other": "На весь екран"
   },
   "236": {
-    "other": "Restore"
+    "other": "Відновити"
   },
   "237": {
-    "other": "Old password"
+    "other": "Старий пароль"
   },
   "238": {
-    "other": "Passwords differ!"
+    "other": "Паролі відрізняються!"
   },
   "239": {
-    "other": "Please fill you current password"
+    "other": "Будь ласка, введіть поточний пароль"
   },
   "24": {
-    "other": "Parent directory"
+    "other": "Батьківський каталог"
   },
   "240": {
-    "other": "Wrong password!"
+    "other": "Невірний пароль!"
   },
   "241": {
-    "other": "Your preferences have been saved successfully!"
+    "other": "Ваші налаштування успішно оновлені!"
   },
   "242": {
-    "other": "Svn Log"
+    "other": "Журнал Svn"
   },
   "243": {
-    "other": "Revision"
+    "other": "Редакція"
   },
   "244": {
-    "other": "Author"
+    "other": "Автор"
   },
   "245": {
-    "other": "Date"
+    "other": "Дата"
   },
   "246": {
-    "other": "Message"
+    "other": "Повідомлення"
   },
   "247": {
-    "other": "Extract"
+    "other": "Видобути"
   },
   "248": {
-    "other": "Extract selection from zip to..."
+    "other": "Видобути обране з zip у..."
   },
   "249": {
-    "other": "Users"
+    "other": "Користувачі"
   },
   "25": {
-    "other": "Upload one or more files (max. %s in the directory : "
+    "other": "Завантажте один або кілька файлів (макс. %s в каталозі: "
   },
   "250": {
-    "other": "Workspaces"
+    "other": "Робочі простори"
   },
   "251": {
-    "other": "Logs"
+    "other": "Журнали"
   },
   "252": {
-    "other": "The total file size limit has been reached."
+    "other": "Досягнуто максимальний розмір файлу."
   },
   "253": {
-    "other": "There has been an HTTP Error:"
+    "other": "Сталася помилка HTTP:"
   },
   "254": {
-    "other": "There has been an IO Error:"
+    "other": "Сталася помилка вводу-виводу:"
   },
   "255": {
-    "other": "These has been a Security Error:"
+    "other": "Сталася помилка безпеки:"
   },
   "256": {
-    "other": "Uploaded"
+    "other": "Завантажено"
   },
   "257": {
-    "other": "Remove"
+    "other": "Видалити"
   },
   "258": {
-    "other": "File count :"
+    "other": "Файлів:"
   },
   "259": {
-    "other": "Total size :"
+    "other": "Загальний розмір:"
   },
   "26": {
-    "other": "Create a new directory in : "
+    "other": "Створити новий каталог у: "
   },
   "260": {
-    "other": "bytes"
+    "other": "байт"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "Запам'ятати мене"
   },
   "262": {
-    "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
+    "other": "Здається, один або декілька файлів уже\\nіснують у теці призначення.\\nЩо ви хочете зробити?"
   },
   "263": {
-    "other": "Overwrite"
+    "other": "Перезаписати"
   },
   "264": {
-    "other": "Skip"
+    "other": "Пропустити"
   },
   "265": {
-    "other": "Files"
+    "other": "Файли"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Створити"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "Створити нову таблицю"
   },
   "269": {
-    "other": "Structure"
+    "other": "Структура"
   },
   "27": {
-    "other": "Upload"
+    "other": "Завантажити"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "Редагувати структуру таблиці"
   },
   "271": {
-    "other": "Drop"
+    "other": "Видалити"
   },
   "272": {
-    "other": "Drop open table"
+    "other": "Видалити відкриту таблицю"
   },
   "273": {
-    "other": "Insert"
+    "other": "Вставити"
   },
   "274": {
-    "other": "Insert a new record"
+    "other": "Вставити новий запис"
   },
   "275": {
-    "other": "Are you sure you want to drop the selected table(s)?"
+    "other": "Ви дійсно бажаєте видалити обрані таблиці?"
   },
   "276": {
-    "other": "Edit selected record"
+    "other": "Редагувати обраний запис"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "Видалити обрані записи"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "Ви впевнені, що хочете видалити обрані записи?"
   },
   "279": {
-    "other": "Tables"
+    "other": "Таблиці"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "Створити новий файл в : "
   },
   "280": {
-    "other": "Records"
+    "other": "Записи"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "Обмеження завантаження"
   },
   "282": {
-    "other": "Size per File"
+    "other": "Розмір на файл"
   },
   "283": {
-    "other": "Total Size"
+    "other": "Загальний розмір"
   },
   "284": {
-    "other": "Files Number"
+    "other": "Кількість файлів"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "Не вдалося знайти користувача, спробуйте ще раз.\\n Переконайтеся, що Caps Lock вимкнено!"
   },
   "286": {
-    "other": "Your user is out of date with the current version, please use the upgrade procedure."
+    "other": "Ваш обліковий запис застарів порівняно з поточною версією, будь ласка, виконайте процедуру оновлення."
   },
   "287": {
-    "other": "File Permissions"
+    "other": "Дозволи файлів"
   },
   "288": {
-    "other": "User"
+    "other": "Користувач"
   },
   "289": {
-    "other": "Group"
+    "other": "Група"
   },
   "29": {
-    "other": "Create"
+    "other": "Створити"
   },
   "290": {
-    "other": "All"
+    "other": "Всі"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "Застосувати рекурсивно?"
   },
   "292": {
-    "other": "Share"
+    "other": "Поділитись"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "Створити публічне посилання на цей файл"
   },
   "294": {
-    "other": "Link time expiration (in days) and password (leave empty if no password)."
+    "other": "Термін дії посилання (в днях) і пароль (залиште порожнім, якщо немає пароля)."
   },
   "295": {
-    "other": "Expiration"
+    "other": "Термін дії"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "Скопіювати URL нижче:"
   },
   "297": {
-    "other": "New User"
+    "other": "Новий користувач"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Створити нового користувача"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Робочі простори"
   },
   "3": {
-    "other": "Type"
+    "other": "Тип"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "Введіть назву каталога, потім натисніть &quot;Створити&quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Створіть нову робочу область"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Змінити конфігурацію"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Копіювати як текст"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "Копіювати виділений текст як текст, розділений табуляцією."
   },
   "304": {
-    "other": "Back"
+    "other": "Назад"
   },
   "305": {
-    "other": "Back to Homepage"
+    "other": "Назад до головної сторінки"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "Мої робочі простори"
   },
   "306": {
-    "other": "Too many items"
+    "other": "Занадто багато елементів"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "Заповніть необов’язкові поля"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Створити посилання"
   },
   "309": {
-    "other": "Generate"
+    "other": "Створити"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Необхідно обрати файл"
   },
   "310": {
-    "other": "Options"
+    "other": "Варіанти"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Завантажувати автоматично після додавання файлу"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Параметри завантажувача"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Стиснення..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Стиснути обране в zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Стиснути обране в"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Перегляд/Редагування"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "Редактор вихідного коду"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "Переглядач вихідних кодів CodePress"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML-редактор"
   },
   "32": {
-    "other": "Explore"
+    "other": "Знайти"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "WYSIWYG редактор для HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Обрати"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Обрати поточний файл"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Напишіть цю адресу"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Редактор недоступний"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "Підігнати за розміром"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Без масштабування"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Засіб перегляду документів"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Перегляд pdf, svg, tif та інших форматів онлайн"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Помилка завантаження файлу!"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Будь ласка, зачекайте, поки відтворюються сторінки..."
   },
   "331": {
-    "other": "Page"
+    "other": "Сторінка"
   },
   "332": {
-    "other": "of"
+    "other": "з"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Редактор зображень Pixlr"
   },
   "334": {
-    "other": "more"
+    "other": "більше"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Будь ласка, введіть число сторінки між 1 і "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Вибачте, не можна перетягувати теки, перетягуйте лише файли!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Запустити завантаження автоматично"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Закрити панель після завершення завантаження"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Існуючі файли"
   },
   "34": {
-    "other": "The file"
+    "other": "Файл"
   },
   "340": {
-    "other": "Alert"
+    "other": "Сповіщення"
   },
   "341": {
-    "other": "File Info"
+    "other": "Відомості про файл"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Відомості про теку"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Відомості про зображення"
   },
   "344": {
-    "other": "Search on"
+    "other": "Пошук за"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Не вдалося отримати інформації про версію"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "У вас встановлено найновішу версію"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "Нова версія (%s) доступна! Відвідайте %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Вам надано доступ до нового робочого простору."
   },
   "349": {
-    "other": "Warning, missing arguments"
+    "other": "Попередження, пропущені аргументи"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "був успішно створений в каталозі"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "Користувач із таким іменем уже існує та не належить вам, будь ласка, оберіть інше ім’я."
   },
   "351": {
-    "other": "You are not allowed to share elements to the public."
+    "other": "Ви не маєте дозволу на публічний доступ до елементів."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Робочий простір із такою назвою вже існує, будь ласка, оберіть іншу назву."
   },
   "353": {
-    "other": "Target User"
+    "other": "Цільовий користувач"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Створіть нового користувача або оберіть одного з наявних у списку."
   },
   "355": {
-    "other": "User Name"
+    "other": "Ім'я користувача"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Пароль користувача"
   },
   "357": {
-    "other": "Target Repository"
+    "other": "Цільове сховище"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Оберіть ім'я для спільного робочого простору."
   },
   "359": {
-    "other": "Label"
+    "other": "Мітка"
   },
   "36": {
-    "other": "It's size is"
+    "other": "Розмір"
   },
   "360": {
-    "other": "Rights"
+    "other": "Права"
   },
   "361": {
-    "other": "Read"
+    "other": "Читання"
   },
   "362": {
-    "other": "Write"
+    "other": "Запис"
   },
   "363": {
-    "other": "Shared"
+    "other": "Спільний доступ"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Ви не маєте прав для виконання цієї операції"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Ви не маєте дозволу завантажувати більше ніж %s файлів одночасно."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Цей користувач не має жодного активного робочого простору."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Ви не маєте дозволу завантажувати файли такого типу. Будь ласка, оберіть серед таких розширень: "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Вибрані об'єкти успішно вилучено з архіву %s до теки %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Ярлик"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Ви повинні написати допустиму назву"
   },
   "370": {
-    "other": "APPLICATION_TITLE Public Download"
+    "other": "APPLICATION_TITLE Публічне завантаження"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Для цього завантаження потрібен пароль"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Поточний робочий простір"
   },
   "373": {
-    "other": "Destination"
+    "other": "Призначення"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Не можна копіювати теки між робочими просторами"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Ми помітили, що ви не проявляли активності понад __IDLE__. Для безпеки ваших даних вихід із системи відбудеться за __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Ви ще тут?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Натисніть будь-де, щоб продовжити сеанс"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Увага: пароль порожній або занадто короткий!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Недозволене слово!"
   },
   "38": {
-    "other": "The directory"
+    "other": "Каталог"
   },
   "380": {
-    "other": "Too short"
+    "other": "Занадто короткий"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Дуже слабкий"
   },
   "382": {
-    "other": "Weak"
+    "other": "Слабкий"
   },
   "383": {
-    "other": "Medium"
+    "other": "Середній"
   },
   "384": {
-    "other": "Strong"
+    "other": "Надійний"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Дуже надійний"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Будь ласка, використовуйте лише маленькі літери для входу"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Будь ласка, використовуйте цифри та латинські літери або коректну адресу пошти для входу"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Ви тричі не змогли увійти до системи.\\nЗадля вашої безпеки введіть код із зображення."
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Будь ласка, прочитайте код нижче:"
   },
   "39": {
-    "other": "has been created in"
+    "other": "було створено в"
   },
   "390": {
-    "other": "Code"
+    "other": "Код"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Немає репозиторію"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Увага, APPLICATION_TITLE версія змінилася (тепер %s), будь ласка, очистіть кеш вашого браузера й оновіть сторінку, щоб переконатися, що все функціонує!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Попередження, довжина імен повинна бути до %s символів, ім'я цього файлу буде обрізано!"
   },
   "394": {
-    "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
+    "other": "На жаль, наразі спільний доступ до тек неможливий через поточний драйвер авторизації (користувачі недоступні для редагування). Поширення файлів усе ще працює."
   },
   "395": {
-    "other": "The item you dropped seem to be a folder, and folders cannot be uploaded to server! Are you sure you want to upload?"
+    "other": "Схоже, ви перетягнули теку, а завантаження тек на сервер не підтримується! Ви впевнені, що хочете продовжити?"
   },
   "396": {
-    "other": "Auth. Method"
+    "other": "Метод аутентифікації"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "Завантажити частинами"
   },
   "398": {
-    "other": "Download selected file by pieces"
+    "other": "Завантажити обраний файл частинами"
   },
   "399": {
-    "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
+    "other": "Введіть кількість частин, які ви хочете завантажити, натисніть кнопку та по черзі клацніть кожен файл для завантаження."
   },
   "4": {
-    "other": "Modified"
+    "other": "Змінено"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Цей каталог вже існує (імена не чутливі до регістру)"
   },
   "400": {
-    "other": "Number of pieces :"
+    "other": "Кількість частин:"
   },
   "401": {
-    "other": "You can download and install the following software to join the pieces once on your computer : "
+    "other": "Ви можете завантажити й встановити наступне програмне забезпечення, яке б поєднало певні частини у вашому комп'ютері: "
   },
   "402": {
     "other": "http://www.hjsplit.org/"
   },
   "41": {
-    "other": "has been renamed to"
+    "other": "перейменовано на"
   },
   "411": {
-    "other": "Open"
+    "other": "Відкрити"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Тільки завантаження"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Доступ відкрито"
   },
   "414": {
-    "other": "Use arrows to navigate and +/- to change zoom"
+    "other": "Використовуйте стрілки для навігації + /- зміни масштабу"
   },
   "415": {
-    "other": "Toggle left pane visibility"
+    "other": "Видимість лівої панелі"
   },
   "416": {
-    "other": "Left Pane"
+    "other": "Ліва панель"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Створити Комірку..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Створити Комірку"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Завантаження шаблонів..."
   },
   "42": {
-    "other": "to"
+    "other": "до"
   },
   "420": {
-    "other": "Please pick a template from the list"
+    "other": "Будь ласка, оберіть шаблон зі списку"
   },
   "421": {
-    "other": "New %s"
+    "other": "Новий %s"
   },
   "422": {
-    "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
+    "other": "Будь ласка, заповніть обов'язкові поля. Наведіть курсор на назви полів, щоб отримати додаткову інформацію."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Видалити робочий простір"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "Ви впевнені, що хочете видалити цей робочий простір? Ця дія є незворотною."
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "Робочий простір створено та додано до вашого списку. Щоб видалити його, спершу перейдіть до іншого робочого простору, а потім натисніть на червоний хрестик поруч із назвою."
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "При створенні робочого простору сталася помилка"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "Сталася помилка при видаленні робочого простору"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "Робочий простір успішно видалено"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "Ось так робочий простір виглядатиме у вашому списку."
   },
   "43": {
-    "other": "already exists  (names are case insensitive)"
+    "other": "вже існує (регістр літер не враховується)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "Спільні файли"
   },
   "431": {
-    "other": "Sample Template"
+    "other": "Зразок шаблону"
   },
   "432": {
-    "other": "My Files"
+    "other": "Мої файли"
   },
   "433": {
-    "other": "ready"
+    "other": "готово"
   },
   "434": {
-    "other": "sending"
+    "other": "відправка"
   },
   "435": {
-    "other": "done"
+    "other": "зроблено"
   },
   "436": {
-    "other": "error"
+    "other": "помилка"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "Ой! Схоже, термін дії вашого токена безпеки вичерпано. Будь ласка, %s, оновивши сторінку або натиснувши F5 у браузері!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "перезавантажити сторінку"
   },
   "439": {
-    "other": "Main Options"
+    "other": "Основні параметри"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "було видалено"
   },
   "440": {
-    "other": "Yes"
+    "other": "Так"
   },
   "441": {
-    "other": "No"
+    "other": "Ні"
   },
   "442": {
-    "other": "My Account"
+    "other": "Мій акаунт"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Оновити персональну інформацію"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "Будь-ласка, оновіть свій пароль, інакше ви не зможете увійти в систему."
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "Зараз ви вийдете із системи. Будь ласка, увійдіть знову, використовуючи свій новий пароль. Дякуємо!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Представлення"
   },
   "447": {
-    "other": "My group"
+    "other": "Моя група"
   },
   "448": {
-    "other": "create user"
+    "other": "створити користувача"
   },
   "449": {
-    "other": "Creating %s, choose a password"
+    "other": "Створення %s, оберіть пароль"
   },
   "45": {
-    "other": "directory"
+    "other": "каталог"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Сортувати за ..."
   },
   "451": {
-    "other": "Sort thumbnails by ..."
+    "other": "Сортувати мініатюри за ..."
   },
   "452": {
-    "other": "Thumbs size"
+    "other": "Розмір мініатюр"
   },
   "453": {
-    "other": "Set thumbnails size"
+    "other": "Встановити розмір мініатюр"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Оберіть файли на комп'ютері"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "Робочі простори"
   },
   "456": {
-    "other": "More"
+    "other": "Більше"
   },
   "457": {
-    "other": "update"
+    "other": "оновити"
   },
   "458": {
-    "other": "remove"
+    "other": "видалити"
   },
   "459": {
-    "other": "Top folder"
+    "other": "Головна тека"
   },
   "46": {
-    "other": "file"
+    "other": "файл"
   },
   "460": {
-    "other": "List"
+    "other": "Список"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Перейти до вигляду списком"
   },
   "462": {
-    "other": "Preview"
+    "other": "Попередній перегляд"
   },
   "463": {
-    "other": "Download all"
+    "other": "Завантажити все"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Завантажити весь вміст робочого простору одним архівом (ZIP)"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "Показати альтернативні URL-адреси (монтувати робочі простори окремо)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Завантаження..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Всі спільні елементи"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Робочі простори"
   },
   "469": {
-    "other": "Cells"
+    "other": "Комірки"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Ви справді хочете видалити"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Створено %date"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "Створено %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Поширено %user"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Поширено %user %date"
   },
   "474": {
-    "other": "No description available"
+    "other": "Опис відсутній"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Файли, доступні всім користувачам"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Ваш особистий робочий простір"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Оберіть файл або теку, щоб переглянути деталі тут"
   },
   "478": {
-    "other": "No results found"
+    "other": "Нічого не знайдено"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Забули пароль?"
   },
   "48": {
-    "other": "Ok"
+    "other": "Гаразд"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Переглянути всі теки поточного робочого простору."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Всі ваші спільні файли та теки"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Швидкий доступ до закладок"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "У вас немає прав для створення нових користувачів!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Створити користувача"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Створити спільного користувача"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Додатково"
   },
   "487": {
-    "other": "Basic"
+    "other": "Основні"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Розширений фільтр"
   },
   "489": {
-    "other": "Metadata"
+    "other": "Метадані"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Скасувати"
   },
   "490": {
-    "other": "Date range"
+    "other": "Діапазон дат"
   },
   "491": {
-    "other": "After"
+    "other": "Після"
   },
   "492": {
-    "other": "until"
+    "other": "до"
   },
   "493": {
-    "other": "Today"
+    "other": "Сьогодні"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Вчора"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "Завтра"
   },
   "495": {
-    "other": "Last week"
+    "other": "Минулий тиждень"
   },
   "496": {
-    "other": "Last month"
+    "other": "Минулий місяць"
   },
   "497": {
-    "other": "Last year"
+    "other": "Минулий рік"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Властивість документа"
   },
   "499": {
-    "other": "File"
+    "other": "Файл"
   },
   "5": {
-    "other": "Actions"
+    "other": "Дії"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Файл EXE"
   },
   "500": {
-    "other": "Extension"
+    "other": "Розширення"
   },
   "501": {
-    "other": "or"
+    "other": "або"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Тільки теки"
   },
   "503": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "504": {
-    "other": "1k,1M,1G"
+    "other": "1 КБ, 1 МБ, 1 ГБ"
   },
   "505": {
-    "other": "to"
+    "other": "до"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Параметри додатку (користувачі, робочі простори, конфігурації)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Ласкаво просимо до %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Я щойно створив(ла) для вас обліковий запис у %s. Щоб увійти, будь ласка, перейдіть за цим посиланням %link та використайте такі дані: <br><br> Логін: %user <br><br> Пароль: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Зберегти як команду"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Текстовий редактор"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Будь ласка, введіть назву команди"
   },
   "511": {
-    "other": "My %s"
+    "other": "Моє %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "На весь екран"
   },
   "513": {
-    "other": "show"
+    "other": "показати"
   },
   "514": {
-    "other": "hide"
+    "other": "приховати"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Немає закладок — перетягніть файли або теки сюди для швидкого доступу."
   },
   "516": {
-    "other": "expand"
+    "other": "розгорнути"
   },
   "517": {
-    "other": "collapse"
+    "other": "згорнути"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Крім того, ви можете <a class='create_file_alt_link'>створити новий порожній файл</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Оновити користувача"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Редагування файлу"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Оновити дані користувача та пароль"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Успішно оновлено користувача"
   },
   "522": {
-    "other": "User ID"
+    "other": "ID користувача"
   },
   "523": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Оновити пароль"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Показати оригінал"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Версія низької роздільної здатності"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Спільні з"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Внутрішні користувачі"
   },
   "53": {
-    "other": "Save"
+    "other": "Зберегти"
   },
   "530": {
-    "other": "External users"
+    "other": "Зовнішні користувачі"
   },
   "531": {
-    "other": "Users"
+    "other": "Користувачі"
   },
   "532": {
-    "other": "Groups"
+    "other": "Групи"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "Ідентифікатор для входу; використовуйте лише малі латинські літери, цифри або email."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Пароль для входу"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Відправити пароль на електронну пошту"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Надіслати новому користувачеві привітальний лист із паролем"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Файл занадто великий! Максимальний дозволений розмір – %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Помилка завантаження: файл не знайдено на сервері!"
   },
   "539": {
-    "other": "Upload error: file is partial"
+    "other": "Помилка завантаження: файл з частин"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Відміна"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Помилка завантаження: не вдається знайти тимчасовий каталог"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Помилка завантаження: не можливо записати до тимчасового каталогу"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Помилка завантаження: PHP розширення зупинило процес завантаження."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Результати обмежені до %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Показати більше"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Віддалене поширення"
   },
   "546": {
-    "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
+    "other": "Цим об'єктом із вами поділився користувач %%OWNER%% із віддаленого ресурсу. Бажаєте продовжити?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Прийняти"
   },
   "548": {
-    "other": "Decline"
+    "other": "Відхилити"
   },
   "549": {
-    "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
+    "other": "Ви раніше прийняли цей об'єкт, яким із вами поділився користувач %%OWNER%% із віддаленого ресурсу. Бажаєте відхилити його зараз?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "було змінено"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Відхилити цей спільний доступ"
   },
   "551": {
-    "other": "Reject"
+    "other": "Відхилити"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Будь ласка, введіть пароль."
   },
   "553": {
-    "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
+    "other": "Неправильний пароль, спробуйте ще раз. \\n Переконайтеся, що клавіша Caps Lock вимкнена!"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s результат(ів) у Смітнику"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "Запуск завдання %s в фоновому режимі"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Необхідні облікові дані"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Будь ласка, введіть пароль для входу в цей робочий простір."
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "Помилка автентифікації для цього робочого простору."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "Зображення BMP"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Необхідна аутентифікація"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Вас буде перенаправлено на сторінку автентифікації провайдера. Якщо перенаправлення не відбулося автоматично, натисніть «ОК», щоб повторити спробу..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Ця тека порожня!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Цей робочий простір порожній!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "Смітник порожній."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Почніть додавати файли або теки, вибравши їх у меню або перетягнувши прямо з робочого столу"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Ви не можете додавати файли тут"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Огляд смітника"
   },
   "568": {
-    "other": "Teams"
+    "other": "Команди"
   },
   "569": {
-    "other": "New Team"
+    "other": "Нова команда"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "Зображення PNG"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Видалити команду"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Немає створених команд"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "Створюйте власні команди, щоб легко ділитися даними з кількома користувачами одночасно"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Немає доступних команд"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "Ви не маєте прав на створення команд, але уповноважені користувачі можуть ділитися ними з вами"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Створення та редагування команд"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "Дозволити користувачам створювати та редагувати власні команди"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Додати користувача до команди"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Вилучити з команди"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Учасники команди"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s учасників"
   },
   "577": {
-    "other": "No members"
+    "other": "Немає учасників"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Назва команди"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Створити команду"
   },
   "58": {
-    "other": "CSS File"
+    "other": "Файл CSS"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Редагувати назву команди"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Користувач належить до %s команд"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Видалити користувача"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Каталог пошуку"
   },
   "584": {
-    "other": "Directory"
+    "other": "Тека"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Немає зовнішніх користувачів"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Створюйте власних користувачів і діліться з ними файлами або теками з ваших робочих просторів."
   },
   "587": {
-    "other": "No results"
+    "other": "Нічого не знайдено"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Почніть вводити в форму пошуку, щоб знайти користувачів в каталозі"
   },
   "589": {
-    "other": "External user"
+    "other": "Зовнішній користувач"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "Файл MP3"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Внутрішній користувач"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Виберіть назву для команди. Ви зможете додати користувачів до неї після створення."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Адресна книга"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "Спільні користувачі"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Надійні сервери"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Пошук користувача..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Сервер: '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "всі"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Надіслати повідомлення"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Додати користувача"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Всі результати"
   },
   "6": {
-    "other": "Rename"
+    "other": "Перейменувати"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR-файл"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Редагувати користувача"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "Одна спільна комірка"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 спільних комірок"
   },
   "603": {
-    "other": "Team"
+    "other": "Команда"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Віддалений користувач"
   },
   "605": {
-    "other": "More search options"
+    "other": "Більше параметрів пошуку"
   },
   "606": {
-    "other": "Less search options"
+    "other": "Менше параметрів пошуку"
   },
   "607": {
-    "other": "Your recent activity - Type in to search files inside all workspaces"
+    "other": "Ваші останні дії - Введіть для пошуку файлів у всіх робочих просторах"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Поточна тека"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Весь робочий простір"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ файл"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "Усі робочі простори"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Почніть вводити текст для пошуку"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Власний діапазон"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Більше ніж..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Менше ніж..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Виконати"
   },
   "616": {
-    "other": "Mask"
+    "other": "Маска"
   },
   "617": {
-    "other": "Enter"
+    "other": "Увійти"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Перемкнути мову..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "Пошук обмежено поточною текою та її підтеками"
   },
   "62": {
-    "other": "Root directory"
+    "other": "Кореневий каталог"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "Пошук обмежено поточним робочим простором"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Це поле не може бути порожнім"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Стек помилок"
   },
   "623": {
-    "other": "Copy"
+    "other": "Копіювати"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Скопійовано!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Літера"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Файли, до яких мені надано доступ"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Спільні ресурси з віддалених серверів"
   },
   "628": {
-    "other": "Revert"
+    "other": "Відновити"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Записів ще немає"
   },
   "63": {
-    "other": "Log out"
+    "other": "Вийти"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Теки, котрими зі мною поділилися"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Ця комірка порожня!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Ще немає комірок"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Комірки — це простори для спільної роботи з іншими користувачами над документами"
   },
   "634": {
-    "other": "You"
+    "other": "Ви"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Ваша група"
   },
   "634c": {
-    "other": "All users"
+    "other": "Всі користувачі"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Кімната чату"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Почніть вводити текст і натисніть Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Поки що немає повідомлень. Почніть писати, щоб поспілкуватися з учасниками цієї Комірки!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "Комірка містить кілька кореневих тек або файлів; ви не можете завантажувати дані безпосередньо сюди."
   },
   "639": {
-    "other": "In this cell"
+    "other": "В цій комірці"
   },
   "64": {
-    "other": "XLS File"
+    "other": "Файл XLS"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Створити комірку з %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Вилучити з поточної комірки"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Додати до поточної комірки"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Тепер ви маєте спільну комірку з %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Не вдалося створити комірку: %s"
   },
   "65": {
-    "other": "Word File"
+    "other": "Файл Word"
   },
   "66": {
-    "other": "Copy"
+    "other": "Копіювати"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Вибраний файл"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Вставити до"
   },
   "69": {
-    "other": "Or select another directory"
+    "other": "Або вибрати іншу теку"
   },
   "7": {
-    "other": "Delete"
+    "other": "Видалити"
   },
   "70": {
-    "other": "Move"
+    "other": "Перемістити"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "Цей файл уже існує (регістр літер не враховується)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "Кореневий шлях вказано неправильно. Перевірте його у файлі conf/conf.php"
   },
   "73": {
-    "other": "has been copied into the directory"
+    "other": "було скопійовано до теки"
   },
   "74": {
-    "other": "has been moved into the directory"
+    "other": "було переміщено до теки"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "Файл users.txt відсутній у теці prive"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Цей файл було вилучено"
   },
   "77": {
-    "other": "Send"
+    "other": "Надіслати"
   },
   "78": {
-    "other": "Pass"
+    "other": "Пароль"
   },
   "79": {
-    "other": "PDF File"
+    "other": "Файл PDF"
   },
   "8": {
-    "other": "Directory"
+    "other": "Тека"
   },
   "80": {
-    "other": "MOV File"
+    "other": "Файл MOV"
   },
   "81": {
-    "other": "AVI File"
+    "other": "Файл AVI"
   },
   "82": {
-    "other": "MPG File"
+    "other": "Файл MPG"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "Файл MPEG"
   },
   "84": {
-    "other": "Help"
+    "other": "Довідка"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Оновити"
   },
   "86": {
-    "other": "Close"
+    "other": "Закрити"
   },
   "87": {
-    "other": "Search"
+    "other": "Пошук"
   },
   "88": {
-    "other": "Download"
+    "other": "Завантаження"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Не вдалося відкрити файл"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Файл Midi"
   },
   "90": {
-    "other": "Print"
+    "other": "Друк"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "Файл FLASH"
   },
   "92": {
-    "other": "Language"
+    "other": "Мова"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Щоб обрати мову, ваш браузер повинен приймати файли cookies."
   },
   "94": {
-    "other": "Login"
+    "other": "Логін"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Оберіть вашу мову:"
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "Будь ласка, оберіть цільову теку в каталозі: "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Завантажити файл"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Натисніть у будь-якому місці цього вікна, щоб закрити його."
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "недоступний для запису. Можливо, виникла проблема з правами доступу; будь ласка, зверніться до адміністратора."
   },
   "about_access_key": {
     "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "B"
+    "other": "В"
   },
   "byte_unit_symbol": {
-    "other": "B"
+    "other": "В"
   },
   "copy_access_key": {
     "other": "C"
   },
   "create_repo_accesskey": {
-    "other": "R"
+    "other": "Р"
   },
   "create_user_accesskey": {
     "other": "U"
@@ -1959,40 +1959,40 @@
     "other": "Y/m/d H:i"
   },
   "date_intl_locale": {
-    "other": "en_US"
+    "other": "Англійська (США)"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "на дату"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s днів тому"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "через %s днів"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "ЧАС"
   },
   "date_relative_time_format": {
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "[Today at] LT"
+    "other": "[Сьогодні о] LT"
   },
   "date_relative_tomorrow": {
-    "other": "[Tomorrow at] LT"
+    "other": "[Завтра о] LT"
   },
   "date_relative_yesterday": {
-    "other": "[Yesterday at] LT"
+    "other": "[Вчора о] LT"
   },
   "date_relative_lastweek": {
-    "other": "[Last] dddd [at] LT"
+    "other": "[Минулого] dddd [о] LT"
   },
   "date_relative_nextweek": {
-    "other": "dddd [at] LT"
+    "other": "dddd [о] LT"
   },
   "delete_access_key": {
     "other": "D"
@@ -2016,7 +2016,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Англійська"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2034,145 +2034,145 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "Плагіни, що визначають спосіб доступу робочого простору до серверної частини (сховища файлів тощо), а також основні макети та дії."
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "Функціональні плагіни для різних аспектів системи"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "Спосіб зберігання даних користувачів у серверній частині"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Методи збору ідентифікаційних даних (вебформа, API-ключ тощо)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "Унікальний плагін для завантаження фреймворку"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "Унікальний плагін для налаштування сервера кешування, що використовується програмою"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "Спосіб зберігання конфігураційних даних у серверній частині"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Плагіни для шифрування даних"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Засоби перегляду або редактори для широкого спектра MIME-типів"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "Реалізації для зберігання подій даних (наразі лише SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "Основний веб-інтерфейс, теми та розширення"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "Допоміжні інструменти для адміністративних завдань"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "Інструменти для індексації даних та забезпечення швидкого пошуку"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "Надсилати журнали програми до різних каналів"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "Інструменти для надсилання електронних листів із програми"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Параметри пошукового рушія"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "Додаткові можливості для додавання до робочих просторів"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "Різні реалізації для зберігання метаданих разом із файлами та теками"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "Реалізації простого сервера PUB/SUB"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Розширені функції безпеки"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "Вебсервіси для скорочення публічних посилань"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "Завантажувачі на основі різних технологій (HTML, JavaScript, Java та інші)"
   },
   "plugtype.title.access": {
-    "other": "Workspaces Drivers"
+    "other": "Драйвери робочих просторів"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "Плагіни дій"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "Сервери автентифікації"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "Інтерфейси автентифікації"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Завантажувач"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Кеш-сервер"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Сховище конфігурації"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Інструменти шифрування"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Редактори"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Сховище стрічки подій"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Графічний інтерфейс користувача"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Помічник"
   },
   "plugtype.title.index": {
-    "other": "Indexing"
+    "other": "Індексація"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "Реєстратори подій"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "Поштові служби"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Пошукова система"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "Метадані робочого простору"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Сховище метаданих"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Миттєві повідомлення"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Безпека"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Скорочення URL-адрес"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Завантажувачі"
   },
   "preview_access_key": {
-    "other": "e"
+    "other": "е"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "батьківська тека"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "групові дії"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2181,7 +2181,7 @@
     "other": "R"
   },
   "restore_access_key": {
-    "other": "o"
+    "other": "о"
   },
   "settings_access_key": {
     "other": "g"
@@ -2190,7 +2190,7 @@
     "other": "L"
   },
   "thumbs_access_key": {
-    "other": "T"
+    "other": "Т"
   },
   "upload_access_key": {
     "other": "U"
@@ -2199,309 +2199,312 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Публічний доступ"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Файл переміщується у фоновому режимі..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Тека переміщується у фоновому режимі..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Копіювання виділеного у фоновому режимі..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Файл заблокований"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Тека заблокована"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Наразі переглядають цей файл"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Наразі переглядають цю теку"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Спільний файл, натисніть для редагування"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Спільна тека, натисніть для редагування"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Файл додано до закладок"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Теку додано до закладок"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Додати цей елемент до закладок"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Вилучити цю закладку"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Змішані значення, натисніть, щоб додати все до закладок"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Збереження статусу закладки"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Всередині"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Порожній файл"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Безіменний документ"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Не використовуйте символ «/» у назвах файлів!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "Необхідно вказати назву!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Увага! Схоже, назва починається або закінчується пробілом (можливо, це друкарська помилка?)"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Будь ласка, вкажіть іншу назву для перейменування!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Перейменування «%1» на «%2»"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Фільтрувати комірки"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Фільтрувати робочі простори"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Видимість"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Переглянути"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Редагувати"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Користувачі"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Ваші команди"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Зміна видимості"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Зберегти зміни"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Скасувати зміни"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Сталася помилка"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Оберіть користувача..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Встановити видимість для..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Ця розширена функція дозволяє визначити, чи зможуть інші користувачі переглядати та/або редагувати створені вами контакти в адресній книзі. За замовчуванням ваші записи бачите лише ви."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Невідомо"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Оберіть групу"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Множинний вибір"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Підтвердити"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Ви збираєтеся видалити"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Не попереджати мене наступного разу"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Рядків на сторінці"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "з"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Будь ласка, використовуйте тільки зображення (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Скинути"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Ви хочете видалити поточне зображення?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Будь ласка, використовуйте зображення, що менші за 5МБ"
   },
   "searchengine.start": {
-    "other": "Start typing to search for files and folders"
+    "other": "Почніть вводити для пошуку файлів та тек"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Шукаємо..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Пошук..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Пошук: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Шукати в..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Спільний доступ"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Без статусу"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Публічне посилання"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Спільний доступ у комірках"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Публічне посилання або комірка"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "Формат"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Лише файли"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Розширені фільтри"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "Знайдено результатів: %1"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "Показано %1, завантажити ще..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Зберегти"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Зберегти запит"
+  },
+  "searchengine.query.action.save-legend": {
+    "other": "Зберегти цей пошуковий запит для подальшого використання"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "Очистити"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Очистити все"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Видалити"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "Видалити цей збережений запит?"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Введіть мітку"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Назва/Контент"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Збережені пошукові запити"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Останні пошуки"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Розширена пропозиція"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Ви маєте на увазі"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "містить «%s»"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Фільтри:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "Натисніть для зміни"
   },
   "chat.dropzone.remove": {
-    "other": "Remove"
+    "other": "Видалити"
   },
   "chat.dropzone.preview": {
-    "other": "Include preview?"
+    "other": "Включити попередній перегляд?"
   },
   "chat.dropzone.inline": {
-    "other": "Insert inline"
+    "other": "Вставити в рядок"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Старіші записи"
   },
   "chat.msg.edit": {
-    "other": "Edit Message"
+    "other": "Змінити повідомлення"
   },
   "chat.msg.save": {
-    "other": "Save Changes"
+    "other": "Зберегти зміни"
   },
   "chat.msg.revert": {
-    "other": "Revert Changes"
+    "other": "Скасувати зміни"
   },
   "chat.msg.delete": {
-    "other": "Delete Message"
+    "other": "Видалити повідомлення"
   },
   "chat.msg.delete.confirm.title": {
-    "other": "Delete Message?"
+    "other": "Видалити повідомлення?"
   },
   "chat.msg.delete.confirm": {
-    "other": "This action cannot be undone"
+    "other": "Цю дію не можна буде скасувати"
   },
   "chat.link.doc.loading": {
-    "other": "Loading document..."
+    "other": "Завантаження документа..."
   },
   "chat.link.doc.opening": {
-    "other": "Opening document..."
+    "other": "Відкриття документа..."
   },
   "chat.link.doc.goto": {
-    "other": "Go to document"
+    "other": "Перейти до документа"
   },
   "chat.link.doc.not-found": {
-    "other": "Document not found, it may have been deleted."
+    "other": "Документ не знайдений, він може бути видалений."
   },
   "chat.link.doc.click-indicator": {
-    "other": "Click to open %s"
+    "other": "Натисніть, щоб відкрити %s"
   },
   "chat.link.doc.open-in": {
-    "other": "Open document in..."
+    "other": "Відкрити документ в..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Використання квоти"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Видалити назавжди"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "Цю дію неможливо скасувати!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Перейти до теки"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Нещодавні місця"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Верхня тека"
   }
 }

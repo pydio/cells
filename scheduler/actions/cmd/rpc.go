@@ -31,7 +31,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/forms"
@@ -46,7 +45,6 @@ var (
 )
 
 type RpcAction struct {
-	common.RuntimeHolder
 	ServiceName string
 	MethodName  string
 	JsonRequest string
@@ -67,7 +65,7 @@ func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
 }
 
 // GetParametersForm returns a UX form
-func (c *RpcAction) GetParametersForm() *forms.Form {
+func (c *RpcAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -117,7 +115,7 @@ func (c *RpcAction) GetName() string {
 }
 
 // Init passes parameters
-func (c *RpcAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *RpcAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	c.MethodName = action.Parameters["method"]
 	if c.ServiceName == "" || c.MethodName == "" {
@@ -206,7 +204,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	}
 
 	output := input.Clone()
-	conn := grpc.ResolveConn(c.GetRuntimeContext(), serviceName)
+	conn := grpc.ResolveConn(ctx, serviceName)
 	if methodDescriptor.IsStreamingServer() {
 
 		cStream, e := conn.NewStream(ctx, &grpc2.StreamDesc{ServerStreams: true}, methodSendName, grpc2.WaitForReady(false))

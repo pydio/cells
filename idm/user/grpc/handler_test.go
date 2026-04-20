@@ -27,12 +27,14 @@ import (
 	"fmt"
 	"io"
 	"testing"
+	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/service"
@@ -42,6 +44,8 @@ import (
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/user/dao/sql"
+
+	_ "gocloud.dev/pubsub/mempubsub"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -293,6 +297,291 @@ func TestUser(t *testing.T) {
 			So(resp.User.Attributes["locks"], ShouldEqual, `["other"]`)
 
 		})
+	})
+}
+
+func TestUserSorting(t *testing.T) {
+
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		// Store some data in cache
+		c, err := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, cache.Config{Eviction: "3600s", CleanWindow: "7200s"})
+		if err != nil {
+			panic(err)
+		}
+		_ = c.Set("autoApplies", map[string][]*idm.Role{
+			"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
+		})
+
+		h := NewHandler()
+
+		Convey("Create one user", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "zuser1"}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "zuser1")
+		})
+
+		Convey("Create a second user with name attribute", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", Attributes: map[string]string{"name": "User 2"}}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user2")
+		})
+
+		Convey("Search Users", t, func() {
+			mock := &userStreamMock{ctx: ctx}
+			userQuery := &idm.UserSingleQuery{
+				NodeType: idm.NodeType_USER,
+				Login:    "*",
+			}
+			userQueryAny, _ := anypb.New(userQuery)
+			request := &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+				},
+			}
+			err := h.SearchUser(request, mock)
+
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 2)
+			So(mock.InternalBuffer[0].Login, ShouldEqual, "user2")
+			So(mock.InternalBuffer[1].Login, ShouldEqual, "zuser1")
+
+			resp, err := h.CountUser(ctx, request)
+			So(err, ShouldBeNil)
+			So(resp.Count, ShouldEqual, 2)
+
+			// Sort DESC
+			mock = &userStreamMock{ctx: ctx}
+			request = &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+					SortDesc:   true,
+				},
+			}
+			err = h.SearchUser(request, mock)
+
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 2)
+			So(mock.InternalBuffer[0].Login, ShouldEqual, "zuser1")
+			So(mock.InternalBuffer[1].Login, ShouldEqual, "user2")
+
+			// Sort MTime
+			<-time.After(time.Second)
+			_, err = h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "wuser3"}})
+			So(err, ShouldBeNil)
+
+			mock = &userStreamMock{ctx: ctx}
+			request = &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+					SortField:  "mtime",
+					SortDesc:   false,
+				},
+			}
+			err = h.SearchUser(request, mock)
+
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 3)
+			So(mock.InternalBuffer[2].Login, ShouldEqual, "wuser3")
+
+			mock = &userStreamMock{ctx: ctx}
+			request = &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+					SortField:  "mtime",
+					SortDesc:   true,
+				},
+			}
+			err = h.SearchUser(request, mock)
+
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 3)
+			So(mock.InternalBuffer[0].Login, ShouldEqual, "wuser3")
+
+		})
+
+	})
+}
+
+func TestUserListInGroup(t *testing.T) {
+
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		// Store some data in cache
+		c, err := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, cache.Config{Eviction: "3600s", CleanWindow: "7200s"})
+		if err != nil {
+			panic(err)
+		}
+		_ = c.Set("autoApplies", map[string][]*idm.Role{
+			"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
+		})
+
+		h := NewHandler()
+
+		Convey("Create one user", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "zuser1", GroupPath: "/group1"}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "zuser1")
+		})
+
+		Convey("Create a second user with name attribute", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", GroupPath: "/group1", Attributes: map[string]string{"name": "User 2"}}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user2")
+		})
+
+		Convey("Search Users in Group", t, func() {
+			mock := &userStreamMock{ctx: ctx}
+			userQuery := &idm.UserSingleQuery{
+				NodeType:  idm.NodeType_USER,
+				GroupPath: "/group1",
+				Login:     "*",
+			}
+			userQueryAny, _ := anypb.New(userQuery)
+			request := &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+				},
+			}
+			err := h.SearchUser(request, mock)
+
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 2)
+			So(mock.InternalBuffer[0].Login, ShouldEqual, "user2")
+			So(mock.InternalBuffer[1].Login, ShouldEqual, "zuser1")
+
+		})
+
+		Convey("Search Users in Non-existing Group", t, func() {
+			mock := &userStreamMock{ctx: ctx}
+			userQuery := &idm.UserSingleQuery{
+				NodeType:  idm.NodeType_USER,
+				GroupPath: "/groupNON",
+				Login:     "*",
+			}
+			userQueryAny, _ := anypb.New(userQuery)
+			request := &idm.SearchUserRequest{
+				Query: &service.Query{
+					SubQueries: []*anypb.Any{userQueryAny},
+				},
+			}
+			err := h.SearchUser(request, mock)
+
+			So(err, ShouldBeNil)
+			So(len(mock.InternalBuffer), ShouldEqual, 0)
+
+		})
+
+	})
+}
+
+func TestUserGroups(t *testing.T) {
+
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		// Store some data in cache
+		c, err := cache_helper.ResolveCache(ctx, common.CacheTypeLocal, cache.Config{Eviction: "3600s", CleanWindow: "7200s"})
+		if err != nil {
+			panic(err)
+		}
+		_ = c.Set("autoApplies", map[string][]*idm.Role{
+			"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
+		})
+
+		h := NewHandler()
+
+		var user1UUID string
+
+		Convey("Create one user", t, func() {
+			ct, ca := context.WithCancel(ctx)
+			event := &idm.ChangeEvent{}
+			_ = broker.SubscribeCancellable(ct, common.TopicIdmEvent, func(ctx context.Context, msg broker.Message) error {
+				_, _ = msg.Unmarshal(ctx, event)
+				ca()
+				return nil
+			})
+
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user1"}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user1")
+			user1UUID = resp.GetUser().GetUuid()
+
+			select {
+			case <-ct.Done():
+				So(event, ShouldNotBeNil)
+				So(event.Type, ShouldEqual, idm.ChangeEventType_CREATE)
+				So(event.User, ShouldNotBeNil)
+				So(event.User.Login, ShouldEqual, "user1")
+			case <-time.After(time.Second * 10):
+				t.Fatal("timed out waiting for event")
+			}
+		})
+
+		Convey("Create one group", t, func() {
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{IsGroup: true, GroupPath: "/group1"}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetIsGroup(), ShouldBeTrue)
+			So(resp.GetUser().GetGroupPath(), ShouldEqual, "/")
+			So(resp.GetUser().GetGroupLabel(), ShouldEqual, "group1")
+		})
+
+		Convey("Create sub groups automatically", t, func() {
+			_, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", GroupPath: "/group2/group3"}})
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Move user to other group", t, func() {
+			ct, ca := context.WithCancel(ctx)
+			event := &idm.ChangeEvent{}
+			_ = broker.SubscribeCancellable(ct, common.TopicIdmEvent, func(ctx context.Context, msg broker.Message) error {
+				_, _ = msg.Unmarshal(ctx, event)
+				ca()
+				return nil
+			})
+
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Uuid: user1UUID, Login: "user1", GroupPath: "/group2/group3"}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user1")
+			So(resp.GetUser().GetGroupPath(), ShouldEqual, "/group2/group3")
+
+			select {
+			case <-ct.Done():
+				So(event, ShouldNotBeNil)
+				So(event.Type, ShouldEqual, idm.ChangeEventType_UPDATE)
+			case <-time.After(time.Second * 10):
+				t.Fatal("timed out waiting for event")
+			}
+		})
+
+		Convey("Move user to other group with group creation", t, func() {
+			ct, ca := context.WithCancel(ctx)
+			event := &idm.ChangeEvent{}
+			_ = broker.SubscribeCancellable(ct, common.TopicIdmEvent, func(ctx context.Context, msg broker.Message) error {
+				_, _ = msg.Unmarshal(ctx, event)
+				ca()
+				return nil
+			})
+
+			resp, err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Uuid: user1UUID, Login: "user1", GroupPath: "/group4"}})
+
+			So(err, ShouldBeNil)
+			So(resp.GetUser().GetLogin(), ShouldEqual, "user1")
+			So(resp.GetUser().GetGroupPath(), ShouldEqual, "/group4")
+
+			select {
+			case <-ct.Done():
+				So(event, ShouldNotBeNil)
+				So(event.Type, ShouldEqual, idm.ChangeEventType_UPDATE)
+			case <-time.After(time.Second * 10):
+				t.Fatal("timed out waiting for event")
+			}
+
+		})
+
 	})
 }
 

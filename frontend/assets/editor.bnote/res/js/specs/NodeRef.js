@@ -18,45 +18,76 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuController} from "@blocknote/react";
-import SearchApi from 'pydio/http/search-api';
-import Pydio from 'pydio'
-import {SingleNode} from "../blocks/SingleNode";
-import uuid4 from 'uuid4'
-import React from "react";
-import {insertOrUpdateBlock} from "@blocknote/core";
-import {RiFolderOpenFill} from "react-icons/ri";
-import {ModernList} from "../blocks/ChildrenList";
+import {
+    createReactBlockSpec,
+    createReactInlineContentSpec,
+} from '@blocknote/react';
+import { SingleNode } from '../blocks/SingleNode';
+import { DroppedMonitor } from '../blocks/DroppedMonitor';
+import uuid4 from 'uuid4';
+import React, { useMemo } from 'react';
+import { RiFileFill, RiFolderOpenFill } from 'react-icons/ri';
+import { ChildrenList as ChildrenListBlock } from '../blocks/ChildrenList';
+import { ResultsList as ResultsListBlock } from '../blocks/ResultsList';
+const { emptyDataModel } = Pydio.requireLib('hoc');
+import { t } from '../messages';
 
-const api = new SearchApi(Pydio.getInstance())
-
-export const NodeRefSpecType = 'nodeRef'
-export const NodeBlockSpecType = 'nodeBlock'
-export const ChildrenListSpecType = 'childrenList'
+export const NodeRefSpecType = 'nodeRef';
+export const NodeBlockSpecType = 'nodeBlock';
+export const ChildrenListSpecType = 'childrenList';
+export const ResultsListSpecType = 'resultsList';
+export const DroppedMonitorSpecType = 'droppedMonitor';
 
 export const NodeRef = createReactInlineContentSpec(
     {
         type: NodeRefSpecType,
         propSchema: {
-            inlineId: { default: ''},
-            nodeUuid: { default: "" },
-            path: { default: "" },
-            label: { default: "" },
-            repositoryId: { default: "" },
-            displayPicker: { default: false }
+            inlineId: { default: '' },
+            nodeUuid: { default: '' },
+            path: { default: '' },
+            label: { default: '' },
+            repositoryId: { default: '' },
+            displayPicker: { default: false },
         },
-        content: "none",
+        content: 'none',
     },
     {
-        render: (props) => <SingleNode {...props} inline={true} {...props.inlineContent.props}/>,
-    }
+        render: (props) => (
+            <SingleNode
+                {...props}
+                inline={true}
+                {...props.inlineContent.props}
+            />
+        ),
+    },
 );
 
-export const  pasteHandler= ({ event, editor, defaultPasteHandler }) => {
-    const text = event.clipboardData?.getData("text/plain") || "";
+export const DroppedMonitorSpec = createReactBlockSpec(
+    {
+        type: DroppedMonitorSpecType,
+        propSchema: {
+            sessionUuid: { default: '' },
+            blockId: { default: null },
+        },
+        content: 'none',
+    },
+    {
+        render: (props) => (
+            <DroppedMonitor
+                {...props}
+                editor={props.editor}
+                block={props.block}
+                blockId={props.block.id}
+            />
+        ),
+    },
+);
+
+export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
+    const text = event.clipboardData?.getData('text/plain') || '';
     // split out any "node://UUID" chunks
     const parts = text.split(/(node:\/\/[A-Za-z0-9-]+)/g);
-    if (parts.some((p) => p.startsWith("node://"))) {
+    if (parts.some((p) => p.startsWith('node://'))) {
         const inlineContent = parts.map((chunk) => {
             const m = /^node:\/\/([A-Za-z0-9-]+)$/.exec(chunk);
             if (m) {
@@ -69,108 +100,196 @@ export const  pasteHandler= ({ event, editor, defaultPasteHandler }) => {
         });
         // insert your mix of text + captureNodes
         editor.insertInlineContent(inlineContent);
-        return true;  // we handled it
+        return true; // we handled it
     }
     // otherwise let BlockNote do its default thing
     return defaultPasteHandler();
-}
+};
 
 export const NodeBlock = createReactBlockSpec(
     {
         type: NodeBlockSpecType,
         propSchema: {
-            inlineId: { default: ''},
-            nodeUuid: { default: "" },
-            path: { default: "" },
-            repositoryId: { default: "" },
-            label: { default: "" },
-            blockSize: { default: 'md'}
+            inlineId: { default: '' },
+            nodeUuid: { default: '' },
+            path: { default: '' },
+            repositoryId: { default: '' },
+            label: { default: '' },
+            blockSize: { default: 'md' },
         },
-        content: "none",
+        content: 'none',
     },
     {
         render: (props) => {
-            return <SingleNode {...props} inline={false} {...props.block.props}/>
+            return (
+                <SingleNode {...props} inline={false} {...props.block.props} />
+            );
         },
-    }
+    },
 );
 
-// Inline listing block.
+// Listing block.
 export const ChildrenList = createReactBlockSpec(
     {
         type: ChildrenListSpecType,
         propSchema: {
             display: {
                 default: 'compact',
-                values: ['compact', 'list', 'grid', 'detail', 'masonry-160']
+                values: ['compact', 'list', 'grid', 'detail', 'masonry-160'],
             },
-            nodeUuid: {default: ''},
-            path: {default: ''},
-            repositoryId: {default: ''}
+            nodeUuid: { default: '' },
+            path: { default: '' },
+            repositoryId: { default: '' },
         },
-        content: "none",
+        content: 'none',
     },
     {
         render: (props) => {
-            return <ModernList editor={props.editor} block={props.block}/>
+            return (
+                <ChildrenListBlock editor={props.editor} block={props.block} />
+            );
         },
-    }
+    },
 );
 
-export const getNodesMenuItems = (editor, query) => {
-    return api.search({basename:query}, 'all', 10, true).then(res => {
-        const {Results} = res;
-        return Results.map(node => {
-            const label = node.getLabel()
-            return     {
-                title: <span>{node.getMetadata().get('repository_display')} - {node.getPath()}</span>,
-                onItemClick: () => {
-                    editor.insertInlineContent([
-                        {
-                            type: NodeRefSpecType,
-                            props: {
-                                inlineId: uuid4(),
-                                label,
-                                nodeUuid: node.getMetadata().get('uuid'),
-                                path: node.getPath(),
-                                repositoryId:node.getMetadata().get('repository_id')
-                            } },
-                        " ", // add a space after the mention
-                    ]);
-                }
-            }
+// Listing block.
+export const ResultsList = createReactBlockSpec(
+    {
+        type: ResultsListSpecType,
+        propSchema: {
+            display: {
+                default: 'compact',
+                values: ['compact', 'list', 'grid', 'detail', 'masonry-160'],
+            },
+            searchValues: {
+                default: {},
+            },
+            sortInfo: {
+                default: { field: '', desc: false },
+            },
+        },
+        content: 'none',
+    },
+    {
+        render: (props) => {
+            const dm = useMemo(() => emptyDataModel(), []);
+            return (
+                <ResultsListBlock
+                    editor={props.editor}
+                    dataModel={dm}
+                    block={props.block}
+                />
+            );
+        },
+    },
+);
 
-        })
-    })
-}
-
-export const NodesSuggestionMenu = ({editor}) => <SuggestionMenuController
-    triggerCharacter={"%"}
-    getItems={(query) => getNodesMenuItems(editor, query)}
-    minQueryLength={0}
-/>
 // Custom Slash Menu item to insert a block after the current one.
 export const insertChildrenList = (editor) => ({
-    title: "Table of Contents",
-    onItemClick: () =>
-        // If the block containing the text caret is empty, `insertOrUpdateBlock`
-        // changes its type to the provided block. Otherwise, it inserts the new
-        // block below and moves the text caret to it.
-        insertOrUpdateBlock(editor, {
-            type: ChildrenListSpecType,
-            props: {display: 'compact'},
-        }),
-    aliases: ["toc", "contents", "co"],
-    group: "Others",
-    icon: <RiFolderOpenFill size={18}/>,
-    subtext: "Display current folder contents",
+    key: 'toc',
+    title: t('files-list.toc'),
+    onItemClick: () => {
+        const currentBlock = editor.getTextCursorPosition().block;
+        editor.insertBlocks(
+            [
+                {
+                    type: ChildrenListSpecType,
+                    props: { display: 'compact' },
+                },
+            ],
+            currentBlock,
+            'after',
+        );
+    },
+    aliases: ['toc', 'contents', 'co'],
+    group: editor.dictionary.slash_menu.table.group,
+    icon: <RiFolderOpenFill size={18} />,
+    subtext: t('node-spec.insert-toc.subtext'),
+});
+
+// Custom Slash Menu item to insert a block after the current one.
+export const insertResultsList = (editor) => ({
+    key: 'search',
+    title: t('node-spec.insert-results'),
+    onItemClick: () => {
+        const event = new CustomEvent('pydioOpenSelector', {
+            detail: {
+                openValues: {
+                    basenameOrContent: '*',
+                },
+                openSort: { field: 'mtime', desc: true },
+                onSelectSearch: (searchValues, sortField, sortDesc) => {
+                    const currentBlock = editor.getTextCursorPosition().block;
+                    editor.insertBlocks(
+                        [
+                            {
+                                type: ResultsListSpecType,
+                                props: {
+                                    display: 'compact',
+                                    searchValues,
+                                    sortInfo: {
+                                        field: sortField,
+                                        desc: sortDesc,
+                                    },
+                                },
+                            },
+                        ],
+                        currentBlock,
+                        'after',
+                    );
+                },
+                onSelectCancel: () => {},
+            },
+        });
+        document.dispatchEvent(event);
+    },
+    aliases: ['search', 'results', 's'],
+    group: editor.dictionary.slash_menu.table.group,
+    icon: <RiFolderOpenFill size={18} />,
+    subtext: t('node-spec.insert-results.subtext'),
+});
+
+// Custom Slash Menu item to insert a block after the current one.
+export const insertNodePickerBlock = (editor) => ({
+    key: 'node',
+    title: t('node-spec.insert-node'),
+    onItemClick: () => {
+        const event = new CustomEvent('pydioOpenSearch', {
+            detail: {
+                openValues: {
+                    basenameOrContent: '*',
+                },
+                openSort: { field: 'mtime', desc: true },
+                onSelectNode: (node) => {
+                    const newProps = {
+                        inlineId: uuid4(),
+                        nodeUuid: node.getMetadata().get('uuid'),
+                        path: node.getPath(),
+                        repositoryId: node.getMetadata().get('repository_id'),
+                    };
+                    editor.insertInlineContent(
+                        [{ type: NodeRefSpecType, props: newProps }],
+                        { updateSelection: true },
+                    );
+                },
+                onSelectCancel: () => {},
+            },
+        });
+        document.dispatchEvent(event);
+    },
+    aliases: ['file', 'folder', 'f'],
+    group: editor.dictionary.slash_menu.table.group,
+    icon: <RiFileFill size={18} />,
+    subtext: t('node-spec.insert-node.subtext'),
 });
 
 export const nodeBlockSpecs = {
-    childrenList: ChildrenList,
-    nodeBlock: NodeBlock
-}
+    childrenList: ChildrenList(),
+    nodeBlock: NodeBlock(),
+    droppedMonitor: DroppedMonitorSpec(),
+    resultsList: ResultsList(),
+};
 
 export const nodeInlineSpecs = {
-    nodeRef: NodeRef
-}
+    nodeRef: NodeRef,
+};

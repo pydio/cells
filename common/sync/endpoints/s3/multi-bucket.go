@@ -203,11 +203,11 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 	}
 }
 
-func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, error) {
+func (m *MultiBucketClient) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	// We handle only recursivePath = "" case here
 
-	bb, e := m.mainClient.Oc.ListBuckets(context.Background())
+	bb, e := m.mainClient.Oc.ListBuckets(ctx)
 	if e != nil {
 		return nil, e
 	}
@@ -233,7 +233,7 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 		if e != nil {
 			continue
 		}
-		bWatcher, e := bClient.Watch("")
+		bWatcher, e := bClient.Watch(ctx, "")
 		if e != nil {
 			continue
 		}
@@ -277,7 +277,7 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 	return watchObject, nil
 }
 
-func (m *MultiBucketClient) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (m *MultiBucketClient) GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	c, b, i, e := m.getClient(path)
 	if e != nil {
 		err = e
@@ -287,10 +287,10 @@ func (m *MultiBucketClient) GetWriterOn(cancel context.Context, path string, tar
 		err = errors.WithMessage(errors.StatusUnauthorized, "cannot write objects at the buckets level")
 		return
 	}
-	return c.GetWriterOn(cancel, i, targetSize)
+	return c.GetWriterOn(cancel, i, targetSize, node)
 }
 
-func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error) {
+func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
 	c, b, i, e := m.getClient(path)
 	if e != nil {
 		err = e
@@ -300,7 +300,7 @@ func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string) (out i
 		err = errors.WithMessage(errors.StatusUnauthorized, "cannot read objects at the buckets level")
 		return
 	}
-	return c.GetReaderOn(ctx, i)
+	return c.GetReaderOn(ctx, i, node)
 }
 
 func (m *MultiBucketClient) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {

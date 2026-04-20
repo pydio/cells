@@ -31,8 +31,8 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/proto/auth"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/idm/oauth"
 )
 
@@ -40,32 +40,37 @@ func init() {
 	oauth.PatDrivers.Register(NewPatDAO)
 }
 
+const (
+	shaPrefix = "sha256:"
+)
+
 // NewPatDAO creates a new DAO interface implementation. Only SQL is supported.
 func NewPatDAO(db *gorm.DB) oauth.PatDAO {
 	return &sqlImpl{db: db}
 }
 
 // sha256Hash hashes string to string for storing acccess Token
+// It prefixes with shaPrefix to ensure backward compat with v4
 func sha256Hash(input string) string {
 	hash := sha256.Sum256([]byte(input))
-	return hex.EncodeToString(hash[:])
+	return shaPrefix + hex.EncodeToString(hash[:])
 }
 
 type PersonalToken struct {
-	UUID              string       `gorm:"column:uuid; primaryKey; type:varchar(36) not null;"`
-	AccessToken       string       `gorm:"column:access_token;type:varchar(128) not null;unique;"`
+	UUID              string       `gorm:"column:uuid;primaryKey;type:varchar(36);not null;"`
+	AccessToken       string       `gorm:"column:access_token;type:varchar(128);not null;unique;"`
 	Type              auth.PatType `gorm:"column:pat_type;"`
-	Label             string       `gorm:"column:label;type:varchar(255) null;"`
-	UserUUID          string       `gorm:"column:user_uuid;type:varchar(255) not null;index;"`
-	UserLogin         string       `gorm:"column:user_login;type:varchar(255) not null;index;"`
+	Label             string       `gorm:"column:label;type:varchar(255);"`
+	UserUUID          string       `gorm:"column:user_uuid;type:varchar(255);not null;index;"`
+	UserLogin         string       `gorm:"column:user_login;type:varchar(255);not null;index;"`
 	SecretPair        string       `gorm:"column:secret_pair;type:varchar(255);"`
 	RevocationKey     string       `gorm:"column:revocation_key;type:varchar(255);index;"`
-	AutoRefreshWindow int32        `gorm:"column:auto_refresh;type: int default 0 null;"`
-	ExpiresAt         time.Time    `gorm:"column:expire_at;"`
-	CreatedBy         string       `gorm:"column:created_by;type:varchar(128) null;"`
+	AutoRefreshWindow int32        `gorm:"column:auto_refresh;type:int;default:0;"`
+	ExpiresAt         int64        `gorm:"column:expire_at;"`
+	CreatedBy         string       `gorm:"column:created_by;type:varchar(128);"`
 	Scopes            string       `gorm:"column:scopes;"`
-	UpdatedAt         time.Time    `gorm:"autoUpdateTime"`
-	CreatedAt         time.Time    `gorm:"autoCreateTime"`
+	UpdatedAt         int64        `gorm:"column:updated_at;"`
+	CreatedAt         int64        `gorm:"column:created_at;"`
 }
 
 func (u *PersonalToken) TableName(namer schema.Namer) string {
@@ -79,10 +84,10 @@ func (u *PersonalToken) As(res *auth.PersonalAccessToken) (*auth.PersonalAccessT
 	res.UserUuid = u.UserUUID
 	res.UserLogin = u.UserLogin
 	res.AutoRefreshWindow = u.AutoRefreshWindow
-	res.ExpiresAt = u.ExpiresAt.Unix()
-	res.CreatedAt = u.CreatedAt.Unix()
+	res.ExpiresAt = u.ExpiresAt
+	res.CreatedAt = u.CreatedAt
 	res.CreatedBy = u.CreatedBy
-	res.UpdatedAt = u.UpdatedAt.Unix()
+	res.UpdatedAt = u.UpdatedAt
 	res.RevocationKey = u.RevocationKey
 	res.SecretPair = u.SecretPair
 
@@ -102,12 +107,16 @@ func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
 	u.UserUUID = res.UserUuid
 	u.UserLogin = res.UserLogin
 	u.AutoRefreshWindow = res.AutoRefreshWindow
-	u.ExpiresAt = time.Unix(res.ExpiresAt, 0)
-	u.CreatedAt = time.Unix(res.CreatedAt, 0)
+	u.ExpiresAt = res.ExpiresAt
+	u.CreatedAt = res.CreatedAt
 	u.CreatedBy = res.CreatedBy
-	u.UpdatedAt = time.Unix(res.UpdatedAt, 0)
+	u.UpdatedAt = res.UpdatedAt
 	u.RevocationKey = res.RevocationKey
 	u.SecretPair = res.SecretPair
+	if len(res.Scopes) > 0 {
+		ss, _ := json.Marshal(res.Scopes)
+		u.Scopes = string(ss)
+	}
 
 	return u
 }
@@ -118,7 +127,7 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options kv.Values) error {
 	s.instance = func() *gorm.DB {
 		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Model(&PersonalToken{})
 	}
@@ -134,7 +143,7 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 	token := &PersonalToken{}
 	tx = tx.
 		Where(tx.Session(&gorm.Session{}).Or(&PersonalToken{AccessToken: accessToken}).Or(&PersonalToken{AccessToken: sha256Hash(accessToken)})).
-		Where(clause.Gt{Column: "expire_at", Value: time.Now()}).
+		Where(clause.Gt{Column: "expire_at", Value: time.Now().Unix()}).
 		First(token)
 
 	if tx.Error != nil {
@@ -146,13 +155,23 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
 	if update {
-		tx := s.instance().Model(&PersonalToken{}).Where(&PersonalToken{UUID: token.Uuid}).Update("expire_at", time.Unix(token.ExpiresAt, 0))
+		tx := s.instance().
+			Model(&PersonalToken{}).
+			Where(&PersonalToken{UUID: token.Uuid}).
+			Update("expire_at", token.ExpiresAt).
+			Update("updated_at", time.Now().Unix())
 		if tx.Error != nil {
 			return tx.Error
 		}
 		return nil
 	} else {
 		res := (&PersonalToken{}).From(token)
+		if res.CreatedAt == 0 {
+			res.CreatedAt = time.Now().Unix()
+		}
+		if res.UpdatedAt == 0 {
+			res.UpdatedAt = time.Now().Unix()
+		}
 		// SHA256 the token for storage
 		res.AccessToken = sha256Hash(accessToken)
 
@@ -203,7 +222,7 @@ func (s *sqlImpl) List(byType auth.PatType, byUser string) ([]*auth.PersonalAcce
 }
 
 func (s *sqlImpl) PruneExpired() (int, error) {
-	tx := s.instance().Where(clause.Lt{Column: "expire_at", Value: time.Now()}).Delete(&PersonalToken{})
+	tx := s.instance().Where(clause.Lt{Column: "expire_at", Value: time.Now().Unix()}).Delete(&PersonalToken{})
 	if tx.Error != nil {
 		return 0, tx.Error
 	}

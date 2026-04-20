@@ -18,232 +18,371 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Fragment} from 'react'
-import Pydio from 'pydio'
-import LangUtils from 'pydio/util/lang'
-import {MenuItem, Toggle} from 'material-ui'
-import TypeSelectionBoard from "./TypeSelectionBoard";
-import {muiThemeable} from 'material-ui/styles'
-const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
+import React, { Fragment } from 'react';
+import Pydio from 'pydio';
+import LangUtils from 'pydio/util/lang';
+import { MenuItem, Toggle, Subheader } from 'material-ui';
+import TypeSelectionBoard from './TypeSelectionBoard';
+import { muiThemeable } from 'material-ui/styles';
+const { ModernSelectField, ModernTextField, ThemedModernStyles } =
+    Pydio.requireLib('hoc');
 
 const MetaTypes = {
-    "string":       "Text",
-    "textarea":     "Long Text",
-    "integer":      "Number",
-    "boolean":      "Boolean",
-    "date":         "Date",
-    "choice":       "Selection",
-    "tags":         "Extensible Tags",
-    "stars_rate":   "Stars Rating",
-    "css_label":    "Color Labels",
-    "json":         "JSON"
-}
+    boolean: 'Boolean',
+    choice: 'Selection',
+    css_label: 'Color Labels',
+    date: 'Date',
+    integer: 'Number',
+    json: 'JSON',
+    stars_rate: 'Stars Rating',
+    string: 'Text',
+    tag_cloud: 'Tag Cloud',
+    tags: 'Extensible Tags',
+    textarea: 'Long Text',
+    url: 'External URL',
+    // FIXME: Auto complete is not supported for now
+    // "auto_complete": "Auto complete"
+};
+
+// Group definitions for organized type selection
+const MetaTypeGroups = {
+    'type.boolean': ['boolean'],
+    'type.string': ['string', 'textarea', 'url'],
+    'type.integer': ['integer', 'date', 'stars_rate'],
+    'group.lists': [
+        'choice',
+        'tag_cloud',
+        'css_label',
+        /* FIXME "auto_complete", */ 'tags',
+    ],
+    'group.internal': ['json'],
+};
 
 class TypeEditor extends React.Component {
-
-    slugifier(s){
-        const {slugifier=LangUtils.computeStringSlug} = this.props;
-        return slugifier(s)
+    slugifier(s) {
+        const { slugifier = LangUtils.computeStringSlug } = this.props;
+        return slugifier(s);
     }
 
-    updateType(value){
-        const {namespace, onChange} = this.props;
-        const newType = {type:value};
-        if(value === 'date') {
-            newType.data = {format: 'date', display:'normal'};
+    updateType(value) {
+        const { namespace, onChange } = this.props;
+        const newType = { type: value };
+        if (value === 'date') {
+            newType.data = { format: 'date', display: 'normal' };
         }
         namespace.JsonDefinition = JSON.stringify(newType);
         onChange(namespace);
     }
 
     updateLabel(value) {
-        const {create, namespace, onChange, forcePrefix = '', labelToName=true} = this.props;
-        if(create && labelToName && (!namespace.Namespace || namespace.Namespace === (forcePrefix + this.slugifier(namespace.Label)))){
+        const {
+            create,
+            namespace,
+            onChange,
+            forcePrefix = '',
+            labelToName = true,
+        } = this.props;
+        if (
+            create &&
+            labelToName &&
+            (!namespace.Namespace ||
+                namespace.Namespace ===
+                    forcePrefix + this.slugifier(namespace.Label))
+        ) {
             this.updateName(value);
         }
         namespace.Label = value;
         onChange(namespace);
     }
 
-    updateName(value){
-        const {namespace, onChange, forcePrefix} = this.props;
+    updateName(value) {
+        const { namespace, onChange, forcePrefix } = this.props;
         let slug = this.slugifier(value);
-        if(forcePrefix && slug.indexOf(forcePrefix) !== 0){
+        if (forcePrefix && slug.indexOf(forcePrefix) !== 0) {
             slug = forcePrefix + slug;
         }
         namespace.Namespace = slug;
         onChange(namespace);
     }
 
-    getAdditionalData(defaultValue = {}){
-        const {namespace} = this.props;
+    getAdditionalData(defaultValue = {}) {
+        const { namespace } = this.props;
         try {
-            const add = JSON.parse(namespace.JsonDefinition).data || defaultValue;
-            if(defaultValue.items && add.split) {
+            const add =
+                JSON.parse(namespace.JsonDefinition).data || defaultValue;
+            if (defaultValue.items && add.split) {
                 // Convert to new format
-                const items = add.split(',').map(i => {
-                    const [key, value] = i.split('|')
-                    return {key, value};
+                const items = add.split(',').map((i) => {
+                    const [key, value] = i.split('|');
+                    return { key, value };
                 });
-                return {items};
+                return { items };
             }
             return add;
-        }catch(e){}
+        } catch (e) {}
         return defaultValue;
     }
 
     // Append data key
     setAdditionalDataKey(key, value) {
-        const {namespace, onChange} = this.props;
+        const { namespace, onChange } = this.props;
         let def = JSON.parse(namespace.JsonDefinition);
-        const add = {[key]: value}
-        def.data = {...def.data, ...add};
+        const add = { [key]: value };
+        def.data = { ...def.data, ...add };
         namespace.JsonDefinition = JSON.stringify(def);
-        onChange(namespace)
+        onChange(namespace);
+    }
+
+    renderGroupedTypeMenuItems(metaTypes, m) {
+        return Object.entries(MetaTypeGroups).reduce(
+            (items, [groupKey, types], groupIndex) => {
+                items.push(
+                    <Subheader
+                        key={`group-${groupIndex}`}
+                        style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            lineHeight: '32px',
+                        }}
+                    >
+                        {m(groupKey)}
+                    </Subheader>,
+                    ...types
+                        .filter((typeKey) => metaTypes[typeKey])
+                        .map((typeKey) => (
+                            <MenuItem
+                                key={typeKey}
+                                value={typeKey}
+                                primaryText={
+                                    m('type.' + typeKey) || metaTypes[typeKey]
+                                }
+                            />
+                        )),
+                );
+                return items;
+            },
+            [],
+        );
     }
 
     render() {
+        const {
+            pydio,
+            create,
+            namespace,
+            readonly,
+            labelError,
+            nameError,
+            styles,
+            metaTypes = MetaTypes,
+            showMandatory = false,
+            showDefaultValue = false,
+            format = [
+                'label',
+                'namespace',
+                'section',
+                'type',
+                'value',
+                'mandatory',
+            ],
+            muiTheme,
+        } = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme);
+        let { m } = this.props;
+        if (!m) {
+            m = (id) => pydio.MessageHash['meta.user.' + id] || id;
+        }
 
-        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, showDefaultValue=false, format=['label', 'namespace', 'section', 'type', 'value', 'mandatory'], muiTheme} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
-        let {m} = this.props;
-        if(!m){
-            m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
+        let type = '';
+        if (namespace.JsonDefinition) {
+            type = JSON.parse(namespace.JsonDefinition).type || 'string';
         }
-        let type = 'string';
-        if(namespace.JsonDefinition){
-            type = JSON.parse(namespace.JsonDefinition).type;
-        }
-        const comps = {}
+
+        const comps = {};
         comps.label = (
             <ModernTextField
                 floatingLabelText={m('label')}
                 value={namespace.Label}
-                onChange={(e,v) => {this.updateLabel(v)}}
+                onChange={(e, v) => {
+                    this.updateLabel(v);
+                }}
                 fullWidth={true}
                 errorText={labelError}
                 disabled={readonly}
-                variant={"v2"}
+                variant={'v2'}
             />
-        )
+        );
         comps.namespace = (
             <ModernTextField
                 floatingLabelText={m('namespace')}
                 disabled={!create}
                 value={namespace.Namespace}
-                onChange={(e,v) => {this.updateName(v)}}
+                onChange={(e, v) => {
+                    this.updateName(v);
+                }}
                 fullWidth={true}
                 errorText={nameError}
-                variant={"v2"}
+                variant={'v2'}
             />
-        )
-        comps.section = (
-            <div style={styles.section}>{m('type')}</div>
-        )
+        );
+        comps.section = <div style={styles.section}>{m('type')}</div>;
         comps.type = (
             <Fragment>
                 <ModernSelectField
                     hintText={m('type')}
-                    value={type}
-                    onChange={(e,i,v) => this.updateType(v)}
+                    value={type || null}
+                    onChange={(e, i, v) => this.updateType(v)}
                     disabled={readonly}
                     fullWidth={true}
-                    variant={"v2"}
+                    variant={'v2'}
                 >
-                    {Object.keys(metaTypes).map(k => {
-                        return <MenuItem value={k} primaryText={m('type.'+k) || metaTypes[k]}/>
-                    })}
+                    {this.renderGroupedTypeMenuItems(metaTypes, m)}
                 </ModernSelectField>
-                {type === 'choice' &&
+                {type === 'choice' && (
                     <TypeSelectionBoard
-                        data={this.getAdditionalData({items:[], steps:false})}
-                        setAdditionalDataKey={this.setAdditionalDataKey.bind(this)}
+                        data={this.getAdditionalData({
+                            items: [],
+                            steps: false,
+                        })}
+                        setAdditionalDataKey={this.setAdditionalDataKey.bind(
+                            this,
+                        )}
                         m={m}
                     />
-                }
-                {type === 'date' &&
+                )}
+                {type === 'date' && (
                     <Fragment>
                         <ModernSelectField
                             hintText={m('type.date.format')}
-                            value={this.getAdditionalData({format:'date', display:'normal'}).format}
-                            onChange={(e,i,v) => this.setAdditionalDataKey('format', v)}
+                            value={
+                                this.getAdditionalData({
+                                    format: 'date',
+                                    display: 'normal',
+                                }).format
+                            }
+                            onChange={(e, i, v) =>
+                                this.setAdditionalDataKey('format', v)
+                            }
                             disabled={readonly}
                             fullWidth={true}
-                            variant={"v2"}
+                            variant={'v2'}
                         >
-                            <MenuItem value={'date'} primaryText={m('type.date.format.date')}/>
-                            <MenuItem value={'date-time'} primaryText={m('type.date.format.date-time')}/>
-                            <MenuItem value={'time'} primaryText={m('type.date.format.time')}/>
+                            <MenuItem
+                                value={'date'}
+                                primaryText={m('type.date.format.date')}
+                            />
+                            <MenuItem
+                                value={'date-time'}
+                                primaryText={m('type.date.format.date-time')}
+                            />
+                            <MenuItem
+                                value={'time'}
+                                primaryText={m('type.date.format.time')}
+                            />
                         </ModernSelectField>
                         <ModernSelectField
                             hintText={m('type.date.display')}
-                            value={this.getAdditionalData({format:'date', display:'normal'}).display}
-                            onChange={(e,i,v) => this.setAdditionalDataKey('display', v)}
+                            value={
+                                this.getAdditionalData({
+                                    format: 'date',
+                                    display: 'normal',
+                                }).display
+                            }
+                            onChange={(e, i, v) =>
+                                this.setAdditionalDataKey('display', v)
+                            }
                             disabled={readonly}
                             fullWidth={true}
-                            variant={"v2"}
+                            variant={'v2'}
                         >
-                            <MenuItem value={'normal'} primaryText={m('type.date.display.normal')}/>
-                            <MenuItem value={'relative'} primaryText={m('type.date.display.relative')}/>
+                            <MenuItem
+                                value={'normal'}
+                                primaryText={m('type.date.display.normal')}
+                            />
+                            <MenuItem
+                                value={'relative'}
+                                primaryText={m('type.date.display.relative')}
+                            />
                         </ModernSelectField>
                     </Fragment>
-                }
-                {type === 'integer' &&
+                )}
+                {type === 'integer' && (
                     <Fragment>
                         <ModernSelectField
                             hintText={m('type.integer.format')}
-                            value={this.getAdditionalData({format:'general'}).format || 'general'}
-                            onChange={(e,i,v) => this.setAdditionalDataKey('format', v)}
+                            value={
+                                this.getAdditionalData({ format: 'general' })
+                                    .format || 'general'
+                            }
+                            onChange={(e, i, v) =>
+                                this.setAdditionalDataKey('format', v)
+                            }
                             disabled={readonly}
                             fullWidth={true}
-                            variant={"v2"}
+                            variant={'v2'}
                         >
-                            <MenuItem value={'general'} primaryText={m('type.integer.format.general')}/>
-                            <MenuItem value={'bytesize'} primaryText={m('type.integer.format.bytesize')}/>
-                            <MenuItem value={'percentage'} primaryText={m('type.integer.format.percentage')}/>
-                            <MenuItem value={'progress'} primaryText={m('type.integer.format.progress')}/>
+                            <MenuItem
+                                value={'general'}
+                                primaryText={m('type.integer.format.general')}
+                            />
+                            <MenuItem
+                                value={'bytesize'}
+                                primaryText={m('type.integer.format.bytesize')}
+                            />
+                            <MenuItem
+                                value={'percentage'}
+                                primaryText={m(
+                                    'type.integer.format.percentage',
+                                )}
+                            />
+                            <MenuItem
+                                value={'progress'}
+                                primaryText={m('type.integer.format.progress')}
+                            />
                         </ModernSelectField>
                     </Fragment>
-                }
+                )}
             </Fragment>
-        )
+        );
 
         comps.value = (
             <ModernTextField
                 floatingLabelText={showDefaultValue}
-                value={this.getAdditionalData({defaultValue:''}).defaultValue}
-                onChange={(e,v) => {this.setAdditionalDataKey('defaultValue', v)}}
+                value={
+                    this.getAdditionalData({ defaultValue: '' }).defaultValue
+                }
+                onChange={(e, v) => {
+                    this.setAdditionalDataKey('defaultValue', v);
+                }}
                 fullWidth={true}
-                variant={"v2"}
+                variant={'v2'}
             />
-        )
+        );
 
         comps.mandatory = (
             <Toggle
                 {...ModernStyles.toggleFieldV2}
-                toggled={this.getAdditionalData({mandatory:false}).mandatory}
-                onToggle={(e,v) => {
-                    this.setAdditionalDataKey('mandatory', v)
+                toggled={this.getAdditionalData({ mandatory: false }).mandatory}
+                onToggle={(e, v) => {
+                    this.setAdditionalDataKey('mandatory', v);
                 }}
                 label={m('field.mandatory')}
-                labelPosition={"right"}
+                labelPosition={'right'}
             />
-        )
-
+        );
 
         return (
-            <div>{
-                format
-                    .filter(k => (showDefaultValue || k !== 'value'))
-                    .filter(k => (showMandatory || k !== 'mandatory'))
-                    .map(k => comps[k])
-            }</div>
+            <div>
+                {format
+                    .filter((k) => showDefaultValue || k !== 'value')
+                    .filter((k) => showMandatory || k !== 'mandatory')
+                    .map((k) => comps[k])}
+            </div>
         );
     }
-
 }
 
-TypeEditor = muiThemeable()(TypeEditor)
+TypeEditor = muiThemeable()(TypeEditor);
 TypeEditor.MetaTypes = MetaTypes;
 
-export default TypeEditor
+export default TypeEditor;

@@ -23,11 +23,14 @@ package share
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -126,7 +129,18 @@ func (sc *Client) derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix
 }
 
 func (sc *Client) policyByName(ctx context.Context, cl idm.PolicyEngineServiceClient, name string) (*idm.PolicyGroup, error) {
-	response, e := cl.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "uuid:" + name})
+	var queries []*anypb.Any
+
+	q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+		Uuid: name,
+	})
+
+	queries = append(queries, q1)
+
+	response, e := cl.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Query: &service.Query{
+		SubQueries: queries,
+		Operation:  service.OperationType_OR,
+	}})
 	if e != nil {
 		return nil, e
 	}

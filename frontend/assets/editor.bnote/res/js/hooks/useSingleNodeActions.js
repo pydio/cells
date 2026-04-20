@@ -18,43 +18,69 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
-import {useCallback, useMemo} from 'react'
-import {MdOpenInBrowser, MdOutlineFolderOpen} from "react-icons/md";
+import Pydio from 'pydio';
+import { useCallback, useMemo } from 'react';
+import { MdOpenInBrowser, MdOutlineFolderOpen } from 'react-icons/md';
+import { t } from '../messages';
 
-export const useSingleNodeActions = ({node, isCurrentFolder}) => {
+export const useSingleNodeActions = ({
+    node,
+    isCurrentFolder,
+    presetNodeActions,
+}) => {
+    if (presetNodeActions) {
+        return presetNodeActions;
+    }
 
-    const items = useMemo(() =>  {
-        const it = []
-        if(!node) {
-            return it
+    const items = useMemo(() => {
+        const it = [];
+        if (!node) {
+            return it;
         }
-        if(node.isLeaf()) {
-            it.push({value:'open', title: 'Open...', icon: MdOpenInBrowser})
-            it.push({value:'goto', title: 'Open Parent', icon: MdOutlineFolderOpen})
+        if (node.isLeaf()) {
+            it.push({
+                value: 'open',
+                title: t('action.open'),
+                icon: MdOpenInBrowser,
+            });
+            it.push({
+                value: 'goto',
+                title: t('action.open-parent'),
+                icon: MdOutlineFolderOpen,
+            });
         } else {
-            it.push({value:'goto', title: 'Open Folder', icon: MdOutlineFolderOpen})
+            it.push({
+                value: 'goto',
+                title: t('action.open-folder'),
+                icon: MdOutlineFolderOpen,
+            });
         }
         return it;
-    }, [node])
+    }, [node]);
 
-    const menuHandler = useCallback((value) => {
-        if(!node) {
-            return
-        }
-        switch (value) {
-            case 'open':
-                Pydio.getInstance().UI.openCurrentSelectionInEditor(null, node);
-                break
-            case 'goto':
-                Pydio.getInstance().goTo(node)
-                break
-        }
-    }, [node])
+    const menuHandler = useCallback(
+        (value) => {
+            if (!node) {
+                return;
+            }
+            switch (value) {
+                case 'open':
+                    Pydio.getInstance().UI.openCurrentSelectionInEditor(
+                        null,
+                        node,
+                    );
+                    break;
+                case 'goto':
+                    Pydio.getInstance().goTo(node);
+                    break;
+            }
+        },
+        [node],
+    );
 
     return {
-        title:'Actions',
-        values:items,
-        onValueSelected:menuHandler
-    }
-}
+        title: t('actions.title'),
+        values: items,
+        onValueSelected: menuHandler,
+    };
+};

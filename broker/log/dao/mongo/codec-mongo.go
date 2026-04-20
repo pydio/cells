@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/v5/broker/log"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 func init() {
@@ -89,7 +89,7 @@ func (m *MongoCodec) BuildQueryOptions(query interface{}, offset, limit int32, s
 	return opts, nil
 }
 
-func (m *MongoCodec) GetModel(sc configx.Values) (interface{}, bool) {
+func (m *MongoCodec) GetModel(sc kv.Values) (interface{}, bool) {
 	model := mongodb.Model{
 		Collections: []mongodb.Collection{
 			{

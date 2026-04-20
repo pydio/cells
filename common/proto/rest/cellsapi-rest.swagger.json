@@ -1250,10 +1250,22 @@
       },
       "type": "object"
     },
+    "idmJsonSchemaResponse": {
+      "properties": {
+        "JsonSchema": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "idmListPolicyGroupsRequest": {
       "properties": {
         "Filter": {
           "type": "string"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "repeated string Filters = 2;"
         }
       },
       "type": "object"
@@ -1743,6 +1755,18 @@
     },
     "idmUserMetaNamespace": {
       "properties": {
+        "Description": {
+          "title": "Human-readable Description",
+          "type": "string"
+        },
+        "EnforceDefault": {
+          "title": "Use default value from JsonSchema to enforce defaults",
+          "type": "boolean"
+        },
+        "FieldType": {
+          "title": "Namespace Type  \"boolean\", \"choice\", \"css_label\", \"date\", \"integer\", \"json\", \"multi_value\", \"stars_rate\", \"string\", \"tag_cloud\", \"tags\", \"textarea\", \"url\"",
+          "type": "string"
+        },
         "Indexable": {
           "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine",
           "type": "boolean"
@@ -1750,6 +1774,10 @@
         "JsonDefinition": {
           "title": "Json-encoded type to provide accurate interface for edition",
           "type": "string"
+        },
+        "JsonSchema": {
+          "title": "JSON Schema for validating metadata values",
+          "type": "object"
         },
         "Label": {
           "title": "Human-readable Label",
@@ -1774,6 +1802,10 @@
         },
         "PoliciesContextEditable": {
           "title": "Context-resolved to quickly check if this meta is editable or not",
+          "type": "boolean"
+        },
+        "PromptOnUpload": {
+          "title": "Prompt options for this namespace",
           "type": "boolean"
         }
       },
@@ -1971,6 +2003,52 @@
       },
       "type": "object"
     },
+    "installCorsOptions": {
+      "properties": {
+        "AllowCredentials": {
+          "type": "boolean"
+        },
+        "AllowPrivateNetwork": {
+          "type": "boolean"
+        },
+        "AllowedHeaders": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "AllowedMethods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "AllowedOrigins": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ExposedHeaders": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "MaxAge": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "OptionsPassthrough": {
+          "type": "boolean"
+        },
+        "OptionsSuccessStatus": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "installGetAgreementResponse": {
       "properties": {
         "Text": {
@@ -2059,9 +2137,11 @@
           "type": "string"
         },
         "dbManualDSN": {
+          "title": "Fully qualified DSN instead",
           "type": "string"
         },
         "dbSocketFile": {
+          "title": "Unix Socket Connection or SQlite File Path",
           "type": "string"
         },
         "dbSocketName": {
@@ -2074,6 +2154,7 @@
           "type": "string"
         },
         "dbTCPHostname": {
+          "title": "TCP Connection",
           "type": "string"
         },
         "dbTCPName": {
@@ -2223,6 +2304,10 @@
           "title": "Hash dynamically computed from Binds and ReverseProxyURL",
           "type": "string"
         },
+        "CorsOptions": {
+          "$ref": "#/definitions/installCorsOptions",
+          "title": "CorsOptions - Optional CorsOptions to be applied for this site - will override global ENV"
+        },
         "HeaderMods": {
           "items": {
             "$ref": "#/definitions/installHeaderMod",
@@ -2273,6 +2358,10 @@
         "Action": {
           "description": "Action can be Rewrite, Redirect, etc...",
           "type": "string"
+        },
+        "CorsOptions": {
+          "$ref": "#/definitions/installCorsOptions",
+          "title": "CorsOptions - Optional CorsOptions to be applied for this site - will override site or global options"
         },
         "Effect": {
           "$ref": "#/definitions/installRuleEffect",
@@ -3723,6 +3812,14 @@
         }
       },
       "type": "object"
+    },
+    "protobufNullValue": {
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value.",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "type": "string"
     },
     "registryActionType": {
       "default": "ANY",
@@ -7416,7 +7513,7 @@
             "type": "string"
           },
           {
-            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "List of key values describing storage configuration",
             "in": "query",
             "name": "StorageConfiguration",
             "required": false,
@@ -7626,7 +7723,7 @@
             "type": "string"
           },
           {
-            "description": "List of key values describing storage configuration\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "List of key values describing storage configuration",
             "in": "query",
             "name": "StorageConfiguration",
             "required": false,
@@ -12190,6 +12287,116 @@
         ]
       }
     },
+    "/user-meta/namespace/discovery/field/{FieldType}": {
+      "get": {
+        "operationId": "GetFieldSchema",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "FieldType",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmJsonSchemaResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Get Json Schema for a given field type",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/namespace/jsonschema": {
+      "get": {
+        "operationId": "GetNamespaceSchema",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "FieldType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "Namespace",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "Format",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/idmJsonSchemaResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "Get Json Schema for UserMeta namespace",
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
     "/user-meta/search": {
       "post": {
         "operationId": "SearchUserMeta",
@@ -12539,7 +12746,7 @@
             "type": "string"
           },
           {
-            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "A free list of attributes",
             "in": "query",
             "name": "Attributes",
             "required": false,
@@ -12651,7 +12858,7 @@
             "type": "string"
           },
           {
-            "description": "A free list of attributes\n\nThis is a request variable of the map type. The query format is \"map_name[key]=value\", e.g. If the map name is Age, the key type is string, and the value type is integer, the query parameter is expressed as Age[\"bob\"]=18",
+            "description": "A free list of attributes",
             "in": "query",
             "name": "Attributes",
             "required": false,

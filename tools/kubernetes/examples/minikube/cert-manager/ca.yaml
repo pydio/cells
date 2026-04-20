@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pydio-root-ca
+  namespace: cells
+spec:
+  isCA: true
+  commonName: pydio-root-ca
+  secretName: pydio-root-ca
+  issuerRef:
+    name: selfsigned-root
+    kind: Issuer
+  # optional privateKey policy:
+  privateKey:
+    rotationPolicy: Never # Always | Never

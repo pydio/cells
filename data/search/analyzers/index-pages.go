@@ -7,7 +7,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 var excludedBlocks = []string{
@@ -17,7 +17,7 @@ var excludedBlocks = []string{
 	"nodeBlock",
 }
 
-func IndexPages(ctx context.Context, node *tree.IndexableNode, engineConfigs configx.Values) error {
+func IndexPages(ctx context.Context, node *tree.IndexableNode, engineConfigs kv.Values) error {
 	// Lookup for pages content
 	// TODO should be role/global based
 	metaName := config.Get(ctx, config.FrontendPluginPath("editor.bnote", "BNOTE_PAGES_META")...).String()

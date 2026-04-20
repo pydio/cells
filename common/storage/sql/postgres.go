@@ -36,6 +36,10 @@ func (p *postgresHelper) MPathOrdering(mm ...string) string {
 	return `(string_to_array(` + p.Concat(mm...) + `,'.'))::int[]`
 }
 
+func (p *postgresHelper) MPathOrderingLastInteger(mm ...string) string {
+	return `(string_to_array(` + p.Concat(mm...) + `,'.'))::int[]`
+}
+
 func (p *postgresHelper) SupportsAvailableSlot() bool {
 	return true
 }

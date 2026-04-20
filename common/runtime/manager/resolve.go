@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/std"
@@ -54,7 +54,7 @@ func init() {
 }
 
 type InitProvider interface {
-	Init(ctx context.Context, store configx.Values) error
+	Init(ctx context.Context, store kv.Values) error
 }
 
 type ResolveOptions struct {

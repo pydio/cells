@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	glog "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
 
@@ -81,6 +82,7 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 		zap.String("file", utils.FileWithLineNum()),
 		zap.String("layer", "sql"),
 	}
+	toDebug := false
 	switch {
 	case err != nil && l.LogLevel >= glog.Error &&
 		(!errors.Is(err, glog.ErrRecordNotFound) || !l.IgnoreRecordNotFoundError) &&
@@ -91,6 +93,9 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 			logLine = fmt.Sprintf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 		} else {
 			logLine = fmt.Sprintf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+		}
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			toDebug = true
 		}
 	case elapsed > l.SlowThreshold && l.SlowThreshold != 0 && l.LogLevel >= glog.Warn:
 		sql, rows := fc()
@@ -113,7 +118,11 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 		if TestPrintQueries {
 			fmt.Println(logLine)
 		}
-		log2.Logger(ctx).Info(logLine, ff...)
+		if toDebug {
+			log2.Logger(ctx).Debug(logLine, ff...)
+		} else {
+			log2.Logger(ctx).Info(logLine, ff...)
+		}
 	}
 }
 

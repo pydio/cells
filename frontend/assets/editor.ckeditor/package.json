@@ -6,7 +6,8 @@
   "author": "Abstrium SAS",
   "license": "agpl",
   "dependencies": {
-    "ckeditor": "^4.6.2"
+    "ckeditor": "^4.6.2",
+    "dompurify": "^2.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
@@ -26,6 +27,7 @@
     "webpack-cli": "^5.0.1"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "build-prod": "NODE_ENV=production webpack --config webpack.config.js"
   }
 }

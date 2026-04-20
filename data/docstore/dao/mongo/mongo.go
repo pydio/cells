@@ -30,8 +30,8 @@ import (
 
 	proto "github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/data/docstore"
 )
 
@@ -74,7 +74,7 @@ type mongoImpl struct {
 	*mongodb.Database
 }
 
-func (m *mongoImpl) Init(ctx context.Context, conf configx.Values) error {
+func (m *mongoImpl) Init(ctx context.Context, conf kv.Values) error {
 	if e := model.Init(ctx, m.Database); e != nil {
 		return e
 	}

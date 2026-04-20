@@ -60,7 +60,6 @@ const (
 {{$RateLimit := .RateLimit}}
 {{$RateLimitWindow := .RateLimitWindow}}
 
-{{- if $CorsOptions }}
 (cors) {
     # --- Preflight (OPTIONS) ---
 	# Block bad preflights (Origin present but NOT allowed)
@@ -103,20 +102,26 @@ const (
 			Vary                             "Origin"
 	}
 }
-{{- end }}
 
 {{range .Sites}}
 {{$MuxMode := .MuxMode}}
 {{$SiteHash := .Hash}}
 {{$Maintenance := .Maintenance}}
 {{$MaintenanceConditions := .MaintenanceConditions}}
+
+{{/* site effective CORS (if set, overrides global) */}}
+{{$SiteCors := or .CorsOptions $CorsOptions}}
+
 {{range .Binds}}{{.}} {{end}} {
 
 	{{range .Routes}}
-	route {{.Path}} {
-		
-		{{- if $CorsOptions }}
-		{{- with $CorsOptions }}
+	route {{.Path}} {	
+
+		{{/* route effective CORS (if set, overrides site CORS) */}}
+		{{$RouteCors := or .CorsOptions $SiteCors}}
+
+		{{- if $RouteCors }}
+		{{- with $RouteCors }}
 		# Single source of truth: set {allowed_origin} to the incoming Origin if allowed, else "".
         map {http.request.header.Origin} {allowed_origin} {
                 default ""
@@ -160,7 +165,7 @@ const (
 		# Apply mux
 		mux
 		{{else}}
-		reverse_proxy {{joinUpstreams .Upstreams " "}} {{if $CorsOptions}}{
+		reverse_proxy {{joinUpstreams .Upstreams " "}} {{if $RouteCors}}{
 			header_down -Access-Control-Allow-Origin
 		}{{end}}
 		{{end}}

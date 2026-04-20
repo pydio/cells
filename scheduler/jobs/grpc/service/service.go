@@ -74,6 +74,23 @@ func init() {
 					TargetVersion: service.ValidVersion("2.2.99"),
 					Up:            Migration230,
 				},
+				{
+					TargetVersion: service.RunAlways(),
+					Up: func(ctx context.Context) error {
+						handler := grpc3.NewJobsHandler(ctx, Name)
+						logger := log.Logger(ctx)
+						// Clean tasks stuck in "Running" status
+						if _, er := handler.CleanStuckTasks(ctx, true, logger); er != nil {
+							logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
+						}
+
+						// Clean user-jobs (AutoStart+AutoClean) without any tasks
+						if er := handler.CleanDeadUserJobs(ctx); er != nil {
+							logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
+						}
+						return nil
+					},
+				},
 			}),
 			service.WithGRPCStop(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				return nil
@@ -88,38 +105,6 @@ func init() {
 				log2.RegisterLogRecorderServer(server, handler)
 				sync.RegisterSyncEndpointServer(server, handler)
 
-				// TODO - should be in migrations directly (multi context handled)
-				/*
-					autoStarts := make(map[context.Context][]*proto.Job)
-					ctx = runtime.WithServiceName(ctx, common.ServiceJobsGRPC)
-					logger := log3.Logger(ctx)
-
-					// We should wait for service task to be started, then start jobs
-					var hc grpc2.HealthMonitor
-					if len(autoStarts) > 0 {
-						hc = grpc2.NewHealthChecker(ctx)
-						go func() {
-							hc.Monitor(common.ServiceGrpcNamespace_ + common.ServiceTasks)
-							for tc, jj := range autoStarts {
-								for _, j := range jj {
-									logger.Info("Sending a start event for job '" + j.Label + "'")
-									_ = broker.Publish(tc, common.TopicTimerEvent, &proto.JobTriggerEvent{
-										JobID:  j.ID,
-										RunNow: true,
-									})
-								}
-							}
-						}()
-					}
-
-					go func() {
-						<-ctx.Done()
-						handler.Close()
-						if hc != nil {
-							hc.Stop()
-						}
-					}()
-				*/
 				return nil
 			}),
 		)
@@ -128,21 +113,10 @@ func init() {
 
 func InitDefaults(ctx context.Context) error {
 	handler := grpc3.NewJobsHandler(ctx, Name)
-	logger := log.Logger(ctx)
 	for _, j := range grpc3.GetDefaultJobs() {
 		if _, e := handler.GetJob(ctx, &proto.GetJobRequest{JobID: j.ID}); e != nil {
 			_, _ = handler.PutJob(ctx, &proto.PutJobRequest{Job: j})
 		}
-	}
-
-	// Clean tasks stuck in "Running" status
-	if _, er := handler.CleanStuckTasks(ctx, true, logger); er != nil {
-		logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
-	}
-
-	// Clean user-jobs (AutoStart+AutoClean) without any tasks
-	if er := handler.CleanDeadUserJobs(ctx); er != nil {
-		logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
 	}
 
 	return nil

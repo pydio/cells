@@ -47,14 +47,17 @@ import (
 
 func WithPutInterceptor() nodes.Option {
 	return func(options *nodes.RouterOptions) {
-		options.Wrappers = append(options.Wrappers, &Handler{})
+		h := &Handler{}
+		h.BranchFilter.OutputMethod = h.updateOutputNode
+		h.BranchFilter.InputMethod = nodes.IdentityFilterFunc
+		options.Wrappers = append(options.Wrappers, h)
 	}
 }
 
 // Handler handles Put requests by creating temporary files in the index before forwarding data to the object service.
 // This temporary entry is updated later on by the sync service, once the object is written. It is deleted if the Put operation fails.
 type Handler struct {
-	abstract.Handler
+	abstract.BranchFilter
 	metaClient meta.UserMetaClient
 }
 
@@ -65,33 +68,16 @@ func (m *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Hand
 
 type onCreateErrorFunc func()
 
-func (m *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
-	var ns string
-	var nsOk bool
-	var draftCtx context.Context
-	var draftCa context.CancelFunc
-	if bi, e := nodes.GetBranchInfo(ctx, "in"); e == nil && bi.Workspace != nil {
-		draftCtx, draftCa = context.WithCancel(ctx)
-		defer draftCa()
-		go func() {
-			defer draftCa()
-			ns, nsOk = m.getMetaClient().DraftMetaNamespace(draftCtx, bi.Workspace)
-		}()
-	}
-
-	resp, er := m.Next.ReadNode(ctx, req, opts...)
-	if er != nil {
-		return resp, er
-	}
-	if draftCtx != nil {
-		<-draftCtx.Done()
-		if nsOk && resp.GetNode().GetMetaBool(ns) {
-			n := resp.GetNode().Clone()
+func (m *Handler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+	if bi, e := nodes.GetBranchInfo(ctx, identifier); e == nil && bi.Workspace != nil {
+		ns, nsOk := m.getMetaClient().DraftMetaNamespace(ctx, bi.Workspace)
+		if nsOk && node.GetMetaBool(ns) {
+			n := node.Clone()
 			n.MustSetMeta(common.MetaNamespaceNodeDraftMode, true)
-			resp.Node = n
+			return ctx, n, nil
 		}
 	}
-	return resp, er
+	return ctx, node, nil
 }
 
 func (m *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {

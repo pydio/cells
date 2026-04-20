@@ -10,6 +10,11 @@ import (
 
 type FilterFunc func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error)
 
+// IdentityFilterFunc is an identity implementation of FilterFunc
+func IdentityFilterFunc(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+	return ctx, inputNode, nil
+}
+
 type CallbackFunc func(inputFilter FilterFunc, outputFilter FilterFunc) error
 
 type WalkFunc func(ctx context.Context, node *tree.Node, err error) error

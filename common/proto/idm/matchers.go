@@ -21,6 +21,7 @@
 package idm
 
 import (
+	"context"
 	"path"
 	"strings"
 	"time"
@@ -31,7 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/std"
 )
 
-func (m *RoleSingleQuery) Matches(idmObject interface{}) bool {
+func (m *RoleSingleQuery) Matches(ctx context.Context, idmObject interface{}) bool {
 	if role, ok := idmObject.(*Role); !ok {
 		return false
 	} else {
@@ -64,7 +65,7 @@ func (m *RoleSingleQuery) matches(role *Role) bool {
 	return flattenBool(bb, m.Not)
 }
 
-func (m *WorkspaceSingleQuery) Matches(idmObject interface{}) bool {
+func (m *WorkspaceSingleQuery) Matches(ctx context.Context, idmObject interface{}) bool {
 	if ws, ok := idmObject.(*Workspace); !ok {
 		return false
 	} else {
@@ -133,7 +134,7 @@ func (m *WorkspaceSingleQuery) ParseLastUpdated() (lt bool, d time.Duration, e e
 	return
 }
 
-func (m *ACLSingleQuery) Matches(idmObject interface{}) bool {
+func (m *ACLSingleQuery) Matches(ctx context.Context, idmObject interface{}) bool {
 	if acl, ok := idmObject.(*ACL); !ok {
 		return false
 	} else {
@@ -167,7 +168,7 @@ func (m *ACLSingleQuery) matches(acl *ACL) bool {
 	return flattenBool(bb, m.Not)
 }
 
-func (m *UserSingleQuery) Matches(idmObject interface{}) bool {
+func (m *UserSingleQuery) Matches(ctx context.Context, idmObject interface{}) bool {
 	if u, ok := idmObject.(*User); !ok {
 		return false
 	} else {

@@ -134,8 +134,8 @@ class Policy extends React.Component{
             }
             return a.description.localeCompare(b.description)
         }
-
-        const rules = policy.Policies.sort(sorter).map((rule, i) => {
+        const pp = policy.Policies || []
+        const rules = pp.sort(sorter).map((rule, i) => {
             return (
                 <Rule
                     {...this.props}

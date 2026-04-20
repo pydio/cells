@@ -1,3 +1,5 @@
+# To run these test, use:
+# `helm test cells -n cells`
 apiVersion: v1
 kind: Pod
 metadata:
@@ -13,3 +15,29 @@ spec:
       command: ['wget']
       args: ['{{ include "cells.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
+---
+# To run this test manually, use:
+# kubectl run -it --rm test --image=curlimages/curl --restart=Never -- \
+#   curl http://collabora-collabora-online:9980/hosting/discovery
+#   
+{{- if (include "cells.collabora.enabled" .) }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "cells.fullname" . }}-test-collabora"
+  labels:
+    {{- include "cells.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test-collabora
+      image: curlimages/curl:latest
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "Testing Collabora connectivity..."
+          curl -f {{ include "cells.collabora.scheme" . }}://{{ include "cells.collabora.host" . }}:{{ include "cells.collabora.port" . }}/hosting/discovery || exit 1
+          echo "Collabora is accessible"
+  restartPolicy: Never
+{{- end }}

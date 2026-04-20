@@ -699,7 +699,7 @@
     "other": "返回主页"
   },
   "305b": {
-    "other": "My Workspaces"
+    "other": "我的工作区"
   },
   "306": {
     "other": "项目数量太多"
@@ -1980,19 +1980,19 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "[Today at] LT"
+    "other": "[今天] LT"
   },
   "date_relative_tomorrow": {
-    "other": "[Tomorrow at] LT"
+    "other": "[明天] LT"
   },
   "date_relative_yesterday": {
-    "other": "[Yesterday at] LT"
+    "other": "[昨天] LT"
   },
   "date_relative_lastweek": {
-    "other": "[Last] dddd [at] LT"
+    "other": "[上] dddd [的] LT"
   },
   "date_relative_nextweek": {
-    "other": "dddd [at] LT"
+    "other": "dddd [的] LT"
   },
   "delete_access_key": {
     "other": "D"
@@ -2398,6 +2398,9 @@
   },
   "searchengine.query.action.save-new": {
     "other": "保存查询"
+  },
+  "searchengine.query.action.save-legend": {
+    "other": "保存此搜索查询以便以后再使用"
   },
   "searchengine.query.action.clear": {
     "other": "清除"

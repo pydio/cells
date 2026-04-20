@@ -32,7 +32,7 @@ class UploadItem extends StatusItem {
         super('file', targetNode, parent);
         this._file = file;
         this._status = 'new';
-        this._userMeta = userMeta;
+        //this._userMeta = {'usermeta-tags':'\"toto,tag1,tag2\"'};
         if(relativePath){
             this._label = PathUtils.getBasename(relativePath);
         } else {
@@ -237,13 +237,21 @@ class UploadItem extends StatusItem {
             this.setProgress(0)
             return;
         }
+        let userData = {};
+        const um = this.getUserMeta()
+        if(um && um.size > 0){
+            um.forEach((value, key)=>{
+                userData[key] = JSON.stringify(value);
+            })
+        }
+
         // For encrypted datasource, do not use multipart!
         if (this.getSize() < PydioApi.getMultipartThreshold()) {
-            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback, this._userMeta).then(xhr => {
+            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback, userData).then(xhr => {
                 this.xhr = xhr;
             });
         } else {
-            PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback, this._userMeta).then(managed => {
+            PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback, userData).then(managed => {
                 this.xhr = managed;
             });
         }

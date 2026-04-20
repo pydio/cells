@@ -29,6 +29,10 @@ const ResourcesManager = require('pydio/http/resources-manager');
 import PydioContextProvider from './PydioContextProvider'
 import ThemeBuilder from "./ThemeBuilder";
 import moment from './Moment'
+// Ensure dates/styles this is loaded AFTER the core/styles
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+
 
 export default class Builder{
 
@@ -174,16 +178,21 @@ export default class Builder{
         return this._editorOpener;
     }
 
+    findEditorDataForPreview(node) {
+        const selectedMime = PathUtils.getAjxpMimeType(node);
+        const editors = this._pydio.Registry.findEditorsForMime(selectedMime, false);
+        if(editors.length && editors[0].openable && (editors[0].mimes && (editors[0].mimes[0] !== '*' || editors[0].mimes.indexOf(selectedMime) !== -1))
+            && !(editors[0].write && node.getMetadata().get("node_readonly") === "true")){
+            return editors[0];
+        }
+        return null;
+    }
+
     openCurrentSelectionInEditor(editorData, forceNode){
         const selectedNode =  forceNode ? forceNode : this._pydio.getContextHolder().getUniqueNode();
         if(!selectedNode) return;
         if(!editorData){
-            const selectedMime = PathUtils.getAjxpMimeType(selectedNode);
-            const editors = this._pydio.Registry.findEditorsForMime(selectedMime, false);
-            if(editors.length && editors[0].openable && (editors[0].mimes && (editors[0].mimes[0] !== '*' || editors[0].mimes.indexOf(selectedMime) !== -1))
-                && !(editors[0].write && selectedNode.getMetadata().get("node_readonly") === "true")){
-                editorData = editors[0];
-            }
+            editorData = this.findEditorDataForPreview(selectedNode);
         }
         if(editorData){
             this._pydio.Registry.loadEditorResources(editorData.resourcesManager, function(){

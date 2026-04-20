@@ -94,8 +94,7 @@ func NewRunnable(ctx context.Context, parent *Runnable, queue chan RunnerFunc, a
 	}
 	if impl, ok := actions.GetActionsManager().ActionById(action.ID); ok {
 		r.Implementation = impl
-		r.Implementation.SetRuntimeContext(r.Task.context)
-		if e := r.Implementation.Init(r.Task.Job, action); e != nil {
+		if e := r.Implementation.Init(r.Task.context, r.Task.Job, action); e != nil {
 			log.TasksLogger(ctx).Error("Error during initialization of "+action.ID+": "+e.Error(), zap.Error(e))
 		}
 		if walker, ok2 := impl.(actions.RecursiveNodeWalkerAction); ok2 && action.NodesFilter != nil {

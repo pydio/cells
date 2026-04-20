@@ -29,11 +29,13 @@ import (
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -173,23 +175,59 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
+	// Do we still need that here ?
 	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig)
 	var bb []byte
-	if er == nil && request.Filter == "" && ka.Get("policyGroup", &bb) {
+	if er == nil && request.GetFilter() == "" && request.GetQuery() == nil && ka.Get("policyGroup", &bb) {
 		if json.Unmarshal(bb, &response.PolicyGroups) == nil {
 			response.Total = int32(len(response.PolicyGroups))
 			return response, nil
 		}
 	}
 
-	groups, err := dao.ListPolicyGroups(ctx, request.Filter)
+	// Legacy code - making sure we convert
+	if filter := request.GetFilter(); request.GetQuery() == nil && filter != "" {
+		var queries []*anypb.Any
+
+		if strings.HasPrefix(filter, "resource_group:") {
+			q, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				ResourceGroup: strings.TrimPrefix(filter, "resource_group:"),
+			})
+
+			queries = append(queries, q)
+		} else if strings.HasPrefix(filter, "uuid:") {
+			q, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				Uuid: strings.TrimPrefix(filter, "uuid:"),
+			})
+
+			queries = append(queries, q)
+		} else if strings.HasPrefix(filter, "like:") {
+			q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				Name: "%" + strings.TrimPrefix(filter, "like:") + "%",
+			})
+			q2, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+				Description: "%" + strings.TrimPrefix(filter, "like:") + "%",
+			})
+
+			queries = append(queries, q1, q2)
+		} else {
+			return nil, fmt.Errorf("unknown filter: %s", filter)
+		}
+
+		request.Query = &service.Query{
+			SubQueries: queries,
+			Operation:  service.OperationType_OR,
+		}
+	}
+
+	groups, err := dao.ListPolicyGroups(ctx, request.GetQuery())
 	if err != nil {
 		return nil, err
 	}
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
-	if request.Filter == "" && ka != nil {
+	if request.GetFilter() == "" && request.GetQuery() == nil && ka != nil {
 		msg, _ := json.Marshal(groups)
 		if err = ka.Set("policyGroup", msg); err != nil {
 			log.Logger(ctx).Error("Cannot fill cache for policy groups", zap.Error(err))
@@ -200,6 +238,10 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 }
 
 func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicyGroupRequest) (*idm.StorePolicyGroupResponse, error) {
+
+	if request == nil || request.PolicyGroup == nil {
+		return nil, errors.New("invalid argument")
+	}
 
 	dao, er := manager.Resolve[policy.DAO](ctx)
 	if er != nil {

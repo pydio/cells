@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "Скидання пароля"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "Встановити новий пароль"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "Будь ласка, введіть свій логін або адресу електронної пошти. Ми надішлемо вам листа з інструкціями для скидання пароля."
   },
   "4": {
-    "other": "Your login or email"
+    "other": "Логін або ел. пошта"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "Запит на скидання пароля надіслано на електронну пошту, прив’язану до вашого облікового запису. Перейдіть за посиланням у листі, щоб створити новий пароль."
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "Дякуємо! Будь ласка, оновіть сторінку зараз, щоб увійти."
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "Надійшов запит на скидання пароля для облікового запису, пов’язаного з цією адресою електронної пошти. Якщо ви не надсилали цей запит, ви можете просто ігнорувати цей лист. В іншому разі перейдіть за посиланням нижче, щоб скинути свій пароль:"
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "Скористайтеся формою нижче, щоб скинути пароль. Будь ласка, введіть свій логін та новий пароль два рази."
   },
   "9": {
-    "other": "Please enter your username and password"
+    "other": "Будь ласка, введіть ім’я користувача та пароль"
   },
   "10": {
-    "other": "Please enter the password you received"
+    "other": "Будь ласка, введіть отриманий пароль"
   },
   "11": {
-    "other": "Login failed: could not recognise your username or password"
+    "other": "Помилка входу: неправильне ім’я користувача або пароль"
   }
 }

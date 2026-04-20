@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/pydio/cells/v5/common/config"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -15,15 +14,15 @@ import (
 type storeWithEncoder struct {
 	config.Store
 
-	configx.Unmarshaler
-	configx.Marshaller
+	kv.Unmarshaler
+	kv.Marshaller
 }
 
 func (s storeWithEncoder) Set(data any) error {
 	return s.Val().Set(data)
 }
 
-func (s storeWithEncoder) Context(ctx context.Context) configx.Values {
+func (s storeWithEncoder) Context(ctx context.Context) kv.Values {
 	return storeWithEncoderValues{
 		Values:      s.Store.Context(ctx),
 		Unmarshaler: s.Unmarshaler,
@@ -31,7 +30,7 @@ func (s storeWithEncoder) Context(ctx context.Context) configx.Values {
 	}
 }
 
-func (s storeWithEncoder) Default(d any) configx.Values {
+func (s storeWithEncoder) Default(d any) kv.Values {
 	return storeWithEncoderValues{
 		Values:      s.Store.Default(d),
 		Unmarshaler: s.Unmarshaler,
@@ -39,7 +38,7 @@ func (s storeWithEncoder) Default(d any) configx.Values {
 	}
 }
 
-func (s storeWithEncoder) Val(path ...string) configx.Values {
+func (s storeWithEncoder) Val(path ...string) kv.Values {
 	return storeWithEncoderValues{
 		Values:      s.Store.Val(path...),
 		Unmarshaler: s.Unmarshaler,
@@ -56,12 +55,12 @@ func (s storeWithEncoder) Watch(opts ...watch.WatchOption) (watch.Receiver, erro
 }
 
 type storeWithEncoderValues struct {
-	configx.Values
-	configx.Unmarshaler
-	configx.Marshaller
+	kv.Values
+	kv.Unmarshaler
+	kv.Marshaller
 }
 
-func (s storeWithEncoderValues) Clone() configx.Values {
+func (s storeWithEncoderValues) Clone() kv.Values {
 	return storeWithEncoderValues{
 		Values:      kv.NewStore().Val(),
 		Unmarshaler: s.Unmarshaler,
@@ -69,7 +68,7 @@ func (s storeWithEncoderValues) Clone() configx.Values {
 	}
 }
 
-func (s storeWithEncoderValues) Context(ctx context.Context) configx.Values {
+func (s storeWithEncoderValues) Context(ctx context.Context) kv.Values {
 	return storeWithEncoderValues{
 		Values:      s.Values.Context(ctx),
 		Unmarshaler: s.Unmarshaler,
@@ -77,7 +76,7 @@ func (s storeWithEncoderValues) Context(ctx context.Context) configx.Values {
 	}
 }
 
-func (s storeWithEncoderValues) Default(d any) configx.Values {
+func (s storeWithEncoderValues) Default(d any) kv.Values {
 	return storeWithEncoderValues{
 		Values:      s.Values.Default(d),
 		Unmarshaler: s.Unmarshaler,
@@ -85,7 +84,7 @@ func (s storeWithEncoderValues) Default(d any) configx.Values {
 	}
 }
 
-func (s storeWithEncoderValues) Val(path ...string) configx.Values {
+func (s storeWithEncoderValues) Val(path ...string) kv.Values {
 	return storeWithEncoderValues{
 		Values:      s.Values.Val(path...),
 		Unmarshaler: s.Unmarshaler,

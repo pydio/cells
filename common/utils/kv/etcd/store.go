@@ -12,14 +12,14 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
 type Store struct {
 	ctx          context.Context
-	values       configx.Values
+	values       kv.Values
 	valuesLocker *sync.RWMutex
 	ops          chan clientv3.Op
 
@@ -33,7 +33,7 @@ type Store struct {
 	locks     map[string]*concurrency.Mutex
 	receivers []*receiver
 	reset     chan bool
-	opts      []configx.Option
+	opts      []kv.Option
 
 	saveCh    chan bool
 	saveTimer *time.Timer
@@ -43,7 +43,7 @@ var (
 	errClosedChannel = errors.New("channel is closed")
 )
 
-func NewStore(ctx context.Context, values configx.Values, cli *clientv3.Client, prefix string, ttl int) (*Store, error) {
+func NewStore(ctx context.Context, values kv.Values, cli *clientv3.Client, prefix string, ttl int) (*Store, error) {
 	var session *concurrency.Session
 	var leaseID clientv3.LeaseID
 
@@ -81,11 +81,11 @@ func NewStore(ctx context.Context, values configx.Values, cli *clientv3.Client, 
 	return m, nil
 }
 
-func (m *Store) Context(ctx context.Context) configx.Values {
+func (m *Store) Context(ctx context.Context) kv.Values {
 	return values{Values: m.values.Context(ctx), valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, leaseID: m.leaseID}
 }
 
-func (m *Store) Options() *configx.Options {
+func (m *Store) Options() *kv.Options {
 	return m.values.Options()
 }
 
@@ -93,7 +93,7 @@ func (m *Store) Key() []string {
 	return m.values.Key()
 }
 
-func (m *Store) Default(def any) configx.Values {
+func (m *Store) Default(def any) kv.Values {
 	return values{Values: m.values.Default(def), valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, leaseID: m.leaseID}
 }
 
@@ -216,7 +216,7 @@ func (m *Store) Get() any {
 	return m.values.Get()
 }
 
-func (m *Store) Val(path ...string) configx.Values {
+func (m *Store) Val(path ...string) kv.Values {
 	return values{Values: m.values.Val(path...), valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, leaseID: m.leaseID}
 }
 
@@ -373,9 +373,9 @@ type receiver struct {
 	regPath     *regexp.Regexp
 	level       int
 	ch          chan *clientv3.Event
-	v           configx.Values
+	v           kv.Values
 	timer       *time.Timer
-	opts        []configx.Option
+	opts        []kv.Option
 	changesOnly bool
 }
 
@@ -454,7 +454,7 @@ func (r receiver) Stop() {
 }
 
 type values struct {
-	configx.Values
+	kv.Values
 	valuesLocker *sync.RWMutex
 	ops          chan clientv3.Op
 	leaseID      clientv3.LeaseID
@@ -463,11 +463,11 @@ type values struct {
 	prefix string
 }
 
-func (v values) Context(ctx context.Context) configx.Values {
+func (v values) Context(ctx context.Context) kv.Values {
 	return values{Values: v.Values.Context(ctx), valuesLocker: v.valuesLocker, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, leaseID: v.leaseID}
 }
 
-func (v values) Default(def any) configx.Values {
+func (v values) Default(def any) kv.Values {
 	return values{Values: v.Values.Default(def), valuesLocker: v.valuesLocker, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, leaseID: v.leaseID}
 }
 
@@ -504,7 +504,7 @@ func (v values) Del() error {
 	return nil
 }
 
-func (v values) Val(path ...string) configx.Values {
+func (v values) Val(path ...string) kv.Values {
 	return values{Values: v.Values.Val(path...), valuesLocker: v.valuesLocker, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, leaseID: v.leaseID}
 }
 

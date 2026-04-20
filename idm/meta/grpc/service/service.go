@@ -59,6 +59,10 @@ func init() {
 			service.WithStorageDrivers(meta.Drivers),
 			service.Migrations([]*service.Migration{
 				{
+					TargetVersion: service.FirstRunOrChange(),
+					Up:            manager.StorageMigration(),
+				},
+				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
 						dao, err := manager.Resolve[meta.DAO](ctx)
@@ -97,11 +101,12 @@ func init() {
 }
 
 func defaultMetas(ctx context.Context, dao meta.DAO) error {
-	err := dao.GetNamespaceDao().Add(ctx, &idm.UserMetaNamespace{
+	err, _ := dao.GetNamespaceDao().Upsert(ctx, &idm.UserMetaNamespace{
 		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
 		Indexable:      true,
 		JsonDefinition: "{\"type\":\"tags\"}",
+		Description:    "Default Tags",
 		Policies: []*service2.ResourcePolicy{
 			{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
 			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},

@@ -88,12 +88,27 @@ func init() {
 
 		// Call the substringIndex function
 		parts := strings.Split(input, delimiter)
-		if count > int64(len(parts)) {
-			count = int64(len(parts))
-		} else if count < 0 {
-			count = 0
+		n := int(count)
+
+		switch {
+		case n == 0:
+			return "", nil
+
+		case n > 0:
+			if n >= len(parts) {
+				return input, nil
+			}
+			return strings.Join(parts[:n], delimiter), nil
+
+		case n < 0:
+			n = -n
+			if n >= len(parts) {
+				return input, nil
+			}
+			return strings.Join(parts[len(parts)-n:], delimiter), nil
 		}
-		return strings.Join(parts[:count], delimiter), nil
+
+		return "", nil // should never reach here
 	})
 }
 
@@ -138,6 +153,10 @@ WHERE data_index_s3_tree_nodes.id = updated_nodes.id;
 
 func (p *sqliteHelper) MPathOrdering(mm ...string) string {
 	return strings.Join(mm, ", ")
+}
+
+func (p *sqliteHelper) MPathOrderingLastInteger(mm ...string) string {
+	return "CAST(SUBSTRING_INDEX(" + p.Concat(mm...) + ", '.', -1) AS INTEGER)"
 }
 
 func (p *sqliteHelper) FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool) {

@@ -1,99 +1,99 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "Додаткові фреймворки JS"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "Список окремих ком шляхів до JS файлів, які повинні бути завантажені BEFORE до основних фреймворків Pydio завантажується. Переважний спосіб використання декларацій для плагінів. Завантаження JS файлів з самого початку сторінки може бути параметром тільки в деяких випадках."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "Додаткові повідомлення, що відображається на стартовому екрані"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "Аналітика домену"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "Аналітика подій"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "Ідентифікатор аналітики"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "Додати заголовок логотипу зображення"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "Назва додатку"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "Атрибути зображення, яке використовується як тло"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "Фонові атрибути (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "Фонові атрибути (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "Фонові атрибути (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "Фонові атрибути (4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "Фонові атрибути (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "Фонові атрибути (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "Атрибути фону (низька роздільна здатність)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "Старший інтерфейс браузера. Містить конфігурації для теми, особисте привітання тощо."
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "По центру сторінки (без повторення)"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "Клієнт плагін"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "Конфігурація клієнтської сесії"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "Час очікування клієнта"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "Власне тло (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "Власне тло (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "Власне тло (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "Власне тло (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "Власне тло (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "Власне тло (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "Власна піктограма"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "Виявлене кодування"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "Виявлений шлях до сервера"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "Інструмент відображення брендінгу"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Увімкнути вітальний тур"
   },
   "Enable the small tour triggered at first visit": {
     "other": "Enable the small tour triggered at first visit"
@@ -123,31 +123,31 @@
     "other": "Height of the custom icon (with the px mention)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "Висота іконки"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "Тільки іконки"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "Шлях до іконки (застарілий)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "Ширина іконки"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
     "other": "Id of your GA account, something like UE-XXXX-YY"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "Зображення, яке використовується як тло"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "Сторінка входу"
   },
   "Logo": {
-    "other": "Logo"
+    "other": "Логотип"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "Висота логотипу"
   },
   "Logo Left": {
     "other": "Logo Left"
@@ -270,7 +270,7 @@
     "other": "Welcome Message"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Сторінка привітання"
   },
   "Width of the custom image (by default 35px)": {
     "other": "Width of the custom image (Default 35px)"

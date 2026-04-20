@@ -31,10 +31,9 @@ import (
 
 // Various custom types internally used by Pydio.
 type (
-	ServiceType   string
-	ServiceTag    string
-	ServiceName   string
-	LogConfigType string
+	ServiceType string
+	ServiceTag  string
+	ServiceName string
 )
 
 // Defines all constants for services names.
@@ -134,13 +133,14 @@ const (
 	ServiceDataSync     = ServiceData_ + "sync"
 	ServiceDataSync_    = ServiceDataSync + "."
 
-	ServiceGrpcNamespace_        = "pydio.grpc."
-	ServiceWebNamespace_         = "pydio.web."
-	ServiceRestNamespace_        = "pydio.rest."
-	ServiceGatewayNamespace_     = "pydio.gateway."
-	ServiceGatewayGrpcNamespace_ = "pydio.gateway-grpc."
-	ServiceTestNamespace_        = "pydio.test."
-	ServiceGenericNamespace_     = "pydio.generic."
+	ServiceGrpcNamespace_           = "pydio.grpc."
+	ServiceWebNamespace_            = "pydio.web."
+	ServiceRestNamespace_           = "pydio.rest."
+	ServiceGatewayNamespace_        = "pydio.gateway."
+	ServiceGatewayGrpcNamespace_    = "pydio.gateway-grpc."
+	ServiceGatewayGenericNamespace_ = "pydio.gateway-generic."
+	ServiceTestNamespace_           = "pydio.test."
+	ServiceGenericNamespace_        = "pydio.generic."
 
 	ServiceGatewayProxy = ServiceGatewayNamespace_ + "proxy"
 	ServiceGatewayData  = ServiceGatewayNamespace_ + "data"
@@ -183,6 +183,7 @@ const (
 	TopicDatasourceEvent     = "topic.pydio.datasource.event"
 	TopicIndexEvent          = "topic.pydio.index.event"
 	TopicLogLevelEvent       = "topic.pydio.log-level.event"
+	TopicUserMetaDiffs       = "topic.pydio.user.meta.diffs" // Special topic used for sync
 )
 
 // Define constants for metadata and fixed datasources
@@ -330,12 +331,7 @@ const (
 	DocStoreIdVersioningPolicies = "versioningPolicies"
 	DocStoreIdShares             = "share"
 	DocStoreIdResetPassKeys      = "resetPasswordKeys"
-)
-
-// Define constants for Loggging configuration
-const (
-	LogConfigConsole    LogConfigType = "console"
-	LogConfigProduction LogConfigType = "production"
+	DocStoreIdTagsValues         = "user_meta_tags"
 )
 
 // Main code information. Set by the go linker in the resulting binary when doing 'make main'
@@ -366,8 +362,8 @@ var (
 
 // Logging Levels.
 var (
-	LogConfig           LogConfigType
 	LogLevel            zapcore.Level
+	LogJSON             bool
 	LogToFile           bool
 	LogFileDefaultValue = "true"
 )

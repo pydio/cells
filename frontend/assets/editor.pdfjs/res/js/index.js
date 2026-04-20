@@ -22,8 +22,6 @@ import {Editor, Panel} from './editor'
 import * as Controls from './controls'
 import Badge from './badge'
 
-import '../../PDFJSViewer.css'
-
 export {Badge}
 export {Editor}
 export {Panel}

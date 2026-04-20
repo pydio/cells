@@ -25,6 +25,12 @@ import Tooltip from "@mui/material/Tooltip";
 import SearchAPI from 'pydio/http/search-api'
 import ResourcesManager from 'pydio/http/resources-manager'
 
+
+// Based on a popular Markdown sanitizer library
+// https://github.com/cure53/DOMPurify/blob/ac64660975fe1141e2654eafeca58eff3ecbc981/src/regexp.ts#L9C1-L11C3
+export const IS_ALLOWED_URI = 
+  /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+
 export default ({href, children}) => {
 
     const pydio = Pydio.getInstance();
@@ -78,6 +84,9 @@ export default ({href, children}) => {
     }, [href])
 
     const linkStyle = {};
+    let title = "";
+    let icon;
+    let onClick = null, onEnter = null;
 
     if (href.startsWith('user://')) {
         const userId = href.replace('user://', '');
@@ -91,9 +100,6 @@ export default ({href, children}) => {
             />)
     }
 
-    let title = "";
-    let icon;
-    let onClick = null, onEnter = null;
     if(href.startsWith('doc://')){
         icon = 'mdi mdi-file-outline'
         const hasPreview = href.indexOf('?preview') > -1;
@@ -164,8 +170,10 @@ export default ({href, children}) => {
         if (loading) {
             title = m('ws.switching')
         }
-    } else {
+    } else if (IS_ALLOWED_URI.test(href)) {
         return <a href={href} target={"_blank"}>{children}</a>
+    } else {
+        return <a href="#" onClick={(e) => e.preventDefault()}>{children}</a>
     }
 
     title = <div style={{padding:'8px 16px', fontSize: 13}}>{title}</div>

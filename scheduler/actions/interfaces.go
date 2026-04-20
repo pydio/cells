@@ -28,7 +28,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/forms"
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -78,11 +77,10 @@ type ActionDescription struct {
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
 type ConcreteAction interface {
-	common.RuntimeProvider
 	// GetName returns a unique identifier
 	GetName() string
 	// Init initialize parameters
-	Init(job *jobs.Job, action *jobs.Action) error
+	Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error
 	// Run performs the actual action code
 	Run(ctx context.Context, channels *RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error)
 }
@@ -104,7 +102,7 @@ type ProgressProviderAction interface {
 // DescriptionProviderAction has a human-readable label
 type DescriptionProviderAction interface {
 	GetDescription(lang ...string) ActionDescription
-	GetParametersForm() *forms.Form
+	GetParametersForm(ctx context.Context) *forms.Form
 }
 
 // ControllableAction Actions that implement this interface can eventually be stopped and/or paused+resumed

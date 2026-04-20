@@ -1,0 +1,20 @@
+externalCache:
+  enabled: true
+  host: my-redis-master.cells.svc.cluster.local
+  port: 6379
+  tls:
+    enabled: false
+    client:
+      existingSecret: "redis-crt"
+      cert: "tls.crt"
+      key: "tls.key"
+    ca:
+      existingSecret: "redis-crt"
+      cert: "ca.crt"
+  auth:
+    enabled: false
+    user: "default"
+    password: ""
+    existingSecret: "redis"
+    existingSecretUsernameKey: ""
+    existingSecretPasswordKey: "redis-password"

@@ -9,134 +9,11 @@ import (
 
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/proto/docstore"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/std"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
-
-func TestMerge(t *testing.T) {
-	a := []any{0, map[string]any{"1": 1}, 3, []any{}, []any{-1, 5}}
-	b := []any{nil, 1, 2, 3, []any{4, nil, 6}}
-
-	Convey("Testing merge", t, func() {
-		c, err := merge(a, b)
-		So(err, ShouldBeNil)
-		So(c, ShouldHaveSameTypeAs, a)
-	})
-}
-
-func TestMergeDelete(t *testing.T) {
-	a := map[string]any{"1": 1}
-	b := map[string]any{"1": nil}
-
-	Convey("Testing merge", t, func() {
-		c, err := merge(a, b)
-		So(err, ShouldBeNil)
-		So(c, ShouldHaveSameTypeAs, a)
-
-		fmt.Println(c)
-	})
-}
-
-func TestMergeSlices(t *testing.T) {
-	a := []any{0, nil, 3, 3, []any{-1, 5}}
-	b := []any{nil, 1, 2, nil, []any{4, nil, 6}}
-
-	Convey("Testing merge slices", t, func() {
-		c, err := merge(a, b)
-		So(err, ShouldBeNil)
-		So(c, ShouldHaveSameTypeAs, a)
-	})
-}
-
-func TestMergeMaps(t *testing.T) {
-	a := map[string]any{
-		"0": 0,
-		"2": map[string]any{
-			"4": "0",
-			"5": "5",
-		},
-	}
-
-	b := map[string]any{
-		"1": "1",
-		"2": map[string]any{
-			"3": "3",
-			"4": "4",
-			"6": "6",
-		},
-	}
-
-	Convey("Testing merge", t, func() {
-		c, err := merge(a, b)
-		So(err, ShouldBeNil)
-		So(c, ShouldHaveSameTypeAs, a)
-	})
-}
-
-func TestCopy(t *testing.T) {
-
-	a := map[string]any{
-		"test": map[string]any{
-			"test0": "test0_1",
-		},
-	}
-
-	b := map[string]any{
-		"test": map[string]any{
-			"test1": "test0_1",
-		},
-	}
-
-	Convey("Testing merge", t, func() {
-		c, err := merge(a, b)
-		So(err, ShouldBeNil)
-		So(c, ShouldHaveSameTypeAs, a)
-	})
-}
-
-// TODO - references are not in configx anymore
-//func TestSetting(t *testing.T) {
-//
-//	Convey("Testing reference pool", t, func() {
-//		r2 := New(WithJSON())
-//		if err := r2.Set([]byte(`{"refparam2":"refvalue2"}`)); err != nil {
-//			panic(err)
-//		}
-//
-//		rp2, _ := openurl.OpenPool(context.Background(), []string{""}, func(ctx context.Context, u string) (Values, error) {
-//			return r2, nil
-//		})
-//
-//		r1 := New(WithJSON(), WithReferencePool("rp", rp2))
-//		if err := r1.Set([]byte(`{"refparam1":{"$ref": "rp#/refparam2"}}`)); err != nil {
-//			panic(err)
-//		}
-//
-//		rp1, _ := openurl.OpenPool(context.Background(), []string{""}, func(ctx context.Context, u string) (Values, error) {
-//			return r1, nil
-//		})
-//
-//		c := New(WithJSON(), WithReferencePool("test1", rp1))
-//
-//		c.Val("test").Set("test")
-//		c.Val("test[1]").Set("test")
-//		c.Val("test[0][1]").Set("test")
-//		c.Val("test[0][2]").Set(map[string]string{
-//			"$ref": "test1#/refparam1",
-//		})
-//
-//		So(c.Val("test[0][1]").String(), ShouldEqual, "test")
-//		So(c.Val("test[0][2]").String(), ShouldEqual, "refvalue2")
-//
-//		fmt.Println("Starting replacement here ")
-//		c.Val("test[0][2]").Set("newrefvalue1")
-//
-//		spew.Dump(r2.Get())
-//		spew.Dump(r1.Get())
-//		spew.Dump(c.Get())
-//	})
-//}
 
 func TestMem(t *testing.T) {
 	c := New()
@@ -147,45 +24,6 @@ func TestMem(t *testing.T) {
 		So(c.Val("whatever").Get(), ShouldHaveSameTypeAs, &http.Client{})
 	})
 }
-
-// TODO
-//func TestBinary(t *testing.T) {
-//	c := New(WithBinary())
-//
-//	err := c.Set(map[string]string{
-//		"param1": "param1",
-//	})
-//
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	fmt.Println(c)
-//
-//	err = c.Set(struct {
-//		Param1 string
-//	}{"structparam1"})
-//
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	fmt.Println(c)
-//}
-
-//func TestDefaultVal(t *testing.T) {
-//	Convey("Test default", t, func() {
-//
-//		c := New(WithJSON())
-//		if err := c.Set([]byte(`{
-//			"param1": "param1"
-//		}`)); err != nil {
-//			So(err, ShouldBeNil)
-//		}
-//
-//		So(c.Val("param1").Default("default1").String(), ShouldEqual, "param1")
-//	})
-//}
 
 var (
 	data = []byte(`{
@@ -231,7 +69,7 @@ var (
 
 func TestStd(t *testing.T) {
 	Convey("Testing map get", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 		err := m.Set(data)
 		So(err, ShouldBeNil)
 
@@ -268,7 +106,7 @@ func TestStd(t *testing.T) {
 	})
 
 	Convey("Testing map full set", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
 		err := m.Set(data)
 		So(err, ShouldBeNil)
@@ -297,7 +135,7 @@ func TestStd(t *testing.T) {
 	})
 
 	Convey("Testing replacing a string value", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
 		err := m.Set(data)
 		So(err, ShouldBeNil)
@@ -344,7 +182,7 @@ func TestStd(t *testing.T) {
 	})
 
 	Convey("Testing default get", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 		err := m.Set(data)
 		So(err, ShouldBeNil)
 
@@ -363,7 +201,7 @@ var (
 
 func TestArray(t *testing.T) {
 	Convey("Testing array get", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
 		err := m.Set(dataArray)
 		So(err, ShouldBeNil)
@@ -377,29 +215,9 @@ func TestArray(t *testing.T) {
 	})
 }
 
-// TODO - not in here anymore
-//func TestReference(t *testing.T) {
-//	Convey("Testing reference", t, func() {
-//		m := New(WithJSON())
-//		err := m.Set(data)
-//		So(err, ShouldBeNil)
-//
-//		So(m.Val("service/array").Val("#/defaults/val").String(), ShouldEqual, "test")
-//
-//		So(m.Val("service/pointerMap/val").String(), ShouldEqual, "test")
-//		So(m.Val("service/pointerMap/val").Default("").String(), ShouldEqual, "test")
-//		So(m.Val("service/pointerArray[0]").Default("").String(), ShouldEqual, "test2")
-//
-//		// So(m.Val("service/pointerMap/val2").Default(Reference("#/defaults/val2")).String(), ShouldEqual, "test2")
-//
-//		// So(m.Val("#/databases/wrongdefault").Default(Reference("#/defaults/val2")).String(), ShouldEqual, "test2")
-//
-//	})
-//}
-
 func TestGetSet(t *testing.T) {
 	Convey("Testing get / set", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 		err := m.Set(data)
 		So(err, ShouldBeNil)
 
@@ -412,9 +230,12 @@ func TestGetSet(t *testing.T) {
 		So(newArray.Get(), ShouldNotBeNil)
 
 		newArray.Val("[1]").Set(newArray.Val("[0]").Get())
+
 		newArray.Val("[0]").Del()
 
-		So(newArray.Val("[1]").Get(), ShouldNotBeNil)
+		fmt.Println(newArray.Slice())
+
+		So(len(newArray.Slice()), ShouldEqual, 1)
 		// TODO - should be working
 		//So(newArray.Val("[0]").Get(), ShouldBeNil)
 	})
@@ -422,11 +243,11 @@ func TestGetSet(t *testing.T) {
 
 func TestGetSetWithFunc(t *testing.T) {
 	Convey("Testing get / set", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 		err := m.Set(data)
 		So(err, ShouldBeNil)
 
-		copy := func(c Values, old, new string) {
+		copy := func(c kv.Values, old, new string) {
 			o := c.Val(old)
 			n := c.Val(new)
 			n.Set(o)
@@ -447,7 +268,7 @@ func TestGetSetWithFunc(t *testing.T) {
 
 func TestString(t *testing.T) {
 	Convey("Testing reference", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
 		err := m.Set(data)
 		So(err, ShouldBeNil)
@@ -456,16 +277,16 @@ func TestString(t *testing.T) {
 	})
 }
 
-func TestScan(t *testing.T) {
+/*func TestScan(t *testing.T) {
 	Convey("Testing reference", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
-		i := New(WithJSON())
+		i := New(kv.WithJSON())
 
 		err := m.Scan(&i)
 		So(err, ShouldBeNil)
 	})
-}
+}*/
 
 func TestDefault(t *testing.T) {
 	Convey("Testing reference", t, func() {
@@ -476,7 +297,7 @@ func TestDefault(t *testing.T) {
 
 func TestProtoScan(t *testing.T) {
 	Convey("Test Proto Scan", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 		err := m.Set(data)
 		So(err, ShouldBeNil)
 		p := &docstore.Document{}
@@ -503,18 +324,16 @@ pointer:
 
 func TestYAML(t *testing.T) {
 	Convey("Testing yaml encoding", t, func() {
-		m := New(WithYAML())
+		m := New(kv.WithYAML())
 		err := m.Set(dataYAML)
-		// m.Val("test").Set(Reference("#/defaults/key1"))
 		So(err, ShouldBeNil)
 		So(m.Val("defaults/key1").String(), ShouldEqual, "val1")
-		// So(m.Val("pointer/key1").String(), ShouldEqual, "val2")
 	})
 }
 
 func TestStringEncoding(t *testing.T) {
 	Convey("Test string encoding", t, func() {
-		m := New(WithString())
+		m := New(kv.WithString())
 		err := m.Set("test")
 		So(err, ShouldBeNil)
 		So(m.String(), ShouldEqual, "test")
@@ -524,7 +343,7 @@ func TestStringEncoding(t *testing.T) {
 func TestEncrypt(t *testing.T) {
 	Convey("Testing encryption", t, func() {
 		e := &mockEncDec{}
-		m := New(WithYAML(), WithEncrypt(e), WithDecrypt(e))
+		m := New(kv.WithYAML(), kv.WithEncrypt(e), kv.WithDecrypt(e))
 		err := m.Set(dataYAML)
 		So(err, ShouldBeNil)
 		So(m.Val("secrets/test").Set("test"), ShouldBeNil)
@@ -533,7 +352,7 @@ func TestEncrypt(t *testing.T) {
 
 func TestStruct(t *testing.T) {
 	Convey("Testing structure ", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
 		t := struct {
 			A string
@@ -562,7 +381,7 @@ type MyStruct struct {
 
 func TestMapStruct(t *testing.T) {
 	Convey("Testing structure ", t, func() {
-		m := New(WithJSON())
+		m := New(kv.WithJSON())
 
 		err := m.Val("test").Set(&MyStruct{A: "a", B: "b"})
 		So(err, ShouldBeNil)
@@ -575,7 +394,7 @@ func TestMapStruct(t *testing.T) {
 
 func TestSyncMap(t *testing.T) {
 	Convey("Test synchronised map", t, func() {
-		c := New(WithJSON())
+		c := New(kv.WithJSON())
 
 		c.Set(map[string]interface{}{
 			"test": &sync.Map{},
@@ -589,37 +408,9 @@ func TestSyncMap(t *testing.T) {
 
 		clone := std.DeepClone(c.Get())
 
-		o := New(WithJSON())
+		o := New(kv.WithJSON())
 		o.Set(clone)
 
 		whatever1 = "whatever3"
 	})
 }
-
-// Testing the interfacing
-type testconf struct {
-	Values
-}
-
-func (c *testconf) Val(path ...string) Values {
-	return c.Values.Val(path...)
-}
-
-func (c *testconf) Get() any {
-	v := New()
-	v.Val("whatever").Set("whatever")
-
-	return v.Get()
-}
-
-// TODO
-//func TestOverride(t *testing.T) {
-//	c := &testconf{}
-//	c.Values = New()
-//
-//	s := c.Val("whatever").Get()
-//	Convey("Testing override", t, func() {
-//		spew.Dump(c.Get())
-//		So(s, ShouldEqual, "whatever")
-//	})
-//}

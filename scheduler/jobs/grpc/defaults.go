@@ -70,7 +70,7 @@ func GetDefaultJobs() []*jobs.Job {
 			Label: "Images Only",
 			Query: &service.Query{
 				SubQueries: []*anypb.Any{jobs.MustMarshalAny(&tree.Query{
-					Extension: "jpg,png,jpeg,gif,bmp,tiff",
+					Extension: "jpg,png,jpeg,gif,bmp,webp,tiff",
 					MinSize:   1,
 				})},
 			},

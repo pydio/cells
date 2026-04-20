@@ -23,12 +23,10 @@ package restv2
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"go.uber.org/zap"
 
@@ -64,22 +62,6 @@ type PreviewMeta struct {
 	Error       bool   `json:"Error,omitempty"`
 	Key         string `json:"Key,omitempty"`
 	ContentType string `json:"ContentType,omitempty"`
-}
-
-type PreSigner interface {
-	PreSignV4(ctx context.Context, bucket, key string) (*http.Request, time.Time, error)
-}
-
-type TNOptions struct {
-	PreSigner PreSigner
-}
-
-type TNOption func(o *TNOptions)
-
-func WithPreSigner(preSigner PreSigner) TNOption {
-	return func(o *TNOptions) {
-		o.PreSigner = preSigner
-	}
 }
 
 func NewHandler() *Handler {
@@ -124,6 +106,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		Size:        n.GetSize(),
 		Modified:    n.GetMTime(),
 		StorageETag: n.GetEtag(),
+		EditorURLs:  map[string]*rest.PreSignedURL{},
 
 		// TODO Not Impl Yet
 		Activities: nil,
@@ -137,7 +120,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 		if !n.IsLeaf() {
 			key += ".zip"
 		}
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 			rn.PreSignedGET = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),
@@ -146,6 +129,22 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 			log.Logger(ctx).Error("Cannot create preSigned", zap.Error(err))
 		}
 	}
+
+	for name, ep := range opts.EditorURLProvider {
+		if ep.Provides(strings.ToLower(path.Ext(n.Path))) {
+			// Feed the key
+			rn.EditorURLsKeys = append(rn.EditorURLsKeys, name)
+			// If URL requested, generate now
+			if opts.EditorURLGenerate {
+				pu, err := ep.Get(ctx, n)
+				if err != nil {
+					continue
+				}
+				rn.EditorURLs[name] = pu
+			}
+		}
+	}
+
 	for k, v := range n.GetMetaStore() {
 		if strings.HasPrefix(k, common.MetaNamespaceReservedPrefix_) {
 			if k == common.MetaNamespaceRecycleRestore && strings.Trim(v, "\"") != "" {
@@ -217,7 +216,7 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 			var cc []*tree.ContentRevision
 			if er := json.Unmarshal([]byte(v), &cc); er == nil {
 				for _, c := range cc {
-					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c))
+					rn.Versions = append(rn.Versions, h.TreeContentRevisionToVersion(ctx, c, n, oo...))
 				}
 			}
 
@@ -272,8 +271,9 @@ func (h *Handler) TreeNodeToNode(ctx context.Context, n *tree.Node, oo ...TNOpti
 }
 
 // TreeContentRevisionToVersion adapts tree.ContentRevision to rest.Version format
-func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision) *rest.Version {
-	return &rest.Version{
+func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevision *tree.ContentRevision, node *tree.Node, oo ...TNOption) *rest.Version {
+	// Node for the url and passing the version id
+	version := &rest.Version{
 		VersionId:   contentRevision.GetVersionId(),
 		Description: contentRevision.GetDescription(),
 		Draft:       contentRevision.GetDraft(),
@@ -285,6 +285,48 @@ func (h *Handler) TreeContentRevisionToVersion(ctx context.Context, contentRevis
 		OwnerName:   contentRevision.GetOwnerName(),
 		OwnerUuid:   contentRevision.GetOwnerUuid(),
 	}
+
+	// Apply options for presigned URLs
+	opts := &TNOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+
+	// Generate presigned URL if presigner is available
+	if opts.PreSigner != nil && node != nil {
+		key := node.GetPath()
+		params := PresignParams{
+			VersionID: contentRevision.GetVersionId(),
+		}
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, params); err == nil {
+			version.PreSignedGET = &rest.PreSignedURL{
+				Url:       req.URL.String(),
+				ExpiresAt: exp.Unix(),
+			}
+		} else {
+			log.Logger(ctx).Error("Cannot create presigned URL for version", zap.Error(err), zap.String("versionId", contentRevision.GetVersionId()))
+		}
+	}
+	/*
+		// DO NOT ENABLE YET - WE CANNOT GENERATE A VersionID SPECIFIC EDITOR URL YET
+		if node != nil {
+			for name, editor := range opts.EditorURLProvider {
+				if editor.Provides(path.Ext(node.GetPath())) {
+					version.EditorURLsKeys = append(version.EditorURLsKeys, name)
+				}
+				if opts.EditorURLGenerate {
+					if u, e := editor.Get(ctx, node); e == nil {
+						if version.EditorURLs == nil {
+							version.EditorURLs = map[string]*rest.PreSignedURL{}
+						}
+						version.EditorURLs[name] = u
+					}
+				}
+			}
+		}
+	*/
+
+	return version
 }
 
 // Thumbnails feeds a rest.FilePreview struct with incoming metadata
@@ -311,7 +353,7 @@ func (h *Handler) Thumbnails(ctx context.Context, slug, nodeId, jsonThumbs strin
 		//url := common.DefaultRouteBucketIO + "/" + key
 		var pGet *rest.PreSignedURL
 		if opts.PreSigner != nil {
-			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+			if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 				pGet = &rest.PreSignedURL{
 					Url:       req.URL.String(),
 					ExpiresAt: exp.Unix(),
@@ -371,7 +413,7 @@ func (h *Handler) OtherPreview(ctx context.Context, slug, jsonValue string, oo .
 		o(opts)
 	}
 	if opts.PreSigner != nil {
-		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key); err == nil {
+		if req, exp, err := opts.PreSigner.PreSignV4(ctx, presignBucketName, key, PresignParams{}); err == nil {
 			pGet = &rest.PreSignedURL{
 				Url:       req.URL.String(),
 				ExpiresAt: exp.Unix(),

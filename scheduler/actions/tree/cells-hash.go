@@ -83,7 +83,7 @@ func (c *CellsHashAction) GetDescription(lang ...string) actions.ActionDescripti
 }
 
 // GetParametersForm returns parameters
-func (c *CellsHashAction) GetParametersForm() *forms.Form {
+func (c *CellsHashAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{
 		Groups: []*forms.Group{
 			{
@@ -135,7 +135,7 @@ func (c *CellsHashAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *CellsHashAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (c *CellsHashAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	if b, o := action.Parameters["forceRecompute"]; o {
 		c.forceRecompute = b
 	}
@@ -174,7 +174,7 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithError(e), e
 	}
 	ctx = ct
-	mc := tree.NewNodeReceiverClient(grpc.ResolveConn(c.GetRuntimeContext(), common.ServiceMetaGRPC))
+	mc := tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 	var outNodes []*tree.Node
 	for _, node := range input.Nodes {
 		if node.Etag == "" {

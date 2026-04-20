@@ -51,7 +51,7 @@
     "other": "Si su servidor no tiene acceso al exterior, no intente conectar con el servidor de actualización."
   },
   "Update.Process.Start": {
-    "other": "Upgrading Binary"
+    "other": "Actualizando binario"
   },
   "Update.Process.Progress": {
     "other": "Downloading Binary {progress}%..."

@@ -27,10 +27,10 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/nodes/objects/mock"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
-type StorageClientProvider func(cfg configx.Values) (StorageClient, error)
+type StorageClientProvider func(cfg kv.Values) (StorageClient, error)
 
 type StorageClient interface {
 	ListBuckets(ctx context.Context) ([]models.BucketInfo, error)
@@ -64,7 +64,7 @@ var (
 func init() {
 	storageClientsRegistry = make(map[string]StorageClientProvider)
 	// Register default
-	RegisterStorageClient("mock", func(cfg configx.Values) (StorageClient, error) {
+	RegisterStorageClient("mock", func(cfg kv.Values) (StorageClient, error) {
 		return mock.New(), nil
 	})
 }
@@ -73,7 +73,7 @@ func RegisterStorageClient(name string, provider StorageClientProvider) {
 	storageClientsRegistry[name] = provider
 }
 
-func NewStorageClient(cfg configx.Values) (StorageClient, error) {
+func NewStorageClient(cfg kv.Values) (StorageClient, error) {
 	name := cfg.Val("type").Default("mock").String()
 	if useMockStorageClientType {
 		name = "mock"

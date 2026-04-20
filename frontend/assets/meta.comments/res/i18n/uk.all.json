@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Comments"
+    "other": "Коментарі"
   },
   "2": {
-    "other": "Enter your comment here"
+    "other": "Введіть тут свій коментар"
   },
   "3": {
-    "other": "Post"
+    "other": "Опублікувати"
   },
   "4": {
-    "other": "Go to %s"
+    "other": "Перейти до %s"
   },
   "empty-state": {
-    "other": "No comments"
+    "other": "Коментарі відсутні"
   }
 }

@@ -913,10 +913,12 @@ func TestClearIndex(t *testing.T) {
 
 			So(createNodes(ctx, server), ShouldBeNil)
 
+			<-time.After(2 * time.Second)
+
 			e := server.ClearIndex(ctx)
 			So(e, ShouldBeNil)
 
-			<-time.After(1 * time.Second)
+			<-time.After(2 * time.Second)
 
 			queryObject := &tree.Query{
 				FileName: "node",
@@ -1009,6 +1011,23 @@ func TestMongoTagsNamespace(t *testing.T) {
 					Order:          0,
 					Indexable:      true,
 					JsonDefinition: `{"type": "tags"}`,
+					FieldType:      "tags",
+				},
+				{
+					Namespace:      "tagcloud",
+					Label:          "Tag Cloud",
+					Order:          1,
+					Indexable:      true,
+					JsonDefinition: `{"type":"tag_cloud","entity":{"entity_id":"e795c603-d54c-416b-a200-5e58ccbbd5c7"},"data":{"entityItems":["Eau","Cloud","Energie","Autre"]}}`,
+					FieldType:      "tag_cloud",
+				},
+				{
+					Namespace:      "auto_complete",
+					Label:          "Auto Complete",
+					Order:          2,
+					Indexable:      true,
+					JsonDefinition: `{"type":"auto_complete","entity":{"entity_id":"af648cd5-49b8-4013-9445-d076d21f91c9"},"data":{"entityItems":["Non-Protégé","Diffusion Restreinte","Secret"]}}`,
+					FieldType:      "auto_complete",
 				},
 			}
 
@@ -1019,7 +1038,9 @@ func TestMongoTagsNamespace(t *testing.T) {
 				Type:  1,
 				Size:  24,
 				MetaStore: map[string]string{
-					"tags": "\"value1,value2,Les Ingénieurs,Une Autre Valeur\"",
+					"tags":          "\"value1,value2,Les Ingénieurs,Une Autre Valeur\"",
+					"tagcloud":      "\"Eau,Cloud\"",
+					"auto_complete": "\"Non-Protégé,Diffusion Restreinte\"",
 				},
 			}
 			So(server.IndexNode(ctx, node, false), ShouldBeNil)
@@ -1030,7 +1051,9 @@ func TestMongoTagsNamespace(t *testing.T) {
 				Type:  1,
 				Size:  24,
 				MetaStore: map[string]string{
-					"tags": "\"value1\"",
+					"tags":          "\"value1\"",
+					"tagcloud":      "\"Energie\"",
+					"auto_complete": "\"Secret\"",
 				},
 			}
 			So(server.IndexNode(ctx, node, false), ShouldBeNil)
@@ -1059,6 +1082,28 @@ func TestMongoTagsNamespace(t *testing.T) {
 			So(er, ShouldBeNil)
 			So(nn, ShouldHaveLength, 1)
 
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value1\"",
+			}
+
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 2)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tagcloud:\"Eau\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.auto_complete:\"Secret\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
 			// Test without quotes
 			queryObject = &tree.Query{
 				FreeString: "+Meta.tags:value2,value1",
@@ -1080,6 +1125,92 @@ func TestMongoTagsNamespace(t *testing.T) {
 			nn, _, er = performSearch(ctx, server, queryObject)
 			So(er, ShouldBeNil)
 			So(nn, ShouldHaveLength, 1)
+			// testing single result matches for substring tags
+			node3 := &tree.Node{
+				Uuid:  "docID3",
+				Path:  "/path/to/node3.txt",
+				MTime: time.Now().Unix(),
+				Type:  1,
+				Size:  24,
+				MetaStore: map[string]string{
+					"tags": "\"value\"",
+				},
+			}
+
+			node4 := &tree.Node{
+				Uuid:  "docID4",
+				Path:  "/path/to/node4.txt",
+				MTime: time.Now().Unix(),
+				Type:  1,
+				Size:  25,
+				MetaStore: map[string]string{
+					"tags": "\"value, Les Ingénieurs\"",
+				},
+			}
+
+			So(server.IndexNode(ctx, node3, false), ShouldBeNil)
+			So(server.IndexNode(ctx, node4, false), ShouldBeNil)
+			So(server.(*commons.Server).Flush(ctx), ShouldBeNil)
+			<-time.After(2 * time.Second)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value\"",
+			}
+			results, _, err := performSearch(ctx, server, queryObject)
+			So(err, ShouldBeNil)
+			So(results, ShouldHaveLength, 2)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"Les Ing\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 0)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value5, Ingénieurs\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 0)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 2)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value, Les Ingénieurs\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value Les Ingénieurs\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 0)
+
+			// this will match at least 1 document because the regex will find value1 inside value1,value2
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"value1,value2,Les Ingénieurs\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 1)
+
+			// this will match 0
+			// Naturally if the first tag does not match, the result is 0 expected AND behavior
+			queryObject = &tree.Query{
+				FreeString: "+Meta.tags:\"valu,Les Ingénieurs\"",
+			}
+			nn, _, er = performSearch(ctx, server, queryObject)
+			So(er, ShouldBeNil)
+			So(nn, ShouldHaveLength, 0)
 
 		})
 	})

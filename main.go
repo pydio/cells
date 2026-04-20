@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/pydio/cells/v5/common"
-
 	// All Telemetry-related drivers
 	// Logs
 	_ "github.com/pydio/cells/v5/common/telemetry/log/file"
@@ -196,10 +195,20 @@ import (
 
 	// Import Command Package after all Mux Registers
 	"github.com/pydio/cells/v5/cmd"
+
+	_ "embed"
+)
+
+var (
+	//go:embed start.yaml
+	bootstrapYAML string
 )
 
 func main() {
 	common.PackageType = "PydioHome"
 	common.PackageLabel = "Pydio Cells Home Edition"
+
+	cmd.DefaultBootstrapYAML = bootstrapYAML
+
 	cmd.Execute()
 }

@@ -189,7 +189,12 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				if h := req.GetNode().GetStringMeta(common.MetaNamespaceHash); h != "" {
 					node.GetNode().MustSetMeta(common.MetaNamespaceHash, h)
 				}
-				s.setDataSourceMeta(ctx, node)
+				for k, v := range req.GetNode().GetMetaStore() {
+					if strings.HasPrefix(k, common.MetaNamespaceUserspacePrefix) {
+						node.GetNode().SetRawMetadata(map[string]string{k: v})
+					}
+				}
+				_ = s.setDataSourceMeta(ctx, node)
 				if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
 					return nil, errors.Tag(err, errors.StatusInternalServerError) // InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 				}

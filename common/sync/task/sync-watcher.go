@@ -73,13 +73,14 @@ func (s *Sync) stopWatchers() {
 		close(stop)
 	}
 	s.watchersChan = []chan bool{}
+	s.eventsBatchers = []*filters.EventsBatcher{} // reset batchers as well
 }
 
 // setupWatcher starts watching events for sync
 func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget) (chan bool, error) {
 
 	var err error
-	watchObject, err := source.Watch("")
+	watchObject, err := source.Watch(ctx, "")
 	if err != nil {
 		log.Logger(ctx).Error("Error While Setting up Watcher on source", zap.Any("source", source), zap.Error(err))
 		return nil, err
@@ -98,9 +99,8 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	}
 
 	// If there are selective roots, pipe
-	if len(s.Roots) > 0 {
-		rootsFilter := filters.NewSelectiveRootsFilter(s.Roots)
-		out = rootsFilter.Pipe(out)
+	if filters.NeedsSelectiveRootsFilter(s.Roots) {
+		out = filters.NewSelectiveRootsFilter(s.Roots).Pipe(out)
 	}
 
 	// Finally Batch filtered events and register batcher for force-close session broadcast

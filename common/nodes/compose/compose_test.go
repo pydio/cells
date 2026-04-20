@@ -43,7 +43,7 @@ import (
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	dcdao "github.com/pydio/cells/v5/data/docstore/dao/bleve"
@@ -66,7 +66,7 @@ func TestMain(m *testing.M) {
 
 	nodes.UseMockStorageClientType()
 	// Override default
-	nodes.RegisterStorageClient("mock", func(cfg configx.Values) (nodes.StorageClient, error) {
+	nodes.RegisterStorageClient("mock", func(cfg kv.Values) (nodes.StorageClient, error) {
 		return mockClient, nil
 	})
 
@@ -146,7 +146,7 @@ func init() {
 
 func TestPersonalResolution(t *testing.T) {
 
-	test.RunServicesTests(testcases, t, func(ctx context.Context) {
+	test.RunServicesTests(uuid.New(), testcases, t, func(ctx context.Context) {
 
 		Convey("Setup Mock Data", t, func() {
 			sd, er := idmtest.GetStartData()

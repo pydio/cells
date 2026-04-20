@@ -46,7 +46,6 @@ var (
 )
 
 type FakeUsersAction struct {
-	common.RuntimeHolder
 	prefix string
 	number string
 }
@@ -66,7 +65,7 @@ func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescripti
 }
 
 // GetParametersForm returns a UX form
-func (f *FakeUsersAction) GetParametersForm() *forms.Form {
+func (f *FakeUsersAction) GetParametersForm(context.Context) *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
 			Fields: []forms.Field{
@@ -114,7 +113,7 @@ func (f *FakeUsersAction) ProvidesProgress() bool {
 }
 
 // Init passes parameters to the action
-func (f *FakeUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
+func (f *FakeUsersAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	f.prefix = "user-"
 	if prefix, ok := action.Parameters["prefix"]; ok {
 		f.prefix = prefix
@@ -145,8 +144,8 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	outputMessage := input.Clone()
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
 
-	userServiceClient := idm.NewUserServiceClient(grpc.ResolveConn(f.GetRuntimeContext(), common.ServiceUserGRPC))
-	rolesServiceClient := idm.NewRoleServiceClient(grpc.ResolveConn(f.GetRuntimeContext(), common.ServiceRoleGRPC))
+	userServiceClient := idm.NewUserServiceClient(grpc.ResolveConn(ctx, common.ServiceUserGRPC))
+	rolesServiceClient := idm.NewRoleServiceClient(grpc.ResolveConn(ctx, common.ServiceRoleGRPC))
 	builder := permissions.NewResourcePoliciesBuilder()
 
 	groupPaths := []string{"/"}

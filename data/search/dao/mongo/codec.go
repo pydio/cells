@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -19,7 +20,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/storage/mongodb"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/data/search"
 	"github.com/pydio/cells/v5/data/search/dao/commons"
 )
@@ -81,7 +82,7 @@ func FastMongoDAO(ctx context.Context, v *mongodb.Indexer) search.Engine {
 	return commons.NewServer(ctx, v, createQueryCodec, indexer.WithExpire(10*time.Millisecond))
 }
 
-func createQueryCodec(values configx.Values, metaProvider *meta.NsProvider) indexer.IndexCodex {
+func createQueryCodec(values kv.Values, metaProvider *meta.NsProvider) indexer.IndexCodex {
 	return &Codex{
 		QueryConfigs:    values,
 		QueryNsProvider: metaProvider,
@@ -96,7 +97,7 @@ type mongoBucket struct {
 type Codex struct {
 	bucketFacets    map[string][]map[interface{}]*tree.SearchFacet
 	QueryNsProvider *meta.NsProvider
-	QueryConfigs    configx.Values
+	QueryConfigs    kv.Values
 }
 
 func (m *Codex) RequirePreCount() bool {
@@ -222,22 +223,48 @@ func (m *Codex) regexTerm(term string) primitive.Regex {
 	return primitive.Regex{Pattern: pattern, Options: "i"}
 }
 
-// regexComaTerms replaces multiple values by multiple regexes
-func (m *Codex) regexComaTerms(metaName string, terms []string, not bool) (filters []bson.E) {
+func getCleanRegexTerms(terms []string) []string {
+	var cleanTerms []string
 	for _, part := range terms {
 		tok := strings.TrimSpace(part)
-		if tok == "" {
-			continue
+		if tok != "" {
+			cleanTerms = append(cleanTerms, tok)
 		}
-		op := "$regex"
-		re := primitive.Regex{Pattern: tok, Options: "i"}
-		if not {
-			op = "$not"
-		}
-		filters = append(filters, bson.E{
-			Key:   metaName,
-			Value: bson.M{op: re},
-		})
+	}
+	return cleanTerms
+}
+
+func appendRegexTerm(metaName, term string, not bool, singleTerm bool, filters []bson.E) []bson.E {
+	op := "$regex"
+	if not {
+		op = "$not"
+	}
+	var pattern string
+	if singleTerm {
+		// Only one term: match the whole tag single term with exact match regex prefix and suffix
+		// tag1 -> (^|,\s*)tag1($|,\s*)
+		pattern = "(^|,\\s*)" + regexp.QuoteMeta(term) + "($|,\\s*)"
+	} else {
+		// For multiple terms, match only full tags at the start or after a comma in the list.
+		// Prevents partial matches inside other tags.
+		// tag1, tag2 -> (^|,\s*)tag1(,|$)  (^|,\s*)tag2(,|$)
+		pattern = "(^|,\\s*)" + regexp.QuoteMeta(term) + "(,|$)"
+	}
+	re := primitive.Regex{Pattern: pattern, Options: "i"}
+	return append(filters, bson.E{
+		Key:   metaName,
+		Value: bson.M{op: re},
+	})
+}
+
+// TODO: optimize the regex for multiple terms with OR
+//
+//	parts := strings.Split(terms, "|")
+func (m *Codex) regexComaTerms(metaName string, terms []string, not bool) (filters []bson.E) {
+	cleanTerms := getCleanRegexTerms(terms)
+	singleTerm := len(cleanTerms) == 1
+	for _, term := range cleanTerms {
+		filters = appendRegexTerm(metaName, term, not, singleTerm, filters)
 	}
 	return
 }
@@ -257,7 +284,7 @@ func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string
 		finalMeta := "meta." + s
 		nss := m.QueryNsProvider.TypedNamespaces()
 		ns, ok := nss[s]
-		if !ok || ns.GetType() != "tags" {
+		if !ok || ns.GetType() != "tags" && ns.GetType() != "tag_cloud" && ns.GetType() != "auto_complete" {
 			return finalMeta, nil, false
 		}
 		switch qTyped := q.(type) {
@@ -476,7 +503,7 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 }
 
 // GetModel returns a mongodb.Model to be inserted in the db
-func (m *Codex) GetModel(sc configx.Values) (interface{}, bool) {
+func (m *Codex) GetModel(sc kv.Values) (interface{}, bool) {
 	model := mongodb.Model{
 		Collections: []mongodb.Collection{
 			{

@@ -51,9 +51,15 @@ const ModernListEntry = withNodeListenerEntry(muiThemeable()((props) => {
         setInlineEditionAnchor,
         selectedAsBorder,
         canDrop, nativeCanDrop, isOver, nativeIsOver, connectDragSource, isDragging, connectDropTarget, connectDragPreview,
+        onUpdateHover,
     } = props;
 
     const [hover, setHover] = useState(false);
+    useEffect(() => {
+        if(onUpdateHover) {
+            onUpdateHover(hover);
+        }
+    }, [hover]);
 
     const inlineEditorRef = useRef(null);
 
@@ -129,14 +135,15 @@ const ModernListEntry = withNodeListenerEntry(muiThemeable()((props) => {
 
     let {children} = props
     if(!children) {
+        const entryState = {hover, selected, isDragging};
         children = (
             <React.Fragment>
-                {entryRenderIcon && <div className="material-list-icon">{entryRenderIcon(node)}</div>}
+                {entryRenderIcon && <div className="material-list-icon">{entryRenderIcon(node, entryState)}</div>}
                 <div className="material-list-text" ref={inlineEditorRef}>
-                    {entryRenderFirstLine && <div className="material-list-line-1">{entryRenderFirstLine(node)}</div>}
-                    {entryRenderSecondLine && <div className="material-list-line-2">{entryRenderSecondLine(node)}</div>}
+                    {entryRenderFirstLine && <div className="material-list-line-1">{entryRenderFirstLine(node, entryState)}</div>}
+                    {entryRenderSecondLine && <div className="material-list-line-2">{entryRenderSecondLine(node, entryState)}</div>}
                 </div>
-                {entryRenderActions && <div className="material-list-actions">{entryRenderActions(node)}</div>}
+                {entryRenderActions && <div className="material-list-actions">{entryRenderActions(node, entryState)}</div>}
             </React.Fragment>
         )
     }
@@ -152,8 +159,8 @@ const ModernListEntry = withNodeListenerEntry(muiThemeable()((props) => {
             }}
             className={dynamicClasses.join(' ')}
             style={entryStyles}
-            onMouseOver={() => !noHover && setHover(true)}
-            onMouseOut={() => !noHover && setHover(false)}
+            onMouseEnter={() => !noHover && setHover(true)}
+            onMouseLeave={() => !noHover && setHover(false)}
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
         >

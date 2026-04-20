@@ -37,9 +37,22 @@ func (h *Handler) Migrate(ctx context.Context, request *service2.MigrateRequest)
 			listOptions = append(listOptions, registry.WithName(sName))
 		}
 	}
-	svcItems, err := mcm.Registry().List(listOptions...)
+
+	log.Logger(ctx).Debug("migrate: service item")
+
+	srvOptions := []registry.Option{registry.WithType(pb.ItemType_SERVER)}
+	srvItems, err := mcm.Registry().List(srvOptions...)
 	if err != nil {
 		return nil, err
+	}
+
+	svcItems := mcm.Registry().ListAdjacentItems(
+		registry.WithAdjacentSourceItems(srvItems),
+		registry.WithAdjacentTargetOptions(listOptions...))
+
+	// Debugging svcItem migration list
+	for _, svcItem := range svcItems {
+		log.Logger(ctx).Debug("migrate: service item", zap.String("service", svcItem.Name()))
 	}
 
 	var topoSvcItems []std.TopologicalObject[registry.Item]

@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"sync"
 	"testing"
 
+	"go.uber.org/zap"
 	"gocloud.dev/pubsub"
 	"golang.org/x/sync/errgroup"
 	grpc2 "google.golang.org/grpc"
@@ -22,6 +22,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 
@@ -65,7 +66,7 @@ func TestServiceBroker(t *testing.T) {
 
 			cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
 			if err != nil {
-				log.Fatal(err)
+				log.Logger(ctx).Fatal("could not subscribe", zap.Error(err))
 			}
 			sub := &sharedSubscriber{
 				Broker_SubscribeClient: cli,
@@ -77,17 +78,17 @@ func TestServiceBroker(t *testing.T) {
 
 			subscription, err := NewSubscription("test1", WithContext(ctx), WithSubscriber(sub))
 			if err != nil {
-				log.Fatal(err)
+				log.Logger(ctx).Fatal("could not create subscription", zap.Error(err))
 			}
 
 			wg := sync.WaitGroup{}
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				defer subscription.Shutdown(context.Background())
+				defer subscription.Shutdown(ctx)
 
 				for {
-					msg, err := subscription.Receive(context.Background())
+					msg, err := subscription.Receive(ctx)
 					if err == io.EOF {
 						fmt.Println("Received EOF")
 						return
@@ -98,7 +99,7 @@ func TestServiceBroker(t *testing.T) {
 						return
 					}
 
-					fmt.Println("Received message ", numMessagesReceived)
+					log.Logger(ctx).Info("Received message ", zap.Int("num", numMessagesReceived))
 
 					numMessagesReceived++
 
@@ -117,7 +118,7 @@ func TestServiceBroker(t *testing.T) {
 
 			topic, err := NewTopic("test1", "", WithContext(ctx))
 			if err != nil {
-				log.Fatal(err)
+				log.Logger(ctx).Fatal("could not create topic", zap.Error(err))
 			}
 
 			msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
@@ -129,7 +130,7 @@ func TestServiceBroker(t *testing.T) {
 			var eg errgroup.Group
 			for i := 0; i < numMessagesToSend; i++ {
 				eg.Go(func() error {
-					fmt.Println("Sent ", i)
+					log.Logger(ctx).Info("Sending message", zap.Int("num", i))
 					return topic.Send(context.Background(), &pubsub.Message{
 						Body: b,
 					})
@@ -145,9 +146,10 @@ func TestServiceBroker(t *testing.T) {
 			}
 
 			wg.Wait()
+
 			fmt.Println(cancel)
 
-			fmt.Println(numMessagesReceived, numMessagesToSend)
+			log.Logger(ctx).Info("results: ", zap.Int("numMessagesReceived", numMessagesReceived), zap.Int("numMessagesToSend", numMessagesToSend))
 
 			So(numMessagesReceived, ShouldEqual, numMessagesToSend)
 
@@ -160,12 +162,12 @@ func SkipTestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 
 	var cancel context.CancelFunc
 
-	conn := grpc.ResolveConn(context.Background(), common.ServiceBroker)
+	conn := grpc.ResolveConn(t.Context(), common.ServiceBroker)
 	// ctx := clientcontext.WithClientConn(context.Background(), conn)
 	ctx, cancel := context.WithCancel(context.Background())
 	cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Logger(ctx).Fatal("could not subscribe", zap.Error(err))
 	}
 	sub := &sharedSubscriber{
 		Broker_SubscribeClient: cli,
@@ -182,7 +184,7 @@ func SkipTestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	// Make a subscription.
 	s, err := NewSubscription("test2", WithContext(ctx), WithSubscriber(sub))
 	if err != nil {
-		log.Fatal(err)
+		log.Logger(ctx).Fatal("could not create subscription", zap.Error(err))
 	}
 	defer s.Shutdown(ctx)
 
@@ -216,7 +218,7 @@ func SkipTestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	// Send messages. Each message has a unique body used as a key to receivedMsgs.
 	topic, err := NewTopic("test2", "", WithContext(ctx))
 	if err != nil {
-		log.Fatal(err)
+		log.Logger(ctx).Fatal("could not create topic", zap.Error(err))
 	}
 
 	defer topic.Shutdown(ctx)

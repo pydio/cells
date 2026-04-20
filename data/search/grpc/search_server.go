@@ -158,6 +158,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 			_ = treeStreamer.CloseSend()
 		}
 	}()
+	uniques := make(map[string]bool)
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -171,7 +172,11 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 				_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Facet{Facet: facet}})
 			case node := <-resultsChan:
 				if node != nil {
-
+					if _, ok := uniques[node.GetUuid()]; ok {
+						log.Logger(ctx).Warn("Search Engine returns duplicates, this is not expected", node.Zap())
+						continue
+					}
+					uniques[node.GetUuid()] = true
 					log.Logger(ctx).Debug("Search", zap.String("uuid", node.Uuid))
 
 					if req.Details {

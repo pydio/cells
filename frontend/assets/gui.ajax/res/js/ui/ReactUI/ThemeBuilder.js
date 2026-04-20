@@ -571,7 +571,7 @@ export default class ThemeBuilder {
                 transition: DOMUtils.getBeziersTransition()
             },
             buttonsIconStyle :{
-                fontSize: 18,
+                fontSize: 20,
                 color:  headerButtonsColor || iconButtonsColor
             },
             activeButtonStyle: {

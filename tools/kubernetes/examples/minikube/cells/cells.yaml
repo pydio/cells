@@ -1,0 +1,101 @@
+replicaCount: 1
+
+image:
+  repository: pydio/cells
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: prepare-4.9.92-alpha16
+
+auth:
+  enabled: true
+  create: true
+  username: "admin"
+  password: "admin"
+  # existingSecret: "cells"
+  # existingSecretUsernameKey: "username"
+  # existingSecretPasswordKey: "password"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+clusterDomain: cluster.local
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "app"
+
+podAnnotations: {
+}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: NodePort
+  port: 8080
+  discoveryPort: 8002
+
+  customconfigs: {
+    # Initial license
+    "defaults/license/data": "==",
+
+    # Creates a kind-of sticky session for grpc requests, priority is given to local grpc servers for any outgoing request going to grpc
+    #"cluster/clients/grpc/loadBalancingStrategies[0]/name": "priority-local",
+
+    "defaults/sites#json": '[{
+      "Binds": [
+          "0.0.0.0:8080"
+      ],
+      "ReverseProxyURL": "https://localhost:8080",
+      "TLSConfig": {
+        "SelfSigned": {}
+      }
+    }]',
+    "frontend/plugin/core.pydio/APPLICATION_TITLE": "My Pydio Cells Cluster"
+  }
+
+controller:
+  runtime: main
+  services:
+    - pydio.generic.install
+    - pydio.generic.timer
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistence:
+  enabled: false
+persistentVolumeClaimRetentionPolicy:
+  enabled: false
+
+
+# Disable integrated charts
+minio:
+  enabled: false
+mariadb:
+  enabled: false  
+mariadb-galera:
+  enabled: false  
+redis:
+  enabled: false  
+nats:
+  enabled: false  
+etcd:
+  enabled: false 
+mongodb:
+  enabled: false 
+vault:
+  enabled: false

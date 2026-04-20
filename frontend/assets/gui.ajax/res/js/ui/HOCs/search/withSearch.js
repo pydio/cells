@@ -55,7 +55,7 @@ const SearchConstants = {
 export {SearchConstants};
 
 
-export default function withSearch(Component, historyIdentifier, defaultScope){
+export default function withSearch(Component, historyIdentifier, defaultScope, bindToContextNode = true){
 
     return class WithSearch extends React.Component {
 
@@ -119,14 +119,16 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                     configs.forEach((v,k) => {
                         if(v.indexable) {
                             v.namespace = k
-                            v.renderer = Renderer.typeFormRenderer(v.type)
+                            const renderer = Renderer.typeFormRenderer(v.type)
+                            v.renderer = (pp, cfg) => renderer(pp, configs) // inject configs
                             const o = Renderer.typeColumnRenderer(v.type)
                             if(o && o.renderComponent) {
                                 // create simpler signature
                                 v.blockRenderer = (value) => {
                                     const n = new Node()
                                     n.getMetadata().set(v.namespace, value)
-                                    return o.renderComponent(n, {name:v.namespace})
+                                    const context = { parent: 'search-options' }
+                                    return o.renderComponent(n, {name:v.namespace}, context)
                                 }
                             }
                             options.indexedMeta.push(v)
@@ -184,12 +186,14 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             const searchRootNode = dataModel.getSearchNode();
             searchRootNode.getMetadata().set('search_values', values);
             searchRootNode.getMetadata().set('active_facets', activeFacets);
-            if(dataModel.getContextNode() !== searchRootNode){
-                searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+            if(bindToContextNode) {
+                if(dataModel.getContextNode() !== searchRootNode){
+                    searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                }
+                searchRootNode.observeOnce("loaded", ()=> {
+                    dataModel.setContextNode(searchRootNode, true);
+                })
             }
-            searchRootNode.observeOnce("loaded", ()=> {
-                dataModel.setContextNode(searchRootNode, true);
-            })
             searchRootNode.setChildren([]);
             searchRootNode.setLoaded(false);
             let {scope, ...searchValues} = values;
@@ -252,11 +256,13 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             }
             if(Object.keys(other).length > 0 && deepEqual(values, newValues) && !refreshPreviousContext) {
                 console.info('Do not re-run the search as values have not changed yet')
-                const searchRootNode = dataModel.getSearchNode();
-                if(dataModel.getContextNode() !== searchRootNode){
-                    searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                if(bindToContextNode) {
+                    const searchRootNode = dataModel.getSearchNode();
+                    if(dataModel.getContextNode() !== searchRootNode){
+                        searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                    }
+                    dataModel.setContextNode(searchRootNode, true);
                 }
-                dataModel.setContextNode(searchRootNode, true);
                 if(onUpdateSearch){
                     onUpdateSearch({values: newValues});
                 }
@@ -446,9 +452,9 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             })
         }
 
-        pushSavedSearches(label){
+        pushSavedSearches(label, sortingInfo = undefined){
             const {values, savedSearches = []} = this.state;
-            const newValues = {...values, searchLABEL:label, searchID: values.searchID || uuid()};
+            const newValues = {...values, searchLABEL:label, searchSORTING:sortingInfo, searchID: values.searchID || uuid()};
             const newSaved = [...savedSearches.filter(vv => vv.searchID !== newValues.searchID), newValues]
             this.getSaveKey().then(key => {
                 this.setState({savedSearches: newSaved}, () => {

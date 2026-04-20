@@ -22,10 +22,10 @@ package jobs
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"strconv"
 
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -38,9 +38,9 @@ type MessageMatcher struct {
 	*ActionOutputSingleQuery
 }
 
-func (m *MessageMatcher) Matches(object interface{}) bool {
+func (m *MessageMatcher) Matches(ctx context.Context, object interface{}) bool {
 	if in, ok := object.(*ActionOutput); ok {
-		return match(m.ActionOutputSingleQuery, in)
+		return match(ctx, m.ActionOutputSingleQuery, in)
 	} else {
 		return false
 	}
@@ -65,10 +65,10 @@ func (n *ActionOutputFilter) Filter(ctx context.Context, input *ActionMessage) (
 		}
 		return &MessageMatcher{ActionOutputSingleQuery: n.cloneEval(ctx, input, target)}, nil
 	}); er != nil {
-		fmt.Println("Error while parsing query", er)
+		log.Logger(ctx).Error("ActionOutputFilter - error while parsing query", zap.Error(er))
 		return output, nil, false
 	}
-	return output, nil, multi.Matches(input.GetLastOutput())
+	return output, nil, multi.Matches(ctx, input.GetLastOutput())
 }
 
 func (n *ActionOutputFilter) cloneEval(ctx context.Context, input *ActionMessage, query *ActionOutputSingleQuery) *ActionOutputSingleQuery {
@@ -84,7 +84,7 @@ func (n *ActionOutputFilter) cloneEval(ctx context.Context, input *ActionMessage
 	return res
 }
 
-func match(query *ActionOutputSingleQuery, output *ActionOutput) bool {
+func match(ctx context.Context, query *ActionOutputSingleQuery, output *ActionOutput) bool {
 
 	if query.FreeCondition != "" {
 		if b, e := strconv.ParseBool(query.FreeCondition); e == nil {
@@ -116,7 +116,7 @@ func match(query *ActionOutputSingleQuery, output *ActionOutput) bool {
 		reg, regErr = regexp.Compile(query.ErrorStringRegexp)
 	}
 	if regErr != nil {
-		log.Logger(context.Background()).Error("Warning, invalid regexp used in ActionOutputFilter condition! Filter with not pass!")
+		log.Logger(ctx).Error("Warning, invalid regexp used in ActionOutputFilter condition! Filter with not pass!")
 	}
 	if reg != nil && !reg.MatchString(strMatch) {
 		return false

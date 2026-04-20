@@ -53,7 +53,6 @@ var (
 )
 
 type ExifProcessor struct {
-	common.RuntimeHolder
 	metaClient tree.NodeReceiverClient
 }
 
@@ -73,7 +72,7 @@ func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription
 }
 
 // GetParametersForm returns a UX form
-func (e *ExifProcessor) GetParametersForm() *forms.Form {
+func (e *ExifProcessor) GetParametersForm(context.Context) *forms.Form {
 	return nil
 }
 
@@ -83,10 +82,10 @@ func (e *ExifProcessor) GetName() string {
 }
 
 // Init passes parameters to the action
-func (e *ExifProcessor) Init(job *jobs.Job, action *jobs.Action) error {
+func (e *ExifProcessor) Init(ctx context.Context, job *jobs.Job, action *jobs.Action) error {
 	//e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
 	if !nodes.IsUnitTestEnv {
-		e.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(e.GetRuntimeContext(), common.ServiceMetaGRPC))
+		e.metaClient = tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
 	}
 	return nil
 }
@@ -112,13 +111,6 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 
 	output := input.Clone()
 	node.MustSetMeta(MetadataExif, exifData)
-	orientation, oe := exifData.Get(exif.Orientation)
-	if oe == nil {
-		t := orientation.String()
-		if t != "" {
-			node.MustSetMeta(MetadataCompatOrientation, t)
-		}
-	}
 	lat, long, err := exifData.LatLong()
 	if err == nil {
 		var readLat, readLong string
@@ -184,7 +176,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 		targetFileName := filepath.Join(localFolder, baseName)
 		reader, rer = os.Open(targetFileName)
 	} else {
-		reader, rer = getRouter(e.GetRuntimeContext()).GetObject(ctx, proto.Clone(node).(*tree.Node), &models.GetRequestData{Length: -1})
+		reader, rer = getRouter(ctx).GetObject(ctx, proto.Clone(node).(*tree.Node), &models.GetRequestData{Length: -1})
 	}
 
 	//reader, rer := node.ReadFile(ctx)

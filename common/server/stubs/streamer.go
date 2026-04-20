@@ -94,6 +94,9 @@ func (cs *ClientServerStreamerCore) SendMsg(m interface{}) error {
 }
 
 func (cs *ClientServerStreamerCore) RecvMsg(m interface{}) error {
+	if cs.closed {
+		return nil
+	}
 	if resp, o := <-cs.RespChan; o {
 		return AssignToInterface(resp, m)
 	} else {
@@ -104,7 +107,7 @@ func (cs *ClientServerStreamerCore) RecvMsg(m interface{}) error {
 type BidirServerStreamerCore struct {
 	ClientServerStreamerCore
 	ReqChan chan proto.Message
-	closed  bool
+	//closed  bool
 }
 
 func (bd *BidirServerStreamerCore) Init(ctx context.Context) {

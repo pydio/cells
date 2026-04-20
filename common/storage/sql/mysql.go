@@ -104,6 +104,10 @@ func (m *mysqlHelper) MPathOrdering(mm ...string) string {
 	return strings.Join(mm, ", ")
 }
 
+func (m *mysqlHelper) MPathOrderingLastInteger(mm ...string) string {
+	return "CAST(SUBSTRING_INDEX(" + m.Concat(mm...) + ", '.', -1) AS UNSIGNED)"
+}
+
 func (m *mysqlHelper) FirstAvailableSlot(tableName string, mpath *tree.MPath, levelKey string, mpathes ...string) (string, []any, int64, bool) {
 	// Not performant, linearly growing
 	/*

@@ -61,7 +61,9 @@ func LoadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[s
 		wsAcls[a.WorkspaceID] = append(wsAcls[a.WorkspaceID], a)
 	}
 	streamer := treec.NodeProviderStreamerClient(ctx)
-	c, e := streamer.ReadNodeStream(ctx)
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	c, e := streamer.ReadNodeStream(ct)
 	if e != nil {
 		return e
 	}

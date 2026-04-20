@@ -36,6 +36,8 @@ type Enquirer interface {
 	GetLimit() int64
 	GetGroupBy() int32
 	GetResourcePolicyQuery() *ResourcePolicyQuery
+	GetSortField() string
+	GetSortDesc() bool
 
 	fmt.Stringer
 }
@@ -112,6 +114,10 @@ func (gc *wrapConverter[T]) Convert(ctx context.Context, val *anypb.Any, in T) (
 }
 
 func (qb *queryBuilder[T]) Build(ctx context.Context, in T) (out T, e error) {
+
+	if qb == nil || qb.enquirer == nil {
+		return in, nil
+	}
 
 	var subDBs []Collector[T]
 	for _, subQ := range qb.enquirer.GetSubQueries() {

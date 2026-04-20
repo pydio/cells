@@ -23,7 +23,7 @@ package indexer
 import (
 	"context"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 // IndexCodex is the coder/decoder used by an Indexer.
@@ -35,7 +35,7 @@ type IndexCodex interface {
 	// BuildQuery prepares a query to be executed. It returns a request object and optionnaly an aggregationRequest object
 	BuildQuery(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, interface{}, error)
 	// GetModel reads initialization schema to be loaded
-	GetModel(sc configx.Values) (interface{}, bool)
+	GetModel(sc kv.Values) (interface{}, bool)
 }
 
 // FacetParser adds additional capacities to IndexCodex for understanding search results Facets
@@ -90,7 +90,7 @@ type Indexer interface {
 	NewBatch(ctx context.Context, options ...BatchOption) (Batch, error)
 
 	// Init the underlying model
-	Init(ctx context.Context, conf configx.Values) error
+	Init(ctx context.Context, conf kv.Values) error
 	// Close closes the index connection
 	Close(ctx context.Context) error
 	// CloseAndDrop closes the index and remove all resources

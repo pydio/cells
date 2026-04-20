@@ -203,7 +203,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 		}
 		var uu, xx []*idm.User
 		for _, u := range input.Users {
-			if multi.Matches(u) {
+			if multi.Matches(ctx, u) {
 				uu = append(uu, u)
 			} else {
 				xx = append(xx, u)
@@ -233,7 +233,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 		}
 		var rr, xx []*idm.Role
 		for _, r := range input.Roles {
-			if multi.Matches(r) {
+			if multi.Matches(ctx, r) {
 				rr = append(rr, r)
 			} else {
 				xx = append(xx, r)
@@ -269,7 +269,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 		}
 		var ww, xx []*idm.Workspace
 		for _, w := range srcWW {
-			if multi.Matches(w) {
+			if multi.Matches(ctx, w) {
 				ww = append(ww, w)
 			} else {
 				xx = append(xx, w)
@@ -299,7 +299,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 		}
 		var aa, xx []*idm.ACL
 		for _, a := range input.Acls {
-			if multi.Matches(a) {
+			if multi.Matches(ctx, a) {
 				aa = append(aa, a)
 			} else {
 				xx = append(xx, a)
