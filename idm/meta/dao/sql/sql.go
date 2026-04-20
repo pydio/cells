@@ -22,6 +22,7 @@ package sql
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"go.uber.org/zap"
@@ -59,6 +60,7 @@ func NewDAO(db *gorm.DB) meta.DAO {
 		Abstract:     sql.NewAbstract(db),
 		resourcesDAO: resources2.NewDAO(db),
 		nsDAO:        NewNSDAO(db),
+		evDAO:        NewEntityValueDAO(db),
 	}
 }
 
@@ -67,6 +69,7 @@ type sqlimpl struct {
 	*sql.Abstract
 	resourcesDAO
 	nsDAO meta.NamespaceDAO
+	evDAO meta.EntityValueDAO
 }
 
 type Meta struct {
@@ -113,6 +116,10 @@ func (s *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
 	return s.nsDAO
 }
 
+func (s *sqlimpl) GetEntityValueDao() meta.EntityValueDAO {
+	return s.evDAO
+}
+
 func (s *sqlimpl) Migrate(ctx context.Context) error {
 	if err := s.Session(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
 		return err
@@ -123,6 +130,10 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 	}
 
 	if err := s.nsDAO.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := s.evDAO.Migrate(ctx); err != nil {
 		return err
 	}
 
@@ -195,6 +206,26 @@ func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue st
 	return previousValue, nil
 }
 
+// This method was added to fix an issue with Set returning incorrect uuid of meta row
+func (s *sqlimpl) GetMeta(ctx context.Context, nodeUuid string, namespace string) (*idm.UserMeta, error) {
+	var meta *Meta
+	tx := s.Session(ctx).Where(&Meta{NodeUUID: nodeUuid}, &Meta{Namespace: namespace}).First(&meta)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
+		return nil, errors.WithMessagef(errors.NodeNotFound, "Cannot find metadata for node %s", nodeUuid)
+	}
+
+	return &idm.UserMeta{
+		Uuid:      meta.UUID,
+		Namespace: meta.Namespace,
+		JsonValue: string(meta.Data),
+		NodeUuid:  meta.NodeUUID,
+	}, nil
+}
+
 // Search meta on their conditions
 // func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
 func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.UserMeta, error) {
@@ -216,6 +247,27 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.Us
 		return nil, tag(tx.Error)
 	}
 
+	// Collect meta UUIDs to fetch entity values
+	var metaUUIDs []string
+	for _, meta := range metas {
+		metaUUIDs = append(metaUUIDs, meta.UUID)
+	}
+
+	entityValuesMap := make(map[string][]string)
+	if len(metaUUIDs) > 0 {
+		evMap, err := s.evDAO.GetMetaEntityValuesMap(ctx, metaUUIDs)
+		if err == nil { // Ignoring the error since it's not guaranteed to have entity values for all metas
+			for metaUUID, entityValues := range evMap {
+				labels := make([]string, len(entityValues))
+				for i, ev := range entityValues {
+					labels[i] = ev.Label
+				}
+				entityValuesMap[metaUUID] = labels
+			}
+		}
+	}
+
+	// Build result with entity values where they exist
 	var res []*idm.UserMeta
 	for _, meta := range metas {
 		m := meta.As(&idm.UserMeta{})
@@ -223,6 +275,16 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.Us
 			m.Policies = policies
 		} else {
 			log.Logger(ctx).Error("cannot load resource policies for uuid: "+m.Uuid, zap.Error(e))
+		}
+
+		if labels, found := entityValuesMap[meta.UUID]; found && len(labels) > 0 {
+			// Encode labels as JSON array for tag_cloud only
+			jsonArray, err := json.Marshal(labels)
+			if err != nil {
+				log.Logger(ctx).Error("failed to marshal entity values", zap.Error(err))
+			} else {
+				m.JsonValue = string(jsonArray)
+			}
 		}
 
 		res = append(res, m)

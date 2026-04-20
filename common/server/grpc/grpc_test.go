@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	discoveryregistry "github.com/pydio/cells/v5/discovery/registry"
 
+	_ "github.com/pydio/cells/v5/common/config/memory"
 	_ "github.com/pydio/cells/v5/common/registry/config"
 )
 
@@ -200,10 +201,9 @@ func TestGetServiceInfo(t *testing.T) {
 	v := viper.New()
 	v.Set(runtime.KeyConfig, "mem://")
 	v.Set(runtime.KeyArgTags, "test")
-	v.Set(runtime.KeyBootstrapYAML, b.String())
 	runtime.SetRuntime(v)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	mem, _ := config.OpenStore(ctx, "mem://")
@@ -232,7 +232,7 @@ func TestGetServiceInfo(t *testing.T) {
 				endpoint := util.CreateEndpoint("/tests/test", nil, map[string]string{})
 
 				go func(endpoint registry.Item) {
-					duration := 5 * time.Second
+					duration := 1 * time.Second
 					ticker := time.NewTicker(10 * time.Millisecond)
 					defer ticker.Stop()
 
@@ -256,7 +256,6 @@ func TestGetServiceInfo(t *testing.T) {
 					for {
 						select {
 						case <-time.After(1 * time.Nanosecond):
-
 						}
 					}
 				}(endpoint)
@@ -267,29 +266,36 @@ func TestGetServiceInfo(t *testing.T) {
 		if srv.As(&grpcServer) {
 			go func() {
 				start := time.Now()
-				duration := 5 * time.Second
+				duration := 1 * time.Second
 				ticker := time.NewTicker(10 * time.Millisecond)
 				defer ticker.Stop()
+				// Cancelling context
+				defer cancel()
 
-				for range ticker.C {
-					// Check if the total duration has elapsed
-					if time.Since(start) >= duration {
-						break
+				for {
+					select {
+					case <-ticker.C:
+						// Check if the total duration has elapsed
+						if time.Since(start) >= duration {
+							return
+						}
+
+						t.Log("Geting service info ", grpcServer.GetServiceInfo())
+					case <-t.Context().Done():
+						return
 					}
-
-					fmt.Println("Geting service info ", grpcServer.GetServiceInfo())
 				}
 
-				// Cancelling context
-				cancel()
 			}()
 		}
 	})
 
-	mgr, err := manager.NewManager(ctx, "test", nil)
+	mgr, err := manager.NewManager(ctx, "test")
 	if err != nil {
 		panic(err)
 	}
+
+	mgr.Bootstrap(b.String())
 
 	if err := mgr.ServeAll(); err != nil {
 		fmt.Println(err)

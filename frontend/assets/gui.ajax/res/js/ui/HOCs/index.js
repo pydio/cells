@@ -39,9 +39,11 @@ import * as ThemedContainers from './material/ThemedContainers'
 import * as Utils from './utils'
 import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, RectShape as PhRectShape, RoundShape as PhRoundShape, TextRow as PhTextRow} from './placeholders'
 import withSearch, {SearchConstants} from './search/withSearch'
+import emptyDataModel from './search/emptyDataModel'
 import * as hooks from './hooks'
 import * as AdditionalIcons from './material/AdditionalIcons'
 import {listFontIcons, colorsFromString} from './graphics/tools'
+import {PydioMantineProvider} from "./mantine/PydioMantineProvider";
 
 
 const PydioHOCs = {
@@ -69,9 +71,11 @@ const PydioHOCs = {
     withSelection,
     withVerticalScroll,
     withSearch,
+    emptyDataModel,
     SearchConstants,
     ...Modern,
     ThemedContainers,
+    PydioMantineProvider,
     DatePicker: ThemedContainers.DatePicker,
     TimePicker: ThemedContainers.TimePicker,
     AdditionalIcons,

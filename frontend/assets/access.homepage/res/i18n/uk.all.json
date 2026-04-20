@@ -1,63 +1,63 @@
 {
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "Нижче наведено список робочих просторів, до яких ви можете отримати доступ. Вони можуть бути особистими або спільними з іншими користувачами."
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Вітаємо, %s!"
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Використовувати цю робочу область за замовчуванням"
   },
   "42": {
-    "other": "Enter"
+    "other": "Увійти"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Мій профіль"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Всі мої особисті дані"
   },
   "44": {
-    "other": "My Account"
+    "other": "Особистий кабінет"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Особисті дані"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Адресна книга"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Користувачі та команди, які ви створили"
   },
   "48": {
-    "other": "My Users"
+    "other": "Мої користувачі"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "Зовнішні користувачі, які ви створили"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Мої команди"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Команди користувачів, що використовуються як ярлики"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Ви впевнені, що хочете видалити цю команду? Ця дія не видалить жодного користувача."
   },
   "53": {
-    "other": "Getting Started"
+    "other": "З чого почати"
   },
   "54": {
-    "other": "Get started with APPLICATION_TITLE by following How-to videos"
+    "other": "Розпочати роботу з APPLICATION_TITLE, слідуючи відеоролики"
   },
   "55": {
-    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
+    "other": "Нова версія APPLICATION_TITLE? <a>Перегляньте наші підручники</a>!"
   },
   "56": {
-    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
+    "other": "Початок роботи з APPLICATION_TITLE? Ось деякі відео для вас!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "Завантажити APPLICATION_TITLE для..."
   },
   "58": {
     "other": "Android"
@@ -72,195 +72,195 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Завантаження файлів до робочого простору</h2>\n            Почніть роботу з APPLICATION_TITLE та дізнайтеся, як завантажувати файли\n            <ul>\n                <li>Перетягування файлів до APPLICATION_TITLE?</li>\n                <li>Створення нової теки?</li>\n                <li>Перейменування файлів та тек?</li>\n                <li>Завантаження файлів на ваш комп'ютер</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Пошук, перегляд та керування файлами</h2>\n            У цьому відео наведено корисні поради щодо ефективного керування файлами в APPLICATION_TITLE\n            <ul>\n                <li>Рядок пошуку по всіх робочих просторах</li>\n                <li>Режими відображення контенту, гарячі клавіші</li>\n                <li>Сортування файлів</li>\n                <li>Метадані, закладки</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Пошук, перегляд та керування файлами</h2>\n            Цей відеоогляд містить поради щодо ефективного керування файлами в APPLICATION_TITLE\n            <ul>\n                <li>Рядок пошуку між робочими просторами</li>\n                <li>Режими відображення вмісту, гарячі клавіші</li>\n                <li>Сортування файлів</li>\n                <li>Метадані, закладки</li>\n            </ul>\n            "
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "Дізнайтеся більше на каналі APPLICATION_TITLE!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>Використання APPLICATION_TITLE на iOS пристроях</h2>\n                            Це відео демонструє, як використовувати додаток APPLICATION_TITLE (доступний в App Store). Для Android - аналогічно.\n<ul><li>Налаштування з'єднання з сервером</li>\n<li>Навігація по файлах</li>\n<li>Зберігання файлів для автономного доступу (offline) та взаємодія з іншими додатками</li>\n<li>Захист додатка за допомогою PIN-коду</li>\n<li>Використання закладок та механізму пошуку</li></ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "якщо ви не %s, натисніть %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Завантажити клієнт Sync для Windows"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Завантажте клієнт Sync для Mac OSX"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "Додаток для iOS-пристроїв"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "Додаток для Android-пристроїв"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "QR-код сервера"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "Легко підключіть свої мобільні додатки"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "Проскануйте цей QR-код щоб легко налаштувати мобільну програму"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "Пошук усіх файлів..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "Відкрийте %1 за допомогою меню вгорі праворуч"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "панель адміністрування"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "Виберіть цільову робочу область"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Спільний доступ до файлів і тек</h2>\n            Цей посібник покаже вам, як надавати спільний доступ до файлів і тек — як внутрішнім, так і зовнішнім користувачам\n            <ul>\n                <li>Створення посилань для зовнішніх користувачів</li>\n                <li>Надання доступу внутрішнім колегам</li>\n                <li>Надання доступу до теки як до робочого простору</li>\n                <li>Параметри оформлення спільних тек</li>\n                <li>Створення теки для анонімного завантаження (blind drop)</li>\n                <li>Керування користувачами та правами доступу</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Спільний доступ: функції безпеки</h2>\n            Цей відеоогляд присвячений налаштуванням спільного доступу, які допоможуть захистити ваші дані\n            <ul>\n                <li>Захист паролем</li>\n                <li>Термін дії посилання</li>\n                <li>Обмеження кількості завантажень</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[Інструкція] Налаштування посилань спільного доступу</h2>\n            Дізнайтеся, як налаштувати URL-адреси ваших посилань, щоб вони виглядали зручнішими для користувачів.\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Власні права доступу для посилань</h2>\n            Цей відеоогляд покаже вам, як керувати дозволами, що надаються для ваших спільних ресурсів\n            <ul>\n                <li>Перегляд</li>\n                <li>Завантаження</li>\n                <li>Завантаження файлів / Редагування</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[Інструкція] Мова</h2>\n            APPLICATION_TITLE доступна 28 мовами. Цей відеоогляд покаже вам, як змінити мову в APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[Інструкція] Сповіщення</h2>\n            Дізнайтеся, як налаштувати сповіщення для файлу, щоб бачити, коли його було змінено або переглянуто.\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[Інструкція] Спільне редагування</h2>\n            Цей відеоогляд покаже вам, як працювати над офісними документами завдяки онлайн-пакету Collabora\n            <ul>\n                <li>Робота з текстовими документами, презентаціями та таблицями</li>\n                <li>Спільне редагування документів у режимі реального часу</li>\n                <li>Створення нових документів безпосередньо у браузері</li>\n            </ul>\n            "
   },
   "86": {
-    "other": "Play video"
+    "other": "Відтворити відео"
   },
   "87": {
-    "other": "My Recent Activity"
+    "other": "Остання діяльність"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "Перетягніть файли сюди з робочого столу"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "Вибраний файл для завантаження"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "Вибрати цільове робоче середовище"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "Збережіть файли в автономному режимі з нашим клієнтом для ПК"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Завантаження додатків"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Швидке завантаження"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Відеоуроки"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "Сторінка привітання"
   },
   "title": {
-    "other": "Home"
+    "other": "Домашня сторінка"
   },
   "search.result.location": {
-    "other": "Folder"
+    "other": "Тека"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Результат фільтру..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "Тип"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "Розширення"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "Розмір"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "Змінено"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Знайдено в"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "Метадані"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "Спершу найбільш підставою"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "Нещодавно додані Перші"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "Спочатку старіші"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "Спершу найбільші"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "Спершу найменші"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "Файл"
   },
   "facet.label.folder": {
-    "other": "Folder"
+    "other": "Тека"
   },
   "facet.label.size.lt.1MB": {
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "від 1 МБ до 10 МБ"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10 МБ до 100 МБ"
   },
   "facet.label.size.gt.100MB": {
-    "other": "> 100MB"
+    "other": "> 100 МБ"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Щойно"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "Сьогодні"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Останні 7 днів"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Останні 30 днів"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Старіші за 30 днів"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "Вміст"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Ім'я файлу"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "Закладка"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "Робоча область"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "Комірка"
   }
 }

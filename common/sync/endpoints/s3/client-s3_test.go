@@ -26,10 +26,10 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestStat(t *testing.T) {
@@ -137,7 +137,7 @@ func TestGetWriterOnS3(t *testing.T) {
 	Convey("Test Get Writer on node", t, func() {
 
 		c := NewS3Mock()
-		w, _, _, err := c.GetWriterOn(context.Background(), "/file", 0)
+		w, _, _, err := c.GetWriterOn(context.Background(), "/file", 0, nil)
 		So(err, ShouldBeNil)
 		defer w.Close()
 		So(w, ShouldNotBeNil)
@@ -151,7 +151,7 @@ func TestGetReaderOnS3(t *testing.T) {
 	Convey("Test Get Reader on node", t, func() {
 
 		c := NewS3Mock()
-		o, e := c.GetReaderOn(context.Background(), "/file")
+		o, e := c.GetReaderOn(context.Background(), "/file", nil)
 		So(o, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 

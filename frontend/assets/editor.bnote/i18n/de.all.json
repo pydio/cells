@@ -19,5 +19,131 @@
   },
   "copy_ref": {
     "other": "Referenz kopieren"
+  },
+  "alert-spec.title": {
+    "other": "Warnung einfügen"
+  },
+  "alert-spec.subtext": {
+    "other": "Die Aufmerksamkeit des Lesers durch eine Warnung hervorheben"
+  },
+  "alert-block.type": {
+    "other": "Warnungstyp"
+  },
+  "alert-block.warning": {
+    "other": "Warnung"
+  },
+  "alert-block.error": {
+    "other": "Fehler"
+  },
+  "alert-block.info": {
+    "other": "Info"
+  },
+  "alert-block.success": {
+    "other": "Erfolgreich"
+  },
+  "side-button.move-up": {
+    "other": "Nach oben"
+  },
+  "side-button.move-down": {
+    "other": "Nach unten"
+  },
+  "dropped.loading": {
+    "other": "%s wird geladen..."
+  },
+  "files-list.sort": {
+    "other": "Sortieren nach..."
+  },
+  "files-list.load-error": {
+    "other": "Kann nicht laden %s:"
+  },
+  "files-list.toc": {
+    "other": "Inhaltsverzeichnis"
+  },
+  "header.insert-toc": {
+    "other": "Inhaltsverzeichnis einfügen"
+  },
+  "header.add-description": {
+    "other": "Beschreibung hinzufügen"
+  },
+  "header.created": {
+    "other": "Erstellt am %s"
+  },
+  "results.edit-query": {
+    "other": "Abfrage bearbeiten"
+  },
+  "hook.renaming": {
+    "other": "Seite wird in %s umbenannt..."
+  },
+  "actions.title": {
+    "other": "Aktionen"
+  },
+  "action.open": {
+    "other": "Öffnen..."
+  },
+  "action.open-parent": {
+    "other": "Übergeordneten Ordner öffnen"
+  },
+  "action.open-folder": {
+    "other": "Ordner öffnen"
+  },
+  "display.inline": {
+    "other": "Inline"
+  },
+  "display.preview": {
+    "other": "Vorschau"
+  },
+  "display.contents": {
+    "other": "Inhalte"
+  },
+  "display.compact": {
+    "other": "Kompakt"
+  },
+  "display.list": {
+    "other": "Details"
+  },
+  "display.grid": {
+    "other": "Raster"
+  },
+  "display.masonry": {
+    "other": "Wasserfall"
+  },
+  "display.table": {
+    "other": "Tabelle"
+  },
+  "actions.display": {
+    "other": "Ansicht"
+  },
+  "node-spec.insert-toc.subtext": {
+    "other": "Liste der aktuellen Ordnerinhalte einfügen"
+  },
+  "node-spec.insert-page": {
+    "other": "Unterseite erstellen"
+  },
+  "node-spec.insert-page.subtext": {
+    "other": "Eine Unterseite innerhalb dieser Seite erstellen"
+  },
+  "node-spec.insert-node": {
+    "other": "Datei oder Ordner"
+  },
+  "node-spec.insert-node.subtext": {
+    "other": "Einen Link zu einer Datei oder einem Ordner aus Ihren Arbeitsbereichen einfügen"
+  },
+  "node-spec.insert-results": {
+    "other": "Suchergebnisse"
+  },
+  "node-spec.insert-results.subtext": {
+    "other": "Die Ergebnisse einer Suchanfrage einfügen, die automatisch aktualisiert werden"
+  },
+  "empty-state.toc": {
+    "other": "Diese Seite enthält keine Elemente"
+  },
+  "empty-state.folder": {
+    "other": "Dieser Ordner ist leer"
+  },
+  "empty-state.results": {
+    "other": "Keine Ergebnisse für diese Suchanfrage"
+  },
+  "empty-state.node-not-found": {
+    "other": "Datei oder Ordner wurden möglicherweise gelöscht"
   }
 }

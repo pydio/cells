@@ -61,9 +61,9 @@ import (
 	"github.com/pydio/cells/v5/common/telemetry"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/fork"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	net2 "github.com/pydio/cells/v5/common/utils/net"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -143,14 +143,14 @@ type managerKey struct{}
 
 var ContextKey = managerKey{}
 
-func NewManager(ctx context.Context, namespace string, logger log.ZapLogger, r ...runtime.Runtime) (Manager, error) {
+func NewManager(ctx context.Context, namespace string, r ...runtime.Runtime) (Manager, error) {
 
 	m := &manager{
 		ctx: ctx,
 		ns:  namespace,
 
-		logger: logger,
-		root:   util.CreateNode(),
+		//logger: logger,
+		root: util.CreateNode(),
 
 		storage: controller.NewController[storage.Storage](),
 		config:  controller.NewController[*openurl.Pool[config.Store]](),
@@ -159,6 +159,8 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger, r .
 	}
 
 	m.ctx = propagator.With(m.ctx, ContextKey, m)
+
+	runtime.Init(m.ctx, "system")
 
 	bootstrap, err := NewBootstrap(m.ctx)
 	if err != nil {
@@ -172,7 +174,7 @@ func NewManager(ctx context.Context, namespace string, logger log.ZapLogger, r .
 		localRuntime = r[0]
 	}
 
-	runtime.Init(m.ctx, "system")
+	// runtime.Init(m.ctx, "system")
 
 	base := localRuntime.GetString(runtime.KeyBootstrapRoot)
 	m.base = base
@@ -538,7 +540,7 @@ func (m *manager) initTelemetry(ctx context.Context, bootstrap config.Store, sto
 
 	var configLoaded bool
 	// And finally from config, it will be hot-reloaded if config is changed
-	config.GetAndWatch(ctx, store, []string{"defaults", "telemetry"}, func(values configx.Values) {
+	config.GetAndWatch(ctx, store, []string{"defaults", "telemetry"}, func(values kv.Values) {
 		if values.Context(ctx).Scan(conf) == nil {
 			if e := conf.Reload(ctx, common.LogLevel.String(), common.LogJSON); e != nil {
 				fmt.Println("Error loading telemetry setup", e)
@@ -622,9 +624,9 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 			return err
 		}
 		baseRead := append(baseWatch, "processes")
-		create := diff.(configx.Values).Val(append([]string{"create"}, baseRead...)...)
-		update := diff.(configx.Values).Val(append([]string{"update"}, baseRead...)...)
-		deletes := diff.(configx.Values).Val(append([]string{"delete"}, baseRead...)...)
+		create := diff.(kv.Values).Val(append([]string{"create"}, baseRead...)...)
+		update := diff.(kv.Values).Val(append([]string{"update"}, baseRead...)...)
+		deletes := diff.(kv.Values).Val(append([]string{"delete"}, baseRead...)...)
 
 		var processesToStart, processesToStop []string
 
@@ -709,7 +711,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 				uri := connections.Val(k, "uri").String()
 				u, err := url.Parse(uri)
 				if err != nil {
-					log.Logger(ctx).Warn("connection url not right: " + uri)
+					m.coreLogger().Warn("connection url not right: " + uri)
 					continue
 				}
 
@@ -783,7 +785,7 @@ func (m *manager) initProcesses(ctx context.Context, bootstrap config.Store, bas
 	}
 }
 
-func (m *manager) initListeners(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initListeners(ctx context.Context, store kv.Values, base string) error {
 	listeners := store.Val(base + "/listeners")
 	for k, v := range listeners.Map() {
 		vv, err := cast.ToStringMapE(v)
@@ -836,7 +838,7 @@ func (m *manager) initListeners(ctx context.Context, store configx.Values, base 
 	return nil
 }
 
-func (m *manager) initServers(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initServers(ctx context.Context, store kv.Values, base string) error {
 
 	servers := store.Val(base + "/servers")
 	for _, v := range servers.Map() {
@@ -916,7 +918,7 @@ func (m *manager) initServers(ctx context.Context, store configx.Values, base st
 	return nil
 }
 
-func (m *manager) initServices(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initServices(ctx context.Context, store kv.Values, base string) error {
 
 	runtime.Register(m.ns, func(ctx context.Context) {
 		svcs, err := m.internalRegistry.List(registry.WithType(pb.ItemType_SERVICE))
@@ -960,7 +962,7 @@ func (m *manager) initServices(ctx context.Context, store configx.Values, base s
 	return nil
 }
 
-func (m *manager) initConnections(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initConnections(ctx context.Context, store kv.Values, base string) error {
 	connections := store.Val(base + "/connections")
 	for k, v := range connections.Map() {
 		vv, err := cast.ToStringMapE(v)
@@ -1037,7 +1039,7 @@ func (m *manager) initConnections(ctx context.Context, store configx.Values, bas
 	return nil
 }
 
-func (m *manager) initStorages(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initStorages(ctx context.Context, store kv.Values, base string) error {
 	storages := store.Val(base + "/storages")
 	storagesMap := storages.Map()
 
@@ -1062,18 +1064,18 @@ func (m *manager) initStorages(ctx context.Context, store configx.Values, base s
 	return nil
 }
 
-func (m *manager) initQueues(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initQueues(ctx context.Context, store kv.Values, base string) error {
 	// runtime.Register(m.ns, func(ctx context.Context) {
 	queues := store.Val(base + "/queues")
 	for k := range queues.Map() {
 		if k != common.QueueTypeDebouncer && k != common.QueueTypePersistent {
-			log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.QueueTypeDebouncer + "', '" + common.QueueTypePersistent + "']. Key " + k + " will be useless")
+			m.coreLogger().Error("WARNING - Cache key should be one of ['" + common.QueueTypeDebouncer + "', '" + common.QueueTypePersistent + "']. Key " + k + " will be useless")
 			continue
 		}
 		uri := queues.Val(k, "uri").String()
 		pool, err := m.queues.Open(ctx, uri)
 		if err != nil {
-			log.Logger(ctx).Error("initQueues - cannot open pool with URI"+uri, zap.Error(err))
+			m.coreLogger().Error("initQueues - cannot open pool with URI"+uri, zap.Error(err))
 			continue
 		}
 		regKey := "queue-" + k
@@ -1082,9 +1084,9 @@ func (m *manager) initQueues(ctx context.Context, store configx.Values, base str
 			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "queue", nil))
 		if er != nil {
-			log.Logger(ctx).Error("initQueues - cannot register queue pool with URI"+uri, zap.Error(er))
+			m.coreLogger().Error("initQueues - cannot register queue pool with URI"+uri, zap.Error(er))
 		} else {
-			log.Logger(ctx).Info("Registered Queue " + regKey + " with pool from uri " + uri)
+			m.coreLogger().Info("Registered Queue " + regKey + " with pool from uri " + uri)
 		}
 	}
 	//})
@@ -1126,18 +1128,18 @@ func (m *manager) initQueues(ctx context.Context, store configx.Values, base str
 	return nil
 }
 
-func (m *manager) initCaches(ctx context.Context, store configx.Values, base string) error {
+func (m *manager) initCaches(ctx context.Context, store kv.Values, base string) error {
 	// runtime.Register(m.ns, func(ctx context.Context) {
 	caches := store.Val(base + "/caches")
 	for k := range caches.Map() {
 		if k != common.CacheTypeShared && k != common.CacheTypeLocal {
-			log.Logger(ctx).Error("WARNING - Cache key should be one of ['" + common.CacheTypeLocal + "', '" + common.CacheTypeShared + "']. Key " + k + " will be useless")
+			m.coreLogger().Error("WARNING - Cache key should be one of ['" + common.CacheTypeLocal + "', '" + common.CacheTypeShared + "']. Key " + k + " will be useless")
 			continue
 		}
 		uri := caches.Val(k, "uri").String()
 		pool, err := m.caches.Open(ctx, uri)
 		if err != nil {
-			log.Logger(ctx).Error("initCaches - cannot open cache pool with URI"+uri, zap.Error(err))
+			m.coreLogger().Error("initCaches - cannot open cache pool with URI"+uri, zap.Error(err))
 			continue
 		}
 		regKey := "cache-" + k
@@ -1146,9 +1148,9 @@ func (m *manager) initCaches(ctx context.Context, store configx.Values, base str
 			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 		}).Register(registry.NewRichItem(regKey, regKey, pb.ItemType_GENERIC, pool), registry.WithEdgeTo(m.root.ID(), "cache", nil))
 		if er != nil {
-			log.Logger(ctx).Error("initCaches - cannot register pool with URI"+uri, zap.Error(er))
+			m.coreLogger().Error("initCaches - cannot register pool with URI"+uri, zap.Error(er))
 		} else {
-			log.Logger(ctx).Info("Registered Cache " + regKey + " with pool from uri " + uri)
+			m.coreLogger().Info("Registered Cache " + regKey + " with pool from uri " + uri)
 		}
 	}
 	// })
@@ -1251,7 +1253,8 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 		func(srv server.Server) {
 			eg.Go(func() error {
 				if err := m.startServer(srv, oo...); err != nil {
-					return errors.Wrap(err, " from "+srv.ID()+srv.Name())
+					m.coreLogger().Error("Error starting "+srv.Name(), zap.Error(err))
+					return err
 				}
 
 				return nil
@@ -1261,7 +1264,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) error {
 
 	waitAndServe := func() {
 		if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
-			log.Logger(m.ctx).Error("Server couldn't start ", zap.Error(err))
+			m.coreLogger().Error("Server couldn't start ", zap.Error(err))
 			opt.ErrorCallback(err)
 		}
 	}
@@ -1494,7 +1497,7 @@ func (m *manager) WatchServicesConfigs() {
 		}
 		for {
 			v, _ := res.Next()
-			mm := v.(configx.Values).Val("update", "services").Map()
+			mm := v.(kv.Values).Val("update", "services").Map()
 
 			for k, _ := range mm {
 				ss, err := m.internalRegistry.List(sotwRegistry.WithName(k), sotwRegistry.WithType(pb.ItemType_SERVICE))
@@ -1505,10 +1508,10 @@ func (m *manager) WatchServicesConfigs() {
 				if ss[0].As(&svc) && svc.Options().AutoRestart {
 					if er := m.stopService(svc); er == nil {
 						if sErr := m.startService(svc); sErr != nil {
-							log.Logger(m.ctx).Error("Cannot start service"+svc.Name(), zap.Error(sErr))
+							m.coreLogger().Error("Cannot start service"+svc.Name(), zap.Error(sErr))
 						}
 					} else {
-						log.Logger(m.ctx).Error("Cannot stop service"+svc.Name(), zap.Error(er))
+						m.coreLogger().Error("Cannot stop service"+svc.Name(), zap.Error(er))
 					}
 				}
 			}
@@ -1740,7 +1743,7 @@ func (m *manager) WatchBootstrap() {
 			continue
 		}
 
-		val, ok := res.(configx.Values)
+		val, ok := res.(kv.Values)
 		if !ok {
 			continue
 		}
@@ -1852,4 +1855,11 @@ func (m *manager) linkServiceToStorages(svc service.Service) error {
 	}
 
 	return nil
+}
+
+func (m *manager) coreLogger() log.ZapLogger {
+	if m.logger == nil {
+		m.logger = log.Logger(m.ctx).Named("pydio.server.manager")
+	}
+	return m.logger
 }

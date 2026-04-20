@@ -18,12 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {Fragment}  from 'react';
 import Pydio from 'pydio';
 import {muiThemeable} from 'material-ui/styles'
 const {ModernSelectField, ThemedModernStyles, DatePicker} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-import {MenuItem} from 'material-ui';
+import {Menu, MenuItem, Divider} from 'material-ui';
+import {chipsStyles} from "./AdvancedChipsStyles";
+import {DatePickerInput} from '@mantine/dates';
 
 class SearchDatePanel extends React.Component {
 
@@ -85,7 +87,7 @@ class SearchDatePanel extends React.Component {
 
             if (value === 'custom') {
                 if(!startDate) {
-                    startDate = new Date(0);
+                    startDate = new Date();
                 }
                 if(!endDate) {
                     // Next year
@@ -139,7 +141,7 @@ class SearchDatePanel extends React.Component {
         const today = new Date();
 
         const {datePickerGroup, datePicker, dateClose} = SearchDatePanel.styles;
-        const {inputStyle, getMessage, values, name, muiTheme} = this.props;
+        const {inputStyle, getMessage, values, name, mode, muiTheme} = this.props;
         let {value, startDate, endDate} = this.state;
 
         if(!value && values[name]) {
@@ -148,74 +150,118 @@ class SearchDatePanel extends React.Component {
             endDate = values[name].to
         }
 
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
         const leftInputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius : ModernStyles.v1SearchRadiusLeft}
 
-        return (
-            <div>
-                <div>
-                    <DatePickerFeed pydio={this.props.pydio}>
-                    {items =>
-                        <ModernSelectField
-                            {...ModernStyles.selectFieldV1Search}
-                            hintText={getMessage(490)}
-                            value={value}
-                            fullWidth={true}
-                            onChange={(e, index, value) => this.setState({value})}>
-                            {items.map((item) => <MenuItem value={item.payload} label={item.text} primaryText={item.text} />)}
-                        </ModernSelectField>
-                    }
+        if (mode === 'popover') {
+            const poStyles = chipsStyles(muiTheme)
+            return (
+                <Fragment>
+                    <DatePickerFeed pydio={this.props.pydio} modernStyles={ModernStyles}>
+                        {items =>
+                            <Menu
+                                initiallyKeyboardFocused={false}
+                                disableAutoFocus={false}
+                                autoWidth={false}
+                                style={poStyles.popoverMenuRootStyle}
+                                listStyle={value==='custom'?{...poStyles.popoverMenuStyleNoBottom}:{...poStyles.popoverMenuStyle}}
+                                desktop={true}
+                                value={value}
+                                fullWidth={true}
+                                onChange={(e, value) => this.setState({value})}>
+                                {items.map((item) => item.divider? <Divider/> : <MenuItem value={item.payload} label={item.text} primaryText={item.text} />)}
+                            </Menu>
+                        }
                     </DatePickerFeed>
-                </div>
-                {value === 'custom' &&
-                    <div style={{...datePickerGroup, ...inputStyle}}>
-                        <div style={{...datePicker, marginRight: 2}}>
-                            <DatePicker
-                                {...ModernStyles.textFieldV1Search}
-                                inputStyle={leftInputStyle}
-                                fullWidth={true}
-                                value={startDate}
-                                onChange={(e, date) => this.setState({startDate: date})}
-                                hintText={getMessage(491)}
-                                autoOk={true}
-                                maxDate={endDate || today}
-                                defaultDate={startDate}
-                                container={"inline"}
+                    {value === 'custom' &&
+                        <div style={{...poStyles.popoverBlockStyle, ...inputStyle, flexDirection:'column'}}>
+                            <DatePickerInput
+                                autoFocus={true}
+                                placeholder={getMessage('612')}
+                                value={[startDate, endDate]}
+                                onChange={([start, end]) => {
+                                    if(!start && !end) {
+                                        this.setState({value: null, startDate:null, endDate:null});
+                                    }
+                                    this.setState({startDate: new Date(start), endDate: end ? new Date(end) : null});
+                                }}
+                                type={"range"}
+                                clearable={true}
+                                allowSingleDateInRange={true}
+                                popoverProps={{withinPortal: false}}
                             />
-                            <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({startDate: null})} />
                         </div>
-                        <div style={{...datePicker, marginLeft: 2}}>
-                            <DatePicker
-                                {...ModernStyles.textFieldV1Search}
-                                fullWidth={true}
-                                value={endDate}
-                                onChange={(e, date) => this.setState({endDate: date})}
-                                hintText={getMessage(492)}
-                                autoOk={true}
-                                minDate={startDate}
-                                maxDate={today}
-                                defaultDate={endDate}
-                                container={"inline"}
-                            />
-                            <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({endDate: null})} />
-                        </div>
+                    }
+                </Fragment>
+            );
+
+        } else {
+            return (
+                <div>
+                    <div>
+                        <DatePickerFeed pydio={this.props.pydio} modernStyles={ModernStyles}>
+                            {items =>
+                                <ModernSelectField
+                                    hintText={getMessage(490)}
+                                    value={value}
+                                    fullWidth={true}
+                                    onChange={(e, index, value) => this.setState({value})}>
+                                    {items.map((item) => item.divider? <Divider/> : <MenuItem value={item.payload} label={item.text} primaryText={item.text} />)}
+                                </ModernSelectField>
+                            }
+                        </DatePickerFeed>
                     </div>
-                }
-            </div>
-        );
+                    {value === 'custom' &&
+                        <div style={{...datePickerGroup, ...inputStyle}}>
+                            <div style={{...datePicker, marginRight: 2}}>
+                                <DatePicker
+                                    {...ModernStyles.textFieldV1Search}
+                                    inputStyle={leftInputStyle}
+                                    fullWidth={true}
+                                    value={startDate}
+                                    onChange={(e, date) => this.setState({startDate: date})}
+                                    hintText={getMessage(491)}
+                                    autoOk={true}
+                                    maxDate={endDate || today}
+                                    defaultDate={startDate}
+                                    container={"inline"}
+                                />
+                                <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({startDate: null})} />
+                            </div>
+                            <div style={{...datePicker, marginLeft: 2}}>
+                                <DatePicker
+                                    {...ModernStyles.textFieldV1Search}
+                                    fullWidth={true}
+                                    value={endDate}
+                                    onChange={(e, date) => this.setState({endDate: date})}
+                                    hintText={getMessage(492)}
+                                    autoOk={true}
+                                    minDate={startDate}
+                                    maxDate={today}
+                                    defaultDate={endDate}
+                                    container={"inline"}
+                                />
+                                <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({endDate: null})} />
+                            </div>
+                        </div>
+                    }
+                </div>
+            );
+        }
     }
 }
 
-let DatePickerFeed = ({pydio, getMessage, children}) => {
+let DatePickerFeed = ({pydio, getMessage, children, modernStyles}) => {
 
     const items = [
-        {payload: '', text: ''},
-        {payload: 'custom', text: getMessage('612')},
+        {payload: '', text: <span style={{color:modernStyles.selectField.hintStyle.color}}>No date range</span>},
         {payload: 'PYDIO_SEARCH_RANGE_TODAY', text: getMessage('493')},
         {payload: 'PYDIO_SEARCH_RANGE_YESTERDAY', text: getMessage('494')},
         {payload: 'PYDIO_SEARCH_RANGE_LAST_WEEK', text: getMessage('495')},
         {payload: 'PYDIO_SEARCH_RANGE_LAST_MONTH', text: getMessage('496')},
-        {payload: 'PYDIO_SEARCH_RANGE_LAST_YEAR', text: getMessage('497')}
+        {payload: 'PYDIO_SEARCH_RANGE_LAST_YEAR', text: getMessage('497')},
+        {divider: true},
+        {payload: 'custom', text: getMessage('612')}
     ];
 
     return children(items)

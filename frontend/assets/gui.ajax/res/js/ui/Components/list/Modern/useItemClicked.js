@@ -30,7 +30,7 @@ const UseItemClickedPropTypes = {
  * @param props useItemClickedPropTypes
  * @returns {{handleItemClick: ((function(*, *): void)|*), handleItemDoubleClick: ((function(*, *): void)|*)}}
  */
-const useItemClicked = ({pydio, dataModel, items, updateSelectionFromItemEvent}) => {
+const useItemClicked = ({pydio, dataModel, items, entryHandleClicks, updateSelectionFromItemEvent}) => {
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS
 
@@ -59,6 +59,13 @@ const useItemClicked = ({pydio, dataModel, items, updateSelectionFromItemEvent})
 
 
     }, [dataModel]);
+
+    if(entryHandleClicks) {
+        return {
+            handleItemClick: entryHandleClicks.handleItemClick || handleItemClick,
+            handleItemDoubleClick: entryHandleClicks.handleItemDoubleClick || handleItemDoubleClick,
+        };
+    }
 
     return {handleItemClick, handleItemDoubleClick}
 }

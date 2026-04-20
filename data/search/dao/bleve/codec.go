@@ -20,7 +20,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	bleve2 "github.com/pydio/cells/v5/common/storage/bleve"
 	"github.com/pydio/cells/v5/common/storage/indexer"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/data/search"
 	"github.com/pydio/cells/v5/data/search/dao/commons"
 
@@ -87,11 +87,11 @@ type Codec struct {
 	ResultBasenameFacetCount int32
 	ResultContentFacetCount  int32
 
-	queryConfig     configx.Values
+	queryConfig     kv.Values
 	queryNSProvider *meta.NsProvider
 }
 
-func createQueryCodec(values configx.Values, provider *meta.NsProvider) indexer.IndexCodex {
+func createQueryCodec(values kv.Values, provider *meta.NsProvider) indexer.IndexCodex {
 	return &Codec{
 		queryConfig:     values,
 		queryNSProvider: provider,
@@ -439,7 +439,7 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 
 }
 
-func (b *Codec) GetModel(cfg configx.Values) (interface{}, bool) {
+func (b *Codec) GetModel(cfg kv.Values) (interface{}, bool) {
 
 	ba, ca, _ := b.extractConfigs(cfg)
 
@@ -492,7 +492,7 @@ func (b *Codec) GetModel(cfg configx.Values) (interface{}, bool) {
 	return nodeMapping, true
 }
 
-func (b *Codec) extractConfigs(cfg configx.Values) (basenameAnalyzer, contentAnalyzer string, e error) {
+func (b *Codec) extractConfigs(cfg kv.Values) (basenameAnalyzer, contentAnalyzer string, e error) {
 
 	basenameAnalyzer = defaultBasenameAnalyzer
 	contentAnalyzer = defaultContentAnalyzer

@@ -21,6 +21,7 @@
 package migrations
 
 import (
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"testing"
 
 	version "github.com/hashicorp/go-version"
@@ -48,7 +49,7 @@ func TestMigration4990(t *testing.T) {
 	Convey("Testing 4990 upgrade of config", t, func() {
 
 		// Create new config
-		conf := configx.New(configx.WithJSON())
+		conf := configx.New(kv.WithJSON())
 		_ = conf.Set(tData)
 
 		target, _ := version.NewVersion("5.0.0")

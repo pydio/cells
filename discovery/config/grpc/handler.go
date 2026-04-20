@@ -26,8 +26,8 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
 	pb "github.com/pydio/cells/v5/common/proto/config"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -119,7 +119,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) erro
 
 		if err := stream.Send(&pb.WatchResponse{
 			Value: &pb.Value{
-				Data: res.(configx.Values).Bytes(),
+				Data: res.(kv.Values).Bytes(),
 			},
 		}); err != nil {
 			return err

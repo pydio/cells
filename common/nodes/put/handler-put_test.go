@@ -25,6 +25,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"hash"
 	"io"
 	"math"
@@ -38,7 +39,6 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/utils/hasher"
-	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 
@@ -63,6 +63,9 @@ func testMkFileResources() (*Handler, context.Context, *nodes.HandlerMock) {
 
 	// create dummy handler
 	h := &Handler{}
+	h.BranchFilter.OutputMethod = h.updateOutputNode
+	h.BranchFilter.InputMethod = nodes.IdentityFilterFunc
+
 	mock := nodes.NewHandlerMock()
 	h.Next = mock
 

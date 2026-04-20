@@ -105,7 +105,7 @@ func TestListNodes(t *testing.T) {
 
 	Convey("List datasources", t, func() {
 
-		stream := mocks.NewListNodeStreamer()
+		stream := mocks.NewListNodeStreamer(ctx)
 		wg := sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
@@ -121,7 +121,7 @@ func TestListNodes(t *testing.T) {
 
 	Convey("List Ancestors : error on root", t, func() {
 
-		stream := mocks.NewListNodeStreamer()
+		stream := mocks.NewListNodeStreamer(ctx)
 
 		err := ts.ListNodes(&tree.ListNodesRequest{Node: &tree.Node{Path: ""}, Ancestors: true}, stream)
 		So(err, ShouldNotBeNil)
@@ -130,7 +130,7 @@ func TestListNodes(t *testing.T) {
 
 	Convey("List Ancestors : datasource returns root AND original node", t, func() {
 
-		stream := mocks.NewListNodeStreamer()
+		stream := mocks.NewListNodeStreamer(ctx)
 		wg := sync.WaitGroup{}
 		wg.Add(1)
 		go func() {

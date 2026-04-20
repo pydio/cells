@@ -17,39 +17,95 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import Pydio from 'pydio'
-import asMetaForm from "../hoc/asMetaForm";
-import {starsStyle} from "./StarsField"
-const {ThemedModernStyles} = Pydio.requireLib('hoc');
-import {muiThemeable} from 'material-ui/styles'
+import React from 'react';
+import Pydio from 'pydio';
+import asMetaForm from '../hoc/asMetaForm';
+import { starsStyle } from './StarsField';
+const { ThemedModernStyles } = Pydio.requireLib('hoc');
+import { muiThemeable } from 'material-ui/styles';
 
 class StarsFormPanel extends React.Component {
-
-    render(){
-        const {updateValue, value = 0, search, label, muiTheme} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
-        let stars = [-1,0,1,2,3,4].map((v) => {
-            const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
-            const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});
-            return <span key={"star-" + v} onClick={() => updateValue(v+1, true)} className={"mdi mdi-" + ic} style={style}></span>;
+    render() {
+        const {
+            updateValue,
+            value = 0,
+            search,
+            label,
+            errorText,
+            muiTheme,
+            mode,
+        } = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme, {
+            searchRadius: mode === 'popover' ? 8 : null,
         });
-        if(search) {
+        let stars = [-1, 0, 1, 2, 3, 4].map((v) => {
+            const ic =
+                'star' + (v === -1 ? '-off' : value > v ? '' : '-outline');
+            const style =
+                v === -1
+                    ? { marginRight: 5, cursor: 'pointer' }
+                    : { cursor: 'pointer' };
             return (
-                <div className="advanced-search-stars" style={{
-                    ...ModernStyles.div,
-                    borderRadius: ModernStyles.textFieldV1Search.inputStyle.borderRadius,
-                    ...starsStyle, fontSize: 18}}>
+                <span
+                    key={'star-' + v}
+                    onClick={() => updateValue(v + 1, true)}
+                    className={'mdi mdi-' + ic}
+                    style={style}
+                ></span>
+            );
+        });
+        if (search) {
+            return (
+                <div
+                    className="advanced-search-stars"
+                    style={{
+                        ...ModernStyles.div,
+                        borderRadius:
+                            ModernStyles.textFieldV1Search.inputStyle
+                                .borderRadius,
+                        ...starsStyle,
+                        fontSize: 18,
+                    }}
+                >
                     <div>{stars}</div>
                 </div>
             );
         } else {
+            let error;
+            let borderBottom = ModernStyles.fillBlockV2Right.borderBottom;
+            if (errorText) {
+                const errStyle = {
+                    ...ModernStyles.textFieldV2.errorStyle,
+                    fontSize: 12,
+                    lineHeight: '12px',
+                    color: 'var(--md-sys-color-error)',
+                };
+                error = <div style={errStyle}>{errorText}</div>;
+                borderBottom = '2px solid var(--md-sys-color-primary)';
+            }
             return (
-                <div style={{...ModernStyles.textFieldV2.style, borderBottom:ModernStyles.fillBlockV2Right.borderBottom, marginBottom:6}}>
-                    <div style={{color: muiTheme.palette.mui3['on-surface-variant'], fontSize: 12, padding: '3px 8px 0', lineHeight: '16px'}} >{label}</div>
-                    <div style={{...starsStyle, paddingLeft: 6}}>{stars}</div>
+                <div
+                    style={{
+                        ...ModernStyles.textFieldV2.style,
+                        borderBottom,
+                        marginBottom: 6,
+                        position: 'relative',
+                    }}
+                >
+                    <div
+                        style={{
+                            color: muiTheme.palette.mui3['on-surface-variant'],
+                            fontSize: 12,
+                            padding: '3px 8px 0',
+                            lineHeight: '16px',
+                        }}
+                    >
+                        {label}
+                    </div>
+                    <div style={{ ...starsStyle, paddingLeft: 6 }}>{stars}</div>
+                    {error}
                 </div>
-            )
+            );
         }
     }
 }

@@ -188,7 +188,7 @@ func skipCoreInit() bool {
 
 // initManagerContext starts an empty manager with Root context in the "cmd" namespace
 func initManagerContext(ctx context.Context) (context.Context, error) {
-	mgr, err := manager.NewManager(runtime.MultiContextManager().RootContext(ctx), runtime.NsCmd, nil)
+	mgr, err := manager.NewManager(runtime.MultiContextManager().RootContext(ctx), runtime.NsCmd)
 	if err != nil {
 		return nil, err
 	}

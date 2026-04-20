@@ -22,6 +22,7 @@ package policy
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/ory/ladon"
@@ -171,6 +172,7 @@ var (
 					Resources: []string{
 						"rest:/user-meta/bookmarks",
 						"rest:/user-meta/namespace",
+						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
 					},
@@ -254,7 +256,7 @@ func Upgrade101(ctx context.Context) error {
 		return er
 	}
 
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -297,7 +299,7 @@ func Upgrade103(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -328,7 +330,7 @@ func Upgrade120(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -412,7 +414,7 @@ func Upgrade122(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -440,7 +442,7 @@ func Upgrade142(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -471,7 +473,7 @@ func Upgrade202(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -512,7 +514,7 @@ func Upgrade210(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -544,6 +546,7 @@ func Upgrade210(ctx context.Context) error {
 					Resources: []string{
 						"rest:/user-meta/bookmarks",
 						"rest:/user-meta/namespace",
+						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
 					},
@@ -577,7 +580,7 @@ func Upgrade220(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -603,7 +606,7 @@ func Upgrade227(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -637,7 +640,7 @@ func Upgrade399(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -663,7 +666,7 @@ func Upgrade4199(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -689,7 +692,7 @@ func Upgrade4399(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -722,7 +725,7 @@ func Upgrade4992(ctx context.Context) error {
 	if er != nil {
 		return er
 	}
-	groups, e := dao.ListPolicyGroups(ctx, "")
+	groups, e := dao.ListPolicyGroups(ctx, nil)
 	if e != nil {
 		return e
 	}
@@ -741,7 +744,50 @@ func Upgrade4992(ctx context.Context) error {
 
 }
 
-var GrpcServiceMigrations = []*service.Migration{
+func Upgrade4993(ctx context.Context) error {
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
+	}
+	groups, e := dao.ListPolicyGroups(ctx, nil)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.GetUuid() == "rest-apis-default-accesses" {
+			for _, p := range group.Policies {
+				if p.GetID() == "user-meta-read" {
+					if !slices.Contains(p.Resources, "rest:/user-meta/namespace") {
+						p.Resources = append(p.Resources, "rest:/user-meta/namespace")
+					} else if !slices.Contains(p.Resources, "rest:/user-meta/namespace/<.+>") {
+						p.Resources = append(p.Resources, "rest:/user-meta/namespace/<.+>")
+					}
+				}
+			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
+			}
+		}
+	}
+	log.Logger(ctx).Info("Upgraded policy model to v4.9.93")
+
+	return nil
+}
+
+var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
+	{
+		TargetVersion: service.ValidVersion("4.5.0"),
+		Up:            Upgrade4992,
+	},
+	{
+		TargetVersion: service.ValidVersion("4.9.93"),
+		Up:            Upgrade4993,
+	},
+}
+
+var DefaultsServiceMigrationsUpTo4416 = []*service.Migration{
 	{
 		TargetVersion: service.FirstRun(),
 		Up:            InitDefaults,
@@ -794,4 +840,5 @@ var GrpcServiceMigrations = []*service.Migration{
 		TargetVersion: service.ValidVersion("4.3.99"),
 		Up:            Upgrade4399,
 	},
+	// DO NOT ADD Additional changes after v4.4.16 here, but in the service init
 }

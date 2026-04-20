@@ -30,8 +30,8 @@ import (
 
 	"github.com/pydio/cells/v5/common/proto/mailer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/filex"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type Sendmail struct {
@@ -39,7 +39,7 @@ type Sendmail struct {
 	BinParams []string
 }
 
-func (s *Sendmail) Configure(ctx context.Context, conf configx.Values) error {
+func (s *Sendmail) Configure(ctx context.Context, conf kv.Values) error {
 	s.BinPath = conf.Val("#/defaults/sendmail").Default("/usr/bin/sendmail").String()
 	log.Logger(ctx).Info("Configuring sendmail with binary path: " + s.BinPath)
 	params := conf.Val("#/defaults/sendmailParams").StringArray()

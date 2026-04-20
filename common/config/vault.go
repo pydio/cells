@@ -26,7 +26,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
 
@@ -42,16 +42,6 @@ func NewVault(vaultStore, configStore Store) Store {
 		configStore,
 		vaultStore,
 	}
-}
-
-func (v *vault) Lock() {
-	v.config.Lock()
-	v.vault.Lock()
-}
-
-func (v *vault) Unlock() {
-	v.config.Unlock()
-	v.vault.Unlock()
 }
 
 func (v *vault) Close(ctx context.Context) error {
@@ -117,20 +107,20 @@ func (v *vault) Set(value interface{}) error {
 	return v.config.Set(value)
 }
 
-func (v *vault) Options() *configx.Options {
+func (v *vault) Options() *kv.Options {
 	return v.config.Options()
 }
 
 // Val of the path
-func (v *vault) Val(s ...string) configx.Values {
+func (v *vault) Val(s ...string) kv.Values {
 	return &vaultvalues{strings.Join(s, "/"), v.config.Val(s...), v.vault.Val()}
 }
 
-func (v *vault) Context(ctx context.Context) configx.Values {
+func (v *vault) Context(ctx context.Context) kv.Values {
 	return &vaultvalues{Values: v.config.Context(ctx), vault: v.vault.Context(ctx)}
 }
 
-func (v *vault) Default(d any) configx.Values {
+func (v *vault) Default(d any) kv.Values {
 	return nil
 }
 
@@ -154,16 +144,16 @@ func (v *vault) Del() error {
 
 type vaultvalues struct {
 	path string
-	configx.Values
-	vault configx.Values
+	kv.Values
+	vault kv.Values
 }
 
-func (v *vaultvalues) Context(ctx context.Context) configx.Values {
+func (v *vaultvalues) Context(ctx context.Context) kv.Values {
 	return &vaultvalues{v.path, v.Values.Context(ctx), v.vault.Context(ctx)}
 }
 
 // Val of the path
-func (v *vaultvalues) Val(s ...string) configx.Values {
+func (v *vaultvalues) Val(s ...string) kv.Values {
 	return &vaultvalues{v.path + "/" + strings.Join(s, "/"), v.Values.Val(s...), v.vault.Val()}
 }
 
@@ -223,7 +213,7 @@ func (v *vaultvalues) Set(value interface{}) error {
 		}
 	}
 
-	vval, ok := value.(configx.Values)
+	vval, ok := value.(kv.Values)
 	if ok {
 		if vval.Get() == nil {
 			// Nothing to set
@@ -236,7 +226,7 @@ func (v *vaultvalues) Set(value interface{}) error {
 }
 
 // Default value
-func (v *vaultvalues) Default(i interface{}) configx.Values {
+func (v *vaultvalues) Default(i interface{}) kv.Values {
 	return v.Values.Default(i)
 }
 

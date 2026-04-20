@@ -25,44 +25,79 @@ import SearchScopeSelector from "./SearchScopeSelector";
 import FileFormatPanel from "./FileFormatPanel";
 import DatePanel from "./DatePanel";
 import FileSizePanel from "./FileSizePanel";
-import {MenuItem} from 'material-ui'
+import {Menu, MenuItem} from 'material-ui'
+import {chipsStyles} from "./AdvancedChipsStyles";
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
 
 export default class Renderer {
-    static formRenderer(props, field, values, onChangeValues) {
+    static formRenderer(props, field, values, onChangeValues, mode) {
         const {pydio, searchTools} = props;
         const {type, name} = field
         switch (type) {
             case 'scope':
-                return <SearchScopeSelector pydio={pydio} searchTools={searchTools} name={name} value={values.scope} onChange={(scope)=>{onChangeValues({...values, scope})}}/>
+                return <SearchScopeSelector pydio={pydio} searchTools={searchTools} mode={mode} name={name} value={values.scope} onChange={(scope)=>{onChangeValues({...values, scope})}}/>
             case 'mime':
-                return <FileFormatPanel compact={true} name={name} values={values} pydio={pydio}  searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
+                return <FileFormatPanel compact={true} name={name} values={values} pydio={pydio} searchTools={searchTools} mode={mode} onChange={(values) => onChangeValues(values)} />
             case 'modiftime':
-                return <DatePanel values={values} name={name} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
+                return <DatePanel values={values} name={name} pydio={pydio} searchTools={searchTools} mode={mode} onChange={(values) => onChangeValues(values)} />
             case 'bytesize':
-                return <FileSizePanel name={name} values={values} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
+                return <FileSizePanel name={name} values={values} pydio={pydio} searchTools={searchTools}  mode={mode} onChange={(values) => onChangeValues(values)} />
             case 'share':
-                return (
-                    <ModernSelectField name={name} hintText={pydio.MessageHash['searchengine.share.hint']} value={values[name]} pydio={pydio} onChange={(e,i,v) => onChangeValues({...values,[name]:v})} fullWidth={true} {...ModernStyles.selectFieldV1Search}>
-                        <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
-                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
-                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>
-                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.any']} value={'any'}/>
-                    </ModernSelectField>
-                )
+                if(mode === 'popover') {
+                    const poStyles = chipsStyles({})
+                    return (
+                        <Menu
+                            autoWidth={false}
+                            style={poStyles.popoverMenuRootStyle}
+                            listStyle={{...poStyles.popoverMenuStyle}}
+                            desktop={true}
+                            value={values[name]}
+                            onChange={(e,v) => onChangeValues({...values,[name]:v})}
+                        >
+                            <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
+                            <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
+                            <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>
+                            <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.any']} value={'any'}/>
+                        </Menu>
+                    )
+                } else {
+                    return (
+                        <ModernSelectField name={name} hintText={pydio.MessageHash['searchengine.share.hint']} value={values[name]} pydio={pydio} onChange={(e,i,v) => onChangeValues({...values,[name]:v})} fullWidth={true} {...ModernStyles.selectFieldV1Search}>
+                            <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
+                            <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
+                            <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>
+                            <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.any']} value={'any'}/>
+                        </ModernSelectField>
+                    )
+                }
             default:
                 const {label} = field
-                return (
-                    <ModernTextField
-                        key={name}
-                        value={values[name] || ''}
-                        hintText={label}
-                        fullWidth={true}
-                        onChange={(e,v) => {onChangeValues({[name]:v})}}
-                        {...ModernStyles.textFieldV1Search}
-                    />
-                )
+                if(mode === 'popover') {
+                    const poStyles = chipsStyles({})
+                    return (
+                        <div style={{...poStyles.popoverBlockStyle}}>
+                        <ModernTextField
+                            key={name}
+                            value={values[name] || ''}
+                            hintText={label}
+                            fullWidth={true}
+                            onChange={(e,v) => {onChangeValues({[name]:v})}}
+                        />
+                        </div>
+                    )
+                } else {
+                    return (
+                        <ModernTextField
+                            key={name}
+                            value={values[name] || ''}
+                            hintText={label}
+                            fullWidth={true}
+                            onChange={(e,v) => {onChangeValues({[name]:v})}}
+                            {...ModernStyles.textFieldV1Search}
+                        />
+                    )
+                }
         }
     }
 
@@ -79,7 +114,7 @@ export default class Renderer {
         switch (type) {
             case 'scope':
                 if(value === 'previous_context'){
-                    label = 'Folder'
+                    label = m('ajax_gui.search.chip.scope.folder')
                     const previous = pydio.getContextHolder().getSearchNode().getMetadata().get('previous_context')
                     displayValue = PathUtils.getBasename(previous)
                     if(!displayValue){
@@ -89,17 +124,19 @@ export default class Renderer {
                     let r;
                     pydio.user.getRepositoriesList().forEach(re => {if(re.getSlug()+'/' === value) r = re})
                     if (r){
-                        label = 'Inside'
+                        label = m('ajax_gui.search.chip.scope.ws')
                         displayValue = r.getLabel();
                     }
                 } else {
-                    label = 'All Workspaces'
+                    label = m('ajax_gui.search.chip.scope.all')
                 }
                 break
             case 'mime':
-                if(value === kk.ValueMimeFiles || value === kk.ValueMimeFolders) {
+                if(!value) {
+                    label = 'Format...'
+                } else if(value === kk.ValueMimeFiles || value === kk.ValueMimeFolders) {
                     label = value === kk.ValueMimeFiles ? m('searchengine.format.file-only') : m('502')
-                } else if (value && value.indexOf('mimes:') === 0) {
+                } else if ( value.indexOf('mimes:') === 0) {
                     displayValue = label
                     label = m('3')
                 } else {
@@ -123,14 +160,17 @@ export default class Renderer {
                 }
                 label = m('4')
                 displayValue = ''
+                let fromDisplay, toDisplay;
                 if(value.from) {
-                    displayValue += moment(value.from).calendar(null, calendarOpts)
-                    if(value.to) {
-                        displayValue += ' <=> '
-                    }
+                    fromDisplay = moment(value.from).calendar(null, calendarOpts)
                 }
                 if(value.to) {
-                    displayValue += moment(value.to).calendar(null, calendarOpts)
+                    toDisplay = moment(value.to).calendar(null, calendarOpts)
+                }
+                if(fromDisplay && toDisplay && fromDisplay !== toDisplay) {
+                    displayValue = fromDisplay + ' > ' + toDisplay
+                } else {
+                    displayValue = fromDisplay || displayValue
                 }
                 break
             case 'bytesize':
@@ -170,6 +210,54 @@ export default class Renderer {
                 break
         }
         return {label, value:displayValue}
+    }
+
+}
+
+export const renderField = (pydio, searchTools, mode='form', val, onChange) => {
+    const {SearchConstants, values} = searchTools;
+    const {name:key, renderer, label, userDefined} = val
+
+    const isCore = (key === SearchConstants.KeyBasename || key === SearchConstants.KeyContent || key === SearchConstants.KeyBasenameOrContent)
+    const fieldname = isCore ? key : SearchConstants.KeyMetaPrefix + key;
+    //const {values} = this.props;
+    const value = values[fieldname];
+
+    if (renderer) {
+        // Custom renderer
+        const block = renderer({
+            pydio,
+            searchTools,
+            label,
+            value,
+            fieldname: key,
+            onChange,
+            mode
+        });
+        if(mode === 'popover') {
+            return <div style={chipsStyles({}).popoverFieldStyle}>{block}</div>
+        } else {
+            return block
+        }
+    } else if (userDefined) {
+        // No Custom renderer but user-defined metadata
+        // Output a simple textfied **wrapped with** KeyMetaPrefix
+        return Renderer.formRenderer(
+            {pydio, searchTools},
+            {...val, name: fieldname},
+            {[fieldname]: value},
+            onChange,
+            mode
+        )
+    } else {
+        // Will switch on known field names (mime, scope, search, etc)
+        return Renderer.formRenderer(
+            {pydio, searchTools},
+            val,
+            values,
+            onChange,
+            mode
+        )
     }
 
 }

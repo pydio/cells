@@ -4,12 +4,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type ProxySetter func(Store, interface{}, ...string) error
 
-type ProxyGetter func(Store, ...string) configx.Values
+type ProxyGetter func(Store, ...string) kv.Values
 
 type ProxyDeleter func(Store, ...string) error
 
@@ -45,7 +45,7 @@ type proxy struct {
 }
 
 type proxyValues struct {
-	configx.Values
+	kv.Values
 	setter  ProxySetter
 	getter  ProxyGetter
 	deleter ProxyDeleter
@@ -57,7 +57,7 @@ func Proxy(store Store) Store {
 	return &proxy{Store: store}
 }
 
-func (p *proxy) Val(path ...string) configx.Values {
+func (p *proxy) Val(path ...string) kv.Values {
 	key := strings.Join(path, "/")
 	wrapped := false
 	pVal := &proxyValues{Values: p.Store.Val(path...), store: p.Store, path: path}

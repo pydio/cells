@@ -23,6 +23,7 @@ package configregistry
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"reflect"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -31,18 +32,17 @@ import (
 	pb "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/registry/util"
-	"github.com/pydio/cells/v5/common/utils/configx"
 )
 
-func WithJSONItemMap() configx.Option {
-	return func(o *configx.Options) {
+func WithJSONItemMap() kv.Option {
+	return func(o *kv.Options) {
 		o.Unmarshaler = &jsonItemMapReader{}
 		o.Marshaller = &jsonItemMapWriter{}
 	}
 }
 
-func WithJSONItem() configx.Option {
-	return func(o *configx.Options) {
+func WithJSONItem() kv.Option {
+	return func(o *kv.Options) {
 		o.Unmarshaler = &jsonItemReader{}
 		o.Marshaller = &jsonItemWriter{}
 	}

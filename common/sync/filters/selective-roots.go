@@ -34,6 +34,18 @@ type SelectiveRootsFilter struct {
 	out   chan model.EventInfo
 }
 
+// NeedsSelectiveRootsFilter checks if there are actual roots defined (should e.g ignore "/" as a specific root)
+func NeedsSelectiveRootsFilter(roots []string) bool {
+	var filteredRoots []string
+	for _, r := range roots {
+		r = strings.TrimLeft(r, "/")
+		if r != "" {
+			filteredRoots = append(filteredRoots, r)
+		}
+	}
+	return len(filteredRoots) > 0
+}
+
 // NewSelectiveRootsFilter creates a new SelectiveRootsFilter and starts listening to events
 func NewSelectiveRootsFilter(roots []string) *SelectiveRootsFilter {
 	s := &SelectiveRootsFilter{

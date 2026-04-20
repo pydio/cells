@@ -116,7 +116,7 @@ func init() {
 
 func TestSearchUniqueUser(t *testing.T) {
 
-	test.RunServicesTests(testcases, t, func(ctx context.Context) {
+	test.RunServicesTests(uuid.New(), testcases, t, func(ctx context.Context) {
 
 		Convey("Setup Mock Data", t, func() {
 			sd, er := idmtest.GetStartData()

@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "Сповіщення"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "Активність теки"
   },
   "11": {
-    "other": "File Activity"
+    "other": "Активність файлу"
   },
   "11b": {
-    "other": "Activity"
+    "other": "Активність"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "Залежно від вашого браузера, з’явиться запит на надання певного дозволу. Щоб вимкнути це, перейдіть у налаштування та виключення браузера. Якщо ви вже ввімкнули цю функцію, імовірно, нічого не зміниться."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "Здається, ваш браузер ще не підтримує сповіщення на робочому столі."
   },
   "14": {
-    "other": "No alerts"
+    "other": "Немає сповіщень"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "Тут з’являтимуться сповіщення про файли, за якими ви стежите"
   },
   "16": {
-    "other": "Inside"
+    "other": "Вміст"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Завантаження активності..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Немає нещодавньої активності"
   },
   "19": {
-    "other": "More"
+    "other": "Більше"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "Стрічка сповіщень"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Завантаження стрічки..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "Сповіщення"
   },
   "4": {
-    "other": "Notifications"
+    "other": "Нагадування"
   },
   "5": {
-    "other": "All Events"
+    "other": "Усі події"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "Перейти до..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "Відхилити"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Немає сповіщень"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Активність робочої області"
   },
   "tasks.subheader": {
-    "other": "Running Tasks"
+    "other": "Запущені завдання"
   }
 }

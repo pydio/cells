@@ -18,20 +18,41 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import { pdfjs } from 'react-pdf';
-
-pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/build/pdf.worker.js';
+import React, {Component} from 'react'
+import { Document, Page, pdfjs } from 'react-pdf';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import React, {Component} from 'react'
 import { connect } from 'react-redux'
-import { Document, Page } from 'react-pdf';
 
 const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/res/dist/pdfjs/build/pdf.worker.mjs';
+
+const sharedStyles = `
+.pdfjs_viewer {
+    width: 100%;
+    height: 100%;
+}
+
+.pdfjs_viewer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Hide text layer and annotations for the preview */
+.react-pdf__Page__textContent,
+.react-pdf__Page__annotations {
+    display: none;
+}
+`;
+
 class InlineViewer extends React.Component {
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
+    shouldComponentUpdate(nextProps) {
         return nextProps.pdfUrl !== this.props.pdfUrl || nextProps.pageNumber !== this.props.pageNumber || nextProps.width !== this.props.width;
     }
 
@@ -82,7 +103,7 @@ class Viewer extends Component {
     }
 
     loadNode(props) {
-        const {node, pydio} = props;
+        const {node} = props;
 
         let bucketParams = null;
         let pdfPreview = node.getMetadata().get('PDFPreview')
@@ -95,8 +116,8 @@ class Viewer extends Component {
                 Key:'pydio-thumbstore/' + pdfPreview
             }
         }
-        const distViewerPath = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web'
-        const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
+        const distViewerPath = 'plug/editor.pdfjs/res/dist/pdfjs/web'
+        const viewerPage = "viewer.html"
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
             this.setState({
                 pdfUrl: pdfUrl,
@@ -111,11 +132,16 @@ class Viewer extends Component {
     makeCss(lastKnownHeight, currentPin){
         if(currentPin) {
             return `
+            ${sharedStyles}
+
             .mimefont-container.with-editor-badge.editor_mime_pdf{
                 overflow-y:auto;
             }`;
         }
+
         return `
+        ${sharedStyles}
+
         #info_panel .mimefont-container.with-editor-badge{
             position:relative;
             min-height: ${lastKnownHeight}px; 
@@ -186,7 +212,7 @@ const conf = editors.filter(({id}) => id === 'editor.pdfjs')[0]
 
 const getSelectionFilter = (node) => conf.mimes.indexOf(node.getAjxpMime()) > -1
 
-const getSelection = (node) => new Promise((resolve, reject) => {
+const getSelection = (node) => new Promise((resolve) => {
     let selection = [];
 
     node.getParent().getChildren().forEach((child) => selection.push(child));

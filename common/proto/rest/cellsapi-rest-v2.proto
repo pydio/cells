@@ -199,8 +199,13 @@ message Node {
   string HashingMethod = 23;
   // StorageEtag refers to the storage underlying hash
   string StorageETag = 9;
+
   // PreSignedURL to retrieve the current content of this file
   PreSignedURL PreSignedGET = 29;
+  // CoolURL - if applicable, ready to use collabora src w/ expiration
+  map <string,PreSignedURL> EditorURLs = 30;
+  // List of available editor keys (for now always empty)
+  repeated string EditorURLsKeys = 31;
 
   // If this node is a RecycleBin folder
   bool IsRecycleBin = 10;
@@ -248,6 +253,12 @@ message NodeLocator{
   string Path = 2;
 }
 
+// Simple NodeLocator for GetByUuid request
+message NodeByUuidRequest {
+  string Uuid = 1;
+  repeated Flag Flags = 2;
+}
+
 // List of nodes, as returned by list/search operations. Facets and Pagination may be empty
 message NodeCollection {
   repeated Node Nodes = 1;
@@ -276,6 +287,15 @@ message Version {
   string OwnerName = 9;
   // Who performed this action - uuid
   string OwnerUuid = 10;
+
+  PreSignedURL PreSignedGET = 11;
+  // CoolURL - if applicable, ready to use collabora src w/ expiration
+  map <string,PreSignedURL> EditorURLs = 12;
+  // List of available editor keys (for now always empty)
+  repeated string EditorURLsKeys = 14;
+  // If applicable, previews kept for this version
+  repeated FilePreview FilePreviews = 13;
+
 }
 
 message VersionCollection {
@@ -337,6 +357,7 @@ enum Flag {
   WithVersionsDraft = 4;
   WithVersionsPublished = 5;
   WithPreSignedURLs = 6;
+  WithEditorURLs = 7;
 }
 
 message LookupScope {
@@ -390,7 +411,13 @@ message LookupFilter {
       Any = 2;
     }
     DeletedStatus Deleted = 1;
-    bool IsDraft = 2;
+    bool IsDraft = 2; // IsDraft - to be deprecated in favor of DraftOnly status
+    enum DraftStatus {
+      DraftNot = 0;
+      DraftOnly = 1;
+      DraftAny = 2;
+    }
+    DraftStatus Draft = 5;
     bool IsBookmarked = 3;
     bool HasPublicLink = 4;
   }
@@ -450,6 +477,7 @@ message NodeVersionsFilter {
   int64 Limit = 3;
   string SortField = 5;
   bool SortDirDesc = 6;
+  repeated Flag Flags = 7;
 }
 
 // Request payload for listVersions
@@ -762,7 +790,7 @@ service NodeService {
   }
 
   // Load a node by its Uuid
-  rpc GetByUuid(NodeLocator) returns (Node){
+  rpc GetByUuid(NodeByUuidRequest) returns (Node){
     option (google.api.http) = {
       get: "/n/node/{Uuid}"
     };

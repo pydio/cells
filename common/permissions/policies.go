@@ -21,7 +21,6 @@
 package permissions
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"path"
@@ -31,7 +30,8 @@ import (
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"google.golang.org/protobuf/proto"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/cache"
@@ -67,7 +68,7 @@ const (
 // var polCachePool *openurl.Pool[cache.Cache]
 var polCacheConfig = cache.Config{
 	Prefix:      "permissions/policies",
-	Eviction:    "1m",
+	Eviction:    "5m",
 	CleanWindow: "10m",
 }
 
@@ -77,8 +78,7 @@ func getCheckersCache(ctx context.Context) cache.Cache {
 	polCacheOnce.Do(func() {
 		_, _ = broker.Subscribe(context.WithoutCancel(ctx), common.TopicIdmPolicies, func(ct context.Context, message broker.Message) error {
 			polCache := cache_helper.MustResolveCache(ct, common.CacheTypeLocal, polCacheConfig)
-			_ = polCache.Delete("acl")
-			_ = polCache.Delete("oidc")
+			_ = polCache.Reset()
 			return nil
 		}, broker.WithCounterName("policies-cache"))
 	})
@@ -194,10 +194,24 @@ func PolicyContextFromClaims(policyContext map[string]string, ctx context.Contex
 	}
 }
 
-func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
+func loadPoliciesByResourcesTypeAndSubjects(ctx context.Context, resType string, subjects []string) ([]*idm.Policy, error) {
 
 	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
-	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + resType})
+
+	var queries []*anypb.Any
+
+	q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+		ResourceGroup: resType,
+		PolicySubject: subjects,
+	})
+
+	queries = append(queries, q1)
+
+	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Query: &service.Query{
+		SubQueries: queries,
+		Operation:  service.OperationType_OR,
+	}})
+
 	if e != nil {
 		return nil, e
 	}
@@ -209,17 +223,39 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 			break
 		}
 		for _, p := range g.Policies {
-			// THIS CHECK SHOULD BE UNNECESSARY NOW
-			//isType := false
-			//for _, res := range p.Resources {
-			//	if res.GetID() == resType {
-			//		isType = true
-			//		break
-			//	}
-			//}
-			//if isType {
 			policies = append(policies, p)
-			//}
+		}
+	}
+	return policies, nil
+}
+
+func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
+
+	var queries []*anypb.Any
+
+	q1, _ := anypb.New(&idm.PolicyGroupSingleQuery{
+		ResourceGroup: resType,
+	})
+
+	queries = append(queries, q1)
+
+	cli := idm.NewPolicyEngineServiceClient(grpc.ResolveConn(ctx, common.ServicePolicyGRPC))
+	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Query: &service.Query{
+		SubQueries: queries,
+		Operation:  service.OperationType_OR,
+	}})
+	if e != nil {
+		return nil, e
+	}
+	var policies []*idm.Policy
+
+	for {
+		g, er := st.Recv()
+		if er != nil {
+			break
+		}
+		for _, p := range g.Policies {
+			policies = append(policies, p)
 		}
 	}
 	return policies, nil
@@ -230,51 +266,90 @@ func ClearCachedPolicies(ctx context.Context, resType string) {
 	_ = getCheckersCache(ctx).Delete(resType)
 }
 
-func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string) (ladon.Warden, error) {
+func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string, subjects []string) (ladon.Warden, error) {
 	w := &ladon.Ladon{
 		Manager: memory.NewMemoryManager(),
 	}
 
 	ca := getCheckersCache(ctx)
 	var policies []*idm.Policy
-	if !ca.Get(resType, &policies) {
-		if p, err := loadPoliciesByResourcesType(ctx, resType); err != nil {
+	cacheKey := resType + "," + strings.Join(subjects, ",")
+	if !ca.Get(cacheKey, &policies) {
+		if p, err := loadPoliciesByResourcesTypeAndSubjects(ctx, resType, subjects); err != nil {
 			return nil, err
 		} else {
 			policies = p
-			_ = ca.Set(resType, policies)
+			_ = ca.Set(cacheKey, policies)
 		}
 	}
 
+	contextInterface := make(map[string]any, len(requestContext))
+	for k, v := range requestContext {
+		contextInterface[k] = v
+	}
+
+	localCache := map[string]*template.Template{}
+
 	for _, pol := range policies {
-		replaces := map[string]*idm.PolicyCondition{}
-		for key, cond := range pol.Conditions {
-			if strings.Contains(cond.GetJsonOptions(), "{{") && requestContext != nil {
-				if tpl, er := template.New("temp").Parse(cond.GetJsonOptions()); er == nil {
-					bb := &bytes.Buffer{}
-					if e := tpl.Execute(bb, requestContext); e == nil {
-						replaces[key] = &idm.PolicyCondition{
-							Type:        cond.GetType(),
-							JsonOptions: bb.String(),
-						}
-					}
-				}
-			}
+		if res, er := resolveConditionsTemplates(ctx, pol, contextInterface, localCache); er != nil {
+			return nil, er
+		} else if er = w.Manager.Create(ctx, converter.ProtoToLadonPolicy(res)); er != nil {
+			return nil, er
 		}
-		if len(replaces) > 0 {
-			pol = proto.Clone(pol).(*idm.Policy)
-			for k, c := range replaces {
-				pol.Conditions[k] = c
-			}
-		}
-		_ = w.Manager.Create(ctx, converter.ProtoToLadonPolicy(pol))
 	}
 
 	return w, nil
 }
 
+// resolvedConditions converts Go Template to resolved version
+func resolveConditionsTemplates(ctx context.Context, pol *idm.Policy, requestContext map[string]any, cache map[string]*template.Template) (*idm.Policy, error) {
+	if len(pol.Conditions) == 0 {
+		return pol, nil
+	}
+	resolvedConditions := make(map[string]*idm.PolicyCondition, len(pol.Conditions))
+	for key, cond := range pol.Conditions {
+		if strings.Contains(cond.GetJsonOptions(), "{{") {
+			cKey := cond.GetJsonOptions()
+			tmpl, ok := cache[cKey]
+			if !ok {
+				var err error
+				tmpl, err = template.New(cKey).Parse(cond.GetJsonOptions())
+				if err != nil {
+					log.Logger(ctx).Error("Cannot parse template", zap.Error(err))
+					continue
+				}
+				cache[cKey] = tmpl
+			}
+			b := strings.Builder{}
+			err := tmpl.Execute(&b, requestContext)
+			if err != nil {
+				log.Logger(ctx).Error("Cannot execute template", zap.Error(err))
+				continue
+			}
+			resolvedConditions[key] = &idm.PolicyCondition{Type: cond.GetType(),
+				JsonOptions: b.String(),
+			}
+		} else {
+			resolvedConditions[key] = cond
+		}
+	}
+	return &idm.Policy{
+		ID:           pol.ID,
+		Description:  pol.Description,
+		Subjects:     pol.Subjects,
+		Resources:    pol.Resources,
+		Actions:      pol.Actions,
+		OrmSubjects:  pol.OrmSubjects,
+		OrmResources: pol.OrmResources,
+		OrmActions:   pol.OrmActions,
+		Effect:       pol.Effect,
+		Conditions:   resolvedConditions,
+	}, nil
+
+}
+
 func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error) {
-	checker, e := CachedPoliciesChecker(ctx, "acl", request.Context)
+	checker, e := CachedPoliciesChecker(ctx, "acl", request.Context, request.Subjects)
 	if e != nil {
 		return nil, e
 	}
@@ -300,6 +375,6 @@ func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequ
 			allow = true
 		} // Else "default deny" => continue checking
 	}
-	return &idm.PolicyEngineResponse{Allowed: allow}, nil
 
+	return &idm.PolicyEngineResponse{Allowed: allow}, nil
 }

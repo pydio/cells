@@ -1,0 +1,40 @@
+injector:
+  enabled: true
+  annotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-5"
+  }
+  webhook:
+    annotations: {
+      "helm.sh/hook": "pre-install",
+      "helm.sh/hook-weight": "-5"
+    }
+    failurePolicy: Fail
+    namespaceSelector:
+      matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values: ["vault","kube-system","kube-public","kube-node-lease"]
+      # - key: kubernetes.io/metadata.name
+      #   operator: In
+      #   values: ["cells"]
+server:
+  enabled: true
+  annotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-5"
+  }
+  dataStorage:
+    enabled: true
+  extraVolumes:
+  - type: configMap
+    name: cells-vault
+  postStart:
+  - "/bin/sh"
+  - "-c"
+  - "sleep 5 && cp /vault/userconfig/cells-vault/bootstrap.sh /tmp/bootstrap.sh && chmod +x /tmp/bootstrap.sh && /tmp/bootstrap.sh"
+statefulset:
+  annotations: {
+    "helm.sh/hook": "pre-install",
+    "helm.sh/hook-weight": "-5"
+  }

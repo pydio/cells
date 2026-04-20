@@ -28,7 +28,7 @@ func NewWatcher(ctx context.Context, src model.PathSyncSource, prefix string) *W
 	}
 }
 
-func (w *Watcher) Watch(recursivePath string) (*model.WatchObject, error) {
+func (w *Watcher) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)

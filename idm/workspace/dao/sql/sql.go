@@ -87,6 +87,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 		}
 		ws.Slug = testSlug
 	}
+	ws.LastUpdated = int32(time.Now().Unix())
 
 	if tx := session.Clauses(clause.OnConflict{UpdateAll: true}).Create(ws); tx.Error != nil {
 		return false, tx.Error

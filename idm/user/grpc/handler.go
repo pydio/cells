@@ -208,11 +208,16 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 	for _, g := range createdNodes {
 		if g.GetUuid() != out.Uuid && g.GetIsGroup() {
 			// Groups where created in the process, add default policies on them
-			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.String("groupPath", g.GetGroupPath()))
+			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.String("groupPath", g.GetGroupPath()), zap.String("groupLabel", g.GetGroupLabel()))
 			if _, err := dao.AddPolicies(ctx, false, g.GetUuid(), defaultPolicies); err != nil {
 				return nil, err
 			}
 		}
+	}
+
+	// If it's a move, ignore intermediary parents created automatically during move to trigger proper event
+	if movedGroup != "" {
+		createdNodes = createdNodes[:0]
 	}
 
 	// Fix output GroupPath for Groups

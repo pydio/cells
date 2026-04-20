@@ -25,7 +25,7 @@ import (
 
 	version "github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 func init() {
@@ -42,7 +42,7 @@ func appendQueryPart(dsn, queryString string) string {
 }
 
 // upgradeDefaultDatabasesToV5 fixes the databases section
-func upgradeDefaultDatabasesToV5(conf configx.Values) error {
+func upgradeDefaultDatabasesToV5(conf kv.Values) error {
 	type db struct {
 		Driver string `json:"driver"`
 		Dsn    string `json:"dsn"`

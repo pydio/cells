@@ -8,7 +8,8 @@ import (
 )
 
 type poolWatcher struct {
-	events map[string]any
+	events      map[string]any
+	eventLocker *sync.RWMutex
 
 	receiversLocker *sync.RWMutex
 	receivers       []*receiver
@@ -21,6 +22,7 @@ type poolWatcher struct {
 func NewPoolWatcher[W watch.Watcher](p *Pool[W]) watch.Watcher {
 	pw := &poolWatcher{
 		events:          make(map[string]any),
+		eventLocker:     &sync.RWMutex{},
 		reset:           make(chan bool),
 		receiversLocker: new(sync.RWMutex),
 		timeout:         100 * time.Millisecond,
@@ -32,7 +34,9 @@ func NewPoolWatcher[W watch.Watcher](p *Pool[W]) watch.Watcher {
 			for {
 				res, _ := it.Next()
 
+				pw.eventLocker.Lock()
 				pw.events[k] = res
+				pw.eventLocker.Unlock()
 
 				pw.Reset()
 			}
@@ -61,6 +65,7 @@ func (w *poolWatcher) Flush() {
 		case <-w.reset:
 			w.timer.Reset(w.timeout)
 		case <-w.timer.C:
+			w.eventLocker.RLock()
 			for _, ev := range w.events {
 				var updated []*receiver
 
@@ -76,8 +81,11 @@ func (w *poolWatcher) Flush() {
 				w.receivers = updated
 				w.receiversLocker.Unlock()
 			}
+			w.eventLocker.RUnlock()
 
+			w.eventLocker.Lock()
 			w.events = make(map[string]any)
+			w.eventLocker.Unlock()
 		}
 	}
 }

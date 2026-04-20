@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/indexer"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/data/search"
 	"github.com/pydio/cells/v5/data/search/analyzers"
@@ -58,7 +58,7 @@ type LocalBatch struct {
 }
 
 type BatchOptions struct {
-	config configx.Values
+	config kv.Values
 }
 
 func NewBatch(ctx context.Context, nsProvider *meta.NsProvider, options BatchOptions, inputOpts ...indexer.BatchOption) indexer.Batch {

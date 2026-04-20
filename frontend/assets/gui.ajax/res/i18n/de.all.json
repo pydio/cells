@@ -311,6 +311,21 @@
   "fastsearch.quick-copy.legend": {
     "other": "Drücken Sie [Enter], um %s ausgewählte Elemente in das Ziel zu kopieren, [Esc] zum Schließen"
   },
+  "modalsearch.opentip.cmd": {
+    "other": "Tipp: Verwenden Sie <kbd>⌘+K</kbd>, um diesen Suchdialog zu öffnen, und <kbd>Esc</kbd>, um ihn zu schließen."
+  },
+  "modalsearch.opentip.ctrl": {
+    "other": "Tipp: Verwenden Sie <kbd>Strg+K</kbd>, um diesen Suchdialog zu öffnen, und <kbd>Esc</kbd>, um ihn zu schließen."
+  },
+  "search.chip.scope.folder": {
+    "other": "Ordner"
+  },
+  "search.chip.scope.ws": {
+    "other": "Innerhalb"
+  },
+  "search.chip.scope.all": {
+    "other": "Alle Workspaces"
+  },
   "wslist-options.title": {
     "other": "Anzeigeoptionen"
   },

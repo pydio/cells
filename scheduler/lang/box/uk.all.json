@@ -1,80 +1,80 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Розпакувати мініатюри зображень і Exif даних"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Очищення кешу мініатюр для вилучених файлів"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Синхронізувати зовнішні теки"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Чисті завдання та завдання в планувальнику"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Готові завершені роботи (для тестування призначення)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Створення випадкових користувачів (для тестування призначення)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Зразок завдання RPC (для тестування)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Автоматичне архівування змінених служб"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Очищати або передавати дані користувача під час видалення"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Очищати застарілі тимчасові файли через 24 год"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Видаляти недійсні права доступу через 10 днів"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Стиснути обране..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Вилучення архіву..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Видалення вибору у фоновому режимі..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Копіювання теки у фоновому режимі..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Переміщення теки у фоновому режимі..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Копіювання файлу у тлі..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Переміщення файлу у тлі..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Копіювання виділеного у фоновому режимі..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Переміщення виділення в фоновому режимі..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Переміщення до смітника у фоновому режимі..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Синхронізація дат з вихідними даними {{.DsName}}, потім наносити нові файли"
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Завантаження файлу у тлі..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Видалення %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Копіювання %s"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "Переміщення %s"
   }
 }

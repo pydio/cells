@@ -79,6 +79,8 @@ message Rule {
     string Action = 3;
     // Value may add additional parameters to the action
     string Value = 4;
+    // CorsOptions - Optional CorsOptions to be applied for this site - will override site or global options
+    CorsOptions CorsOptions = 5;
 }
 
 enum HeaderModAction {
@@ -118,6 +120,18 @@ message HeaderMod {
     string Value = 4;
 }
 
+message CorsOptions {
+    repeated string AllowedOrigins = 1;
+    repeated string AllowedMethods = 2;
+    repeated string AllowedHeaders = 3;
+    repeated string ExposedHeaders = 4;
+    int32 MaxAge = 5;
+    bool AllowCredentials = 6;
+    bool AllowPrivateNetwork = 7;
+    bool OptionsPassthrough = 8;
+    int32 OptionsSuccessStatus = 9;
+}
+
 // ProxyConfig gives necessary URL and TLS configurations to start proxy
 message ProxyConfig {
     //option (setter.all_fields) = true;
@@ -136,6 +150,9 @@ message ProxyConfig {
 
     // If TLS is set, whether to automatically redirect each http://host:port to https://host:port
     bool SSLRedirect = 2;
+
+    // CorsOptions - Optional CorsOptions to be applied for this site - will override global ENV
+    CorsOptions CorsOptions = 12;
 
     // If set, this site will be in maintenance mode
     bool Maintenance = 7;

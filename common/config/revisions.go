@@ -26,7 +26,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/errors"
-	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -67,7 +67,7 @@ func NewVersionStore(vs revisions.Store, store Store) Store {
 }
 
 // Val of the path
-func (v *versionStore) Val(path ...string) configx.Values {
+func (v *versionStore) Val(path ...string) kv.Values {
 	return v.wrappedStore.Val(path...)
 }
 
@@ -120,12 +120,4 @@ func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 	}
 
 	return v.wrappedStore.Save(ctxUser, ctxMessage)
-}
-
-func (v *versionStore) Lock() {
-	v.wrappedStore.Lock()
-}
-
-func (v *versionStore) Unlock() {
-	v.wrappedStore.Unlock()
 }

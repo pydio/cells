@@ -18,10 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Component} from 'react'
+
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import DOMPurify from 'dompurify'
 
 class Editor extends Component {
+    textareaRef = React.createRef();
 
     static get styles() {
         return {
@@ -32,38 +35,64 @@ class Editor extends Component {
     }
 
     componentDidMount() {
-        const {pydio, url, content, config, onChange} = this.props
-        const {id} = this.textarea
+        const { content, config, onChange } = this.props;
+        const safeContent = DOMPurify.sanitize(content, { USE_PROFILES: { html: true } });
 
-        this.textarea.value = content
+        if (this.textareaRef.current) {
+            this.textareaRef.current.value = safeContent;
+        }
 
-        const editor = CKEDITOR.replace(this.textarea, config);
+        const editor = CKEDITOR.replace(this.textareaRef.current, config);
+        editor.on('change', ({ editor }) => {
+            const rawData = editor.getData();
+            const safeData = this.domPurify(rawData);
+            if (onChange) {
+                onChange(safeData);
+            }
+        });
+        
+    }
 
-        editor.on('change', ({editor}) => onChange(editor.getData()))
+    handleChange = (event) => {
+        const rawValue = event.target.value;
+        const safeValue = this.domPurify(rawValue);
+        if (this.props.onChange) {
+            this.props.onChange(safeValue);
+        }
+    };
+
+    domPurify(content) {
+        return DOMPurify.sanitize(content, { USE_PROFILES: { html: true } });
     }
 
     componentWillUnmount() {
-        const {id} = this.textarea
-
-        if(CKEDITOR.instances[id]){
-            this.textarea.value = CKEDITOR.instances[id].getData();
-            CKEDITOR.instances[id].destroy();
+        if (window.CKEDITOR && this.textareaRef.current) {
+            const id = this.textareaRef.current.id;
+            if (CKEDITOR.instances[id]) {
+                this.textareaRef.current.value = CKEDITOR.instances[id].getData();
+                CKEDITOR.instances[id].destroy();
+            }
         }
     }
 
-	render() {
-        const {url} = this.props
-        const {textarea} = Editor.styles
-
+    render() {
+        const { url } = this.props;
         const id = LangUtils.computeStringSlug(url);
-
+        const styles = Editor.styles;
         return (
-            <textarea ref={(textarea) => this.textarea = textarea} key={id} style={textarea} />
-        )
-	}
+            <textarea
+                ref={this.textareaRef}
+                key={id}
+                style={styles.textarea}
+                onChange={this.handleChange}
+            />
+        );
+    }
 }
 
 Editor.propTypes = {
+    content: PropTypes.string,
+    onChange: PropTypes.func,
     url: PropTypes.string.isRequired
 }
 

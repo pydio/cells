@@ -53,7 +53,7 @@ func init() {
 			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&gq{}))
 		}))
 	})
-
+	broker.RegisterAsyncQueue("fifo", &gq{})
 }
 
 type serviceQueue struct {

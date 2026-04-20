@@ -14,7 +14,6 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/test"
-	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/kv"
 	"github.com/pydio/cells/v5/common/utils/watch"
 
@@ -77,7 +76,7 @@ func (t *testHandler) Watch(request *pb.WatchRequest, stream pb.Config_WatchServ
 			return err
 		}
 
-		if v, ok := res.(configx.Values); ok {
+		if v, ok := res.(kv.Values); ok {
 			stream.Send(&pb.WatchResponse{
 				Value: &pb.Value{
 					Data: v.Bytes(),
@@ -98,7 +97,7 @@ func TestManagerConnection(t *testing.T) {
 				service.Context(ctx),
 				service.WithGRPC(func(ctx context.Context, registrar grpc.ServiceRegistrar) error {
 					st := kv.NewStore()
-					w := watch.NewWatcher[kv.Store](st)
+					w := watch.NewWatcher[*kv.Store](st)
 					pb.RegisterConfigServer(registrar, &testHandler{
 						store:   st,
 						watcher: w,

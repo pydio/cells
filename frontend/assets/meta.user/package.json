@@ -10,6 +10,11 @@
     "@babel/plugin-proposal-decorators": "^7.14.5",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
+    "@babel/preset-typescript": "^7.24.0",
+    "@mantine/core": "^8.3.12",
+    "@mantine/dates": "^8.3.12",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "assemble-less": "~0.7.0",
     "babel-loader": "^9.1.2",
     "babel-plugin-add-module-exports": "^1.0.4",
@@ -19,10 +24,17 @@
     "less-loader": "^11.1.0",
     "less-plugin-autoprefix": "^2.0.0",
     "style-loader": "^3.3.1",
+    "typescript": "^5.3.0",
     "webpack": ">=5.76.0",
     "webpack-cli": "^5.0.1"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "build-prod": "NODE_ENV=production webpack --config webpack.config.js"
+  },
+  "dependencies": {
+    "@braintree/sanitize-url": "^7.1.1",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
   }
 }

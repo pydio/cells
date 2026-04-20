@@ -23,6 +23,7 @@ package migrations
 import (
 	"github.com/hashicorp/go-version"
 	"github.com/pydio/cells/v5/common/utils/configx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -96,7 +97,7 @@ func TestMigration401(t *testing.T) {
 	Convey("Testing 401 upgrade of config", t, func() {
 
 		// Create new config
-		conf := configx.New(configx.WithJSON())
+		conf := configx.New(kv.WithJSON())
 		_ = conf.Set(tData)
 
 		target, _ := version.NewVersion("4.0.5")

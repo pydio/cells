@@ -35,6 +35,7 @@ import (
 
 var (
 	reservedVariables = map[string]string{
+		"replicasAddr":             "",
 		"prefix":                   "",
 		"policies":                 "",
 		"singular":                 "",
@@ -353,7 +354,7 @@ storages:
 		return nil, err
 	}
 	bootstrap.MustReset(ctx, nil)
-	mgr, err := manager.NewManager(ctx, runtime.NsInstall, nil, localRuntime)
+	mgr, err := manager.NewManager(ctx, runtime.NsInstall, localRuntime)
 	if err != nil {
 		return nil, err
 	}
@@ -555,13 +556,17 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 				delete(conf.Params, k)
 			}
 		}
-		hosts, port, err := net2.SplitHostPort(conf.Addr)
+
+		hostsStr, port, err := net2.SplitHostPort(conf.Addr)
 		if err != nil {
 			return "", err
 		}
 
+		hosts := strings.Split(hostsStr, ",")
+		hosts = append(hosts, strings.Split(d.vars["replicasAddr"], ",")...)
+
 		d.hosts = []string{}
-		for _, host := range strings.Split(hosts, ",") {
+		for _, host := range hosts {
 			if !strings.Contains(host, ":") {
 				hostConf := conf.Clone()
 				hostConf.Addr = net2.JoinHostPort(host, port)

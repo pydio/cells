@@ -23,12 +23,11 @@ package meta
 import (
 	"context"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/commons/docstorec"
 	"github.com/pydio/cells/v5/common/proto/docstore"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
-
-const TagsDocStoreId = "user_meta_tags"
 
 type TagsValuesClient interface {
 	ListTags(ctx context.Context, namespace string) ([]string, *docstore.Document)
@@ -36,8 +35,21 @@ type TagsValuesClient interface {
 	DeleteAllTags(ctx context.Context, namespace string) error
 }
 
+type TagsValuesClientProvider func() TagsValuesClient
+
+var (
+	defaultClientProvider TagsValuesClientProvider = func() TagsValuesClient {
+		return &tgClient{}
+	}
+)
+
+// RegisterTagsValuesClientProvider provides a hook to override the tgClient provider
+func RegisterTagsValuesClientProvider(clientProvider TagsValuesClientProvider) {
+	defaultClientProvider = clientProvider
+}
+
 func NewTagsValuesClient() TagsValuesClient {
-	return &tgClient{}
+	return defaultClientProvider()
 }
 
 // tgClient is an utilitary used for listing/storing a set of values used in a given usermeta namespace
@@ -52,7 +64,7 @@ func (s *tgClient) ListTags(ctx context.Context, namespace string) ([]string, *d
 	var tags []string
 	var doc *docstore.Document
 	r, e := s.getClient(ctx).GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    TagsDocStoreId,
+		StoreID:    common.DocStoreIdTagsValues,
 		DocumentID: namespace,
 	})
 	if e == nil && r != nil && r.Document != nil {
@@ -95,7 +107,7 @@ func (s *tgClient) StoreNewTags(ctx context.Context, namespace string, tags []st
 			}
 		}
 		_, e := s.getClient(ctx).PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    TagsDocStoreId,
+			StoreID:    common.DocStoreIdTagsValues,
 			Document:   storeDocument,
 			DocumentID: namespace,
 		})
@@ -109,7 +121,7 @@ func (s *tgClient) StoreNewTags(ctx context.Context, namespace string, tags []st
 // DeleteAllTags can be used to clear all values for this namespace
 func (s *tgClient) DeleteAllTags(ctx context.Context, namespace string) error {
 	if _, e := s.getClient(ctx).DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
-		StoreID:    TagsDocStoreId,
+		StoreID:    common.DocStoreIdTagsValues,
 		DocumentID: namespace,
 	}); e != nil {
 		return e

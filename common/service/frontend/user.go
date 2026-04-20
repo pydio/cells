@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/i18n/languages"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/kv"
 )
 
 type User struct {
@@ -165,7 +166,7 @@ func (u *User) LoadActiveLanguage(ctx context.Context, parameter string) string 
 	return lang
 }
 
-func (u *User) FlattenedRolesConfigs() configx.Values {
+func (u *User) FlattenedRolesConfigs() kv.Values {
 	if u.Logged {
 		return u.AccessList.FlattenedFrontValues()
 	} else {

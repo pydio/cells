@@ -21,14 +21,17 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
 	"reflect"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 type OrderedUpdate struct {
@@ -71,4 +74,39 @@ func QuoteTo(db *gorm.DB, s string) string {
 	buf := &strings.Builder{}
 	db.QuoteTo(buf, s)
 	return buf.String()
+}
+
+// WithTxRetry runs fn inside a transaction and retries automatically
+// on transient SQL errors like deadlocks or serialization failures.
+// It works across MySQL, Postgres, and SQLite.
+func WithTxRetry(ctx context.Context, db *gorm.DB, maxRetries int, retryMsg string, fn func(tx *gorm.DB) error) error {
+	var err error
+	baseDelay := 25 * time.Millisecond
+
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+			return fn(tx)
+		})
+
+		if err == nil {
+			return nil
+		}
+
+		lower := strings.ToLower(err.Error())
+		retryable := strings.Contains(lower, "deadlock") ||
+			strings.Contains(lower, "40001") || // SQLSTATE serialization
+			strings.Contains(lower, "database is locked") ||
+			strings.Contains(lower, "busy")
+
+		if retryable && attempt < maxRetries {
+			// exponential backoff with small jitter
+			time.Sleep(baseDelay * time.Duration(1<<uint(attempt-1)))
+			log.Logger(ctx).Warn("Retrying transaction after deadlock: " + retryMsg)
+			continue
+		}
+
+		return err
+	}
+
+	return err
 }

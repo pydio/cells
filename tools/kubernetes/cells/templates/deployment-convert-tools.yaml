@@ -1,0 +1,65 @@
+{{ if .Values.convertTools.enabled }}
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ include "cells.fullname" . }}-convert-tools
+  labels:
+    {{- include "cells.labels" . | nindent 4 }}
+spec:
+  {{- if gt (.Values.convertTools.replicaCount | int) 1 }}
+  replicas: {{ .Values.convertTools.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.convertTools.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end}}
+      labels:
+        app.kubernetes.io/name: {{ include "cells.name" . }}-convert-tools
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{- with .Values.convertTools.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.enabled }}
+      serviceAccountName: {{ include "cells.serviceAccountName" . }}
+      {{- end }}
+      {{- if .Values.convertTools.podSecurityContext.enabled }}
+      securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.convertTools.podSecurityContext "context" $) | nindent 8 }}
+      {{- end }}
+      {{- with .Values.convertTools.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.convertTools.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.convertTools.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "cells.name" . }}-convert-tools
+          {{- if .Values.convertTools.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.convertTools.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.convertTools.image.local }}
+          image: "{{ .Values.convertTools.image.repository }}"
+          {{- else }}
+          image: "{{ .Values.convertTools.image.repository }}:{{ .Values.convertTools.image.tag }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.convertTools.image.pullPolicy }}
+          ports:
+            - name: converter
+              containerPort: {{ .Values.convertTools.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.convertTools.resources | nindent 12 }}
+{{- end }}
