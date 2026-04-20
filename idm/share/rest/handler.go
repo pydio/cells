@@ -138,6 +138,12 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) err
 	if err != nil {
 		return err
 	}
+
+	// Enforce READ access: return CellNotFound to avoid leaking existence
+	if !h.MatchPolicies(ctx, id, workspace.Policies, service2.ResourcePolicyAction_READ) {
+		return errors.WithStack(errors.CellNotFound)
+	}
+
 	acl, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		return err
