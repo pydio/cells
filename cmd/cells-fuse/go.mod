@@ -34,14 +34,14 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/cel-go v0.27.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.18.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.7 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -118,9 +118,9 @@ require (
 	golang.org/x/tools v0.42.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.271.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260217215200-42d3e9bedb6d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260226221140-a57be14db171 // indirect
-	google.golang.org/grpc v1.79.3 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
+	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
