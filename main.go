@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/pydio/cells/v5/assets"
 	"github.com/pydio/cells/v5/common"
 	// All Telemetry-related drivers
 	// Logs
@@ -205,16 +206,11 @@ import (
 	_ "embed"
 )
 
-var (
-	//go:embed start.yaml
-	bootstrapYAML string
-)
-
 func main() {
 	common.PackageType = "PydioHome"
 	common.PackageLabel = "Pydio Cells Home Edition"
 
-	cmd.DefaultBootstrapYAML = bootstrapYAML
+	cmd.DefaultBootstrapYAML = assets.BootstrapYAML
 
 	cmd.Execute()
 }
