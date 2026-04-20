@@ -1,11 +1,20 @@
 package policy
 
 import (
+	"context"
+	"errors"
 	"testing"
 
 	"github.com/ory/ladon"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	pb "github.com/pydio/cells/v5/common/proto/service"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/idm/policy/converter"
+
+	_ "github.com/pydio/cells/v5/common/config/memory"
+	_ "github.com/pydio/cells/v5/common/config/viper"
+	_ "github.com/pydio/cells/v5/common/registry/config"
+	_ "github.com/pydio/cells/v5/common/registry/service"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -120,6 +129,107 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 	})
 }
 
+func TestUpgrade4994(t *testing.T) {
+	Convey("it updates target group when old unified policy exists", t, func() {
+		dao := &fakePolicyDAO{
+			groups: []*idm.PolicyGroup{{
+				Uuid: "rest-apis-default-accesses",
+				Policies: []*idm.Policy{
+					converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+						ID:          "frontend-post",
+						Description: "old unified policy",
+						Subjects:    []string{"profile:standard", "profile:shared"},
+						Resources: []string{
+							"rest:/frontend/binaries/USER/<.+>",
+							"rest:/frontend/enroll",
+							"rest:/frontend/session",
+						},
+						Actions: []string{"POST"},
+						Effect:  ladon.AllowAccess,
+					}),
+				},
+			}},
+		}
+
+		ctx, err := manager.DSNtoContextDAO(t.Context(), []string{}, func(context.Context) DAO { return dao })
+		So(err, ShouldBeNil)
+
+		err = Upgrade4994(ctx)
+
+		So(err, ShouldBeNil)
+		So(dao.storeCalls, ShouldEqual, 1)
+		So(dao.storedGroups, ShouldHaveLength, 1)
+		So(findPolicyByID(dao.storedGroups[0].Policies, "frontend-post"), ShouldNotBeNil)
+		So(findPolicyByID(dao.storedGroups[0].Policies, "frontend-post-shared"), ShouldNotBeNil)
+	})
+
+	Convey("it does not store when target group is absent", t, func() {
+		dao := &fakePolicyDAO{
+			groups: []*idm.PolicyGroup{{Uuid: "other-group", Policies: []*idm.Policy{{ID: "keep-me"}}}},
+		}
+
+		ctx, err := manager.DSNtoContextDAO(t.Context(), []string{}, func(context.Context) DAO { return dao })
+		So(err, ShouldBeNil)
+
+		err = Upgrade4994(ctx)
+
+		So(err, ShouldBeNil)
+		So(dao.storeCalls, ShouldEqual, 0)
+	})
+
+	Convey("it does not store when target group is already migrated", t, func() {
+		dao := &fakePolicyDAO{
+			groups: []*idm.PolicyGroup{{
+				Uuid: "rest-apis-default-accesses",
+				Policies: []*idm.Policy{
+					converter.LadonToProtoPolicy(&ladon.DefaultPolicy{ID: "frontend-post", Subjects: []string{"profile:standard"}, Resources: []string{"rest:/frontend/enroll", "rest:/frontend/session"}, Actions: []string{"POST"}, Effect: ladon.AllowAccess}),
+					converter.LadonToProtoPolicy(&ladon.DefaultPolicy{ID: "frontend-post-shared", Subjects: []string{"profile:shared"}, Resources: []string{"rest:/frontend/session"}, Actions: []string{"POST"}, Effect: ladon.AllowAccess}),
+				},
+			}},
+		}
+
+		ctx, err := manager.DSNtoContextDAO(t.Context(), []string{}, func(context.Context) DAO { return dao })
+		So(err, ShouldBeNil)
+
+		err = Upgrade4994(ctx)
+
+		So(err, ShouldBeNil)
+		So(dao.storeCalls, ShouldEqual, 0)
+	})
+
+	Convey("it returns list error", t, func() {
+		dao := &fakePolicyDAO{listErr: errors.New("list failed")}
+
+		ctx, err := manager.DSNtoContextDAO(t.Context(), []string{}, func(context.Context) DAO { return dao })
+		So(err, ShouldBeNil)
+
+		err = Upgrade4994(ctx)
+
+		So(err, ShouldNotBeNil)
+		So(err.Error(), ShouldContainSubstring, "list failed")
+	})
+
+	Convey("it logs store error and continues", t, func() {
+		dao := &fakePolicyDAO{
+			groups: []*idm.PolicyGroup{{
+				Uuid: "rest-apis-default-accesses",
+				Policies: []*idm.Policy{
+					converter.LadonToProtoPolicy(&ladon.DefaultPolicy{ID: "frontend-post", Subjects: []string{"profile:standard", "profile:shared"}, Resources: []string{"rest:/frontend/enroll", "rest:/frontend/session"}, Actions: []string{"POST"}, Effect: ladon.AllowAccess}),
+				},
+			}},
+			storeErr: errors.New("store failed"),
+		}
+
+		ctx, err := manager.DSNtoContextDAO(t.Context(), []string{}, func(context.Context) DAO { return dao })
+		So(err, ShouldBeNil)
+
+		err = Upgrade4994(ctx)
+
+		So(err, ShouldBeNil)
+		So(dao.storeCalls, ShouldEqual, 1)
+	})
+}
+
 func findPolicyByID(policies []*idm.Policy, id string) *idm.Policy {
 	for _, p := range policies {
 		if p.GetID() == id {
@@ -155,3 +265,46 @@ func hasAction(p *idm.Policy, action string) bool {
 	}
 	return false
 }
+
+type fakePolicyDAO struct {
+	groups       []*idm.PolicyGroup
+	storedGroups []*idm.PolicyGroup
+	listErr      error
+	storeErr     error
+	storeCalls   int
+}
+
+func (f *fakePolicyDAO) Migrate(ctx context.Context) error { return nil }
+func (f *fakePolicyDAO) MigrateLegacy(ctx context.Context) error { return nil }
+func (f *fakePolicyDAO) IsAllowed(ctx context.Context, r *ladon.Request) error { return nil }
+func (f *fakePolicyDAO) Create(ctx context.Context, policy ladon.Policy) error { return nil }
+func (f *fakePolicyDAO) Update(ctx context.Context, policy ladon.Policy) error { return nil }
+func (f *fakePolicyDAO) Get(ctx context.Context, id string) (ladon.Policy, error) { return nil, nil }
+func (f *fakePolicyDAO) Delete(ctx context.Context, id string) error { return nil }
+func (f *fakePolicyDAO) GetAll(ctx context.Context, limit, offset int64) (ladon.Policies, error) {
+	return nil, nil
+}
+func (f *fakePolicyDAO) FindRequestCandidates(ctx context.Context, r *ladon.Request) (ladon.Policies, error) {
+	return nil, nil
+}
+func (f *fakePolicyDAO) FindPoliciesForSubject(ctx context.Context, subject string) (ladon.Policies, error) {
+	return nil, nil
+}
+func (f *fakePolicyDAO) FindPoliciesForResource(ctx context.Context, resource string) (ladon.Policies, error) {
+	return nil, nil
+}
+func (f *fakePolicyDAO) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error) {
+	f.storeCalls++
+	f.storedGroups = append(f.storedGroups, group)
+	if f.storeErr != nil {
+		return nil, f.storeErr
+	}
+	return group, nil
+}
+func (f *fakePolicyDAO) ListPolicyGroups(ctx context.Context, query pb.Enquirer) ([]*idm.PolicyGroup, error) {
+	if f.listErr != nil {
+		return nil, f.listErr
+	}
+	return f.groups, nil
+}
+func (f *fakePolicyDAO) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error { return nil }
