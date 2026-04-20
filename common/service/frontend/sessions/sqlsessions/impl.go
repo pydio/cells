@@ -114,6 +114,7 @@ func (h *Impl) New(r *http.Request, name string) (*sessions.Session, error) {
 		HttpOnly: h.Options.HttpOnly,
 		Domain:   crtURL.Hostname(),
 		Secure:   crtURL.Scheme == "https",
+		SameSite: h.Options.SameSite,
 	}
 	session.IsNew = true
 	if cook, errCookie := r.Cookie(name); errCookie == nil {

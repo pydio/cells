@@ -1,3 +1,4 @@
+{{- if .Values.controller.enabled }}
 apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
 kind: Role
 metadata:
@@ -11,3 +12,4 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "configmaps", "secrets" ]
     verbs: [ "get", "list", "watch" ]
+  {{- end }}

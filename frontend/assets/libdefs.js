@@ -83,7 +83,9 @@ const LibRequires = [ // modules we want to require and export
     'cells-sdk',
     'qrcode.react',
     'react-markdown',
-    'remark-gfm'
+    'remark-gfm',
+    '@mantine/core',
+    '@mantine/dates',
 ];
 
 const Externals = Object.keys(PydioCoreRequires).map(function(key){

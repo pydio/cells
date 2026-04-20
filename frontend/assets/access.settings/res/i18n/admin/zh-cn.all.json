@@ -396,10 +396,10 @@
     "other": "默认情况下，所有文件都存储在一个唯一的文件夹中。使用 \"N:P:Q \"模式自动创建子文件夹 id[:N]/id[:P]/id[:Q]/..."
   },
   "ds.editor.initFlatFromSnapshot.hint": {
-    "other": "Path to snapshot inside storage (e.g. $snapshot.db)"
+    "other": "存储中的快照路径 (例如 $snapshot.db)"
   },
   "ds.editor.foldersShardingPattern.hint": {
-    "other": "Sharding pattern (e.g. N:P:Q)"
+    "other": "分片表达的模式 (比如：N:P:Q)"
   },
   "ds.encryption": {
     "other": "已加密"
@@ -863,14 +863,35 @@
   "metadata.type.css_label": {
     "other": "颜色标签"
   },
+  "metadata.type.auto_complete": {
+    "other": "自动完成"
+  },
   "metadata.type.tags": {
-    "other": "可扩展标签"
+    "other": "可扩展标签 (旧版)"
   },
   "metadata.type.choice": {
     "other": "从值中选择"
   },
+  "metadata.type.multi_value": {
+    "other": "可选择多项"
+  },
+  "metadata.type.tag_cloud": {
+    "other": "标签云"
+  },
+  "metadata.type.tag_cloud.values": {
+    "other": "云标签值"
+  },
+  "metadata.tag_cloud.entity.hint": {
+    "other": "用逗号来分隔可能多个的标签"
+  },
+  "metadata.tag_cloud.entity": {
+    "other": "值"
+  },
   "metadata.type.json": {
     "other": "JSON (内部格式)"
+  },
+  "metadata.type.url": {
+    "other": "URL"
   },
   "metadata.type.date.format": {
     "other": "格式"
@@ -913,6 +934,45 @@
   },
   "metadata.toggle.list-visibility": {
     "other": "在文件列表中显示值"
+  },
+  "metadata.toggle.prompt": {
+    "other": "上传时提示元数据标记"
+  },
+  "metadata.field.validation": {
+    "other": "字段验证"
+  },
+  "metadata.validation.max-length.gte-min-length": {
+    "other": "Maximum length must be greater than or equal to minimum length"
+  },
+  "metadata.validation.max-value.gte-min-value": {
+    "other": "Maximum value must be greater than or equal to minimum value"
+  },
+  "metadata.validation.default-length.min": {
+    "other": "Default value length (%s) must be at least %s characters"
+  },
+  "metadata.validation.default-length.max": {
+    "other": "Default value length (%s) must not exceed %s characters"
+  },
+  "metadata.validation.default-value.min": {
+    "other": "Default value (%s) must be at least %s"
+  },
+  "metadata.validation.default-value.max": {
+    "other": "Default value (%s) must not exceed %s"
+  },
+  "metadata.editor.selection.key_exists": {
+    "other": "此键值已经存在"
+  },
+  "metadata.toggle.required": {
+    "other": "必填"
+  },
+  "metadata.boolean.yes": {
+    "other": "Yes"
+  },
+  "metadata.boolean.no": {
+    "other": "No"
+  },
+  "metadata.toggle.defaults": {
+    "other": "强制使用默认值"
   },
   "metadata.field.mandatory": {
     "other": "必填"

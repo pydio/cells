@@ -31,7 +31,7 @@ const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo={}, displayMode}) => {
+const AppBar = ({pydio, muiTheme, styles, searchIconButton, searchIconCallback, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo={}, displayMode}) => {
 
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -113,7 +113,7 @@ const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTra
         masterStyle.margin = 0;
         masterStyle.overflow = 'hidden';
     }
-    const appBarRightProps = {pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo, displayMode}
+    const appBarRightProps = {pydio, muiTheme, styles, searchIconButton, searchIconCallback, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo, displayMode}
 
     return (
         <Paper zDepth={styles.appBarZDepth} style={masterStyle} rounded={false}>

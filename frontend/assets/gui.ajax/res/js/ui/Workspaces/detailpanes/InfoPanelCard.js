@@ -26,6 +26,7 @@ import Tooltip from '@mui/material/Tooltip'
 import {MultiColumnContext} from "./MultiColumnPanel";
 import {ResizableContext} from "./ResizableColumn";
 const {Toolbar} = Pydio.requireLib('components')
+const {PydioMantineProvider} = Pydio.requireLib('hoc');
 import ReactDOM from 'react-dom';
 import reactdnd from 'react-dnd'
 import {DragTypes, itemSource, itemTarget, collect, collectDrop} from "./dnd";
@@ -226,35 +227,37 @@ let ContextInfoPanelCard = ({primaryToolbars, icon, title, closedTitle, shrinkTi
     }
 
     return (
-        <Paper
-            zDepth={styles.card.zDepth}
-            className="panelCard"
-            style={{...styles.card.panel, ...panelOpen, ...style, ...refinedStyles.main, opacity:isDragging?0:null}}
-            ref={instance => {
-                connectDropTarget(ReactDOM.findDOMNode(instance));
-                connectDragPreview(ReactDOM.findDOMNode(instance));
-            }}
-            onMouseEnter={()=>{setHoverTitle(true);}}
-            onMouseLeave={()=>{setHoverTitle(false);}}
-            onClick={shrinkMode?()=>{
-                if(currentPin) {
-                    setColumnPin(identifier)
-                } else {
-                    setOpen(true)
+        <PydioMantineProvider>
+            <Paper
+                zDepth={styles.card.zDepth}
+                className="panelCard"
+                style={{...styles.card.panel, ...panelOpen, ...style, ...refinedStyles.main, opacity:isDragging?0:null}}
+                ref={instance => {
+                    connectDropTarget(ReactDOM.findDOMNode(instance));
+                    connectDragPreview(ReactDOM.findDOMNode(instance));
+                }}
+                onMouseEnter={()=>{setHoverTitle(true);}}
+                onMouseLeave={()=>{setHoverTitle(false);}}
+                onClick={shrinkMode?()=>{
+                    if(currentPin) {
+                        setColumnPin(identifier)
+                    } else {
+                        setOpen(true)
+                    }
+                    setWidth(420)
+                }: null}
+            >
+                {theTitle}
+                {open &&
+                    <div className="panelContent" style={{...styles.card.content, ...contentStyle, ...refinedStyles.content}}>
+                        {children}
+                        {rows}
+                        {toolBar}
+                    </div>
                 }
-                setWidth(420)
-            }: null}
-        >
-            {theTitle}
-            {open &&
-                <div className="panelContent" style={{...styles.card.content, ...contentStyle, ...refinedStyles.content}}>
-                    {children}
-                    {rows}
-                    {toolBar}
-                </div>
-            }
-            {open && theActions}
-        </Paper>
+                {open && theActions}
+            </Paper>
+        </PydioMantineProvider>
     );
 };
 

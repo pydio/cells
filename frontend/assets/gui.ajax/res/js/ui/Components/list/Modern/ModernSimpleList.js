@@ -18,34 +18,37 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 // Pydio Specific Imports - Assuming Pydio global is available
-import Pydio from 'pydio'
-const PydioDataModel = require('pydio/model/data-model')
+import Pydio from 'pydio';
+const PydioDataModel = require('pydio/model/data-model');
 const pydio = Pydio.getInstance(); // For accessing Pydio.user, Pydio.getMessages etc.
 
 // Local Component Imports
-import {useKeyNavigation} from "./useKeyNavigation";
-import {useEmptyStateProps} from "./useEmptyStateProps";
-import EmptyStateView from '../../views/EmptyStateView'
-import {useItemClicked, UseItemClickedPropTypes} from "./useItemClicked";
-import {useItems} from "./useItems";
-import PlaceHolders from "../PlaceHolders";
-import {ModernLayoutTable} from "./ModernLayoutTable";
-import {ModernLayoutMasonry} from "./ModernLayoutMasonry";
-import {ModernLayoutDefault} from "./ModernLayoutDefault";
+import { useKeyNavigation } from './useKeyNavigation';
+import { useEmptyStateProps } from './useEmptyStateProps';
+import EmptyStateView from '../../views/EmptyStateView';
+import { useItemClicked, UseItemClickedPropTypes } from './useItemClicked';
+import { useItems } from './useItems';
+import PlaceHolders from '../PlaceHolders';
+import { ModernLayoutTable } from './ModernLayoutTable';
+import { ModernLayoutMasonry } from './ModernLayoutMasonry';
+import { ModernLayoutDefault } from './ModernLayoutDefault';
 
 // Placeholder for AutoSizer (can be replaced with a proper import later)
-const AutoSizer = ({ children, defaultHeight = 300, defaultWidth = '100%' }) => {
+const AutoSizer = ({
+    children,
+    defaultHeight = 300,
+    defaultWidth = '100%',
+}) => {
     // In a real scenario, this would measure parent dimensions
     // For this shell, we just pass through children with default dimensions
     return children({ height: defaultHeight, width: defaultWidth });
 };
 
 // Placeholder for other internal components
-
 
 const ModernSimpleList = (props) => {
     const {
@@ -61,66 +64,91 @@ const ModernSimpleList = (props) => {
         entryRenderIcon,
         entryRenderFirstLine,
         entryRenderSecondLine,
+        entryHandleClicks,
         tableEntryRenderCell,
         customToolbar,
-        additionalAttrs={}
+        additionalAttrs = {},
+        usePlaceHolder = true,
     } = props;
 
-    const [elementsPerLine, setElementsPerLine] = useState(1)
+    const [elementsPerLine, setElementsPerLine] = useState(1);
 
     useEffect(() => {
-        if(displayMode.indexOf('grid') === -1) {
-            setElementsPerLine(1)
+        if (displayMode.indexOf('grid') === -1) {
+            setElementsPerLine(1);
         }
     }, [displayMode]);
 
-    const {items, isLoading, error, selection, updateSelection, updateSelectionFromItemEvent, currentSortingInfo, handleSortChange} =  useItems(props)
+    const {
+        items,
+        isLoading,
+        error,
+        selection,
+        updateSelection,
+        updateSelectionFromItemEvent,
+        currentSortingInfo,
+        handleSortChange,
+    } = useItems(props);
 
-    const {handleItemClick, handleItemDoubleClick} = useItemClicked({items, pydio, dataModel, updateSelectionFromItemEvent})
+    const { handleItemClick, handleItemDoubleClick } = useItemClicked({
+        items,
+        pydio,
+        dataModel,
+        entryHandleClicks,
+        updateSelectionFromItemEvent,
+    });
 
-    const {handleKeyDown} = useKeyNavigation({
+    const { handleKeyDown } = useKeyNavigation({
         selection,
         updateSelection,
         elementsPerLine,
         items,
         fireDeleteCallback: () => {
-            pydio.Controller.fireActionByKey('key_delete')
+            pydio.Controller.fireActionByKey('key_delete');
         },
         fireEnterCallback: handleItemDoubleClick,
-    })
+    });
 
     const emptyState = useEmptyStateProps({
-        emptyStateProps, errorStateProps, node, items, error,
-        openFolder:handleItemDoubleClick
-    })
-
+        emptyStateProps,
+        errorStateProps,
+        node,
+        items,
+        error,
+        openFolder: handleItemDoubleClick,
+    });
 
     // Render logic
-    const showLoading = isLoading && (!node || (typeof node.isLoaded === 'function' ? !node.isLoaded() : true));
+    const showLoading =
+        isLoading &&
+        (!node ||
+            (typeof node.isLoaded === 'function' ? !node.isLoaded() : true));
     if (showLoading && !error) {
         return (
-            <div className={className}>
-                <PlaceHolders
-                    displayMode={displayMode}
-                    tableKeys={displayMode==='detail' && tableKeys}
-                    elementHeight={displayMode === 'list' ? 71 : 160}
-                />
+            <div className={className} {...additionalAttrs}>
+                {usePlaceHolder && (
+                    <PlaceHolders
+                        displayMode={displayMode}
+                        tableKeys={displayMode === 'detail' && tableKeys}
+                        elementHeight={displayMode === 'list' ? 71 : 160}
+                    />
+                )}
             </div>
-        )
+        );
     }
 
     let LayoutComponent;
     if (displayMode === 'detail') {
-        LayoutComponent = ModernLayoutTable
+        LayoutComponent = ModernLayoutTable;
     } else if (displayMode.indexOf('masonry') === 0) {
-        LayoutComponent = ModernLayoutMasonry
+        LayoutComponent = ModernLayoutMasonry;
     } else {
-        LayoutComponent = ModernLayoutDefault
+        LayoutComponent = ModernLayoutDefault;
     }
 
     return (
         <div className={className} {...additionalAttrs}>
-            {emptyState && <EmptyStateView {...emptyState}/>}
+            {emptyState && <EmptyStateView {...emptyState} />}
             {customToolbar}
             {!emptyState && (
                 <LayoutComponent
@@ -135,7 +163,11 @@ const ModernSimpleList = (props) => {
                     handleSortChange={handleSortChange}
                     displayMode={displayMode}
                     onScroll={onScroll}
-                    setItemsPerRow={displayMode.indexOf('grid')=== 0 ? (i) => setElementsPerLine(i) : null}
+                    setItemsPerRow={
+                        displayMode.indexOf('grid') === 0
+                            ? (i) => setElementsPerLine(i)
+                            : null
+                    }
                     tableEntryRenderCell={tableEntryRenderCell}
                     entryRenderActions={entryRenderActions}
                     entryRenderIcon={entryRenderIcon}
@@ -144,7 +176,7 @@ const ModernSimpleList = (props) => {
                 />
             )}
         </div>
-    )
+    );
 };
 
 ModernSimpleList.propTypes = {
@@ -167,7 +199,7 @@ ModernSimpleList.propTypes = {
 
     emptyMessage: PropTypes.string,
     emptyStateProps: PropTypes.object, // Props for EmptyStateView
-    errorStateProps: PropTypes.object,  // Props for an ErrorStateView (if one exists)
+    errorStateProps: PropTypes.object, // Props for an ErrorStateView (if one exists)
 
     // Selection props
     selection: PropTypes.instanceOf(Map), // Controlled selection state
@@ -177,12 +209,14 @@ ModernSimpleList.propTypes = {
     ...UseItemClickedPropTypes,
 
     // Sorting props
-    sortingInfo: PropTypes.shape({ // Controlled sorting state
+    sortingInfo: PropTypes.shape({
+        // Controlled sorting state
         attribute: PropTypes.string,
         sortType: PropTypes.string,
         direction: PropTypes.oneOf(['asc', 'desc']),
     }),
-    defaultSortingInfo: PropTypes.shape({ // Used for initial sort and pref fallback
+    defaultSortingInfo: PropTypes.shape({
+        // Used for initial sort and pref fallback
         attribute: PropTypes.string,
         sortType: PropTypes.string,
         direction: PropTypes.oneOf(['asc', 'desc']),
@@ -219,8 +253,12 @@ ModernSimpleList.propTypes = {
 ModernSimpleList.defaultProps = {
     selectFirstRowOnLoad: false,
     autoLoadNode: true,
-    defaultSortingInfo: {attribute:'label', sortType:'file-natural', direction:'asc'},
-    emptyMessage: "No items found."
+    defaultSortingInfo: {
+        attribute: 'label',
+        sortType: 'file-natural',
+        direction: 'asc',
+    },
+    emptyMessage: 'No items found.',
 };
 
 export { ModernSimpleList };

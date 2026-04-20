@@ -17,17 +17,23 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import Pydio from 'pydio'
-import Node from 'pydio/model/node'
-import DataModel from 'pydio/model/data-model'
+import React from 'react';
+import Pydio from 'pydio';
+import Node from 'pydio/model/node';
+import DataModel from 'pydio/model/data-model';
 import createReactClass from 'create-react-class';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import UserMetaPanelV2 from './UserMetaPanelV2';
+import MetaClient from './MetaClient';
+import { MetadataContextProvider } from './context/metadata.tsx';
 
-import MetaClient from "./MetaClient";
-import UserMetaPanel from "./UserMetaPanel"
+const { PydioMantineProvider } = Pydio.requireLib('hoc');
 
-const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
+const {
+    ActionDialogMixin,
+    CancelButtonProviderMixin,
+    SubmitButtonProviderMixin,
+} = Pydio.requireLib('boot');
 
 export default createReactClass({
     displayName: 'UserMetaDialog',
@@ -39,34 +45,69 @@ export default createReactClass({
     mixins: [
         ActionDialogMixin,
         CancelButtonProviderMixin,
-        SubmitButtonProviderMixin
+        SubmitButtonProviderMixin,
     ],
 
-    saveMeta(){
-        let values = this.refs.panel.getUpdateData();
-        let params = {};
-        values.forEach(function(v, k){
-            params[k] = v;
-        });
-        return MetaClient.getInstance().saveMeta(this.props.selection.getSelectedNodes(), values);
+    saveMeta(metadata) {
+        return MetaClient.getInstance().saveMeta(
+            this.props.selection.getSelectedNodes(),
+            metadata,
+        );
     },
 
-    submit(){
-        this.saveMeta().then(() => {
+    submit() {
+        if (!this.formIsValid) return;
+
+        this.saveMeta(this.formMetadata).then(() => {
             this.dismiss();
         });
     },
 
-    render(){
+    componentDidUpdate(prevProps) {
+        if (prevProps.selection !== this.props.selection) {
+            // FIXME: Store the form state without re-rendering.
+            this.formMetadata = new Map();
+            this.formIsValid = true;
+        }
+    },
+
+    render() {
         return (
-            <UserMetaPanel
-                pydio={this.props.pydio}
-                multiple={!this.props.selection.isUnique()}
-                ref="panel"
-                node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
-                editMode={true}
-                style={{fontSize: 14}}
-            />
+            <PydioMantineProvider>
+                <MetadataContextProvider
+                    node={
+                        this.props.selection.isUnique()
+                            ? this.props.selection.getUniqueNode()
+                            : new Node()
+                    }
+                    saveMeta={(metadata) => this.saveMeta(metadata)}
+                    saving={false}
+                    savePartialy={false}
+                    onDataChanged={(metadata, { errors, isValid }) => {
+                        const isSingleFileSelection =
+                            this.props.selection.isUnique();
+                        this.formIsValid = isSingleFileSelection
+                            ? isValid
+                            : !Array.from(metadata.keys()).find(
+                                  (k) => errors[k],
+                              );
+                        this.formMetadata = metadata;
+                    }}
+                >
+                    <UserMetaPanelV2
+                        pydio={this.props.pydio}
+                        multiple={!this.props.selection.isUnique()}
+                        ref="panel"
+                        node={
+                            this.props.selection.isUnique()
+                                ? this.props.selection.getUniqueNode()
+                                : new Node()
+                        }
+                        editMode={true}
+                        style={{ fontSize: 14 }}
+                    />
+                </MetadataContextProvider>
+            </PydioMantineProvider>
         );
     },
 });

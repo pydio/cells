@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor enabled="false" id="editor.bnote" openable="true" iconClass="mdi mdi-file-document-box" order="10" text="51" title="162" canWrite="true"
-        actions="BlockNote.Actions" className="BlockNote" mimes="note" label="CONF_MESSAGE[Block Note]" description="CONF_MESSAGE[Collaborative Pad]">
+        actions="BlockNote.Actions" className="BlockNote" mimes="note" label="CONF_MESSAGE[Pages]" description="CONF_MESSAGE[Display Folders as Pages]">
 	<server_settings>
 		<global_param name="BNOTE_PAGES_META" type="string" default="usermeta-page-content" label="CONF_MESSAGE[Page Contents Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to store folder pages contents. Metadata must be created before using that.]" expose="true"/>
 		<global_param name="BNOTE_KNOWLEDGE_BASE" type="string" default="usermeta-is-page" label="CONF_MESSAGE[Is Page Metadata Name]" description="CONF_MESSAGE[Set a metadata namespace to enable/disable the page behavior.]" expose="true"/>
@@ -10,7 +10,6 @@
         <resources>
             <js file="plug/editor.bnote/res/dist/BlockNote.min.js" className="BlockNote"/>
             <i18n remote="plug/editor.bnote/i18n" namespace="bnote"/>
-			<css file="plug/editor.bnote/res/css/style.css" autoload="true"/>
         </resources>
 	</client_settings>
 	<registry_contributions>

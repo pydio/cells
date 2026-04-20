@@ -397,6 +397,69 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		} else {
 			e = er
 		}
+	case "/idm.UserMetaService/GetFieldSchema":
+		resp, er := s.UserMetaServiceServer.GetFieldSchema(ctx, args.(*GetFieldSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetNamespaceSchema":
+		resp, er := s.UserMetaServiceServer.GetNamespaceSchema(ctx, args.(*GetNamespaceSchemaRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetEntityValues":
+		resp, er := s.UserMetaServiceServer.GetEntityValues(ctx, args.(*GetMetaEntityValuesRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/DeleteEntity":
+		resp, er := s.UserMetaServiceServer.DeleteEntity(ctx, args.(*GetMetaEntityValuesRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/CreateEntity":
+		resp, er := s.UserMetaServiceServer.CreateEntity(ctx, args.(*CreateEntityRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/CreateEntityValues":
+		resp, er := s.UserMetaServiceServer.CreateEntityValues(ctx, args.(*CreateEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/LinkMetaToEntityValue":
+		resp, er := s.UserMetaServiceServer.LinkMetaToEntityValue(ctx, args.(*MetaToEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/UnlinkMetaFromEntityValue":
+		resp, er := s.UserMetaServiceServer.UnlinkMetaFromEntityValue(ctx, args.(*MetaToEntityValueRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetMetadata":
+		resp, er := s.UserMetaServiceServer.GetMetadata(ctx, args.(*GetMetadataRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = errors.New(method + " not implemented")
 	}

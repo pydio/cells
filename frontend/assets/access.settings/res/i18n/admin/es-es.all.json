@@ -863,14 +863,35 @@
   "metadata.type.css_label": {
     "other": "Etiquetas de Color"
   },
+  "metadata.type.auto_complete": {
+    "other": "Auto Complete"
+  },
   "metadata.type.tags": {
-    "other": "Etiquetas Extensibles"
+    "other": "Extensible Tags (legacy)"
   },
   "metadata.type.choice": {
     "other": "Seleccionar entre los valores"
   },
+  "metadata.type.multi_value": {
+    "other": "Multi Value select"
+  },
+  "metadata.type.tag_cloud": {
+    "other": "Tag Cloud"
+  },
+  "metadata.type.tag_cloud.values": {
+    "other": "Tag Cloud values"
+  },
+  "metadata.tag_cloud.entity.hint": {
+    "other": "Comma-separated list of possible tags"
+  },
+  "metadata.tag_cloud.entity": {
+    "other": "Values"
+  },
   "metadata.type.json": {
     "other": "JSON (formato interno)"
+  },
+  "metadata.type.url": {
+    "other": "URL"
   },
   "metadata.type.date.format": {
     "other": "Selecciona el formato del archivo"
@@ -913,6 +934,45 @@
   },
   "metadata.toggle.list-visibility": {
     "other": "Mostrar valor en la lista de archivos"
+  },
+  "metadata.toggle.prompt": {
+    "other": "Prompt Metadata tagging on Upload"
+  },
+  "metadata.field.validation": {
+    "other": "Field Validation"
+  },
+  "metadata.validation.max-length.gte-min-length": {
+    "other": "Maximum length must be greater than or equal to minimum length"
+  },
+  "metadata.validation.max-value.gte-min-value": {
+    "other": "Maximum value must be greater than or equal to minimum value"
+  },
+  "metadata.validation.default-length.min": {
+    "other": "Default value length (%s) must be at least %s characters"
+  },
+  "metadata.validation.default-length.max": {
+    "other": "Default value length (%s) must not exceed %s characters"
+  },
+  "metadata.validation.default-value.min": {
+    "other": "Default value (%s) must be at least %s"
+  },
+  "metadata.validation.default-value.max": {
+    "other": "Default value (%s) must not exceed %s"
+  },
+  "metadata.editor.selection.key_exists": {
+    "other": "This key already exists"
+  },
+  "metadata.toggle.required": {
+    "other": "Required"
+  },
+  "metadata.boolean.yes": {
+    "other": "Yes"
+  },
+  "metadata.boolean.no": {
+    "other": "No"
+  },
+  "metadata.toggle.defaults": {
+    "other": "Enforce Defaults"
   },
   "metadata.field.mandatory": {
     "other": "Obligatorio"

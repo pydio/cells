@@ -2,20 +2,22 @@ package main
 
 import (
 	"github.com/pydio/cells/v5/common"
-
 	// All Telemetry-related drivers
 	// Logs
 	_ "github.com/pydio/cells/v5/common/telemetry/log/file"
 	_ "github.com/pydio/cells/v5/common/telemetry/log/otlp"
 	_ "github.com/pydio/cells/v5/common/telemetry/log/service"
 	_ "github.com/pydio/cells/v5/common/telemetry/log/stdout"
+
 	// Tracing
 	_ "github.com/pydio/cells/v5/common/telemetry/tracing/jaeger"
 	_ "github.com/pydio/cells/v5/common/telemetry/tracing/otlp"
 	_ "github.com/pydio/cells/v5/common/telemetry/tracing/stdout"
+
 	// Metrics
 	_ "github.com/pydio/cells/v5/common/telemetry/metrics/otlp"
 	_ "github.com/pydio/cells/v5/common/telemetry/metrics/prometheus"
+
 	// Profiling
 	_ "github.com/pydio/cells/v5/common/telemetry/profile/http_pull"
 	_ "github.com/pydio/cells/v5/common/telemetry/profile/pyroscope"
@@ -105,6 +107,7 @@ import (
 
 	// Cache
 	_ "github.com/pydio/cells/v5/common/broker/debounce"
+	_ "github.com/pydio/cells/v5/common/broker/fsqueue"
 	_ "github.com/pydio/cells/v5/common/broker/goque"
 	_ "github.com/pydio/cells/v5/common/broker/jetstream"
 	_ "github.com/pydio/cells/v5/common/utils/cache/bigcache"
@@ -175,6 +178,7 @@ import (
 	_ "github.com/pydio/cells/v5/common/broker/grpcpubsub"
 	_ "github.com/pydio/cells/v5/common/broker/nats"
 	_ "gocloud.dev/pubsub/mempubsub"
+
 	// _ "gocloud.dev/pubsub/natspubsub"
 	_ "gocloud.dev/pubsub/rabbitpubsub"
 
@@ -183,6 +187,7 @@ import (
 	_ "github.com/pydio/cells/v5/common/config/file"
 	_ "github.com/pydio/cells/v5/common/config/memory"
 	_ "github.com/pydio/cells/v5/common/config/vault"
+
 	// _ "github.com/pydio/cells/v5/common/config/sql"
 	//_ "github.com/pydio/cells/v5/common/config/viper"
 
@@ -196,10 +201,20 @@ import (
 
 	// Import Command Package after all Mux Registers
 	"github.com/pydio/cells/v5/cmd"
+
+	_ "embed"
+)
+
+var (
+	//go:embed start.yaml
+	bootstrapYAML string
 )
 
 func main() {
 	common.PackageType = "PydioHome"
 	common.PackageLabel = "Pydio Cells Home Edition"
+
+	cmd.DefaultBootstrapYAML = bootstrapYAML
+
 	cmd.Execute()
 }

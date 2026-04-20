@@ -250,7 +250,7 @@ NATS SECRET D'ENV (rend le mot de passe dans un secret)
 {{- $secret := .Values.nats.auth.existingSecret | default "cells-nats" -}}
 {{- include "cells.tplvalues.renderSecretPassword" (dict "name" "BROKER_USERNAME" "value" (.Values.nats.auth.username | default "root")) -}}
 {{- include "cells.tplvalues.renderSecretPassword" (dict "name" "BROKER_PASSWORD" "value" (dict "secretName" $secret "secretPasswordKey" "password")) -}}
-{{- else if .Values.externalBroker.auth.enabled -}}
+{{- else if and .Values.externalBroker.enabled .Values.externalBroker.auth.enabled -}}
 {{- if empty .Values.externalBroker.auth.existingSecretServerConf -}}
 {{- include "cells.auth.envvar" (dict "auth" .Values.externalBroker.auth "prefix" "BROKER") }}
 {{- else -}}

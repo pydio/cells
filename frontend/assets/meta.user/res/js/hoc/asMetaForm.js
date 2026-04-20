@@ -17,62 +17,61 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import MetaClient from "../MetaClient";
+import React from 'react';
+import MetaClient from '../MetaClient';
 
-export default function asMetaForm(Component){
-
+export default function asMetaForm(Component) {
     return class MetaForm extends React.Component {
-
         constructor(props) {
             super(props);
-            const {value, configs} = this.props;
+            const { value, configs } = this.props;
             this.state = {
                 value: value === undefined ? '' : value,
                 configs: configs || new Map(),
                 getRealValue: () => {
-                    const {node, column} = this.props;
-                    return node.getMetadata().get(column.name)
-                }
-            }
+                    const { node, column } = this.props;
+                    return node.getMetadata().get(column.name);
+                },
+            };
         }
 
         updateValue(value, submit = true) {
-            this.setState({value});
-            const {fieldname, onChange, onValueChange} = this.props;
-            if(onChange){
+            this.setState({ value });
+            const { fieldname, onChange, onValueChange } = this.props;
+            if (onChange) {
                 let object = {};
                 object['ajxp_meta_' + fieldname] = value;
                 onChange(object, submit);
-            }else if(onValueChange){
+            } else if (onValueChange) {
                 onValueChange(fieldname, value, submit);
             }
-
         }
 
         componentDidMount() {
-            const {configs} = this.props
-            if(!configs) {
-                MetaClient.getInstance().loadConfigs().then(configs =>{
-                    this.setState({configs})
-                })
+            const { configs } = this.props;
+            if (!configs) {
+                MetaClient.getInstance()
+                    .loadConfigs()
+                    .then((configs) => {
+                        this.setState({ configs });
+                    });
             }
         }
 
         componentWillReceiveProps(nextProps, nextContext) {
-            this.setState({value: nextProps.value === undefined ? '' : nextProps.value})
+            this.setState({
+                value: nextProps.value === undefined ? '' : nextProps.value,
+            });
         }
 
         render() {
-
-            return <Component
-                {...this.props}
-                {...this.state}
-                updateValue={this.updateValue.bind(this)}
-            />
-
+            return (
+                <Component
+                    {...this.props}
+                    {...this.state}
+                    updateValue={this.updateValue.bind(this)}
+                />
+            );
         }
-
-    }
-
+    };
 }

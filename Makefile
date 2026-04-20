@@ -1,4 +1,4 @@
-DEV_VERSION=4.9.92-dev
+DEV_VERSION=4.9.94-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -79,7 +79,7 @@ dev:
 	 -tags dev\
 	 -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${DEV_VERSION}\
-	 -X github.com/pydio/cells/v5/common.BuildStamp=2022-01-01T00:00:00\
+	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=dev\
 	 -X github.com/pydio/cells/v5/common.LogFileDefaultValue=false\
 	 -X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn"\

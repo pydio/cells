@@ -77,6 +77,10 @@ data:
       {{- $mergedConfigs := merge $baseConfigs $collaboraConfigs }}
       {{- toYaml $mergedConfigs | nindent 6 }}
 
+  {{- if .Values.bootstrap }}
+  bootstrap.yaml: |
+    {{ .Values.bootstrap | nindent 4 }}
+  {{- else }}
   bootstrap.yaml: |
     #------------------------------------------
     # Actual Bootstrap Keys
@@ -102,10 +106,12 @@ data:
         {{ else }}
         port: {{ .Values.service.port }}
         {{ end }}
+      {{ if and (not .Values.useCaddyProxy) .Values.service.admin.enabled }}
       httpadmin:
         type: tcp
         bind: 0.0.0.0
         port: 8081
+      {{ end }}
     servers:
       {{ if .Values.useCaddyProxy }}
       proxy:
@@ -305,6 +311,7 @@ data:
       pydio.rest.workspace:
         after:
           - pydio.grpc.workspace
+  {{- end }}
 
   {{ if not (empty .Values.extraConfig) }}
   {{ toYaml .Values.extraConfig | nindent 2 }}
@@ -414,8 +421,9 @@ data:
     path "pki*"                    { capabilities = ["read", "list"] } 
     path "pki/sign/application"    { capabilities = ["create", "update"] }
     path "pki/issue/application"   { capabilities = ["create"] }
-{{- end }}
 ---
+{{- end }}
+{{- if .Values.controller.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -439,3 +447,5 @@ data:
         services:
           {{- $services := .Values.controller.services }}
           - filter: "{{ range $k, $v := $services }}{{ printf "{{ .Name }} ~= %s" $v }}{{ if lt $k (sub (len $services) 1)}} or {{ end }}{{ end }}"
+---
+{{- end }}

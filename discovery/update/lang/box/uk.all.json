@@ -1,72 +1,72 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Оновити конфігурацію"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Оновлення серверу"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "Http URL сервера оновлення"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Публічний ключ"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Офіційний ключ, який використовується для перевірки бінарних підписів."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Оновити канал"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Канал для отримання оновлень. Вибирайте \"Стабільний\", якщо не впевнені."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Стабільний"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Розробка (на власний ризик)"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "Proxy"
+    "other": "Замісник"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Створити адресу проксі-сервера, якщо необхідно для вихідних підключень"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Користувач проксі-сервера"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Користувач для ідентифікації проксі-сервера"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Пароль проксі-сервера"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Пароль для ідентифікації проксі-сервера"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "Вимкнути перевірку оновлень"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "Якщо ваш сервер не має доступу до зовнішнього світу, не спробуйте оновити контакт."
   },
   "Update.Process.Start": {
-    "other": "Upgrading Binary"
+    "other": "Оновлення Двійкової системи"
   },
   "Update.Process.Progress": {
-    "other": "Downloading Binary {progress}%..."
+    "other": "Завантаження двійкового типу {progress}%..."
   },
   "Update.Process.Verify": {
-    "other": "Download Finished, now verifying package..."
+    "other": "Завантаження завершено, перевірте пакет..."
   },
   "Update.Process.Finished": {
-    "other": "Binary package has been successfully verified, you can now restart the service."
+    "other": "Бінарний пакет був успішно перевірений, тепер ви можете перезапустити службу."
   },
   "Update.SetCapDetected.Warning": {
-    "other": "WARNING: you are using a reserved port on one of your binding URL. This requires a root capability to start web service."
+    "other": "УВАГА: Ви використовуєте зарезервований порт на одну з binding URL-адреси. Це вимагає використання рут-доступу для запуску веб-сервісу."
   },
   "Update.SetCapDetected.Hint": {
-    "other": "If you are not using systemd with the 'AmbientCapabilities=CAP_NET_BIND_SERVICE' parameter, you must execute the following command to authorize the new binary to use this port *before* restarting your instance:"
+    "other": "Якщо ви не використовуєте систему з параметром 'AmbientCapabilities=CAP_NET_BIND_SERVICE', необхідно виконати наступну команду, щоб дозволити новий бінарний файл використовувати цей порт *до * перезапустити ваш екземпляр:"
   },
   "Update.SetCapDetected.Command": {
     "other": "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>"

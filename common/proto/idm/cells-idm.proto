@@ -6,6 +6,8 @@ import "orm.proto";
 import "cells-setter.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/descriptor.proto";
+import "google/protobuf/struct.proto";
+
 
 package idm;
 
@@ -443,6 +445,72 @@ service UserMetaService {
     rpc SearchUserMeta(SearchUserMetaRequest) returns (stream SearchUserMetaResponse) {}
     rpc UpdateUserMetaNamespace(UpdateUserMetaNamespaceRequest) returns (UpdateUserMetaNamespaceResponse){}
     rpc ListUserMetaNamespace(ListUserMetaNamespaceRequest) returns (stream ListUserMetaNamespaceResponse){}
+    rpc GetFieldSchema(GetFieldSchemaRequest) returns (JsonSchemaResponse) {}
+    rpc GetNamespaceSchema(GetNamespaceSchemaRequest) returns (JsonSchemaResponse) {}
+    rpc GetEntityValues(GetMetaEntityValuesRequest) returns (MetaEntityValueResponse) {}
+    rpc DeleteEntity(GetMetaEntityValuesRequest) returns (DeleteEntityValuesResponse) {}
+    rpc CreateEntity(CreateEntityRequest) returns (CreateEntityResponse) {}
+    rpc CreateEntityValues(CreateEntityValueRequest) returns (CreateEntityValueResponse) {}
+    rpc LinkMetaToEntityValue(MetaToEntityValueRequest) returns (MetaToEntityValueResponse) {}
+    rpc UnlinkMetaFromEntityValue(MetaToEntityValueRequest) returns (MetaToEntityValueResponse) {}
+    rpc GetMetadata(GetMetadataRequest) returns (UserMeta) {}
+}
+
+message LinkMetaToEntityValueRequest {
+    string MetaUuid = 1;
+    string EntityValueUuid = 2;
+}
+
+// Added to enable linking metadata to fetch meta UUID for EntityValue association
+message GetMetadataRequest {
+    string NodeUuid = 1;
+    string Namespace = 2;
+}
+
+// Creates a new Entity representing a metadata field (e.g. "Department", "Project") and its possible values
+message CreateEntityValueRequest {
+    repeated EntityValue EntityValue = 1;
+}
+
+// Response of CreateEntityValueRequest, returns the list of created EntityValues with their UUIDs
+message CreateEntityValueResponse {
+    repeated EntityValue EntityValue = 1;
+}
+
+// Creates a new Entity request
+message CreateEntityRequest {
+    MetaEntity Entity = 1;
+}
+
+// Response of CreateEntityRequest, returns the created Entity with its UUID
+message CreateEntityResponse {
+    MetaEntity Entity = 1;
+}
+
+// Delete EntityValuesRequest, takes the EntityUuid and delete all its values and associations with metas
+message DeleteEntityValuesResponse {
+    int64 RowsDeleted = 1;
+}
+
+// Get EntityValuesRequest, takes the EntityUuid and returns all its values and associations with metas
+message GetMetaEntityValuesRequest {
+    string EntityUuid = 1;
+}
+
+// Get EntityValuesResponse, returns all values of an Entity with their associations with metas
+message MetaEntityValueResponse {
+    repeated EntityValue EntityValue = 1;
+}
+
+// LinkMetaToEntityValueRequest takes a MetaUuid and an EntityValueUuid and stores a row for EntityValueMetaRel 
+message MetaToEntityValueRequest {
+    string MetaUuid = 1;
+    string EntityValueUuid = 2;
+}
+
+// LinkMetaToEntityValueResponse returns the success of the operation
+message MetaToEntityValueResponse {
+    bool Success = 1;
 }
 
 // Piece of metadata attached to a node
@@ -462,6 +530,7 @@ message UserMeta {
     // Pass along resolved Node for advanced filtering
     tree.Node ResolvedNode = 7;
 }
+
 // Globally declared Namespace with associated policies
 message UserMetaNamespace{
     // Namespace identifier, must be unique
@@ -478,7 +547,33 @@ message UserMetaNamespace{
     repeated service.ResourcePolicy Policies = 6;
     // Context-resolved to quickly check if this meta is editable or not
     bool PoliciesContextEditable = 7;
+    // Prompt options for this namespace
+    bool PromptOnUpload = 8;
+    // JSON Schema for validating metadata values
+	google.protobuf.Struct JsonSchema = 9;
+    // Use default value from JsonSchema to enforce defaults 
+    bool EnforceDefault = 10;
+    // Human-readable Description
+    string Description = 11;
+    // Namespace Type  "boolean", "choice", "css_label", "date", "integer", "json", "multi_value", "stars_rate", "string", "tag_cloud", "tags", "textarea", "url"
+    string FieldType = 12;
 }
+
+// MetaEntity represents a metadata entity (e.g., "Department", "Project")
+message MetaEntity {
+    string Uuid = 1;
+    string Label = 2;
+    string Description = 3;
+}
+
+// EntityValue represents a value for an entity (e.g., "Engineering", "Sales")
+message EntityValue {
+    string Uuid = 1;
+    string Label = 2;
+    string EntityUuid = 3;
+    string DisplayJSON = 4;
+}
+
 // Request for modifying UserMeta
 message UpdateUserMetaRequest{
     enum UserMetaOp {
@@ -501,12 +596,12 @@ message UpdateUserMetaEvent{
     // Contextual metadata / headers
     map<string,string> EventMetadata = 1;
 
-    enum UserMetaOp {
+    enum UserMetaOpEvent {
         PUT = 0;
         DELETE = 1;
     }
     // Type of operation to apply (PUT / DELETE)
-    UserMetaOp Operation = 2;
+    UserMetaOpEvent Operation = 2;
     // Metadata to update or delete
     UserMeta UserMeta = 3;
 }
@@ -547,6 +642,21 @@ message ListUserMetaNamespaceRequest{}
 message ListUserMetaNamespaceResponse{
     UserMetaNamespace UserMetaNamespace = 1;
 }
+
+message GetFieldSchemaRequest{
+    string FieldType = 1;
+}
+
+message JsonSchemaResponse{
+    google.protobuf.Struct JsonSchema = 1;
+}
+
+message GetNamespaceSchemaRequest{
+    string FieldType = 1;
+    string Namespace = 2;
+    string Format = 3;
+}
+
 
 // Message Types for ChangeEvent
 enum ChangeEventType {
@@ -735,3 +845,4 @@ message PolicyGroupSingleQuery {
     // Internal - Like query
     bool like = 9;
 }
+

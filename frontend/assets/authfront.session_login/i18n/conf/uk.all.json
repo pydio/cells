@@ -1,6 +1,6 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "Відображати стандартний екран входу з логіном та паролем"
   },
   "Enable/disable automatically based on the protocol used": {
     "other": "Enable/disable automatically based on the protocol used"
@@ -24,6 +24,6 @@
     "other": "Sessions Only"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "Стандартне вікно авторизації"
   }
 }

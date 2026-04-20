@@ -81,7 +81,7 @@
     "other": "Access Controls"
   },
   "35": {
-    "other": "Workspaces"
+    "other": "Робочий простір"
   },
   "36": {
     "other": "Pages"
@@ -93,7 +93,7 @@
     "other": "Application Parameters"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Всі параметри робочих просторів"
   },
   "4": {
     "other": "Clear value"
@@ -114,64 +114,64 @@
     "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
   },
   "permissions.legend.group": {
-    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+    "other": "Надайте доступ до робочих областей для поточної групи. Ці дозволи будуть успадковані всіма користувачами, що належать до цієї групи."
   },
   "permissions.legend.role": {
-    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+    "other": "Надайте доступ до робочих областей для поточної ролі. Ці дозволи будуть застосовані до всіх користувачів, яким призначено цю роль."
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "Основні сторінки застосунку"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "Доступ до основних сторінок застосунку (таких як «Мій акаунт», вітальна сторінка тощо)"
   },
   "application-params.title": {
-    "other": "Parameters and actions"
+    "other": "Параметри та дії"
   },
   "application-params.legend": {
     "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
   },
   "application-params.legend.user-disclaimer": {
-    "other": "As a general rule, this should be managed at role level, not user level!"
+    "other": "Як правило, цим слід керувати на рівні ролей, а не на рівні користувачів!"
   },
   "49": {
-    "other": "Shares"
+    "other": "Поширення"
   },
   "5": {
-    "other": "Override value"
+    "other": "Перевизначити значення"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "Спільні файли та теки"
   },
   "51": {
-    "other": "With this user"
+    "other": "З цим користувачем"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "Комірки та публічні посилання, створені цим користувачем"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "Поширено користувачем %1 із робочого простору %2"
   },
   "54": {
-    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+    "other": "Інформація про користувача та дії для забезпечення безпеки. Наведіть курсор на поля у формі нижче, щоб переглянути пояснення."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Перемикайте профілі та ролі, щоб автоматично надати дозволи цьому користувачу."
   },
   "6": {
-    "other": "Save value"
+    "other": "Зберегти значення"
   },
   "7": {
-    "other": "Action %s"
+    "other": "Дії: %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "Читання та запис"
   },
   "9": {
-    "other": "Read Only"
+    "other": "Лише читання"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Керування ролями користувачів"
   },
   "roles.picker.add": {
     "other": "Add role"
@@ -186,7 +186,7 @@
     "other": "Add for ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Усі робочі простори"
   },
   "parameters.scope.shared": {
     "other": "Shared Cells only"
@@ -204,7 +204,7 @@
     "other": "Home Page"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Сторінка вітання відображається після входу"
   },
   "workspace.statics.directory.title": {
     "other": "Directory"

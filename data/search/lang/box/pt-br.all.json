@@ -6,7 +6,7 @@
     "other": "Se definido como verdadeiro, o indexador procurará os metadados do ContentRef, leia o conteúdo desta referência e indexe-o para a pesquisa."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "Metadados de Referência de Conteúdo"
   },
   "Search.Config.ContentRef.Description": {
     "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."

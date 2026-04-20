@@ -21,7 +21,7 @@
     "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "Логін адміністратора"
   },
   "Admin email": {
     "other": "Admin email"
@@ -279,7 +279,7 @@
     "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
+    "other": "Якщо вказати певну URL-адресу, спроба входу не викликатиме відображення екрана входу, а натомість перенаправлятиме користувача на цю адресу."
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
     "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."

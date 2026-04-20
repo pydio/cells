@@ -85,7 +85,7 @@ let MainPanel = ({dataModel, entryProps, muiTheme, style, contentMeta, abstractM
                e.stopPropagation();  // Critical
                e.preventDefault();
            }}*/
-            style={{...style, position:'relative'}}
+            style={{...style, position:'relative', display: 'flex', flexDirection: 'column', minHeight: '100%'}}
             >{body}</div>
         </PydioContext.Provider>
         </SaveContext.Provider>

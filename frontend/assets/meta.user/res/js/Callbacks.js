@@ -17,16 +17,14 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import Pydio from 'pydio';
 
-export default class Callbacks{
-
-    static editMeta(){
+export default class Callbacks {
+    static editMeta() {
         const pydio = Pydio.getInstance();
         pydio.UI.openComponentInModal('ReactMeta', 'UserMetaDialog', {
             dialogTitleId: 489,
             selection: pydio.getUserSelection(),
         });
     }
-
 }

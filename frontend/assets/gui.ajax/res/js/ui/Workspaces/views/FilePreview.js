@@ -21,7 +21,7 @@
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
-import { PureComponent } from 'react';
+import React, { PureComponent, useCallback} from 'react';
 import {muiThemeable} from 'material-ui/styles';
 import {CircularProgress} from 'material-ui';
 import Color from 'color'
@@ -238,4 +238,46 @@ class FilePreview extends PureComponent {
     }
 }
 
-export default muiThemeable()(FilePreview)
+FilePreview = muiThemeable()(FilePreview);
+export default FilePreview
+
+export const previewTableEntryRenderCell = (node, computeLabel) => {
+    return (
+        <span>
+                <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
+                <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{computeLabel(node)}</span>
+            </span>
+    );
+}
+
+export const previewEntryRenderIcon = (node, entryProps = {}, displayMode) => {
+    const lightBackground = displayMode.indexOf('grid') === 0 || displayMode === 'masonry'
+    if(entryProps && entryProps.parent){
+        return (
+            <FilePreview
+                loadThumbnail={false}
+                node={node}
+                mimeClassName="mimefont mdi mdi-chevron-left"
+                style={{cursor:'pointer'}}
+                lightBackground={lightBackground}
+            />
+        );
+    }else{
+        const hasThumbnail = !!node.getMetadata().get("thumbnails") || !!node.getMetadata().get('ImagePreview');
+        const processing = !!node.getMetadata().get('Processing');
+        const uploading = node.getMetadata().get('local:UploadStatus') === 'loading'
+        const uploadprogress = node.getMetadata().get('local:UploadProgress');
+        return (
+            <FilePreview
+                loadThumbnail={!entryProps['parentIsScrolling'] && hasThumbnail && !processing}
+                node={node}
+                processing={processing}
+                lightBackground={lightBackground}
+                displayLarge={lightBackground}
+                mimeFontOverlay={displayMode === 'list'}
+                uploading={uploading}
+                uploadprogress={uploadprogress}
+            />
+        );
+    }
+}
