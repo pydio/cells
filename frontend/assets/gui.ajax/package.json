@@ -31,7 +31,7 @@
     "doc-ready": "^1.0.4",
     "he": "1.1.0",
     "livekit-client": "^1.8.0",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "lodash.debounce": "^4.0.8",
     "lscache": "^1.3.0",
     "masonic": "^3.4.1",

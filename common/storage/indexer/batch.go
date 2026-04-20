@@ -135,6 +135,7 @@ type batch struct {
 }
 
 func (b *batch) watchInserts() {
+outer:
 	for {
 		select {
 		case msg, open := <-b.inserts:
@@ -142,11 +143,12 @@ func (b *batch) watchInserts() {
 				continue
 			}
 			b.flushLock.Lock()
+
 			for _, f := range b.opts.InsertCallback {
 				if err := f(msg); err != nil {
 					b.opts.ErrorHandler(err)
 					b.flushLock.Unlock()
-					continue
+					continue outer
 				}
 			}
 
@@ -159,13 +161,14 @@ func (b *batch) watchInserts() {
 		case msg, open := <-b.deletes:
 			if !open {
 				continue
+
 			}
 			b.flushLock.Lock()
 			for _, f := range b.opts.DeleteCallback {
 				if err := f(msg); err != nil {
 					b.opts.ErrorHandler(err)
 					b.flushLock.Unlock()
-					continue
+					continue outer
 				}
 			}
 
