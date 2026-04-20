@@ -35,7 +35,7 @@ require (
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-gorm/caches v1.0.1
-	github.com/go-jose/go-jose/v3 v3.0.4
+	github.com/go-jose/go-jose/v3 v3.0.5
 	github.com/go-openapi/loads v0.23.3
 	github.com/go-openapi/spec v0.22.4
 	github.com/go-redis/cache/v9 v9.0.0
