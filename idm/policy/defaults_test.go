@@ -11,7 +11,7 @@ import (
 )
 
 func TestSplitFrontendPostPolicies(t *testing.T) {
-	Convey("it splits old unified frontend-post policy for migration", t, func() {
+	Convey("happy path: it splits old unified frontend-post policy for migration", t, func() {
 		oldUnified := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 			ID:          "frontend-post",
 			Description: "old unified policy",
@@ -52,7 +52,24 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 		So(hasResource(sharedPolicy, "rest:/frontend/session"), ShouldBeTrue)
 	})
 
-	Convey("it does nothing when policies are already split", t, func() {
+	Convey("happy path: it also splits when subjects are stored in orm subjects", t, func() {
+		oldUnified := &idm.Policy{
+			ID: "frontend-post",
+			OrmSubjects: []*idm.PolicySubject{
+				{Template: "profile:standard"},
+				{Template: "profile:shared"},
+			},
+		}
+
+		policies, changed := splitFrontendPostPolicies([]*idm.Policy{oldUnified})
+
+		So(changed, ShouldBeTrue)
+		So(policies, ShouldHaveLength, 2)
+		So(findPolicyByID(policies, "frontend-post"), ShouldNotBeNil)
+		So(findPolicyByID(policies, "frontend-post-shared"), ShouldNotBeNil)
+	})
+
+	Convey("non-happy path: it does nothing when policies are already split", t, func() {
 		standard := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 			ID:        "frontend-post",
 			Subjects:  []string{"profile:standard"},
@@ -74,6 +91,32 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 		So(policies, ShouldHaveLength, 2)
 		So(policies[0], ShouldEqual, standard)
 		So(policies[1], ShouldEqual, shared)
+	})
+
+	Convey("non-happy path: it does nothing when frontend-post does not contain both profiles", t, func() {
+		onlyShared := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+			ID:        "frontend-post",
+			Subjects:  []string{"profile:shared"},
+			Resources: []string{"rest:/frontend/session"},
+			Actions:   []string{"POST"},
+			Effect:    ladon.AllowAccess,
+		})
+
+		policies, changed := splitFrontendPostPolicies([]*idm.Policy{onlyShared})
+
+		So(changed, ShouldBeFalse)
+		So(policies, ShouldHaveLength, 1)
+		So(policies[0], ShouldEqual, onlyShared)
+	})
+
+	Convey("non-happy path: it ignores unrelated policies", t, func() {
+		untouched := &idm.Policy{ID: "keep-me"}
+
+		policies, changed := splitFrontendPostPolicies([]*idm.Policy{untouched})
+
+		So(changed, ShouldBeFalse)
+		So(policies, ShouldHaveLength, 1)
+		So(policies[0], ShouldEqual, untouched)
 	})
 }
 

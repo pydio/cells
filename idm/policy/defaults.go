@@ -848,7 +848,7 @@ func splitFrontendPostPolicies(policies []*idm.Policy) ([]*idm.Policy, bool) {
 	return newPolicies, replacedUnifiedPolicy && hasStandardPolicy && hasSharedPolicy
 }
 
-// Upgrade5000 splits frontend-post policy to restrict /frontend/enroll for shared profile users (WPB-23974).
+// Upgrade4994 splits frontend-post policy to restrict /frontend/enroll for shared profile users (WPB-23974).
 // This prevents shared link users from enrolling MFA and causing DoS on the shared link.
 // The old unified "frontend-post" policy (profile:standard + profile:shared) is replaced with two:
 // - "frontend-post" for profile:standard (unchanged, backward compatible name)
@@ -864,29 +864,32 @@ func Upgrade4994(ctx context.Context) error {
 	}
 	log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: scanning %d policy groups", len(groups)))
 	for _, group := range groups {
-		if group.GetUuid() == "rest-apis-default-accesses" {
-			policyIDs := make([]string, 0, len(group.Policies))
-			for _, p := range group.Policies {
-				policyIDs = append(policyIDs, p.GetID())
-			}
-			log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: found target group %s with policies=%v", group.GetUuid(), policyIDs))
-
-			newPolicies, changed := splitFrontendPostPolicies(group.Policies)
-			log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: splitFrontendPostPolicies changed=%v (before=%d after=%d)", changed, len(group.Policies), len(newPolicies)))
-
-			// Only update if we found the old unified policy
-			if changed {
-				group.Policies = newPolicies
-				if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-					log.Logger(ctx).Error("Upgrade4994: could not update policy group "+group.GetUuid(), zap.Error(er))
-				} else {
-					log.Logger(ctx).Info("Upgrade4994: updated policy group " + group.GetUuid() + " - split frontend-post for shared profile (WPB-23974)")
-				}
-			} else {
-				log.Logger(ctx).Info("Upgrade4994: no change required for group " + group.GetUuid())
-			}
+		if group.GetUuid() != "rest-apis-default-accesses" {
+			continue
 		}
+
+		policyIDs := make([]string, 0, len(group.Policies))
+		for _, p := range group.Policies {
+			policyIDs = append(policyIDs, p.GetID())
+		}
+		log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: found target group %s with policies=%v", group.GetUuid(), policyIDs))
+
+		newPolicies, changed := splitFrontendPostPolicies(group.Policies)
+		log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: splitFrontendPostPolicies changed=%v (before=%d after=%d)", changed, len(group.Policies), len(newPolicies)))
+		if !changed {
+			log.Logger(ctx).Info("Upgrade4994: no change required for group " + group.GetUuid())
+			continue
+		}
+
+		group.Policies = newPolicies
+		if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+			log.Logger(ctx).Error("Upgrade4994: could not update policy group "+group.GetUuid(), zap.Error(er))
+			continue
+		}
+
+		log.Logger(ctx).Info("Upgrade4994: updated policy group " + group.GetUuid() + " - split frontend-post for shared profile (WPB-23974)")
 	}
+
 	log.Logger(ctx).Info("Upgraded policy model to v4.9.94 - restricted /frontend/enroll for shared profile users")
 	return nil
 }
