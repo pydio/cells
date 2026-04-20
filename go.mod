@@ -92,7 +92,7 @@ require (
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
 	github.com/rs/cors v1.11.0
 	github.com/rs/xid v1.6.0
-	github.com/rubenv/sql-migrate v0.0.0-20211023115951-9f02b1e13857
+	github.com/rubenv/sql-migrate v1.8.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
@@ -239,6 +239,7 @@ require (
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-chi/chi/v5 v5.2.2 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
+	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.4 // indirect
