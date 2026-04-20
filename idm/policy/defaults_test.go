@@ -20,7 +20,7 @@ import (
 )
 
 func TestSplitFrontendPostPolicies(t *testing.T) {
-	Convey("happy path: it splits old unified frontend-post policy for migration", t, func() {
+	Convey("split unified frontend-post", t, func() {
 		oldUnified := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 			ID:          "frontend-post",
 			Description: "old unified policy",
@@ -61,7 +61,7 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 		So(hasResource(sharedPolicy, "rest:/frontend/session"), ShouldBeTrue)
 	})
 
-	Convey("happy path: it also splits when subjects are stored in orm subjects", t, func() {
+	Convey("split when subjects are in orm subjects", t, func() {
 		oldUnified := &idm.Policy{
 			ID: "frontend-post",
 			OrmSubjects: []*idm.PolicySubject{
@@ -78,7 +78,7 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 		So(findPolicyByID(policies, "frontend-post-shared"), ShouldNotBeNil)
 	})
 
-	Convey("non-happy path: it does nothing when policies are already split", t, func() {
+	Convey("do nothing when already split", t, func() {
 		standard := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 			ID:        "frontend-post",
 			Subjects:  []string{"profile:standard"},
@@ -102,7 +102,7 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 		So(policies[1], ShouldEqual, shared)
 	})
 
-	Convey("non-happy path: it does nothing when frontend-post does not contain both profiles", t, func() {
+	Convey("do nothing when both profiles are not present", t, func() {
 		onlyShared := converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 			ID:        "frontend-post",
 			Subjects:  []string{"profile:shared"},
@@ -118,7 +118,7 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 		So(policies[0], ShouldEqual, onlyShared)
 	})
 
-	Convey("non-happy path: it ignores unrelated policies", t, func() {
+	Convey("ignore unrelated policies", t, func() {
 		untouched := &idm.Policy{ID: "keep-me"}
 
 		policies, changed := splitFrontendPostPolicies([]*idm.Policy{untouched})
@@ -130,7 +130,7 @@ func TestSplitFrontendPostPolicies(t *testing.T) {
 }
 
 func TestUpgrade4994(t *testing.T) {
-	Convey("it updates target group when old unified policy exists", t, func() {
+	Convey("update target group when unified policy exists", t, func() {
 		dao := &fakePolicyDAO{
 			groups: []*idm.PolicyGroup{{
 				Uuid: "rest-apis-default-accesses",
@@ -163,7 +163,7 @@ func TestUpgrade4994(t *testing.T) {
 		So(findPolicyByID(dao.storedGroups[0].Policies, "frontend-post-shared"), ShouldNotBeNil)
 	})
 
-	Convey("it does not store when target group is absent", t, func() {
+	Convey("skip when target group is absent", t, func() {
 		dao := &fakePolicyDAO{
 			groups: []*idm.PolicyGroup{{Uuid: "other-group", Policies: []*idm.Policy{{ID: "keep-me"}}}},
 		}
@@ -177,7 +177,7 @@ func TestUpgrade4994(t *testing.T) {
 		So(dao.storeCalls, ShouldEqual, 0)
 	})
 
-	Convey("it does not store when target group is already migrated", t, func() {
+	Convey("skip when target group is already migrated", t, func() {
 		dao := &fakePolicyDAO{
 			groups: []*idm.PolicyGroup{{
 				Uuid: "rest-apis-default-accesses",
@@ -197,7 +197,7 @@ func TestUpgrade4994(t *testing.T) {
 		So(dao.storeCalls, ShouldEqual, 0)
 	})
 
-	Convey("it returns list error", t, func() {
+	Convey("return list error", t, func() {
 		dao := &fakePolicyDAO{listErr: errors.New("list failed")}
 
 		ctx, err := manager.DSNtoContextDAO(t.Context(), []string{}, func(context.Context) DAO { return dao })
@@ -209,7 +209,7 @@ func TestUpgrade4994(t *testing.T) {
 		So(err.Error(), ShouldContainSubstring, "list failed")
 	})
 
-	Convey("it logs store error and continues", t, func() {
+	Convey("log store error and continue", t, func() {
 		dao := &fakePolicyDAO{
 			groups: []*idm.PolicyGroup{{
 				Uuid: "rest-apis-default-accesses",
