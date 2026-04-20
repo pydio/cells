@@ -175,8 +175,8 @@ importers:
         specifier: ^5.59.4
         version: 5.65.20
       lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+        specifier: ^4.17.23
+        version: 4.17.23
       lodash.shuffle:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1242,8 +1242,8 @@ importers:
         specifier: ^1.8.0
         version: 1.15.13
       lodash:
-        specifier: 4.17.21
-        version: 4.17.21
+        specifier: 4.17.23
+        version: 4.17.23
       lodash.debounce:
         specifier: ^4.0.8
         version: 4.0.8
@@ -1905,8 +1905,8 @@ packages:
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
 
-  '@babel/code-frame@7.28.6':
-    resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
+  '@babel/code-frame@7.29.0':
+    resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/code-frame@7.29.0':
@@ -1970,6 +1970,10 @@ packages:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     resolution: {integrity: sha512-URMGH08NzYFhubNSGJrpUEphGKQwMQYBySzat5cAByY1/YgIRkULnIy3tAMeszlL/so2HbeilYloUmSpd7GdVw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-plugin-utils@7.28.6':
+    resolution: {integrity: sha512-S9gzZ/bz83GRysI7gAD4wPT/AI3uCnY+9xn+Mx/KPs2JwHJIz1W8PZkg2cqyt3RNOBM8ejcXhV6y8Og7ly/Dug==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-plugin-utils@7.28.6':
@@ -6273,8 +6277,8 @@ packages:
     resolution: {integrity: sha512-Kak1hi6/hYHGVPmdyiZijoQyz5x2iGVzs6w9GYB/HiXEtylY7tIoYEROMjvM1d9nXJqPOrG2MNPMn01bJ+S0Rw==}
     engines: {'0': node, '1': rhino}
 
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
   log-update@6.1.0:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
@@ -9117,7 +9121,7 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@babel/code-frame@7.28.6':
+  '@babel/code-frame@7.29.0':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       js-tokens: 4.0.0
@@ -11539,7 +11543,7 @@ snapshots:
 
   async@2.6.4:
     dependencies:
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   async@3.2.6: {}
 
@@ -12475,7 +12479,7 @@ snapshots:
     dependencies:
       asap: 2.0.6
       invariant: 2.2.4
-      lodash: 4.17.21
+      lodash: 4.17.23
       redux: 3.7.2
 
   doc-ready@1.0.4:
@@ -12604,7 +12608,7 @@ snapshots:
     dependencies:
       enzyme: 3.11.0
       enzyme-adapter-utils: 1.14.2(react@18.3.1)
-      lodash: 4.17.21
+      lodash: 4.17.23
       object.assign: 4.1.7
       object.values: 1.2.1
       prop-types: 15.8.1
@@ -13417,14 +13421,14 @@ snapshots:
   grunt-legacy-log-utils@2.1.0:
     dependencies:
       chalk: 4.1.2
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   grunt-legacy-log@3.0.0:
     dependencies:
       colors: 1.1.2
       grunt-legacy-log-utils: 2.1.0
       hooker: 0.2.3
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   grunt-legacy-util@2.0.1:
     dependencies:
@@ -13432,7 +13436,7 @@ snapshots:
       exit: 0.1.2
       getobject: 1.0.2
       hooker: 0.2.3
-      lodash: 4.17.21
+      lodash: 4.17.23
       underscore.string: 3.3.6
       which: 2.0.2
 
@@ -14353,7 +14357,7 @@ snapshots:
 
   lodash@2.4.2: {}
 
-  lodash@4.17.21: {}
+  lodash@4.17.23: {}
 
   log-update@6.1.0:
     dependencies:
@@ -15841,7 +15845,7 @@ snapshots:
 
   react-dnd-html5-backend@2.6.0:
     dependencies:
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   react-dnd@2.6.0(react@18.3.1):
     dependencies:
@@ -15849,7 +15853,7 @@ snapshots:
       dnd-core: 2.6.0
       hoist-non-react-statics: 2.5.5
       invariant: 2.2.4
-      lodash: 4.17.21
+      lodash: 4.17.23
       prop-types: 15.8.1
       react: 18.3.1
 
@@ -16014,7 +16018,7 @@ snapshots:
     dependencies:
       hoist-non-react-statics: 2.5.5
       invariant: 2.2.4
-      lodash: 4.17.21
+      lodash: 4.17.23
       lodash-es: 4.17.22
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -16343,7 +16347,7 @@ snapshots:
 
   redux@3.7.2:
     dependencies:
-      lodash: 4.17.21
+      lodash: 4.17.23
       lodash-es: 4.17.22
       loose-envify: 1.4.0
       symbol-observable: 1.2.0

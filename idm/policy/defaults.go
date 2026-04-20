@@ -22,6 +22,7 @@ package policy
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"strings"
 
@@ -202,10 +203,21 @@ var (
 				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-post",
 					Description: "PolicyGroup.LoggedUsers.Rule6",
-					Subjects:    []string{"profile:standard", "profile:shared"},
+					Subjects:    []string{"profile:standard"},
 					Resources: []string{
 						"rest:/frontend/binaries/USER/<.+>",
 						"rest:/frontend/enroll",
+						"rest:/frontend/session",
+					},
+					Actions: []string{"POST"},
+					Effect:  ladon.AllowAccess,
+				}),
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-post-shared",
+					Description: "PolicyGroup.LoggedUsers.Rule6Shared",
+					Subjects:    []string{"profile:shared"},
+					Resources: []string{
+						"rest:/frontend/binaries/USER/<.+>",
 						"rest:/frontend/session",
 					},
 					Actions: []string{"POST"},
@@ -776,6 +788,116 @@ func Upgrade4993(ctx context.Context) error {
 	return nil
 }
 
+func splitFrontendPostPolicies(policies []*idm.Policy) ([]*idm.Policy, bool) {
+	var newPolicies []*idm.Policy
+	var hasStandardPolicy, hasSharedPolicy bool
+	var replacedUnifiedPolicy bool
+
+	for _, p := range policies {
+		// Check for the old unified frontend-post policy (both subjects together)
+		if p.GetID() == "frontend-post" {
+			hasSubjects := make(map[string]bool)
+			for _, s := range p.OrmSubjects {
+				hasSubjects[s.Template] = true
+			}
+			for _, s := range p.Subjects {
+				hasSubjects[s] = true
+			}
+
+			// If it has both profiles, it's the old unified policy - replace it
+			if hasSubjects["profile:standard"] && hasSubjects["profile:shared"] {
+				// Standard profile keeps all POST endpoints including /frontend/enroll
+				newPolicies = append(newPolicies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-post",
+					Description: "PolicyGroup.LoggedUsers.Rule6",
+					Subjects:    []string{"profile:standard"},
+					Resources: []string{
+						"rest:/frontend/binaries/USER/<.+>",
+						"rest:/frontend/enroll",
+						"rest:/frontend/session",
+					},
+					Actions: []string{"POST"},
+					Effect:  ladon.AllowAccess,
+				}))
+				hasStandardPolicy = true
+				// Shared profile excludes /frontend/enroll (WPB-23974 security fix)
+				newPolicies = append(newPolicies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-post-shared",
+					Description: "PolicyGroup.LoggedUsers.Rule6Shared",
+					Subjects:    []string{"profile:shared"},
+					Resources: []string{
+						"rest:/frontend/binaries/USER/<.+>",
+						"rest:/frontend/session",
+					},
+					Actions: []string{"POST"},
+					Effect:  ladon.AllowAccess,
+				}))
+				hasSharedPolicy = true
+				replacedUnifiedPolicy = true
+				continue
+			}
+		}
+		if p.GetID() == "frontend-post" {
+			hasStandardPolicy = true
+		} else if p.GetID() == "frontend-post-shared" {
+			hasSharedPolicy = true
+		}
+		newPolicies = append(newPolicies, p)
+	}
+
+	return newPolicies, replacedUnifiedPolicy && hasStandardPolicy && hasSharedPolicy
+}
+
+// Upgrade4994 splits frontend-post policy to restrict /frontend/enroll for shared profile users (WPB-23974).
+// This prevents shared link users from enrolling MFA and causing DoS on the shared link.
+// The old unified "frontend-post" policy (profile:standard + profile:shared) is replaced with two:
+// - "frontend-post" for profile:standard (unchanged, backward compatible name)
+// - "frontend-post-shared" for profile:shared (excludes /frontend/enroll)
+func Upgrade4994(ctx context.Context) error {
+	const targetGroupUUID = "rest-apis-default-accesses"
+
+	dao, err := manager.Resolve[DAO](ctx)
+	if err != nil {
+		return err
+	}
+
+	groups, err := dao.ListPolicyGroups(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: scanning %d policy groups", len(groups)))
+	for _, group := range groups {
+		if group.GetUuid() != targetGroupUUID {
+			continue
+		}
+
+		policyIDs := make([]string, 0, len(group.Policies))
+		for _, p := range group.Policies {
+			policyIDs = append(policyIDs, p.GetID())
+		}
+		log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: found target group %s with policies=%v", group.GetUuid(), policyIDs))
+
+		newPolicies, changed := splitFrontendPostPolicies(group.Policies)
+		log.Logger(ctx).Info(fmt.Sprintf("Upgrade4994: splitFrontendPostPolicies changed=%v (before=%d after=%d)", changed, len(group.Policies), len(newPolicies)))
+		if !changed {
+			log.Logger(ctx).Info("Upgrade4994: no change required for group " + group.GetUuid())
+			continue
+		}
+
+		group.Policies = newPolicies
+		if _, err = dao.StorePolicyGroup(ctx, group); err != nil {
+			log.Logger(ctx).Error("Upgrade4994: could not update policy group "+group.GetUuid(), zap.Error(err))
+			continue
+		}
+
+		log.Logger(ctx).Info("Upgrade4994: updated policy group " + group.GetUuid() + " - split frontend-post for shared profile (WPB-23974)")
+	}
+
+	log.Logger(ctx).Info("Upgraded policy model to v4.9.94 - restricted /frontend/enroll for shared profile users")
+	return nil
+}
+
 var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.5.0"),
@@ -784,6 +906,10 @@ var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.9.93"),
 		Up:            Upgrade4993,
+	},
+	{
+		TargetVersion: service.ValidVersion("4.9.94"),
+		Up:            Upgrade4994,
 	},
 }
 
