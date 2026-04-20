@@ -3,7 +3,7 @@ module github.com/pydio/cells/v5
 go 1.26.1
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.1-20241127180247-a33202765966.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
 	dario.cat/mergo v1.0.2
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/Masterminds/sprig/v3 v3.3.0
