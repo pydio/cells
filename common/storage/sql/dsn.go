@@ -116,7 +116,9 @@ func (d *cellDsn) Parse() (er error) {
 		d.clean, er = d.cleanDSN(d.original, "gorm")
 	case MySQLDriver:
 		d.clean, er = d.cleanDSN(d.original, "mysql")
-	case SqliteDriver, PostgreDriver:
+	case SqliteDriver:
+		d.clean, er = d.cleanDSN(d.original, "sqlite")
+	case PostgreDriver:
 		d.clean, er = d.cleanDSN(d.original, "url")
 	default:
 		return errors.WithMessage(errors.SqlDAO, "unsupported scheme")
@@ -543,7 +545,7 @@ func (d *cellDsn) getServerInfo(ctx context.Context, db *gorm.DB) (version strin
 func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 	switch parserType {
 	case "mysql":
-		dsn := strings.TrimPrefix(dsn, "mysql://")
+		dsn := strings.TrimPrefix(dsn, MySQLDriver+"://")
 		conf, err := mysql.ParseDSN(dsn)
 		if err != nil {
 			return "", err
@@ -610,6 +612,8 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 			u.RawQuery = query.Encode()
 			return d.cleanDSN(u.String(), "url")
 		}
+	case "sqlite":
+		return dsn, nil
 	default:
 		u, er := url.Parse(dsn)
 		if er != nil {
