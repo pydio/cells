@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package rest
 
 import (
@@ -7,7 +27,7 @@ import (
 	"testing"
 )
 
-// --- Magic byte helpers for test fixtures ---
+// Magic byte helpers for test fixtures.
 
 func pngBytes() []byte {
 	// Minimal PNG header (8-byte signature)
@@ -50,7 +70,7 @@ func pdfBytes() []byte {
 	return []byte("%PDF-1.4 fake pdf content here")
 }
 
-// --- Tests ---
+// Tests.
 
 func TestDetectBinaryExtension_AcceptsValidImages(t *testing.T) {
 	tests := []struct {
@@ -136,17 +156,34 @@ func TestDetectBinaryExtension_RejectsPlainText(t *testing.T) {
 }
 
 func TestIsAllowedExtension(t *testing.T) {
-	allowed := []string{"png", "jpg", "jpeg", "gif", "webp", "ico"}
-	for _, ext := range allowed {
-		if !isAllowedExtension(ext) {
-			t.Errorf("expected %q to be allowed", ext)
-		}
+	tests := []struct {
+		name string
+		ext  string
+		want bool
+	}{
+		{name: "png", ext: "png", want: true},
+		{name: "jpg", ext: "jpg", want: true},
+		{name: "jpeg", ext: "jpeg", want: true},
+		{name: "gif", ext: "gif", want: true},
+		{name: "webp", ext: "webp", want: true},
+		{name: "ico", ext: "ico", want: true},
+		{name: "exe", ext: "exe", want: false},
+		{name: "html", ext: "html", want: false},
+		{name: "pdf", ext: "pdf", want: false},
+		{name: "js", ext: "js", want: false},
+		{name: "sh", ext: "sh", want: false},
+		{name: "bat", ext: "bat", want: false},
+		{name: "empty", ext: "", want: false},
+		{name: "svg", ext: "svg", want: false},
 	}
-	rejected := []string{"exe", "html", "pdf", "js", "sh", "bat", "", "svg"}
-	for _, ext := range rejected {
-		if isAllowedExtension(ext) {
-			t.Errorf("expected %q to be rejected", ext)
-		}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := isAllowedExtension(tt.ext)
+			if got != tt.want {
+				t.Fatalf("isAllowedExtension(%q)=%v, want %v", tt.ext, got, tt.want)
+			}
+		})
 	}
 }
 
@@ -167,13 +204,15 @@ func TestBinaryContentType(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got, found := binaryContentType(tt.ext)
-		if found != tt.wantFound {
-			t.Fatalf("binaryContentType(%q) found=%v, want %v", tt.ext, found, tt.wantFound)
-		}
-		if got != tt.want {
-			t.Fatalf("binaryContentType(%q)=%q, want %q", tt.ext, got, tt.want)
-		}
+		t.Run(tt.ext, func(t *testing.T) {
+			got, found := binaryContentType(tt.ext)
+			if found != tt.wantFound {
+				t.Fatalf("binaryContentType(%q) found=%v, want %v", tt.ext, found, tt.wantFound)
+			}
+			if got != tt.want {
+				t.Fatalf("binaryContentType(%q)=%q, want %q", tt.ext, got, tt.want)
+			}
+		})
 	}
 }
 
