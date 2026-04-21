@@ -22,6 +22,7 @@ package rest
 
 import (
 	"context"
+	"net/url"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -63,6 +64,9 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 	}
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
+		if err := validateConfigPayload(fullPath, parsed); err != nil {
+			return err
+		}
 		val := config.Get(ctx, path...)
 		var original map[string]interface{}
 		if o := val.Map(); len(o) > 0 {
@@ -88,6 +92,34 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 		return errors.Tag(e, errors.UnmarshalError)
 	}
 
+}
+
+func validateConfigPayload(fullPath string, parsed map[string]interface{}) error {
+	if fullPath != "frontend/plugin/core.auth" {
+		return nil
+	}
+	value, ok := parsed["FORGOT_PASSWORD_EXTERNAL_LINK"]
+	if !ok {
+		return nil
+	}
+	link, ok := value.(string)
+	if !ok {
+		return errors.WithMessage(errors.InvalidParameters, "FORGOT_PASSWORD_EXTERNAL_LINK must be a string")
+	}
+	if link == "" {
+		return nil
+	}
+	parsedURL, err := url.ParseRequestURI(link)
+	if err != nil {
+		return errors.WithMessage(errors.InvalidParameters, "FORGOT_PASSWORD_EXTERNAL_LINK must be a valid http(s) URL")
+	}
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return errors.WithMessage(errors.InvalidParameters, "FORGOT_PASSWORD_EXTERNAL_LINK only supports http and https URLs")
+	}
+	if parsedURL.Host == "" {
+		return errors.WithMessage(errors.InvalidParameters, "FORGOT_PASSWORD_EXTERNAL_LINK must include a host")
+	}
+	return nil
 }
 
 func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) error {
