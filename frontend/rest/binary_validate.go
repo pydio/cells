@@ -14,20 +14,25 @@ const (
 
 // allowedBinaryTypes maps detected MIME types to file extensions for binary uploads.
 var allowedBinaryTypes = map[string]string{
-	"image/png":     "png",
-	"image/jpeg":    "jpg",
-	"image/gif":     "gif",
-	"image/webp":    "webp",
-	"image/x-icon":  "ico",
-	"image/svg+xml": "svg",
+	"image/png":    "png",
+	"image/jpeg":   "jpg",
+	"image/gif":    "gif",
+	"image/webp":   "webp",
+	"image/x-icon": "ico",
+}
+
+var binaryContentTypesByExtension = map[string]string{
+	"png":  "image/png",
+	"jpg":  "image/jpeg",
+	"jpeg": "image/jpeg",
+	"gif":  "image/gif",
+	"webp": "image/webp",
+	"ico":  "image/x-icon",
 }
 
 // detectBinaryExtension reads the first bytes of content to detect the real MIME type
 // and returns the corresponding safe extension. It rejects any file whose actual content
 // does not match the image allowlist, regardless of what Content-Type the client sent.
-//
-// For SVG files, http.DetectContentType returns "text/xml" or "text/plain", so we
-// do a prefix check for known SVG markers.
 func detectBinaryExtension(content io.Reader) (string, error) {
 	buf := make([]byte, 512)
 	n, err := io.ReadAtLeast(content, buf, 1)
@@ -48,11 +53,6 @@ func detectBinaryExtension(content io.Reader) (string, error) {
 	// WEBP special case: DetectContentType does not recognize WEBP; check RIFF+WEBP header
 	if isWEBP(buf) {
 		return "webp", nil
-	}
-
-	// SVG special case: DetectContentType returns text/xml or text/plain
-	if isSVG(buf) {
-		return "svg", nil
 	}
 
 	return "", fmt.Errorf("file type %q is not allowed; only image uploads are permitted", detected)
@@ -76,11 +76,7 @@ func isWEBP(buf []byte) bool {
 		string(buf[8:12]) == "WEBP"
 }
 
-// isSVG checks if the content looks like an SVG by looking for <svg or <?xml markers
-// followed by SVG namespace.
-func isSVG(buf []byte) bool {
-	s := strings.TrimSpace(string(buf))
-	s = strings.ToLower(s)
-	return strings.HasPrefix(s, "<svg") ||
-		(strings.HasPrefix(s, "<?xml") && strings.Contains(s, "<svg"))
+func binaryContentType(extension string) (string, bool) {
+	contentType, ok := binaryContentTypesByExtension[strings.ToLower(strings.TrimSpace(extension))]
+	return contentType, ok
 }

@@ -365,7 +365,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 	if readNode != nil {
 		// Defense in depth: only serve known-safe image extensions
-		if extension != "" && !isAllowedExtension(extension) {
+		if extension == "" || !isAllowedExtension(extension) {
 			return errors.WithMessage(errors.StatusNotFound, "binary not found")
 		}
 		// If anonymous GET, add system user in context before querying object service

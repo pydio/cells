@@ -37,14 +37,6 @@ func icoBytes() []byte {
 	return buf
 }
 
-func svgBytes() []byte {
-	return []byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>`)
-}
-
-func svgWithXMLDecl() []byte {
-	return []byte(`<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>`)
-}
-
 func htmlBytes() []byte {
 	return []byte(`<html><body><p>hehe</p></body></html>`)
 }
@@ -70,8 +62,7 @@ func TestDetectBinaryExtension_AcceptsValidImages(t *testing.T) {
 		{"JPEG", jpegBytes(), "jpg"},
 		{"GIF", gifBytes(), "gif"},
 		{"WEBP", webpBytes(), "webp"},
-		{"SVG bare", svgBytes(), "svg"},
-		{"SVG with XML declaration", svgWithXMLDecl(), "svg"},
+		{"ICO", icoBytes(), "ico"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -111,6 +102,25 @@ func TestDetectBinaryExtension_RejectsPDF(t *testing.T) {
 	}
 }
 
+func TestDetectBinaryExtension_RejectsSVG(t *testing.T) {
+	tests := []struct {
+		name    string
+		content []byte
+	}{
+		{"bare SVG", []byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>`)},
+		{"SVG with XML declaration", []byte(`<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := detectBinaryExtension(bytes.NewReader(tt.content))
+			if err == nil {
+				t.Fatal("expected error for SVG content, got nil")
+			}
+		})
+	}
+}
+
 func TestDetectBinaryExtension_RejectsEmptyContent(t *testing.T) {
 	_, err := detectBinaryExtension(bytes.NewReader([]byte{}))
 	if err == nil {
@@ -125,39 +135,44 @@ func TestDetectBinaryExtension_RejectsPlainText(t *testing.T) {
 	}
 }
 
-func TestIsSVG(t *testing.T) {
-	tests := []struct {
-		name string
-		buf  []byte
-		want bool
-	}{
-		{"bare SVG tag", []byte(`<svg xmlns="..."`), true},
-		{"XML + SVG", []byte(`<?xml version="1.0"?><svg`), true},
-		{"HTML is not SVG", []byte(`<html><body>`), false},
-		{"random text", []byte(`hello world`), false},
-		{"XML without SVG", []byte(`<?xml version="1.0"?><root>`), false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := isSVG(tt.buf)
-			if got != tt.want {
-				t.Errorf("isSVG(%q) = %v, want %v", tt.buf, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestIsAllowedExtension(t *testing.T) {
-	allowed := []string{"png", "jpg", "jpeg", "gif", "webp", "ico", "svg"}
+	allowed := []string{"png", "jpg", "jpeg", "gif", "webp", "ico"}
 	for _, ext := range allowed {
 		if !isAllowedExtension(ext) {
 			t.Errorf("expected %q to be allowed", ext)
 		}
 	}
-	rejected := []string{"exe", "html", "pdf", "js", "sh", "bat", ""}
+	rejected := []string{"exe", "html", "pdf", "js", "sh", "bat", "", "svg"}
 	for _, ext := range rejected {
 		if isAllowedExtension(ext) {
 			t.Errorf("expected %q to be rejected", ext)
+		}
+	}
+}
+
+func TestBinaryContentType(t *testing.T) {
+	tests := []struct {
+		ext       string
+		want      string
+		wantFound bool
+	}{
+		{ext: "png", want: "image/png", wantFound: true},
+		{ext: "jpg", want: "image/jpeg", wantFound: true},
+		{ext: "jpeg", want: "image/jpeg", wantFound: true},
+		{ext: "gif", want: "image/gif", wantFound: true},
+		{ext: "webp", want: "image/webp", wantFound: true},
+		{ext: "ico", want: "image/x-icon", wantFound: true},
+		{ext: "svg", wantFound: false},
+		{ext: "", wantFound: false},
+	}
+
+	for _, tt := range tests {
+		got, found := binaryContentType(tt.ext)
+		if found != tt.wantFound {
+			t.Fatalf("binaryContentType(%q) found=%v, want %v", tt.ext, found, tt.wantFound)
+		}
+		if got != tt.want {
+			t.Fatalf("binaryContentType(%q)=%q, want %q", tt.ext, got, tt.want)
 		}
 	}
 }
