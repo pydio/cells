@@ -1,6 +1,7 @@
 module github.com/pydio/cells/v5
 
-go 1.26.1
+go 1.26
+toolchain go1.26.2
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.1-20241127180247-a33202765966.1
