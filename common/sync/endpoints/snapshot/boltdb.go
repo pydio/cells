@@ -34,6 +34,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gobwas/glob"
 	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -64,18 +65,30 @@ const (
 func init() {
 	endpoints.Register(scheme, endpoints.OpenURLFunc(func(ctx context.Context, u *url.URL, _ ...*url.URL) (model.Endpoint, error) {
 		snapshotFullPath := u.Path
-		var opts = model.EndpointOptions{}
-		if u.Query().Get("browseOnly") == "true" {
-			opts.BrowseOnly = true
+
+		var gg []glob.Glob
+		if metas := u.Query().Get("metadataGlobs"); metas != "" {
+			for _, m := range strings.Split(metas, ",") {
+				gl, er := glob.Compile(m)
+				if er != nil {
+					return nil, er
+				}
+				gg = append(gg, gl)
+			}
 		}
+
 		snap, er := NewBoltSnapshot(ctx, snapshotFullPath, "")
 		if er != nil {
 			return nil, er
 		}
 		if u.Query().Get("createBucket") == "true" {
 			if err := snap.AutoCreateBucket(); err != nil {
+				snap.Close()
 				return nil, err
 			}
+		}
+		if len(gg) > 0 {
+			snap.setMetadataGlobs(gg)
 		}
 		return snap, nil
 	}))
@@ -95,7 +108,9 @@ type BoltSnapshot struct {
 	autoBatchChan  chan tree.N
 	autoBatchClose chan struct{}
 
-	manualCollector bool
+	manualCollector  bool
+	captureStripPath bool
+	metadataGlobs    []glob.Glob
 }
 
 func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltSnapshot, error) {
@@ -141,6 +156,18 @@ func (s *BoltSnapshot) AutoCreateBucket() error {
 		}
 		return nil
 	})
+}
+
+func (s *BoltSnapshot) SetCaptureStripPath() {
+	s.captureStripPath = true
+}
+
+func (s *BoltSnapshot) setMetadataGlobs(globs []glob.Glob) {
+	s.metadataGlobs = globs
+}
+
+func (s *BoltSnapshot) ProvidesMetadataNamespaces() ([]glob.Glob, bool) {
+	return s.metadataGlobs, len(s.metadataGlobs) > 0
 }
 
 func (s *BoltSnapshot) sortByKey(data map[string]tree.N) (output []tree.N) {
@@ -411,6 +438,11 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 						log.Logger(ctx).Error("BoltDB:Capture: ignoring path, error is not nil", zap.String("path", path), zap.Error(err))
 						return err
 					}
+					if s.captureStripPath {
+						// Strip prefix from path and replace on node
+						path = strings.TrimPrefix(path, p+"/")
+						node.SetPath(path)
+					}
 					return capture.Put([]byte(path), s.marshal(node))
 				}, p, true)
 				if e != nil {
@@ -425,19 +457,19 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 	}
 	// Now copy all to original bucket
 	if e = s.db.Update(func(tx *bbolt.Tx) error {
-		var clear *bbolt.Bucket
+		var cleared *bbolt.Bucket
 		var e error
 		if b := tx.Bucket(bucketName); b != nil {
 			if e = tx.DeleteBucket(bucketName); e != nil {
 				return e
 			}
 		}
-		if clear, e = tx.CreateBucket(bucketName); e != nil {
+		if cleared, e = tx.CreateBucket(bucketName); e != nil {
 			return e
 		}
 		if captured := tx.Bucket(captureBucketName); captured != nil {
 			if e := captured.ForEach(func(k, v []byte) error {
-				return clear.Put(k, v)
+				return cleared.Put(k, v)
 			}); e != nil {
 				return e
 			}
