@@ -50,12 +50,13 @@ func cleanTablesHook(db *gorm.DB) {
 	// Register a FinisherHook to drop registered tables
 	storage.TestFinisherHooks = append(storage.TestFinisherHooks, func() error {
 		ctLock.Lock()
+		defer ctLock.Unlock()
 		for t := range createdTables {
 			if er := db.Migrator().DropTable(t); er != nil {
 				return er
 			}
+			delete(createdTables, t)
 		}
-		ctLock.Unlock()
 		return nil
 	})
 }

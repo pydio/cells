@@ -42,7 +42,7 @@ func NewACLService(ctx context.Context, svc service.Service, acls ...*idm.ACL) (
 	ctx = propagator.With(ctx, service.ContextKey, svc)
 
 	for _, u := range acls {
-		_, er := serv.ACLServiceServer.CreateACL(ctx, &idm.CreateACLRequest{ACL: u})
+		_, er := serv.ACLServiceServer.CreateACL(ctx, &idm.CreateACLRequest{ACL: u, IgnoreDuplicates: true})
 		if er != nil {
 			return nil, er
 		}

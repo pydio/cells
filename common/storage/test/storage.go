@@ -321,7 +321,9 @@ func RunStorageTests(testCases []StorageTestCase, t *testing.T, f func(context.C
 			f(ctx)
 
 			// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...
-			for _, tf := range storage.TestFinisherHooks {
+			hooks := storage.TestFinisherHooks
+			storage.TestFinisherHooks = nil
+			for _, tf := range hooks {
 				if er := tf(); er != nil {
 					panic(er)
 				}
@@ -362,7 +364,9 @@ func RunServicesTests(ns string, testCases []ServicesStorageTestCase, t *testing
 			f(ctx)
 
 			// Clean up hooks - we cannot resolve gorm.DB as a Closer or Dropper...
-			for _, tf := range storage.TestFinisherHooks {
+			hooks := storage.TestFinisherHooks
+			storage.TestFinisherHooks = nil
+			for _, tf := range hooks {
 				if er := tf(); er != nil {
 					panic(er)
 				}
