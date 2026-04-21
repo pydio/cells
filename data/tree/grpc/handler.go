@@ -848,6 +848,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	c, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	wg := &sync.WaitGroup{}
+	var mu sync.Mutex
 
 	k, _ := s.sourcesCaches.Get(ctx)
 	_ = k.Iterate(func(dsName string, val interface{}) {
@@ -868,8 +869,12 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 				s.updateDataSourceNode(resp.Node, name)
 
 				log.Logger(ctx).Debug("[Look Up] Found node", zap.String("uuid", resp.Node.Uuid), zap.String("datasource", name))
-				foundNode = resp.Node
-				cancel()
+				mu.Lock()
+				if foundNode == nil {
+					foundNode = resp.Node
+					cancel()
+				}
+				mu.Unlock()
 			}
 		}(dsName, ds.reader)
 	})

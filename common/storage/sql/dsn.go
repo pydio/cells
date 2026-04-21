@@ -613,6 +613,19 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 			return d.cleanDSN(u.String(), "url")
 		}
 	case "sqlite":
+		// Extract reserved vars from SQLite URI query parameters without modifying the DSN.
+		// url.Parse cannot handle sqlite://file::memory:... URIs, so parse the query string directly.
+		if idx := strings.Index(dsn, "?"); idx >= 0 {
+			if q, err := url.ParseQuery(dsn[idx+1:]); err == nil {
+				for k := range d.vars {
+					if q.Has(k) {
+						if v := q.Get(k); v != "<no value>" {
+							d.vars[k] = v
+						}
+					}
+				}
+			}
+		}
 		return dsn, nil
 	default:
 		u, er := url.Parse(dsn)

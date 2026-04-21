@@ -39,7 +39,6 @@ import (
 
 func RegisterDataServices(ctx context.Context, nodes ...*tree.Node) error {
 
-	fmt.Println("In here")
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
 		return errors.New("cannot find registry in context")
