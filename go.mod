@@ -29,7 +29,7 @@ require (
 	github.com/go-openapi/spec v0.22.1
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/go-openapi/swag v0.22.3
-	github.com/go-redis/cache/v8 v8.4.3
+	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gobuffalo/pop/v6 v6.0.6
