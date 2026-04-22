@@ -126,7 +126,7 @@ function UnifiedSearchForm (props){
             togglePopover()
             return;
         }
-        setValues({...values, basenameOrContent:value});
+        setValues({...values, basenameOrContent:value}, {debounced: true});
         if(value) {
             onRequestOpen();
         } else {

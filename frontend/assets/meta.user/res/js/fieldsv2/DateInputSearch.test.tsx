@@ -157,7 +157,7 @@ describe('DateInputSearch', () => {
             fireEvent.click(screen.getByTestId('date-input-change'));
 
             // Should call onChange with empty string (not with epoch 0)
-            expect(onChange).toHaveBeenCalledWith('');
+            expect(onChange).toHaveBeenCalledWith('', { debounced: true });
         });
 
         it('should convert selected date to timestamp string', () => {
@@ -196,7 +196,7 @@ describe('DateInputSearch', () => {
             fireEvent.click(screen.getByTestId('date-input-set-epoch'));
 
             // Should call onChange with empty string (epoch 0 is rejected)
-            expect(onChange).toHaveBeenCalledWith('');
+            expect(onChange).toHaveBeenCalledWith('', { debounced: true });
         });
     });
 
@@ -483,6 +483,7 @@ describe('DateInputSearch', () => {
             // Step 2: onChange should be called with a timestamp string
             expect(onChange).toHaveBeenCalledWith(
                 expect.stringMatching(/^\d+$/),
+                { debounced: true },
             );
 
             // Step 3: Unmount and re-render with the new value

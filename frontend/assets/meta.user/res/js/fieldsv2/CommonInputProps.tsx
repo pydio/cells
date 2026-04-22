@@ -18,6 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+export interface SearchUpdateOptions extends Record<string, unknown> {
+    debounced?: boolean;
+}
+
 export interface InputProps {
     name: string;
 
@@ -30,7 +34,7 @@ export interface InputProps {
     errorText?: string;
 
     value?: any;
-    onChange: (value: string | boolean | number, submit?: boolean) => void;
+    onChange: (value: string | boolean | number, options?: SearchUpdateOptions) => void;
     onFocus?: (e: any) => void;
     onBlur?: (e: any) => void;
 

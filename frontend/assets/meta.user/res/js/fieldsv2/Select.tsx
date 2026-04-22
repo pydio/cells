@@ -96,7 +96,7 @@ export const Selector: React.FC<SelectInputProps> = ({
                     style={{ fontSize: 11, cursor: 'pointer' }}
                     title={prevLabel}
                     onClick={() => {
-                        onChange(items[pos - 1].key, true);
+                        onChange(items[pos - 1].key);
                     }}
                 />
             );
@@ -109,7 +109,7 @@ export const Selector: React.FC<SelectInputProps> = ({
                     style={{ fontSize: 11, cursor: 'pointer' }}
                     title={nextLabel}
                     onClick={() => {
-                        onChange(items[pos + 1].key, true);
+                        onChange(items[pos + 1].key);
                     }}
                 />
             );

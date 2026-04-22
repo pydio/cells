@@ -181,7 +181,7 @@ export const AdvancedAsChips = muiThemeable()((props) => {
                 requestClose={()=>setPopoverOpen(false)}
             />
         }
-        return renderField(pydio, searchTools, 'popover', field,(cc)=> setValues({...values, ...cc}))
+        return renderField(pydio, searchTools, 'popover', field,(cc, options)=> setValues({...values, ...cc}, options))
     }, [values, displayed, setDisplayed, sortField, sortDesc, closableMeta, setPopoverOpen]);
 
     return(

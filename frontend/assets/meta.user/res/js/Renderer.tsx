@@ -254,9 +254,9 @@ export default class Renderer {
             const fieldProps: FieldSearchProps = {
                 name: props.fieldname,
                 value: props.value,
-                updateValue: (f, v) => {
+                updateValue: (f, v, options) => {
                     const searchValues = { ['ajxp_meta_' + f]: v };
-                    props.onChange(searchValues);
+                    props.onChange(searchValues, options);
                 },
                 meta: configs.get(props.fieldname),
             };
