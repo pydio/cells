@@ -7,15 +7,21 @@ describe('ensureHttpScheme', () => {
     });
 
     it('preserves existing http:// scheme', () => {
-        expect(ensureHttpScheme('http://example.com')).toBe('http://example.com');
+        expect(ensureHttpScheme('http://example.com')).toBe(
+            'http://example.com',
+        );
     });
 
     it('preserves existing https:// scheme', () => {
-        expect(ensureHttpScheme('https://example.com')).toBe('https://example.com');
+        expect(ensureHttpScheme('https://example.com')).toBe(
+            'https://example.com',
+        );
     });
 
     it('preserves mailto: scheme', () => {
-        expect(ensureHttpScheme('mailto:test@example.com')).toBe('mailto:test@example.com');
+        expect(ensureHttpScheme('mailto:test@example.com')).toBe(
+            'mailto:test@example.com',
+        );
     });
 
     it('preserves ftp: scheme', () => {
@@ -28,7 +34,7 @@ describe('ensureHttpScheme', () => {
 
     it('preserves custom schemes with multiple characters', () => {
         expect(ensureHttpScheme('git+https://github.com/repo.git')).toBe(
-            'git+https://github.com/repo.git'
+            'git+https://github.com/repo.git',
         );
     });
 
@@ -43,7 +49,9 @@ describe('ensureHttpScheme', () => {
 
     it('trims whitespace before checking scheme', () => {
         expect(ensureHttpScheme('  example.com  ')).toBe('https://example.com');
-        expect(ensureHttpScheme('  http://example.com  ')).toBe('http://example.com');
+        expect(ensureHttpScheme('  http://example.com  ')).toBe(
+            'http://example.com',
+        );
     });
 
     it('does not add scheme to whitespace-only strings', () => {
@@ -55,27 +63,39 @@ describe('ensureHttpScheme', () => {
     });
 
     it('handles URLs with hyphens in domain', () => {
-        expect(ensureHttpScheme('my-example.com')).toBe('https://my-example.com');
+        expect(ensureHttpScheme('my-example.com')).toBe(
+            'https://my-example.com',
+        );
     });
 
     it('handles URLs with subdomains', () => {
-        expect(ensureHttpScheme('sub.domain.example.com')).toBe('https://sub.domain.example.com');
+        expect(ensureHttpScheme('sub.domain.example.com')).toBe(
+            'https://sub.domain.example.com',
+        );
     });
 
     it('handles URLs with ports', () => {
-        expect(ensureHttpScheme('example.com:8080')).toBe('https://example.com:8080');
+        expect(ensureHttpScheme('example.com:8080')).toBe(
+            'https://example.com:8080',
+        );
     });
 
     it('handles URLs with paths', () => {
-        expect(ensureHttpScheme('example.com/path/to/page')).toBe('https://example.com/path/to/page');
+        expect(ensureHttpScheme('example.com/path/to/page')).toBe(
+            'https://example.com/path/to/page',
+        );
     });
 
     it('handles URLs with query strings', () => {
-        expect(ensureHttpScheme('example.com?param=value')).toBe('https://example.com?param=value');
+        expect(ensureHttpScheme('example.com?param=value')).toBe(
+            'https://example.com?param=value',
+        );
     });
 
     it('handles URLs with fragments', () => {
-        expect(ensureHttpScheme('example.com#section')).toBe('https://example.com#section');
+        expect(ensureHttpScheme('example.com#section')).toBe(
+            'https://example.com#section',
+        );
     });
 });
 

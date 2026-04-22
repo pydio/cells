@@ -19,6 +19,7 @@
  */
 
 import React from 'react';
+import Pydio from 'pydio';
 import StarsField from '../fields/StarsField';
 import CssLabelsField from '../fields/CssLabelsField';
 import SelectorField from '../fields/SelectorField';
@@ -46,6 +47,11 @@ export const FieldDisplay = ({
     className,
     onValueClick,
 }) => {
+    const messages = Pydio.getMessages ? Pydio.getMessages() : {};
+    const m = (id, fallback = id) =>
+        messages['meta.user.' + id] ||
+        messages['ajxp_admin.metadata.' + id] ||
+        fallback;
     const { label, type, data, description } = meta;
 
     const column = { name: fieldKey };
@@ -95,7 +101,7 @@ export const FieldDisplay = ({
             );
             break;
         case 'boolean':
-            displayValue = value ? 'Yes' : 'No';
+            displayValue = value ? m('boolean.yes') : m('boolean.no');
             break;
         case 'url':
             displayValue = <URLField node={node} column={column} />;

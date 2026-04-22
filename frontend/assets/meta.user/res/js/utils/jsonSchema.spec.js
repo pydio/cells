@@ -1,9 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import {
-    parseErrors,
-    parseValueForValidation,
-} from './jsonSchema';
+import { parseErrors, parseValueForValidation } from './jsonSchema';
 
 describe('parseValueForValidation', () => {
     it('converts epoch seconds to ISO string for date-time formats', () => {
@@ -24,19 +21,63 @@ describe('parseValueForValidation', () => {
 });
 
 describe('parseErrors', () => {
+    beforeEach(() => {
+        globalThis.pydio = {
+            MessageHash: {
+                'meta.user.validation.required': 'This field is required.',
+                'meta.user.validation.type': 'Invalid type, expected {type}.',
+            },
+        };
+    });
+
+    afterEach(() => {
+        delete globalThis.pydio;
+    });
+
     it('maps ajv errors to namespace keyed object', () => {
         const errors = [
-            { keyword: 'required', params: { missingProperty: 'preferences' }, message: 'is required' },
-            { keyword: 'type', instancePath: '/profile', message: 'must be a string' },
-            { keyword: 'type', instancePath: '/profile/name', message: 'must be a string' },
+            {
+                keyword: 'required',
+                params: { missingProperty: 'preferences' },
+                message: 'is required',
+            },
+            {
+                keyword: 'type',
+                instancePath: '/profile',
+                params: { type: 'string' },
+                message: 'must be a string',
+            },
+            {
+                keyword: 'type',
+                instancePath: '/profile/name',
+                params: { type: 'string' },
+                message: 'must be a string',
+            },
         ];
 
         const result = parseErrors(errors);
 
         expect(result).toEqual({
-            preferences: 'is required',
-            profile: 'must be a string',
-            'profile/name': 'must be a string',
+            preferences: 'This field is required.',
+            profile: 'Invalid type, expected string.',
+            'profile/name': 'Invalid type, expected string.',
+        });
+    });
+
+    it('falls back to original ajv message for unsupported keywords', () => {
+        const errors = [
+            {
+                keyword: 'multipleOf',
+                instancePath: '/profile',
+                params: { multipleOf: 2 },
+                message: 'must be multiple of 2',
+            },
+        ];
+
+        const result = parseErrors(errors);
+
+        expect(result).toEqual({
+            profile: 'must be multiple of 2',
         });
     });
 });

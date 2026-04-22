@@ -189,7 +189,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			})
 		}
 		// Additional event - translate req operation to event operation
-		var evOp idm.UpdateUserMetaEvent_UserMetaOp
+		var evOp idm.UpdateUserMetaEvent_UserMetaOpEvent
 		switch request.Operation {
 		case idm.UpdateUserMetaRequest_PUT:
 			evOp = idm.UpdateUserMetaEvent_PUT

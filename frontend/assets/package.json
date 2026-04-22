@@ -2,7 +2,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "(git diff --name-only --diff-filter=ACMRTUXB --relative && git diff --cached --name-only --diff-filter=ACMRTUXB --relative) | grep -E '\\.(js|jsx|ts|tsx|mjs|cjs|json|css|scss|md)$' | grep -v '\\.min\\.' | grep -v '/dist/' | xargs -r prettier --write",
+    "format": "prettier --write",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

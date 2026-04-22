@@ -18,11 +18,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+    render,
+    screen,
+    fireEvent,
+    cleanup,
+    waitFor,
+} from '@testing-library/react';
 
-import { TagsCloudInput } from './TagsCloudInput'
+import { TagsCloudInput } from './TagsCloudInput';
 
 /**
  * Mock TagsInput from @mantine/core
@@ -35,26 +41,35 @@ import { TagsCloudInput } from './TagsCloudInput'
  * - Displays data items and rendered tags
  */
 vi.mock('@mantine/core', async (importOriginal) => {
-    const actual = await importOriginal()
+    const actual = await importOriginal();
     return {
         ...actual,
-        TagsInput: ({ value, onChange, onBlur, onKeyPress, data, ...props }) => (
+        TagsInput: ({
+            value,
+            onChange,
+            onBlur,
+            onKeyPress,
+            data,
+            ...props
+        }) => (
             <div>
                 <input
                     type="text"
                     value={value?.join(',')}
                     onChange={(e) => {
-                        const newValue = e.target.value.split(',').filter((v) => v)
-                        onChange(newValue)
+                        const newValue = e.target.value
+                            .split(',')
+                            .filter((v) => v);
+                        onChange(newValue);
                     }}
                     onBlur={(e) => {
                         if (onBlur) {
-                            onBlur(e)
+                            onBlur(e);
                         }
                     }}
                     onKeyPress={(e) => {
                         if (onKeyPress) {
-                            onKeyPress(e)
+                            onKeyPress(e);
                         }
                     }}
                     placeholder={props.placeholder}
@@ -68,288 +83,298 @@ vi.mock('@mantine/core', async (importOriginal) => {
                 {props.error && <div role="alert">{props.error}</div>}
                 {/* Using getByTestId for data element - internal state, not user-visible */}
                 <div data-testid="tags-data">{JSON.stringify(data)}</div>
-                {value && value.map((tag, idx) => (
-                    <span key={idx} data-testid={`tag-${idx}`}>{tag}</span>
-                ))}
+                {value &&
+                    value.map((tag, idx) => (
+                        <span key={idx} data-testid={`tag-${idx}`}>
+                            {tag}
+                        </span>
+                    ))}
             </div>
-        )
-    }
-})
+        ),
+    };
+});
 
 describe('TagsCloudInput', () => {
     beforeEach(() => {
-        cleanup()
-        vi.clearAllMocks()
-    })
+        cleanup();
+        vi.clearAllMocks();
+    });
 
     describe('rendering and display', () => {
         it('renders an input field', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox')
-            expect(input).toBeInTheDocument()
-        })
+            const input = screen.getByRole('textbox');
+            expect(input).toBeInTheDocument();
+        });
 
         it('displays label when provided', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     label="Select Tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('Select Tags')).toBeInTheDocument()
-        })
+            expect(screen.getByText('Select Tags')).toBeInTheDocument();
+        });
 
         it('displays description when provided', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     description="Enter comma-separated tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('Enter comma-separated tags')).toBeInTheDocument()
-        })
+            expect(
+                screen.getByText('Enter comma-separated tags'),
+            ).toBeInTheDocument();
+        });
 
         it('displays placeholder in input field', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     placeholder="Add tags..."
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByPlaceholderText('Add tags...')
-            expect(input).toBeInTheDocument()
-        })
+            const input = screen.getByPlaceholderText('Add tags...');
+            expect(input).toBeInTheDocument();
+        });
 
         it('displays error message when provided', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     errorText="Invalid tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('alert')).toHaveTextContent('Invalid tags')
-        })
+            expect(screen.getByRole('alert')).toHaveTextContent('Invalid tags');
+        });
 
         it('marks input as required when required prop is true', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     required={true}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toHaveAttribute('required')
-        })
-    })
+            expect(screen.getByRole('textbox')).toHaveAttribute('required');
+        });
+    });
 
     describe('tag value handling', () => {
         it('displays tags from comma-separated string value', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value="tag1,tag2,tag3"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('tag1')).toBeInTheDocument()
-            expect(screen.getByText('tag2')).toBeInTheDocument()
-            expect(screen.getByText('tag3')).toBeInTheDocument()
-        })
+            expect(screen.getByText('tag1')).toBeInTheDocument();
+            expect(screen.getByText('tag2')).toBeInTheDocument();
+            expect(screen.getByText('tag3')).toBeInTheDocument();
+        });
 
         it('displays no tags for empty string value', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value=""
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
             // Input should exist but no tag elements
-            expect(screen.getByRole('textbox')).toHaveValue('')
-        })
+            expect(screen.getByRole('textbox')).toHaveValue('');
+        });
 
         it('displays no tags for undefined value', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value={undefined}
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toBeInTheDocument()
-        })
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+        });
 
         it('filters and displays only non-empty tags', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value="tag1,,tag2, ,tag3"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
             // Should display three tags (empty values filtered out)
-            expect(screen.getByText('tag1')).toBeInTheDocument()
-            expect(screen.getByText('tag2')).toBeInTheDocument()
-            expect(screen.getByText('tag3')).toBeInTheDocument()
-        })
+            expect(screen.getByText('tag1')).toBeInTheDocument();
+            expect(screen.getByText('tag2')).toBeInTheDocument();
+            expect(screen.getByText('tag3')).toBeInTheDocument();
+        });
 
         it('trims whitespace from tags', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value=" tag1 , tag2 , tag3 "
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('tag1')).toBeInTheDocument()
-            expect(screen.getByText('tag2')).toBeInTheDocument()
-            expect(screen.getByText('tag3')).toBeInTheDocument()
-        })
+            expect(screen.getByText('tag1')).toBeInTheDocument();
+            expect(screen.getByText('tag2')).toBeInTheDocument();
+            expect(screen.getByText('tag3')).toBeInTheDocument();
+        });
 
         it('preserves special characters in tags', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value="tag-1,tag_2,tag.3,tag@4"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('tag-1')).toBeInTheDocument()
-            expect(screen.getByText('tag_2')).toBeInTheDocument()
-            expect(screen.getByText('tag.3')).toBeInTheDocument()
-            expect(screen.getByText('tag@4')).toBeInTheDocument()
-        })
+            expect(screen.getByText('tag-1')).toBeInTheDocument();
+            expect(screen.getByText('tag_2')).toBeInTheDocument();
+            expect(screen.getByText('tag.3')).toBeInTheDocument();
+            expect(screen.getByText('tag@4')).toBeInTheDocument();
+        });
 
         it('updates displayed tags when prop value changes', async () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             const { rerender } = render(
                 <TagsCloudInput
                     name="test-tags"
                     value="tag1,tag2"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('tag1')).toBeInTheDocument()
-            expect(screen.getByText('tag2')).toBeInTheDocument()
+            expect(screen.getByText('tag1')).toBeInTheDocument();
+            expect(screen.getByText('tag2')).toBeInTheDocument();
 
             rerender(
                 <TagsCloudInput
                     name="test-tags"
                     value="tag3,tag4,tag5"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                expect(screen.getByText('tag3')).toBeInTheDocument()
-                expect(screen.getByText('tag4')).toBeInTheDocument()
-                expect(screen.getByText('tag5')).toBeInTheDocument()
-            })
-        })
+                expect(screen.getByText('tag3')).toBeInTheDocument();
+                expect(screen.getByText('tag4')).toBeInTheDocument();
+                expect(screen.getByText('tag5')).toBeInTheDocument();
+            });
+        });
 
         it('handles single tag without comma', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value="singletag"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('singletag')).toBeInTheDocument()
-        })
+            expect(screen.getByText('singletag')).toBeInTheDocument();
+        });
 
         it('handles tags with unicode characters', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value="tag1,café,日本語"
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('tag1')).toBeInTheDocument()
-            expect(screen.getByText('café')).toBeInTheDocument()
-            expect(screen.getByText('日本語')).toBeInTheDocument()
-        })
+            expect(screen.getByText('tag1')).toBeInTheDocument();
+            expect(screen.getByText('café')).toBeInTheDocument();
+            expect(screen.getByText('日本語')).toBeInTheDocument();
+        });
 
         it('displays many tags', () => {
-            const onCommitChange = vi.fn()
-            const manyTags = Array.from({ length: 20 }, (_, i) => `tag${i}`).join(',')
+            const onCommitChange = vi.fn();
+            const manyTags = Array.from(
+                { length: 20 },
+                (_, i) => `tag${i}`,
+            ).join(',');
 
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value={manyTags}
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
             for (let i = 0; i < 20; i++) {
-                expect(screen.getByText(`tag${i}`)).toBeInTheDocument()
+                expect(screen.getByText(`tag${i}`)).toBeInTheDocument();
             }
-        })
+        });
 
         it('handles null value gracefully', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     value={null}
                     onCommitChange={onCommitChange}
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toBeInTheDocument()
-        })
-    })
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+        });
+    });
 
     describe('data loading', () => {
         it('loads data on mount', async () => {
-            const dataLoader = vi.fn().mockResolvedValue(['option1', 'option2', 'option3'])
-            const onCommitChange = vi.fn()
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2', 'option3']);
+            const onCommitChange = vi.fn();
 
             render(
                 <TagsCloudInput
@@ -357,17 +382,19 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                expect(dataLoader).toHaveBeenCalledTimes(1)
-            })
-        })
+                expect(dataLoader).toHaveBeenCalledTimes(1);
+            });
+        });
 
         it('populates available options from dataLoader', async () => {
-            const dataLoader = vi.fn().mockResolvedValue(['option1', 'option2', 'option3'])
-            const onCommitChange = vi.fn()
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2', 'option3']);
+            const onCommitChange = vi.fn();
 
             render(
                 <TagsCloudInput
@@ -375,22 +402,24 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
                 // getByTestId is necessary here because data is internal state
                 // not visible to users, but important for component functionality
-                const dataElement = screen.getByTestId('tags-data')
-                expect(dataElement.textContent).toContain('option1')
-                expect(dataElement.textContent).toContain('option2')
-                expect(dataElement.textContent).toContain('option3')
-            })
-        })
+                const dataElement = screen.getByTestId('tags-data');
+                expect(dataElement.textContent).toContain('option1');
+                expect(dataElement.textContent).toContain('option2');
+                expect(dataElement.textContent).toContain('option3');
+            });
+        });
 
         it('reloads data when name prop changes', async () => {
-            const dataLoader = vi.fn().mockResolvedValue(['option1', 'option2'])
-            const onCommitChange = vi.fn()
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2']);
+            const onCommitChange = vi.fn();
 
             const { rerender } = render(
                 <TagsCloudInput
@@ -398,14 +427,18 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                expect(dataLoader).toHaveBeenCalledTimes(1)
-            })
+                expect(dataLoader).toHaveBeenCalledTimes(1);
+            });
 
-            dataLoader.mockResolvedValue(['newOption1', 'newOption2', 'newOption3'])
+            dataLoader.mockResolvedValue([
+                'newOption1',
+                'newOption2',
+                'newOption3',
+            ]);
 
             rerender(
                 <TagsCloudInput
@@ -413,30 +446,30 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                expect(dataLoader).toHaveBeenCalledTimes(2)
-            })
-        })
+                expect(dataLoader).toHaveBeenCalledTimes(2);
+            });
+        });
 
         it('renders input even without dataLoader', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toBeInTheDocument()
-        })
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+        });
 
         it('handles empty dataLoader result', async () => {
-            const dataLoader = vi.fn().mockResolvedValue([])
-            const onCommitChange = vi.fn()
+            const dataLoader = vi.fn().mockResolvedValue([]);
+            const onCommitChange = vi.fn();
 
             render(
                 <TagsCloudInput
@@ -444,20 +477,22 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                const dataElement = screen.getByTestId('tags-data')
-                expect(dataElement.textContent).toBe('[]')
-            })
-        })
+                const dataElement = screen.getByTestId('tags-data');
+                expect(dataElement.textContent).toBe('[]');
+            });
+        });
 
         it('handles dataLoader errors gracefully', async () => {
-            const dataLoader = vi.fn().mockImplementation(() =>
-                Promise.reject(new Error('Load failed')).catch(() => {})
-            )
-            const onCommitChange = vi.fn()
+            const dataLoader = vi
+                .fn()
+                .mockImplementation(() =>
+                    Promise.reject(new Error('Load failed')).catch(() => {}),
+                );
+            const onCommitChange = vi.fn();
 
             render(
                 <TagsCloudInput
@@ -465,104 +500,106 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                expect(dataLoader).toHaveBeenCalled()
-            })
+                expect(dataLoader).toHaveBeenCalled();
+            });
 
-            expect(screen.getByRole('textbox')).toBeInTheDocument()
-        })
-    })
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+        });
+    });
 
     describe('user interactions', () => {
         it('calls onCommitChange when user types tags', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox')
-            fireEvent.change(input, { target: { value: 'tag1,tag2' } })
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'tag1,tag2' } });
 
-            expect(onCommitChange).toHaveBeenCalledWith('tag1,tag2')
-        })
+            expect(onCommitChange).toHaveBeenCalledWith('tag1,tag2');
+        });
 
         it('filters empty values from input', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox')
-            fireEvent.change(input, { target: { value: 'tag1,,tag2,' } })
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'tag1,,tag2,' } });
 
-            expect(onCommitChange).toHaveBeenCalledWith('tag1,tag2')
-        })
+            expect(onCommitChange).toHaveBeenCalledWith('tag1,tag2');
+        });
 
         it('triggers onChange when user leaves input field', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value="existing"
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox')
-            fireEvent.blur(input)
+            const input = screen.getByRole('textbox');
+            fireEvent.blur(input);
 
-            expect(onCommitChange).toHaveBeenCalled()
-        })
+            expect(onCommitChange).toHaveBeenCalled();
+        });
 
         it('triggers onChange on Enter key press', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox')
-            fireEvent.change(input, { target: { value: 'newtag' } })
-            fireEvent.keyPress(input, { key: 'Enter' })
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'newtag' } });
+            fireEvent.keyPress(input, { key: 'Enter' });
 
-            expect(onCommitChange).toHaveBeenCalled()
-        })
+            expect(onCommitChange).toHaveBeenCalled();
+        });
 
         it('maintains value through multiple interactions', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     value="initial"
-                />
-            )
+                />,
+            );
 
-            const input = screen.getByRole('textbox')
-            fireEvent.change(input, { target: { value: 'initial,new' } })
-            expect(onCommitChange).toHaveBeenCalledWith('initial,new')
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'initial,new' } });
+            expect(onCommitChange).toHaveBeenCalledWith('initial,new');
 
-            fireEvent.blur(input)
-            expect(onCommitChange).toHaveBeenCalled()
-        })
+            fireEvent.blur(input);
+            expect(onCommitChange).toHaveBeenCalled();
+        });
 
         it('supports full workflow: render, load data, then add tags', async () => {
-            const dataLoader = vi.fn().mockResolvedValue(['option1', 'option2', 'option3'])
-            const onCommitChange = vi.fn()
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2', 'option3']);
+            const onCommitChange = vi.fn();
 
             render(
                 <TagsCloudInput
@@ -571,35 +608,35 @@ describe('TagsCloudInput', () => {
                     dataLoader={dataLoader}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             await waitFor(() => {
-                expect(dataLoader).toHaveBeenCalled()
-                const dataElement = screen.getByTestId('tags-data')
-                expect(dataElement.textContent).toContain('option1')
-            })
+                expect(dataLoader).toHaveBeenCalled();
+                const dataElement = screen.getByTestId('tags-data');
+                expect(dataElement.textContent).toContain('option1');
+            });
 
-            const input = screen.getByRole('textbox')
-            fireEvent.change(input, { target: { value: 'option1,option2' } })
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'option1,option2' } });
 
-            expect(onCommitChange).toHaveBeenCalledWith('option1,option2')
-        })
-    })
+            expect(onCommitChange).toHaveBeenCalledWith('option1,option2');
+        });
+    });
 
     describe('prop updates', () => {
         it('updates label when prop changes', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             const { rerender } = render(
                 <TagsCloudInput
                     name="test-tags"
                     label="Old Label"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('Old Label')).toBeInTheDocument()
+            expect(screen.getByText('Old Label')).toBeInTheDocument();
 
             rerender(
                 <TagsCloudInput
@@ -607,24 +644,26 @@ describe('TagsCloudInput', () => {
                     label="New Label"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByText('New Label')).toBeInTheDocument()
-        })
+            expect(screen.getByText('New Label')).toBeInTheDocument();
+        });
 
         it('updates placeholder when prop changes', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             const { rerender } = render(
                 <TagsCloudInput
                     name="test-tags"
                     placeholder="Old placeholder"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByPlaceholderText('Old placeholder')).toBeInTheDocument()
+            expect(
+                screen.getByPlaceholderText('Old placeholder'),
+            ).toBeInTheDocument();
 
             rerender(
                 <TagsCloudInput
@@ -632,24 +671,26 @@ describe('TagsCloudInput', () => {
                     placeholder="New placeholder"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByPlaceholderText('New placeholder')).toBeInTheDocument()
-        })
+            expect(
+                screen.getByPlaceholderText('New placeholder'),
+            ).toBeInTheDocument();
+        });
 
         it('updates required attribute when prop changes', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             const { rerender } = render(
                 <TagsCloudInput
                     name="test-tags"
                     required={false}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).not.toHaveAttribute('required')
+            expect(screen.getByRole('textbox')).not.toHaveAttribute('required');
 
             rerender(
                 <TagsCloudInput
@@ -657,25 +698,25 @@ describe('TagsCloudInput', () => {
                     required={true}
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toHaveAttribute('required')
-        })
+            expect(screen.getByRole('textbox')).toHaveAttribute('required');
+        });
 
         it('updates error message when prop changes', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             const { rerender } = render(
                 <TagsCloudInput
                     name="test-tags"
                     errorText=""
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
             // No error initially
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
             rerender(
                 <TagsCloudInput
@@ -683,17 +724,19 @@ describe('TagsCloudInput', () => {
                     errorText="New error"
                     onCommitChange={onCommitChange}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('alert')).toHaveTextContent('New error')
-        })
-    })
+            expect(screen.getByRole('alert')).toHaveTextContent('New error');
+        });
+    });
 
     describe('validation and restrictions', () => {
         it('renders with onlyValuesFromList enabled', () => {
-            const dataLoader = vi.fn().mockResolvedValue(['option1', 'option2'])
-            const onCommitChange = vi.fn()
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2']);
+            const onCommitChange = vi.fn();
 
             render(
                 <TagsCloudInput
@@ -702,24 +745,24 @@ describe('TagsCloudInput', () => {
                     onCommitChange={onCommitChange}
                     onlyValuesFromList={true}
                     value="option1"
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toBeInTheDocument()
-        })
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+        });
 
         it('allows custom values when onlyValuesFromList is disabled', () => {
-            const onCommitChange = vi.fn()
+            const onCommitChange = vi.fn();
             render(
                 <TagsCloudInput
                     name="test-tags"
                     onCommitChange={onCommitChange}
                     onlyValuesFromList={false}
                     value=""
-                />
-            )
+                />,
+            );
 
-            expect(screen.getByRole('textbox')).toBeInTheDocument()
-        })
-    })
-})
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+        });
+    });
+});

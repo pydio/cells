@@ -266,11 +266,14 @@ MARIADB URL COMPLÈTE
 {{- $port := (.port | default (include "cells.database.port" .context)) -}}
 {{- $params := (.params | default (include "cells.database.params" .context)) -}}
 {{- $tlsParams := (.tlsParams | default (include "cells.database.tls.params" .context)) -}}
-{{- printf "%s://%stcp(%s:%s)/%s?%s&%s"
+{{- $hostPort := (printf "%s:%s" $host $port) -}}
+{{- if eq $scheme "mysql" -}}
+{{- $hostPort = (printf "tcp(%s:%s)" $host $port)  -}}
+{{- end -}}
+{{- printf "%s://%s%s/%s?%s&%s"
     $scheme
     $authParams
-    $host
-    $port
+    $hostPort
     $path
     $params
     $tlsParams

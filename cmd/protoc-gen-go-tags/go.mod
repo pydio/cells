@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v5/cmd/protoc-gen-go-tags
 
-go 1.25
+go 1.26.1
 
 require (
 	github.com/fatih/structtag v1.2.0
@@ -11,10 +11,10 @@ require (
 
 require (
 	github.com/spf13/afero v1.15.0 // indirect
-	golang.org/x/mod v0.31.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
-	golang.org/x/tools v0.40.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/tools v0.42.0 // indirect
 )
 
 replace github.com/pydio/cells/v5 => ../../

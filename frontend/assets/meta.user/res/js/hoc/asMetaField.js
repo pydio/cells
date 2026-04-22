@@ -17,39 +17,35 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import MetaClient from "../MetaClient";
+import React from 'react';
+import MetaClient from '../MetaClient';
 
-export default function asMetaField(Component){
-
+export default function asMetaField(Component) {
     return class MetaField extends React.Component {
-
         constructor(props) {
             super(props);
             this.state = {
                 value: this.props.value || 0,
                 configs: this.props.configs || new Map(),
                 getRealValue: () => {
-                    const {node, column} = this.props;
-                    return node.getMetadata().get(column.name)
-                }
-            }
+                    const { node, column } = this.props;
+                    return node.getMetadata().get(column.name);
+                },
+            };
         }
 
         componentDidMount() {
-            if(!this.props.configs){
-                MetaClient.getInstance().loadConfigs().then(configs =>{
-                    this.setState({configs})
-                })
+            if (!this.props.configs) {
+                MetaClient.getInstance()
+                    .loadConfigs()
+                    .then((configs) => {
+                        this.setState({ configs });
+                    });
             }
         }
 
         render() {
-
-            return <Component {...this.props} {...this.state}/>
-
+            return <Component {...this.props} {...this.state} />;
         }
-
-    }
-
+    };
 }

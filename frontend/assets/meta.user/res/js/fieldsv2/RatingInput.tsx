@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import { Input, Rating } from '@mantine/core'
-import { InputProps } from "./CommonInputProps";
+import React from 'react';
+import { Input, Rating } from '@mantine/core';
+import { InputProps } from './CommonInputProps';
 
 export const RatingInput: React.FC<InputProps> = ({
     label,
@@ -33,7 +33,6 @@ export const RatingInput: React.FC<InputProps> = ({
     onFocus,
     onBlur,
 }: InputProps) => {
-
     return (
         <Input.Wrapper
             className="rating-input-grid"
@@ -51,11 +50,17 @@ export const RatingInput: React.FC<InputProps> = ({
                 >
                     <span
                         className={'mdi mdi-star-off-outline'}
-                        style={{ fontSize: 19, marginRight: 5, cursor: 'pointer' }}
-                        onClick={() => { !disabled ? onCommitChange('') : null }}
+                        style={{
+                            fontSize: 19,
+                            marginRight: 5,
+                            cursor: 'pointer',
+                        }}
+                        onClick={() => {
+                            !disabled ? onCommitChange('') : null;
+                        }}
                     />
                     <Rating
-                        className={""}
+                        className={''}
                         value={parseInt(value) || 0}
                         onChange={onCommitChange}
                         readOnly={false}
@@ -63,5 +68,5 @@ export const RatingInput: React.FC<InputProps> = ({
                 </div>
             </Input>
         </Input.Wrapper>
-    )
-}
+    );
+};

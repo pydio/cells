@@ -17,26 +17,36 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import asMetaField from "../hoc/asMetaField";
+import React from 'react';
+import asMetaField from '../hoc/asMetaField';
 
-class SelectorField extends React.Component{
-    render(){
-        const {configs, getRealValue, column} = this.props;
+class SelectorField extends React.Component {
+    render() {
+        const { configs, getRealValue, column } = this.props;
         const value = getRealValue();
         let displayValue = getRealValue();
         let fieldConfig = configs.get(column.name);
         let color;
-        if(fieldConfig && fieldConfig.data && fieldConfig.data.items){
-            const found = fieldConfig.data.items.filter(i => i.key === value);
-            if(found.length){
+        if (fieldConfig && fieldConfig.data && fieldConfig.data.items) {
+            const found = fieldConfig.data.items.filter((i) => i.key === value);
+            if (found.length) {
                 displayValue = found[0].value;
-                if(found[0].color){
-                    color = <span className={'mdi mdi-label'} style={{color:found[0].color, marginRight: 5}}/>
+                if (found[0].color) {
+                    color = (
+                        <span
+                            className={'mdi mdi-label'}
+                            style={{ color: found[0].color, marginRight: 5 }}
+                        />
+                    );
                 }
             }
         }
-        return <span>{color}{displayValue}</span>;
+        return (
+            <span>
+                {color}
+                {displayValue}
+            </span>
+        );
     }
 }
 export default asMetaField(SelectorField);

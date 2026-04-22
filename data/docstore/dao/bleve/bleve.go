@@ -246,6 +246,10 @@ func (s *BleveServer) escapeMetaValue(value string) string {
 
 }
 
+func (s *BleveServer) Migrate(_ context.Context) error {
+	return nil
+}
+
 func (s *BleveServer) CloseAndDrop(ctx context.Context) error {
 	var errs []error
 	if er := s.Engine.CloseAndDrop(ctx); er != nil {

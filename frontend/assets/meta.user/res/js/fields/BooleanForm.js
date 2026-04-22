@@ -18,49 +18,60 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {Toggle} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
-const {ThemedModernStyles} = Pydio.requireLib("hoc")
-import asMetaForm from "../hoc/asMetaForm";
+import React from 'react';
+import { Toggle } from 'material-ui';
+import { muiThemeable } from 'material-ui/styles';
+const { ThemedModernStyles } = Pydio.requireLib('hoc');
+import asMetaForm from '../hoc/asMetaForm';
 
 class BooleanForm extends React.Component {
-
     render() {
-        const {updateValue, value, search, errorText, muiTheme, mode} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme, {searchRadius:(mode==='popover'?8:null)})
-        let sProps = {...ModernStyles.toggleFieldV1Search}
-        const errStyle = {...ModernStyles.textFieldV2.errorStyle, fontSize: 12, lineHeight: '12px', color: 'var(--md-sys-color-error)'}
-        let label = value ? 'Yes' : 'No'
-        if(!search) {
-            sProps = {...ModernStyles.toggleFieldV2}
-            label = this.props.label + ' (' + label + ')'
+        const { updateValue, value, search, errorText, muiTheme, mode } =
+            this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme, {
+            searchRadius: mode === 'popover' ? 8 : null,
+        });
+        let sProps = { ...ModernStyles.toggleFieldV1Search };
+        const errStyle = {
+            ...ModernStyles.textFieldV2.errorStyle,
+            fontSize: 12,
+            lineHeight: '12px',
+            color: 'var(--md-sys-color-error)',
+        };
+        const messages = Pydio.getMessages ? Pydio.getMessages() : {};
+        const m = (id, fallback = id) =>
+            messages['meta.user.' + id] ||
+            messages['ajxp_admin.metadata.' + id] ||
+            fallback;
+        let label = value ? m('boolean.yes') : m('boolean.no');
+        if (!search) {
+            sProps = { ...ModernStyles.toggleFieldV2 };
+            label = this.props.label + ' (' + label + ')';
         }
         const toggle = (
             <Toggle
                 toggled={value}
-                onToggle={(e,v) => {
+                onToggle={(e, v) => {
                     updateValue(v);
                 }}
                 label={label}
-                labelPosition={"right"}
+                labelPosition={'right'}
                 {...sProps}
             />
         );
-        if(search) {
-            return toggle
+        if (search) {
+            return toggle;
         } else if (errorText) {
             return (
-                <div style={{margin:'12px 0 6px', position:'relative'}}>
+                <div style={{ margin: '12px 0 6px', position: 'relative' }}>
                     {toggle}
                     <div style={errStyle}>{errorText}</div>
                 </div>
-            )
+            );
         } else {
-            return <div style={{margin:'12px 0 6px'}}>{toggle}</div>
+            return <div style={{ margin: '12px 0 6px' }}>{toggle}</div>;
         }
     }
-
 }
 
 export default asMetaForm(muiThemeable()(BooleanForm));

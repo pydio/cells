@@ -17,19 +17,19 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Callbacks from './Callbacks'
-import Renderer from './Renderer'
-import UserMetaPanel from './UserMetaPanel'
-import UserMetaPanelV2 from './UserMetaPanelV2'
-import InfoPanel from './InfoPanel'
-import UserMetaDialog from './UserMetaDialog'
-import MetaClient from "./MetaClient";
-import TypeEditor from "./TypeEditor"
+import Callbacks from './Callbacks';
+import Renderer from './Renderer';
+import UserMetaPanel from './UserMetaPanel';
+import UserMetaPanelV2 from './UserMetaPanelV2';
+import InfoPanel from './InfoPanel';
+import UserMetaDialog from './UserMetaDialog';
+import MetaClient from './MetaClient';
+import TypeEditor from './TypeEditor';
 import {
     MetadataContextProvider,
-    useMetadataContext
-}  from "./context/metadata";
-import { TagsCloudInput } from './fieldsv2/TagsCloudInput'
+    useMetadataContext,
+} from './context/metadata';
+import { TagsCloudInput } from './fieldsv2/TagsCloudInput';
 
 export {
     Renderer,
@@ -43,4 +43,4 @@ export {
     TagsCloudInput,
     MetadataContextProvider,
     useMetadataContext,
-}
+};

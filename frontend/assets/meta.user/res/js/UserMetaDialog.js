@@ -17,19 +17,23 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import Pydio from 'pydio'
-import Node from 'pydio/model/node'
-import DataModel from 'pydio/model/data-model'
+import React from 'react';
+import Pydio from 'pydio';
+import Node from 'pydio/model/node';
+import DataModel from 'pydio/model/data-model';
 import createReactClass from 'create-react-class';
-import PropTypes from 'prop-types'
-import UserMetaPanelV2 from "./UserMetaPanelV2";
-import MetaClient from "./MetaClient";
+import PropTypes from 'prop-types';
+import UserMetaPanelV2 from './UserMetaPanelV2';
+import MetaClient from './MetaClient';
 import { MetadataContextProvider } from './context/metadata.tsx';
 
 const { PydioMantineProvider } = Pydio.requireLib('hoc');
 
-const {ActionDialogMixin,CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
+const {
+    ActionDialogMixin,
+    CancelButtonProviderMixin,
+    SubmitButtonProviderMixin,
+} = Pydio.requireLib('boot');
 
 export default createReactClass({
     displayName: 'UserMetaDialog',
@@ -41,13 +45,14 @@ export default createReactClass({
     mixins: [
         ActionDialogMixin,
         CancelButtonProviderMixin,
-        SubmitButtonProviderMixin
+        SubmitButtonProviderMixin,
     ],
 
-    saveMeta(metadata){
-        return MetaClient
-            .getInstance()
-            .saveMeta(this.props.selection.getSelectedNodes(), metadata);
+    saveMeta(metadata) {
+        return MetaClient.getInstance().saveMeta(
+            this.props.selection.getSelectedNodes(),
+            metadata,
+        );
     },
 
     submit() {

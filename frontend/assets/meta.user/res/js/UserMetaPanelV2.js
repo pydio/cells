@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {useImperativeHandle, forwardRef, useEffect} from 'react'
+import React, { useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useMetadataState } from './hooks/useMetadataState';
 import { MetadataGroup } from './components/MetadataGroup';
 import { useGroupsExpanded } from './utils/groupsState';
@@ -73,44 +73,64 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
         loadChecks,
         onChangeUpdateData,
         autoSave,
-        errorsScope
+        errorsScope,
     });
 
     // Groups expand/collapse state
     const [groupsExpanded, toggleGroup] = useGroupsExpanded();
 
     useEffect(() => {
-        if(onFormLoaded){
-            onFormLoaded(configs)
+        if (onFormLoaded) {
+            onFormLoaded(configs);
         }
     }, [fields]);
 
     // Expose methods via ref
-    useImperativeHandle(ref, () => ({
-        getUpdateData,
-        resetUpdateData
-    }), [getUpdateData, resetUpdateData]);
-
+    useImperativeHandle(
+        ref,
+        () => ({
+            getUpdateData,
+            resetUpdateData,
+        }),
+        [getUpdateData, resetUpdateData],
+    );
 
     useEffect(() => {
         if (onValidStatusChanged) {
-            onValidStatusChanged(valid)
+            onValidStatusChanged(valid);
         }
     }, [valid]);
 
     // Build tree structure from configs
     const groupedNS = groupConfigsByNamespace(configs, supportTemplates);
     const tree = pathsToTree(groupedNS);
+    const formError = state.errors['form'];
+    const translatedFormError =
+        formError &&
+        ((pydio && pydio.MessageHash && pydio.MessageHash[formError]) ||
+            formError);
 
     // Legend for multiple selection mode
     let legend;
     if (multiple) {
         const mess = pydio.MessageHash;
-        legend = <div style={{paddingBottom: 16}}><em>{mess['meta.user.12']}</em> {mess['meta.user.13']}</div>;
+        legend = (
+            <div style={{ paddingBottom: 16 }}>
+                <em>{mess['meta.user.12']}</em> {mess['meta.user.13']}
+            </div>
+        );
     }
 
     return (
-        <div className={className} style={{width: '100%', overflowY: 'scroll', overflowX: 'hidden', ...style}}>
+        <div
+            className={className}
+            style={{
+                width: '100%',
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+                ...style,
+            }}
+        >
             {legend}
             <MetadataGroup
                 current=""
@@ -133,10 +153,16 @@ const UserMetaPanelV2 = forwardRef((props, ref) => {
                 autoSave={autoSave}
                 saving={saving}
             />
-            {state.errors['form'] && <div style={{
-                color: 'red',
-                padding: '5px 0',
-            }}>{state.errors['form']}</div>}
+            {translatedFormError && (
+                <div
+                    style={{
+                        color: 'red',
+                        padding: '5px 0',
+                    }}
+                >
+                    {translatedFormError}
+                </div>
+            )}
         </div>
     );
 });

@@ -222,15 +222,19 @@ func MockServicesToContextDAO(ctx context.Context, ns string, dsn map[string]str
 		for _, daoMap := range daoDef {
 			drivers.Register(daoMap["func"])
 		}
+		var migrations []*service.Migration
+		if len(daoDef) > 0 {
+			migrations = []*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up:            StorageMigration(),
+			}}
+		}
 		runtime.Register(ns, func(ctx context.Context) {
 			service.NewService(
 				service.Name(name),
 				service.Context(ctx),
 				service.WithStorageDrivers(drivers),
-				service.Migrations([]*service.Migration{{
-					TargetVersion: service.FirstRun(),
-					Up:            StorageMigration(),
-				}}),
+				service.Migrations(migrations),
 			)
 		})
 	}

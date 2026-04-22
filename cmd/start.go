@@ -52,8 +52,7 @@ import (
 )
 
 var (
-	//go:embed start-bootstrap.yaml
-	bootstrapYAML string
+	DefaultBootstrapYAML string
 
 	//go:embed start-storages.yaml
 	storagesYAML string
@@ -311,7 +310,7 @@ ENVIRONMENT
 			}
 		} else {
 			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
-			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
+			if _, err := tmpl.Parse(DefaultBootstrapYAML); err != nil {
 				return err
 			}
 

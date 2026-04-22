@@ -18,13 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {InputProps} from "./CommonInputProps";
-import {DatePickerInput} from '@mantine/dates'
-import {PopoverProps} from "@mantine/core";
-import {DateRangeModifiers} from "./SearchModifiers";
-import {DateTimeSearchModifierInput} from "./SearchModifierInput";
-import {textToDate, dateToTimestamp} from "./dateTimeConversion";
+import React from 'react';
+import { InputProps } from './CommonInputProps';
+import { DatePickerInput } from '@mantine/dates';
+import { PopoverProps } from '@mantine/core';
+import { DateRangeModifiers } from './SearchModifiers';
+import { DateTimeSearchModifierInput } from './SearchModifierInput';
+import { textToDate, dateToTimestamp } from './dateTimeConversion';
 
 export const DateInputSearch: React.FC<InputProps> = ({
     label,
@@ -34,9 +34,9 @@ export const DateInputSearch: React.FC<InputProps> = ({
     disabled,
     value,
     onChange,
-    errorText
+    errorText,
 }) => {
-    const popoverProps : PopoverProps = {withinPortal: false}
+    const popoverProps: PopoverProps = { withinPortal: false };
 
     return (
         <DateTimeSearchModifierInput
@@ -44,18 +44,18 @@ export const DateInputSearch: React.FC<InputProps> = ({
             onChange={onChange}
             items={DateRangeModifiers}
         >
-            {({text, leftSection, onTextChange}) => (
+            {({ text, leftSection, onTextChange }) => (
                 <DatePickerInput
                     label={label}
                     disabled={disabled}
                     error={errorText}
                     required={required}
-                    radius={"md"}
+                    radius={'md'}
                     value={textToDate(text)}
                     leftSection={leftSection}
                     onChange={(date) => {
-                        const timestamp = dateToTimestamp(date)
-                        onTextChange(timestamp)
+                        const timestamp = dateToTimestamp(date);
+                        onTextChange(timestamp);
                     }}
                     description={description}
                     placeholder={placeholder}
@@ -63,5 +63,5 @@ export const DateInputSearch: React.FC<InputProps> = ({
                 />
             )}
         </DateTimeSearchModifierInput>
-    )
-}
+    );
+};
