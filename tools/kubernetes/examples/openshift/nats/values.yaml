@@ -1,0 +1,25 @@
+global:
+  openshift: true
+
+  
+podAnnotations: {
+  "sidecar.istio.io/inject": "false" 
+}
+config:
+  jetstream:
+    enabled: true
+    dir: /data
+    pvc:
+      enabled: true
+      size: 1Gi
+      storageClassName: crc-csi-hostpath-provisioner
+  nats:
+    podAnnotations: {
+      "sidecar.istio.io/inject": "false" 
+    }    
+    port: 4222
+  cluster:
+    enabled: false
+    port: 6222
+    # must be 2 or higher when jetstream is enabled
+    replicas: 3

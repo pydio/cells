@@ -1,0 +1,218 @@
+## Set default image, imageTag, and imagePullPolicy. mode is used to indicate the
+##
+image:
+  repository: quay.io/minio/minio
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+# - name: "image-pull-secret"
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 100m
+  limits:
+    memory: 2Gi
+    cpu: 1
+
+# Check the namespace UID range
+# oc get ns cells -o jsonpath='{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}{"\n"}'
+securityContext:
+  enabled: true
+  runAsUser: 1000650000
+  runAsGroup: 1000650000
+  fsGroup: 1000650000
+  runAsNonRoot: true
+
+containerSecurityContext:
+  runAsUser: 1000650000
+  runAsGroup: 1000650000
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+
+## Set default image, imageTag, and imagePullPolicy for the `mc` (the minio
+## client used to create a default bucket).
+##
+mcImage:
+  repository: quay.io/minio/mc
+  tag: latest
+  pullPolicy: IfNotPresent
+
+## minio mode, i.e. standalone or distributed
+mode: standalone ## other supported values are "standalone"
+extraVolumes: []
+extraVolumeMounts: []
+extraContainers: []
+minioAPIPort: "9000"
+minioConsolePort: "9001"
+# rootUser: ""
+# rootPassword: ""
+existingSecret: "minio-root-secret"
+
+## Directory on the MinIO pof
+certsPath: "/etc/minio/certs/"
+configPathmc: "/etc/minio/mc/"
+
+## Path where PV would be mounted on the MinIO Pod
+mountPath: "/export"
+## Override the root directory which the minio server should serve from.
+## If left empty, it defaults to the value of {{ .Values.mountPath }}
+## If defined, it must be a sub-directory of the path specified in {{ .Values.mountPath }}
+##
+bucketRoot: ""
+
+# Number of drives attached to a node
+drivesPerNode: 1
+# Number of MinIO containers running
+replicas: 1
+# Number of expanded MinIO clusters
+pools: 1
+
+## TLS Settings for MinIO
+tls:
+  enabled: false
+  ## Create a secret with private.key and public.crt files and pass that here. Ref: https://github.com/minio/minio/tree/master/docs/tls/kubernetes#2-create-kubernetes-secret
+  certSecret: ""
+  publicCrt: public.crt
+  privateKey: private.key
+trustedCertsSecret: ""
+
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 15Gi
+
+users: []
+  ## Username, password and policy to be assigned to the user
+  # - accessKey: cells
+  #   secretKey: cells
+  #   policy: readwrite
+  # Or you can refer to specific secret
+  # - accessKey: cells
+  #   existingSecret: minio-user-secret
+  #   existingSecretKey: password
+  #   policy: readwrite
+
+# policies:
+# # writeexamplepolicy policy grants creation or deletion of buckets with name
+# # starting with example. In addition, grants objects write permissions on buckets starting with
+# # example.
+#   - name: cellsreadwrite
+#     statements:
+#       - effect: Allow
+#         resources:
+#           - 'arn:aws:s3:::pydiods1'
+#           - 'arn:aws:s3:::pydiods1/*'
+#           - 'arn:aws:s3:::cellsdata'          
+#           - 'arn:aws:s3:::cellsdata/*'
+#           - 'arn:aws:s3:::personal'          
+#           - 'arn:aws:s3:::personal/*'
+#           - 'arn:aws:s3:::thumbnails'          
+#           - 'arn:aws:s3:::thumbnails/*'
+#           - 'arn:aws:s3:::binaries'          
+#           - 'arn:aws:s3:::binaries/*'
+#           - 'arn:aws:s3:::versions'
+#           - 'arn:aws:s3:::versions/*'
+#         actions:
+#           - "s3:AbortMultipartUpload"
+#           - "s3:GetObject"
+#           - "s3:DeleteObject"
+#           - "s3:PutObject"
+#           - "s3:HeadObject"
+#           - "s3:ListMultipartUploadParts"
+#           - "s3:GetBucketLocation"            # optional
+#           - "s3:GetBucketPolicy"              # optional
+#           - "s3:GetBucketVersioning"          # optional
+#           - "s3:GetBucketTagging"             # optional
+
+## List of buckets to be created after minio install
+##
+buckets:
+    # Name of the bucket
+  - name: pydiods1
+    # Policy to be set on the
+    # bucket [none|download|upload|public]
+    policy: none
+    # Purge if bucket exists already
+    purge: false
+    # set versioning for
+    # bucket [true|false]
+    versioning: false # remove this key if you do not want versioning feature
+    # set objectlocking for
+    # bucket [true|false] NOTE: versioning is enabled by default if you use locking
+    objectlocking: false
+
+  - name: personal
+    # Policy to be set on the
+    # bucket [none|download|upload|public]
+    policy: none
+    # Purge if bucket exists already
+    purge: false
+    # set versioning for
+    # bucket [true|false]
+    versioning: false # remove this key if you do not want versioning feature
+    # set objectlocking for
+    # bucket [true|false] NOTE: versioning is enabled by default if you use locking
+    objectlocking: false
+
+  - name: cellsdata
+    # Policy to be set on the
+    # bucket [none|download|upload|public]
+    policy: none
+    # Purge if bucket exists already
+    purge: false
+    # set versioning for
+    # bucket [true|false]
+    versioning: false # remove this key if you do not want versioning feature
+    # set objectlocking for
+    # bucket [true|false] NOTE: versioning is enabled by default if you use locking
+    objectlocking: false
+
+  - name: binaries
+    # Policy to be set on the
+    # bucket [none|download|upload|public]
+    policy: none
+    # Purge if bucket exists already
+    purge: false
+    # set versioning for
+    # bucket [true|false]
+    versioning: false # remove this key if you do not want versioning feature
+    # set objectlocking for
+    # bucket [true|false] NOTE: versioning is enabled by default if you use locking
+    objectlocking: false
+
+  - name: thumbnails
+    # Policy to be set on the
+    # bucket [none|download|upload|public]
+    policy: none
+    # Purge if bucket exists already
+    purge: false
+    # set versioning for
+    # bucket [true|false]
+    versioning: false # remove this key if you do not want versioning feature
+    # set objectlocking for
+    # bucket [true|false] NOTE: versioning is enabled by default if you use locking
+    objectlocking: false
+
+  - name: versions
+    # Policy to be set on the
+    # bucket [none|download|upload|public]
+    policy: none
+    # Purge if bucket exists already
+    purge: false
+    # set versioning for
+    # bucket [true|false]
+    versioning: false # remove this key if you do not want versioning feature
+    # set objectlocking for
+    # bucket [true|false] NOTE: versioning is enabled by default if you use locking
+    objectlocking: false

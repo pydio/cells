@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-root
+  namespace: cells
+spec:
+  selfSigned: {}
