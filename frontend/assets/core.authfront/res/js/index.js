@@ -25,6 +25,7 @@ import createReactClass from 'create-react-class'
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
 import {CircularProgress, TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, IconButton, IconMenu} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
+import { isSafeForgotPasswordExternalLink } from './forgotPasswordLink';
 const {ValidPassword} = Pydio.requireLib('form')
 const {Loader} = Pydio.requireLib('boot')
 
@@ -151,24 +152,13 @@ let LoginPasswordDialog = createReactClass({
     fireForgotPassword(e){
         e.stopPropagation();
         const externalLink = this.state.authParameters.get("FORGOT_PASSWORD_EXTERNAL_LINK");
-        if(this.isSafeForgotPasswordExternalLink(externalLink)) {
+        if(isSafeForgotPasswordExternalLink(externalLink)) {
             window.open(externalLink)
         } else {
             Pydio.getInstance().getController().fireAction(this.state.authParameters.get("FORGOT_PASSWORD_ACTION")||'reset-password-ask');
         }
     },
 
-    isSafeForgotPasswordExternalLink(link) {
-        if(!link) {
-            return false;
-        }
-        try{
-            const parsed = new URL(link);
-            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-        } catch (e) {
-            return false;
-        }
-    },
 
     useBlur(){
         return !this.getClassName();
