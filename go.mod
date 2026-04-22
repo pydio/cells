@@ -90,7 +90,7 @@ require (
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/rjeczalik/notify v0.9.3
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
-	github.com/rs/cors v1.11.0
+	github.com/rs/cors v1.11.1
 	github.com/rs/xid v1.6.0
 	github.com/rubenv/sql-migrate v0.0.0-20211023115951-9f02b1e13857
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
