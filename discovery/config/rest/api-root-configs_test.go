@@ -29,6 +29,12 @@ func TestValidateConfigPayload(t *testing.T) {
 				"FORGOT_PASSWORD_EXTERNAL_LINK": "data:text/html,<script>alert(1)</script>",
 			}), ShouldNotBeNil)
 			So(validateConfigPayload("frontend/plugin/core.auth", map[string]interface{}{
+				"FORGOT_PASSWORD_EXTERNAL_LINK": "ftp://example.com/reset",
+			}), ShouldNotBeNil)
+			So(validateConfigPayload("frontend/plugin/core.auth", map[string]interface{}{
+				"FORGOT_PASSWORD_EXTERNAL_LINK": "https:///missing-host",
+			}), ShouldNotBeNil)
+			So(validateConfigPayload("frontend/plugin/core.auth", map[string]interface{}{
 				"FORGOT_PASSWORD_EXTERNAL_LINK": "not a url",
 			}), ShouldNotBeNil)
 		})
