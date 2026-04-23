@@ -1,6 +1,7 @@
 module github.com/pydio/cells/v5
 
 go 1.26
+
 toolchain go1.26.2
 
 require (
@@ -61,7 +62,7 @@ require (
 	github.com/hashicorp/go-version v1.8.0
 	github.com/hashicorp/vault/api v1.22.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
-	github.com/jackc/pgx/v5 v5.9.0
+	github.com/jackc/pgx/v5 v5.9.2
 	github.com/jaytaylor/go-hostsfile v0.0.0-20220426042432-61485ac1fa6c
 	github.com/jcuga/golongpoll v1.3.1
 	github.com/jinzhu/copier v0.4.0
