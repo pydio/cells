@@ -771,7 +771,8 @@ func Upgrade4993(ctx context.Context) error {
 				if p.GetID() == "user-meta-read" {
 					if !slices.Contains(p.Resources, "rest:/user-meta/namespace") {
 						p.Resources = append(p.Resources, "rest:/user-meta/namespace")
-					} else if !slices.Contains(p.Resources, "rest:/user-meta/namespace/<.+>") {
+					}
+					if !slices.Contains(p.Resources, "rest:/user-meta/namespace/<.+>") {
 						p.Resources = append(p.Resources, "rest:/user-meta/namespace/<.+>")
 					}
 				}
