@@ -93,7 +93,7 @@ func wrapProxyValue(values kv.Values, store Store, path []string) kv.Values {
 	if wrapped || len(path) == 0 {
 		return pVal
 	}
-	return values
+	return pVal
 }
 
 func (p *proxyValues) Context(ctx context.Context) kv.Values {
