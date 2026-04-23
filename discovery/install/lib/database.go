@@ -191,7 +191,7 @@ func specificVersionsChecks(ctx context.Context, driver string, infos *sql2.Serv
 		return errors.WithMessage(ErrMySQLVersionNotSupported, "version 8.0.22 is not supported")
 	}
 	mysqlMatched, _ := regexp.MatchString("^5.[456].*$", version)
-	mariaMatched, _ := regexp.MatchString("^10.1.*-MariaDB$", version)
+	mariaMatched, _ := regexp.MatchString(`^10\.1\.[0-9]+-MariaDB(-.*)?$`, version)
 	if (mariaMatched || mysqlMatched) && infos.DbCharset == "utf8mb4" {
 		return errors.WithMessage(ErrMySQLCharsetNotSupported, "This DB version has issues with utf8mb4 charset")
 	}
