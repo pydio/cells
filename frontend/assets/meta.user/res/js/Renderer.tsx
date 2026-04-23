@@ -37,6 +37,7 @@ import { getURLDisplayByContext, URLForm } from './fields/URL';
 import { FieldSearch, FieldSearchProps } from './components/FieldSearch';
 import { NamespaceMeta } from './components/MetaSpec';
 import { parseTagsValue } from './utils/mapTags';
+import { SearchUpdateOptions } from './fieldsv2/CommonInputProps';
 
 export default class Renderer {
     static renderStars(node, column) {
@@ -248,15 +249,15 @@ export default class Renderer {
      */
     static typeFormRenderer(type) {
         const fSearchRenderer = (
-            props: { fieldname: string; value: any; onChange: ({}) => void },
+            props: { fieldname: string; value: any; onChange: (searchValues: {}, options?: SearchUpdateOptions) => void },
             configs: Map<string, NamespaceMeta>,
         ) => {
             const fieldProps: FieldSearchProps = {
                 name: props.fieldname,
                 value: props.value,
-                updateValue: (f, v) => {
+                updateValue: (f, v, options) => {
                     const searchValues = { ['ajxp_meta_' + f]: v };
-                    props.onChange(searchValues);
+                    props.onChange(searchValues, options);
                 },
                 meta: configs.get(props.fieldname),
             };

@@ -20,12 +20,15 @@
 
 import React, { useCallback } from 'react';
 import { getCssLabels } from '../fields/CssLabelsField';
-import { TextInput } from '../fieldsv2/TextInput';
 import { Selector } from '../fieldsv2/Select';
 import { RatingInput } from '../fieldsv2/RatingInput';
 import { SwitchInput } from '../fieldsv2/SwitchInput';
 import { TagsCloudInput } from '../fieldsv2/TagsCloudInput';
-import { InputProps, Items } from '../fieldsv2/CommonInputProps';
+import {
+    InputProps,
+    Items,
+    SearchUpdateOptions,
+} from '../fieldsv2/CommonInputProps';
 import MetaClient from '../MetaClient';
 import { NamespaceMeta } from './MetaSpec';
 import { NumbersInputSearch } from '../fieldsv2/NumbersInputSearch';
@@ -38,7 +41,7 @@ export interface FieldSearchProps {
     name: string;
     meta: NamespaceMeta;
     value: any;
-    updateValue: (f: string, v: any) => void;
+    updateValue: (f: string, v: any, options?: SearchUpdateOptions) => void;
 }
 
 /**
@@ -51,10 +54,10 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({
     updateValue,
 }) => {
     const localChange = useCallback(
-        (value: any, submit?: boolean) => {
-            updateValue(name, value);
+        (value: any, options?: SearchUpdateOptions) => {
+            updateValue(name, value, options);
         },
-        [name],
+        [name, updateValue],
     );
 
     const localDataLoader = useCallback(

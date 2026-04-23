@@ -96,8 +96,8 @@ class AdvancedSearch extends Component {
         props.getSearchOptions().then(so => this.setState({searchOptions: so}))
     }
 
-    onChange(values) {
-        this.props.onChange(values)
+    onChange(values, options) {
+        this.props.onChange(values, options)
     }
 
     renderField(val) {

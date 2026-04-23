@@ -79,7 +79,7 @@ export const TextInputSearch: React.FC<InputProps> = ({
 
     const onChangeEvent = useCallback(
         (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-            onChange(applyModifier(m, e.target.value));
+            onChange(applyModifier(m, e.target.value), { debounced: true });
         },
         [m, name, onChange],
     );
@@ -87,7 +87,7 @@ export const TextInputSearch: React.FC<InputProps> = ({
     const simpleEnter = useCallback(
         (event: React.KeyboardEvent) => {
             if (event.key === 'Enter') {
-                onChange(value, true);
+                onChange(value);
             }
         },
         [value, onChange],

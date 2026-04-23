@@ -154,7 +154,7 @@ describe('DateTimeInputSearch', () => {
             fireEvent.click(screen.getByTestId('datetime-input-change'));
 
             // Should call onChange with empty string, not epoch 0
-            expect(onChange).toHaveBeenCalledWith('');
+            expect(onChange).toHaveBeenCalledWith('', { debounced: true });
         });
 
         it('should convert selected datetime to timestamp string', () => {
@@ -190,7 +190,7 @@ describe('DateTimeInputSearch', () => {
             fireEvent.click(screen.getByTestId('datetime-input-set-epoch'));
 
             // Should call onChange with empty string (epoch 0 is rejected)
-            expect(onChange).toHaveBeenCalledWith('');
+            expect(onChange).toHaveBeenCalledWith('', { debounced: true });
         });
     });
 

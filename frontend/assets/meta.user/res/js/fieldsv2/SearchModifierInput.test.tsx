@@ -56,7 +56,7 @@ describe('SearchModifierInput', () => {
         expect(screen.getByLabelText('text-value').textContent).toBe('alpha');
 
         fireEvent.click(screen.getByRole('button', { name: 'change' }));
-        expect(onChange).toHaveBeenCalledWith('*next*');
+        expect(onChange).toHaveBeenCalledWith('*next*', { debounced: true });
     });
 
     it('parses starts-with modifier and applies it on change', () => {
@@ -75,7 +75,7 @@ describe('SearchModifierInput', () => {
         expect(screen.getByLabelText('text-value').textContent).toBe('beta');
 
         fireEvent.click(screen.getByRole('button', { name: 'change' }));
-        expect(onChange).toHaveBeenCalledWith('next*');
+        expect(onChange).toHaveBeenCalledWith('next*', { debounced: true });
     });
 
     it('returns empty text for empty input and submits empty value', () => {
@@ -94,7 +94,7 @@ describe('SearchModifierInput', () => {
         expect(screen.getByLabelText('text-value').textContent).toBe('');
 
         fireEvent.click(screen.getByRole('button', { name: 'submit' }));
-        expect(onChange).toHaveBeenCalledWith('', true);
+        expect(onChange).toHaveBeenCalledWith('');
     });
 
     it('keeps plain text when no modifier is present', () => {
@@ -129,10 +129,10 @@ describe('SearchModifierInput', () => {
         expect(screen.getByLabelText('text-value').textContent).toBe('10');
 
         fireEvent.click(screen.getByRole('button', { name: 'change' }));
-        expect(onChange).toHaveBeenCalledWith('>=next');
+        expect(onChange).toHaveBeenCalledWith('>=next', { debounced: true });
 
         fireEvent.click(screen.getByRole('button', { name: 'submit' }));
-        expect(onChange).toHaveBeenCalledWith('>=10', true);
+        expect(onChange).toHaveBeenCalledWith('>=10');
     });
 
     it('parses single-character range modifier', () => {
@@ -150,7 +150,7 @@ describe('SearchModifierInput', () => {
 
         expect(screen.getByLabelText('text-value').textContent).toBe('5');
         fireEvent.click(screen.getByRole('button', { name: 'change' }));
-        expect(onChange).toHaveBeenCalledWith('<next');
+        expect(onChange).toHaveBeenCalledWith('<next', { debounced: true });
     });
 
     it('updates modifier when left menu changes', () => {
@@ -189,7 +189,7 @@ describe('SearchModifierInput', () => {
             );
 
             fireEvent.click(screen.getByRole('button', { name: 'change' }));
-            expect(onChange).toHaveBeenCalledWith('>=next');
+            expect(onChange).toHaveBeenCalledWith('>=next', { debounced: true });
         });
 
         it('parses <= date modifier and applies it on change', () => {
@@ -210,7 +210,7 @@ describe('SearchModifierInput', () => {
             );
 
             fireEvent.click(screen.getByRole('button', { name: 'change' }));
-            expect(onChange).toHaveBeenCalledWith('<=next');
+            expect(onChange).toHaveBeenCalledWith('<=next', { debounced: true });
         });
 
         it('parses exact date (no modifier) and applies it on change', () => {
@@ -231,7 +231,7 @@ describe('SearchModifierInput', () => {
             );
 
             fireEvent.click(screen.getByRole('button', { name: 'change' }));
-            expect(onChange).toHaveBeenCalledWith('next');
+            expect(onChange).toHaveBeenCalledWith('next', { debounced: true });
         });
 
         it('returns empty text for empty input and preserves modifier', () => {
@@ -250,7 +250,7 @@ describe('SearchModifierInput', () => {
             expect(screen.getByLabelText('text-value').textContent).toBe('');
 
             fireEvent.click(screen.getByRole('button', { name: 'submit' }));
-            expect(onChange).toHaveBeenCalledWith('', true);
+            expect(onChange).toHaveBeenCalledWith('');
         });
 
         it('handles modifier change with timestamp value', () => {
@@ -288,7 +288,7 @@ describe('SearchModifierInput', () => {
             );
 
             fireEvent.click(screen.getByRole('button', { name: 'submit' }));
-            expect(onChange).toHaveBeenCalledWith('>=1707550800', true);
+            expect(onChange).toHaveBeenCalledWith('>=1707550800');
         });
 
         it('parses single-character range modifier (>)', () => {
@@ -308,7 +308,7 @@ describe('SearchModifierInput', () => {
                 '1707550800',
             );
             fireEvent.click(screen.getByRole('button', { name: 'change' }));
-            expect(onChange).toHaveBeenCalledWith('>next');
+            expect(onChange).toHaveBeenCalledWith('>next', { debounced: true });
         });
 
         it('parses single-character range modifier (<)', () => {
@@ -328,7 +328,7 @@ describe('SearchModifierInput', () => {
                 '1707550800',
             );
             fireEvent.click(screen.getByRole('button', { name: 'change' }));
-            expect(onChange).toHaveBeenCalledWith('<next');
+            expect(onChange).toHaveBeenCalledWith('<next', { debounced: true });
         });
 
         it('handles empty timestamp with >= modifier', () => {
@@ -362,7 +362,7 @@ describe('SearchModifierInput', () => {
 
             fireEvent.click(screen.getByRole('button', { name: 'submit' }));
             // Should preserve the >= modifier with the timestamp value
-            expect(onChange).toHaveBeenCalledWith('>=1707550800', true);
+            expect(onChange).toHaveBeenCalledWith('>=1707550800');
         });
 
         it('handles null/undefined values gracefully', () => {
