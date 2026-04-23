@@ -67,7 +67,7 @@ DESCRIPTION
 
 		fmt.Println("Successfully created ACL")
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
+		table.Header([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
 		table.Append([]string{response.ACL.ID, response.ACL.Action.String(), response.ACL.NodeID, response.ACL.RoleID, response.ACL.WorkspaceID})
 		table.Render()
 	},

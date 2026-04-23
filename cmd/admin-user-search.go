@@ -37,7 +37,9 @@ import (
 )
 
 var userSearchLogin string
+
 var userSearchOffset int
+
 var userSearchLimit int
 
 var userSearchCmd = &cobra.Command{
@@ -73,7 +75,7 @@ EXAMPLES
 		})
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Name", "Is Group", "Profile", "Path", "UUID"})
+		table.Header([]string{"Name", "Is Group", "Profile", "Path", "UUID"})
 
 		stream, err := client.SearchUser(context.Background(), &idm.SearchUserRequest{
 			Query: &service.Query{

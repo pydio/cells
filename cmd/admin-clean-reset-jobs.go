@@ -80,7 +80,7 @@ EXAMPLE
 
 		dd := jobs.ListDefaults()
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"#", "Service", "Label"})
+		table.Header([]string{"#", "Service", "Label"})
 		for i, d := range dd {
 			table.Append([]string{
 				fmt.Sprintf("%d", i+1),

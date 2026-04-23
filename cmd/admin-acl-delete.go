@@ -104,7 +104,7 @@ func confirmAclDeletion(cmd *cobra.Command, client idm.ACLServiceClient, query *
 	}
 
 	table := tablewriter.NewWriter(cmd.OutOrStdout())
-	table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
+	table.Header([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
 
 	for {
 		response, err := stream.Recv()

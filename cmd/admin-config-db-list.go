@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -140,8 +141,10 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Driver", "DSN", "Possible Services"})
+		table := tablewriter.NewTable(cmd.OutOrStdout(),
+			tablewriter.WithAlignment(tw.Alignment{}.Add(tw.AlignLeft)),
+		)
+		table.Header([]string{"Driver", "DSN", "Possible Services"})
 
 		// List all databases value
 		dd := configDatabaseList()
@@ -152,7 +155,6 @@ DESCRIPTION
 			}
 			table.Append([]string{d.driver, d.dsn, strings.Join(ss, "\n")})
 		}
-		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
 
 	},

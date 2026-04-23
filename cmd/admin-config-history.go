@@ -29,6 +29,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 	"github.com/yudai/gojsondiff"
 	"github.com/yudai/gojsondiff/formatter"
@@ -166,9 +167,12 @@ DESCRIPTION
 			log.Fatal(e)
 		}
 
-		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Id", "Date", "Context", "Log Message"})
-		table.SetAutoWrapText(false)
+		table := tablewriter.NewTable(cmd.OutOrStdout(),
+			tablewriter.WithRowAutoWrap(tw.WrapNone),
+			tablewriter.WithAlignment(tw.Alignment{}.Add(tw.AlignLeft)),
+		)
+
+		table.Header([]string{"Id", "Date", "Context", "Log Message"})
 
 		for _, version := range versions {
 			table.Append([]string{
@@ -179,7 +183,6 @@ DESCRIPTION
 			})
 		}
 
-		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {

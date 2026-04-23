@@ -101,7 +101,7 @@ EXAMPLES
 		}
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
+		table.Header([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
 
 		res := 0
 		for {

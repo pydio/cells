@@ -87,7 +87,7 @@ EXAMPLE
 		}
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Name", "Value"})
+		table.Header([]string{"Name", "Value"})
 
 		for key, value := range response.Node.MetaStore {
 			table.Append([]string{key, value})

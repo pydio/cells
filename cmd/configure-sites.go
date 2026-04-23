@@ -196,13 +196,13 @@ func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
 		}
 	}
 
-	table := tablewriter.NewWriter(cmd.OutOrStdout())
-	table.SetRowLine(true)
+	table := tablewriter.NewTable(cmd.OutOrStdout())
+
 	headers := []string{"#", "Bind(s)", "TLS", "External URL"}
 	if oneHasMaintenance {
 		headers = append(headers, "Maintenance Mode")
 	}
-	table.SetHeader(headers)
+	table.Header(headers)
 
 	for i, s := range sites {
 		tlsString := "No Tls"

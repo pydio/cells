@@ -29,6 +29,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
@@ -39,6 +40,7 @@ import (
 )
 
 var updateToVersion string
+
 var updateDryRun bool
 
 var updateBinCmd = &cobra.Command{
@@ -78,14 +80,15 @@ DESCRIPTION
 			c.Println(os.Args[0] + " update --version=x.y.z")
 			c.Println("")
 
-			table := tablewriter.NewWriter(cmd.OutOrStdout())
-			table.SetHeader([]string{"Version", "Package Name", "Description"})
+			table := tablewriter.NewTable(cmd.OutOrStdout(), tablewriter.WithAlignment(tw.Alignment{}.Add(tw.AlignLeft)))
+
+			table.Header([]string{"Version", "Package Name", "Description"})
 
 			for _, bin := range binaries {
 				table.Append([]string{bin.Version, bin.Label, bin.Description})
 			}
 
-			table.SetAlignment(tablewriter.ALIGN_LEFT)
+			table.Options()
 			table.Render()
 
 		} else {

@@ -28,7 +28,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -77,7 +77,7 @@ EXAMPLE
 		if lsShowUuid {
 			hh = []string{"Type", "Path", "Uuid", "Size", "Modified"}
 		}
-		table.SetHeader(hh)
+		table.Header(hh)
 		res := 0
 		hidden := 0
 

@@ -25,6 +25,7 @@ import (
 	"sort"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -47,7 +48,9 @@ DESCRIPTION
 			log.Fatal(err)
 		}
 
-		table := tablewriter.NewWriter(cmd.OutOrStdout())
+		table := tablewriter.NewTable(cmd.OutOrStdout(),
+			tablewriter.WithAlignment(tw.Alignment{}.Add(tw.AlignLeft)),
+		)
 
 		var skeys []string
 		for k := range m {
@@ -60,7 +63,6 @@ DESCRIPTION
 			displayMap(table, m[sk], sk)
 		}
 
-		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
 	},
 }
