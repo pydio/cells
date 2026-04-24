@@ -45,6 +45,7 @@ type sharedSubscriber struct {
 	cancel    context.CancelFunc
 	sharedKey string
 	out       map[string]chan []*pb.Message
+	ready     map[string]chan struct{}
 	sync.RWMutex
 }
 
@@ -55,6 +56,16 @@ func (s *sharedSubscriber) Dispatch() {
 			// TODO - Reconnect if not Canceled ?
 			return
 		}
+		if len(resp.Messages) == 0 {
+			// Empty response is a server-side ready ack: close the waiting channel.
+			s.Lock()
+			if rch, ok := s.ready[resp.Id]; ok {
+				close(rch)
+				delete(s.ready, resp.Id)
+			}
+			s.Unlock()
+			continue
+		}
 		s.RLock()
 		if ch, ok := s.out[resp.Id]; ok {
 			ch <- resp.Messages
@@ -63,16 +74,23 @@ func (s *sharedSubscriber) Dispatch() {
 	}
 }
 
-func (s *sharedSubscriber) Subscribe(subId string, ch chan []*pb.Message) {
+func (s *sharedSubscriber) Subscribe(subId string, ch chan []*pb.Message) chan struct{} {
 	s.Lock()
 	defer s.Unlock()
 	s.out[subId] = ch
+	rch := make(chan struct{})
+	s.ready[subId] = rch
+	return rch
 }
 
 func (s *sharedSubscriber) Unsubscribe(subId string) {
 	s.Lock()
 	defer s.Unlock()
 	delete(s.out, subId)
+	if rch, ok := s.ready[subId]; ok {
+		close(rch)
+		delete(s.ready, subId)
+	}
 	if len(s.out) == 0 && s.cancel != nil {
 		s.cancel()
 		subLock.Lock()
@@ -156,6 +174,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 			sharedKey:              sharedKey,
 			cancel:                 cancel,
 			out:                    make(map[string]chan []*pb.Message),
+			ready:                  make(map[string]chan struct{}),
 		}
 		subLock.Lock()
 		subscribers[sharedKey] = sub
@@ -329,12 +348,14 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 	var cli pb.Broker_SubscribeClient
 	var closer func() error
 
+	var readyCh chan struct{}
+
 	if ctx != nil {
 		if v := ctx.Value(subscriberKey{}); v != nil {
 			if c, ok := v.(*sharedSubscriber); ok {
 				ch = make(chan []*pb.Message, 5000)
 				cli = c
-				c.Subscribe(subId, ch)
+				readyCh = c.Subscribe(subId, ch)
 				closer = func() error {
 					c.Unsubscribe(subId)
 					return nil
@@ -356,6 +377,19 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 		return nil, err
 	}
 
+	// Wait until the server confirms the subscription is active before returning.
+	// Without this, a caller that immediately publishes after subscribing risks
+	// sending messages before the server-side broker subscription is registered,
+	// causing them to be silently dropped.
+	if readyCh != nil {
+		select {
+		case <-readyCh:
+		case <-ctx.Done():
+			closer()
+			return nil, ctx.Err()
+		}
+	}
+
 	return pubsub.NewSubscription(&subscription{
 		in:     ch,
 		closer: closer,
@@ -368,16 +402,19 @@ func (s *subscription) ReceiveBatch(ctx context.Context, maxMessages int) ([]*dr
 		return nil, errors.New("nil variable")
 	}
 
-	msgs := <-s.in
-
-	var dms []*driver.Message
-	for _, msg := range msgs {
-		dms = append(dms, &driver.Message{
-			Body:     msg.Body,
-			Metadata: msg.Header,
-		})
+	select {
+	case msgs := <-s.in:
+		var dms []*driver.Message
+		for _, msg := range msgs {
+			dms = append(dms, &driver.Message{
+				Body:     msg.Body,
+				Metadata: msg.Header,
+			})
+		}
+		return dms, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
-	return dms, nil
 }
 
 // SendAcks implements driver.Subscription.SendAcks.

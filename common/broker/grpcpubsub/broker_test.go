@@ -73,6 +73,7 @@ func TestServiceBroker(t *testing.T) {
 				sharedKey:              "h",
 				cancel:                 nil,
 				out:                    make(map[string]chan []*pb.Message),
+				ready:                  make(map[string]chan struct{}),
 			}
 			go sub.Dispatch()
 

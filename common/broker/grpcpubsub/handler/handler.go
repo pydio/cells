@@ -146,6 +146,13 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 			return e
 		}
 		sub.unsub = unSub
+
+		// Signal to the subscriber that the server-side subscription is active.
+		// An empty Messages slice is used as a ready ack so the client can
+		// start publishing without risking dropped messages.
+		mutex.Lock()
+		_ = stream.Send(&pb.SubscribeResponse{Id: id})
+		mutex.Unlock()
 	}
 }
 
