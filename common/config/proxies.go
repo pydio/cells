@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"strings"
 	"sync"
 
@@ -57,30 +58,48 @@ func Proxy(store Store) Store {
 	return &proxy{Store: store}
 }
 
+func (p *proxy) Context(ctx context.Context) kv.Values {
+	return &proxyValues{Values: p.Store.Context(ctx), store: p.Store}
+}
+
+func (p *proxy) Default(d any) kv.Values {
+	return &proxyValues{Values: p.Store.Default(d), store: p.Store}
+}
+
 func (p *proxy) Val(path ...string) kv.Values {
+	return wrapProxyValue(p.Store.Val(path...), p.Store, path)
+}
+
+func wrapProxyValue(values kv.Values, store Store, path []string) kv.Values {
 	key := strings.Join(path, "/")
-	wrapped := false
-	pVal := &proxyValues{Values: p.Store.Val(path...), store: p.Store, path: path}
+	pVal := &proxyValues{Values: values, store: store, path: path}
 
 	proxiesLocker.RLock()
 	defer proxiesLocker.RUnlock()
 
 	if setter, ok := proxiesSetters[key]; ok {
 		pVal.setter = setter
-		wrapped = true
 	}
 	if getter, ok := proxiesGetters[key]; ok {
 		pVal.getter = getter
-		wrapped = true
 	}
 	if deleter, ok := proxiesDeleters[key]; ok {
 		pVal.deleter = deleter
-		wrapped = true
 	}
-	if wrapped {
-		return pVal
-	}
-	return p.Store.Val(path...)
+	return pVal
+}
+
+func (p *proxyValues) Context(ctx context.Context) kv.Values {
+	return &proxyValues{Values: p.Values.Context(ctx), store: p.store, path: p.path, setter: p.setter, getter: p.getter, deleter: p.deleter}
+}
+
+func (p *proxyValues) Default(d any) kv.Values {
+	return &proxyValues{Values: p.Values.Default(d), store: p.store, path: p.path, setter: p.setter, getter: p.getter, deleter: p.deleter}
+}
+
+func (p *proxyValues) Val(path ...string) kv.Values {
+	nextPath := append(append([]string{}, p.path...), path...)
+	return wrapProxyValue(p.Values.Val(path...), p.store, nextPath)
 }
 
 func (p *proxyValues) Set(value interface{}) error {

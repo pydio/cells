@@ -70,11 +70,15 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) error 
 			// Delete was there to prevent a merge - now done directly in the config lib
 			// config.Del(path...)
 		}
-		val.Set(parsed)
+		if err := val.Set(parsed); err != nil {
+			return err
+		}
 		if err := config.Save(ctx, u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
 			if original != nil {
-				val.Set(original)
+				if resetErr := val.Set(original); resetErr != nil {
+					log.Logger(ctx).Error("Put rollback", zap.Error(resetErr))
+				}
 			}
 			return err
 		}
