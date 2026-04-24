@@ -72,7 +72,6 @@ func (p *proxy) Val(path ...string) kv.Values {
 
 func wrapProxyValue(values kv.Values, store Store, path []string) kv.Values {
 	key := strings.Join(path, "/")
-	wrapped := false
 	pVal := &proxyValues{Values: values, store: store, path: path}
 
 	proxiesLocker.RLock()
@@ -80,18 +79,12 @@ func wrapProxyValue(values kv.Values, store Store, path []string) kv.Values {
 
 	if setter, ok := proxiesSetters[key]; ok {
 		pVal.setter = setter
-		wrapped = true
 	}
 	if getter, ok := proxiesGetters[key]; ok {
 		pVal.getter = getter
-		wrapped = true
 	}
 	if deleter, ok := proxiesDeleters[key]; ok {
 		pVal.deleter = deleter
-		wrapped = true
-	}
-	if wrapped || len(path) == 0 {
-		return pVal
 	}
 	return pVal
 }

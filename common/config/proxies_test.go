@@ -33,8 +33,10 @@ func TestProxySetterWithContextAndNestedVal(t *testing.T) {
 		store := newProxyTestStore("nested")
 
 		ctxValues := store.Context(context.Background())
-		So(ctxValues.Val("test").Val("proxy-nested").Set(blockedProxyTestValue), ShouldEqual, context.Canceled)
-		So(ctxValues.Val("test").Val("proxy-nested").Set("allowed"), ShouldBeNil)
+		intermediate := ctxValues.Val("test")
+		So(intermediate, ShouldHaveSameTypeAs, &proxyValues{})
+		So(intermediate.Val("proxy-nested").Set(blockedProxyTestValue), ShouldEqual, context.Canceled)
+		So(intermediate.Val("proxy-nested").Set("allowed"), ShouldBeNil)
 		So(store.Val("test", "proxy-nested").String(), ShouldEqual, "allowed")
 	})
 }
