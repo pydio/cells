@@ -12,7 +12,19 @@ const (
 	globalBinaryMaxSize = 5 * 1024 * 1024
 )
 
-// allowedBinaryTypes maps detected MIME types to file extensions for binary uploads.
+// allowedBinaryTypes defines the narrow allowlist for files uploaded via
+// FrontPutBinary and later served by FrontServeBinary/readBinary on the
+// /frontend/binaries/{BinaryType}/{Uuid} route.
+//
+// This route is used for browser-facing frontend binaries, notably:
+// - USER binaries for avatars/profile pictures
+// - GLOBAL binaries for frontend assets such as progressive backgrounds
+//   (see frontend/assets/gui.ajax/res/js/ui/ReactUI/withProgressiveBg.js)
+//
+// Keep this list restricted to browser-safe raster image formats. Do not broaden
+// it to match generic image processing support (for example the thumbnail job in
+// scheduler/jobs/grpc/defaults.go), because this path stores and serves content
+// directly to clients.
 var allowedBinaryTypes = map[string]string{
 	"image/png":    "png",
 	"image/jpeg":   "jpg",
