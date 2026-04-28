@@ -40,7 +40,6 @@ var Drivers = service.StorageDrivers{}
 type DAO interface {
 	resources.DAO
 	GetNamespaceDao() NamespaceDAO
-	// GetEntityValueDao() EntityValueDAO
 
 	Migrate(ctx context.Context) error
 	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)

@@ -91,7 +91,7 @@ func init() {
 							return err
 						}
 						// Migrate EntityDAO (Entities table)
-						entityDAO, err := manager.Resolve[meta.MetaEntityDAO](ctx, manager.WithName("meta-entities"))
+						entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 						if err != nil {
 							return err
 						}
@@ -99,7 +99,7 @@ func init() {
 							return err
 						}
 						// Migrate EntityValueDAO (EntityValues table and relations)
-						entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+						entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 						if err != nil {
 							return err
 						}
