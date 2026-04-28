@@ -43,8 +43,8 @@ var (
 )
 
 func init() {
-	meta.Drivers.Register(NewEntityDAO)
-	meta.Drivers.Register(NewEntityValueDAO)
+	meta.EntityDrivers.Register(NewEntityDAO)
+	meta.EntityValueDrivers.Register(NewEntityValueDAO)
 }
 
 func evTagError(err error) error {
@@ -120,14 +120,14 @@ func (s *evSqlImpl) Migrate(ctx context.Context) error {
 	return s.MigrateEV(ctx)
 }
 
-func NewEntityDAO(db *gorm.DB) meta.MetaEntityDAO {
+func NewEntityDAO(db *gorm.DB) meta.EntityDAO {
 	return &entitySqlImpl{
 		Abstract:     sql.NewAbstract(db),
 		resourcesDAO: resources2.NewDAO(db),
 	}
 }
 
-func NewEntityValueDAO(db *gorm.DB) meta.MetaEntityValueDAO {
+func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
 	return &evSqlImpl{
 		Abstract:     sql.NewAbstract(db),
 		resourcesDAO: resources2.NewDAO(db),

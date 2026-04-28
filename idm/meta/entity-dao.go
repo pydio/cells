@@ -34,13 +34,13 @@ import (
 
 var EntityDrivers = service.StorageDrivers{}
 
-// MetaEntityDAO interface for managing meta entities and their values
-type MetaEntityDAO interface {
+// EntityDAO interface for managing meta entities and their values
+type EntityDAO interface {
 	resources.DAO
 
 	MigrateEntity(ctx context.Context) error
 
-	// Entity operations
+	// CreateEntity Entity operations
 	CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error)
 	SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error)
 	GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error)

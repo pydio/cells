@@ -70,8 +70,8 @@ type sqlimpl struct {
 	*sql.Abstract
 	resourcesDAO
 	nsDAO          meta.NamespaceDAO
-	entityDAO      meta.MetaEntityDAO
-	entityValueDAO meta.MetaEntityValueDAO
+	entityDAO      meta.EntityDAO
+	entityValueDAO meta.EntityValueDAO
 }
 
 type Meta struct {

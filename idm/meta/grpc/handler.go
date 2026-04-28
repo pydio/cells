@@ -430,7 +430,7 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 }
 
 func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.MetaEntityValueResponse, error) {
-	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +446,7 @@ func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityVal
 }
 
 func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
-	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +460,7 @@ func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValues
 }
 
 func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
-	entityDAO, err := manager.Resolve[meta.MetaEntityDAO](ctx, manager.WithName("meta-entities"))
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 	if err != nil {
 		return nil, err
 	}
@@ -476,7 +476,7 @@ func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest
 }
 
 func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
-	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
@@ -492,7 +492,7 @@ func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityV
 }
 
 func (h *Handler) LinkMetaToEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
-	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
@@ -520,7 +520,7 @@ func (h *Handler) GetMetadata(ctx context.Context, req *idm.GetMetadataRequest) 
 }
 
 func (h *Handler) UnlinkMetaFromEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
-	entityValueDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
