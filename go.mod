@@ -18,12 +18,12 @@ require (
 	github.com/bep/debounce v1.2.1
 	github.com/blevesearch/bleve/v2 v2.5.7
 	github.com/blevesearch/bleve_index_api v1.3.2
+	github.com/boxes-ltd/imaging v1.7.5
 	github.com/bufbuild/protovalidate-go v0.8.0
 	github.com/caddyserver/caddy/v2 v2.11.2
 	github.com/caddyserver/certmagic v0.25.2
 	github.com/cskr/pubsub v1.0.2
 	github.com/disintegration/imageorient v0.0.0-20180920195336-8147d86e83ec
-	github.com/disintegration/imaging v1.6.2
 	github.com/dsoprea/go-exif/v3 v3.0.1
 	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20221012074422-4f3f7e934102
 	github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d
