@@ -209,6 +209,14 @@ ENVIRONMENT
 
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
+			if !runtime.GetBool(runtime.KeyForce) {
+				if err := copyConfigCheck.RunE(cmd, args); err == nil {
+					cmd.SilenceErrors = true
+					cmd.SilenceUsage = true
+
+					return errors.New("config already set. Use --force to bypass")
+				}
+			}
 
 			if err := config.SaveNewFromSample(ctx); err != nil {
 				return err
@@ -448,6 +456,8 @@ func init() {
 	flags.String(runtime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
 	flags.String(runtime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
 	flags.Bool(runtime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
+
+	flags.Bool(runtime.KeyForce, false, "Force the installation")
 
 	RootCmd.AddCommand(StartCmd)
 }

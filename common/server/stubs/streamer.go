@@ -106,8 +106,8 @@ func (cs *ClientServerStreamerCore) RecvMsg(m interface{}) error {
 
 type BidirServerStreamerCore struct {
 	ClientServerStreamerCore
-	ReqChan chan proto.Message
-	//closed  bool
+	ReqChan   chan proto.Message
+	reqClosed bool
 }
 
 func (bd *BidirServerStreamerCore) Init(ctx context.Context) {
@@ -119,10 +119,10 @@ func (bd *BidirServerStreamerCore) Init(ctx context.Context) {
 }
 
 func (bd *BidirServerStreamerCore) CloseSend() error {
-	if bd.closed {
+	if bd.reqClosed {
 		return nil
 	}
 	close(bd.ReqChan)
-	bd.closed = true
+	bd.reqClosed = true
 	return nil
 }

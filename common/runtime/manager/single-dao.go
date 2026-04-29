@@ -165,6 +165,7 @@ func DSNtoContextDAO(ctx context.Context, dsn []string, daoFunc any) (context.Co
 	if err := mgr.Bootstrap(b.String()); err != nil {
 		return nil, err
 	}
+	runtime.Clear("test")
 
 	ctx = mgr.Context()
 	ctx = propagator.With(ctx, service.ContextKey, svc)

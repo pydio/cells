@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -57,7 +58,7 @@ EXAMPLE
 		bindViperFlags(cmd.Flags())
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if configCheckURL == "" {
 			configCheckURL = runtime.ConfigURL()
 		}
@@ -66,17 +67,21 @@ EXAMPLE
 		} else {
 			configCheckURL += "?readOnly=true"
 		}
+
 		cmd.Println("Checking config at " + configCheckURL)
-		s, e := config.OpenStore(cmd.Context(), configCheckURL)
-		if e != nil {
-			cmd.Println(promptui.IconBad + " Cannot open config: " + e.Error())
-			os.Exit(1)
+		s, err := config.OpenStore(cmd.Context(), configCheckURL)
+		if err != nil {
+			cmd.Println(promptui.IconBad + " Cannot open config: " + err.Error())
+			return err
 		}
+
 		if s.Val("defaults", "datasource").String() == "" {
 			cmd.Println(promptui.IconBad + " No default datasource found")
-			os.Exit(1)
+			return errors.New("no default datasource found")
 		}
+
 		cmd.Println(promptui.IconGood + " Default datasource set. A config process has already been performed.")
+		return nil
 	},
 }
 

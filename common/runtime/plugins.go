@@ -64,3 +64,11 @@ func Init(ctx context.Context, typ string) {
 func LastInitType() string {
 	return lastInit
 }
+
+func Clear(typ string) {
+	innLock.Lock()
+	defer innLock.Unlock()
+	for _, t := range strings.Split(typ, ",") {
+		delete(initializers, t)
+	}
+}

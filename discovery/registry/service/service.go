@@ -6,58 +6,22 @@ import (
 	"net"
 	"sort"
 	"strconv"
-	"strings"
-	"sync/atomic"
 
-	cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
-	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
-	endpoint "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
-	listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
-	route "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
-	router "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/router/v3"
-	hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
-	http "github.com/envoyproxy/go-control-plane/envoy/extensions/upstreams/http/v3"
-	clusterservice "github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
-	discoveryservice "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
-	endpointservice "github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
-	listenerservice "github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
-	routeservice "github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
-	runtimeservice "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
-	secretservice "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
-	clientservice "github.com/envoyproxy/go-control-plane/envoy/service/status/v3"
-	matcherv3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
-	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
-	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
-	xds "github.com/envoyproxy/go-control-plane/pkg/server/v3"
-	test "github.com/envoyproxy/go-control-plane/pkg/test/v3"
-	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/xds/csds"
-	"google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	istioApiNetworking "istio.io/api/networking/v1alpha3"
 	istioNetworking "istio.io/client-go/pkg/apis/networking/v1beta1"
 	istioClient "istio.io/client-go/pkg/clientset/versioned"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/cache"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client"
-	clienthttp "github.com/pydio/cells/v5/common/client/http"
-	"github.com/pydio/cells/v5/common/config/routing"
 	pbregistry "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/runtime"
-	"github.com/pydio/cells/v5/common/server/generic"
 	"github.com/pydio/cells/v5/common/service"
-	"github.com/pydio/cells/v5/common/telemetry/log"
 	registry2 "github.com/pydio/cells/v5/discovery/registry"
 )
 
@@ -90,48 +54,48 @@ var istioRouteGVR = schema.GroupVersionResource{
 }
 
 func init() {
-	runtime.Register("discovery", func(ctx context.Context) {
-		service.NewService(
-			service.Name(common.ServiceGenericNamespace_+common.ServiceRegistry),
-			service.Context(ctx),
-			service.Tag(common.ServiceTagDiscovery),
-			service.Description("Grpc implementation of the registry"),
-			service.WithGeneric(func(ctx context.Context, srv *generic.Server) error {
-				// Create Kubernetes client
-				cfg, err := rest.InClusterConfig()
-				if err != nil {
-					return err
-				}
-
-				cli, err := dynamic.NewForConfig(cfg)
-				if err != nil {
-					return err
-				}
-
-				factory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(cli, 0, namespace, nil)
-
-				informer := factory.ForResource(istioRouteGVR).Informer()
-
-				informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-					AddFunc: func(obj interface{}) {
-						processIstioRoute(obj, cfg)
-					},
-					UpdateFunc: func(obj any, newObj any) {
-						processIstioRoute(newObj, cfg)
-					},
-				})
-
-				// Start informer
-				stopCh := make(chan struct{})
-				defer close(stopCh)
-				go informer.Run(stopCh)
-
-				// Keep running
-				select {}
-
-				return nil
-			}),
-		)
+	runtime.Register("main", func(ctx context.Context) {
+		//service.NewService(
+		//	service.Name(common.ServiceGenericNamespace_+common.ServiceRegistry),
+		//	service.Context(ctx),
+		//	service.Tag(common.ServiceTagDiscovery),
+		//	service.Description("Grpc implementation of the registry"),
+		//	service.WithGeneric(func(ctx context.Context, srv *generic.Server) error {
+		//		// Create Kubernetes client
+		//		cfg, err := rest.InClusterConfig()
+		//		if err != nil {
+		//			return err
+		//		}
+		//
+		//		cli, err := dynamic.NewForConfig(cfg)
+		//		if err != nil {
+		//			return err
+		//		}
+		//
+		//		factory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(cli, 0, namespace, nil)
+		//
+		//		informer := factory.ForResource(istioRouteGVR).Informer()
+		//
+		//		informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		//			AddFunc: func(obj interface{}) {
+		//				processIstioRoute(obj, cfg)
+		//			},
+		//			UpdateFunc: func(obj any, newObj any) {
+		//				processIstioRoute(newObj, cfg)
+		//			},
+		//		})
+		//
+		//		// Start informer
+		//		stopCh := make(chan struct{})
+		//		defer close(stopCh)
+		//		go informer.Run(stopCh)
+		//
+		//		// Keep running
+		//		select {}
+		//
+		//		return nil
+		//	}),
+		//)
 
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceRegistry),
@@ -148,7 +112,7 @@ func init() {
 				pbregistry.RegisterRegistryServer(srv, handler)
 
 				//signal := make(chan struct{})
-				cache := cachev3.NewSnapshotCache(false, cachev3.IDHash{}, log.Logger(runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceRegistry)).WithOptions(zap.IncreaseLevel(zap.ErrorLevel)))
+				/*cache := cachev3.NewSnapshotCache(false, cachev3.IDHash{}, log.Logger(runtime.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceRegistry)).WithOptions(zap.IncreaseLevel(zap.ErrorLevel)))
 
 				tcb := &test.Callbacks{Debug: true}
 				discoveryHandler := xds.NewServer(ctx, cache, tcb)
@@ -756,8 +720,9 @@ func init() {
 
 					return nil
 				})
-
+				*/
 				return nil
+
 			}),
 		)
 	})

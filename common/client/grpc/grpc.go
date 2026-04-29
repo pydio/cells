@@ -190,8 +190,11 @@ func (cc *clientConn) resolveConn(ctx context.Context) error {
 		return err
 	}
 
-	if len(connPoolItems) != 1 {
-		return errors.New("ResolveConn called with multiple services")
+	if len(connPoolItems) == 0 {
+		return errors.New("no connection pool found")
+	}
+	if len(connPoolItems) > 1 {
+		return errors.New("multiple connection pools found")
 	}
 
 	var pool *openurl.Pool[grpc.ClientConnInterface]
