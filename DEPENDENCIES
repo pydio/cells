@@ -73,7 +73,7 @@
  - github.com/dgraph-io/ristretto/z ([MIT](https://github.com/dgraph-io/ristretto/blob/v0.1.0/z/LICENSE))
  - github.com/dgryski/go-farm ([MIT](https://github.com/dgryski/go-farm/blob/a6ae2369ad13/LICENSE))
  - github.com/dgryski/go-rendezvous ([MIT](https://github.com/dgryski/go-rendezvous/blob/9f7001d12a5f/LICENSE))
- - github.com/disintegration/imaging ([MIT](https://github.com/disintegration/imaging/blob/v1.6.2/LICENSE))
+ - github.com/boxes-ltd/imaging ([MIT](https://github.com/boxes-ltd/imaging/blob/v1.7.5/LICENSE))
  - github.com/djherbis/atime ([MIT](https://github.com/djherbis/atime/blob/v1.0.0/LICENSE))
  - github.com/dlclark/regexp2 ([MIT](https://github.com/dlclark/regexp2/blob/v1.4.0/LICENSE))
  - github.com/doug-martin/goqu/v9 ([MIT](https://github.com/doug-martin/goqu/blob/v9.18.0/LICENSE))
