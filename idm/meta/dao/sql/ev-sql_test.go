@@ -54,12 +54,12 @@ var (
 )
 
 // Helper functions
-func createTestEntity(ctx context.Context, dao meta.MetaEntityDAO, label string) (*idm.MetaEntity, error) {
+func createTestEntity(ctx context.Context, dao meta.EntityDAO, label string) (*idm.MetaEntity, error) {
 	entity := &idm.MetaEntity{Label: label}
 	return dao.CreateEntity(ctx, entity)
 }
 
-func createTestEntityValue(ctx context.Context, dao meta.MetaEntityValueDAO, label, entityUuid string) (*idm.EntityValue, error) {
+func createTestEntityValue(ctx context.Context, dao meta.EntityValueDAO, label, entityUuid string) (*idm.EntityValue, error) {
 	value := &idm.EntityValue{
 		Label:      label,
 		EntityUuid: entityUuid,
@@ -77,11 +77,14 @@ func createTestMeta(ctx context.Context, metaDAO meta.DAO, nodeUuid, namespace s
 }
 
 func TestEntityCrud(t *testing.T) {
-	test.RunStorageTests(eTestcases, t, func(ctx context.Context) {
-		entityDAO, err := manager.Resolve[meta.MetaEntityDAO](ctx)
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		entityDAO := sqlDAO.entityDAO
+		// evDAO := sqlDAO.entityValueDAO
 
 		Convey("Create Entity", t, func() {
 			created, err := entityDAO.CreateEntity(ctx, fixtureEntityCity)
@@ -375,11 +378,13 @@ func TestDeleteOperations(t *testing.T) {
 }
 
 func TestValidation(t *testing.T) {
-	test.RunStorageTests(evTestcases, t, func(ctx context.Context) {
-		evDAO, err := manager.Resolve[meta.MetaEntityValueDAO](ctx)
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
 		if err != nil {
 			panic(err)
 		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		evDAO := sqlDAO.entityValueDAO
 
 		Convey("Link with Invalid UUIDs", t, func() {
 			_, err := evDAO.LinkMetaValue(ctx, "invalid-uuid", "valid-uuid")
