@@ -52,6 +52,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/std"
 
 	_ "embed"
+	_ "github.com/pydio/cells/v5/common/config/service"
 	_ "github.com/pydio/cells/v5/common/registry/service"
 )
 
@@ -416,12 +417,13 @@ func (m *model) renderButtons(i registry.Item) {
 
 func (m *model) initConfigView() {
 	if m.cfg == nil {
-		var err error
-		m.ctx, err = initManagerContext(m.ctx)
+		store, err := config.OpenStore(m.ctx, "grpc://")
 		if err != nil {
-			panic(err)
+			m.metaView.SetTitle("| Error |")
+			m.metaView.SetText("Cannot connect to config store: " + err.Error())
+			return
 		}
-		m.cfg = config.Get(m.ctx)
+		m.cfg = store.Val()
 		m.configsView.SetSelectedFunc(func(node *tview.TreeNode) {
 			node.SetExpanded(!node.IsExpanded())
 		})
@@ -591,7 +593,6 @@ DESCRIPTION
 				{main: "Nodes", secondary: "Main Processes", shortcut: 'a', it: pb.ItemType_NODE},
 				{main: "Services", secondary: "Cells Services", shortcut: 'b', it: pb.ItemType_SERVICE},
 				{main: "Servers", secondary: "Cells Servers", shortcut: 's', it: pb.ItemType_SERVER},
-				{main: "DAOs", secondary: "Data Stores", shortcut: 'd', it: pb.ItemType_DAO},
 				{main: "Listeners", secondary: "Bound Network Addresses", shortcut: 'e', it: pb.ItemType_ADDRESS},
 				{main: "Endpoints", secondary: "Registered API Endpoints", shortcut: 'f', it: pb.ItemType_ENDPOINT},
 				{main: "Tags", secondary: "Grouping Tags", shortcut: 'g', it: pb.ItemType_TAG},
