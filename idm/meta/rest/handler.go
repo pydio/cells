@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"path"
 	"slices"
 	"strings"
@@ -166,10 +165,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		// Use the helper to validate and get definition
 
 		definition, e := ns.UnmarshallDefinition()
-		fmt.Println(definition)
-		// fmt.Println(e)
 		if e != nil {
-			fmt.Println(ns.JsonDefinition)
 			return errors.WithMessagef(errors.UnmarshalError, "invalid json definition for namespace: %s, %v", ns.Namespace, e)
 		}
 		if input.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
