@@ -112,6 +112,7 @@ func (s *ConfigStub_NewLockerStreamer) Send(response *NewLockerResponse) error {
 	s.RespChan <- response
 	return nil
 }
-func (s *ConfigStub_NewLockerStreamer) SendAndClose(*NewLockerResponse) error {
+func (s *ConfigStub_NewLockerStreamer) SendAndClose(resp *NewLockerResponse) error {
+	s.RespChan <- resp
 	return nil
 }

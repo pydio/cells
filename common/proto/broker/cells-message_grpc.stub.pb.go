@@ -65,7 +65,8 @@ func (s *BrokerStub_PublishStreamer) Send(response *Empty) error {
 	s.RespChan <- response
 	return nil
 }
-func (s *BrokerStub_PublishStreamer) SendAndClose(*Empty) error {
+func (s *BrokerStub_PublishStreamer) SendAndClose(resp *Empty) error {
+	s.RespChan <- resp
 	return nil
 }
 
