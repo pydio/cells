@@ -77,8 +77,8 @@ func (*EntityValues) TableName(namer schema.Namer) string {
 }
 
 type MetaValuesRel struct {
-	MetaUUID   string `gorm:"primaryKey;column:meta_uuid;type:varchar(255);notNull"`
-	EValueUUID string `gorm:"primaryKey;column:e_value_uuid;type:varchar(255);notNull"`
+	MetaUUID   string `gorm:"primaryKey;column:meta_uuid;type:varchar(255);notNull;index:idx_meta_evalue,composite:meta_evalue"`
+	EValueUUID string `gorm:"primaryKey;column:e_value_uuid;type:varchar(255);notNull;index:idx_meta_evalue,composite:meta_evalue"`
 }
 
 func (*MetaValuesRel) TableName(namer schema.Namer) string {
