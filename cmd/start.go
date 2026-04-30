@@ -209,35 +209,37 @@ ENVIRONMENT
 
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
+
+			doInstall := true
 			if !runtime.GetBool(runtime.KeyForce) {
 				if err := copyConfigCheck.RunE(cmd, args); err == nil {
-					cmd.SilenceErrors = true
-					cmd.SilenceUsage = true
-
-					return errors.New("config already set. Use --force to bypass")
+					log.Logger(ctx).Warn("Config already set, skipping install. Use --force to force install")
+					doInstall = false
 				}
 			}
 
-			if err := config.SaveNewFromSample(ctx); err != nil {
-				return err
-			}
+			if doInstall {
+				if err := config.SaveNewFromSample(ctx); err != nil {
+					return err
+				}
 
-			installConf, err = nonInteractiveInstall(ctx)
-			fatalIfError(cmd, err)
+				installConf, err = nonInteractiveInstall(ctx)
+				fatalIfError(cmd, err)
 
-			// we only non-interactively configured the proxy, launching browser install
-			// make sure default bind is set here
-			proxyConf = installConf.GetProxyConfig()
-			if len(proxyConf.Binds) == 0 {
-				fatalIfError(cmd, errors.New("no bind was found in default site, non interactive install probably has a wrong format"))
-			}
+				// we only non-interactively configured the proxy, launching browser install
+				// make sure default bind is set here
+				proxyConf = installConf.GetProxyConfig()
+				if len(proxyConf.Binds) == 0 {
+					fatalIfError(cmd, errors.New("no bind was found in default site, non interactive install probably has a wrong format"))
+				}
 
-			if niExitAfterInstall {
-				<-time.After(time.Second)
-				cmd.Println("")
-				cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
-				cmd.Println("")
-				os.Exit(0)
+				if niExitAfterInstall {
+					<-time.After(time.Second)
+					cmd.Println("")
+					cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
+					cmd.Println("")
+					os.Exit(0)
+				}
 			}
 
 		} else {
