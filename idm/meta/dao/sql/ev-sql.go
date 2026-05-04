@@ -98,7 +98,6 @@ func (s *evSqlImpl) MigrateEV(ctx context.Context) error {
 	return nil
 }
 
-// Move this to entitySqlImpl
 func (s *entitySqlImpl) MigrateEntity(ctx context.Context) error {
 	if err := s.Session(ctx).AutoMigrate(&Entities{}); err != nil {
 		return err
@@ -110,12 +109,12 @@ func (s *entitySqlImpl) MigrateEntity(ctx context.Context) error {
 	return nil
 }
 
-// Add explicit Migrate for entitySqlImpl to resolve ambiguity
+// Migrate Add explicit Migrate for entitySqlImpl to resolve ambiguity
 func (s *entitySqlImpl) Migrate(ctx context.Context) error {
 	return s.MigrateEntity(ctx)
 }
 
-// Add explicit Migrate for evSqlImpl to resolve ambiguity
+// Migrate Add explicit Migrate for evSqlImpl to resolve ambiguity
 func (s *evSqlImpl) Migrate(ctx context.Context) error {
 	return s.MigrateEV(ctx)
 }
@@ -137,7 +136,6 @@ func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
 type entitySqlImpl struct {
 	*sql.Abstract
 	resourcesDAO
-	// entityDAO meta.MetaEntityDAO
 }
 
 type evSqlImpl struct {
@@ -153,6 +151,7 @@ func (s *evSqlImpl) Migrate(ctx context.Context) error {
 	return db.AutoMigrate(&Entities{}, &EntityValues{})
 }
 
+// AsEntity converts an Entities model to an idm.MetaEntity
 func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 	res.Uuid = u.UUID
 	res.Label = u.Label
@@ -161,6 +160,7 @@ func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 	return res
 }
 
+// FromEntity populates an Entities model from an idm.MetaEntity
 func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 	if u.UUID == "" {
 		u.UUID = uuid.New().String()
@@ -219,6 +219,7 @@ func (s *entitySqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.
 	return model.AsEntity(&idm.MetaEntity{}), nil
 }
 
+// AsEntityValue converts an EntityValues model to an idm.EntityValue
 func (u *EntityValues) AsEntityValue(res *idm.EntityValue) *idm.EntityValue {
 	res.Uuid = u.UUID
 	res.Label = u.Label
@@ -230,6 +231,7 @@ func (u *EntityValues) AsEntityValue(res *idm.EntityValue) *idm.EntityValue {
 	return res
 }
 
+// FromEntityValue populates an EntityValues model from an idm.EntityValue
 func (u *EntityValues) FromEntityValue(res *idm.EntityValue) *EntityValues {
 	u.UUID = uuid.New().String()
 	u.Label = res.Label
