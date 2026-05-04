@@ -155,7 +155,8 @@ func (w *watcher[T]) Flush() {
 
 func (w *watcher[T]) Watch(opts ...WatchOption) (Receiver, error) {
 	w.snapInitOnce.Do(func() {
-		w.snap = w.object.Clone()
+		clone := w.object.Clone()
+		w.snap = clone.Get()
 	})
 
 	r, err := newReceiver("watcher ", opts...)
