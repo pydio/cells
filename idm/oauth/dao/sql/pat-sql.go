@@ -156,12 +156,16 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
 	if update {
 		tx := s.instance().
-			Model(&PersonalToken{}).
 			Where(&PersonalToken{UUID: token.Uuid}).
-			Update("expire_at", token.ExpiresAt).
-			Update("updated_at", time.Now().Unix())
+			Updates(map[string]any{
+				"expire_at":  token.ExpiresAt,
+				"updated_at": time.Now().Unix(),
+			})
 		if tx.Error != nil {
 			return tx.Error
+		}
+		if tx.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
 		}
 		return nil
 	} else {
