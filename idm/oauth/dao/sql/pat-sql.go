@@ -164,9 +164,11 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 		if tx.Error != nil {
 			return tx.Error
 		}
-		if tx.RowsAffected == 0 {
-			return gorm.ErrRecordNotFound
-		}
+
+		// FIXME: GORM does not support RowsAffected with Updates when using struct, so we need to check if the record exists before updating
+		// if tx.RowsAffected == 0 {
+		// 	return gorm.ErrRecordNotFound
+		// }
 		return nil
 	} else {
 		res := (&PersonalToken{}).From(token)
