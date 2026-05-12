@@ -942,22 +942,22 @@
     "other": "Feldvalidierung"
   },
   "metadata.validation.max-length.gte-min-length": {
-    "other": "Maximum length must be greater than or equal to minimum length"
+    "other": "Maximale Länge muss größer oder gleich der minimalen Länge sein"
   },
   "metadata.validation.max-value.gte-min-value": {
-    "other": "Maximum value must be greater than or equal to minimum value"
+    "other": "Maximaler Wert muss größer oder gleich dem Minimalwert sein"
   },
   "metadata.validation.default-length.min": {
-    "other": "Default value length (%s) must be at least %s characters"
+    "other": "Standardwertlänge (%s) muss mindestens %s Zeichen lang sein"
   },
   "metadata.validation.default-length.max": {
-    "other": "Default value length (%s) must not exceed %s characters"
+    "other": "Standardwert-Länge (%s) darf nicht %s Zeichen überschreiten"
   },
   "metadata.validation.default-value.min": {
-    "other": "Default value (%s) must be at least %s"
+    "other": "Standardwert (%s) muss mindestens %s sein"
   },
   "metadata.validation.default-value.max": {
-    "other": "Default value (%s) must not exceed %s"
+    "other": "Standardwert (%s) darf nicht %s überschreiten"
   },
   "metadata.editor.selection.key_exists": {
     "other": "Der Schlüssel existiert bereits"
@@ -966,10 +966,10 @@
     "other": "Erforderlich"
   },
   "metadata.boolean.yes": {
-    "other": "Yes"
+    "other": "Ja"
   },
   "metadata.boolean.no": {
-    "other": "No"
+    "other": "Nein"
   },
   "metadata.toggle.defaults": {
     "other": "Standard erzwingen"
