@@ -198,36 +198,36 @@
     "other": "Barre de progression"
   },
   "validation.required": {
-    "other": "This field is required."
+    "other": "Ce champ est obligatoire."
   },
   "validation.type": {
-    "other": "Invalid type, expected {type}."
+    "other": "Type invalide, {type} attendu."
   },
   "validation.minLength": {
-    "other": "Must contain at least {limit} characters."
+    "other": "Doit contenir au moins {limit} caractères."
   },
   "validation.maxLength": {
-    "other": "Must contain no more than {limit} characters."
+    "other": "Ne doit pas contenir plus de {limit} caractères."
   },
   "validation.minimum": {
-    "other": "Must be {comparison} {limit}."
+    "other": "Doit être {comparison} {limit}."
   },
   "validation.maximum": {
-    "other": "Must be {comparison} {limit}."
+    "other": "Doit être {comparison} {limit}."
   },
   "validation.pattern": {
-    "other": "Value does not match expected pattern."
+    "other": "La valeur ne correspond pas au pattern attendu."
   },
   "validation.enum": {
-    "other": "Must be one of: {allowedValues}."
+    "other": "Doit être compris dans : {allowedValues}."
   },
   "validation.additionalProperties": {
-    "other": "Property {additionalProperty} is not allowed."
+    "other": "La propriété {additionalProperty} n'est pas autorisée."
   },
   "validation.format.email": {
-    "other": "Invalid email format."
+    "other": "Format d'e-mail invalide."
   },
   "validation.format.default": {
-    "other": "Invalid format: {format}."
+    "other": "Format invalide : {format}."
   }
 }
