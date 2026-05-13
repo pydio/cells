@@ -1,36 +1,63 @@
-# Changes between v4.9.94-alpha01 and v4.9.94-alpha02
+# Changes between v4.9.94-alpha02 and v4.9.95-alpha01
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.9.94-alpha01...v4.9.94-alpha02)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.9.94-alpha02...v4.9.95-alpha01)
 
-- [#8f6b2d0](https://github.com/pydio/cells/commit/8f6b2d03bb002467f52b26b56ad8371dd6d2907c): fix(metadata): datetime validation errors (#884)
-- [#029d6d5](https://github.com/pydio/cells/commit/029d6d56169f54fe7a1bcf652ac09df5db3e0719): chore: modifying helm chart
-- [#b43b7f9](https://github.com/pydio/cells/commit/b43b7f96aea34f2d4a4d03e10b8a5b23a1f281c1): feat: more i18n messages
-- [#1b8ec86](https://github.com/pydio/cells/commit/1b8ec8624a684cc057677f212e95d25062edc219): chore: helm chart version
-- [#08408ce](https://github.com/pydio/cells/commit/08408cecbec938a90d8d5cfceccc892db285204d): chore: modifying helm chart
-- [#263c1b7](https://github.com/pydio/cells/commit/263c1b713a5ed72a954828a561621647c7d8ccf7): refactor(i18n): deduplicate group headings using type keys (#876)
-- [#ccc7a40](https://github.com/pydio/cells/commit/ccc7a40ba1146db0539f0d9b212f6b76a3f21103): build(deps): bump google.golang.org/grpc from 1.79.2 to 1.79.3 (#875)
-- [#041b59f](https://github.com/pydio/cells/commit/041b59fe51c4a047806c4270386800339800a445): build(deps): bump google.golang.org/grpc in /cmd/cells-fuse (#881)
-- [#5e811bf](https://github.com/pydio/cells/commit/5e811bf37b3081fde789c9731a4a55768ae27240): build(deps): bump github.com/smallstep/certificates (#877)
-- [#361a5ec](https://github.com/pydio/cells/commit/361a5ec505ef81e6d6918a255e4e4598039ab857): fix(gui.ajax): Regenerate core libs after sdk update (#880)
-- [#b6cc9b9](https://github.com/pydio/cells/commit/b6cc9b92c1d6d424f369cb67914feba901a27b08): fix(idm): Rename duplicate enum UserMetaOp (#879)
-- [#f080229](https://github.com/pydio/cells/commit/f0802296f0e64d0c1da28a23aa0abf2ad1fab7cf): feat(i18n): localize validation error messages (#872)
-- [#4e434b3](https://github.com/pydio/cells/commit/4e434b38ba651430a43332cfd7d29462a789077d): feat(i18n): add translations for search and admin metadata (#870)
-- [#44ccd08](https://github.com/pydio/cells/commit/44ccd08a7a624a968b26759261bca3c1ae18967a): feat(metadata): prefill schema defaults on initial load for PTU (#869)
-- [#46ea3d8](https://github.com/pydio/cells/commit/46ea3d89cd21fe5b4f17fc03785d6162d68ccccd): A few more messages + DE/FR translation
-- [#b4b9dfe](https://github.com/pydio/cells/commit/b4b9dfea8ca426dd88b07ce7c4c3e30875397630): chore(deps): update cells-fuse gomod
-- [#e76b393](https://github.com/pydio/cells/commit/e76b393d0b0902e9036fa4587c1000d9747f744a): chore(deps): update a bunch of deps in gomod
-- [#d8a9ff5](https://github.com/pydio/cells/commit/d8a9ff5fd5d46227467fbf2c5672171aef719890): fix(pages): i18n and modal search polishing
-- [#774793b](https://github.com/pydio/cells/commit/774793b91d6161f74bec442e2a7e236f2ef57145): feat(metadata): validation flow and info panel save button UX (#866)
-- [#20a53dc](https://github.com/pydio/cells/commit/20a53dceec09f8fa3dfd27b66bef0c7a4df86690): new messages + DE/FR translation
-- [#356ae31](https://github.com/pydio/cells/commit/356ae317550ee264135cc7e9646d82d313cf7e84): fix(migration): fix PaT migration issues (re-enable unit tests for MySQL/PG), Policies migration issues
-- [#6056551](https://github.com/pydio/cells/commit/6056551641cbcb5651da9cd44099575ae6faa5d7): fix(metadata): adds edit/display behavior for datetime fields (#863)
-- [#01427cf](https://github.com/pydio/cells/commit/01427cfccde970382b18661999a1e23efe10707f): build: next development cycle
-- [#88844ea](https://github.com/pydio/cells/commit/88844ea2e6d62230f97c59d27cf4942c066db232): feat(metadata): behaviour for the edit/display mode infopanel (#862)
-- [#fa2e6c7](https://github.com/pydio/cells/commit/fa2e6c718a782a66a79fe5ddbcb32dd6c29f7b24): refactor: remove requestToClose in favor of the onCommitClose (#859)
-- [#4ea9446](https://github.com/pydio/cells/commit/4ea944619c68f6bc1c83cf19445384bc7dfb48c0): feat(metadata): add togglable fields with focus-based editing (#858)
-- [#6f8e725](https://github.com/pydio/cells/commit/6f8e7251fb9bc380b9d6fc88081418f8ea80bf26): fix(metadata): validation flow in multiple and single file tagging (#856)
-- [#e218b39](https://github.com/pydio/cells/commit/e218b39c5f1c99e4283a6f9dcd4700f0e94994ba): fix(i18n): extract i18n strings for Pages
-- [#a87e380](https://github.com/pydio/cells/commit/a87e3808564bd6c6d176449375d507cc07550a4b): fix(metadata): remove setFields action and fix form state handling (#855)
-- [#4b0d755](https://github.com/pydio/cells/commit/4b0d75554e6711877a820310197a60f2aee41331): feat(WPB-23537): UX for popover file tagging (#853)
-- [#f0a692a](https://github.com/pydio/cells/commit/f0a692acd3296d67731abe7f334631b75aa2c19b): fix(namespace): Fix where clause in Del method (#854)
-- [#f07a604](https://github.com/pydio/cells/commit/f07a604b9a7c7938611d4e0a0766a869aa792064): fix(search): Fix failing indexer search for Mongo storage (#852)
+- [#4594ef2](https://github.com/pydio/cells/commit/4594ef2f0671356e23287e6da5a5886e907c7d90): chore: making sure error is being caught in personal token
+- [#2c05f5a](https://github.com/pydio/cells/commit/2c05f5af64afc66c50ebf74f2752fd52bc3664a6): fix: telemetry breaking with multiple gcloud brokers
+- [#632ef5e](https://github.com/pydio/cells/commit/632ef5e90fd6605457647ca16968a6689f20b4d4): fix: race condition in handler-mock
+- [#e5475da](https://github.com/pydio/cells/commit/e5475da225ebf62fed9d1ce76969c819701179aa): fix: registry race condition
+- [#7789072](https://github.com/pydio/cells/commit/77890727baf3a1405f4c33ab994068c915e8c535): fix: unit tests stub resp chan and nodes encryption channel closing
+- [#cb2336a](https://github.com/pydio/cells/commit/cb2336a048cdc38a6f5534a461633194d58380bb): fix: forcing reinstall
+- [#7102862](https://github.com/pydio/cells/commit/7102862f1764dac071635f99aec3ac7448272a35): fix: cells ctl config
+- [#9586dd7](https://github.com/pydio/cells/commit/9586dd7f4d7066fb92dfb40eba12bcb6510512fb): fix(deps): switch imaging to maintained fork (#923)
+- [#9b4343d](https://github.com/pydio/cells/commit/9b4343de2b606103140332175d7334dc67074eec): fix: cells ctl and install start
+- [#07c8966](https://github.com/pydio/cells/commit/07c896649d2dfe4dad196439753c2e6d6a32676c): fix: cells ctl and install start
+- [#25dd711](https://github.com/pydio/cells/commit/25dd711e84b992c01d6ff5ff6f476ea7bcb50158): fix: WPB-19707 block unsafe forgot password external links (#913)
+- [#f57b8d1](https://github.com/pydio/cells/commit/f57b8d1cb58e111a8e94e3ea33399fee278b2f6d): fix: grpcpubsub ready state
+- [#352158f](https://github.com/pydio/cells/commit/352158f780c2b72ae98f04a8a318808d556fc1dc): fix: escape dots in MariaDB 10.1 version regex (#903)
+- [#9e1a6a0](https://github.com/pydio/cells/commit/9e1a6a04e3cba29b32fdb73d739b53bc5ddd7c46): fix(idm): WPB-19705 enforce read authorization on GetCell endpoint (#906)
+- [#f249b0f](https://github.com/pydio/cells/commit/f249b0f33b8db8d13dce6495594d85e44df874d9): fix(namespace) Default namespace read policy logic (#899)
+- [#64abb37](https://github.com/pydio/cells/commit/64abb3765109f630c7c6ee0e3bf4d39177668205): feat(search): debounced search on change for text-based fields (#868)
+- [#1009bdc](https://github.com/pydio/cells/commit/1009bdc383cf18171c639a34443c42d5a63c8273): build(deps): bump github.com/jackc/pgx/v5 from 5.9.0 to 5.9.2 (#918)
+- [#dfa693c](https://github.com/pydio/cells/commit/dfa693c566b6bafb90dab107860401c7494c1931): deployment: add openshift deployment (#894)
+- [#7f76c3e](https://github.com/pydio/cells/commit/7f76c3e8406f7c8acd8dd3cfea4c8db4ee57a6e3): feat(scheduler): expand capture action to support full tree loading and chroot path
+- [#72efdda](https://github.com/pydio/cells/commit/72efddaa60526d926c2420ffb905f2f0ec9bca45): feat(scheduler): add more features to bolt snapshot
+- [#5b0efee](https://github.com/pydio/cells/commit/5b0efeef39815029a54150b1ca3b7e7c6aa2fe97): fix: unit tests
+- [#b4a5e7c](https://github.com/pydio/cells/commit/b4a5e7cbdae6237377e12dc489a5e18599906546): chore: toolchain
+- [#60ccf42](https://github.com/pydio/cells/commit/60ccf4236c5fd472b124968915084e0a30ae0204): fix: unit test
+- [#711d40d](https://github.com/pydio/cells/commit/711d40da42e97a4ccc13a7f8b2afa082a4b3bfdd): chore: fusion
+- [#546c4fa](https://github.com/pydio/cells/commit/546c4fa834a995926386a3e77283bc75e4556797): fix: assets
+- [#e0355ab](https://github.com/pydio/cells/commit/e0355ab6542fe028e5ff91e461c94fd4c6fcff80): build(deps): bump axios from 1.13.5 to 1.15.0 in /frontend/assets (#898)
+- [#dd73841](https://github.com/pydio/cells/commit/dd738413e43ca6c35ad575626a495829d135ca7a): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp (#891)
+- [#399da07](https://github.com/pydio/cells/commit/399da07a72af1f1a519f792ca5d6f85cef05eeda): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp (#890)
+- [#12f1662](https://github.com/pydio/cells/commit/12f16629bcef3c855d0c07ba82d1489811674460): build(deps): bump github.com/go-jose/go-jose/v4 in /cmd/cells-fuse (#889)
+- [#4c580b5](https://github.com/pydio/cells/commit/4c580b5ee84aba1a903cc08b9d211374ded52f6a): build(deps): bump github.com/go-jose/go-jose/v3 from 3.0.4 to 3.0.5 (#888)
+- [#e11fe6e](https://github.com/pydio/cells/commit/e11fe6e0525d8fdfca838e83b2c574bd6ab4b6eb): fix: WPB-23974 Restrict /frontend/enroll access for shared link users (#901)
+- [#c4fe9fe](https://github.com/pydio/cells/commit/c4fe9feb007e244ff3da16345e7b4ebc0e1d21c5): build(deps): bump github.com/go-jose/go-jose/v4 from 4.1.3 to 4.1.4 (#887)
+- [#425a764](https://github.com/pydio/cells/commit/425a7642b2e131c53ececf22535d72046f34b9e5): build(deps): bump golang.org/x/image from 0.36.0 to 0.38.0 (#886)
+- [#8fca06c](https://github.com/pydio/cells/commit/8fca06c2ce7639ce9a92e1423c46abeaeb0b15b5): chore(deps): bump lodash from 4.17.21 to 4.17.23 in /frontend/assets (#793)
+- [#93ad1c5](https://github.com/pydio/cells/commit/93ad1c5e721402158c4709177bf6df8b1545a071): feat(broker): Implement file system pubsub broker (#883)
+- [#2f266b5](https://github.com/pydio/cells/commit/2f266b5b1654567816e2d8846831f3f3f6720a92): Revert "build(deps): bump buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go (#671)"
+- [#bf00bc2](https://github.com/pydio/cells/commit/bf00bc212aa5944ac5cec348ea09b7fdf9e130a6): build(deps): bump buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go (#671)
+- [#8e685f8](https://github.com/pydio/cells/commit/8e685f841c08e2131f8adc90888e68a97ce8eb05): build(deps): bump github.com/sendgrid/sendgrid-go (#670)
+- [#9696ba3](https://github.com/pydio/cells/commit/9696ba37ec420f6e0113b4e4f0f8ff82757359a9): build(deps): bump github.com/schollz/progressbar/v3 (#667)
+- [#757c7c6](https://github.com/pydio/cells/commit/757c7c68bdef7f74fe0bbeccfc85b4e424a514ca): build(deps): bump github.com/rivo/tview (#666)
+- [#b49aac2](https://github.com/pydio/cells/commit/b49aac297410ef3c69fa3adf2021326fcc8c800a): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp (#892)
+- [#0447cbc](https://github.com/pydio/cells/commit/0447cbcf5b57a0dbd3395537658f5f86ce85d9b5): build(deps): bump go.opentelemetry.io/otel/sdk in /cmd/cells-fuse (#900)
+- [#036b246](https://github.com/pydio/cells/commit/036b2467ee0e682560949f44a4206a9bb71c6f6d): build(deps): bump github.com/jackc/pgx/v5 from 5.8.0 to 5.9.0 (#905)
+- [#4edbe15](https://github.com/pydio/cells/commit/4edbe152fd32a03feba8a7e74be9d6e9159c027e): test(sessions): reset SameSite config baseline to avoid state leakage (#904)
+- [#fd84be0](https://github.com/pydio/cells/commit/fd84be0e46a4874cee75cb45c656ffefa3f90349): fix(idm): WPB-19704 enforce read authorization on role endpoint (#902)
+- [#6e4f1c8](https://github.com/pydio/cells/commit/6e4f1c8fe2c26bfc541377f8ddde0fe5e8ed332a): fix: add SameSite=Strict to frontend session cookies (#895)
+- [#54a7488](https://github.com/pydio/cells/commit/54a74888d2fb2c70ad44da60a5bdd1e9d3abaf85): fix: go mod update
+- [#bf4a073](https://github.com/pydio/cells/commit/bf4a07315bbf7aa5de205b7250978a58912383ee): fix: build
+- [#c09ee6f](https://github.com/pydio/cells/commit/c09ee6fb88aa89737db07fff2767420bcb09a272): chore: update go.mod and go.sum to latest version (#897)
+- [#35a0e72](https://github.com/pydio/cells/commit/35a0e723e7c34843ac3467d7d0b12badeaf4ea93): fix: remove unused plugin reload header check from FrontPlugins endpoint (#896)
+- [#70812a7](https://github.com/pydio/cells/commit/70812a79d96a8366e697a60eb1631e093f987715): fix: admin command
+- [#efc46f9](https://github.com/pydio/cells/commit/efc46f9f997a26bc18e8947f2389a9e0c318fbbf): fix: using a default bootstrap
+- [#a3e8267](https://github.com/pydio/cells/commit/a3e8267e4d44c352586c82bd91ba01b9c59383a1): chore: fix standardize start.yaml
+- [#2c07248](https://github.com/pydio/cells/commit/2c072486a5a6334c77dbaeaf0b394bd441dce1c9): chore: update go 1.26.1 and standardize start.yaml
+- [#478c04d](https://github.com/pydio/cells/commit/478c04db80d9b8c5e123e22e62b8b26a1370e135): chore: WPB-24442 format `meta.user` plugin code (#885)
+- [#3d3f7be](https://github.com/pydio/cells/commit/3d3f7be15593bccbb960a5f4ab60e8949401e743): chore: command functions usage
+- [#d1769f5](https://github.com/pydio/cells/commit/d1769f5a2a1188c1992cd36f7c99137feedf6316): fix: Migrating only services to start
+- [#9bebe26](https://github.com/pydio/cells/commit/9bebe26ae32678aee30ecf05fa8eaac5fdaa42d6): chore: modifying helm chart
+- [#3ade3a2](https://github.com/pydio/cells/commit/3ade3a2b7ba59699630d2f71b023a7b9b96ee900): chore: modifying helm chart
