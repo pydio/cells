@@ -97,6 +97,7 @@ func (diff *TreeDiff) Compute(ctx context.Context, root string, lock chan bool, 
 	lTree := NewTree()
 	rTree := NewTree()
 	var errs []error
+	errLock := &sync.Mutex{}
 	wg := &sync.WaitGroup{}
 
 	for _, k := range []string{"left", "right"} {
@@ -127,7 +128,9 @@ func (diff *TreeDiff) Compute(ctx context.Context, root string, lock chan bool, 
 			}
 
 			if err != nil {
+				errLock.Lock()
 				errs = append(errs, err)
+				errLock.Unlock()
 			}
 		}(k)
 	}

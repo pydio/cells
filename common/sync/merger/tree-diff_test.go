@@ -28,6 +28,7 @@ import (
 	"github.com/gobwas/glob"
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/model"
@@ -796,4 +797,39 @@ func TestTreeNodeFromSourceWithMeta(t *testing.T) {
 
 	})
 
+}
+
+type walkErrorSource struct {
+	uri string
+}
+
+func (w *walkErrorSource) GetEndpointInfo() model.EndpointInfo {
+	return model.EndpointInfo{URI: w.uri}
+}
+
+func (w *walkErrorSource) LoadNode(ctx context.Context, path string, extendedStats ...bool) (tree.N, error) {
+	return tree.LightNode(tree.NodeType_COLLECTION, "", "/", "-1", 0, 0, 0), nil
+}
+
+func (w *walkErrorSource) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) error {
+	return errors.New("walk error on " + w.uri)
+}
+
+func (w *walkErrorSource) Watch(ctx context.Context, recursivePath string) (*model.WatchObject, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+
+func TestTreeDiffComputeConcurrentErrorsRace(t *testing.T) {
+	Convey("Test Tree Diff Compute with concurrent errors", t, func() {
+		ctx := context.Background()
+
+		for i := 0; i < 200; i++ {
+			left := &walkErrorSource{uri: "left://ep"}
+			right := &walkErrorSource{uri: "right://ep"}
+			diff := newTreeDiff(left, right)
+
+			err := diff.Compute(ctx, "/", nil, nil)
+			So(err, ShouldNotBeNil)
+		}
+	})
 }
