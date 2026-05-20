@@ -1,0 +1,31 @@
+{{- $envoyFilter := .Values.externalGrpcAuthzMiddleware | default dict -}}
+{{- $enabled := $envoyFilter.enabled | default false -}}
+{{- $grpcClusterName := dig "extAuthz" "grpcService" "clusterName" "" $envoyFilter -}}
+{{- $configPatches := $envoyFilter.configPatches | default list -}}
+{{- if and $enabled (ne $grpcClusterName "") (gt (len $configPatches) 0) }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ $envoyFilter.name | default "cells-wire-authz" | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or $envoyFilter.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- if $envoyFilter.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $envoyFilter.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  {{- if $envoyFilter.workloadSelector }}
+  workloadSelector:
+    {{- include "common.tplvalues.render" ( dict "value" $envoyFilter.workloadSelector "context" $ ) | nindent 4 }}
+  {{- end }}
+  configPatches:
+    {{- include "common.tplvalues.render" ( dict "value" $configPatches "context" $ ) | nindent 4 }}
+{{- end }}

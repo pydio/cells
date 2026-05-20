@@ -52,8 +52,7 @@ func init() {
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	conn := cgrpc.ResolveConn(ctx, common.ServiceRegistryGRPC)
-
-	return NewRegistry(WithConn(conn))
+	return NewRegistry(WithContext(ctx), WithConn(conn))
 }
 
 type serviceRegistry struct {

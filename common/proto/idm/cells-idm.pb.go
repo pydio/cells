@@ -332,49 +332,49 @@ func (UpdateUserMetaRequest_UserMetaOp) EnumDescriptor() ([]byte, []int) {
 	return file_cells_idm_proto_rawDescGZIP(), []int{57, 0}
 }
 
-type UpdateUserMetaEvent_UserMetaOp int32
+type UpdateUserMetaEvent_UserMetaOpEvent int32
 
 const (
-	UpdateUserMetaEvent_PUT    UpdateUserMetaEvent_UserMetaOp = 0
-	UpdateUserMetaEvent_DELETE UpdateUserMetaEvent_UserMetaOp = 1
+	UpdateUserMetaEvent_PUT    UpdateUserMetaEvent_UserMetaOpEvent = 0
+	UpdateUserMetaEvent_DELETE UpdateUserMetaEvent_UserMetaOpEvent = 1
 )
 
-// Enum value maps for UpdateUserMetaEvent_UserMetaOp.
+// Enum value maps for UpdateUserMetaEvent_UserMetaOpEvent.
 var (
-	UpdateUserMetaEvent_UserMetaOp_name = map[int32]string{
+	UpdateUserMetaEvent_UserMetaOpEvent_name = map[int32]string{
 		0: "PUT",
 		1: "DELETE",
 	}
-	UpdateUserMetaEvent_UserMetaOp_value = map[string]int32{
+	UpdateUserMetaEvent_UserMetaOpEvent_value = map[string]int32{
 		"PUT":    0,
 		"DELETE": 1,
 	}
 )
 
-func (x UpdateUserMetaEvent_UserMetaOp) Enum() *UpdateUserMetaEvent_UserMetaOp {
-	p := new(UpdateUserMetaEvent_UserMetaOp)
+func (x UpdateUserMetaEvent_UserMetaOpEvent) Enum() *UpdateUserMetaEvent_UserMetaOpEvent {
+	p := new(UpdateUserMetaEvent_UserMetaOpEvent)
 	*p = x
 	return p
 }
 
-func (x UpdateUserMetaEvent_UserMetaOp) String() string {
+func (x UpdateUserMetaEvent_UserMetaOpEvent) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (UpdateUserMetaEvent_UserMetaOp) Descriptor() protoreflect.EnumDescriptor {
+func (UpdateUserMetaEvent_UserMetaOpEvent) Descriptor() protoreflect.EnumDescriptor {
 	return file_cells_idm_proto_enumTypes[6].Descriptor()
 }
 
-func (UpdateUserMetaEvent_UserMetaOp) Type() protoreflect.EnumType {
+func (UpdateUserMetaEvent_UserMetaOpEvent) Type() protoreflect.EnumType {
 	return &file_cells_idm_proto_enumTypes[6]
 }
 
-func (x UpdateUserMetaEvent_UserMetaOp) Number() protoreflect.EnumNumber {
+func (x UpdateUserMetaEvent_UserMetaOpEvent) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use UpdateUserMetaEvent_UserMetaOp.Descriptor instead.
-func (UpdateUserMetaEvent_UserMetaOp) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use UpdateUserMetaEvent_UserMetaOpEvent.Descriptor instead.
+func (UpdateUserMetaEvent_UserMetaOpEvent) EnumDescriptor() ([]byte, []int) {
 	return file_cells_idm_proto_rawDescGZIP(), []int{59, 0}
 }
 
@@ -4014,7 +4014,7 @@ type UpdateUserMetaEvent struct {
 	// Contextual metadata / headers
 	EventMetadata map[string]string `protobuf:"bytes,1,rep,name=EventMetadata,proto3" json:"EventMetadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Type of operation to apply (PUT / DELETE)
-	Operation UpdateUserMetaEvent_UserMetaOp `protobuf:"varint,2,opt,name=Operation,proto3,enum=idm.UpdateUserMetaEvent_UserMetaOp" json:"Operation,omitempty"`
+	Operation UpdateUserMetaEvent_UserMetaOpEvent `protobuf:"varint,2,opt,name=Operation,proto3,enum=idm.UpdateUserMetaEvent_UserMetaOpEvent" json:"Operation,omitempty"`
 	// Metadata to update or delete
 	UserMeta      *UserMeta `protobuf:"bytes,3,opt,name=UserMeta,proto3" json:"UserMeta,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -4058,7 +4058,7 @@ func (x *UpdateUserMetaEvent) GetEventMetadata() map[string]string {
 	return nil
 }
 
-func (x *UpdateUserMetaEvent) GetOperation() UpdateUserMetaEvent_UserMetaOp {
+func (x *UpdateUserMetaEvent) GetOperation() UpdateUserMetaEvent_UserMetaOpEvent {
 	if x != nil {
 		return x.Operation
 	}
@@ -6129,16 +6129,15 @@ const file_cells_idm_proto_rawDesc = "" +
 	"\n" +
 	"\x06DELETE\x10\x01\"E\n" +
 	"\x16UpdateUserMetaResponse\x12+\n" +
-	"\tMetaDatas\x18\x03 \x03(\v2\r.idm.UserMetaR\tMetaDatas\"\xbb\x02\n" +
+	"\tMetaDatas\x18\x03 \x03(\v2\r.idm.UserMetaR\tMetaDatas\"\xc5\x02\n" +
 	"\x13UpdateUserMetaEvent\x12Q\n" +
-	"\rEventMetadata\x18\x01 \x03(\v2+.idm.UpdateUserMetaEvent.EventMetadataEntryR\rEventMetadata\x12A\n" +
-	"\tOperation\x18\x02 \x01(\x0e2#.idm.UpdateUserMetaEvent.UserMetaOpR\tOperation\x12)\n" +
+	"\rEventMetadata\x18\x01 \x03(\v2+.idm.UpdateUserMetaEvent.EventMetadataEntryR\rEventMetadata\x12F\n" +
+	"\tOperation\x18\x02 \x01(\x0e2(.idm.UpdateUserMetaEvent.UserMetaOpEventR\tOperation\x12)\n" +
 	"\bUserMeta\x18\x03 \x01(\v2\r.idm.UserMetaR\bUserMeta\x1a@\n" +
 	"\x12EventMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"!\n" +
-	"\n" +
-	"UserMetaOp\x12\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"&\n" +
+	"\x0fUserMetaOpEvent\x12\a\n" +
 	"\x03PUT\x10\x00\x12\n" +
 	"\n" +
 	"\x06DELETE\x10\x01\"\xe9\x01\n" +
@@ -6466,7 +6465,7 @@ var file_cells_idm_proto_goTypes = []any{
 	(PolicyEffect)(0),                                // 3: idm.PolicyEffect
 	(PolicyResourceGroup)(0),                         // 4: idm.PolicyResourceGroup
 	(UpdateUserMetaRequest_UserMetaOp)(0),            // 5: idm.UpdateUserMetaRequest.UserMetaOp
-	(UpdateUserMetaEvent_UserMetaOp)(0),              // 6: idm.UpdateUserMetaEvent.UserMetaOp
+	(UpdateUserMetaEvent_UserMetaOpEvent)(0),         // 6: idm.UpdateUserMetaEvent.UserMetaOpEvent
 	(UpdateUserMetaNamespaceRequest_UserMetaNsOp)(0), // 7: idm.UpdateUserMetaNamespaceRequest.UserMetaNsOp
 	(*CreateRoleRequest)(nil),                        // 8: idm.CreateRoleRequest
 	(*CreateRoleResponse)(nil),                       // 9: idm.CreateRoleResponse
@@ -6622,7 +6621,7 @@ var file_cells_idm_proto_depIdxs = []int32{
 	61,  // 48: idm.UpdateUserMetaRequest.MetaDatas:type_name -> idm.UserMeta
 	61,  // 49: idm.UpdateUserMetaResponse.MetaDatas:type_name -> idm.UserMeta
 	99,  // 50: idm.UpdateUserMetaEvent.EventMetadata:type_name -> idm.UpdateUserMetaEvent.EventMetadataEntry
-	6,   // 51: idm.UpdateUserMetaEvent.Operation:type_name -> idm.UpdateUserMetaEvent.UserMetaOp
+	6,   // 51: idm.UpdateUserMetaEvent.Operation:type_name -> idm.UpdateUserMetaEvent.UserMetaOpEvent
 	61,  // 52: idm.UpdateUserMetaEvent.UserMeta:type_name -> idm.UserMeta
 	108, // 53: idm.SearchUserMetaRequest.ResourceQuery:type_name -> service.ResourcePolicyQuery
 	61,  // 54: idm.SearchUserMetaResponse.UserMeta:type_name -> idm.UserMeta

@@ -3,6 +3,7 @@ package sessions
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -46,6 +47,8 @@ func TestInsert(t *testing.T) {
 
 			cookieString := response.Header().Get("Set-Cookie")
 			fmt.Println("Set-Cookie", cookieString)
+			So(s.Options.SameSite, ShouldEqual, http.SameSiteStrictMode)
+			So(strings.Contains(cookieString, "SameSite=Strict"), ShouldBeTrue)
 
 			req2 := httptest.NewRequest("GET", "https://example.com/a/frontend", nil)
 			req2.Header.Set("Cookie", strings.Split(cookieString, ";")[0])

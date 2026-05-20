@@ -17,7 +17,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import { sanitizeUrl } from "@braintree/sanitize-url";
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 /**
  * If no scheme is provided, default to https:// to avoid relative links.

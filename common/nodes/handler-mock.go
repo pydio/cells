@@ -99,14 +99,17 @@ func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 			return nil, errors.WithStack(errors.NodeNotFound)
 		}
 	} else {
+		snapshot := make([]*tree.Node, 0, len(h.Nodes))
+		for _, n := range h.Nodes {
+			snapshot = append(snapshot, n)
+		}
 		go func() {
 			defer streamer.CloseSend()
-			for _, n := range h.Nodes {
+			for _, n := range snapshot {
 				if strings.HasPrefix(n.Path, in.Node.Path+"/") {
 					streamer.Send(&tree.ListNodesResponse{Node: n})
 				}
 			}
-
 		}()
 	}
 	return streamer, nil

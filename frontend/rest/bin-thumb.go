@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/disintegration/imaging"
+	"github.com/boxes-ltd/imaging"
 	"github.com/rwcarlsen/goexif/exif"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"

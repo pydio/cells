@@ -62,6 +62,7 @@ type setBlockStream struct {
 	ctx      context.Context
 	ca       context.CancelFunc
 	err      error
+	closed   bool
 }
 
 func (streamer *setBlockStream) SendKey(key *encryption2.NodeKey) error {
@@ -119,13 +120,19 @@ func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
 }
 
 func (streamer *setBlockStream) Close() error {
+	if streamer.closed {
+		return streamer.err
+	}
+	streamer.closed = true
+	defer streamer.ca()
+
 	// Streamer loop performs clean up on stream close
 	//	err := streamer.client.CloseSend()
 	resp, err := streamer.client.CloseAndRecv()
 	if err != nil {
+		streamer.err = err
 		return err
 	}
 	log.Logger(streamer.ctx).Debug("setBlockStream.Close received response", zap.Any("response", resp))
-	streamer.ca()
 	return nil
 }

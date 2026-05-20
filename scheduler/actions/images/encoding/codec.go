@@ -25,8 +25,8 @@ import (
 	"image/color"
 	"io"
 
+	"github.com/boxes-ltd/imaging"
 	"github.com/disintegration/imageorient"
-	"github.com/disintegration/imaging"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
 )
@@ -71,7 +71,7 @@ type ImageCodec interface {
 	Overlay(dst, src image.Image, pos image.Point, opacity float64) image.Image
 }
 
-// defaultCodec implements ImageCodec using the github.com/disintegration/imaging package
+// defaultCodec implements ImageCodec using the github.com/boxes-ltd/imaging package
 type defaultCodec struct {
 	format ImageFormat
 }

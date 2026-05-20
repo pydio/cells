@@ -4,7 +4,13 @@
  */
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import {
+    render,
+    screen,
+    cleanup,
+    fireEvent,
+    waitFor,
+} from '@testing-library/react';
 import { URLField, URLForm } from './URL';
 
 function createPydioMock() {
@@ -12,23 +18,30 @@ function createPydioMock() {
         requireLib: vi.fn((lib) => {
             if (lib === 'hoc') {
                 return {
-                    ModernTextField: ({ value, hintText, onChange, onBlur, onKeyPress }) =>
+                    ModernTextField: ({
+                        value,
+                        hintText,
+                        onChange,
+                        onBlur,
+                        onKeyPress,
+                    }) =>
                         React.createElement('input', {
                             'data-testid': 'url-input',
                             value: value || '',
                             placeholder: hintText,
-                            onChange: (e) => onChange && onChange(e, e.target.value),
+                            onChange: (e) =>
+                                onChange && onChange(e, e.target.value),
                             onBlur: (e) => onBlur && onBlur(e),
                             onKeyPress: (e) => onKeyPress && onKeyPress(e),
                         }),
                     ThemedModernStyles: () => ({
                         textFieldV2: { style: {}, errorStyle: {} },
-                        textFieldV1Search: { style: {}, inputStyle: {} }
-                    })
+                        textFieldV1Search: { style: {}, inputStyle: {} },
+                    }),
                 };
             }
             return {};
-        })
+        }),
     };
 }
 vi.mock('pydio', () => {
@@ -47,14 +60,16 @@ describe('URLField', () => {
         getMetadata: () => ({
             get: (key) => {
                 if (key === 'usermeta-url') return urlValue;
-                return null; } })
+                return null;
+            },
+        }),
     });
 
     const defaultProps = {
         node: createMockNode('https://example.com'),
         column: { name: 'usermeta-url' },
         configs: new Map(),
-        getRealValue: () => 'https://example.com'
+        getRealValue: () => 'https://example.com',
     };
 
     it('renders a clickable link element', () => {
@@ -110,7 +125,7 @@ describe('URLField', () => {
     it('returns empty fragment when value is empty', () => {
         const props = {
             ...defaultProps,
-            getRealValue: () => null
+            getRealValue: () => null,
         };
         render(<URLField {...props} />);
 
@@ -120,7 +135,7 @@ describe('URLField', () => {
     it('handles URLs with paths correctly', () => {
         const props = {
             ...defaultProps,
-            getRealValue: () => 'https://pydio.com/docs/getting-started'
+            getRealValue: () => 'https://pydio.com/docs/getting-started',
         };
 
         render(<URLField {...props} />);
@@ -128,14 +143,16 @@ describe('URLField', () => {
         const link = screen.getByRole('link', {
             label: 'Open pydio.com/docs/getting-started in a new tab',
         });
-        expect(link.getAttribute('href')).toBe('https://pydio.com/docs/getting-started');
+        expect(link.getAttribute('href')).toBe(
+            'https://pydio.com/docs/getting-started',
+        );
         expect(link.textContent).toContain('pydio.com');
     });
 
     it('adds http scheme when missing', () => {
         const props = {
             ...defaultProps,
-            getRealValue: () => 'example.com'
+            getRealValue: () => 'example.com',
         };
 
         render(<URLField {...props} />);
@@ -155,12 +172,12 @@ describe('URLForm', () => {
         muiTheme: {
             palette: {
                 mui3: {
-                    'on-surface-variant': '#000'
-                }
-            }
+                    'on-surface-variant': '#000',
+                },
+            },
         },
         search: false,
-        supportTemplates: false
+        supportTemplates: false,
     };
 
     beforeEach(() => {
@@ -179,12 +196,16 @@ describe('URLForm', () => {
         render(<URLForm {...defaultProps} />);
         const input = screen.getByTestId('url-input');
         expect(input.value).toBe('https://example.com');
-        expect(screen.getByLabelText('Open https://example.com in a new tab')).toBeInTheDocument();
+        expect(
+            screen.getByLabelText('Open https://example.com in a new tab'),
+        ).toBeInTheDocument();
     });
 
     it('shows preview link icon when URL is valid', () => {
         render(<URLForm {...defaultProps} />);
-        const icon = screen.getByLabelText('Open https://example.com in a new tab');
+        const icon = screen.getByLabelText(
+            'Open https://example.com in a new tab',
+        );
 
         expect(icon).toBeInTheDocument();
     });
@@ -194,16 +215,18 @@ describe('URLForm', () => {
         render(<URLForm {...defaultProps} updateValue={updateValue} />);
         const input = screen.getByTestId('url-input');
 
-        fireEvent.change(input, {target: {value: 'https://newurl.com'}});
+        fireEvent.change(input, { target: { value: 'https://newurl.com' } });
         expect(updateValue).toHaveBeenCalledWith('https://newurl.com', false);
     });
 
     it('injects http scheme on blur when missing', () => {
         const updateValue = vi.fn();
-        render(<URLForm {...defaultProps} updateValue={updateValue} value={''} />);
+        render(
+            <URLForm {...defaultProps} updateValue={updateValue} value={''} />,
+        );
         const input = screen.getByTestId('url-input');
 
-        fireEvent.change(input, {target: {value: 'example.com'}});
+        fireEvent.change(input, { target: { value: 'example.com' } });
 
         expect(updateValue).toHaveBeenCalledWith('example.com', false);
         fireEvent.blur(input);
@@ -212,13 +235,13 @@ describe('URLForm', () => {
     });
 
     it('do not inject https when in search mode', () => {
-        const props = {...defaultProps, search: true};
+        const props = { ...defaultProps, search: true };
 
         const updateValue = vi.fn();
         render(<URLForm {...props} updateValue={updateValue} value={''} />);
         const input = screen.getByTestId('url-input');
 
-        fireEvent.change(input, {target: {value: 'example.com'}});
+        fireEvent.change(input, { target: { value: 'example.com' } });
 
         expect(updateValue).toHaveBeenCalledWith('example.com', false);
         fireEvent.blur(input);
@@ -226,4 +249,3 @@ describe('URLForm', () => {
         expect(updateValue).toHaveBeenCalledWith('example.com', false);
     });
 });
-

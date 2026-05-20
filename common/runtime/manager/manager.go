@@ -257,12 +257,16 @@ func (m *manager) Bootstrap(bootstrapYAML string) error {
 	if err == nil {
 		m.sotwRegistry = reg
 
-		// Registering everything
+		// Registering everything except nodes - nodes are registered in ServeAll with proper status
 		items, err := m.internalRegistry.List()
 		if err != nil {
 			return err
 		}
 		for _, item := range items {
+			var node registry.Node
+			if item.As(&node) {
+				continue
+			}
 			if er := reg.Register(item); er != nil {
 				return er
 			}

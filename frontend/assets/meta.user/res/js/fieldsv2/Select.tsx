@@ -17,9 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, { useCallback } from 'react'
-import { Select } from '@mantine/core'
-import { ItemsInputProps, InputProps } from "./CommonInputProps";
+import React, { useCallback } from 'react';
+import { Select } from '@mantine/core';
+import { ItemsInputProps, InputProps } from './CommonInputProps';
 
 interface RenderOptionProps {
     option: {
@@ -47,46 +47,74 @@ export const Selector: React.FC<SelectInputProps> = ({
     disabled,
     stepper,
 }) => {
-    const handleColors = items.find(i => !!i.color);
-    const renderOptions = useCallback(({ option }: RenderOptionProps) => {
-        const item = items.find(i => i.key === option.value)
-        if (item && item.color) {
-            return <span><span className={"mdi mdi-label"} style={{ color: item.color, marginRight: 8, marginLeft: -3, fontSize: 11 }} />{item.value}</span>
-        }
-        return <span>{item?.value}</span>
-    }, [items])
+    const handleColors = items.find((i) => !!i.color);
+    const renderOptions = useCallback(
+        ({ option }: RenderOptionProps) => {
+            const item = items.find((i) => i.key === option.value);
+            if (item && item.color) {
+                return (
+                    <span>
+                        <span
+                            className={'mdi mdi-label'}
+                            style={{
+                                color: item.color,
+                                marginRight: 8,
+                                marginLeft: -3,
+                                fontSize: 11,
+                            }}
+                        />
+                        {item.value}
+                    </span>
+                );
+            }
+            return <span>{item?.value}</span>;
+        },
+        [items],
+    );
 
-    const crtItem = items.find(i => i.value === value)
+    const crtItem = items.find((i) => i.value === value);
 
-    let leftSection: React.ReactNode, rightSection: React.ReactNode
+    let leftSection: React.ReactNode, rightSection: React.ReactNode;
     if (handleColors && value) {
         if (crtItem && crtItem.color) {
-            leftSection = <div className={"mdi mdi-label"} style={{ color: crtItem.color, fontSize: 11 }} />
+            leftSection = (
+                <div
+                    className={'mdi mdi-label'}
+                    style={{ color: crtItem.color, fontSize: 11 }}
+                />
+            );
         }
     }
 
     if (stepper) {
-        const pos = items.indexOf(crtItem!)
+        const pos = items.indexOf(crtItem!);
         if (pos > 0) {
-            const prevLabel = items[pos - 1].value
-            leftSection = <div
-                className={"mdi mdi-chevron-left"}
-                style={{ fontSize: 11, cursor: "pointer" }}
-                title={prevLabel}
-                onClick={() => { onChange(items[pos - 1].key, true) }}
-            />
+            const prevLabel = items[pos - 1].value;
+            leftSection = (
+                <div
+                    className={'mdi mdi-chevron-left'}
+                    style={{ fontSize: 11, cursor: 'pointer' }}
+                    title={prevLabel}
+                    onClick={() => {
+                        onChange(items[pos - 1].key);
+                    }}
+                />
+            );
         }
         if (pos < items.length - 1) {
-            const nextLabel = items[pos + 1].value
-            rightSection = <div
-                className={"mdi mdi-chevron-right"}
-                style={{ fontSize: 11, cursor: "pointer" }}
-                title={nextLabel}
-                onClick={() => { onChange(items[pos + 1].key, true) }}
-            />
+            const nextLabel = items[pos + 1].value;
+            rightSection = (
+                <div
+                    className={'mdi mdi-chevron-right'}
+                    style={{ fontSize: 11, cursor: 'pointer' }}
+                    title={nextLabel}
+                    onClick={() => {
+                        onChange(items[pos + 1].key);
+                    }}
+                />
+            );
         }
     }
-
 
     return (
         <Select
@@ -97,7 +125,9 @@ export const Selector: React.FC<SelectInputProps> = ({
             error={errorText}
             disabled={disabled}
             onChange={onCommitChange}
-            data={items.map(i => { return { value: i.key, label: i.value } })}
+            data={items.map((i) => {
+                return { value: i.key, label: i.value };
+            })}
             allowDeselect={true}
             clearable={true}
             leftSection={leftSection}
@@ -114,5 +144,5 @@ export const Selector: React.FC<SelectInputProps> = ({
                 }
             }}
         />
-    )
-}
+    );
+};

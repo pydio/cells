@@ -171,6 +171,7 @@ func (s *NodeKeyManagerStub_SetNodeInfoStreamer) Send(response *SetNodeInfoRespo
 	s.RespChan <- response
 	return nil
 }
-func (s *NodeKeyManagerStub_SetNodeInfoStreamer) SendAndClose(*SetNodeInfoResponse) error {
+func (s *NodeKeyManagerStub_SetNodeInfoStreamer) SendAndClose(resp *SetNodeInfoResponse) error {
+	s.RespChan <- resp
 	return nil
 }

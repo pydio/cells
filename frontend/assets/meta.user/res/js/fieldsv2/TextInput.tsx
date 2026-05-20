@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useCallback } from 'react'
-import {TextInput as MTextInput, Textarea, JsonInput} from '@mantine/core'
-import {InputProps} from "./CommonInputProps";
+import React, { useCallback } from 'react';
+import { TextInput as MTextInput, Textarea, JsonInput } from '@mantine/core';
+import { InputProps } from './CommonInputProps';
 
 export const TextInput: React.FC<InputProps> = ({
     label,
@@ -44,17 +44,20 @@ export const TextInput: React.FC<InputProps> = ({
         disabled,
         required,
         error: errorText,
-    }
+    };
 
-    const onChangeEvent =
-        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value)
-    const onChangeString = (value: string) => onChange(value)
-    const onCtrlEnterCommit = useCallback((event: React.KeyboardEvent) => {
-        if(event.key === 'Enter' && event.ctrlKey){
-            onCommitChange(value);
-        }
-    }, [onCommitChange, value])
-
+    const onChangeEvent = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => onChange(e.target.value);
+    const onChangeString = (value: string) => onChange(value);
+    const onCtrlEnterCommit = useCallback(
+        (event: React.KeyboardEvent) => {
+            if (event.key === 'Enter' && event.ctrlKey) {
+                onCommitChange(value);
+            }
+        },
+        [onCommitChange, value],
+    );
 
     switch (subType) {
         case 'textarea':

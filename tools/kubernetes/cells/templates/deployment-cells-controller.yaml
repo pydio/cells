@@ -1,3 +1,4 @@
+{{- if .Values.controller.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,18 +21,58 @@ spec:
         vault.hashicorp.com/service: "http://{{ include "cells.vault.host" . }}:{{ include "cells.vault.port" . }}"
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/agent-run-as-same-user: "true"
       {{- end }}
       {{- if and .Values.externalVault.enabled (not (empty .Values.externalVault.annotations)) -}}
       {{- toYaml .Values.externalVault.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.serviceAccount.enabled }}
       serviceAccountName: {{ include "cells.serviceAccountName" . }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.controller.podSecurityContext.enabled }}
+      securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.controller.podSecurityContext "context" $) | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if and .Values.controller.podSecurityContext.enabled .Values.volumePermissions.enabled }}
+        - name: volume-permissions
+          image: "{{ .Values.volumePermissions.image.repository }}:{{ .Values.volumePermissions.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              chown -R {{ .Values.controller.containerSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /var/cells/data
+          securityContext:
+            runAsUser: 0
+          {{- if .Values.volumePermissions.resources }}
+          resources: {{- toYaml .Values.volumePermissions.resources | nindent 12 }}
+          {{- else if ne .Values.volumePermissions.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.volumePermissions.resourcesPreset) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/cells/data
+        {{- end }}
       containers:
-        - env:
+        - name: {{ include "cells.fullname" . }}-controller
+          {{- if .Values.image.local }}
+          image: "{{ .Values.image.repository }}"
+                  {{- else }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+                  {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "/bin/sh" ]
+          args:
+            [ '-c', 'source /var/cells-install/source && {{ .Values.controller.command | default "cells" }} start' ]
+          {{- if .Values.controller.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.controller.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+          env:
             - name: CELLS_BOOTSTRAP_FILE
               value: /var/cells-bootstrap/bootstrap.yaml
             - name: CELLS_START_K8S_MANAGER
@@ -42,42 +83,34 @@ spec:
               value: {{ include "cells.fullname" .}}
             - name: CELLS_WORKING_DIR
               value: /var/cells
-            - name: CELLS_LOG_DIR
-              value: /var/log/cells
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-                  {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
-                  {{- include "cells.discovery.envvar" . | nindent 12 -}}
-                  {{- include "cells.broker.envvar" . | nindent 12 -}}
-                  {{- include "cells.cache.envvar" . | nindent 12 -}}
-                  {{- include "cells.vault.envvar" . | nindent 12 -}}
-                  {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
-                  {{- include "cells.database.auth.envvar" . | nindent 12 -}}
-                  {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
-                  {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
-                  {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
-                  {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
-                  {{- include "cells.vault.auth.envvar" . | nindent 12 }}
+            {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
+            {{- include "cells.discovery.envvar" . | nindent 12 -}}
+            {{- include "cells.broker.envvar" . | nindent 12 -}}
+            {{- include "cells.cache.envvar" . | nindent 12 -}}
+            {{- include "cells.vault.envvar" . | nindent 12 -}}
+            {{- include "cells.discovery.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.database.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.broker.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.cache.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.nosql.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.s3.auth.envvar" . | nindent 12 -}}
+            {{- include "cells.vault.auth.envvar" . | nindent 12 }}
+            - name: CELLS_REGISTRY
+              value: "mem://"
             {{- if .Values.extraControllerEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraControllerEnvVars "context" $) | nindent 12 -}}
             {{- end }}
-          {{- if .Values.image.local }}
-          image: "{{ .Values.image.repository }}"
-          {{- else }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- end }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: [ "/bin/sh" ]
-          args:
-            [ '-c', 'source /var/cells-install/source && cells start' ]
-          name: {{ include "cells.fullname" . }}-controller
           ports:
             - containerPort: 9000
               name: grpc
               protocol: TCP
           volumeMounts:
+            - name: data
+              mountPath: /var/cells
             - mountPath: /var/cells-bootstrap
               name: {{ include "cells.fullname" . }}-controller
             - name: install
@@ -100,6 +133,14 @@ spec:
           secret:
             secretName: {{ include "cells.vault.tls.client.existingSecret" . }}
         {{- end }}
+        - name: data
+          {{- if .Values.controller.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "cells.claimName" . }}-data-controller
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
         {{- if .Values.extraControllerVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraControllerVolumes "context" $) | nindent 8 }}
         {{- end }}
+{{- end }}

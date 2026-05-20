@@ -62,7 +62,7 @@ export default ({ namespaces, onDismiss, metaLib }) => {
 
     return (
         <Dialog
-            title={"Set Metadata"}
+            title={pydio.MessageHash['meta.user.1'] || "Set Metadata"}
             actions={actions}
             modal={true}
             open={true}
@@ -74,6 +74,7 @@ export default ({ namespaces, onDismiss, metaLib }) => {
                 node={node}
                 loadJsonSchema={loader}
                 validateOnSchemaLoad={true}
+                prefillDefaultsOnInitialLoad={true}
                 onDataChanged={(data, { isValid }) => {
                     setData(data)
                     setValid(isValid)

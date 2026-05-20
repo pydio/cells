@@ -17,28 +17,36 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import asMetaField from "../hoc/asMetaField";
+import React from 'react';
+import asMetaField from '../hoc/asMetaField';
 
 const starsStyle = {
     fontSize: 20,
     color: '#FBC02D',
-    marginTop:6,
-    marginBottom: 6
+    marginTop: 6,
+    marginBottom: 6,
 };
 
-class StarsField extends React.Component{
-    render(){
-        const {getRealValue, size, containerStyle} = this.props;
+class StarsField extends React.Component {
+    render() {
+        const { getRealValue, size, containerStyle } = this.props;
         let value = getRealValue() || 0;
-        let stars = [0,1,2,3,4].map(function(v){
-            return <span key={"star-" + v} className={"mdi mdi-star" + (value > v ? '' : '-outline')}></span>;
+        let stars = [0, 1, 2, 3, 4].map(function (v) {
+            return (
+                <span
+                    key={'star-' + v}
+                    className={'mdi mdi-star' + (value > v ? '' : '-outline')}
+                ></span>
+            );
         });
-        let contStyle=containerStyle||{};
-        const style = size === 'small' || containerStyle ? {color: starsStyle.color, ...contStyle} : starsStyle;
+        let contStyle = containerStyle || {};
+        const style =
+            size === 'small' || containerStyle
+                ? { color: starsStyle.color, ...contStyle }
+                : starsStyle;
         return <span style={style}>{stars}</span>;
     }
 }
 
-export {starsStyle}
+export { starsStyle };
 export default asMetaField(StarsField);

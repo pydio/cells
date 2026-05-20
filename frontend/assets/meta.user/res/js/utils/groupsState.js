@@ -30,7 +30,7 @@ export const useGroupsExpanded = () => {
         if (localStorage.getItem(localKey)) {
             try {
                 return JSON.parse(localStorage.getItem(localKey)) || {};
-            } catch(e) {
+            } catch (e) {
                 localStorage.removeItem(localKey);
                 return {};
             }
@@ -39,7 +39,10 @@ export const useGroupsExpanded = () => {
     });
 
     const toggleGroup = (gPath) => {
-        const newExpanded = {...groupsExpanded, [gPath]: !groupsExpanded[gPath]};
+        const newExpanded = {
+            ...groupsExpanded,
+            [gPath]: !groupsExpanded[gPath],
+        };
         setGroupsExpanded(newExpanded);
         localStorage.setItem(localKey, JSON.stringify(newExpanded));
     };

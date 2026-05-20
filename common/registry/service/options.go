@@ -42,6 +42,12 @@ type Option func(*Options)
 
 type connKey struct{}
 
+func WithContext(ctx context.Context) Option {
+	return func(o *Options) {
+		o.Context = ctx
+	}
+}
+
 // WithConn sets the gRPC connection
 func WithConn(c grpc.ClientConnInterface) Option {
 	return func(o *Options) {

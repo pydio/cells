@@ -18,48 +18,64 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useCallback} from 'react';
-import {getCssLabels} from "../fields/CssLabelsField";
-import {TextInput} from "../fieldsv2/TextInput";
-import {Selector} from "../fieldsv2/Select"
-import {RatingInput} from "../fieldsv2/RatingInput";
-import {SwitchInput} from "../fieldsv2/SwitchInput";
-import {TagsCloudInput} from "../fieldsv2/TagsCloudInput";
-import {InputProps, Items} from "../fieldsv2/CommonInputProps";
-import MetaClient from "../MetaClient";
-import {NamespaceMeta} from "./MetaSpec";
-import {NumbersInputSearch} from "../fieldsv2/NumbersInputSearch";
-import {DateTimeInputSearch} from "../fieldsv2/DateTimeInputSearch";
-import {DateInputSearch} from "../fieldsv2/DateInputSearch";
-import {TextInputSearch} from "../fieldsv2/TextInputSearch";
+import React, { useCallback } from 'react';
+import { getCssLabels } from '../fields/CssLabelsField';
+import { Selector } from '../fieldsv2/Select';
+import { RatingInput } from '../fieldsv2/RatingInput';
+import { SwitchInput } from '../fieldsv2/SwitchInput';
+import { TagsCloudInput } from '../fieldsv2/TagsCloudInput';
+import {
+    InputProps,
+    Items,
+    SearchUpdateOptions,
+} from '../fieldsv2/CommonInputProps';
+import MetaClient from '../MetaClient';
+import { NamespaceMeta } from './MetaSpec';
+import { NumbersInputSearch } from '../fieldsv2/NumbersInputSearch';
+import { DateTimeInputSearch } from '../fieldsv2/DateTimeInputSearch';
+import { DateInputSearch } from '../fieldsv2/DateInputSearch';
+import { TextInputSearch } from '../fieldsv2/TextInputSearch';
 import { TimeInputSearch } from '../fieldsv2/TimeInputSearch';
 
 export interface FieldSearchProps {
-    name:string,
-    meta:NamespaceMeta,
-    value:any,
-    updateValue:(f:string, v:any) => void,
+    name: string;
+    meta: NamespaceMeta;
+    value: any;
+    updateValue: (f: string, v: any, options?: SearchUpdateOptions) => void;
 }
 
 /**
  * Renders a single metadata field in edit mode
  */
-export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, updateValue}) => {
-    const localChange = useCallback((value:any, submit?: boolean) => {
-        updateValue(name, value);
-    }, [name])
+export const FieldSearch: React.FC<FieldSearchProps> = ({
+    name,
+    meta,
+    value,
+    updateValue,
+}) => {
+    const localChange = useCallback(
+        (value: any, options?: SearchUpdateOptions) => {
+            updateValue(name, value, options);
+        },
+        [name, updateValue],
+    );
 
-    const localDataLoader = useCallback((filter?:string) => {
-        return MetaClient.getInstance().listTags(name).then(tags => {
-            return tags.filter(t => t)
-        });
-    }, [name])
+    const localDataLoader = useCallback(
+        (filter?: string) => {
+            return MetaClient.getInstance()
+                .listTags(name)
+                .then((tags) => {
+                    return tags.filter((t) => t);
+                });
+        },
+        [name],
+    );
 
-    const {type, readonly, required, errorText, label, data} = meta;
+    const { type, readonly, required, errorText, label, data } = meta;
 
     const formatType = data?.format as NumberFormat;
 
-    let baseProps:InputProps = {
+    let baseProps: InputProps = {
         name,
         placeholder: label, // use label as placeholder
         required,
@@ -68,40 +84,62 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({name, meta, value, upda
         onChange: localChange,
         errorText,
         onCommitChange: (values) => {
-            localChange(values)
+            localChange(values);
         },
     };
 
     switch (type) {
         case 'stars_rate':
-            return <RatingInput {...baseProps}/>;
+            return <RatingInput {...baseProps} />;
         case 'choice':
             // Do not use stepper
-            const {data:{items=[]}} = meta;
-            return <Selector {...baseProps} items={items}/>;
+            const {
+                data: { items = [] },
+            } = meta;
+            return <Selector {...baseProps} items={items} />;
         case 'css_label':
             const cssLabels = getCssLabels();
-            const cssItems:Items[] = Object.keys(cssLabels).map((id) => {return {...cssLabels[id], key:id, value: cssLabels[id].label}})
-            return <Selector {...baseProps} items={cssItems}/>;
+            const cssItems: Items[] = Object.keys(cssLabels).map((id) => {
+                return {
+                    ...cssLabels[id],
+                    key: id,
+                    value: cssLabels[id].label,
+                };
+            });
+            return <Selector {...baseProps} items={cssItems} />;
         case 'tags':
-            return <TagsCloudInput onlyValuesFromList {...baseProps} data={[]} dataLoader={localDataLoader}/>;
+            return (
+                <TagsCloudInput
+                    onlyValuesFromList
+                    {...baseProps}
+                    data={[]}
+                    dataLoader={localDataLoader}
+                />
+            );
         case 'tag_cloud':
-            return <TagsCloudInput onlyValuesFromList {...baseProps} data={[]} dataLoader={localDataLoader}/>;
+            return (
+                <TagsCloudInput
+                    onlyValuesFromList
+                    {...baseProps}
+                    data={[]}
+                    dataLoader={localDataLoader}
+                />
+            );
         case 'date':
             if (formatType === 'time') {
-                return <TimeInputSearch {...baseProps}/>;
+                return <TimeInputSearch {...baseProps} />;
             }
 
             if (formatType === 'date') {
-                return <DateInputSearch {...baseProps}/>
+                return <DateInputSearch {...baseProps} />;
             }
 
-            return <DateTimeInputSearch {...baseProps}/>;
+            return <DateTimeInputSearch {...baseProps} />;
         case 'integer':
-            return <NumbersInputSearch {...baseProps}/>;
+            return <NumbersInputSearch {...baseProps} />;
         case 'boolean':
-            return <SwitchInput {...baseProps}/>;
+            return <SwitchInput {...baseProps} />;
         default:
-            return <TextInputSearch {...baseProps} subType={type}/>;
+            return <TextInputSearch {...baseProps} subType={type} />;
     }
 };

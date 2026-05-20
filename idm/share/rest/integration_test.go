@@ -175,21 +175,26 @@ var (
 	}
 	dss        = []string{"pydiods1", "personal", "cellsdata", "thumbnails", "versions"}
 	mockClient = omock.New(dss...)
-	testcases  []test.ServicesStorageTestCase
 )
 
 func init() {
-	tmpPath := os.TempDir()
-	unique := uuid.New()[:6] + "_"
-
 	for _, ds := range dss {
 		testServices[common.ServiceDataIndexGRPC_+ds] = map[string]map[string]any{"sql": {
 			"func":   idxdao.NewDAO,
 			"prefix": ds + "_",
 		}}
 	}
+	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
+		return nodes.NewTestPoolWithDataSources(ctx, mockClient, dss...)
+	})
+}
 
-	testcases = []test.ServicesStorageTestCase{
+// buildTestCases generates fresh test cases with unique BoltDB/Bleve paths per invocation.
+// This prevents file-lock conflicts when the test runs multiple times in the same process (e.g. -count=2).
+func buildTestCases() []test.ServicesStorageTestCase {
+	tmpPath := os.TempDir()
+	unique := uuid.New()[:6] + "_"
+	return []test.ServicesStorageTestCase{
 		{
 			DSN: map[string]string{
 				"sql":     sql.SqliteDriver + "://" + sql.SharedMemDSN + "&hookNames=cleanTables&prefix=" + unique + "{{ .Meta.prefix }}&policies=" + unique + "{{ .Meta.policies }}",
@@ -201,15 +206,12 @@ func init() {
 			Label:     "Sqlite",
 		},
 	}
-	nodes.SetSourcesPoolOpener(func(ctx context.Context) *openurl.Pool[nodes.SourcesPool] {
-		return nodes.NewTestPoolWithDataSources(ctx, mockClient, dss...)
-	})
 }
 
 func TestShareLinks(t *testing.T) {
 	sql.TestPrintQueries = true
 
-	test.RunServicesTests(uuid.New(), testcases, t, func(ctx context.Context) {
+	test.RunServicesTests(uuid.New(), buildTestCases(), t, func(ctx context.Context) {
 
 		sd, er := idmtest.GetStartData()
 		fmt.Println(er)

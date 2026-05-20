@@ -81,6 +81,8 @@ const (
 	KeyInstallYamlLegacy = "yaml"
 	KeyInstallJsonLegacy = "json"
 
+	KeyForce = "force"
+
 	KeyLog       = "log"
 	KeyLogJson   = "log_json"
 	KeyLogToFile = "log_to_file"

@@ -155,11 +155,20 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
 	if update {
+		// Catching first Personal tokens which don't exist as updates return changed rows, not matched.
+		var count int64
+		if err := s.instance().Where(&PersonalToken{UUID: token.Uuid}).Count(&count).Error; err != nil {
+			return err
+		}
+		if count == 0 {
+			return gorm.ErrRecordNotFound
+		}
 		tx := s.instance().
-			Model(&PersonalToken{}).
 			Where(&PersonalToken{UUID: token.Uuid}).
-			Update("expire_at", token.ExpiresAt).
-			Update("updated_at", time.Now().Unix())
+			Updates(map[string]any{
+				"expire_at":  token.ExpiresAt,
+				"updated_at": time.Now().Unix(),
+			})
 		if tx.Error != nil {
 			return tx.Error
 		}

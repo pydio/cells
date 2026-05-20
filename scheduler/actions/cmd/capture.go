@@ -27,6 +27,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -41,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/jobs"
 	"github.com/pydio/cells/v5/common/proto/object"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/endpoints"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/endpoints/snapshot"
 	"github.com/pydio/cells/v5/common/sync/model"
@@ -54,10 +56,11 @@ var (
 )
 
 type CaptureAction struct {
-	target string
-	prefix string
-	format string
-	sides  string
+	target    string
+	prefix    string
+	format    string
+	sides     string
+	indexPath string
 }
 
 // GetDescription returns action description
@@ -121,7 +124,17 @@ func (c *CaptureAction) GetParametersForm(context.Context) *forms.Form {
 						{"both": "S3 and Index"},
 						{"s3": "S3 only"},
 						{"index": "Index only"},
+						{"tree": "Full Tree (index+metadata)"},
 					},
+				},
+				&forms.FormField{
+					Name:        "indexPath",
+					Type:        forms.ParamString,
+					Label:       "Index Path",
+					Description: "If dumping from index, optional path to restrict from",
+					Mandatory:   false,
+					Editable:    true,
+					Default:     "",
 				},
 			},
 		},
@@ -153,6 +166,9 @@ func (c *CaptureAction) Init(ctx context.Context, job *jobs.Job, action *jobs.Ac
 		c.sides = sides
 	} else {
 		c.sides = "both"
+	}
+	if ip, ok := action.Parameters["indexPath"]; ok && ip != "" {
+		c.indexPath = strings.TrimLeft(ip, "/")
 	}
 	return nil
 }
@@ -203,6 +219,20 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	router := compose.PathClientAdmin()
 
+	// If "trees", replace targetAsSource with a nodes.Client (router) call instead of direct acccess to the index
+	if sides == "tree" {
+		rPath := dsName
+		if c.indexPath != "" {
+			rPath = path.Join(rPath, c.indexPath)
+			c.indexPath = "" // Remove now
+		}
+		routerSource, err := endpoints.OpenEndpoint(ctx, "router:///"+rPath+"?browseOnly=true")
+		if err != nil {
+			return input.WithError(err), err
+		}
+		targetAsSource = &sourceProgressWrapper{PathSyncSource: routerSource.(model.PathSyncSource), sName: "tree", logger: infoLogger}
+	}
+
 	if format == "json" {
 
 		if sides == "both" || sides == "s3" {
@@ -216,14 +246,14 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 		}
 
-		if sides == "both" || sides == "index" {
+		if sides == "both" || sides == "index" || sides == "tree" {
 			infoLogger("[index] Capturing index to JSON")
-			if bb, e := c.walkSourceToJSON(ctx, targetAsSource); e != nil {
+			if bb, e := c.walkSourceToJSON(ctx, targetAsSource, c.indexPath); e != nil {
 				return input.WithError(e), e
 			} else if er := c.bytesToNode(ctx, bb, path.Join(targetFolder, prefix+dsName+"-target.json"), router); er != nil {
 				return input.WithError(er), er
 			}
-			infoLogger(fmt.Sprintf("[s3] Captured %d items to JSON\n\n", (sourceAsSource.(*sourceProgressWrapper)).i))
+			infoLogger(fmt.Sprintf("[s3] Captured %d items to JSON\n\n", (targetAsSource.(*sourceProgressWrapper)).i))
 		}
 
 	} else {
@@ -246,13 +276,19 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 			infoLogger(fmt.Sprintf("[s3] Captured %d items to BoltDB\n\n", (sourceAsSource.(*sourceProgressWrapper)).i))
 		}
 
-		if sides == "both" || sides == "index" {
+		if sides == "both" || sides == "index" || sides == "tree" {
 			infoLogger("[index] Capturing index to Bolt")
 			tb, e := snapshot.NewBoltSnapshot(ctx, boltTmpFolder, dsName+"-target.db")
 			if e != nil {
 				return input.WithError(e), e
 			}
-			if e := tb.Capture(ctx, targetAsSource); e != nil {
+			_ = tb.AutoCreateBucket()
+			var pp []string
+			if c.indexPath != "" {
+				pp = append(pp, c.indexPath)
+				tb.SetCaptureStripPath()
+			}
+			if e := tb.Capture(ctx, targetAsSource, pp...); e != nil {
 				tb.Close()
 				return input.WithError(e), e
 			}
@@ -260,7 +296,7 @@ func (c *CaptureAction) Run(ctx context.Context, channels *actions.RunnableChann
 			if er := c.boltToNode(ctx, filepath.Join(boltTmpFolder, "snapshot-"+dsName+"-target.db"), path.Join(targetFolder, prefix+dsName+"-target.db"), router); er != nil {
 				return input.WithError(er), er
 			}
-			infoLogger(fmt.Sprintf("[index] Captured %d items to BoltDB\n\n", (sourceAsSource.(*sourceProgressWrapper)).i))
+			infoLogger(fmt.Sprintf("[index] Captured %d items to BoltDB\n\n", (targetAsSource.(*sourceProgressWrapper)).i))
 		}
 
 	}
@@ -306,12 +342,20 @@ func (s *sourceProgressWrapper) Walk(ctx context.Context, walknFc model.WalkNode
 	return s.PathSyncSource.Walk(ctx, wrapper, root, recursive)
 }
 
-func (c *CaptureAction) walkSourceToJSON(ctx context.Context, source model.PathSyncSource) ([]byte, error) {
+func (c *CaptureAction) walkSourceToJSON(ctx context.Context, source model.PathSyncSource, rootPath ...string) ([]byte, error) {
 
 	db := memory.NewMemDB()
+	root := "/"
+	if len(rootPath) > 0 && rootPath[0] != "" {
+		root = rootPath[0]
+	}
 	if er := source.Walk(ctx, func(path string, node tree.N, err error) error {
-		return db.CreateNode(ctx, node, false)
-	}, "/", true); er != nil {
+		n := node.AsProto()
+		if root != "/" {
+			n.Path = strings.TrimPrefix(n.Path, root+"/")
+		}
+		return db.CreateNode(ctx, n, false)
+	}, root, true); er != nil {
 		return nil, er
 	}
 

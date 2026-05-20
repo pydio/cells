@@ -1,0 +1,82 @@
+# https://github.com/mongodb/helm-charts/blob/main/charts/community-operator/values.yaml
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: mongodb
+spec:
+  members: 1
+  type: ReplicaSet
+  version: "7.0.31"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+    tls:
+      enabled: false
+      certificateKeySecretRef:
+        # search for tls.crt, tls.key
+        name: mongodb-tls
+      caCertificateSecretRef:
+        # search for ca.crt
+        name: mongodb-tls
+  users:
+    - name: admin
+      db: admin
+      passwordSecretRef:
+        name: mongodb-cells-secret
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: root
+          db: admin
+      scramCredentialsSecretName: my-scram1
+    - name: cells
+      db: admin
+      passwordSecretRef:
+        name: mongodb-cells-secret
+      roles:
+        - name: dbOwner
+          db: cells
+      scramCredentialsSecretName: my-scram2
+    # - name: backup
+    #   db: admin
+    #   passwordSecretRef:
+    #     name: mongodb-cells-secret
+    #   roles:
+    #     - name: read
+    #       db: cells
+    #   scramCredentialsSecretName: my-scram3         
+  additionalMongodConfig:
+    storage.wiredTiger.engineConfig.journalCompressor: zlib
+  statefulSet:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mongod
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "512Mi"
+                limits:
+                  cpu: "1"
+                  memory: "1Gi"
+
+            - name: mongodb-agent
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "256Mi"
+                limits:
+                  cpu: "250m"
+                  memory: "512Mi"
+
+          initContainers:
+            - name: mongodb-agent-readinessprobe
+              resources:
+                requests:
+                  cpu: "50m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "250m"
+                  memory: "128Mi"

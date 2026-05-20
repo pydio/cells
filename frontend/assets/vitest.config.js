@@ -18,6 +18,11 @@ export default defineConfig({
 		alias: {
 			'@mocks': path.resolve(__dirname, '__mocks__'),
 			'pydio/http/api': path.resolve(__dirname, '__mocks__/pydio-http-api.js'),
+			'pydio/http/resources-manager': path.resolve(__dirname, '__mocks__/pydio/http/resources-manager.js'),
+			'pydio/http/search-api': path.resolve(__dirname, '__mocks__/pydio/http/search-api.js'),
+			'pydio/model/data-model': path.resolve(__dirname, '__mocks__/pydio/model/data-model.js'),
+			'pydio/model/empty-node-provider': path.resolve(__dirname, '__mocks__/pydio/model/empty-node-provider.js'),
+			'pydio/model/node': path.resolve(__dirname, '__mocks__/pydio/model/node.js'),
 			'pydio/util/lang': path.resolve(__dirname, '__mocks__/pydio/util/lang.js'),
 			'pydio': path.resolve(__dirname, '__mocks__/pydio.js'),
 			'material-ui/styles': path.resolve(__dirname, '__mocks__/material-ui-styles.js'),

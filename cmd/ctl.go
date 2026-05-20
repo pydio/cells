@@ -52,6 +52,8 @@ import (
 	"github.com/pydio/cells/v5/common/utils/std"
 
 	_ "embed"
+	_ "github.com/pydio/cells/v5/common/config/service"
+	_ "github.com/pydio/cells/v5/common/registry/service"
 )
 
 var (
@@ -69,6 +71,7 @@ type model struct {
 
 	app          *tview.Application
 	title        *tview.TextView
+	debug        *tview.TextView
 	typesList    *tview.List
 	itemsList    *tview.List
 	metaView     *tview.TextView
@@ -93,10 +96,6 @@ type model struct {
 }
 
 func (m *model) startRegistry(ctx context.Context) {
-	m.app.QueueUpdateDraw(func() {
-		// empty list
-		m.loadItems(nil, registry.WithType(m.types[m.currentType].it))
-	})
 	er := std.Retry(ctx, func() error {
 		m.app.QueueUpdateDraw(func() {
 			m.title.Clear()
@@ -123,7 +122,7 @@ func (m *model) startRegistry(ctx context.Context) {
 	}, 10*time.Second, 10*time.Minute)
 	if er == nil {
 		m.app.QueueUpdateDraw(func() {
-			m.loadItems(nil, registry.WithType(m.types[m.currentType].it))
+			m.loadItems(nil, m.typeOpts(m.types[m.currentType])...)
 		})
 		// Now connected, set up a watch to detect disconnection
 		ww, er := m.reg.Watch(registry.WithType(pb.ItemType_SERVICE))
@@ -204,6 +203,7 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 		return
 	}
 	//	m.currentItem = 0
+
 	if ii, e := m.reg.List(oo...); e == nil {
 		for _, i := range ii {
 			name := i.Name()
@@ -240,6 +240,9 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 				}
 			}
 		}
+		//} else {
+		//	m.debug.Clear()
+		//	fmt.Fprintf(m.debug, "Error loaging items ? %+v", e)
 	}
 	m.updateList(m.itemsList, m.items, m.currentItem)
 }
@@ -300,13 +303,24 @@ func (m *model) getCurrentItem() item {
 	}
 }
 
+func (m *model) typeOpts(t item) []registry.Option {
+	if len(t.opts) > 0 {
+		return t.opts
+	}
+	return []registry.Option{registry.WithType(t.it)}
+}
+
 func (m *model) typesChanged(index int) {
 	t := m.types[index]
 	m.currentType = index
 	if t.it > 0 {
 		m.filterText.SetText("")
-		m.itemsList.SetTitle("| Results for " + t.it.String() + " |")
-		m.loadItems(m.pendingItem, registry.WithType(t.it))
+		title := t.it.String()
+		if len(t.opts) > 0 {
+			title = t.main
+		}
+		m.itemsList.SetTitle("| Results for " + title + " |")
+		m.loadItems(m.pendingItem, m.typeOpts(t)...)
 		m.pendingItem = nil
 	}
 }
@@ -403,12 +417,13 @@ func (m *model) renderButtons(i registry.Item) {
 
 func (m *model) initConfigView() {
 	if m.cfg == nil {
-		var err error
-		m.ctx, err = initManagerContext(m.ctx)
+		store, err := config.OpenStore(m.ctx, "grpc://")
 		if err != nil {
-			panic(err)
+			m.metaView.SetTitle("| Error |")
+			m.metaView.SetText("Cannot connect to config store: " + err.Error())
+			return
 		}
-		m.cfg = config.Get(m.ctx)
+		m.cfg = store.Val()
 		m.configsView.SetSelectedFunc(func(node *tview.TreeNode) {
 			node.SetExpanded(!node.IsExpanded())
 		})
@@ -487,7 +502,7 @@ func (m *model) sendCommand(ctx context.Context, cmdName, itemName string) {
 	go func() {
 		<-time.After(2 * time.Second)
 		m.app.QueueUpdateDraw(func() {
-			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+			m.loadItems(m.getCurrentItem().ri, m.typeOpts(m.types[m.currentType])...)
 		})
 	}()
 }
@@ -529,15 +544,19 @@ DESCRIPTION
   This command connects to a Registry to list active items currently registered with their metadata. It can also display
   all configuration stored inside the config store.
 
-  Item types are one of the following : 
+  Item types are one of the following :
 	- Nodes
 	- Services
 	- Servers
 	- DAOs
-	- Addresses
+	- Listeners
 	- Endpoints
 	- Tags
 	- Stats
+	- Storages
+	- Connections
+	- Queues
+	- Caches
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags())
@@ -559,6 +578,8 @@ DESCRIPTION
 			return err
 		}
 
+		mgr.Bootstrap(ctlBootstrap)
+
 		ctx = mgr.Context()
 		cmd.SetContext(ctx)
 
@@ -572,11 +593,38 @@ DESCRIPTION
 				{main: "Nodes", secondary: "Main Processes", shortcut: 'a', it: pb.ItemType_NODE},
 				{main: "Services", secondary: "Cells Services", shortcut: 'b', it: pb.ItemType_SERVICE},
 				{main: "Servers", secondary: "Cells Servers", shortcut: 's', it: pb.ItemType_SERVER},
-				{main: "DAOs", secondary: "Data Stores", shortcut: 'd', it: pb.ItemType_DAO},
-				{main: "Addresses", secondary: "Running Servers", shortcut: 'e', it: pb.ItemType_ADDRESS},
+				{main: "Listeners", secondary: "Bound Network Addresses", shortcut: 'e', it: pb.ItemType_ADDRESS},
 				{main: "Endpoints", secondary: "Registered API Endpoints", shortcut: 'f', it: pb.ItemType_ENDPOINT},
 				{main: "Tags", secondary: "Grouping Tags", shortcut: 'g', it: pb.ItemType_TAG},
 				{main: "Stats", secondary: "Statistics", shortcut: 'h', it: pb.ItemType_STATS},
+				{main: "Storages", secondary: "Storage Backends", shortcut: 'i', it: pb.ItemType_STORAGE, opts: []registry.Option{
+					registry.WithType(pb.ItemType_GENERIC),
+					registry.WithFilter(func(i registry.Item) bool {
+						var g registry.Generic
+						return i.As(&g) && g.Type() == pb.ItemType_STORAGE
+					}),
+				}},
+				{main: "Connections", secondary: "Client Connections", shortcut: 'j', it: pb.ItemType_GENERIC, opts: []registry.Option{
+					registry.WithType(pb.ItemType_GENERIC),
+					registry.WithFilter(func(i registry.Item) bool {
+						var g registry.Generic
+						return i.As(&g) && g.Type() == pb.ItemType_GENERIC &&
+							!strings.HasPrefix(i.Name(), "queue-") &&
+							!strings.HasPrefix(i.Name(), "cache-")
+					}),
+				}},
+				{main: "Queues", secondary: "Message Queues", shortcut: 'k', it: pb.ItemType_GENERIC, opts: []registry.Option{
+					registry.WithType(pb.ItemType_GENERIC),
+					registry.WithFilter(func(i registry.Item) bool {
+						return strings.HasPrefix(i.Name(), "queue-")
+					}),
+				}},
+				{main: "Caches", secondary: "Cache Backends", shortcut: 'l', it: pb.ItemType_GENERIC, opts: []registry.Option{
+					registry.WithType(pb.ItemType_GENERIC),
+					registry.WithFilter(func(i registry.Item) bool {
+						return strings.HasPrefix(i.Name(), "cache-")
+					}),
+				}},
 				{main: "Configs", secondary: "Configuration Keys", shortcut: 'c'},
 				{main: "Quit", secondary: "Press to exit", shortcut: 'q', selected: func() {
 					app.Stop()
@@ -584,6 +632,9 @@ DESCRIPTION
 			},
 		}
 		m.title = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText("Cells Registry Browser - " + runtime.RegistryURL())
+		m.title.SetBorder(true)
+
+		// m.debug = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText("Debug Mode")
 		m.title.SetBorder(true)
 
 		m.typesList = tview.NewList()
@@ -618,7 +669,7 @@ DESCRIPTION
 
 		reloadButton := tview.NewButton("Reload")
 		reloadButton.SetSelectedFunc(func() {
-			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+			m.loadItems(m.getCurrentItem().ri, m.typeOpts(m.types[m.currentType])...)
 			reloadButton.Blur()
 		})
 
@@ -630,7 +681,7 @@ DESCRIPTION
 				statusLabel = "Show All"
 			}
 			statusButton.SetLabel(statusLabel)
-			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+			m.loadItems(m.getCurrentItem().ri, m.typeOpts(m.types[m.currentType])...)
 			statusButton.Blur()
 		})
 
@@ -720,6 +771,7 @@ DESCRIPTION
 
 		mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(m.title, 3, 0, false).
+			//AddItem(m.debug, 3, 0, false).
 			AddItem(flex, 0, 1, true)
 
 		return app.SetRoot(mainFlex, true).EnableMouse(true).Run()
@@ -734,6 +786,7 @@ func init() {
 type item struct {
 	ri              registry.Item
 	it              pb.ItemType
+	opts            []registry.Option
 	main, secondary string
 	shortcut        rune
 	selected        func()

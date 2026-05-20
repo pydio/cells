@@ -150,7 +150,8 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			g.P("}")
 
 			if !method.Desc.IsStreamingServer() {
-				g.P("func (s *", stubServer, "_", method.GoName, "Streamer) SendAndClose(*", method.Output.Desc.Name(), ") error {")
+				g.P("func (s *", stubServer, "_", method.GoName, "Streamer) SendAndClose(resp *", method.Output.Desc.Name(), ") error {")
+				g.P("s.RespChan <- resp")
 				g.P("return nil")
 				g.P("}")
 			}

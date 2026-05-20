@@ -1,0 +1,6 @@
+runtime: main
+connections:
+  grpcconn:
+    uri: 0.0.0.0:8030
+    services:
+      - filter: "{{ .Name }} ~= pydio.grpc..*"

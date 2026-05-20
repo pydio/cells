@@ -18,14 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Fragment} from 'react'
-const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
-import {muiThemeable} from 'material-ui/styles'
-import {MenuItem, IconButton, Toggle} from 'material-ui'
+import React, { Fragment } from 'react';
+const { ModernSelectField, ModernTextField, ThemedModernStyles } =
+    Pydio.requireLib('hoc');
+import { muiThemeable } from 'material-ui/styles';
+import { MenuItem, IconButton, Toggle } from 'material-ui';
 
-
-class TypeSelectionBoard extends React.Component{
-
+class TypeSelectionBoard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -33,29 +32,42 @@ class TypeSelectionBoard extends React.Component{
         };
     }
 
-    addSelectionValue(){
-        const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
-        const {data, setAdditionalDataKey} = this.props;
-        const {items = []} = data;
-        
+    addSelectionValue() {
+        const { selectorNewKey, selectorNewValue, selectorNewColor } =
+            this.state;
+        const { data, setAdditionalDataKey } = this.props;
+        const { items = [] } = data;
+
         // Check if key already exists
-        if(items.some(item => item.key === selectorNewKey)) {
-            this.setState({keyError: ''});
+        if (items.some((item) => item.key === selectorNewKey)) {
+            this.setState({ keyError: '' });
             return;
         }
-        
-        items.push({key:selectorNewKey, value:selectorNewValue, color: selectorNewColor});
+
+        items.push({
+            key: selectorNewKey,
+            value: selectorNewValue,
+            color: selectorNewColor,
+        });
         setAdditionalDataKey('items', items);
-        this.setState({selectorNewKey:'', selectorNewValue: '', selectorNewColor:'', keyError: ''});
+        this.setState({
+            selectorNewKey: '',
+            selectorNewValue: '',
+            selectorNewColor: '',
+            keyError: '',
+        });
     }
 
     removeSelectionValue(k) {
-        const {data, setAdditionalDataKey} = this.props;
-        const {items = []} = data;
-        setAdditionalDataKey('items', items.filter(i => i.key !== k));
+        const { data, setAdditionalDataKey } = this.props;
+        const { items = [] } = data;
+        setAdditionalDataKey(
+            'items',
+            items.filter((i) => i.key !== k),
+        );
     }
 
-    renderColor(color = '', disabled=false) {
+    renderColor(color = '', disabled = false) {
         const cc = [
             '#9c27b0',
             '#607d8b',
@@ -71,68 +83,171 @@ class TypeSelectionBoard extends React.Component{
             '#999',
             '#000',
         ];
-        if(disabled) {
-            return <span className={'mdi mdi-label' + (color?'':'-outline')} style={{color:color||'#ccc', marginRight: 5}}/>
+        if (disabled) {
+            return (
+                <span
+                    className={'mdi mdi-label' + (color ? '' : '-outline')}
+                    style={{ color: color || '#ccc', marginRight: 5 }}
+                />
+            );
         }
         return (
-            <span style={{width: 60, marginRight: 6}}>
-                <ModernSelectField disabled={disabled} fullWidth={true} value={color} onChange={(e,i,v) => {this.setState({selectorNewColor:v})}}>
-                    <MenuItem value={''} primaryText={<span className={'mdi mdi-label-outline'} style={{color:'#ccc'}}/>}/>
-                    {cc.map(c => <MenuItem value={c} primaryText={<span className={'mdi mdi-label'} style={{color:c}}/>}/>)}
+            <span style={{ width: 60, marginRight: 6 }}>
+                <ModernSelectField
+                    disabled={disabled}
+                    fullWidth={true}
+                    value={color}
+                    onChange={(e, i, v) => {
+                        this.setState({ selectorNewColor: v });
+                    }}
+                >
+                    <MenuItem
+                        value={''}
+                        primaryText={
+                            <span
+                                className={'mdi mdi-label-outline'}
+                                style={{ color: '#ccc' }}
+                            />
+                        }
+                    />
+                    {cc.map((c) => (
+                        <MenuItem
+                            value={c}
+                            primaryText={
+                                <span
+                                    className={'mdi mdi-label'}
+                                    style={{ color: c }}
+                                />
+                            }
+                        />
+                    ))}
                 </ModernSelectField>
             </span>
-        )
+        );
     }
 
     render() {
-        const {data, m, setAdditionalDataKey, muiTheme} = this.props;
-        const {selectorNewKey, selectorNewValue, selectorNewColor, keyError} = this.state;
-        const {items = []} = data;
-        const ModernStyles = ThemedModernStyles(muiTheme)
-        
+        const { data, m, setAdditionalDataKey, muiTheme } = this.props;
+        const { selectorNewKey, selectorNewValue, selectorNewColor, keyError } =
+            this.state;
+        const { items = [] } = data;
+        const ModernStyles = ThemedModernStyles(muiTheme);
+
         // Check for duplicate as user types
-        const isDuplicate = selectorNewKey && items.some(item => item.key === selectorNewKey);
+        const isDuplicate =
+            selectorNewKey && items.some((item) => item.key === selectorNewKey);
         const hasError = isDuplicate || keyError;
-        
-        return(
+
+        return (
             <Fragment>
-                <div style={{padding: 10, paddingRight: 0, backgroundColor: '#f5f5f5', borderRadius: 3}}>
-                    <div style={{fontSize: 13}}>{m('editor.selection')}</div>
-                    <div>{items.map(i => {
-                        const {key, value, color} = i;
-                        return (
-                            <div key={key} style={{display:'flex', alignItems:'center'}}>
-                                {this.renderColor(color, true)}
-                                <span style={{marginRight: 6, width: 80}}><ModernTextField value={key} disabled={true} fullWidth={true}/></span>
-                                <span style={{flex: 1}}><ModernTextField value={value} disabled={true} fullWidth={true}/></span>
-                                <span><IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:'rgba(0,0,0,.3)'}} onClick={()=>{this.removeSelectionValue(key)}}/></span>
-                            </div>
-                        )
-                    })}</div>
-                    <div style={{display:'flex'}} key={"new-selection-key"}>
+                <div
+                    style={{
+                        padding: 10,
+                        paddingRight: 0,
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: 3,
+                    }}
+                >
+                    <div style={{ fontSize: 13 }}>{m('editor.selection')}</div>
+                    <div>
+                        {items.map((i) => {
+                            const { key, value, color } = i;
+                            return (
+                                <div
+                                    key={key}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    {this.renderColor(color, true)}
+                                    <span style={{ marginRight: 6, width: 80 }}>
+                                        <ModernTextField
+                                            value={key}
+                                            disabled={true}
+                                            fullWidth={true}
+                                        />
+                                    </span>
+                                    <span style={{ flex: 1 }}>
+                                        <ModernTextField
+                                            value={value}
+                                            disabled={true}
+                                            fullWidth={true}
+                                        />
+                                    </span>
+                                    <span>
+                                        <IconButton
+                                            iconClassName={'mdi mdi-delete'}
+                                            iconStyle={{
+                                                color: 'rgba(0,0,0,.3)',
+                                            }}
+                                            onClick={() => {
+                                                this.removeSelectionValue(key);
+                                            }}
+                                        />
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div style={{ display: 'flex' }} key={'new-selection-key'}>
                         {this.renderColor(selectorNewColor)}
-                        <span style={{width: 80, marginRight: 6}}>
-                        <ModernTextField 
-                            value={selectorNewKey} 
-                            onChange={(e,v)=>{this.setState({selectorNewKey:v, keyError: ''})}} 
-                            hintText={m('editor.selection.key')} 
-                            fullWidth={true}
-                            errorText={hasError ? (m('editor.selection.key_exists')) : ''}
-                        />
-                    </span>
-                        <span style={{flex: 1}}>
-                        <ModernTextField value={selectorNewValue} onChange={(e,v)=>{this.setState({selectorNewValue:v})}} hintText={m('editor.selection.value')} fullWidth={true}/></span>
-                        <span><IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue || hasError}/></span>
+                        <span style={{ width: 80, marginRight: 6 }}>
+                            <ModernTextField
+                                value={selectorNewKey}
+                                onChange={(e, v) => {
+                                    this.setState({
+                                        selectorNewKey: v,
+                                        keyError: '',
+                                    });
+                                }}
+                                hintText={m('editor.selection.key')}
+                                fullWidth={true}
+                                errorText={
+                                    hasError
+                                        ? m('editor.selection.key_exists')
+                                        : ''
+                                }
+                            />
+                        </span>
+                        <span style={{ flex: 1 }}>
+                            <ModernTextField
+                                value={selectorNewValue}
+                                onChange={(e, v) => {
+                                    this.setState({ selectorNewValue: v });
+                                }}
+                                hintText={m('editor.selection.value')}
+                                fullWidth={true}
+                            />
+                        </span>
+                        <span>
+                            <IconButton
+                                iconClassName={'mdi mdi-plus'}
+                                onClick={() => {
+                                    this.addSelectionValue();
+                                }}
+                                disabled={
+                                    !selectorNewKey ||
+                                    !selectorNewValue ||
+                                    hasError
+                                }
+                            />
+                        </span>
                     </div>
                 </div>
                 <div>
-                    <Toggle label={m('editor.selection.steps')} labelPosition={"left"} toggled={data.steps} onToggle={(e,v) => setAdditionalDataKey('steps', v)} {...ModernStyles.toggleFieldV2}/>
+                    <Toggle
+                        label={m('editor.selection.steps')}
+                        labelPosition={'left'}
+                        toggled={data.steps}
+                        onToggle={(e, v) => setAdditionalDataKey('steps', v)}
+                        {...ModernStyles.toggleFieldV2}
+                    />
                 </div>
             </Fragment>
         );
-
     }
 }
 
-TypeSelectionBoard = muiThemeable()(TypeSelectionBoard)
-export default TypeSelectionBoard
+TypeSelectionBoard = muiThemeable()(TypeSelectionBoard);
+export default TypeSelectionBoard;

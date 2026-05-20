@@ -38,7 +38,7 @@ const addNode = (tree, path, meta) => {
 export const pathsToTree = (groupedMap) => {
     const tree = {};
 
-    Object.keys(groupedMap).forEach(path => {
+    Object.keys(groupedMap).forEach((path) => {
         const meta = groupedMap[path];
         path = path.replace(/(^\/|\/$)/g, '').replace(/\\/g, '/');
 
@@ -61,7 +61,7 @@ export const groupConfigsByNamespace = (configs, supportTemplates) => {
     const groupedNS = {};
 
     configs.forEach((meta, key) => {
-        const {type, groupName = ''} = meta;
+        const { type, groupName = '' } = meta;
         if (type === 'json' && !supportTemplates) {
             return;
         }

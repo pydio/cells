@@ -52,8 +52,7 @@ import (
 )
 
 var (
-	//go:embed start-bootstrap.yaml
-	bootstrapYAML string
+	DefaultBootstrapYAML string
 
 	//go:embed start-storages.yaml
 	storagesYAML string
@@ -211,26 +210,36 @@ ENVIRONMENT
 		// Checking if we need to install something
 		if niYamlFile != "" || niJsonFile != "" {
 
-			if err := config.SaveNewFromSample(ctx); err != nil {
-				return err
+			doInstall := true
+			if !runtime.GetBool(runtime.KeyForce) {
+				if err := copyConfigCheck.RunE(cmd, args); err == nil {
+					log.Logger(ctx).Warn("Config already set, skipping install. Use --force to force install")
+					doInstall = false
+				}
 			}
 
-			installConf, err = nonInteractiveInstall(ctx)
-			fatalIfError(cmd, err)
+			if doInstall {
+				if err := config.SaveNewFromSample(ctx); err != nil {
+					return err
+				}
 
-			// we only non-interactively configured the proxy, launching browser install
-			// make sure default bind is set here
-			proxyConf = installConf.GetProxyConfig()
-			if len(proxyConf.Binds) == 0 {
-				fatalIfError(cmd, errors.New("no bind was found in default site, non interactive install probably has a wrong format"))
-			}
+				installConf, err = nonInteractiveInstall(ctx)
+				fatalIfError(cmd, err)
 
-			if niExitAfterInstall {
-				<-time.After(time.Second)
-				cmd.Println("")
-				cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
-				cmd.Println("")
-				os.Exit(0)
+				// we only non-interactively configured the proxy, launching browser install
+				// make sure default bind is set here
+				proxyConf = installConf.GetProxyConfig()
+				if len(proxyConf.Binds) == 0 {
+					fatalIfError(cmd, errors.New("no bind was found in default site, non interactive install probably has a wrong format"))
+				}
+
+				if niExitAfterInstall {
+					<-time.After(time.Second)
+					cmd.Println("")
+					cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
+					cmd.Println("")
+					os.Exit(0)
+				}
 			}
 
 		} else {
@@ -311,7 +320,7 @@ ENVIRONMENT
 			}
 		} else {
 			tmpl := template.New("bootstrap").Delims("{{{{", "}}}}")
-			if _, err := tmpl.Parse(bootstrapYAML); err != nil {
+			if _, err := tmpl.Parse(DefaultBootstrapYAML); err != nil {
 				return err
 			}
 
@@ -449,6 +458,8 @@ func init() {
 	flags.String(runtime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
 	flags.String(runtime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
 	flags.Bool(runtime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
+
+	flags.Bool(runtime.KeyForce, false, "Force the installation")
 
 	RootCmd.AddCommand(StartCmd)
 }

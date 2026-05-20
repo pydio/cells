@@ -23,6 +23,7 @@ package metrics
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
@@ -69,9 +70,22 @@ func InitReaders(ctx context.Context, svc otel2.Service, cfg Config) error {
 		return err
 	}
 
-	// Prefix all names with cells
+	// Prefix all names with cells. For gocloud.dev instruments, also append the backend
+	// provider name to avoid Prometheus "collected before" duplicate errors when multiple
+	// backends (e.g. NATS broker + fsqueue async queue) are active in the same process:
+	// each backend creates a distinct OTel scope with gocdk_provider as a scope attribute,
+	// producing identical metric names+labels once WithoutScopeInfo strips the scope.
 	var view metric.View = func(i metric.Instrument) (metric.Stream, bool) {
-		s := metric.Stream{Name: "cells_" + i.Name, Description: i.Description, Unit: i.Unit}
+		name := "cells_" + i.Name
+		if strings.HasPrefix(i.Scope.Name, "gocloud.dev/") {
+			if v, ok := i.Scope.Attributes.Value(attribute.Key("gocdk_provider")); ok {
+				providerPath := v.AsString()
+				if idx := strings.LastIndex(providerPath, "/"); idx >= 0 {
+					name += "_" + providerPath[idx+1:]
+				}
+			}
+		}
+		s := metric.Stream{Name: name, Description: i.Description, Unit: i.Unit}
 		return s, true
 	}
 

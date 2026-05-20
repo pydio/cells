@@ -18,18 +18,26 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {NumberInput} from '@mantine/core'
-import {InputProps} from "./CommonInputProps";
-import {NumberRangeModifiers} from "./SearchModifiers";
-import {RangeSearchModifierInput} from "./SearchModifierInput";
+import React from 'react';
+import { NumberInput } from '@mantine/core';
+import { InputProps } from './CommonInputProps';
+import { NumberRangeModifiers } from './SearchModifiers';
+import { RangeSearchModifierInput } from './SearchModifierInput';
 
-export const NumbersInputSearch: React.FC<InputProps> = ({label, description, placeholder, disabled, value, onChange, errorText}) => {
+export const NumbersInputSearch: React.FC<InputProps> = ({
+    label,
+    description,
+    placeholder,
+    disabled,
+    value,
+    onChange,
+    errorText,
+}) => {
     const simpleEnter = (event: React.KeyboardEvent) => {
-        if(event.key === 'Enter'){
+        if (event.key === 'Enter') {
             event.currentTarget.blur();
         }
-    }
+    };
 
     return (
         <RangeSearchModifierInput
@@ -37,19 +45,21 @@ export const NumbersInputSearch: React.FC<InputProps> = ({label, description, pl
             onChange={onChange}
             items={NumberRangeModifiers}
         >
-            {({text, leftSection, onTextChange}) => (
+            {({ text, leftSection, onTextChange }) => (
                 <NumberInput
                     label={label}
                     value={text === '' ? '' : parseFloat(text) || ''}
                     disabled={disabled}
                     error={errorText}
                     leftSection={leftSection}
-                    onChange={(v) => onTextChange(v === '' ? '' : v?.toString() || '')}
+                    onChange={(v) =>
+                        onTextChange(v === '' ? '' : v?.toString() || '')
+                    }
                     onKeyPress={simpleEnter}
                     description={description}
                     placeholder={placeholder}
                 />
             )}
         </RangeSearchModifierInput>
-    )
-}
+    );
+};

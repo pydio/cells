@@ -669,7 +669,8 @@ func (s *SyncChangesStub_PutStreamer) Send(response *PutSyncChangeResponse) erro
 	s.RespChan <- response
 	return nil
 }
-func (s *SyncChangesStub_PutStreamer) SendAndClose(*PutSyncChangeResponse) error {
+func (s *SyncChangesStub_PutStreamer) SendAndClose(resp *PutSyncChangeResponse) error {
+	s.RespChan <- resp
 	return nil
 }
 

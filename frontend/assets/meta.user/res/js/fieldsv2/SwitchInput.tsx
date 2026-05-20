@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import { Input, Switch } from '@mantine/core'
-import { InputProps } from "./CommonInputProps";
+import React from 'react';
+import { Input, Switch } from '@mantine/core';
+import { InputProps } from './CommonInputProps';
 
 export const SwitchInput: React.FC<InputProps> = ({
     label,
@@ -33,7 +33,6 @@ export const SwitchInput: React.FC<InputProps> = ({
     onFocus,
     onBlur,
 }: InputProps) => {
-
     return (
         <Input.Wrapper
             label={label}

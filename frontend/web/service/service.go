@@ -100,6 +100,9 @@ func init() {
 							"secureHeaders": map[string]interface{}{
 								"X-XSS-Protection": "1; mode=block",
 							},
+							"secureCookies": map[string]interface{}{
+								"SameSite": "Strict",
+							},
 							"plugin": map[string]interface{}{
 								"editor.libreoffice": map[string]interface{}{
 									"LIBREOFFICE_HOST": "localhost",

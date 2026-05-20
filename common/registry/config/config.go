@@ -168,7 +168,9 @@ type configRegistry struct {
 	namedCacheLock *sync.RWMutex
 	namedCache     map[string]string
 
-	watchOnce *sync.Once
+	watchOnce  *sync.Once
+	watchReady chan struct{}
+	watchErr   error
 }
 
 type broadcaster struct {
@@ -189,6 +191,7 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 		broadcastersLock: &sync.RWMutex{},
 		broadcasters:     make(map[string]broadcaster),
 		watchOnce:        &sync.Once{},
+		watchReady:       make(chan struct{}),
 	}
 	if byName {
 		c.namedCacheLock = &sync.RWMutex{}
@@ -200,8 +203,11 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 func (c *configRegistry) watch() error {
 	w, err := c.store.Watch(watch.WithPath("*", "*"), watch.WithChangesOnly())
 	if err != nil {
+		c.watchErr = err
+		close(c.watchReady)
 		return err
 	}
+	close(c.watchReady)
 
 	for {
 		res, err := w.Next()
@@ -537,6 +543,10 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	c.watchOnce.Do(func() {
 		go c.watch()
 	})
+	<-c.watchReady
+	if c.watchErr != nil {
+		return nil, c.watchErr
+	}
 
 	// parse the options, fallback to the default domain
 	var wo registry.Options
