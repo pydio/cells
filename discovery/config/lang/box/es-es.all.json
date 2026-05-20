@@ -81,7 +81,7 @@
     "other": "Condición Libre"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "Ruta JSON"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
