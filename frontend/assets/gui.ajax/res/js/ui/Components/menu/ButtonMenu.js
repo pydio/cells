@@ -1,5 +1,5 @@
 import Utils from './Utils';
-import MenuItemsConsumer from './MenuItemsConsumer'
+import MenuItemsConsumer from './MenuItemsConsumer';
 
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -22,82 +22,128 @@ import MenuItemsConsumer from './MenuItemsConsumer'
  */
 import PropTypes from 'prop-types';
 
-import React from "react";
-import ReactDOM from "react-dom";
-import {RaisedButton, FlatButton} from "material-ui";
-import Pydio from 'pydio'
-const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { RaisedButton, FlatButton } from 'material-ui';
+import Pydio from 'pydio';
+const {
+    ThemedContainers: { Popover },
+} = Pydio.requireLib('hoc');
 
 class ButtonMenu extends React.Component {
     static propTypes = {
-        buttonTitle : PropTypes.oneOfType([PropTypes.string,PropTypes.object]).isRequired,
-        menuItems   : PropTypes.array.isRequired,
-        className   : PropTypes.string,
-        raised      : PropTypes.bool,
-        direction   : PropTypes.oneOf(['left', 'right'])
+        buttonTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+            .isRequired,
+        menuItems: PropTypes.array.isRequired,
+        className: PropTypes.string,
+        raised: PropTypes.bool,
+        direction: PropTypes.oneOf(['left', 'right']),
     };
 
-    state = {showMenu: false};
+    state = { showMenu: false };
 
     componentDidMount() {
-        if(this.props.openOnEvent){
-            this.props.pydio.observe(this.props.openOnEvent, () => { this.showMenu();});
+        if (this.props.openOnEvent) {
+            this.props.pydio.observe(this.props.openOnEvent, () => {
+                this.showMenu();
+            });
         }
     }
 
     showMenu = (event) => {
         let anchor;
-        if(event){
+        if (event) {
             anchor = event.currentTarget;
-        }else{
+        } else {
             anchor = this._buttonDOM;
         }
         this.setState({
             showMenu: true,
-            anchor: anchor
-        })
+            anchor: anchor,
+        });
     };
 
     menuClicked = (event, index, object) => {
-        this.setState({showMenu: false});
+        this.setState({ showMenu: false });
     };
 
     render() {
-        const {showMenu, anchor} = this.state;
-        let label = <span style={{whiteSpace:'nowrap'}}>{this.props.buttonTitle} <span className="mdi mdi-menu-down"/></span>
+        const { showMenu, anchor } = this.state;
+        const {
+            id,
+            className,
+            direction,
+            menuItems,
+            buttonTitle,
+            buttonHoverColor,
+            primary,
+            secondary,
+            disabled,
+            raised,
+            buttonStyle,
+            buttonLabelStyle,
+            buttonBackgroundColor,
+            useLayerForClickAway = false,
+        } = this.props;
+        let label = (
+            <span style={{ whiteSpace: 'nowrap' }}>
+                {buttonTitle} <span className="mdi mdi-menu-down" />
+            </span>
+        );
         let button;
-        let activeColor = this.props.buttonHoverColor || 'rgba(255,255,255,0.2)';
+        let activeColor = buttonHoverColor || 'rgba(255,255,255,0.2)';
         const props = {
-            primary: this.props.primary,
-            secondary: this.props.secondary,
-            disabled: this.props.disabled,
+            primary: primary,
+            secondary: secondary,
+            disabled: disabled,
             label: label,
             onClick: this.showMenu,
-            labelStyle:{...this.props.buttonLabelStyle},
-            style:this.props.buttonStyle,
-            backgroundColor:showMenu ? activeColor : this.props.buttonBackgroundColor,
-            hoverColor:this.props.buttonHoverColor,
+            labelStyle: { ...buttonLabelStyle },
+            style: buttonStyle,
+            backgroundColor: showMenu ? activeColor : buttonBackgroundColor,
+            hoverColor: buttonHoverColor,
         };
-        const {menuItems} = this.props;
-        if(menuItems.length){
-            if(this.props.raised){
-                button = <RaisedButton {...props} ref={(b) => {this._buttonDOM = ReactDOM.findDOMNode(b);}}/>;
-            }else{
-                button = <FlatButton {...props} ref={(b) => {this._buttonDOM = ReactDOM.findDOMNode(b);}}/>;
+        if (menuItems.length) {
+            if (raised) {
+                button = (
+                    <RaisedButton
+                        {...props}
+                        ref={(b) => {
+                            this._buttonDOM = ReactDOM.findDOMNode(b);
+                        }}
+                    />
+                );
+            } else {
+                button = (
+                    <FlatButton
+                        {...props}
+                        ref={(b) => {
+                            this._buttonDOM = ReactDOM.findDOMNode(b);
+                        }}
+                    />
+                );
             }
         }
         return (
-            <span id={this.props.id} className={this.props.className}>
+            <span id={id} className={className}>
                 {button}
                 <Popover
                     className="menuPopover"
                     open={showMenu}
                     anchorEl={anchor}
-                    anchorOrigin={{horizontal: this.props.direction || 'left', vertical: 'bottom'}}
-                    targetOrigin={{horizontal: this.props.direction || 'left', vertical: 'top'}}
-                    onRequestClose={() => {this.setState({showMenu: false})}}
-                    style={{marginTop: 1}}
-                    useLayerForClickAway={false}
+                    anchorOrigin={{
+                        horizontal: direction || 'left',
+                        vertical: 'bottom',
+                    }}
+                    targetOrigin={{
+                        horizontal: direction || 'left',
+                        vertical: 'top',
+                    }}
+                    onRequestClose={() => {
+                        this.setState({ showMenu: false });
+                    }}
+                    style={{ marginTop: 1 }}
+                    useLayerForClickAway={useLayerForClickAway}
                 >
                     {Utils.itemsToMenu(menuItems, this.menuClicked)}
                 </Popover>
@@ -106,5 +152,4 @@ class ButtonMenu extends React.Component {
     }
 }
 
-
-export default MenuItemsConsumer(ButtonMenu)
+export default MenuItemsConsumer(ButtonMenu);

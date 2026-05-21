@@ -210,6 +210,7 @@ export const HeaderBlock = ({ editor }) => {
                     toolbars={['upload', 'create']}
                     buttonTitle={'+'}
                     controller={pydio.Controller}
+                    useLayerForClickAway={true}
                 />
                 {dirty && (
                     <span
