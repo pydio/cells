@@ -852,10 +852,10 @@
     "other": "Nummer"
   },
   "metadata.group.lists": {
-    "other": "List"
+    "other": "Liste"
   },
   "metadata.group.internal": {
-    "other": "Internal"
+    "other": "Intern"
   },
   "metadata.type.boolean": {
     "other": "Wahr/Falsch-Wert"
