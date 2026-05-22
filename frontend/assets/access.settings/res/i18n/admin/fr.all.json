@@ -851,6 +851,12 @@
   "metadata.type.integer": {
     "other": "Nombre"
   },
+  "metadata.group.lists": {
+    "other": "List"
+  },
+  "metadata.group.internal": {
+    "other": "Internal"
+  },
   "metadata.type.boolean": {
     "other": "Valeur Vrai / Faux"
   },
