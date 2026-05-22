@@ -350,6 +350,9 @@ func GetJsonSchema(label string, format string) ([]byte, error) {
 }
 
 func GetJsonSchemaSample(label string, name string, format string) (*structpb.Struct, error) {
+	if format == "" {
+		return nil, nil
+	}
 	byte_schema, err := NewJSONSchemaFactory(label).BuildJsonSchema(label, name, format)
 	if err != nil {
 		return nil, err

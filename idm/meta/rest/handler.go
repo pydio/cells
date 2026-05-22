@@ -289,13 +289,15 @@ func (s *UserMetaHandler) GetFieldSchema(req *restful.Request, rsp *restful.Resp
 
 func (s *UserMetaHandler) GetNamespaceSchema(req *restful.Request, rsp *restful.Response) error {
 	ctx := req.Request.Context()
-	typeParam := req.QueryParameter("FieldType")
-	nameParam := req.QueryParameter("Namespace")
-	formatParam := req.QueryParameter("Format")
-	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: typeParam, Namespace: nameParam, Format: formatParam})
+	fd := req.QueryParameter("FieldType")
+	ns := req.QueryParameter("Namespace")
+	fp := req.QueryParameter("Format")
+
+	schema, err := s.ServiceClient(ctx).GetNamespaceSchema(ctx, &idm.GetNamespaceSchemaRequest{FieldType: fd, Namespace: ns, Format: fp})
 
 	if err != nil {
-		return err
+		log.Logger(ctx).Error("Error getting namespace schema", zap.String("fieldType", fd), zap.String("namespace", ns), zap.Error(err))
+		return errors.WithMessagef(errors.UnmarshalError, "failed to generate schema for namespace %s: %v", ns, err)
 	}
 	return rsp.WriteEntity(schema)
 }
