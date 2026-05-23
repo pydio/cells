@@ -851,6 +851,12 @@
   "metadata.type.integer": {
     "other": "数字"
   },
+  "metadata.group.lists": {
+    "other": "List"
+  },
+  "metadata.group.internal": {
+    "other": "Internal"
+  },
   "metadata.type.boolean": {
     "other": "真/假值"
   },

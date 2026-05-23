@@ -851,6 +851,12 @@
   "metadata.type.integer": {
     "other": "Номер"
   },
+  "metadata.group.lists": {
+    "other": "List"
+  },
+  "metadata.group.internal": {
+    "other": "Internal"
+  },
   "metadata.type.boolean": {
     "other": "Істина/Хибність"
   },
