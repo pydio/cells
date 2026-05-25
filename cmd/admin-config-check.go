@@ -33,7 +33,8 @@ import (
 )
 
 var (
-	configCheckURL string
+	configCheckURL       string
+	errNoDatasourceFound = errors.New("no datasource found")
 )
 
 // delConfigCmd deletes a configuration
@@ -59,17 +60,18 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if configCheckURL == "" {
-			configCheckURL = runtime.ConfigURL()
+		checkURL := configCheckURL
+		if checkURL == "" {
+			checkURL = runtime.ConfigURL()
 		}
-		if strings.Contains(configCheckURL, "?") {
-			configCheckURL += "&readOnly=true"
+		if strings.Contains(checkURL, "?") {
+			checkURL += "&readOnly=true"
 		} else {
-			configCheckURL += "?readOnly=true"
+			checkURL += "?readOnly=true"
 		}
 
-		cmd.Println("Checking config at " + configCheckURL)
-		s, err := config.OpenStore(cmd.Context(), configCheckURL)
+		cmd.Println("Checking config at " + checkURL)
+		s, err := config.OpenStore(cmd.Context(), checkURL)
 		if err != nil {
 			cmd.Println(promptui.IconBad + " Cannot open config: " + err.Error())
 			return err

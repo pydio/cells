@@ -259,39 +259,32 @@ ENVIRONMENT
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		// If no install file was provided, ensure the initial configuration is in place.
+		// If the check fails, hand off to the configure command (which performs the initial
+		// seeding and then restarts the start command itself).
+		if niYamlFile == "" && niJsonFile == "" {
+			if err := copyConfigCheck.RunE(cmd, args); err != nil {
+				if errors.Is(err, errNoDatasourceFound) {
+					return triggerInstall(
+						"We cannot find a configuration file ... ",
+						"Do you want to create one now",
+						cmd, args)
+				} else {
+					return triggerInstall(
+						"Oops, the configuration is not right ... ",
+						"Do you want to reset the initial configuration", cmd, args)
+				}
+			}
+		}
+
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 
-		//configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
-		//if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
-		//	return nil
-		//	//return triggerInstall(
-		//	//	"We cannot find a configuration file ... "+configFile,
-		//	//	"Do you want to create one now",
-		//	//	cmd, args)
-		//}
-
-		/* Init config
-		var er error
-		var isNew bool
-		ctx, isNew, er = initConfig(ctx, true)
-		if er != nil {
-			return er
-		}
-		// TODO - RECHECK BLANK INSTALL
-		if isNew && runtime.ConfigIsLocalFile() {
-			return nil
-			//return triggerInstall(
-			//	"Oops, the configuration is not right ... "+configFile,
-			//	"Do you want to reset the initial configuration", cmd, args)
-		}
-
-		// TODO - RECHECK USE OTHER FUNCS
 		for _, cc := range configChecks {
 			if e := cc(ctx); e != nil {
 				return e
 			}
-		}*/
+		}
 
 		bootstrap, err := manager.NewBootstrap(ctx)
 		if err != nil {
