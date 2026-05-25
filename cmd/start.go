@@ -280,12 +280,6 @@ ENVIRONMENT
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 
-		for _, cc := range configChecks {
-			if e := cc(ctx); e != nil {
-				return e
-			}
-		}
-
 		bootstrap, err := manager.NewBootstrap(ctx)
 		if err != nil {
 			return err
@@ -356,6 +350,12 @@ ENVIRONMENT
 
 		if configStore == nil {
 			return errors.New("no config store found")
+		}
+
+		for _, cc := range configChecks {
+			if e := cc(m.Context()); e != nil {
+				return e
+			}
 		}
 
 		// Reading template
