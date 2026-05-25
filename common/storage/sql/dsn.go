@@ -453,7 +453,7 @@ storages:
 				return nil, errors.New("not a gorm DB")
 			}
 			if tx := rootGormDB.Exec(fmt.Sprintf("create database %s", dbName)); tx.Error != nil {
-				return nil, tx.Error
+				return nil, fmt.Errorf("could not auto-create database %q: %w — the install user may lack the CREATE DATABASE privilege; either grant it or pre-create the database", dbName, tx.Error)
 			}
 		}
 		// Now reconnect to new DB to retrieve info

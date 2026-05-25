@@ -213,18 +213,28 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 	}
 
 	// Check if pre-configured DB is up and running
-	nbRetry := 20
-	ticker := time.NewTicker(10 * time.Second)
+	const nbRetry = 20
+	const retryInterval = 10 * time.Second
+	ticker := time.NewTicker(retryInterval)
 	defer ticker.Stop()
 	for attempt := 1; attempt <= nbRetry; attempt++ {
-		if res, _ := lib.PerformCheck(ctx, "DB", iConf); res.Success {
+		res, checkErr := lib.PerformCheck(ctx, "DB", iConf)
+		if res.Success {
 			break
 		}
+		if checkErr == nil {
+			checkErr = errors.New(res.JsonResult)
+		}
+		if !isRetryableDBError(checkErr) {
+			fmt.Printf("[Error] Database check failed (not retryable): %s\n", checkErr)
+			return nil, checkErr
+		}
 		if attempt == nbRetry {
-			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection configuration.")
+			fmt.Printf("[Error] Cannot connect to database after %d attempts: %s\n", nbRetry, checkErr)
+			fmt.Println("Double-check your server, credentials and connection configuration.")
 			return nil, errors.New("No DB. Aborting...")
 		}
-		fmt.Println("... Cannot connect to database, wait before retry")
+		fmt.Printf("... Database check failed (attempt %d/%d): %s — retrying in %s\n", attempt, nbRetry, checkErr, retryInterval)
 		select {
 		case <-ctx.Done():
 			fmt.Println("[Error] Retries interrupted by user, aborting...")
@@ -357,3 +367,32 @@ func replaceEnvVars(input []byte) ([]byte, error) {
 // spanOpen and spanClose are used to bound spans that
 // contain the name of an environment variable.
 var spanOpen, spanClose = []byte{'{', '$'}, []byte{'}'}
+
+// isRetryableDBError reports whether a DB check error is worth retrying.
+// Auth failures, missing privileges and malformed DSNs won't change between
+// retries — return false so install fails fast instead of spinning for 200s.
+// Anything else (network errors, server still starting up) stays retryable.
+func isRetryableDBError(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := err.Error()
+	nonRetryable := []string{
+		"Error 1045", // MySQL: access denied for user
+		"Error 1044", // MySQL: access denied for user to database
+		"Error 1142", // MySQL: table-level permission denied
+		"Error 1227", // MySQL: access denied; specific privilege required
+		"28000",      // Postgres: invalid authorization specification
+		"28P01",      // Postgres: invalid password
+		"42501",      // Postgres: insufficient privilege
+		"Unknown type",
+		"could not parse",
+		"invalid scheme",
+	}
+	for _, n := range nonRetryable {
+		if strings.Contains(s, n) {
+			return false
+		}
+	}
+	return true
+}
