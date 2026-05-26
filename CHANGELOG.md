@@ -1,8 +1,9 @@
-# Changes between v5.0.0-alpha00 and v5.0.0-beta01
+# Changes between v5.0.0-beta01 and v5.0.0
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v5.0.0-alpha00...v5.0.0-beta01)
+[See Full Changelog](https://github.com/pydio/cells/compare/v5.0.0-beta01...v5.0.0)
 
-- [#38523ba](https://github.com/pydio/cells/commit/38523baddf42cafeb1bc6baf7f229cd0a92b3b16): fix(pages): Fix HeaderBlock ButtonMenu by using useLayerForClickAway. Fix public links templates by adopting ModernListV2 and detecting the Pages case to disable the "display" option menu. (#930)
-- [#8a9549d](https://github.com/pydio/cells/commit/8a9549d257cd168218be5fef9953ecb6dc643c4e): fix(jsonschema): Fixing Get Json Schema error (#931)
-- [#e90b7f1](https://github.com/pydio/cells/commit/e90b7f1440f5a6aa3307fc999b57534fd2f88473): i18n: more messages + DE/FR translation
-- [#a087fd2](https://github.com/pydio/cells/commit/a087fd23a30099e2685d9d1185bed5795ceeca5f): chore: next development cycle
+- [#ac8e58b](https://github.com/pydio/cells/commit/ac8e58bbe22056889523ba160da904ef602f3bc1): fix: init check need to be moved after the manager is set up now
+- [#ffff950](https://github.com/pydio/cells/commit/ffff950f95c4f6b8150a6a001b1f2b318da9ed2e): fix: misleading log and error handling for db creation failure
+- [#51c0163](https://github.com/pydio/cells/commit/51c016302d6c4e48d1da4ba1d3aeb0834bc76599): fix: config check at the start command on missing config
+- [#a88fce0](https://github.com/pydio/cells/commit/a88fce00036d8e2d8d0255ac2acc6dfc639e0d80): i18n: forgotten messages + de/fr translation
+- [#c460630](https://github.com/pydio/cells/commit/c4606306dc164f3a981665cc98cf4927f204b80a): fix(meta): fix outdated build (#932)
