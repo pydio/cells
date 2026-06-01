@@ -71,7 +71,7 @@ type ThumbnailData struct {
 }
 
 type ThumbnailsMeta struct {
-	Processing bool            `json:"Processing,omitempty"`
+	Processing bool            `json:"Processing"`
 	Error      bool            `json:"Error,omitempty"`
 	Thumbnails []ThumbnailData `json:"thumbnails,omitempty"`
 }
