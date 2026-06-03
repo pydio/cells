@@ -245,15 +245,11 @@ func (t *topic) SendBatch(ctx context.Context, ms []*driver.Message) error {
 	tmpPath := filepath.Join(t.basePath, tmpDir)
 	pendPath := filepath.Join(t.basePath, pendingDir)
 
-	// Pre-allocate slices to reduce memory allocations
-	var filenames []string
-	filenames = make([]string, 0, len(ms))
-
+	filenames := make([]string, 0, len(ms))
 	for i, m := range ms {
 		m.AckID = t.nextAckID + i
 		m.LoggableID = fmt.Sprintf("msg #%d", m.AckID)
 		m.AsFunc = func(any) bool { return false }
-
 		if m.BeforeSend != nil {
 			if err := m.BeforeSend(func(any) bool { return false }); err != nil {
 				return err
@@ -265,30 +261,39 @@ func (t *topic) SendBatch(ctx context.Context, ms []*driver.Message) error {
 		if err != nil {
 			return err
 		}
-
 		filename := fmt.Sprintf("%020d-%s.pb", m.AckID, uuid.New().String()[:8])
 		filenames = append(filenames, filename)
-
-		// Write atomically: tmp -> pending
 		tmpFile := filepath.Join(tmpPath, filename)
 		if err := os.WriteFile(tmpFile, payload, 0o644); err != nil {
+			// Roll back any tmp files written so far.
+			for _, fn := range filenames {
+				_ = os.Remove(filepath.Join(tmpPath, fn))
+			}
 			return fmt.Errorf("filepubsub: failed to write temp file: %w", err)
 		}
 	}
 
-	// Move all files to pending directory in a single loop
+	// Move all files to pending/. On failure, roll back to .tmp/.
+	var committed []string
 	for _, filename := range filenames {
 		tmpFile := filepath.Join(tmpPath, filename)
 		finalFile := filepath.Join(pendPath, filename)
 		if err := os.Rename(tmpFile, finalFile); err != nil {
-			_ = os.Remove(tmpFile)
+			// Roll back already-committed renames.
+			for _, fn := range committed {
+				_ = os.Rename(filepath.Join(pendPath, fn), filepath.Join(tmpPath, fn))
+			}
+			// Best-effort cleanup of remaining .tmp/ entries.
+			for _, fn := range filenames {
+				_ = os.Remove(filepath.Join(tmpPath, fn))
+			}
 			return fmt.Errorf("filepubsub: failed to move file to pending: %w", err)
 		}
+		committed = append(committed, filename)
 	}
 
 	t.nextAckID += len(ms)
 
-	// Notify all subscriptions
 	for _, s := range t.subs {
 		s.notifyNewMessages()
 	}
@@ -392,12 +397,16 @@ func newSubscription(t *topic, ackDeadline time.Duration) (*subscription, error)
 		topic:       t,
 		ackDeadline: ackDeadline,
 		msgs:        map[driver.AckID]*message{},
-		notifyChan:  make(chan notify.EventInfo, 100),
+		// 10000-deep buffer absorbs bursts that would otherwise drop OS-level
+		// notify events. notifyNewMessages is buffered-1 with non-blocking
+		// send, so the watcher goroutine collapses any backlog into one
+		// signal on newMsgChan; the larger buffer just guards against
+		// notify drops during the brief window before that collapse.
+		notifyChan:  make(chan notify.EventInfo, 10000),
 		newMsgChan:  make(chan struct{}, 1),
 		stopWatcher: make(chan struct{}),
 		watcherDone: make(chan struct{}),
 	}
-
 	if t != nil {
 		t.mu.Lock()
 		t.subs = append(t.subs, s)
@@ -488,16 +497,31 @@ func (s *subscription) receiveNoWait(now time.Time, max int) ([]*driver.Message,
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// First, check for expired messages that need redelivery
-	for _, m := range s.msgs {
+	// 1. Collect every expired in-flight message.
+	type expiredEntry struct {
+		ackID int
+		m     *message
+	}
+	var expired []expiredEntry
+	for id, m := range s.msgs {
 		if now.After(m.expiration) {
-			// Reset expiration for redelivery
-			m.expiration = now.Add(s.ackDeadline)
-			return []*driver.Message{m.msg}, nil
+			expired = append(expired, expiredEntry{ackID: id.(int), m: m})
 		}
 	}
+	if len(expired) > 0 {
+		sort.Slice(expired, func(i, j int) bool { return expired[i].ackID < expired[j].ackID })
+		msgs := make([]*driver.Message, 0, len(expired))
+		for _, e := range expired {
+			e.m.expiration = now.Add(s.ackDeadline)
+			msgs = append(msgs, e.m.msg)
+			if len(msgs) >= max {
+				break
+			}
+		}
+		return msgs, nil
+	}
 
-	// Read new messages from pending directory
+	// 2. Claim fresh messages from pending/.
 	pendPath := filepath.Join(s.topic.basePath, pendingDir)
 	procPath := filepath.Join(s.topic.basePath, processingDir)
 
@@ -505,60 +529,45 @@ func (s *subscription) receiveNoWait(now time.Time, max int) ([]*driver.Message,
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
 
-	// Pre-allocate slice to reduce memory allocations
-	var msgs []*driver.Message
-	msgs = make([]*driver.Message, 0, max)
-
-	// Sort by filename (timestamp-based ordering)
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Name() < entries[j].Name()
-	})
-
+	msgs := make([]*driver.Message, 0, max)
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".pb") {
 			continue
 		}
-
 		filename := entry.Name()
 		src := filepath.Join(pendPath, filename)
 		dst := filepath.Join(procPath, filename)
-
-		// Try to claim the message via atomic rename
 		if err := os.Rename(src, dst); err != nil {
-			// Another consumer claimed it
-			continue
+			continue // another consumer claimed it
 		}
-
-		// Read the message
 		data, err := os.ReadFile(dst)
 		if err != nil {
-			// Move back to pending for retry
-			_ = os.Rename(dst, src)
+			_ = os.Rename(dst, src) // give it back for retry
 			continue
 		}
-
 		dm, err := decodeMessage(data)
 		if err != nil {
-			// Corrupt message, remove it
-			_ = os.Remove(dst)
+			// Dead-letter conditionally rather than silent delete
+			deadDir := filepath.Join(s.topic.basePath, "dead")
+			_ = os.MkdirAll(deadDir, 0o755)
+			if mvErr := os.Rename(dst, filepath.Join(deadDir, filename)); mvErr != nil {
+				_ = os.Remove(dst)
+			}
 			continue
 		}
-
-		// Track the message for ack/nack
 		m := &message{
 			msg:        dm,
 			filename:   filename,
 			expiration: now.Add(s.ackDeadline),
 		}
 		s.msgs[dm.AckID] = m
-
 		msgs = append(msgs, dm)
 		if len(msgs) >= max {
 			break
 		}
 	}
-
 	return msgs, nil
 }
 
@@ -678,15 +687,44 @@ func (*subscription) ErrorAs(error, any) bool {
 }
 
 // Close implements driver.Subscription.Close.
+// Stops the watcher, rehomes any in-flight (claimed-but-unacked) messages
+// from processing/ back to pending/ so a sibling/next subscription can pick
+// them up without waiting for a process restart, and deregisters this
+// subscription from the topic to prevent notify leaks.
 func (s *subscription) Close() error {
 	s.mu.Lock()
+	if s.closed {
+		s.mu.Unlock()
+		return nil
+	}
 	s.closed = true
+	msgs := s.msgs
+	s.msgs = map[driver.AckID]*message{}
 	s.mu.Unlock()
 
 	// Stop the watcher
 	close(s.stopWatcher)
 	<-s.watcherDone
 
+	if s.topic != nil {
+		s.topic.mu.Lock()
+		procPath := filepath.Join(s.topic.basePath, processingDir)
+		pendPath := filepath.Join(s.topic.basePath, pendingDir)
+		for _, m := range msgs {
+			src := filepath.Join(procPath, m.filename)
+			dst := filepath.Join(pendPath, m.filename)
+			_ = os.Rename(src, dst)
+		}
+		// Deregister from topic.subs to stop the topic from notifying
+		// a closed subscription forever.
+		for i, sub := range s.topic.subs {
+			if sub == s {
+				s.topic.subs = append(s.topic.subs[:i], s.topic.subs[i+1:]...)
+				break
+			}
+		}
+		s.topic.mu.Unlock()
+	}
 	return nil
 }
 
