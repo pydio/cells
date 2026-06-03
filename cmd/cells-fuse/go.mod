@@ -75,7 +75,7 @@ require (
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/pydio/caddyvault v1.0.3 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
-	github.com/quic-go/quic-go v0.59.0 // indirect
+	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/r3labs/diff/v3 v3.0.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/robertkrimen/otto v0.5.1 // indirect
