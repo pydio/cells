@@ -66,6 +66,8 @@ import (
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/batcher"
 	"gocloud.dev/pubsub/driver"
+
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
 
 func init() {
@@ -297,6 +299,10 @@ func (t *topic) SendBatch(ctx context.Context, ms []*driver.Message) error {
 	for _, s := range t.subs {
 		s.notifyNewMessages()
 	}
+
+	// Track published messages
+	metrics.Helper().Counter("fsqueue_pub_total", "Total messages published to fsqueue").Inc(int64(len(ms)))
+
 	return nil
 }
 
@@ -568,6 +574,15 @@ func (s *subscription) receiveNoWait(now time.Time, max int) ([]*driver.Message,
 			break
 		}
 	}
+<<<<<<< Updated upstream
+=======
+
+	// Track received messages
+	if len(msgs) > 0 {
+		metrics.Helper().Counter("fsqueue_sub_total", "Total messages received from fsqueue").Inc(int64(len(msgs)))
+	}
+
+>>>>>>> Stashed changes
 	return msgs, nil
 }
 
@@ -635,6 +650,12 @@ func (s *subscription) SendAcks(ctx context.Context, ackIDs []driver.AckID) erro
 	for _, id := range toDelete {
 		delete(s.msgs, id)
 	}
+
+	// Track acknowledged messages
+	if len(toDelete) > 0 {
+		metrics.Helper().Counter("fsqueue_ack_total", "Total messages acknowledged in fsqueue").Inc(int64(len(toDelete)))
+	}
+
 	return nil
 }
 
@@ -672,6 +693,12 @@ func (s *subscription) SendNacks(ctx context.Context, ackIDs []driver.AckID) err
 	for _, id := range toProcess {
 		delete(s.msgs, id)
 	}
+
+	// Track nacked/redelivered messages
+	if len(toProcess) > 0 {
+		metrics.Helper().Counter("fsqueue_nack_total", "Total messages nacked/redelivered in fsqueue").Inc(int64(len(toProcess)))
+	}
+
 	return nil
 }
 

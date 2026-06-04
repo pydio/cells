@@ -54,6 +54,7 @@ import (
 
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
 
 var (
@@ -178,9 +179,15 @@ func (f *fpubQueue) Push(ctx context.Context, msg proto.Message) error {
 	f.closeMu.Unlock()
 
 	body := broker.EncodeProtoWithContext(ctx, msg)
-	return f.topic.Send(ctx, &pubsub.Message{
+	err := f.topic.Send(ctx, &pubsub.Message{
 		Body: body,
 	})
+	if err == nil {
+		metrics.Helper().Counter("fpub_push_total", "Total messages pushed to fpub queue").Inc(1)
+	} else {
+		metrics.Helper().Counter("fpub_push_errors_total", "Total push errors in fpub queue").Inc(1)
+	}
+	return err
 }
 
 // PushRaw implements broker.AsyncQueue.PushRaw.
@@ -194,16 +201,20 @@ func (f *fpubQueue) PushRaw(ctx context.Context, message broker.Message) error {
 	f.closeMu.Unlock()
 
 	body := broker.EncodeBrokerMessage(message)
-	return f.topic.Send(ctx, &pubsub.Message{
+	err := f.topic.Send(ctx, &pubsub.Message{
 		Body: body,
 	})
+	if err == nil {
+		metrics.Helper().Counter("fpub_push_raw_total", "Total raw messages pushed to fpub queue").Inc(1)
+	} else {
+		metrics.Helper().Counter("fpub_push_errors_total", "Total push errors in fpub queue").Inc(1)
+	}
+	return err
 }
 
 // Consume implements broker.AsyncQueue.Consume.
 // Starts a goroutine that receives messages from the subscription
 // and invokes the callback with decoded broker.Messages.
-
-// Consume implements broker.AsyncQueue.Consume.
 func (f *fpubQueue) Consume(callback func(context.Context, ...broker.Message)) error {
 	f.closeMu.Lock()
 	if f.consumerDone == nil {
@@ -274,6 +285,9 @@ func (f *fpubQueue) Consume(callback func(context.Context, ...broker.Message)) e
 				callback(f.ctx, brokerMsg)
 				msg.Ack()
 			}()
+
+			// Track consumed message
+			metrics.Helper().Counter("fpub_consumed_total", "Total messages consumed from fpub queue").Inc(1)
 		}
 	}()
 	return nil
@@ -303,6 +317,10 @@ func (f *fpubQueue) Close(ctx context.Context) error {
 	delete(registry, f.basePath)
 	registryMu.Unlock() // ← Release BEFORE waiting
 
+	// Track queue close
+	metrics.Helper().Counter("fpub_closed_total", "Times fpub queue was closed").Inc(1)
+
+	// Cancel consumer context
 	if f.cancel != nil {
 		f.cancel()
 	}
