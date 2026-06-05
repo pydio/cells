@@ -94,7 +94,11 @@ type evSqlImpl struct {
 }
 
 func (s *evSqlImpl) Migrate(ctx context.Context) error {
-	return s.Session(ctx).AutoMigrate(&Entities{}, &EntityValues{})
+	db := s.Session(ctx)
+	if err := db.SetupJoinTable(&EntityValues{}, "Metas", &MetaValuesRel{}); err != nil {
+		return evTagError(err)
+	}
+	return db.AutoMigrate(&Entities{}, &EntityValues{})
 }
 
 func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {

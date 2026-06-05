@@ -73,7 +73,7 @@ type sqlimpl struct {
 }
 
 type Meta struct {
-	UUID      string                    `gorm:"primaryKey; column:uuid"`
+	UUID      string                    `gorm:"primaryKey;column:uuid;type:varchar(255);notNull"`
 	NodeUUID  string                    `gorm:"column:node_uuid; type:varchar(255); notNull; index:,composite:no; index:,unique,composite:u1;"`
 	Namespace string                    `gorm:"column:namespace; type:varchar(255); notNull; index:,composite:ns; index:,unique,composite:u1;"`
 	Owner     string                    `gorm:"column:owner; type:varchar(255); notNull; index:,composite:ow; index:,unique,composite:u1;"`
