@@ -6,11 +6,12 @@ import (
 	"io"
 	"net/url"
 	"strings"
+	stdsync "sync"
 	"time"
 
-	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
+	"github.com/gobwas/glob"
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
@@ -170,6 +171,14 @@ type readWrapper struct {
 	closeCallback func() error
 }
 
+func (r *readWrapper) Close() error {
+	if er := r.ReadCloser.Close(); er != nil {
+		r.closeCallback() // still try to trigger CreateNode even if close failed, to avoid missing events in sync
+		return er
+	}
+	return r.closeCallback()
+}
+
 func (d *DataPubSubEndpoint) GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	if node == nil {
 		err = errors.New("node must not be nil")
@@ -205,9 +214,9 @@ func (d *DataPubSubEndpoint) GetReaderOn(ctx context.Context, path string, node 
 	// Read node by Uuid
 	out, err = d.src.GetReaderOn(ctx, node.GetUuid(), node)
 	if err != nil {
-		return
+		return nil, err
 	}
-	// After copy is finished, call CreateNode to index in snapshot
+	// After copy is finished, call CreateNode to trigger event and index in snapshot
 	return &readWrapper{
 		ReadCloser: out,
 		closeCallback: func() error {
@@ -274,6 +283,8 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	doneChan := make(chan bool)
 	wConn := make(chan model.WatchConnectionInfo)
 
+	var cbWg stdsync.WaitGroup
+
 	wo := &model.WatchObject{
 		EventInfoChan:  eventChan,
 		ErrorChan:      errorChan,
@@ -282,7 +293,8 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	}
 
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
-
+		cbWg.Add(1)
+		defer cbWg.Done()
 		for _, msg := range messages {
 
 			event := &sync.SyncEvent{}
@@ -294,22 +306,43 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 				log.Logger(ctx).Info("node change event", zap.Any("event", nodeEvent))
 				switch nodeEvent.Type {
 				case tree.NodeChangeEvent_CREATE:
-					mm, _ := nodeEvent.Metadata["update_if_exists"]
-					if er := e.PathSyncTarget.CreateNode(ctx, nodeEvent.GetTarget(), mm == "true"); er != nil {
-						wo.ErrorChan <- er
-						continue
-					} else {
-						<-time.After(time.Second)
+					if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
+						target := nodeEvent.GetTarget()
+
+						// Skip if metadata not yet loaded
+						if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
+							log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()), zap.Any("type", target.GetType()))
+							// Skip this event, wait for the UPDATE_META event
+						} else {
+							mm, _ := nodeEvent.Metadata["update_if_exists"]
+							if er := e.PathSyncTarget.CreateNode(ctx, nodeEvent.GetTarget(), mm == "true"); er != nil {
+								wo.ErrorChan <- er
+								continue
+							}
+						}
 					}
+
+					// else {
+					// <-time.After(time.Second)
+					// }
 				case tree.NodeChangeEvent_DELETE:
 					if er := e.PathSyncTarget.DeleteNode(ctx, nodeEvent.GetSource().GetPath()); er != nil {
 						wo.ErrorChan <- er
 						continue
 					}
 				case tree.NodeChangeEvent_UPDATE_PATH:
-					if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), nodeEvent.GetTarget().GetPath()); er != nil {
-						wo.ErrorChan <- er
-						continue
+					if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
+						target := nodeEvent.GetTarget()
+						// Skip if metadata not yet loaded
+						if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
+							log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()), zap.Any("type", target.GetType()))
+							// Skip this event, wait for the UPDATE_META event
+						} else {
+							if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), nodeEvent.GetTarget().GetPath()); er != nil {
+								wo.ErrorChan <- er
+								continue
+							}
+						}
 					}
 				}
 
@@ -365,9 +398,20 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	}
 	go func() {
 		defer func() {
-			_ = e.AsyncQueue.Close(ctx)
+			_ = e.AsyncQueue.Close(ctx) // triggers Consume goroutine to exit
+
+			// Wait for the consume callback to actually return before closing
+			// downstream channels, so we cannot panic with "send on closed channel".
+			if d, ok := e.AsyncQueue.(interface{ Done() <-chan struct{} }); ok {
+				select {
+				case <-d.Done():
+				case <-time.After(5 * time.Second):
+					log.Logger(ctx).Warn("sync pubsub: consume goroutine did not exit within 5s")
+				}
+			}
+			cbWg.Wait()
+
 			close(wConn)
-			//close(doneChan)
 			close(errorChan)
 			close(eventChan)
 		}()
@@ -384,56 +428,69 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 }
 
 func (e *PubSubEndpoint) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
+	// Local snapshot is authoritative — write it first.
+	if err = e.PathSyncTarget.CreateNode(ctx, node, updateIfExists); err != nil {
+		return err
+	}
 	if e.isPub {
 		mm := map[string]string{}
 		if updateIfExists {
 			mm["update_if_exists"] = "true"
 		}
-		er := e.AsyncQueue.Push(ctx, &sync.SyncEvent{
+		if er := e.AsyncQueue.Push(ctx, &sync.SyncEvent{
 			Message: &sync.SyncEvent_NodeChangeEvent{NodeChangeEvent: &tree.NodeChangeEvent{
 				Type:     tree.NodeChangeEvent_CREATE,
 				Source:   nil,
 				Target:   node.AsProto(),
 				Metadata: mm,
 			}},
-		})
-		if er != nil {
+		}); er != nil {
+			log.Logger(ctx).Warn("sync pubsub: snapshot updated but queue Push failed; relying on reconcile",
+				zap.Error(er))
 			return er
 		}
 	}
-	return e.PathSyncTarget.CreateNode(ctx, node, updateIfExists)
+	return nil
 }
 
 func (e *PubSubEndpoint) DeleteNode(ctx context.Context, path string) (err error) {
+	if err = e.PathSyncTarget.DeleteNode(ctx, path); err != nil {
+		return err
+	}
 	if e.isPub {
-		er := e.AsyncQueue.Push(ctx, &sync.SyncEvent{
+		if er := e.AsyncQueue.Push(ctx, &sync.SyncEvent{
 			Message: &sync.SyncEvent_NodeChangeEvent{NodeChangeEvent: &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_DELETE,
 				Source: &tree.Node{Path: path},
 				Target: nil,
 			}},
-		})
-		if er != nil {
+		}); er != nil {
+			log.Logger(ctx).Warn("sync pubsub: snapshot updated but queue Push failed; relying on reconcile",
+				zap.Error(er))
 			return er
 		}
 	}
-	return e.PathSyncTarget.DeleteNode(ctx, path)
+	return nil
 }
 
 func (e *PubSubEndpoint) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
+	if err = e.PathSyncTarget.MoveNode(ctx, oldPath, newPath); err != nil {
+		return err
+	}
 	if e.isPub {
-		er := e.AsyncQueue.Push(ctx, &sync.SyncEvent{
+		if er := e.AsyncQueue.Push(ctx, &sync.SyncEvent{
 			Message: &sync.SyncEvent_NodeChangeEvent{NodeChangeEvent: &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_UPDATE_PATH,
 				Source: &tree.Node{Path: oldPath},
 				Target: &tree.Node{Path: newPath},
 			}},
-		})
-		if er != nil {
+		}); er != nil {
+			log.Logger(ctx).Warn("sync pubsub: snapshot updated but queue Push failed; relying on reconcile",
+				zap.Error(er))
 			return er
 		}
 	}
-	return e.PathSyncTarget.MoveNode(ctx, oldPath, newPath)
+	return nil
 }
 
 // ProvidesMetadataNamespaces implements model.MetadataProvider interface
