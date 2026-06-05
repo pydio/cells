@@ -6,7 +6,10 @@ import (
 	"io"
 	"net/url"
 	"strings"
+	stdsync "sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/gobwas/glob"
 	"github.com/pydio/cells/v5/common/broker"
@@ -18,7 +21,6 @@ import (
 	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"go.uber.org/zap"
 )
 
 const (
@@ -276,10 +278,12 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		return nil, errors.WithMessage(errors.StatusNotImplemented, "watch not supported in pub mode")
 	}
 
-	eventChan := make(chan model.EventInfo, 1000)
-	errorChan := make(chan error, 100)
+	eventChan := make(chan model.EventInfo)
+	errorChan := make(chan error)
 	doneChan := make(chan bool)
 	wConn := make(chan model.WatchConnectionInfo)
+
+	var cbWg stdsync.WaitGroup
 
 	wo := &model.WatchObject{
 		EventInfoChan:  eventChan,
@@ -289,7 +293,8 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	}
 
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
-
+		cbWg.Add(1)
+		defer cbWg.Done()
 		for _, msg := range messages {
 
 			event := &sync.SyncEvent{}
@@ -404,10 +409,11 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 					log.Logger(ctx).Warn("sync pubsub: consume goroutine did not exit within 5s")
 				}
 			}
+			cbWg.Wait()
 
 			close(wConn)
-			// close(errorChan)
-			// close(eventChan)
+			close(errorChan)
+			close(eventChan)
 		}()
 		for {
 			select {
