@@ -175,6 +175,9 @@ func (v *values) Scan(out any, options ...Option) error {
 	switch vout := out.(type) {
 	case *map[string]interface{}:
 		if vvin, ok := vin.(map[string]interface{}); ok {
+			if *vout == nil {
+				*vout = map[string]interface{}{}
+			}
 			for k, vv := range vvin {
 				(*vout)[k] = vv
 			}

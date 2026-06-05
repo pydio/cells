@@ -72,6 +72,20 @@ func TestMergeMaps(t *testing.T) {
 	assert.IsType(t, c, a)
 }
 
+func TestScanInitializesNilMapTarget(t *testing.T) {
+	store := NewStore()
+	if err := store.Set(map[string]any{"version": "5.0.0"}); err != nil {
+		t.Fatal(err)
+	}
+
+	var out map[string]interface{}
+	if err := store.Val().Scan(&out); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "5.0.0", out["version"])
+}
+
 func TestCopy(t *testing.T) {
 
 	a := map[string]any{
