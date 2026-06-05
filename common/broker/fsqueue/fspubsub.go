@@ -61,13 +61,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
 	"github.com/rjeczalik/notify"
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/batcher"
 	"gocloud.dev/pubsub/driver"
-
-	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
 
 func init() {
@@ -574,15 +573,11 @@ func (s *subscription) receiveNoWait(now time.Time, max int) ([]*driver.Message,
 			break
 		}
 	}
-<<<<<<< Updated upstream
-=======
 
 	// Track received messages
 	if len(msgs) > 0 {
 		metrics.Helper().Counter("fsqueue_sub_total", "Total messages received from fsqueue").Inc(int64(len(msgs)))
 	}
-
->>>>>>> Stashed changes
 	return msgs, nil
 }
 
