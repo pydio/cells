@@ -1,0 +1,144 @@
+{{- $migration := default dict .Values.migration }}
+{{- $orphanBundleBackups := default false $migration.orphanBundleBackups }}
+{{- $vault := default dict .Values.vault }}
+{{- $externalVault := default dict .Values.externalVault }}
+{{- $legacyVaultHost := printf "%s-vault" .Release.Name }}
+{{- $externalVaultHost := default "" $externalVault.host }}
+{{- $usesLegacyVaultHost := or (eq $externalVaultHost $legacyVaultHost) (hasPrefix (printf "%s." $legacyVaultHost) $externalVaultHost) }}
+{{- if and .Release.IsUpgrade $orphanBundleBackups (not (default false $vault.enabled)) (default false $externalVault.enabled) $usesLegacyVaultHost }}
+{{- $bindingName := printf "%s-vault-server-binding" .Release.Name }}
+{{- $serviceAccountName := printf "%s-vault" .Release.Name }}
+{{- $existingBinding := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $bindingName }}
+{{- $injectorClusterRoleName := printf "%s-vault-agent-injector-clusterrole" .Release.Name }}
+{{- $injectorBindingName := printf "%s-vault-agent-injector-binding" .Release.Name }}
+{{- $injectorServiceAccountName := printf "%s-vault-agent-injector" .Release.Name }}
+{{- $injectorWebhookName := printf "%s-vault-agent-injector-cfg" .Release.Name }}
+{{- $existingInjectorClusterRole := lookup "rbac.authorization.k8s.io/v1" "ClusterRole" "" $injectorClusterRoleName }}
+{{- $existingInjectorBinding := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $injectorBindingName }}
+{{- $existingInjectorWebhook := lookup "admissionregistration.k8s.io/v1" "MutatingWebhookConfiguration" "" $injectorWebhookName }}
+{{- $injector := default dict $vault.injector }}
+{{- $webhook := default dict $injector.webhook }}
+{{- if not $existingBinding }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $bindingName | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: vault
+    helm.sh/chart: vault-migrated
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+    helm.sh/resource-policy: keep
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: {{ $serviceAccountName | quote }}
+    namespace: {{ .Release.Namespace | quote }}
+{{- end }}
+{{- if not $existingInjectorClusterRole }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $injectorClusterRoleName | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: vault-agent-injector
+    helm.sh/chart: vault-migrated
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+    helm.sh/resource-policy: keep
+rules:
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+{{- end }}
+{{- if not $existingInjectorBinding }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $injectorBindingName | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: vault-agent-injector
+    helm.sh/chart: vault-migrated
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+    helm.sh/resource-policy: keep
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $injectorClusterRoleName | quote }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $injectorServiceAccountName | quote }}
+    namespace: {{ .Release.Namespace | quote }}
+{{- end }}
+{{- if not $existingInjectorWebhook }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ $injectorWebhookName | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: vault-agent-injector
+    helm.sh/chart: vault-migrated
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+    helm.sh/resource-policy: keep
+webhooks:
+  - name: vault.hashicorp.com
+    failurePolicy: {{ default "Fail" $webhook.failurePolicy }}
+    matchPolicy: Exact
+    sideEffects: None
+    timeoutSeconds: 30
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: {{ printf "%s-vault-agent-injector-svc" .Release.Name | quote }}
+        namespace: {{ .Release.Namespace | quote }}
+        path: /mutate
+      caBundle: ""
+    rules:
+      - operations:
+          - CREATE
+        apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        resources:
+          - pods
+        scope: Namespaced
+    namespaceSelector:
+      {{- toYaml (default dict $webhook.namespaceSelector) | nindent 6 }}
+    objectSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: NotIn
+          values:
+            - vault-agent-injector
+{{- end }}
+{{- end }}

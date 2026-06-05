@@ -1,0 +1,355 @@
+{{- $migration := default dict .Values.migration }}
+{{- $check := default dict $migration.legacyDependenciesCheck }}
+{{- $checkEnabled := true }}
+{{- if hasKey $check "enabled" }}
+{{- $checkEnabled = $check.enabled }}
+{{- end }}
+{{- $orphanBundleBackups := default false $migration.orphanBundleBackups }}
+{{- if and .Release.IsUpgrade (or $orphanBundleBackups $checkEnabled) }}
+{{- $name := printf "%s-orphan-bundled" .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- $clusterName := printf "%s-%s-orphan-bundled" .Release.Namespace .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- $legacyReleaseName := default (printf "%s-legacy" .Release.Name) $check.legacyReleaseName }}
+{{- $image := default dict $check.image }}
+{{- $imageRepository := default "alpine/kubectl" $image.repository }}
+{{- $imageTag := default "latest" $image.tag }}
+{{- $imagePullPolicy := default "IfNotPresent" $image.pullPolicy }}
+{{- $appNames := default (list "cert-manager" "collabora-online" "etcd" "ingress-nginx" "mariadb" "mariadb-galera" "minio" "mongodb" "nats" "redis" "vault" "vault-agent-injector") $check.appNames }}
+{{- $chartPrefixes := default (list "cert-manager" "collabora-online" "etcd" "ingress-nginx" "mariadb" "mariadb-galera" "minio" "mongodb" "nats" "redis" "vault") $check.chartPrefixes }}
+{{- $enabledDependencies := list }}
+{{- if (index (default dict (index .Values "cert-manager")) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "cert-manager" }}{{- end }}
+{{- if (index (default dict .Values.collabora) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "collabora-online" }}{{- end }}
+{{- if (index (default dict .Values.etcd) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "etcd" }}{{- end }}
+{{- if (index (default dict .Values.ingress) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "ingress-nginx" }}{{- end }}
+{{- if (index (default dict .Values.mariadb) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "mariadb" }}{{- end }}
+{{- if (index (default dict (index .Values "mariadb-galera")) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "mariadb-galera" }}{{- end }}
+{{- if (index (default dict .Values.minio) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "minio" }}{{- end }}
+{{- if (index (default dict .Values.mongodb) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "mongodb" }}{{- end }}
+{{- if (index (default dict .Values.nats) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "nats" }}{{- end }}
+{{- if (index (default dict .Values.redis) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "redis" }}{{- end }}
+{{- if (index (default dict .Values.vault) "enabled") }}{{- $enabledDependencies = append $enabledDependencies "vault" }}{{- end }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $name | quote }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $name | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: {{ $name | quote }}
+      restartPolicy: Never
+      containers:
+        - name: migrate-bundled-dependencies
+          image: "{{ $imageRepository }}:{{ $imageTag }}"
+          imagePullPolicy: {{ $imagePullPolicy }}
+          env:
+            - name: RELEASE_NAME
+              value: {{ .Release.Name | quote }}
+            - name: RELEASE_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            - name: LEGACY_RELEASE_NAME
+              value: {{ $legacyReleaseName | quote }}
+            - name: ORPHAN_BUNDLE_BACKUPS
+              value: {{ ternary "true" "false" $orphanBundleBackups | quote }}
+            - name: LEGACY_DEPENDENCIES_CHECK_ENABLED
+              value: {{ ternary "true" "false" $checkEnabled | quote }}
+            - name: LEGACY_APP_NAMES
+              value: {{ join "," $appNames | quote }}
+            - name: LEGACY_CHART_PREFIXES
+              value: {{ join "," $chartPrefixes | quote }}
+            - name: ENABLED_DEPENDENCIES
+              value: {{ join "," $enabledDependencies | quote }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              NS="$RELEASE_NAMESPACE"
+              RELEASE="$RELEASE_NAME"
+
+              resources="
+              configmaps
+              daemonsets.apps
+              deployments.apps
+              horizontalpodautoscalers.autoscaling
+              ingresses.networking.k8s.io
+              jobs.batch
+              networkpolicies.networking.k8s.io
+              persistentvolumeclaims
+              poddisruptionbudgets.policy
+              pods
+              rolebindings.rbac.authorization.k8s.io
+              roles.rbac.authorization.k8s.io
+              secrets
+              serviceaccounts
+              services
+              statefulsets.apps
+              "
+
+              cluster_resources="
+              clusterrolebindings.rbac.authorization.k8s.io
+              clusterroles.rbac.authorization.k8s.io
+              customresourcedefinitions.apiextensions.k8s.io
+              clusterissuers.cert-manager.io
+              ingressclasses.networking.k8s.io
+              mutatingwebhookconfigurations.admissionregistration.k8s.io
+              validatingwebhookconfigurations.admissionregistration.k8s.io
+              "
+
+              all_namespace_resources="
+              rolebindings.rbac.authorization.k8s.io
+              roles.rbac.authorization.k8s.io
+              "
+
+              dependency_resources="$(
+                for selector in "app.kubernetes.io/instance=$RELEASE" "release=$RELEASE"; do
+                  for resource in $resources; do
+                    kubectl get "$resource" \
+                      -n "$NS" \
+                      -l "$selector" \
+                      -o jsonpath='{range .items[*]}{.kind}{"|"}{.metadata.name}{"|"}{.metadata.labels.app\.kubernetes\.io/name}{"|"}{.metadata.labels.helm\.sh/chart}{"\n"}{end}' 2>/dev/null || true
+                  done
+                  for resource in $all_namespace_resources; do
+                    kubectl get "$resource" \
+                      --all-namespaces \
+                      -l "$selector" \
+                      -o jsonpath='{range .items[*]}{.kind}{"|"}{.metadata.name}{"|"}{.metadata.labels.app\.kubernetes\.io/name}{"|"}{.metadata.labels.helm\.sh/chart}{"\n"}{end}' 2>/dev/null || true
+                  done
+                  for resource in $cluster_resources; do
+                    kubectl get "$resource" \
+                      -l "$selector" \
+                      -o jsonpath='{range .items[*]}{.kind}{"|"}{.metadata.name}{"|"}{.metadata.labels.app\.kubernetes\.io/name}{"|"}{.metadata.labels.helm\.sh/chart}{"\n"}{end}' 2>/dev/null || true
+                  done
+                done | sort -u | awk -F'|' \
+                  -v legacy_vault_config="$(
+                    kubectl get configmap cells-vault \
+                      -n "$NS" \
+                      -o jsonpath='{.kind}{"|"}{.metadata.name}{"|"}{"vault"}{"|"}{"vault-bootstrap"}{"\n"}' 2>/dev/null || true
+                  )" \
+                  -v app_names="$LEGACY_APP_NAMES" \
+                  -v chart_prefixes="$LEGACY_CHART_PREFIXES" '
+                    function contains(list, value, parts, count, idx) {
+                      count = split(list, parts, ",")
+                      for (idx = 1; idx <= count; idx++) {
+                        if (parts[idx] == value) {
+                          return 1
+                        }
+                      }
+                      return 0
+                    }
+                    function chart_matches(chart, parts, count, idx) {
+                      count = split(chart_prefixes, parts, ",")
+                      for (idx = 1; idx <= count; idx++) {
+                        if (chart ~ "^" parts[idx] "-") {
+                          return 1
+                        }
+                      }
+                      return 0
+                    }
+                    BEGIN {
+                      if (legacy_vault_config != "") {
+                        print legacy_vault_config
+                      }
+                    }
+                    NF >= 4 && (contains(app_names, $3) || chart_matches($4)) {
+                      print $0
+                    }
+                  '
+              )"
+
+              if [ "$LEGACY_DEPENDENCIES_CHECK_ENABLED" = "true" ] && [ -n "$dependency_resources" ] && [ "$ORPHAN_BUNDLE_BACKUPS" != "true" ]; then
+                legacy_release="$(
+                  kubectl get secrets,configmaps \
+                    -n "$NS" \
+                    -l "owner=helm,name=$LEGACY_RELEASE_NAME,status=deployed" \
+                    -o name 2>/dev/null || true
+                )"
+
+                unprotected_resources="$(
+                  printf '%s\n' "$dependency_resources" | awk -F'|' \
+                    -v enabled_dependencies="$ENABLED_DEPENDENCIES" '
+                      function contains(list, value, parts, count, idx) {
+                        count = split(list, parts, ",")
+                        for (idx = 1; idx <= count; idx++) {
+                          if (parts[idx] == value) {
+                            return 1
+                          }
+                        }
+                        return 0
+                      }
+                      function dependency_name(app, chart, parts, count, idx) {
+                        count = split(enabled_dependencies, parts, ",")
+                        for (idx = 1; idx <= count; idx++) {
+                          if (parts[idx] == app || chart ~ "^" parts[idx] "-") {
+                            return parts[idx]
+                          }
+                        }
+                        return ""
+                      }
+                      dependency_name($3, $4) == "" {
+                        print $0
+                      }
+                    '
+                )"
+
+                if [ -n "$unprotected_resources" ] && [ -z "$legacy_release" ]; then
+                  echo "ERROR: v0 dependency subchart resources still exist for release $RELEASE, but they are not kept by the v1 values or by a deployed legacy chart."
+                  echo
+                  echo "Detected resources that would become unprotected:"
+                  printf '%s\n' "$unprotected_resources"
+                  echo
+                  echo "Before upgrading, either enable migration.orphanBundleBackups=true, keep the matching dependency subchart values enabled, or deploy the legacy dependency chart as release $LEGACY_RELEASE_NAME."
+                  exit 1
+                fi
+              fi
+
+              if [ "$ORPHAN_BUNDLE_BACKUPS" = "true" ]; then
+                for selector in "app.kubernetes.io/instance=$RELEASE" "release=$RELEASE"; do
+                  for resource in $resources; do
+                    kubectl annotate "$resource" -n "$NS" \
+                      -l "$selector" \
+                      helm.sh/resource-policy=keep --overwrite || true
+                  done
+
+                  for resource in $all_namespace_resources; do
+                    kubectl get "$resource" \
+                      --all-namespaces \
+                      -l "$selector" \
+                      -o jsonpath='{range .items[*]}{.metadata.namespace}{"|"}{.metadata.name}{"\n"}{end}' 2>/dev/null | \
+                      while IFS='|' read -r resource_namespace resource_name; do
+                        [ -z "$resource_namespace" ] && continue
+                        kubectl annotate "$resource" -n "$resource_namespace" "$resource_name" \
+                          helm.sh/resource-policy=keep --overwrite || true
+                      done
+                  done
+
+                  for resource in $cluster_resources; do
+                    kubectl get "$resource" \
+                      -l "$selector" \
+                      -o name 2>/dev/null | \
+                      while IFS= read -r resource_name; do
+                        [ -z "$resource_name" ] && continue
+                        kubectl annotate "$resource_name" \
+                          helm.sh/resource-policy=keep --overwrite || true
+                      done
+                  done
+                done
+
+                kubectl annotate configmap cells-vault -n "$NS" \
+                  helm.sh/resource-policy=keep --overwrite 2>/dev/null || true
+              fi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name | quote }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name | quote }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: ["apps"]
+    resources: ["statefulsets", "deployments", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: [""]
+    resources: ["services", "secrets", "configmaps", "persistentvolumeclaims", "pods", "serviceaccounts"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings", "roles"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $clusterName | quote }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterrolebindings", "clusterroles"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings", "roles"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["clusterissuers"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingressclasses"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name | quote }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name | quote }}
+roleRef:
+  kind: Role
+  name: {{ $name | quote }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $clusterName | quote }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name | quote }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ $clusterName | quote }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

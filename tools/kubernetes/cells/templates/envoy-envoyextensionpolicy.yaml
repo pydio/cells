@@ -1,0 +1,30 @@
+{{- if .Values.notNow }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyExtensionPolicy
+metadata:
+  name: cells-nomad-header-sanitization
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: cells-nomad
+  lua:
+    - type: Inline
+      inline: |
+        function envoy_on_request(handle)
+          if handle:headers():get("x-authentication-methods") then
+            handle:headers():remove("x-authentication-methods")
+          end
+          if handle:headers():get("x-team-extraction-methods") then
+            handle:headers():remove("x-team-extraction-methods")
+          end
+          if handle:headers():get("z-user") then
+            handle:headers():remove("z-user")
+          end
+          if handle:headers():get("z-team") then
+            handle:headers():remove("z-team")
+          end
+
+          handle:headers():add("x-authentication-methods", "passthrough")
+          handle:headers():add("z-user", "z-user")
+{{- end }}

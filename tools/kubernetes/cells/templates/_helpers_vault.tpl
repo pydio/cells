@@ -34,6 +34,7 @@ VAULT ACTIVATION
 {{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_KEYRING" "value" (include "cells.vault.url" (list . "/secret?key=keyring&")))) "context" .) }}
 {{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CERTS_STORE" "value" (include "cells.vault.url" (list . "/caddycerts?")))) "context" .) }}
 {{- else -}}
+{{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_KEYRING" "value" "file:///var/cells-keyring/masterKey?keyring=true")) "context" .) }}
 {{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CELLS_CERTS_STORE" "value" "file:///var/cells/certs")) "context" .) }}
 {{ include "common.tplvalues.render" (dict "value" (list (dict "name" "CADDYPATH" "value" "/var/cells")) "context" .) }}
 {{- end -}}

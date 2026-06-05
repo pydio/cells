@@ -1,39 +1,9 @@
 dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.31.1
-- name: mariadb
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 20.5.5
-- name: mariadb-galera
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 14.2.8
-- name: redis
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 21.2.3
-- name: nats
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 9.0.17
-- name: mongodb
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 16.5.7
-- name: etcd
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 11.3.6
-- name: minio
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 16.0.10
+  version: 2.40.0
 - name: ingress-nginx
   repository: https://kubernetes.github.io/ingress-nginx
-  version: 4.12.3
-- name: vault
-  repository: https://helm.releases.hashicorp.com
-  version: 0.30.0
-- name: cert-manager
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 1.5.3
-- name: collabora-online
-  repository: https://collaboraonline.github.io/online
-  version: 1.1.52
-digest: sha256:9ac1520ab189af6173b99b63cb9cfcc5def24f7a09c9937bb0295c815b1ee44f
-generated: "2025-06-12T10:45:47.684217+02:00"
+  version: 4.15.1
+digest: sha256:a62993e4cc9b4542933aa001e862718c0458e5a49456365a4546af3fc8aebd56
+generated: "2026-06-05T08:39:01.713777+02:00"

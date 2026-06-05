@@ -36,6 +36,24 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
+Create the Cells image reference.
+*/}}
+{{- define "cells.image" -}}
+{{- if .Values.image.local -}}
+{{- .Values.image.repository -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Create the marker used to decide whether Helm-driven configuration must run.
+*/}}
+{{- define "cells.configureMarker" -}}
+{{- printf "%s:%s" (include "cells.chart" .) (include "cells.image" .) | sha256sum -}}
+{{- end }}
+
+{{/*
 Common labels
 */}}
 {{- define "cells.labels" -}}
@@ -84,27 +102,29 @@ Return the PVC name (only in standalone mode)
 {{ include "cells.tplvalues.renderSecretPassword" (dict "name" $username "value" (.auth.user | default "root")) }}
 {{- else -}}
 {{ include "cells.tplvalues.renderSecretPassword" (dict "name" $username "value" (dict
-  "secretName"        .auth.existingSecret
+  "secretName"        (default .auth.existingSecret .defaultAuthExistingSecret)
   "secretPasswordKey" .auth.existingSecretUsernameKey)) }}
 {{- end }}
 {{ if empty .auth.existingSecretPasswordKey }}
 {{ include "cells.tplvalues.renderSecretPassword" (dict "name" $password "value" .auth.password) }}
 {{- else -}}
 {{ include "cells.tplvalues.renderSecretPassword" (dict "name" $password "value" (dict
-  "secretName"        .auth.existingSecret
+  "secretName"        (default .auth.existingSecret .defaultAuthExistingSecret)
   "secretPasswordKey" .auth.existingSecretPasswordKey)) }}
 {{- end -}}
 {{- end -}}
 
 {{- define "cells.auth.username" -}}
-{{- if .Values.auth.enabled -}}
-    {{- include "common.secrets.passwords.manage" (dict "secret" (include "cells.auth.secretName" .) "key" (include "cells.auth.secretUsernameKey" .) "providedValues" (list "auth.username") "length" 10 "skipB64enc" true "skipQuote" true "honorProvidedValues" true "context" $) -}}
+{{- $ = . -}}{{- if not (empty .Values) -}}{{- $ = .Values -}}{{- end -}}
+{{- if $.auth.enabled -}}
+    {{- include "common.secrets.passwords.manage" (dict "secret" $.auth.existingSecret "key" (include "cells.auth.secretUsernameKey" .) "providedValues" (list "auth.username") "length" 10 "skipB64enc" true "skipQuote" true "honorProvidedValues" true "context" .) -}}
 {{- end }}
 {{- end }}
 
 {{- define "cells.auth.password" -}}
-{{- if .Values.auth.enabled -}}
-    {{- include "common.secrets.passwords.manage" (dict "secret" (include "cells.auth.secretName" .) "key" (include "cells.auth.secretPasswordKey" .) "providedValues" (list "auth.password") "length" 10 "skipB64enc" true "skipQuote" true "honorProvidedValues" true "context" $) -}}
+{{- $ = . -}}{{- if not (empty .Values) -}}{{- $ = .Values -}}{{- end -}}
+{{- if $.auth.enabled -}}
+    {{- include "common.secrets.passwords.manage" (dict "secret" $.auth.existingSecret "key" (include "cells.auth.secretPasswordKey" .) "providedValues" (list "auth.password") "length" 10 "skipB64enc" true "skipQuote" true "honorProvidedValues" true "context" .) -}}
 {{- end }}
 {{- end }}
 
@@ -112,10 +132,9 @@ Return the PVC name (only in standalone mode)
 Get the password secret.
 */}}
 {{- define "cells.auth.secretName" -}}
-{{- if .Values.auth.existingSecret -}}
-{{- printf "%s" (tpl .Values.auth.existingSecret $) -}}
-{{- else -}}
-{{- printf "%s" (include "common.names.fullname" .) -}}
+{{- $ = . -}}{{- if not (empty .Values) -}}{{- $ = .Values -}}{{- end -}}
+{{- if $.auth.existingSecret -}}
+{{- printf "%s" (tpl $.auth.existingSecret $) -}}
 {{- end -}}
 {{- end -}}
 
@@ -124,8 +143,9 @@ Get the password secret.
 Get the username key to be retrieved from Cells&reg; secret.
 */}}
 {{- define "cells.auth.secretUsernameKey" -}}
-{{- if and .Values.auth.existingSecret .Values.auth.existingSecretUsernameKey -}}
-{{- printf "%s" (tpl .Values.auth.existingSecretUsernameKey $) -}}
+{{- $ = . -}}{{- if not (empty .Values) -}}{{- $ = .Values -}}{{- end -}}
+{{- if and $.auth.existingSecret $.auth.existingSecretUsernameKey -}}
+{{- printf "%s" (tpl $.auth.existingSecretUsernameKey .) -}}
 {{- else -}}
 {{- printf "username" -}}
 {{- end -}}
@@ -135,8 +155,9 @@ Get the username key to be retrieved from Cells&reg; secret.
 Get the password key to be retrieved from Cells&reg; secret.
 */}}
 {{- define "cells.auth.secretPasswordKey" -}}
-{{- if and .Values.auth.existingSecret .Values.auth.existingSecretPasswordKey -}}
-{{- printf "%s" (tpl .Values.auth.existingSecretPasswordKey $) -}}
+{{- $ = . -}}{{- if not (empty .Values) -}}{{- $ = .Values -}}{{- end -}}
+{{- if and $.auth.existingSecret $.auth.existingSecretPasswordKey -}}
+{{- printf "%s" (tpl $.auth.existingSecretPasswordKey .) -}}
 {{- else -}}
 {{- printf "password" -}}
 {{- end -}}

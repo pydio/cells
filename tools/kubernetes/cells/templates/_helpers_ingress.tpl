@@ -22,9 +22,9 @@
 
 {{- define "cells.ingress.extraPaths" -}}
 {{- if .Values.ingress.enabled -}}
-{{- .Values.ingress.extraPaths -}}
+{{- default (list) .Values.ingress.extraPaths | toJson -}}
 {{- else if .Values.externalIngress.enabled -}}
-{{- .Values.externalIngress.extraPaths -}}
+{{- default (list) .Values.externalIngress.extraPaths | toJson -}}
 {{- end -}}
 {{- end -}}
 
@@ -54,40 +54,40 @@
 
 {{- define "cells.ingress.extraHosts" -}}
 {{- if .Values.ingress.enabled -}}
-{{- .Values.ingress.extraHosts | toJson -}}
+{{- default (list) .Values.ingress.extraHosts | toJson -}}
 {{- else if .Values.externalIngress.enabled -}}
-{{- .Values.externalIngress.extraHosts | toJson -}}
+{{- default (list) .Values.externalIngress.extraHosts | toJson -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "cells.ingress.extraRules" -}}
 {{- if .Values.ingress.enabled -}}
-{{- .Values.ingress.extraRules -}}
+{{- default (list) .Values.ingress.extraRules | toJson -}}
 {{- else if .Values.externalIngress.enabled -}}
-{{- .Values.externalIngress.extraRules -}}
+{{- default (list) .Values.externalIngress.extraRules | toJson -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "cells.ingress.tls.enabled" -}}
-{{- if .Values.ingress.tls -}}
+{{- if and .Values.ingress.enabled .Values.ingress.tls -}}
 {{- true -}}
-{{- else if .Values.externalIngress.tls.enabled -}}
+{{- else if and .Values.externalIngress.enabled .Values.externalIngress.tls.enabled -}}
 {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "cells.ingress.tls.selfSigned" -}}
-{{- if and .Values.ingress.tls .Values.ingress.selfSigned -}}
+{{- if and .Values.ingress.enabled .Values.ingress.tls .Values.ingress.selfSigned -}}
 {{- true -}}
-{{- else if and .Values.externalIngress.tls.enabled .Values.externalIngress.tls.selfSigned -}}
+{{- else if and .Values.externalIngress.enabled .Values.externalIngress.tls.enabled .Values.externalIngress.tls.selfSigned -}}
 {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "cells.ingress.extraTls" -}}
 {{- if .Values.ingress.enabled -}}
-{{- .Values.ingress.extraTls -}}
+{{- default (list) .Values.ingress.extraTls | toJson -}}
 {{- else if .Values.externalIngress.enabled -}}
-{{- .Values.externalIngress.extraTls -}}
+{{- default (list) .Values.externalIngress.extraTls | toJson -}}
 {{- end -}}
 {{- end -}}

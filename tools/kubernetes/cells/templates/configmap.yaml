@@ -19,6 +19,8 @@ data:
       {{- end }}
       {{- if .Values.service.reverseproxyurl }}
         reverseproxyurl: {{ .Values.service.reverseproxyurl }}
+      {{- else if .Values.ingress.enabled }}
+        reverseproxyurl: {{ if (include "cells.ingress.tls.enabled" .) }}https://{{ else }}http://{{ end }}{{ .Values.ingress.hostname }}
       {{- end }}
       {{- if (include "cells.tls.enabled" . ) }}
         tlsconfig:
@@ -34,14 +36,14 @@ data:
 
     {{ if (include "cells.database.enabled" .) }}
     dbconnectiontype: manual
-    dbmanualdsn: {{ include "cells.database.dsn" (dict "context" . "path" (include "cells.database.name" .) "authParams" (include "cells.urlUser" (dict "enabled" "true" "user" "$DB_USERNAME" "password" "$DB_PASSWORD")) ) }}
+    dbmanualdsn: {{ include "cells.database.dsn" (dict "context" . "path" (include "cells.database.name" .) "authParams" (include "cells.urlUser" (dict "enabled" (include "cells.database.auth.enabled" .) "user" "$DB_USERNAME" "password" "$DB_PASSWORD")) ) }}
     {{ else }}
     dbconnectiontype: manual
     dbmanualdsn: sqlite:///var/cells/pydio.db
     {{ end }}
 
     {{- if (include "cells.nosql.enabled" .) }}
-    documentsdsn: {{ include "cells.nosql.url" (dict "context" . "path" "cells" "authParams" (include "cells.urlUser" (dict "enabled" "true" "user" "$NOSQL_USERNAME" "password" "$NOSQL_PASSWORD")) ) }}
+    documentsdsn: {{ include "cells.nosql.url" (dict "context" . "path" "cells" "authParams" (include "cells.urlUser" (dict "enabled" (include "cells.nosql.auth.enabled" .) "user" "$NOSQL_USERNAME" "password" "$NOSQL_PASSWORD")) ) }}
     usedocumentsdsn: true
     {{- else }}
     usedocumentsdsn: false
@@ -54,7 +56,7 @@ data:
     {{- if (include "cells.s3.enabled" .) }}
     dstype: S3
     {{- if or .Values.minio.enabled (and .Values.externalS3.enabled .Values.externalS3.useCustomURL) }}
-    dss3custom: {{ include "cells.s3.url" (list . "") }}
+    dss3custom: {{ include "cells.s3.url" (dict "context" . "path" "" "scheme" .Values.externalS3.scheme) }}
     {{- end }}
     dss3customregion: {{ .Values.externalS3.customRegion | default "us-east-1" }}
     dss3apikey: $S3_USERNAME
@@ -75,6 +77,9 @@ data:
       {{- $collaboraConfigs = $collaboraConfigsStr | fromYaml | default dict }}
       {{- end }}
       {{- $mergedConfigs := merge $baseConfigs $collaboraConfigs }}
+      {{- $_ := set $mergedConfigs "helm/configureMarker" (include "cells.configureMarker" .) }}
+      {{- $_ := set $mergedConfigs "helm/chart" (include "cells.chart" .) }}
+      {{- $_ := set $mergedConfigs "helm/image" (include "cells.image" .) }}
       {{- toYaml $mergedConfigs | nindent 6 }}
 
   {{- if .Values.bootstrap }}
@@ -322,6 +327,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cells-vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
   bootstrap.sh: |
     #!/bin/sh
@@ -387,9 +396,9 @@ data:
 
         vault policy write app /vault/userconfig/cells-vault/app-policy.hcl
 
-        vault write auth/kubernetes/role/app \
-           bound_service_account_names=app \
-           bound_service_account_namespaces=cells \
+        vault write auth/kubernetes/role/{{ include "cells.serviceAccountName" . }} \
+           bound_service_account_names="{{ include "cells.serviceAccountName" . }}" \
+           bound_service_account_namespaces="{{ include "common.names.namespace" . }}" \
            policies=app,pki,default \
            ttl=24h
 

@@ -1,0 +1,10 @@
+{{- if .Values.notNow }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: cells-nomad-ordering
+spec:
+  filterOrder:
+    - name: envoy.filters.http.lua
+      before: envoy.filters.http.ext_authz
+{{- end}}

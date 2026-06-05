@@ -1,0 +1,32 @@
+{{- $migration := default dict .Values.migration }}
+{{- $orphanBundleBackups := default false $migration.orphanBundleBackups }}
+{{- $ingress := default dict .Values.ingress }}
+{{- $clusterIssuer := default dict $ingress.clusterissuer }}
+{{- $ingressAnnotations := default dict $ingress.annotations }}
+{{- $issuerName := default "letsencrypt" (index $ingressAnnotations "cert-manager.io/cluster-issuer") }}
+{{- if and .Release.IsUpgrade $orphanBundleBackups (default false $ingress.enabled) (default "" $clusterIssuer.server) (.Capabilities.APIVersions.Has "cert-manager.io/v1/ClusterIssuer") }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ $issuerName | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-migrated
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+    helm.sh/resource-policy: keep
+spec:
+  acme:
+    server: {{ $clusterIssuer.server | quote }}
+    email: {{ default "" $clusterIssuer.email | quote }}
+    privateKeySecretRef:
+      name: {{ $issuerName | quote }}
+    solvers:
+      - http01:
+          ingress:
+            class: {{ default "nginx" (index $ingressAnnotations "kubernetes.io/ingress.class") | quote }}
+{{- end }}

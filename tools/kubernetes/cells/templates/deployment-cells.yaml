@@ -1,3 +1,6 @@
+{{- $cellsImage := include "cells.image" . -}}
+{{- $installConfigChecksum := include (print $.Template.BasePath "/configmap.yaml") . | sha256sum -}}
+{{- $configureMarker := include "cells.configureMarker" . -}}
 apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
 kind: Deployment
 metadata:
@@ -21,6 +24,10 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/install-config: {{ $installConfigChecksum | quote }}
+        cells.pydio.com/configure-marker: {{ $configureMarker | quote }}
+        cells.pydio.com/chart: {{ include "cells.chart" . | quote }}
+        cells.pydio.com/image: {{ $cellsImage | quote }}
       {{- if (include "cells.vault.enabled" .) }}
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: {{ include "cells.serviceAccountName" . }}
@@ -62,11 +69,7 @@ spec:
           {{- if .Values.containerSecurityContext.enabled }}
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
           {{- end }}
-          {{- if .Values.image.local }}
-          image: "{{ .Values.image.repository }}"
-          {{- else }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- end }}
+          image: "{{ $cellsImage }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh"]
           args:
@@ -126,7 +129,11 @@ spec:
               mountPath: /var/cells
             - name: install
               mountPath: /var/cells-install
-            {{- if (include "cells.s3.tls.enabled" .) }}
+            {{- if not (include "cells.vault.enabled" .) }}
+            - name: keyring
+              mountPath: /var/cells-keyring
+            {{- end }}
+            {{- if and (include "cells.s3.tls.enabled" .) (not (empty (include "cells.s3.tls.ca.existingSecret" .))) }}
             - name: s3-ca-certs
               mountPath: /etc/ssl/certs/ca-local-root.crt
               subPath: tls.crt
@@ -215,11 +222,7 @@ spec:
               wait
 
         - name: install-certs
-          {{- if .Values.image.local }}
-          image: "{{ .Values.image.repository }}"
-          {{- else }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- end }}
+          image: "{{ $cellsImage }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.containerSecurityContext.enabled }}
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
@@ -348,11 +351,7 @@ spec:
             {{- end }}
             {{- end }}
         - name: install
-          {{- if .Values.image.local }}
-          image: "{{ .Values.image.repository }}"
-          {{- else }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- end }}
+          image: "{{ $cellsImage }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.containerSecurityContext.enabled }}
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
@@ -361,12 +360,33 @@ spec:
             - "/bin/sh"
             - "-c"
             - |
+              set -eu
               sleep 3
               if [ -f /var/cells-install/source ]; then
                 source /var/cells-install/source
               fi
-              if ! {{ .Values.command.binary | default "cells" }} admin config check; then
-                {{ .Values.command.binary | default "cells" }}  configure
+
+              target_marker="{{ $configureMarker }}"
+              target_version="$({{ .Values.command.binary | default "cells" }} version -f '{{ "{{" }}.Version{{ "}}" }}')"
+              installed_version="$({{ .Values.command.binary | default "cells" }} admin config list 2>/dev/null | awk -F'|' '
+                function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+                { if (trim($2) == "version") { print trim($3); exit } }
+              ')"
+              configured_marker="$({{ .Values.command.binary | default "cells" }} admin config list 2>/dev/null | awk -F'|' '
+                function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+                { if (trim($2) == "helm/configureMarker") { print trim($3); exit } }
+              ')"
+
+              config_ok=false
+              if {{ .Values.command.binary | default "cells" }} admin config check; then
+                config_ok=true
+              fi
+
+              if [ "${config_ok}" = "true" ] && [ "${installed_version}" = "${target_version}" ] && [ "${configured_marker}" = "${target_marker}" ]; then
+                echo "Cells configuration is up to date for version ${target_version} and marker ${target_marker}"
+              else
+                echo "Running Cells configuration: config_ok=${config_ok}, installed_version=${installed_version:-none}, target_version=${target_version}, configured_marker=${configured_marker:-none}, target_marker=${target_marker}"
+                {{ .Values.command.binary | default "cells" }} configure
               fi
               sleep 3
           env:
@@ -375,7 +395,7 @@ spec:
             - name: CELLS_INSTALL_YAML
               value: /var/cells-install/install-conf.yaml
             {{- if .Values.auth.enabled }}
-            {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth) | nindent 12 -}}
+            {{- include "cells.auth.envvar" (dict "prefix" "CELLS" "auth" .Values.auth "defaultAuthExistingSecret" (include "cells.fullname" .)) | nindent 12 -}}
             {{- end}}
             {{- include "cells.discovery.envvar" . | nindent 12 -}}
             {{- include "cells.broker.envvar" . | nindent 12 -}}
@@ -402,6 +422,10 @@ spec:
             - name: vault-ca-certs
               mountPath: /var/certs/ca/vault
             {{- end }}
+            {{- end }}
+            {{- if not (include "cells.vault.enabled" .) }}
+            - name: keyring
+              mountPath: /var/cells-keyring
             {{- end }}
         {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.initContainers "context" .) | nindent 8 }}
@@ -463,12 +487,16 @@ spec:
             secretName: {{ include "cells.nosql.tls.client.existingSecret" . }}
         {{- end }}
         {{- if (include "cells.s3.tls.enabled" .) }}
+        {{- if (not (empty (include "cells.s3.tls.ca.existingSecret" .))) }}
         - name: s3-ca-certs
           secret:
             secretName: {{ include "cells.s3.tls.ca.existingSecret" . }}
+        {{- end }}
+        {{- if (not (empty (include "cells.s3.tls.client.existingSecret" .))) }}
         - name: s3-client-certs
           secret:
             secretName: {{ include "cells.s3.tls.client.existingSecret" . }}
+        {{- end }}
         {{- end }}
         {{- if (include "cells.vault.tls.enabled" .) }}
         - name: vault-ca-certs
@@ -477,6 +505,11 @@ spec:
         - name: vault-client-certs
           secret:
             secretName: {{ include "cells.vault.tls.client.existingSecret" . }}
+        {{- end }}
+        {{- if not (include "cells.vault.enabled" .) }}
+        - name: keyring
+          secret:
+            secretName: {{ include "common.secrets.name" (dict "context" . "existingSecret" .Values.keyring.masterKey.existingSecret "defaultNameSuffix" "master-key") -}}
         {{- end }}
         - name: data
           {{- if .Values.persistence.enabled }}

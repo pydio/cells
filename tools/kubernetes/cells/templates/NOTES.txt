@@ -28,9 +28,9 @@ And you need to make sure that the following auth, roles, secrets and policies a
         kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 
     # Enable kubernetes roles
-    vault write auth/kubernetes/role/app \
-        bound_service_account_names=app \
-        bound_service_account_namespaces=cells \
+    vault write auth/kubernetes/role/{{ include "cells.serviceAccountName" . }} \
+        bound_service_account_names="{{ include "cells.serviceAccountName" . }}" \
+        bound_service_account_namespaces="{{ include "common.names.namespace" . }}" \
         policies=app,pki,default \
         ttl=24h
 

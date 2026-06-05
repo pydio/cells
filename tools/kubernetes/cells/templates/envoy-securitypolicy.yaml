@@ -1,0 +1,16 @@
+{{- if .Values.notNow }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cells-ext-authz
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: cells
+  extAuth:
+    grpc:
+      backendRef:
+        name: cells-auth-middleware
+        port: 9000
+{{- end }}
