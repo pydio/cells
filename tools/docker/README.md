@@ -12,6 +12,68 @@ Important points:
 - Image is run with root user
 - Internal proxy configuration can be configure via environment variables or json / yaml config file.  
 
+## Building the image
+
+The image at `images/cells/buildx-dockerfile` supports three build modes selected with `--build-arg BUILD_MODE=<mode>`:
+
+| Mode | Behavior | Required args | Build context |
+|---|---|---|---|
+| `download` (default) | Fetches the released binary from `download.pydio.com` | `VERSION`, optional `CHECKSUM` (sha256) | `images/cells/` |
+| `compile` | Compiles the binary from source inside the image | optional `VERSION`, `GIT_REV`, `BUILD_STAMP` | repo root |
+| `local` | Copies a pre-built binary from the build context | optional `BINARY_PATH` (default `cells`) | directory holding the binary |
+
+Examples:
+
+```bash
+# Mode 1: download a published release (current default behavior)
+docker buildx build \
+  --build-arg VERSION=4.9.94 \
+  -t pydio/cells:4.9.94 \
+  -f tools/docker/images/cells/buildx-dockerfile \
+  tools/docker/images/cells
+
+# Mode 1 with checksum verification
+docker buildx build \
+  --build-arg VERSION=4.9.94 \
+  --build-arg CHECKSUM=<sha256-of-the-binary> \
+  -t pydio/cells:4.9.94 \
+  -f tools/docker/images/cells/buildx-dockerfile \
+  tools/docker/images/cells
+
+# Mode 2: compile from source (context = repo root)
+# Prefer the make target — it reads the toolchain version from go.mod
+# automatically and passes it as --build-arg GO_VERSION:
+make docker-image                       # tag = $(CELLS_VERSION)
+make docker-image DOCKER_TAG=dev        # custom tag
+
+# Or invoke buildx directly:
+docker buildx build \
+  --build-arg BUILD_MODE=compile \
+  --build-arg GO_VERSION=$(awk '/^toolchain/ {sub("go","",$2); print $2}' go.mod) \
+  --build-arg VERSION=4.9.95-dev \
+  --build-arg GIT_REV=$(git rev-parse HEAD) \
+  --build-arg BUILD_STAMP=$(date -u +%Y-%m-%dT%H:%M:%S) \
+  -t pydio/cells:dev \
+  -f tools/docker/images/cells/buildx-dockerfile \
+  .
+
+# Note: `GO_VERSION` is a cache hint. Even when it drifts from `go.mod`,
+# Go's `GOTOOLCHAIN=auto` (default since 1.21) will detect the mismatch
+# at build time and download the toolchain pinned in `go.mod` — so the
+# binary is always produced with the correct toolchain.
+
+# Mode 3: ship a locally-built binary
+make docker          # produces ./cells-linux at the repo root
+cp cells-linux tools/docker/images/cells/cells
+docker buildx build \
+  --build-arg BUILD_MODE=local \
+  --build-arg BINARY_PATH=cells \
+  -t pydio/cells:local \
+  -f tools/docker/images/cells/buildx-dockerfile \
+  tools/docker/images/cells
+```
+
+
 Simply launch the image, it starts in configuration mode: you can fine tune your instance via your preferred web browser.  
 By default the server starts in _self-signed_ mode on port 8080. You can modify the configuration to also use:
 

@@ -1,29 +1,91 @@
-FROM alpine AS certs
-ARG version
+# syntax=docker/dockerfile:1.7
+#
+# Pydio Cells multi-mode container image.
+#
+# Build modes (select via --build-arg BUILD_MODE=...):
+#   download (default) - fetch a released binary from download.pydio.com
+#   compile            - build from source (context = repo root)
+#   local              - copy a pre-built binary from the build context
 
-# builtin args
-ARG TARGETPLATFORM   # e.g. "linux/arm64"
-ARG TARGETARCH        # e.g. "arm64" or "amd64"
-ARG arch=$TARGETARCH
+ARG ALPINE_VERSION=3.20
+ARG GO_VERSION=1.26.2
+ARG BUILD_MODE=download
 
-WORKDIR /opt/pydio
-RUN wget "https://download.pydio.com/pub/cells/release/${version}/linux-${arch}/cells"
-# RUN wget "https://download.pydio.com/pub/cells/dev/next/linux-${arch}/cells"
-RUN chmod +x /opt/pydio/cells
-
-FROM alpine
-ARG version
+# ── Stage: download released binary from download.pydio.com ──────────
+FROM alpine:${ALPINE_VERSION} AS download
+ARG VERSION
+ARG CHECKSUM=""
 ARG TARGETARCH
+RUN apk add --no-cache ca-certificates wget
+WORKDIR /out
+RUN wget -O cells "https://download.pydio.com/pub/cells/release/${VERSION}/linux-${TARGETARCH}/cells" \
+ && if [ -n "$CHECKSUM" ]; then echo "${CHECKSUM}  cells" | sha256sum -c -; fi \
+ && chmod +x cells
+
+# ── Stage: compile from source ───────────────────────────────────────
+FROM golang:${GO_VERSION}-alpine AS compile
+ARG TARGETARCH
+ARG VERSION=dev
+ARG GIT_REV=dev
+ARG BUILD_STAMP
+RUN apk add --no-cache git make
+WORKDIR /src
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} \
+    go build -trimpath \
+      -ldflags "-X github.com/pydio/cells/v5/common.version=${VERSION} \
+                -X github.com/pydio/cells/v5/common.BuildStamp=${BUILD_STAMP} \
+                -X github.com/pydio/cells/v5/common.BuildRevision=${GIT_REV}" \
+      -o /out/cells .
+
+# ── Stage: local pre-built binary from build context ─────────────────
+FROM alpine:${ALPINE_VERSION} AS local
+ARG BINARY_PATH=cells
+COPY ${BINARY_PATH} /out/cells
+RUN chmod +x /out/cells
+
+# ── Stage: select binary source ──────────────────────────────────────
+FROM ${BUILD_MODE} AS binary
+
+# ── Final runtime image ──────────────────────────────────────────────
+FROM alpine:${ALPINE_VERSION}
+ARG VERSION
+ARG GIT_REV
+ARG BUILD_STAMP
+ARG TARGETARCH
+ARG DOCKER_ENTRYPOINT_SRC_DIR=.
+
+LABEL org.opencontainers.image.title="Pydio Cells" \
+      org.opencontainers.image.description="Pydio Cells — enterprise file sharing and collaboration platform" \
+      org.opencontainers.image.vendor="Pydio" \
+      org.opencontainers.image.source="https://github.com/pydio/cells" \
+      org.opencontainers.image.licenses="AGPL-3.0-only" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${GIT_REV}" \
+      org.opencontainers.image.created="${BUILD_STAMP}"
+
+RUN apk add --no-cache ca-certificates tini tzdata
 
 ENV CELLS_WORKING_DIR=/var/cells
-WORKDIR $CELLS_WORKING_DIR
-COPY docker-entrypoint.sh /opt/pydio/bin/docker-entrypoint.sh
-COPY --from=certs /opt/pydio/cells /opt/pydio/bin/cells
-ENV PATH="$PATH:/opt/pydio/bin"
+WORKDIR ${CELLS_WORKING_DIR}
 
-RUN echo "Pydio Cells Home Docker Image" > /opt/pydio/package.info \
-    && echo "  A ready-to-go Docker image based on Alpine ${TARGETARCH} to configure and launch Cells in no time." >> /opt/pydio/package.info \
-    && echo "  Generated on $(date) with docker build script from version ${version:-dev}" >> /opt/pydio/package.info
+COPY --from=binary --chmod=0755 /out/cells /opt/pydio/bin/cells
+COPY --chmod=0755 ${DOCKER_ENTRYPOINT_SRC_DIR}/docker-entrypoint.sh /opt/pydio/bin/docker-entrypoint.sh
+ENV PATH="/opt/pydio/bin:${PATH}"
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+RUN printf 'Pydio Cells Home Docker Image\n  Alpine %s / arch %s\n  Version %s built on %s (rev %s)\n' \
+      "$(cat /etc/alpine-release)" "${TARGETARCH}" "${VERSION:-dev}" "${BUILD_STAMP:-unknown}" "${GIT_REV:-unknown}" \
+      > /opt/pydio/package.info
+
+VOLUME ["/var/cells"]
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget -qO- --no-check-certificate https://127.0.0.1:8080/a/frontend/bootconf >/dev/null 2>&1 \
+   || wget -qO- http://127.0.0.1:8080/a/frontend/bootconf >/dev/null 2>&1 \
+   || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--", "docker-entrypoint.sh"]
 CMD ["cells", "start"]
