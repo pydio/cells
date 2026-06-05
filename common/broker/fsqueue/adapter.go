@@ -86,11 +86,10 @@ type fpubQueue struct {
 	basePath string
 	name     string
 
-	consumerDone chan struct{}
-
-	closeMu  sync.Mutex
-	closed   bool
-	closeErr error
+	closeMu       sync.Mutex
+	closed        bool
+	consumerDone  chan struct{} // Lazily initialized in Consume()
+	closeErr      error
 }
 
 // OpenURL implements broker.AsyncQueueOpener.
@@ -216,6 +215,7 @@ func (f *fpubQueue) PushRaw(ctx context.Context, message broker.Message) error {
 // Starts a goroutine that receives messages from the subscription
 // and invokes the callback with decoded broker.Messages.
 func (f *fpubQueue) Consume(callback func(context.Context, ...broker.Message)) error {
+	// Lazily initialize consumerDone channel
 	f.closeMu.Lock()
 	if f.consumerDone == nil {
 		f.consumerDone = make(chan struct{})
@@ -223,7 +223,7 @@ func (f *fpubQueue) Consume(callback func(context.Context, ...broker.Message)) e
 	f.closeMu.Unlock()
 
 	go func() {
-		defer close(f.consumerDone)
+		defer close(f.consumerDone) // Signal consumer exit when goroutine exits
 		for {
 			select {
 			case <-f.ctx.Done():
@@ -325,7 +325,7 @@ func (f *fpubQueue) Close(ctx context.Context) error {
 		f.cancel()
 	}
 
-	// Wait for Consume goroutine WITHOUT holding closeMu
+	// Wait for consumer goroutine to exit
 	if f.consumerDone != nil {
 		<-f.consumerDone
 	}
@@ -351,4 +351,14 @@ func (f *fpubQueue) Close(ctx context.Context) error {
 	return f.closeErr
 }
 
-func (f *fpubQueue) Done() <-chan struct{} { return f.consumerDone }
+func (f *fpubQueue) Done() <-chan struct{} {
+	f.closeMu.Lock()
+	defer f.closeMu.Unlock()
+	if f.consumerDone != nil {
+		return f.consumerDone
+	}
+	// Return a closed channel if consumer never started
+	ch := make(chan struct{})
+	close(ch)
+	return ch
+}
