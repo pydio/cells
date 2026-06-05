@@ -21,8 +21,11 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"sort"
+	"strings"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -42,12 +45,13 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var m map[string]interface{}
+		m := map[string]interface{}{}
 		if err := config.Get(cmd.Context(), "").Scan(&m); err != nil {
 			log.Fatal(err)
 		}
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
+		table.SetHeader([]string{"Path", "Value"})
 
 		var skeys []string
 		for k := range m {
@@ -67,8 +71,6 @@ DESCRIPTION
 
 func displayMap(table *tablewriter.Table, m interface{}, val ...string) {
 	switch v := m.(type) {
-	case string:
-		table.Append(append(val, v))
 	case map[string]interface{}:
 		var ckeys []string
 
@@ -80,6 +82,22 @@ func displayMap(table *tablewriter.Table, m interface{}, val ...string) {
 		for _, ck := range ckeys {
 			displayMap(table, v[ck], append(val, ck)...)
 		}
+	default:
+		table.Append([]string{strings.Join(val, "/"), configListValue(v)})
+	}
+}
+
+func configListValue(v interface{}) string {
+	switch t := v.(type) {
+	case nil:
+		return "null"
+	case string:
+		return t
+	default:
+		if b, err := json.Marshal(t); err == nil {
+			return string(b)
+		}
+		return fmt.Sprint(t)
 	}
 }
 
