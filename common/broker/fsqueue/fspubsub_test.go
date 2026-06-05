@@ -868,3 +868,86 @@ func TestFpubQueueCloseAndOpenErrors(t *testing.T) {
 		So(err, ShouldNotBeNil)
 	})
 }
+
+func TestConsumeCallbackPanic(t *testing.T) {
+	Convey("Consume callback panic recovery", t, func() {
+		td, cleanup := tempDir(t, "fpubqueue-panic-*")
+		defer cleanup()
+		ctx := context.Background()
+		q := &fpubQueue{}
+
+		queue, _ := q.OpenURL(ctx, mustParseURL("fpub://"+td+"?name=panic"))
+		defer queue.Close(ctx)
+
+		panicCalled := false
+		queue.Consume(func(ctx context.Context, msgs ...broker.Message) {
+			panicCalled = true
+			panic("test panic")
+		})
+		queue.Push(ctx, &emptypb.Empty{})
+
+		time.Sleep(2 * time.Second)
+		So(panicCalled, ShouldBeTrue)
+	})
+}
+
+func TestCloseWithShutdownErrors(t *testing.T) {
+	Convey("Close handles Shutdown errors gracefully", t, func() {
+		td, cleanup := tempDir(t, "fpubqueue-shutdown-*")
+		defer cleanup()
+		ctx := context.Background()
+		q := &fpubQueue{}
+
+		queue, _ := q.OpenURL(ctx, mustParseURL("fpub://"+td+"?name=shuterr"))
+
+		queue.Consume(func(ctx context.Context, msgs ...broker.Message) {})
+
+		err := queue.Close(ctx)
+		So(err, ShouldBeNil)
+
+		err2 := queue.Close(ctx)
+		So(err2, ShouldBeNil)
+	})
+}
+
+func TestReceiveErrorHandling(t *testing.T) {
+	Convey("Receive error handling with retry", t, func() {
+		td, cleanup := tempDir(t, "fpubqueue-recverr-*")
+		defer cleanup()
+		ctx := context.Background()
+		q := &fpubQueue{}
+
+		queue, _ := q.OpenURL(ctx, mustParseURL("fpub://"+td+"?name=recverr"))
+		defer queue.Close(ctx)
+
+		messageCount := 0
+		queue.Consume(func(ctx context.Context, msgs ...broker.Message) {
+			messageCount++
+		})
+
+		// Push valid message
+		queue.Push(ctx, &emptypb.Empty{})
+
+		// Wait for message
+		start := time.Now()
+		for messageCount == 0 && time.Since(start) < 2*time.Second {
+			time.Sleep(10 * time.Millisecond)
+		}
+		So(messageCount, ShouldEqual, 1)
+	})
+}
+
+func TestPushClosedQueue(t *testing.T) {
+	Convey("Push to closed queue returns error", t, func() {
+		td, cleanup := tempDir(t, "fpubqueue-pushclose-*")
+		defer cleanup()
+		ctx := context.Background()
+		q := &fpubQueue{}
+
+		queue, _ := q.OpenURL(ctx, mustParseURL("fpub://"+td+"?name=pushclose"))
+		queue.Close(ctx)
+
+		err := queue.Push(ctx, &emptypb.Empty{})
+		So(err, ShouldEqual, errQueueClosed)
+	})
+}

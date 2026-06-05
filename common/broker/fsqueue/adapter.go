@@ -54,12 +54,24 @@ import (
 
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/telemetry/metrics"
 )
 
 var (
 	errMissingStreamName = errors.New("fpub: please provide a stream name via ?name=")
 	errQueueClosed       = errors.New("fpub: queue is closed")
 )
+
+// Process-wide registry so two opens of the same basePath share one queue.
+var (
+	registryMu sync.Mutex
+	registry   = map[string]*fpubEntry{}
+)
+
+type fpubEntry struct {
+	queue    *fpubQueue
+	refCount int
+}
 
 func init() {
 	broker.RegisterAsyncQueue("fpub", &fpubQueue{})
@@ -74,9 +86,10 @@ type fpubQueue struct {
 	basePath string
 	name     string
 
-	closeMu  sync.Mutex
-	closed   bool
-	closeErr error
+	closeMu      sync.Mutex
+	closed       bool
+	consumerDone chan struct{} // Lazily initialized in Consume()
+	closeErr     error
 }
 
 // OpenURL implements broker.AsyncQueueOpener.
@@ -110,10 +123,16 @@ func (f *fpubQueue) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue,
 
 	// Build base path: /path/from/url/fpub-streamname
 	basePath := filepath.Join(u.Path, "fpub-"+streamName)
+
+	registryMu.Lock()
+	defer registryMu.Unlock()
+	if entry, ok := registry[basePath]; ok {
+		entry.refCount++
+		return entry.queue, nil
+	}
+
 	topicOptions := &TopicOptions{
-		BatcherOptions: batcher.Options{
-			MaxBatchSize: sendBatchSize,
-		},
+		BatcherOptions: batcher.Options{MaxBatchSize: sendBatchSize},
 	}
 
 	// Create topic
@@ -125,7 +144,7 @@ func (f *fpubQueue) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue,
 	subOpts := &SubscriptionOptions{
 		ReceiveBatcherOptions: batcher.Options{
 			MaxBatchSize: recvBatchSize,
-			MaxHandlers:  1, // Keep strict ordering
+			MaxHandlers:  1,
 		},
 	}
 
@@ -135,16 +154,18 @@ func (f *fpubQueue) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue,
 		_ = topic.Shutdown(ctx)
 		return nil, err
 	}
-
 	qCtx, cancel := context.WithCancel(ctx)
-	return &fpubQueue{
-		ctx:      qCtx,
-		cancel:   cancel,
-		topic:    topic,
-		sub:      sub,
-		basePath: basePath,
-		name:     streamName,
-	}, nil
+	q := &fpubQueue{
+		ctx:          qCtx,
+		cancel:       cancel,
+		topic:        topic,
+		sub:          sub,
+		basePath:     basePath,
+		name:         streamName,
+		consumerDone: make(chan struct{}),
+	}
+	registry[basePath] = &fpubEntry{queue: q, refCount: 1}
+	return q, nil
 }
 
 // Push implements broker.AsyncQueue.Push.
@@ -158,9 +179,15 @@ func (f *fpubQueue) Push(ctx context.Context, msg proto.Message) error {
 	f.closeMu.Unlock()
 
 	body := broker.EncodeProtoWithContext(ctx, msg)
-	return f.topic.Send(ctx, &pubsub.Message{
+	err := f.topic.Send(ctx, &pubsub.Message{
 		Body: body,
 	})
+	if err == nil {
+		metrics.Helper().Counter("fpub_push_total", "Total messages pushed to fpub queue").Inc(1)
+	} else {
+		metrics.Helper().Counter("fpub_push_errors_total", "Total push errors in fpub queue").Inc(1)
+	}
+	return err
 }
 
 // PushRaw implements broker.AsyncQueue.PushRaw.
@@ -174,9 +201,15 @@ func (f *fpubQueue) PushRaw(ctx context.Context, message broker.Message) error {
 	f.closeMu.Unlock()
 
 	body := broker.EncodeBrokerMessage(message)
-	return f.topic.Send(ctx, &pubsub.Message{
+	err := f.topic.Send(ctx, &pubsub.Message{
 		Body: body,
 	})
+	if err == nil {
+		metrics.Helper().Counter("fpub_push_raw_total", "Total raw messages pushed to fpub queue").Inc(1)
+	} else {
+		metrics.Helper().Counter("fpub_push_errors_total", "Total push errors in fpub queue").Inc(1)
+	}
+	return err
 }
 
 // Consume implements broker.AsyncQueue.Consume.
@@ -184,33 +217,30 @@ func (f *fpubQueue) PushRaw(ctx context.Context, message broker.Message) error {
 // and invokes the callback with decoded broker.Messages.
 func (f *fpubQueue) Consume(callback func(context.Context, ...broker.Message)) error {
 	go func() {
+		defer close(f.consumerDone) // Signal consumer exit when goroutine exits
 		for {
 			select {
 			case <-f.ctx.Done():
-				log.Logger(f.ctx).Debug("[fpubQueue] Consumer stopping: context done", zap.String("name", f.name))
+				log.Logger(f.ctx).Debug("[fpubQueue] Consumer stopping: context done",
+					zap.String("name", f.name))
 				return
 			default:
 			}
 
 			msg, err := f.sub.Receive(f.ctx)
 			if err != nil {
+				if f.ctx.Err() != nil {
+					return
+				}
 				// Check if we're closing
 				f.closeMu.Lock()
 				closing := f.closed
 				f.closeMu.Unlock()
-				if closing {
-					log.Logger(f.ctx).Debug("[fpubQueue] Consumer stopping: queue closed", zap.String("name", f.name))
+				if closing || f.ctx.Err() != nil {
 					return
 				}
-
-				// Context canceled
-				if f.ctx.Err() != nil {
-					log.Logger(f.ctx).Debug("[fpubQueue] Consumer stopping: context error", zap.String("name", f.name), zap.Error(f.ctx.Err()))
-					return
-				}
-
-				log.Logger(f.ctx).Error("[fpubQueue] Error receiving message", zap.String("name", f.name), zap.Error(err))
-				// Brief pause before retry
+				log.Logger(f.ctx).Error("[fpubQueue] Error receiving message",
+					zap.String("name", f.name), zap.Error(err))
 				select {
 				case <-time.After(100 * time.Millisecond):
 				case <-f.ctx.Done():
@@ -219,58 +249,102 @@ func (f *fpubQueue) Consume(callback func(context.Context, ...broker.Message)) e
 				continue
 			}
 
-			// Decode the broker message
 			brokerMsg, err := broker.DecodeToBrokerMessage(msg.Body)
 			if err != nil {
-				log.Logger(f.ctx).Error("[fpubQueue] Failed to decode message", zap.String("name", f.name), zap.Error(err))
-				msg.Ack()
+				log.Logger(f.ctx).Error("[fpubQueue] decode failed, nacking for retry",
+					zap.String("name", f.name), zap.Error(err))
+				if msg.Nackable() {
+					msg.Nack()
+				} else {
+					msg.Ack()
+				}
 				continue
 			}
 
-			// Invoke callback
-			callback(f.ctx, brokerMsg)
+			// Recover panics in the callback so a bad event doesn't kill the
+			// consume goroutine; Nack the message for retry up to the gocloud
+			// limit (governed by ackDeadline).
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Logger(f.ctx).Error("[fpubQueue] panic in consume callback",
+							zap.String("name", f.name), zap.Any("panic", r))
+						if msg.Nackable() {
+							msg.Nack()
+						} else {
+							msg.Ack()
+						}
+					}
+				}()
+				callback(f.ctx, brokerMsg)
+				msg.Ack()
+			}()
 
-			// Acknowledge after callback completes
-			msg.Ack()
+			// Track consumed message
+			metrics.Helper().Counter("fpub_consumed_total", "Total messages consumed from fpub queue").Inc(1)
 		}
 	}()
 	return nil
 }
 
-// Close implements broker.AsyncQueue.Close.
-// Shuts down both subscription and topic.
+// Close implements broker.AsyncQueue.Close with refcounted teardown.
 func (f *fpubQueue) Close(ctx context.Context) error {
 	f.closeMu.Lock()
-	defer f.closeMu.Unlock()
-
 	if f.closed {
+		f.closeMu.Unlock()
 		return f.closeErr
 	}
 	f.closed = true
+	f.closeMu.Unlock()
+
+	registryMu.Lock()
+	entry, ok := registry[f.basePath]
+	if !ok || entry.queue != f {
+		registryMu.Unlock()
+		return errQueueClosed
+	}
+	entry.refCount--
+	if entry.refCount > 0 {
+		registryMu.Unlock()
+		return nil
+	}
+	delete(registry, f.basePath)
+	registryMu.Unlock() // ← Release BEFORE waiting
+
+	// Track queue close
+	metrics.Helper().Counter("fpub_closed_total", "Times fpub queue was closed").Inc(1)
 
 	// Cancel consumer context
 	if f.cancel != nil {
 		f.cancel()
 	}
 
-	var errs []error
+	// Wait for consumer goroutine to exit
+	if f.consumerDone != nil {
+		<-f.consumerDone
+	}
 
-	// Shutdown subscription first
+	// Final cleanup
+	f.closeMu.Lock()
+	defer f.closeMu.Unlock()
+
+	var errs []error
 	if f.sub != nil {
 		if err := f.sub.Shutdown(ctx); err != nil {
 			errs = append(errs, err)
 		}
 	}
-
-	// Then shutdown topic
 	if f.topic != nil {
 		if err := f.topic.Shutdown(ctx); err != nil {
 			errs = append(errs, err)
 		}
 	}
-
 	if len(errs) > 0 {
 		f.closeErr = errs[0]
 	}
 	return f.closeErr
+}
+
+func (f *fpubQueue) Done() <-chan struct{} {
+	return f.consumerDone
 }

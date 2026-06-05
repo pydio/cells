@@ -87,7 +87,9 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			s.Roots = append(s.Roots, "/")
 		}
 		for _, p := range s.Roots {
-			s.runUni(ctx, patch, p, force, rootsInfo)
+			if err := s.runUni(ctx, patch, p, force, rootsInfo); err != nil {
+				return patch, err
+			}
 		}
 		if errs, ok := patch.HasErrors(); ok {
 			//patch.Done(patch)
@@ -127,7 +129,9 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	// Feed Patch from Diff
 	err := diff.ToUnidirectionalPatch(ctx, s.Direction, patch)
 	if err != nil {
-		return err
+		// return err
+		return patch.SetPatchError(errors.Wrap(err, "error happened during diff.ToUnidirectionalPatch"))
+
 	}
 
 	// Additional failsafe filter for massive deletions
@@ -337,8 +341,8 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 					}
 					s.statuses <- model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes (%s)", total, tString))
 				}
-				close(done)
-				close(indexStatus)
+				// close(done)
+				// close(indexStatus)
 				return
 			}
 		}
