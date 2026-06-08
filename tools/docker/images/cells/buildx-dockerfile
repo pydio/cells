@@ -13,12 +13,13 @@ ARG BUILD_MODE=download
 
 # ── Stage: download released binary from download.pydio.com ──────────
 FROM alpine:${ALPINE_VERSION} AS download
+ARG REPO=release
 ARG VERSION
 ARG CHECKSUM=""
 ARG TARGETARCH
 RUN apk add --no-cache ca-certificates wget
 WORKDIR /out
-RUN wget -O cells "https://download.pydio.com/pub/cells/release/${VERSION}/linux-${TARGETARCH}/cells" \
+RUN wget -O cells "https://download.pydio.com/pub/cells/${REPO}/${VERSION}/linux-${TARGETARCH}/cells" \
  && if [ -n "$CHECKSUM" ]; then echo "${CHECKSUM}  cells" | sha256sum -c -; fi \
  && chmod +x cells
 
