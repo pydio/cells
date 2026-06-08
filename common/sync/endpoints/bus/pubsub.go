@@ -292,116 +292,43 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		ConnectionInfo: wConn,
 	}
 
+	// Worker pool to process messages without blocking Consume callback
+	msgQueue := make(chan broker.Message)
+	numWorkers := 4
+	for i := 0; i < numWorkers; i++ {
+		go func() {
+			for msg := range msgQueue {
+				e.processMessage(ctx, msg, eventChan, errorChan)
+			}
+		}()
+	}
+
+	// Consume callback just queues messages - returns immediately
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
 		cbWg.Add(1)
 		defer cbWg.Done()
 		for _, msg := range messages {
-
-			event := &sync.SyncEvent{}
-			_, er := msg.Unmarshal(ctx, event)
-			if er != nil {
-				wo.ErrorChan <- er
-			}
-			if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
-				log.Logger(ctx).Info("node change event", zap.Any("event", nodeEvent))
-				switch nodeEvent.Type {
-				case tree.NodeChangeEvent_CREATE:
-					if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
-						target := nodeEvent.GetTarget()
-
-						// Skip if metadata not yet loaded
-						if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
-							log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()), zap.Any("type", target.GetType()))
-							// Skip this event, wait for the UPDATE_META event
-						} else {
-							mm, _ := nodeEvent.Metadata["update_if_exists"]
-							if er := e.PathSyncTarget.CreateNode(ctx, nodeEvent.GetTarget(), mm == "true"); er != nil {
-								wo.ErrorChan <- er
-								continue
-							}
-						}
-					}
-
-					// else {
-					// <-time.After(time.Second)
-					// }
-				case tree.NodeChangeEvent_DELETE:
-					if er := e.PathSyncTarget.DeleteNode(ctx, nodeEvent.GetSource().GetPath()); er != nil {
-						wo.ErrorChan <- er
-						continue
-					}
-				case tree.NodeChangeEvent_UPDATE_PATH:
-					if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
-						target := nodeEvent.GetTarget()
-						// Skip if metadata not yet loaded
-						if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
-							log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()), zap.Any("type", target.GetType()))
-							// Skip this event, wait for the UPDATE_META event
-						} else {
-							if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), nodeEvent.GetTarget().GetPath()); er != nil {
-								wo.ErrorChan <- er
-								continue
-							}
-						}
-					}
-				}
-
-				// Now it stored in snapshot, send an event for further sync.
-				// Transform NodeChangeEvent into modelEvents
-				if modelEvent, ok := events.TreeNodeChangeToModelEvent(nodeEvent, time.Now(), nil); ok {
-					eventChan <- modelEvent
-				}
-
-			} else if userMetaEvent := event.GetUserMetaEvent(); userMetaEvent != nil {
-
-				um := userMetaEvent.UserMeta
-				if um.ResolvedNode == nil {
-					wo.ErrorChan <- fmt.Errorf("user metadata event not resolved")
-					continue
-				}
-				node, err := e.PathSyncTarget.LoadNode(ctx, um.ResolvedNode.GetPath())
-				if err != nil {
-					wo.ErrorChan <- err
-					continue
-				}
-				um.ResolvedNode = node.AsProto()
-
-				if e.metaReceiver != nil {
-					switch userMetaEvent.Operation {
-					case idm.UpdateUserMetaEvent_PUT:
-						if er := e.metaReceiver.CreateMetadata(ctx, node, um.Namespace, um.JsonValue); er != nil {
-							wo.ErrorChan <- er
-							continue
-						}
-					case idm.UpdateUserMetaEvent_DELETE:
-						if er := e.metaReceiver.DeleteMetadata(ctx, node, um.Namespace); er != nil {
-							wo.ErrorChan <- er
-							continue
-						}
-					}
-				}
-
-				// Transform UserMetaEvent into modelEvents
-				modelEvent, _ := events.UserMetaToModelEvent(userMetaEvent, time.Now(), nil)
-				eventChan <- modelEvent
-
+			select {
+			case msgQueue <- msg:
+			case <-ctx.Done():
+				return
 			}
 		}
-
 	})
+
 	if er != nil {
-		close(wConn)
 		close(doneChan)
 		close(errorChan)
 		close(eventChan)
 		return nil, er
 	}
+
 	go func() {
 		defer func() {
-			_ = e.AsyncQueue.Close(ctx) // triggers Consume goroutine to exit
+			close(msgQueue)
 
-			// Wait for the consume callback to actually return before closing
-			// downstream channels, so we cannot panic with "send on closed channel".
+			_ = e.AsyncQueue.Close(ctx)
+
 			if d, ok := e.AsyncQueue.(interface{ Done() <-chan struct{} }); ok {
 				select {
 				case <-d.Done():
@@ -424,7 +351,115 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 			}
 		}
 	}()
+
 	return wo, nil
+}
+
+// Helper function to process a single message
+func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) {
+	event := &sync.SyncEvent{}
+	_, er := msg.Unmarshal(ctx, event)
+	if er != nil {
+		select {
+		case errorChan <- er:
+		case <-ctx.Done():
+		}
+		return
+	}
+
+	if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
+		log.Logger(ctx).Info("node change event", zap.Any("event", nodeEvent))
+		switch nodeEvent.Type {
+		case tree.NodeChangeEvent_CREATE:
+			target := nodeEvent.GetTarget()
+			if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
+				log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()))
+				return
+			}
+			mm, _ := nodeEvent.Metadata["update_if_exists"]
+			if er := e.PathSyncTarget.CreateNode(ctx, target, mm == "true"); er != nil {
+				select {
+				case errorChan <- er:
+				case <-ctx.Done():
+				}
+				return
+			}
+		case tree.NodeChangeEvent_DELETE:
+			if er := e.PathSyncTarget.DeleteNode(ctx, nodeEvent.GetSource().GetPath()); er != nil {
+				select {
+				case errorChan <- er:
+				case <-ctx.Done():
+				}
+				return
+			}
+		case tree.NodeChangeEvent_UPDATE_PATH:
+			target := nodeEvent.GetTarget()
+			if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
+				log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()))
+				return
+			}
+			if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), target.GetPath()); er != nil {
+				select {
+				case errorChan <- er:
+				case <-ctx.Done():
+				}
+				return
+			}
+		}
+
+		if modelEvent, ok := events.TreeNodeChangeToModelEvent(nodeEvent, time.Now(), nil); ok {
+			select {
+			case eventChan <- modelEvent:
+			case <-ctx.Done():
+			}
+		}
+
+	} else if userMetaEvent := event.GetUserMetaEvent(); userMetaEvent != nil {
+		um := userMetaEvent.UserMeta
+		if um.ResolvedNode == nil {
+			select {
+			case errorChan <- fmt.Errorf("user metadata event not resolved"):
+			case <-ctx.Done():
+			}
+			return
+		}
+		node, err := e.PathSyncTarget.LoadNode(ctx, um.ResolvedNode.GetPath())
+		if err != nil {
+			select {
+			case errorChan <- err:
+			case <-ctx.Done():
+			}
+			return
+		}
+		um.ResolvedNode = node.AsProto()
+
+		if e.metaReceiver != nil {
+			switch userMetaEvent.Operation {
+			case idm.UpdateUserMetaEvent_PUT:
+				if er := e.metaReceiver.CreateMetadata(ctx, node, um.Namespace, um.JsonValue); er != nil {
+					select {
+					case errorChan <- er:
+					case <-ctx.Done():
+					}
+					return
+				}
+			case idm.UpdateUserMetaEvent_DELETE:
+				if er := e.metaReceiver.DeleteMetadata(ctx, node, um.Namespace); er != nil {
+					select {
+					case errorChan <- er:
+					case <-ctx.Done():
+					}
+					return
+				}
+			}
+		}
+
+		modelEvent, _ := events.UserMetaToModelEvent(userMetaEvent, time.Now(), nil)
+		select {
+		case eventChan <- modelEvent:
+		case <-ctx.Done():
+		}
+	}
 }
 
 func (e *PubSubEndpoint) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
