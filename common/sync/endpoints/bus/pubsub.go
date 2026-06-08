@@ -292,9 +292,14 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		ConnectionInfo: wConn,
 	}
 
-	// Worker pool to process messages without blocking Consume callback
+	// msgQueue holds messages from the broker's Consume callback. Using an unbuffered
+	// channel ensures the callback cannot proceed until a worker is ready to handle
+	// the message. This prevents message loss and keeps ordering intact.
 	msgQueue := make(chan broker.Message)
 	numWorkers := 4
+	// Spawn worker goroutines to process messages from the queue. Each worker
+	// independently handles the file operations (create, delete, move, metadata),
+	// which can be slow. This allows the broker callback to return quickly.
 	for i := 0; i < numWorkers; i++ {
 		go func() {
 			for msg := range msgQueue {
@@ -303,7 +308,9 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		}()
 	}
 
-	// Consume callback just queues messages - returns immediately
+	// The Consume callback sends messages to the worker queue and returns immediately.
+	// The callback must not block (no file operations here), so the broker stays responsive
+	// and can fetch the next batch of messages. Workers handle the actual sync operations.
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
 		cbWg.Add(1)
 		defer cbWg.Done()
@@ -323,8 +330,13 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		return nil, er
 	}
 
+	// Cleanup routine manages shutdown. When the watch context closes, this goroutine
+	// signals workers to stop by closing msgQueue, waits for in-flight work to finish,
+	// and then closes the output channels to inform listeners.
 	go func() {
 		defer func() {
+			// Close the queue to signal workers that no more messages are coming.
+			// Workers will drain their current queue items before exiting the for-range loop.
 			close(msgQueue)
 
 			_ = e.AsyncQueue.Close(ctx)
@@ -336,6 +348,7 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 					log.Logger(ctx).Warn("sync pubsub: consume goroutine did not exit within 5s")
 				}
 			}
+			// Wait for the Consume callback to finish its final batch.
 			cbWg.Wait()
 
 			close(wConn)
@@ -355,7 +368,10 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	return wo, nil
 }
 
-// Helper function to process a single message
+// processMessage handles a single sync event from the queue. This function runs in
+// worker goroutines, so it's safe to perform blocking operations like CreateNode,
+// DeleteNode, MoveNode, and LoadNode. Errors and results are sent back through
+// the provided channels.
 func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) {
 	event := &sync.SyncEvent{}
 	_, er := msg.Unmarshal(ctx, event)
