@@ -297,9 +297,11 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	// the message. This prevents message loss and keeps ordering intact.
 	msgQueue := make(chan broker.Message)
 	numWorkers := 4
-	// Spawn worker goroutines to process messages from the queue. Each worker
-	// independently handles the file operations (create, delete, move, metadata),
-	// which can be slow. This allows the broker callback to return quickly.
+	// Spawn worker goroutines to prevent the Consume callback from blocking on I/O.
+	// On systems with limited cores, blocking the callback starves the broker's ability
+	// to fetch the next message batch. These workers provide a relief valve, allowing
+	// the callback to return immediately while file operations proceed in the background.
+	// TODO: numWorkers should be configurable via fpubsub URL definition.
 	for i := 0; i < numWorkers; i++ {
 		go func() {
 			for msg := range msgQueue {
