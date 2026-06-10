@@ -5,8 +5,17 @@ TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
 GITREV?=$(shell git rev-parse HEAD)
 CELLS_VERSION?=${DEV_VERSION}.${TIMESTAMP}
 GOBIN?=go
+# Set FORCE_REBUILD=1 to pass -a and rebuild packages instead of reusing Go's build cache.
+FORCE_REBUILD ?=
+REBUILD_FLAGS := $(if $(FORCE_REBUILD),-a,)
+GO_BUILD_FLAGS := $(REBUILD_FLAGS) -trimpath
 
-.PHONY: all clean build main dev darwin arm win docker start ds licenses
+.PHONY: all clean build main dev darwin arm win docker docker-image start ds licenses
+
+GO_TOOLCHAIN := $(shell awk '/^toolchain/ {sub("go","",$$2); print $$2}' go.mod)
+DOCKER_IMAGE ?= pydio/cells
+DOCKER_TAG ?= $(CELLS_VERSION)
+DOCKER_ENTRYPOINT_SRC_DIR ?= ./tools/docker/images/cells
 
 ## Historic Aliases
 
@@ -27,7 +36,7 @@ win: windows-amd64
 ## Standard names
 
 linux-amd64:
-	env CGO_ENABLED=0 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 ${GOBIN} build $(GO_BUILD_FLAGS)\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -35,7 +44,7 @@ linux-amd64:
 	 .
 
 linux-arm64:
-	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 ${GOBIN} build $(GO_BUILD_FLAGS)\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -43,7 +52,7 @@ linux-arm64:
 	 .
 
 linux-arm:
-	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build $(GO_BUILD_FLAGS)\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -51,7 +60,7 @@ linux-arm:
 	 .
 
 darwin-arm64:
-	env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 ${GOBIN} build $(GO_BUILD_FLAGS)\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -59,7 +68,7 @@ darwin-arm64:
 	 .
 
 darwin-amd64:
-	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 ${GOBIN} build $(GO_BUILD_FLAGS)\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -67,7 +76,7 @@ darwin-amd64:
 	 .
 
 windows-amd64:
-	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 ${GOBIN} build $(GO_BUILD_FLAGS)\
 	 -ldflags "-X github.com/pydio/cells/v5/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v5/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v5/common.BuildRevision=${GITREV}"\
@@ -96,6 +105,38 @@ docker:
 
 dockercp:
 	docker stop ${CONTAINER}; docker cp ./cells-linux ${CONTAINER}:/bin/cells; docker start ${CONTAINER}
+
+docker-image-compile:
+	docker buildx build \
+	 --build-arg BUILD_MODE=compile \
+	 --build-arg GO_VERSION=$(GO_TOOLCHAIN) \
+	 --build-arg VERSION=$(CELLS_VERSION) \
+	 --build-arg GIT_REV=$(GITREV) \
+	 --build-arg BUILD_STAMP=$(TODAY) \
+	 --build-arg DOCKER_ENTRYPOINT_SRC_DIR=$(DOCKER_ENTRYPOINT_SRC_DIR) \
+	 -f tools/docker/images/cells/buildx-dockerfile \
+	 -t $(DOCKER_IMAGE):$(DOCKER_TAG) \
+         --load \
+	 .
+
+docker-image-local:
+	docker buildx build \
+	 --build-arg BUILD_MODE=local \
+	 --build-arg DOCKER_ENTRYPOINT_SRC_DIR=$(DOCKER_ENTRYPOINT_SRC_DIR) \
+	 -f tools/docker/images/cells/buildx-dockerfile \
+	 -t $(DOCKER_IMAGE):$(DOCKER_TAG) \
+	 --load \
+	 .
+
+docker-image-download:
+	docker buildx build \
+	 --build-arg BUILD_MODE=download \
+	 --build-arg VERSION=$(CELLS_VERSION) \
+	 --build-arg DOCKER_ENTRYPOINT_SRC_DIR=$(DOCKER_ENTRYPOINT_SRC_DIR) \
+	 -f tools/docker/images/cells/buildx-dockerfile \
+	 -t $(DOCKER_IMAGE):$(DOCKER_TAG) \
+	 --load \
+	 .
 
 start:
 	./cells start
