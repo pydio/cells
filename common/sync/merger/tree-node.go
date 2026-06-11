@@ -127,6 +127,8 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 					if statusChan != nil {
 						statusChan <- model.NewProcessingStatus(fmt.Sprintf("Could not compute hash for %s", p)).SetEndpoint(uri).SetNode(node).SetError(e)
 					}
+					// Test Trial to skip adding nodes which failed Checksum Calc.
+					return
 				}
 				childNode := NewTreeNode(node)
 				parent.AddChild(childNode)
