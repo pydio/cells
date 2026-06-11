@@ -296,7 +296,7 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	// channel ensures the callback cannot proceed until a worker is ready to handle
 	// the message. This prevents message loss and keeps ordering intact.
 	msgQueue := make(chan broker.Message)
-	numWorkers := 4
+	numWorkers := 16 // 500/16 = ~31 files per worker in queue
 	// Spawn worker goroutines to prevent the Consume callback from blocking on I/O.
 	// On systems with limited cores, blocking the callback starves the broker's ability
 	// to fetch the next message batch. These workers provide a relief valve, allowing

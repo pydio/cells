@@ -602,7 +602,7 @@ func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []tree.N) {
 	// Check target nodes are found in remote index
 	wg := &sync.WaitGroup{}
 	wg.Add(len(nodes))
-	throttle := make(chan struct{}, 32)
+	throttle := make(chan struct{}, 64) // for readNodesBlocking verification
 	for _, n := range nodes {
 		throttle <- struct{}{}
 		go func(no tree.N) {
