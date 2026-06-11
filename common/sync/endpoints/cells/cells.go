@@ -160,6 +160,7 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 	s, e := cli.ListNodes(send, &tree.ListNodesRequest{
 		Node:      &tree.Node{Path: c.rooted(root)},
 		Recursive: recursive,
+		// StatFlags: []uint32{tree.StatFlagNone},
 	})
 	if e != nil {
 		return e
@@ -428,6 +429,11 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 // ComputeChecksum is not implemented
 func (c *Abstract) ComputeChecksum(ctx context.Context, node tree.N) error {
 	return errors.New("not.implemented")
+	// if c.Options.BrowseOnly {
+	// 	log.Logger(c.GlobalCtx).Debug("skipping checksum, storage is readonly", node.Zap())
+	// 	return nil // ← Change this
+	// }
+	// return nil
 }
 
 // CreateNode is used for creating folders only
@@ -596,7 +602,7 @@ func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []tree.N) {
 	// Check target nodes are found in remote index
 	wg := &sync.WaitGroup{}
 	wg.Add(len(nodes))
-	throttle := make(chan struct{}, 8)
+	throttle := make(chan struct{}, 32)
 	for _, n := range nodes {
 		throttle <- struct{}{}
 		go func(no tree.N) {
