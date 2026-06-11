@@ -162,39 +162,42 @@ func (s *nsSqlImpl) Migrate(ctx context.Context) error {
 
 // Add inserts a namespace // Upsert
 func (s *nsSqlImpl) Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool) {
-	// Update existing
 	var ex *MetaNamespace
 	tx0 := s.Session(ctx).Where(&MetaNamespace{Namespace: ns.Namespace}).First(&ex)
 	if tx0.Error != nil && !errors.Is(tx0.Error, gorm.ErrRecordNotFound) {
 		return nsTag(tx0.Error), false
 	}
-	if tx0.Error == nil {
+
+	isUpdate := tx0.Error == nil
+
+	if isUpdate {
+		// Update existing
 		validNs, er := (&MetaNamespace{}).FromExisting(ns)
 		if er != nil {
 			return nsTag(er), false
 		}
-
 		tx2 := s.Session(ctx).Where("namespace = ?", ns.Namespace).Select("*").Updates(validNs)
 		if tx2.Error != nil {
 			return nsTag(tx2.Error), false
 		}
-		return nil, true
-	}
-	// Insert
-	tx1 := s.Session(ctx).Create((&MetaNamespace{}).From(ns))
-	if tx1.Error != nil {
-		return nsTag(tx1.Error), false
-	}
-
-	if len(ns.Policies) > 0 {
-		if pols, err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
-			return nsTag(err), false
-		} else {
-			ns.Policies = pols
+	} else {
+		// Insert
+		tx1 := s.Session(ctx).Create((&MetaNamespace{}).From(ns))
+		if tx1.Error != nil {
+			return nsTag(tx1.Error), false
 		}
 	}
 
-	return nil, false
+	// Handle policies
+	if len(ns.Policies) > 0 {
+		pols, err := s.AddPolicies(ctx, isUpdate, ns.Namespace, ns.Policies)
+		if err != nil {
+			return nsTag(err), false
+		}
+		ns.Policies = pols
+	}
+
+	return nil, isUpdate
 }
 
 // Del removes a namespace

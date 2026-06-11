@@ -402,3 +402,54 @@ func TestNSDescriptionAndEnforceDefault(t *testing.T) {
 		})
 	})
 }
+
+func TestNSPoliciesOnUpsert(t *testing.T) {
+	test.RunStorageTests(nsTestcases, t, func(ctx context.Context) {
+		mockDAO, er := manager.Resolve[meta.NamespaceDAO](ctx)
+		if er != nil {
+			t.Fatal(er)
+		}
+
+		Convey("Policies added on create and update", t, func() {
+			// Create namespace with policies
+			ns := &idm.UserMetaNamespace{
+				Namespace: "test-policies",
+				Label:     "Test Policies",
+				Policies: []*service.ResourcePolicy{
+					{
+						Action:  service.ResourcePolicyAction_READ,
+						Subject: "user:admin",
+					},
+				},
+			}
+
+			_, isUpdate := mockDAO.Upsert(ctx, ns)
+			So(isUpdate, ShouldBeFalse)
+			So(len(ns.Policies), ShouldEqual, 1)
+
+			// Update same namespace - policies should persist and be reapplied
+			ns.Label = "Test Policies Updated"
+			ns.Policies = append(ns.Policies, &service.ResourcePolicy{
+				Action:  service.ResourcePolicyAction_WRITE,
+				Subject: "user:admin",
+			})
+
+			err, isUpdate := mockDAO.Upsert(ctx, ns)
+			So(err, ShouldBeNil)
+			So(isUpdate, ShouldBeTrue)
+			So(len(ns.Policies), ShouldEqual, 2)
+
+			// Verify policies are persisted
+			list, _ := mockDAO.List(ctx)
+			var found *idm.UserMetaNamespace
+			for _, item := range list {
+				if item.Namespace == "test-policies" {
+					found = item
+					break
+				}
+			}
+			So(found, ShouldNotBeNil)
+			So(len(found.Policies), ShouldEqual, 2)
+		})
+	})
+}
