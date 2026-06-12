@@ -291,16 +291,14 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 
 	// Process messages synchronously in the Consume callback. This ensures the callback
 	// does not return until all messages are processed, allowing the underlying adapter
-	// to call Ack() only after processing completes. This prevents message loss when
-	// operations fail, as failed messages remain in the queue for retry.
+	// to call Ack() only after processing completes. If processing fails, the callback
+	// panics to prevent Ack, keeping the message in the queue for retry.
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Logger(ctx).Warn("pubsub consume callback panic", zap.Any("panic", r))
-			}
-		}()
 		for _, msg := range messages {
-			e.processMessage(ctx, msg, eventChan, errorChan)
+			if err := e.processMessage(ctx, msg, eventChan, errorChan); err != nil {
+				// Processing failed - panic to prevent Ack() and keep message in queue
+				panic(fmt.Sprintf("message processing failed: %v", err))
+			}
 		}
 	})
 
@@ -347,14 +345,14 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 
 // processMessage handles a single sync event from the broker. This function runs
 // synchronously in the Consume callback, blocking message acknowledgment until
-// processing completes. This ensures failed operations are not acknowledged and
-// can be retried. Errors and results are sent through the provided channels.
-func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) {
+// processing completes. Returns an error if processing fails, which causes the
+// callback to panic and prevent Ack(), keeping the message in the queue for retry.
+func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) error {
 	event := &sync.SyncEvent{}
 	_, er := msg.Unmarshal(ctx, event)
 	if er != nil {
 		errorChan <- er
-		return
+		return er
 	}
 
 	if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
@@ -364,27 +362,27 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 			target := nodeEvent.GetTarget()
 			if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
 				log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()))
-				return
+				return nil
 			}
 			mm, _ := nodeEvent.Metadata["update_if_exists"]
 			if er := e.PathSyncTarget.CreateNode(ctx, target, mm == "true"); er != nil {
 				errorChan <- er
-				return
+				return er
 			}
 		case tree.NodeChangeEvent_DELETE:
 			if er := e.PathSyncTarget.DeleteNode(ctx, nodeEvent.GetSource().GetPath()); er != nil {
 				errorChan <- er
-				return
+				return er
 			}
 		case tree.NodeChangeEvent_UPDATE_PATH:
 			target := nodeEvent.GetTarget()
 			if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
 				log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()))
-				return
+				return nil
 			}
 			if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), target.GetPath()); er != nil {
 				errorChan <- er
-				return
+				return er
 			}
 		}
 
@@ -395,13 +393,14 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 	} else if userMetaEvent := event.GetUserMetaEvent(); userMetaEvent != nil {
 		um := userMetaEvent.UserMeta
 		if um.ResolvedNode == nil {
-			errorChan <- fmt.Errorf("user metadata event not resolved")
-			return
+			er := fmt.Errorf("user metadata event not resolved")
+			errorChan <- er
+			return er
 		}
 		node, err := e.PathSyncTarget.LoadNode(ctx, um.ResolvedNode.GetPath())
 		if err != nil {
 			errorChan <- err
-			return
+			return err
 		}
 		um.ResolvedNode = node.AsProto()
 
@@ -410,12 +409,12 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 			case idm.UpdateUserMetaEvent_PUT:
 				if er := e.metaReceiver.CreateMetadata(ctx, node, um.Namespace, um.JsonValue); er != nil {
 					errorChan <- er
-					return
+					return er
 				}
 			case idm.UpdateUserMetaEvent_DELETE:
 				if er := e.metaReceiver.DeleteMetadata(ctx, node, um.Namespace); er != nil {
 					errorChan <- er
-					return
+					return er
 				}
 			}
 		}
@@ -423,6 +422,7 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 		modelEvent, _ := events.UserMetaToModelEvent(userMetaEvent, time.Now(), nil)
 		eventChan <- modelEvent
 	}
+	return nil
 }
 
 func (e *PubSubEndpoint) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
