@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/url"
 	"strings"
-	stdsync "sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -283,8 +282,6 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	doneChan := make(chan bool)
 	wConn := make(chan model.WatchConnectionInfo)
 
-	var cbWg stdsync.WaitGroup
-
 	wo := &model.WatchObject{
 		EventInfoChan:  eventChan,
 		ErrorChan:      errorChan,
@@ -292,37 +289,18 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		ConnectionInfo: wConn,
 	}
 
-	// msgQueue holds messages from the broker's Consume callback. Using an unbuffered
-	// channel ensures the callback cannot proceed until a worker is ready to handle
-	// the message. This prevents message loss and keeps ordering intact.
-	msgQueue := make(chan broker.Message)
-	numWorkers := 4 // 500/16 = ~31 files per worker in queue
-	// Spawn worker goroutines to prevent the Consume callback from blocking on I/O.
-	// On systems with limited cores, blocking the callback starves the broker's ability
-	// to fetch the next message batch. These workers provide a relief valve, allowing
-	// the callback to return immediately while file operations proceed in the background.
-	// TODO: numWorkers should be configurable via fpubsub URL definition.
-	for i := 0; i < numWorkers; i++ {
-		go func() {
-			for msg := range msgQueue {
-				e.processMessage(ctx, msg, eventChan, errorChan)
-			}
-		}()
-	}
-
-	// The Consume callback sends messages to the worker queue and returns immediately.
-	// The callback must not block (no file operations here), so the broker stays responsive
-	// and can fetch the next batch of messages. Workers handle the actual sync operations.
+	// Process messages synchronously in the Consume callback. This ensures the callback
+	// does not return until all messages are processed, allowing the underlying adapter
+	// to call Ack() only after processing completes. This prevents message loss when
+	// operations fail, as failed messages remain in the queue for retry.
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
-		cbWg.Add(1)
-		defer cbWg.Done()
 		defer func() {
 			if r := recover(); r != nil {
 				log.Logger(ctx).Warn("pubsub consume callback panic", zap.Any("panic", r))
 			}
 		}()
 		for _, msg := range messages {
-			msgQueue <- msg
+			e.processMessage(ctx, msg, eventChan, errorChan)
 		}
 	})
 
@@ -334,8 +312,7 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	}
 
 	// Cleanup routine manages shutdown. When the watch context closes, this goroutine
-	// signals workers to stop by closing msgQueue, waits for in-flight work to finish,
-	// and then closes the output channels to inform listeners.
+	// stops the broker and closes output channels to inform listeners.
 	go func() {
 		defer func() {
 			// Stop broker FIRST to prevent new messages from being delivered.
@@ -350,11 +327,7 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 				}
 			}
 
-			// Wait for the Consume callback to finish its final batch.
-			cbWg.Wait()
-
-			// NOW safe to close channels - all writers have stopped.
-			close(msgQueue)
+			// NOW safe to close channels - broker has stopped, no more writers.
 			close(wConn)
 			close(errorChan)
 			close(eventChan)
@@ -372,10 +345,10 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	return wo, nil
 }
 
-// processMessage handles a single sync event from the queue. This function runs in
-// worker goroutines, so it's safe to perform blocking operations like CreateNode,
-// DeleteNode, MoveNode, and LoadNode. Errors and results are sent back through
-// the provided channels.
+// processMessage handles a single sync event from the broker. This function runs
+// synchronously in the Consume callback, blocking message acknowledgment until
+// processing completes. This ensures failed operations are not acknowledged and
+// can be retried. Errors and results are sent through the provided channels.
 func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) {
 	event := &sync.SyncEvent{}
 	_, er := msg.Unmarshal(ctx, event)
