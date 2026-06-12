@@ -296,7 +296,7 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	// channel ensures the callback cannot proceed until a worker is ready to handle
 	// the message. This prevents message loss and keeps ordering intact.
 	msgQueue := make(chan broker.Message)
-	numWorkers := 16 // 500/16 = ~31 files per worker in queue
+	numWorkers := 4 // 500/16 = ~31 files per worker in queue
 	// Spawn worker goroutines to prevent the Consume callback from blocking on I/O.
 	// On systems with limited cores, blocking the callback starves the broker's ability
 	// to fetch the next message batch. These workers provide a relief valve, allowing
@@ -316,12 +316,13 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
 		cbWg.Add(1)
 		defer cbWg.Done()
-		for _, msg := range messages {
-			select {
-			case msgQueue <- msg:
-			case <-ctx.Done():
-				return
+		defer func() {
+			if r := recover(); r != nil {
+				log.Logger(ctx).Warn("pubsub consume callback panic", zap.Any("panic", r))
 			}
+		}()
+		for _, msg := range messages {
+			msgQueue <- msg
 		}
 	})
 
@@ -337,12 +338,10 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	// and then closes the output channels to inform listeners.
 	go func() {
 		defer func() {
-			// Close the queue to signal workers that no more messages are coming.
-			// Workers will drain their current queue items before exiting the for-range loop.
-			close(msgQueue)
-
+			// Stop broker FIRST to prevent new messages from being delivered.
 			_ = e.AsyncQueue.Close(ctx)
 
+			// Wait for broker to fully stop before closing channels.
 			if d, ok := e.AsyncQueue.(interface{ Done() <-chan struct{} }); ok {
 				select {
 				case <-d.Done():
@@ -350,9 +349,12 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 					log.Logger(ctx).Warn("sync pubsub: consume goroutine did not exit within 5s")
 				}
 			}
+
 			// Wait for the Consume callback to finish its final batch.
 			cbWg.Wait()
 
+			// NOW safe to close channels - all writers have stopped.
+			close(msgQueue)
 			close(wConn)
 			close(errorChan)
 			close(eventChan)
@@ -378,10 +380,7 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 	event := &sync.SyncEvent{}
 	_, er := msg.Unmarshal(ctx, event)
 	if er != nil {
-		select {
-		case errorChan <- er:
-		case <-ctx.Done():
-		}
+		errorChan <- er
 		return
 	}
 
@@ -396,18 +395,12 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 			}
 			mm, _ := nodeEvent.Metadata["update_if_exists"]
 			if er := e.PathSyncTarget.CreateNode(ctx, target, mm == "true"); er != nil {
-				select {
-				case errorChan <- er:
-				case <-ctx.Done():
-				}
+				errorChan <- er
 				return
 			}
 		case tree.NodeChangeEvent_DELETE:
 			if er := e.PathSyncTarget.DeleteNode(ctx, nodeEvent.GetSource().GetPath()); er != nil {
-				select {
-				case errorChan <- er:
-				case <-ctx.Done():
-				}
+				errorChan <- er
 				return
 			}
 		case tree.NodeChangeEvent_UPDATE_PATH:
@@ -417,36 +410,24 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 				return
 			}
 			if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), target.GetPath()); er != nil {
-				select {
-				case errorChan <- er:
-				case <-ctx.Done():
-				}
+				errorChan <- er
 				return
 			}
 		}
 
 		if modelEvent, ok := events.TreeNodeChangeToModelEvent(nodeEvent, time.Now(), nil); ok {
-			select {
-			case eventChan <- modelEvent:
-			case <-ctx.Done():
-			}
+			eventChan <- modelEvent
 		}
 
 	} else if userMetaEvent := event.GetUserMetaEvent(); userMetaEvent != nil {
 		um := userMetaEvent.UserMeta
 		if um.ResolvedNode == nil {
-			select {
-			case errorChan <- fmt.Errorf("user metadata event not resolved"):
-			case <-ctx.Done():
-			}
+			errorChan <- fmt.Errorf("user metadata event not resolved")
 			return
 		}
 		node, err := e.PathSyncTarget.LoadNode(ctx, um.ResolvedNode.GetPath())
 		if err != nil {
-			select {
-			case errorChan <- err:
-			case <-ctx.Done():
-			}
+			errorChan <- err
 			return
 		}
 		um.ResolvedNode = node.AsProto()
@@ -455,28 +436,19 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 			switch userMetaEvent.Operation {
 			case idm.UpdateUserMetaEvent_PUT:
 				if er := e.metaReceiver.CreateMetadata(ctx, node, um.Namespace, um.JsonValue); er != nil {
-					select {
-					case errorChan <- er:
-					case <-ctx.Done():
-					}
+					errorChan <- er
 					return
 				}
 			case idm.UpdateUserMetaEvent_DELETE:
 				if er := e.metaReceiver.DeleteMetadata(ctx, node, um.Namespace); er != nil {
-					select {
-					case errorChan <- er:
-					case <-ctx.Done():
-					}
+					errorChan <- er
 					return
 				}
 			}
 		}
 
 		modelEvent, _ := events.UserMetaToModelEvent(userMetaEvent, time.Now(), nil)
-		select {
-		case eventChan <- modelEvent:
-		case <-ctx.Done():
-		}
+		eventChan <- modelEvent
 	}
 }
 
