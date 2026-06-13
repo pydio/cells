@@ -20,7 +20,6 @@ spec:
   selector:
     {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels ) "context" . ) }}
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" .) | nindent 6 }}
-      {{- include "cells.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
