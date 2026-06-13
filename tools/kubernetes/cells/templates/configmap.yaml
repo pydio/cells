@@ -67,6 +67,9 @@ data:
     dss3bucketbinaries: {{ .Values.externalS3.ds.binaries | default "binaries" }}
     dss3bucketthumbs: {{ .Values.externalS3.ds.thumbnails | default "thumbnails" }}
     dss3bucketversions: {{ .Values.externalS3.ds.versions | default "versions" }}
+    {{- else }}
+    dstype: LOCAL
+    dsfolder: /var/cells/data
     {{- end }}
 
     customconfigs:
