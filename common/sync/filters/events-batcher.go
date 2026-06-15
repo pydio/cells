@@ -50,6 +50,7 @@ type EventsBatcher struct {
 	patches          chan merger.Patch
 	closeSessionChan chan string
 	debounce         time.Duration
+	wg               sync.WaitGroup // Track processEvents goroutines for graceful shutdown
 
 	// Will be passed along to new patches
 	statuses chan model.Status
@@ -154,6 +155,13 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 		select {
 		case event, ok := <-in:
 			if !ok {
+				// Input channel closed: flush any remaining batch and wait for goroutines
+				if len(batch) > 0 {
+					log.Logger(ev.globalContext).Debug("[batcher] Flushing pending batch on channel close")
+					ev.wg.Add(1)
+					go ev.processEvents(batch, "")
+				}
+				ev.wg.Wait() // Wait for all processEvents goroutines to complete
 				return
 			}
 			if im(event.Path) {
@@ -167,6 +175,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
+					ev.wg.Add(1)
 					go ev.processEvents(ev.batchCache[session], session)
 					delete(ev.batchCache, session)
 					ev.batchCacheMutex.Unlock()
@@ -186,6 +195,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 			ev.batchCacheMutex.Lock()
 			if events, ok := ev.batchCache[session]; ok {
 				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
+				ev.wg.Add(1)
 				go ev.processEvents(events, session)
 				delete(ev.batchCache, session)
 			}
@@ -194,6 +204,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 			// Process Queue
 			if len(batch) > 0 {
 				log.Logger(ev.globalContext).Info("[batcher] Processing batch after timeout")
+				ev.wg.Add(1)
 				go ev.processEvents(batch, "")
 				batch = nil
 			}
@@ -204,6 +215,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 }
 
 func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession string) {
+	defer ev.wg.Done() // Ensure goroutine exit is tracked
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	patch := merger.NewPatch(ev.Source, ev.Target, merger.PatchOptions{MoveDetection: true})

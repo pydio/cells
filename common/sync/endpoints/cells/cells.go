@@ -173,10 +173,11 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 		if e != nil {
 			return e
 		}
+		// n := resp.Node
+		// if n.Etag == common.NodeFlagEtagTemporary {
+		// 	continue
+		// }
 		n := resp.Node
-		if n.Etag == common.NodeFlagEtagTemporary {
-			continue
-		}
 		n.Path = c.unrooted(resp.Node.Path)
 		if !n.IsLeaf() {
 			n.Etag = "-1" // Force recomputing Etags for Folders
