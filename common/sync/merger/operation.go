@@ -328,13 +328,16 @@ func (o *patchOperation) NodeFromSource(ctx context.Context) (node tree.N, err e
 		node = o.EventInfo.ScanSourceNode
 	} else {
 		node, err = o.Source().LoadNode(o.CreateContext(ctx), o.GetRefPath())
+		if err != nil && o.EventInfo.ScanSourceNode != nil {
+			node = o.EventInfo.ScanSourceNode
+			err = nil
+		}
 	}
 	if err == nil {
 		o.Node = node
 	}
 	return
 }
-
 func (o *patchOperation) NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node tree.N, found bool) {
 	if o.Node != nil {
 		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
