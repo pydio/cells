@@ -249,6 +249,9 @@ func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.Watch
 			case changeEvent := <-changes:
 				if event, send := c.changeToEventInfo(changeEvent); send {
 					obj.EventInfoChan <- event
+				} else if changeEvent.Target != nil && changeEvent.Target.Etag == common.NodeFlagEtagTemporary &&
+					(changeEvent.Type == tree.NodeChangeEvent_CREATE || changeEvent.Type == tree.NodeChangeEvent_UPDATE_CONTENT) {
+					go c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan)
 				}
 			case er := <-finished:
 				if !strings.Contains(er.Error(), "DeadlineExceeded") {
@@ -291,6 +294,46 @@ func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.Watch
 	}
 
 	return obj, nil
+}
+
+// deferEventUntilEtagReady waits for a temporary-etag node to be fully indexed, then re-injects
+// the change event into the Watch pipeline. Bounded by ctx; warns and discards if etag never resolves.
+func (c *Abstract) deferEventUntilEtagReady(ctx context.Context, change *tree.NodeChangeEvent, out chan<- model.EventInfo) {
+	const (
+		pollInterval = 500 * time.Millisecond
+		maxWait      = 30 * time.Second
+	)
+	nodePath := change.Target.Path
+	deadline := time.Now().Add(maxWait)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(pollInterval):
+		}
+		if time.Now().After(deadline) {
+			log.Logger(c.GlobalCtx).Info("[Watch] Timed out waiting for temporary etag to resolve, file event dropped",
+				zap.String("path", nodePath))
+			return
+		}
+		n, err := c.LoadNode(ctx, c.unrooted(nodePath))
+		if err != nil {
+			continue
+		}
+		if n.GetEtag() == common.NodeFlagEtagTemporary || n.GetEtag() == "" {
+			continue
+		}
+		// Etag is now real — clone the original event and patch only the etag so the path stays rooted
+		resolved := proto.Clone(change).(*tree.NodeChangeEvent)
+		resolved.Target.Etag = n.GetEtag()
+		if event, send := c.changeToEventInfo(resolved); send {
+			select {
+			case out <- event:
+			case <-ctx.Done():
+			}
+		}
+		return
+	}
 }
 
 // changeValidPath checks if a change event received is to be processed or ignored
