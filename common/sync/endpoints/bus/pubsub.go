@@ -431,15 +431,6 @@ func (e *PubSubEndpoint) CreateNode(ctx context.Context, node tree.N, updateIfEx
 		return err
 	}
 	if e.isPub {
-		// Reload node from snapshot to get finalized metadata (etag, size, etc.)
-		// This ensures the queue event carries the real node state, not pre-write placeholder values
-		if reloadedNode, reloadErr := e.PathSyncTarget.LoadNode(ctx, node.GetPath()); reloadErr == nil {
-			node = reloadedNode
-		} else {
-			log.Logger(ctx).Warn("sync pubsub: could not reload node from snapshot for queue event, using original node",
-				zap.String("path", node.GetPath()), zap.Error(reloadErr))
-		}
-
 		mm := map[string]string{}
 		if updateIfExists {
 			mm["update_if_exists"] = "true"

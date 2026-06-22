@@ -160,7 +160,6 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 	s, e := cli.ListNodes(send, &tree.ListNodesRequest{
 		Node:      &tree.Node{Path: c.rooted(root)},
 		Recursive: recursive,
-		// StatFlags: []uint32{tree.StatFlagNone},
 	})
 	if e != nil {
 		return e
