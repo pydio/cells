@@ -434,9 +434,9 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		}
 		return
 	}
-	sendCtx, can := context.WithTimeout(ctx, 10*time.Minute)
-	defer can()
-	streamer, e := cli.StreamChanges(sendCtx, &tree.StreamChangesRequest{RootPath: c.Root})
+	// sendCtx, can := context.WithTimeout(ctx, 10*time.Minute)
+	// defer can()
+	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root})
 	if e != nil {
 		if !c.watchCtxCancelled {
 			finished <- e
