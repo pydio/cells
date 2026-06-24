@@ -1257,7 +1257,7 @@ func TestGetWriterOnSuccess(t *testing.T) {
 
 func TestGetWriterOnTargetError(t *testing.T) {
 	ctx := context.Background()
-	Convey("GetWriterOn ignores error from underlying target and returns nil writer anyway", t, func() {
+	Convey("GetWriterOn propagates error from underlying target", t, func() {
 		q := &mockQueue{}
 		snap := newMockSnapshot()
 		tgt := &mockDataSyncTarget{writerErr: fmt.Errorf("target error")}
@@ -1273,9 +1273,8 @@ func TestGetWriterOnTargetError(t *testing.T) {
 
 		node := &tree.Node{Path: "/test", Uuid: "uuid"}
 		out, _, _, err := ep.GetWriterOn(ctx, "/path", 1024, node)
-		// Note: Implementation swallows error from target and returns wrapped nil writer
-		So(err, ShouldBeNil)    // Returns nil error even though target had error
-		So(out, ShouldNotBeNil) // But returns wrapped writer (wrapping nil)
+		So(err, ShouldNotBeNil)
+		So(out, ShouldBeNil)
 	})
 }
 
