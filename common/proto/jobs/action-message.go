@@ -280,7 +280,7 @@ func (a *ActionMessage) WithIgnore() *ActionMessage {
 
 // EventFromAny loads and unmarshal event from an anypb value
 func (a *ActionMessage) EventFromAny() (interface{}, error) {
-	if a.Event == nil {
+	if a == nil || a.Event == nil {
 		return nil, errors.New("event not set")
 	}
 	var event interface{}
@@ -300,6 +300,9 @@ func (a *ActionMessage) EventFromAny() (interface{}, error) {
 }
 
 func (a *ActionMessage) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if a == nil {
+		return nil
+	}
 	maxVarSize := 50 * 1024
 	if ev, _ := a.EventFromAny(); ev != nil {
 		if te, ok := ev.(*JobTriggerEvent); ok && te.RunParameters != nil {
