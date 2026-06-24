@@ -174,7 +174,6 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 		}
 		n := resp.Node
 		if n.Etag == common.NodeFlagEtagTemporary {
-			log.Logger(ctx).Debug("Temp nodes without ETAG YET API ROUTER ISSUE", zap.String("path", n.Path))
 			continue
 		}
 		n.Path = c.unrooted(resp.Node.Path)
@@ -434,8 +433,7 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		}
 		return
 	}
-	// sendCtx, can := context.WithTimeout(ctx, 10*time.Minute)
-	// defer can()
+
 	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root})
 	if e != nil {
 		if !c.watchCtxCancelled {

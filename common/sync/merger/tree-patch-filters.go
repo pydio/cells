@@ -102,14 +102,6 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 	for _, createEvent := range t.createFiles {
 		node, err := createEvent.NodeFromSource(ctx)
 		if err != nil {
-			po := createEvent.(*patchOperation) // ← Cast here
-			log.Logger(ctx).Error(
-				"NodeFromSource failed",
-				zap.String("path", createEvent.GetRefPath()),
-				zap.Error(err),
-				zap.Bool("hasScanSourceNode", po.EventInfo.ScanSourceNode != nil),
-				zap.Bool("scanEvent", po.EventInfo.ScanEvent),
-			)
 			delete(t.createFiles, createEvent.GetRefPath())
 			delete(t.deletes, createEvent.GetRefPath())
 			continue

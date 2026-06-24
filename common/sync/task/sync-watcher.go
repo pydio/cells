@@ -27,7 +27,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common/sync/filters"
-	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
@@ -149,49 +148,6 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 						WatchConnection: connInfo,
 						EndpointInfo:    source.GetEndpointInfo(),
 					}
-				}
-				// NEW: After reconnect, trigger a catch-up diff to cover blind window
-				if connInfo == model.WatchConnected {
-					go func() {
-						catchUpCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
-						defer cancel()
-
-						// Create a fresh patch for catch-up
-						var patch merger.Patch
-						if s.Direction == model.DirectionRight {
-							patch = merger.NewPatch(s.Source.(model.PathSyncSource), s.Target.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
-						} else {
-							patch = merger.NewPatch(s.Target.(model.PathSyncSource), s.Source.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
-						}
-						patch.SkipFilterToTarget(true)
-						patch.SetupChannels(s.statuses, s.runDone, s.cmd)
-
-						// Initialize root stats for progress tracking
-						rootsInfo := make(map[string]*model.EndpointRootStat)
-
-						// Run catch-up for each root
-						roots := s.Roots
-						if len(roots) == 0 {
-							roots = []string{"/"}
-						}
-
-						for _, rootPath := range roots {
-							if err := s.runUni(catchUpCtx, patch, rootPath, false, rootsInfo); err != nil {
-								log.Logger(ctx).Error(
-									"Catch-up diff after watch reconnect failed",
-									zap.Error(err),
-									zap.String("source", source.GetEndpointInfo().URI),
-									zap.String("root", rootPath),
-								)
-								break
-							}
-						}
-
-						log.Logger(ctx).Info(
-							"Catch-up diff completed after watch reconnect",
-							zap.String("source", source.GetEndpointInfo().URI),
-						)
-					}()
 				}
 			case <-inputCloser:
 				inputClosed = true
