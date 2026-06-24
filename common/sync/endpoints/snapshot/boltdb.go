@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints"
+	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -602,7 +603,7 @@ func (s *BoltSnapshot) updateMetadata(ctx context.Context, nodePath string, name
 
 func (s *BoltSnapshot) marshal(node tree.N) []byte {
 	store := node.AsProto().Clone()
-	if !s.manualCollector {
+	if !s.manualCollector && store.Type != merger.NodeType_METADATA {
 		store.SetMetaStore(nil)
 	}
 	data, _ := proto.Marshal(store)

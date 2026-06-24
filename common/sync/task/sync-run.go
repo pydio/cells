@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2024. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -296,9 +296,13 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 		}
 		patches[r] = patch
 	}
-	if e := snap.Capture(ctx, source, roots...); e != nil {
-		log.Logger(ctx).Error("Error while capturing snapshot!", zap.Error(e))
-	}
+	// NOTE: snap.Capture is NOT called here anymore. It will be called after patch operations
+	// are successfully applied to the target. This prevents capturing files into the snapshot
+	// before they are actually transferred, which could cause them to be permanently skipped
+	// if they had temporary ETags during diff.Compute but real ETags when Capture runs.
+	// if e := snap.Capture(ctx, source, roots...); e != nil {
+	// 	log.Logger(ctx).Error("Error while capturing snapshot!", zap.Error(e))
+	// }
 	updatable, ok1 := snap.(model.PathSyncTarget)
 	if ok1 && ok2 {
 		snapUpdater.SetUpdateSnapshot(updatable)

@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/url"
 	"strings"
-	stdsync "sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -191,7 +190,7 @@ func (d *DataPubSubEndpoint) GetWriterOn(cancel context.Context, path string, ta
 	// Flat storage
 	out, writeDone, writeErr, err = d.tgt.GetWriterOn(cancel, node.GetUuid(), targetSize, node)
 	if err != nil {
-
+		return
 	}
 	// After copy is finished, call CreateNode to trigger event and index in snapshot
 	return &writeWrapper{
@@ -283,8 +282,6 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	doneChan := make(chan bool)
 	wConn := make(chan model.WatchConnectionInfo)
 
-	var cbWg stdsync.WaitGroup
-
 	wo := &model.WatchObject{
 		EventInfoChan:  eventChan,
 		ErrorChan:      errorChan,
@@ -292,35 +289,15 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 		ConnectionInfo: wConn,
 	}
 
-	// msgQueue holds messages from the broker's Consume callback. Using an unbuffered
-	// channel ensures the callback cannot proceed until a worker is ready to handle
-	// the message. This prevents message loss and keeps ordering intact.
-	msgQueue := make(chan broker.Message)
-	numWorkers := 4
-	// Spawn worker goroutines to prevent the Consume callback from blocking on I/O.
-	// On systems with limited cores, blocking the callback starves the broker's ability
-	// to fetch the next message batch. These workers provide a relief valve, allowing
-	// the callback to return immediately while file operations proceed in the background.
-	// TODO: numWorkers should be configurable via fpubsub URL definition.
-	for i := 0; i < numWorkers; i++ {
-		go func() {
-			for msg := range msgQueue {
-				e.processMessage(ctx, msg, eventChan, errorChan)
-			}
-		}()
-	}
-
-	// The Consume callback sends messages to the worker queue and returns immediately.
-	// The callback must not block (no file operations here), so the broker stays responsive
-	// and can fetch the next batch of messages. Workers handle the actual sync operations.
+	// Process messages synchronously in the Consume callback. This ensures the callback
+	// does not return until all messages are processed, allowing the underlying adapter
+	// to call Ack() only after processing completes. If processing fails, the callback
+	// panics to prevent Ack, keeping the message in the queue for retry.
 	er := e.AsyncQueue.Consume(func(ctx context.Context, messages ...broker.Message) {
-		cbWg.Add(1)
-		defer cbWg.Done()
 		for _, msg := range messages {
-			select {
-			case msgQueue <- msg:
-			case <-ctx.Done():
-				return
+			if err := e.processMessage(ctx, msg, eventChan, errorChan); err != nil {
+				// Processing failed - panic to prevent Ack() and keep message in queue
+				panic(fmt.Sprintf("message processing failed: %v", err))
 			}
 		}
 	})
@@ -333,16 +310,13 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	}
 
 	// Cleanup routine manages shutdown. When the watch context closes, this goroutine
-	// signals workers to stop by closing msgQueue, waits for in-flight work to finish,
-	// and then closes the output channels to inform listeners.
+	// stops the broker and closes output channels to inform listeners.
 	go func() {
 		defer func() {
-			// Close the queue to signal workers that no more messages are coming.
-			// Workers will drain their current queue items before exiting the for-range loop.
-			close(msgQueue)
-
+			// Stop broker FIRST to prevent new messages from being delivered.
 			_ = e.AsyncQueue.Close(ctx)
 
+			// Wait for broker to fully stop before closing channels.
 			if d, ok := e.AsyncQueue.(interface{ Done() <-chan struct{} }); ok {
 				select {
 				case <-d.Done():
@@ -350,9 +324,8 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 					log.Logger(ctx).Warn("sync pubsub: consume goroutine did not exit within 5s")
 				}
 			}
-			// Wait for the Consume callback to finish its final batch.
-			cbWg.Wait()
 
+			// NOW safe to close channels - broker has stopped, no more writers.
 			close(wConn)
 			close(errorChan)
 			close(eventChan)
@@ -370,19 +343,16 @@ func (e *PubSubEndpoint) Watch(ctx context.Context, recursivePath string) (*mode
 	return wo, nil
 }
 
-// processMessage handles a single sync event from the queue. This function runs in
-// worker goroutines, so it's safe to perform blocking operations like CreateNode,
-// DeleteNode, MoveNode, and LoadNode. Errors and results are sent back through
-// the provided channels.
-func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) {
+// processMessage handles a single sync event from the broker. This function runs
+// synchronously in the Consume callback, blocking message acknowledgment until
+// processing completes. Returns an error if processing fails, which causes the
+// callback to panic and prevent Ack(), keeping the message in the queue for retry.
+func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message, eventChan chan<- model.EventInfo, errorChan chan<- error) error {
 	event := &sync.SyncEvent{}
 	_, er := msg.Unmarshal(ctx, event)
 	if er != nil {
-		select {
-		case errorChan <- er:
-		case <-ctx.Done():
-		}
-		return
+		errorChan <- er
+		return er
 	}
 
 	if nodeEvent := event.GetNodeChangeEvent(); nodeEvent != nil {
@@ -392,62 +362,45 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 			target := nodeEvent.GetTarget()
 			if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
 				log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()))
-				return
+				return nil
 			}
 			mm, _ := nodeEvent.Metadata["update_if_exists"]
 			if er := e.PathSyncTarget.CreateNode(ctx, target, mm == "true"); er != nil {
-				select {
-				case errorChan <- er:
-				case <-ctx.Done():
-				}
-				return
+				errorChan <- er
+				return er
 			}
 		case tree.NodeChangeEvent_DELETE:
 			if er := e.PathSyncTarget.DeleteNode(ctx, nodeEvent.GetSource().GetPath()); er != nil {
-				select {
-				case errorChan <- er:
-				case <-ctx.Done():
-				}
-				return
+				errorChan <- er
+				return er
 			}
 		case tree.NodeChangeEvent_UPDATE_PATH:
 			target := nodeEvent.GetTarget()
 			if target.GetSize() == 0 && target.GetEtag() == "-1" && target.IsLeaf() {
 				log.Logger(ctx).Info("Node is leaf and has 0 size and no etag", zap.String("path", target.GetPath()))
-				return
+				return nil
 			}
 			if er := e.PathSyncTarget.MoveNode(ctx, nodeEvent.GetSource().GetPath(), target.GetPath()); er != nil {
-				select {
-				case errorChan <- er:
-				case <-ctx.Done():
-				}
-				return
+				errorChan <- er
+				return er
 			}
 		}
 
 		if modelEvent, ok := events.TreeNodeChangeToModelEvent(nodeEvent, time.Now(), nil); ok {
-			select {
-			case eventChan <- modelEvent:
-			case <-ctx.Done():
-			}
+			eventChan <- modelEvent
 		}
 
 	} else if userMetaEvent := event.GetUserMetaEvent(); userMetaEvent != nil {
 		um := userMetaEvent.UserMeta
 		if um.ResolvedNode == nil {
-			select {
-			case errorChan <- fmt.Errorf("user metadata event not resolved"):
-			case <-ctx.Done():
-			}
-			return
+			er := fmt.Errorf("user metadata event not resolved")
+			errorChan <- er
+			return er
 		}
 		node, err := e.PathSyncTarget.LoadNode(ctx, um.ResolvedNode.GetPath())
 		if err != nil {
-			select {
-			case errorChan <- err:
-			case <-ctx.Done():
-			}
-			return
+			errorChan <- err
+			return err
 		}
 		um.ResolvedNode = node.AsProto()
 
@@ -455,29 +408,21 @@ func (e *PubSubEndpoint) processMessage(ctx context.Context, msg broker.Message,
 			switch userMetaEvent.Operation {
 			case idm.UpdateUserMetaEvent_PUT:
 				if er := e.metaReceiver.CreateMetadata(ctx, node, um.Namespace, um.JsonValue); er != nil {
-					select {
-					case errorChan <- er:
-					case <-ctx.Done():
-					}
-					return
+					errorChan <- er
+					return er
 				}
 			case idm.UpdateUserMetaEvent_DELETE:
 				if er := e.metaReceiver.DeleteMetadata(ctx, node, um.Namespace); er != nil {
-					select {
-					case errorChan <- er:
-					case <-ctx.Done():
-					}
-					return
+					errorChan <- er
+					return er
 				}
 			}
 		}
 
 		modelEvent, _ := events.UserMetaToModelEvent(userMetaEvent, time.Now(), nil)
-		select {
-		case eventChan <- modelEvent:
-		case <-ctx.Done():
-		}
+		eventChan <- modelEvent
 	}
+	return nil
 }
 
 func (e *PubSubEndpoint) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
