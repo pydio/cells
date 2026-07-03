@@ -41,6 +41,30 @@
   "alert-block.success": {
       "other": "Success"
   },
+  "toolbar-spec.title": {
+      "other": "Insert Toolbar Block"
+  },
+  "toolbar-spec.subtext": {
+      "other": "Insert an action toolbar with configurable buttons"
+  },
+  "toolbar-block.names-label": {
+      "other": "Toolbar Names (comma-separated)"
+  },
+  "toolbar-block.type-label": {
+      "other": "Rendering Type"
+  },
+  "toolbar-block.alignment-label": {
+      "other": "Alignment"
+  },
+  "toolbar-block.confirm": {
+      "other": "Insert Toolbar"
+  },
+  "toolbar-block.update": {
+      "other": "Update Toolbar"
+  },
+  "toolbar-block.edit": {
+      "other": "Edit Toolbar"
+  },
     "side-button.move-up": {
         "other": "Move Up"
     },
