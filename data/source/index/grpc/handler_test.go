@@ -561,6 +561,40 @@ func TestIndex(t *testing.T) {
 			So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, "test_create_delete_create")
 		})
 
+		Convey("Sort by size keeps folders grouped and files ordered by size", t, func() {
+			root := &tree.Node{Path: "/sort-by-size-root", Uuid: "sort-by-size-root", Type: tree.NodeType_COLLECTION}
+			folderA := &tree.Node{Path: "/sort-by-size-root/folder-a", Uuid: "sort-by-size-folder-a", Type: tree.NodeType_COLLECTION}
+			folderB := &tree.Node{Path: "/sort-by-size-root/folder-b", Uuid: "sort-by-size-folder-b", Type: tree.NodeType_COLLECTION}
+			fileSmall := &tree.Node{Path: "/sort-by-size-root/small.txt", Uuid: "sort-by-size-small", Type: tree.NodeType_LEAF, Size: 10}
+			fileMedium := &tree.Node{Path: "/sort-by-size-root/medium.txt", Uuid: "sort-by-size-medium", Type: tree.NodeType_LEAF, Size: 20}
+			fileLarge := &tree.Node{Path: "/sort-by-size-root/large.txt", Uuid: "sort-by-size-large", Type: tree.NodeType_LEAF, Size: 30}
+
+			for _, node := range []*tree.Node{root, folderA, folderB, fileMedium, fileLarge, fileSmall} {
+				_, err := send(ctx, s, "CreateNode", &tree.CreateNodeRequest{Node: node})
+				So(err, ShouldBeNil)
+			}
+
+			resp, _ := send(ctx, s, "ListNodes", &tree.ListNodesRequest{Node: root, SortField: tree.MetaSortSize})
+			So(resp, ShouldNotBeNil)
+			nodes := collectListNodes(resp.(*List))
+			So(nodes, ShouldHaveLength, 5)
+			So(nodes[0].Type, ShouldEqual, tree.NodeType_COLLECTION)
+			So(nodes[1].Type, ShouldEqual, tree.NodeType_COLLECTION)
+			So(nodes[2].Path, ShouldEqual, "/sort-by-size-root/small.txt")
+			So(nodes[3].Path, ShouldEqual, "/sort-by-size-root/medium.txt")
+			So(nodes[4].Path, ShouldEqual, "/sort-by-size-root/large.txt")
+
+			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{Node: root, SortField: tree.MetaSortSize, SortDirDesc: true})
+			So(resp, ShouldNotBeNil)
+			nodes = collectListNodes(resp.(*List))
+			So(nodes, ShouldHaveLength, 5)
+			So(nodes[0].Type, ShouldEqual, tree.NodeType_COLLECTION)
+			So(nodes[1].Type, ShouldEqual, tree.NodeType_COLLECTION)
+			So(nodes[2].Path, ShouldEqual, "/sort-by-size-root/large.txt")
+			So(nodes[3].Path, ShouldEqual, "/sort-by-size-root/medium.txt")
+			So(nodes[4].Path, ShouldEqual, "/sort-by-size-root/small.txt")
+		})
+
 		Convey("Test List Nodes Output Pathes", t, func() {
 
 			f := &tree.Node{Path: "/proot", Uuid: "output-uuid"}
@@ -773,6 +807,18 @@ func BenchmarkIndexCancel(b *testing.B) {
 
 }
 */
+
+func collectListNodes(list *List) []*tree.Node {
+	var nodes []*tree.Node
+	for {
+		response, err := list.Recv()
+		if err != nil {
+			break
+		}
+		nodes = append(nodes, response.Node)
+	}
+	return nodes
+}
 
 func mustCreateNodeReadResponse(ctx context.Context, s *TreeServer, node *tree.Node) *tree.Node {
 	resp, er := s.CreateNode(ctx, &tree.CreateNodeRequest{Node: node})

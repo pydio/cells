@@ -26,7 +26,33 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+type recordingFilterBuilder struct {
+	orders [][2]string
+}
+
+func (r *recordingFilterBuilder) And(_ interface{}, _ ...interface{}) {}
+func (r *recordingFilterBuilder) OrderBy(fieldName string, dir string) {
+	r.orders = append(r.orders, [2]string{fieldName, dir})
+}
+func (r *recordingFilterBuilder) Ors(_ []string, _ []interface{}) interface{} { return nil }
+
 func TestMetaFilter(t *testing.T) {
+	Convey("Sort by size groups folders before files", t, func() {
+		f := &MetaFilter{sortField: MetaSortSize}
+		builder := &recordingFilterBuilder{}
+
+		f.Build(builder)
+
+		So(builder.orders, ShouldResemble, [][2]string{{"leaf", "DESC"}, {"size", "ASC"}})
+
+		f = &MetaFilter{sortField: MetaSortSize, sortDesc: true}
+		builder = &recordingFilterBuilder{}
+
+		f.Build(builder)
+
+		So(builder.orders, ShouldResemble, [][2]string{{"leaf", "DESC"}, {"size", "DESC"}})
+	})
+
 	Convey("Test int filters", t, func() {
 		f := &MetaFilter{
 			reqNode: &Node{MetaStore: map[string]string{
