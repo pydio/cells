@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 
@@ -159,6 +160,8 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 		}
 	}()
 	uniques := make(map[string]bool)
+	sortDetailedBySize := req.Details && req.GetSortField() == tree.MetaSortSize
+	var detailedNodes []*tree.Node
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -203,7 +206,11 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 						}
 
 						if readError == nil && response.GetNode() != nil {
-							_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Node{Node: response.GetNode()}})
+							if sortDetailedBySize {
+								detailedNodes = append(detailedNodes, response.GetNode())
+							} else {
+								_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Node{Node: response.GetNode()}})
+							}
 						} else if errors.Is(readError, errors.StatusNotFound) {
 
 							log.Logger(ctx).Error("Found node that does not exists, send event to make sure all is sync'ed.", zap.String("uuid", node.Uuid))
@@ -219,6 +226,17 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 
 				}
 			case <-doneChan:
+				if sortDetailedBySize {
+					sort.SliceStable(detailedNodes, func(i, j int) bool {
+						if req.GetSortDirDesc() {
+							return detailedNodes[i].GetSize() > detailedNodes[j].GetSize()
+						}
+						return detailedNodes[i].GetSize() < detailedNodes[j].GetSize()
+					})
+					for _, detailedNode := range detailedNodes {
+						_ = streamer.Send(&tree.SearchResponse{Data: &tree.SearchResponse_Node{Node: detailedNode}})
+					}
+				}
 				return
 			}
 		}
