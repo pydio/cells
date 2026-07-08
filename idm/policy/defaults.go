@@ -191,6 +191,17 @@ var (
 					Effect:  ladon.AllowAccess,
 				}),
 				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "user-meta-entity",
+					Description: "PolicyGroup.LoggedUsers.Rule8",
+					Subjects:    []string{"profile:admin"},
+					Resources: []string{
+						"rest:/user-meta/entity",
+						"rest:/user-meta/entity/<.+>",
+					},
+					Actions: []string{"GET", "PUT", "DELETE"},
+					Effect:  ladon.AllowAccess,
+				}),
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-read",
 					Description: "PolicyGroup.LoggedUsers.Rule5",
 					Subjects:    []string{"profile:standard", "profile:shared"},
