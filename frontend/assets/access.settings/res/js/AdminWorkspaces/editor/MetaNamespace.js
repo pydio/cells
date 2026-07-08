@@ -185,6 +185,7 @@ class MetaNamespace extends React.Component {
     }
 
     save() {
+
         const { namespace: stateNs } = this.state;
         let namespace = stateNs;
         if (this.fieldOptionsRef.current) {
@@ -198,11 +199,34 @@ class MetaNamespace extends React.Component {
                 this.props.onRequestClose();
                 this.props.reloadList();
             });
-        };
+        }; 
         if (!hasSchema && namespace.JsonDefinition) {
             this.getJsonSchema().then(doSave);
+           
         } else {
             doSave();
+            let entityUuid; 
+            Metadata.createEntity(`Entity for ${namespace.Namespace}`, namespace.Description, namespace.Policies || [])
+                .then(r => {
+                    console.log('Entity recieved', r);
+                    entityUuid = r.Uuid;
+                    // Update namespace with EntityUuid inside json definition
+                    const def = JSON.parse(namespace.JsonDefinition || '{}');
+                    def.data = { ...def.data, entityUuid: entityUuid };
+                    namespace.JsonDefinition = JSON.stringify(def);
+                    this.setState({ namespace });
+                    // Save namespace again with EntityUuid
+                    return doSave();
+                }).then(ns => {
+                    console.log(entityUuid)
+                    return ;
+                }).then(evs => {
+                    console.log('Entity values created', evs);
+                }).catch(e => {
+                    console.error('Error creating entity values', e);
+                });
+                
+            
         }
     }
 
@@ -223,7 +247,7 @@ class MetaNamespace extends React.Component {
                 if (!fieldType) return Promise.resolve(undefined);
                 if (!namespace.Namespace) return Promise.resolve(undefined);
 
-                let format = data?.format?.toString().length > 0 ? data.format : '';
+                const format = data?.format?.toString().length > 0 ? data.format : '';
                     return Metadata.getJsonSchemaByType(fieldType, namespace.Namespace, format)
                         .then(schema => {
                             this.setState(prevState => ({
@@ -282,6 +306,7 @@ class MetaNamespace extends React.Component {
         return defaultValue;
     }
 
+
     setEntityValues(valueStr) {
         const { namespace } = this.state;
         const def = JSON.parse(namespace.JsonDefinition);
@@ -308,7 +333,7 @@ class MetaNamespace extends React.Component {
         try {
             const parsed = JSON.parse(namespace.JsonDefinition || '{}');
             const entityItems = parsed && parsed.data && parsed.data.entityItems;
-            
+            console.log('getEntityItems', entityItems);
             return entityItems;
         } catch (e) {
             return '';
