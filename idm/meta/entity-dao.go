@@ -44,4 +44,6 @@ type EntityDAO interface {
 	CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error)
 	SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error)
 	GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error)
+	ListEntities(ctx context.Context) ([]*idm.MetaEntity, error)
+	DeleteEntity(ctx context.Context, entityUuid string) (*idm.DeleteEntityResponse, error)
 }

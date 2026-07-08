@@ -419,7 +419,21 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 			e = er
 		}
 	case "/idm.UserMetaService/DeleteEntity":
-		resp, er := s.UserMetaServiceServer.DeleteEntity(ctx, args.(*GetMetaEntityValuesRequest))
+		resp, er := s.UserMetaServiceServer.DeleteEntity(ctx, args.(*DeleteEntityRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/GetEntity":
+		resp, er := s.UserMetaServiceServer.GetEntity(ctx, args.(*GetEntityRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/ListEntities":
+		resp, er := s.UserMetaServiceServer.ListEntities(ctx, args.(*ListEntitiesRequest))
 		if er == nil {
 			e = stubs.AssignToInterface(resp, reply)
 		} else {
@@ -455,6 +469,13 @@ func (s *UserMetaServiceStub) Invoke(ctx context.Context, method string, args in
 		}
 	case "/idm.UserMetaService/GetMetadata":
 		resp, er := s.UserMetaServiceServer.GetMetadata(ctx, args.(*GetMetadataRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
+	case "/idm.UserMetaService/DeleteEntityValue":
+		resp, er := s.UserMetaServiceServer.DeleteEntityValue(ctx, args.(*DeleteEntityValueRequest))
 		if er == nil {
 			e = stubs.AssignToInterface(resp, reply)
 		} else {

@@ -121,6 +121,24 @@ func TestEntityCrud(t *testing.T) {
 				So(e.Label, ShouldEqual, entities[i].Label)
 			}
 		})
+
+		Convey("List Entities", t, func() {
+			_, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{Label: "List 1", Description: "Desc 1"})
+			So(err, ShouldBeNil)
+
+			_, err = entityDAO.CreateEntity(ctx, &idm.MetaEntity{Label: "List 2", Description: "Desc 2"})
+			So(err, ShouldBeNil)
+
+			list, err := entityDAO.ListEntities(ctx)
+			So(err, ShouldBeNil)
+			So(len(list), ShouldBeGreaterThanOrEqualTo, 2)
+		})
+
+		Convey("Get Non-existent Entity Returns Nil", t, func() {
+			retrieved, err := entityDAO.GetEntity(ctx, "00000000-0000-0000-0000-000000000000")
+			So(err, ShouldBeNil)
+			So(retrieved, ShouldBeNil)
+		})
 	})
 }
 
@@ -159,6 +177,86 @@ func TestEntityValueCrud(t *testing.T) {
 			values, err := evDAO.GetEntityValues(ctx, createdEntity.Uuid)
 			So(err, ShouldBeNil)
 			So(values, ShouldHaveLength, 2)
+		})
+
+		Convey("Create Entity Value with DisplayJSON", t, func() {
+			createdEntity, err := createTestEntity(ctx, entityDAO, "Display JSON Entity")
+			So(err, ShouldBeNil)
+
+			value := &idm.EntityValue{
+				Label:       "JSON Value",
+				EntityUuid:  createdEntity.Uuid,
+				DisplayJSON: `{"color":"red","icon":"star"}`,
+			}
+
+			created, err := evDAO.CreateEntityValue(ctx, value)
+			So(err, ShouldBeNil)
+			So(created.DisplayJSON, ShouldEqual, value.DisplayJSON)
+		})
+
+		Convey("Update Entity Value When Duplicate Label", t, func() {
+			createdEntity, err := createTestEntity(ctx, entityDAO, "Update Entity")
+			So(err, ShouldBeNil)
+
+			value1 := &idm.EntityValue{
+				Label:       "Duplicate Label",
+				EntityUuid:  createdEntity.Uuid,
+				DisplayJSON: `{"version":"1"}`,
+			}
+
+			created, err := evDAO.CreateEntityValue(ctx, value1)
+			So(err, ShouldBeNil)
+			originalUuid := created.Uuid
+
+			// Try creating with same label - should update
+			value2 := &idm.EntityValue{
+				Label:       "Duplicate Label",
+				EntityUuid:  createdEntity.Uuid,
+				DisplayJSON: `{"version":"2"}`,
+			}
+
+			updated, err := evDAO.CreateEntityValue(ctx, value2)
+			So(err, ShouldBeNil)
+			So(updated.Uuid, ShouldEqual, originalUuid)
+			So(updated.DisplayJSON, ShouldEqual, `{"version":"2"}`)
+
+			// Verify only one value exists
+			values, err := evDAO.GetEntityValues(ctx, createdEntity.Uuid)
+			So(err, ShouldBeNil)
+			So(values, ShouldHaveLength, 1)
+		})
+
+		Convey("Update Entity Value When UUID Provided", t, func() {
+			createdEntity, err := createTestEntity(ctx, entityDAO, "UUID Update Entity")
+			So(err, ShouldBeNil)
+
+			value1 := &idm.EntityValue{
+				Label:      "Original",
+				EntityUuid: createdEntity.Uuid,
+			}
+
+			created, err := evDAO.CreateEntityValue(ctx, value1)
+			So(err, ShouldBeNil)
+
+			// Update by providing the UUID
+			value2 := &idm.EntityValue{
+				Uuid:        created.Uuid,
+				Label:       "Updated",
+				EntityUuid:  createdEntity.Uuid,
+				DisplayJSON: `{"updated":true}`,
+			}
+
+			updated, err := evDAO.CreateEntityValue(ctx, value2)
+			So(err, ShouldBeNil)
+			So(updated.Uuid, ShouldEqual, created.Uuid)
+			So(updated.Label, ShouldEqual, "Updated")
+			So(updated.DisplayJSON, ShouldEqual, `{"updated":true}`)
+		})
+
+		Convey("Get Entity Values Returns Empty For Non-existent Entity", t, func() {
+			values, err := evDAO.GetEntityValues(ctx, "00000000-0000-0000-0000-000000000000")
+			So(err, ShouldBeNil)
+			So(values, ShouldHaveLength, 0)
 		})
 	})
 }
@@ -345,7 +443,7 @@ func TestDeleteOperations(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(linkedValuesBefore, ShouldHaveLength, 2)
 
-			deleteResp, err := evDAO.DeleteEntity(ctx, createdEntity.Uuid)
+			deleteResp, err := eDAO.DeleteEntity(ctx, createdEntity.Uuid)
 			So(err, ShouldBeNil)
 			So(deleteResp, ShouldNotBeNil)
 			So(deleteResp.RowsDeleted, ShouldEqual, 1)
@@ -364,14 +462,14 @@ func TestDeleteOperations(t *testing.T) {
 		})
 
 		Convey("Delete Non-existent Entity", t, func() {
-			deleteResp, err := evDAO.DeleteEntity(ctx, "00000000-0000-0000-0000-000000000000")
+			deleteResp, err := eDAO.DeleteEntity(ctx, "00000000-0000-0000-0000-000000000000")
 			So(err, ShouldBeNil)
 			So(deleteResp, ShouldNotBeNil)
 			So(deleteResp.RowsDeleted, ShouldEqual, 0)
 		})
 
 		Convey("Delete Entity with Invalid UUID", t, func() {
-			_, err := evDAO.DeleteEntity(ctx, "invalid-uuid")
+			_, err := eDAO.DeleteEntity(ctx, "invalid-uuid")
 			So(err, ShouldNotBeNil)
 		})
 	})
@@ -403,6 +501,12 @@ func TestValidation(t *testing.T) {
 
 			_, err = evDAO.UnlinkMetaValue(ctx, "00000000-0000-0000-0000-000000000000", "invalid-uuid")
 			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Unlink Non-existent Link Returns False", t, func() {
+			unlinked, err := evDAO.UnlinkMetaValue(ctx, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002")
+			So(err, ShouldBeNil)
+			So(unlinked, ShouldBeFalse)
 		})
 	})
 }

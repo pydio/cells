@@ -149,6 +149,16 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 	prev := ""
 	update := false
 
+	// Check if record already exists
+	var existing Meta
+	existsQuery := s.Session(ctx).Where(&Meta{
+		NodeUUID:  old.NodeUUID,
+		Namespace: old.Namespace,
+		Owner:     old.Owner,
+	}).First(&existing)
+
+	recordExists := existsQuery.Error == nil
+
 	// Attempting to create
 	tx := s.Session(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "node_uuid"}, {Name: "namespace"}, {Name: "owner"}},
@@ -158,19 +168,15 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 		return nil, "", tag(tx.Error)
 	}
 
-	if tx.RowsAffected == 0 {
-		target.UUID = old.UUID
-
-		prev = string(target.Data)
-
+	if recordExists {
+		// This was an update - use the existing UUID
+		old.UUID = existing.UUID
+		target.UUID = existing.UUID
+		prev = string(existing.Data)
 		update = true
-		if tx2 := s.Session(ctx).Where(&Meta{UUID: old.UUID}).Updates(target); tx2.Error != nil {
-			return nil, "", tag(tx2.Error)
-		}
-	} else {
-		target = old
 	}
 
+	target = old
 	meta = target.As(meta)
 
 	var err error

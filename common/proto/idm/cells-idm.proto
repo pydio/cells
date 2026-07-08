@@ -448,12 +448,15 @@ service UserMetaService {
     rpc GetFieldSchema(GetFieldSchemaRequest) returns (JsonSchemaResponse) {}
     rpc GetNamespaceSchema(GetNamespaceSchemaRequest) returns (JsonSchemaResponse) {}
     rpc GetEntityValues(GetMetaEntityValuesRequest) returns (MetaEntityValueResponse) {}
-    rpc DeleteEntity(GetMetaEntityValuesRequest) returns (DeleteEntityValuesResponse) {}
+    rpc DeleteEntity(DeleteEntityRequest) returns (DeleteEntityResponse) {}
+    rpc GetEntity(GetEntityRequest) returns (GetEntityResponse) {}
+    rpc ListEntities(ListEntitiesRequest) returns (ListEntitiesResponse) {}
     rpc CreateEntity(CreateEntityRequest) returns (CreateEntityResponse) {}
     rpc CreateEntityValues(CreateEntityValueRequest) returns (CreateEntityValueResponse) {}
     rpc LinkMetaToEntityValue(MetaToEntityValueRequest) returns (MetaToEntityValueResponse) {}
     rpc UnlinkMetaFromEntityValue(MetaToEntityValueRequest) returns (MetaToEntityValueResponse) {}
     rpc GetMetadata(GetMetadataRequest) returns (UserMeta) {}
+    rpc DeleteEntityValue(DeleteEntityValueRequest) returns (DeleteEntityValueResponse) {}
 }
 
 message LinkMetaToEntityValueRequest {
@@ -487,8 +490,37 @@ message CreateEntityResponse {
     MetaEntity Entity = 1;
 }
 
+message DeleteEntityRequest {
+    string EntityId = 1;
+}
+
+message DeleteEntityResponse {
+    int64 RowsDeleted = 1;
+}
+
+message ListEntitiesRequest {
+    string EntityId = 1;
+}
+
+message ListEntitiesResponse {
+    repeated MetaEntity Entity = 1;
+}
+
+message GetEntityRequest {
+    string EntityUuid = 1;
+}
+
+message GetEntityResponse {
+    MetaEntity Entity = 1;
+}
+
+
 // Delete EntityValuesRequest, takes the EntityUuid and delete all its values and associations with metas
-message DeleteEntityValuesResponse {
+message DeleteEntityValueRequest {
+    string EntityValueUuid = 1;
+}
+
+message DeleteEntityValueResponse {
     int64 RowsDeleted = 1;
 }
 
@@ -564,6 +596,8 @@ message MetaEntity {
     string Uuid = 1;
     string Label = 2;
     string Description = 3;
+    repeated service.ResourcePolicy Policies = 4;
+    bool PoliciesContextEditable = 5;
 }
 
 // EntityValue represents a value for an entity (e.g., "Engineering", "Sales")
@@ -572,6 +606,17 @@ message EntityValue {
     string Label = 2;
     string EntityUuid = 3;
     string DisplayJSON = 4;
+    repeated service.ResourcePolicy Policies = 5;
+    bool PoliciesContextEditable = 6;
+    string MetaUuid = 7;
+}
+
+
+message UpsertUserMetaValue {
+    string NodeUuid = 1;
+    string Namespace = 2;
+    repeated EntityValue EntityValues = 3;
+    repeated service.ResourcePolicy Policies = 5;
 }
 
 // Request for modifying UserMeta
@@ -655,6 +700,11 @@ message GetNamespaceSchemaRequest{
     string FieldType = 1;
     string Namespace = 2;
     string Format = 3;
+}
+
+message GetEntitiesRequest {}
+message GetEntitiesResponse {
+    repeated MetaEntity Entities = 1;
 }
 
 
