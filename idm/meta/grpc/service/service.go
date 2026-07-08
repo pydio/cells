@@ -86,16 +86,16 @@ func init() {
 						if err = dao.Migrate(ctx); err != nil {
 							return err
 						}
-						// Insert default metas
-						if err = defaultMetas(ctx, dao); err != nil {
-							return err
-						}
 						// Migrate EntityDAO (Entities table)
 						entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 						if err != nil {
 							return err
 						}
 						if err = entityDAO.Migrate(ctx); err != nil {
+							return err
+						}
+						// Insert default metas and entities
+						if err = defaultMetas(ctx, dao, entityDAO); err != nil {
 							return err
 						}
 						// Migrate EntityValueDAO (EntityValues table and relations)
@@ -135,7 +135,7 @@ func init() {
 	})
 }
 
-func defaultMetas(ctx context.Context, dao meta.DAO) error {
+func defaultMetas(ctx context.Context, dao meta.DAO, entityDAO meta.EntityDAO) error {
 	err, _ := dao.GetNamespaceDao().Upsert(ctx, &idm.UserMetaNamespace{
 		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
@@ -147,13 +147,27 @@ func defaultMetas(ctx context.Context, dao meta.DAO) error {
 			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
 		},
 	})
-	if err == nil {
-		log.Logger(ctx).Info("Inserted default namespace for metadata")
-		return nil
+	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+		return err
 	}
-	if errors.Is(err, gorm.ErrDuplicatedKey) {
-		// This is a duplicate error, we ignore it
-		return nil
+	log.Logger(ctx).Info("Inserted default namespace for metadata")
+
+	// Insert default entities with admin-only policies
+	defaultEntities := []*idm.MetaEntity{
+		{
+			Label:       "tags",
+			Description: "Default tags entity",
+			Policies: []*service2.ResourcePolicy{
+				{Action: service2.ResourcePolicyAction_READ, Subject: "profile:admin", Effect: service2.ResourcePolicy_allow},
+				{Action: service2.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: service2.ResourcePolicy_allow},
+			},
+		},
 	}
-	return err
+	for _, entity := range defaultEntities {
+		if _, err = entityDAO.CreateEntity(ctx, entity); err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+			log.Logger(ctx).Warn("could not insert default entity: " + entity.Label)
+		}
+	}
+	log.Logger(ctx).Info("Inserted default entities")
+	return nil
 }

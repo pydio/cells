@@ -22,7 +22,6 @@ package rest
 
 import (
 	"context"
-	"encoding/json"
 	"path"
 	"slices"
 	"strings"
@@ -162,65 +161,6 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		if !strings.HasPrefix(ns.Namespace, common.MetaNamespaceUserspacePrefix) {
 			return errors.WithMessage(errors.InvalidParameters, "user defined meta must start with "+common.MetaNamespaceUserspacePrefix+" prefix")
 		}
-		// Use the helper to validate and get definition
-		definition, e := ns.UnmarshallDefinition()
-		if e != nil {
-			return errors.WithMessagef(errors.UnmarshalError, "invalid json definition for namespace: %s, %v", ns.Namespace, e)
-		}
-		if input.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
-			fieldType := definition.GetType()
-			if fieldType != "" {
-				if definition.GetEntityId() == "" {
-					// Set description
-					var desc = ""
-					if ns.Description != "" {
-						desc = ns.Description
-					} else {
-						desc = "Entity for " + fieldType + " namespace"
-					}
-					// Its somewhat dangerous to create before namespace has been created but its more efficient than doing it after
-					entity, err := s.ServiceClient(ctx).CreateEntity(ctx, &idm.CreateEntityRequest{
-						Entity: &idm.MetaEntity{
-							Label:       "ns-entity-" + ns.Namespace,
-							Description: desc,
-						},
-					})
-					if err != nil {
-						return err
-					}
-
-					if def, ok := definition.(*idm.MetaNsDef); ok {
-						def.SetEntityId(entity.Entity.Uuid)
-						updatedJsDef, err := json.Marshal(def)
-						if err != nil {
-							return err
-						}
-						ns.JsonDefinition = string(updatedJsDef)
-					}
-					if slices.Contains(ns_with_ev, fieldType) {
-						// Create empty entity values
-						evs := []*idm.EntityValue{}
-						evs = s.parseEntityValues(definition)
-
-						_, err := s.ServiceClient(ctx).CreateEntityValues(ctx, &idm.CreateEntityValueRequest{
-							EntityValue: evs,
-						})
-						if err != nil {
-							return err
-						}
-					}
-				} else if definition.GetEntityId() != "" && slices.Contains(ns_with_ev, fieldType) {
-					evs := []*idm.EntityValue{}
-					evs = s.parseEntityValues(definition)
-					_, err := s.ServiceClient(ctx).CreateEntityValues(ctx, &idm.CreateEntityValueRequest{
-						EntityValue: evs,
-					})
-					if err != nil {
-						return err
-					}
-				}
-			}
-		}
 	}
 	response, err := s.ServiceClient(ctx).UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
@@ -232,7 +172,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 				if entityID == "" {
 					continue
 				}
-				if _, err := s.DeleteEntity(ctx, entityID); err != nil {
+				if _, err := s.ServiceClient(ctx).DeleteEntity(ctx, &idm.DeleteEntityRequest{EntityId: entityID}); err != nil {
 					return err
 				}
 			}
@@ -247,7 +187,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 				if entityID == "" {
 					continue
 				}
-				if _, err := s.DeleteEntity(ctx, entityID); err != nil {
+				if _, err := s.ServiceClient(ctx).DeleteEntity(ctx, &idm.DeleteEntityRequest{EntityId: entityID}); err != nil {
 					return err
 				}
 			}
@@ -273,6 +213,46 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 		return err
 	}
 
+}
+
+// DeleteEntity deletes a meta entity by its ID, after checking WRITE policy
+func (s *UserMetaHandler) DeleteEntity(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+	entityId := req.PathParameter("EntityId")
+	if entityId == "" {
+		var request idm.DeleteEntityRequest
+		if err := req.ReadEntity(&request); err != nil {
+			return errors.WithMessagef(errors.StatusBadRequest, "failed to parse request: %v", err)
+		}
+		entityId = request.EntityId
+	}
+
+	response, err := s.PerformDeleteEntity(ctx, &idm.DeleteEntityRequest{EntityId: entityId})
+	if err != nil {
+		return err
+	}
+
+	return rsp.WriteEntity(response)
+}
+
+// PerformDeleteEntity loads the entity, checks WRITE policy, then deletes
+func (s *UserMetaHandler) PerformDeleteEntity(ctx context.Context, request *idm.DeleteEntityRequest) (*idm.DeleteEntityResponse, error) {
+	// Load entity to get its policies
+	entity, err := s.ServiceClient(ctx).GetEntity(ctx, &idm.GetEntityRequest{EntityUuid: request.EntityId})
+	if err != nil {
+		return nil, err
+	}
+	if entity != nil && entity.Entity != nil {
+		if !s.MatchPolicies(ctx, entity.Entity.Uuid, entity.Entity.Policies, serviceproto.ResourcePolicyAction_WRITE) {
+			return nil, errors.WithMessagef(errors.StatusForbidden, "You are not allowed to delete this entity", err)
+		}
+	}
+	response, err := s.ServiceClient(ctx).DeleteEntity(ctx, request)
+	if err != nil {
+		log.Logger(ctx).Error("failed to delete entity", zap.String("entityId", request.EntityId), zap.Error(err))
+		return nil, err
+	}
+	return response, nil
 }
 
 func (s *UserMetaHandler) GetFieldSchema(req *restful.Request, rsp *restful.Response) error {
@@ -415,8 +395,8 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 	return s.Namespaces(ctx)
 }
 
+// TODO remove
 func (s *UserMetaHandler) PoliciesForMeta(ctx context.Context, resourceId string, resourceClient interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
-
 	return
 }
 
@@ -450,4 +430,105 @@ func (h *UserMetaHandler) parseEntityValues(definition idm.MetaNamespaceDefiniti
 		}
 	}
 	return evs
+}
+
+// ListEntities lists all entities the current context has READ access to
+func (s *UserMetaHandler) ListEntities(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+
+	entities, err := s.Entities(ctx)
+	if err != nil {
+		return err
+	}
+
+	result := make([]*idm.MetaEntity, 0, len(entities))
+	for _, e := range entities {
+		result = append(result, e)
+	}
+
+	return rsp.WriteEntity(&idm.ListEntitiesResponse{Entity: result})
+}
+
+// PutEntity creates a new meta entity with admin-only policies
+func (s *UserMetaHandler) PutEntity(req *restful.Request, rsp *restful.Response) error {
+	ctx := req.Request.Context()
+
+	var input idm.CreateEntityRequest
+	if err := req.ReadEntity(&input); err != nil {
+		return errors.WithMessagef(errors.StatusBadRequest, "failed to parse request: %v", err)
+	}
+
+	// Attach default admin-only policies if none provided
+	if input.Entity != nil && len(input.Entity.Policies) == 0 {
+		input.Entity.Policies = []*serviceproto.ResourcePolicy{
+			{Action: serviceproto.ResourcePolicyAction_READ, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},
+			{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},
+		}
+	}
+
+	response, err := s.PerformPutEntity(ctx, &input)
+	if err != nil {
+		return err
+	}
+
+	return rsp.WriteEntity(response)
+}
+
+// PerformPutEntity performs the actual entity creation
+func (s *UserMetaHandler) PerformPutEntity(ctx context.Context, request *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
+	response, err := s.ServiceClient(ctx).CreateEntity(ctx, request)
+	if err != nil {
+		log.Logger(ctx).Error("failed to create entity", zap.Error(err))
+		return nil, err
+	}
+	return response, nil
+}
+
+func (s *UserMetaHandler) CreateEntityValues(req *restful.Request, rsp *restful.Response) error {
+	var input idm.CreateEntityValueRequest
+	if err := req.ReadEntity(&input); err != nil {
+		return errors.WithMessagef(errors.StatusBadRequest, "failed to parse request: %v", err)
+	}
+
+	// Attach default policies: READ & WRITE for all users
+	for _, ev := range input.EntityValue {
+		if ev != nil && len(ev.Policies) == 0 {
+			ev.Policies = []*serviceproto.ResourcePolicy{
+				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "*", Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "*", Effect: serviceproto.ResourcePolicy_allow},
+			}
+		}
+	}
+
+	ctx := req.Request.Context()
+
+	response, err := s.PerformCreateEntityValues(ctx, &input)
+	if err != nil {
+		return err
+	}
+
+	if len(input.EntityValue) > 0 {
+		// Update the namespace definition with the new entity values
+		for _, ev := range input.EntityValue {
+			if ev == nil {
+				continue
+			}
+			if ev.MetaUuid != "" {
+				//link logic
+
+			}
+		}
+	}
+
+	return rsp.WriteEntity(response)
+}
+
+// PerformCreateEntityValues performs the actual entity values creation
+func (s *UserMetaHandler) PerformCreateEntityValues(ctx context.Context, request *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
+	response, err := s.ServiceClient(ctx).CreateEntityValues(ctx, request)
+	if err != nil {
+		log.Logger(ctx).Error("failed to create entity values", zap.Error(err))
+		return nil, err
+	}
+	return response, nil
 }

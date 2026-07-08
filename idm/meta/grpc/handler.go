@@ -92,6 +92,20 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			}
 			// ADD / UPDATE
 			if newMeta, prev, err := dao.Set(ctx, metaData); err == nil {
+				// Reconcile entity values if namespace is entity-backed
+				if ns, exists := namespaces[newMeta.Namespace]; exists {
+					resolver := NewEvResolver()
+					if resolver.Applies(ns) {
+						// Parse labels from JsonValue (comma-separated)
+						var labelsStr string
+						if e := json.Unmarshal([]byte(newMeta.JsonValue), &labelsStr); e == nil && labelsStr != "" {
+							labels := strings.Split(labelsStr, ",")
+							if _, e := resolver.Resolve(ctx, newMeta, ns, labels); e != nil {
+								return nil, e
+							}
+						}
+					}
+				}
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 				prevValue = prev
 			} else {
@@ -445,18 +459,46 @@ func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityVal
 	}, nil
 }
 
-func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
-	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+func (h *Handler) DeleteEntity(ctx context.Context, req *idm.DeleteEntityRequest) (*idm.DeleteEntityResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := entityValueDAO.DeleteEntity(ctx, req.EntityUuid)
+	resp, err := entityDAO.DeleteEntity(ctx, req.EntityId)
 	if err != nil {
 		return nil, err
 	}
 
 	return resp, nil
+}
+
+func (h *Handler) ListEntities(ctx context.Context, req *idm.ListEntitiesRequest) (*idm.ListEntitiesResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
+	if err != nil {
+		return nil, err
+	}
+
+	entities, err := entityDAO.ListEntities(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.ListEntitiesResponse{Entity: entities}, nil
+}
+
+func (h *Handler) GetEntity(ctx context.Context, req *idm.GetEntityRequest) (*idm.GetEntityResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
+	if err != nil {
+		return nil, err
+	}
+
+	entity, err := entityDAO.GetEntity(ctx, req.EntityUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.GetEntityResponse{Entity: entity}, nil
 }
 
 func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
