@@ -190,7 +190,12 @@ func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields
 	}
 	if sortFields != "" {
 		// Example: opts{Sort: bson.D{{"ts", -1}, {"nano", -1}}}
-		nss := m.QueryNsProvider.Namespaces()
+		nss := map[string]interface{}{}
+		if m.QueryNsProvider != nil {
+			for k, v := range m.QueryNsProvider.Namespaces() {
+				nss[k] = v
+			}
+		}
 		var sorts []string
 		for _, sf := range strings.Split(sortFields, ",") {
 			sf = strings.TrimSpace(sf)

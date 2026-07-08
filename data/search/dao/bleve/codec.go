@@ -372,7 +372,12 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 
 	// Handle sorting
 	if sortFields != "" {
-		nss := b.queryNSProvider.Namespaces()
+		nss := map[string]interface{}{}
+		if b.queryNSProvider != nil {
+			for k, v := range b.queryNSProvider.Namespaces() {
+				nss[k] = v
+			}
+		}
 		var sorts []string
 		for _, sf := range strings.Split(sortFields, ",") {
 			sf = strings.TrimSpace(sf)
@@ -419,20 +424,21 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 	dateFacet := b.makeDateTimeFacet("ModifTime")
 	searchRequest.AddFacet("Date", dateFacet)
 
-	nss := b.queryNSProvider.Namespaces()
-	for metaName := range b.queryNSProvider.IncludedIndexes() {
-		def, _ := nss[metaName].UnmarshallDefinition()
-		if def != nil && (def.GetType() == "integer" || def.GetType() == "boolean" || def.GetType() == "date") {
-			continue
+	if b.queryNSProvider != nil {
+		nss := b.queryNSProvider.Namespaces()
+		for metaName := range b.queryNSProvider.IncludedIndexes() {
+			def, _ := nss[metaName].UnmarshallDefinition()
+			if def != nil && (def.GetType() == "integer" || def.GetType() == "boolean" || def.GetType() == "date") {
+				continue
+			}
+			metaFacet := bleve.NewFacetRequest("Meta."+metaName, 4)
+			//if def != nil && def.GetType() == "date" {
+			// Replace with a date facet - Working, but client-side the facet is not handled properly yet
+			//	fmt.Println("Replacing date facet")
+			//	metaFacet = s.makeDateTimeFacetAsNum("Meta." + metaName)
+			//}
+			searchRequest.AddFacet(metaName, metaFacet)
 		}
-		metaFacet := bleve.NewFacetRequest("Meta."+metaName, 4)
-		//if def != nil && def.GetType() == "date" {
-		// Replace with a date facet - Working, but client-side the facet is not handled properly yet
-		//	fmt.Println("Replacing date facet")
-		//	metaFacet = s.makeDateTimeFacetAsNum("Meta." + metaName)
-		//}
-		searchRequest.AddFacet(metaName, metaFacet)
-
 	}
 
 	return searchRequest, nil, nil
