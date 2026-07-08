@@ -561,7 +561,7 @@ func TestIndex(t *testing.T) {
 			So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, "test_create_delete_create")
 		})
 
-		Convey("Sort by size keeps folders grouped and files ordered by size", t, func() {
+		Convey("Sort by size orders all nodes by numeric size", t, func() {
 			root := &tree.Node{Path: "/sort-by-size-root", Uuid: "sort-by-size-root", Type: tree.NodeType_COLLECTION}
 			folderA := &tree.Node{Path: "/sort-by-size-root/folder-a", Uuid: "sort-by-size-folder-a", Type: tree.NodeType_COLLECTION}
 			folderB := &tree.Node{Path: "/sort-by-size-root/folder-b", Uuid: "sort-by-size-folder-b", Type: tree.NodeType_COLLECTION}
@@ -581,18 +581,24 @@ func TestIndex(t *testing.T) {
 			So(nodes[0].Type, ShouldEqual, tree.NodeType_COLLECTION)
 			So(nodes[1].Type, ShouldEqual, tree.NodeType_COLLECTION)
 			So(nodes[2].Path, ShouldEqual, "/sort-by-size-root/small.txt")
+			So(nodes[2].Size, ShouldEqual, 10)
 			So(nodes[3].Path, ShouldEqual, "/sort-by-size-root/medium.txt")
+			So(nodes[3].Size, ShouldEqual, 20)
 			So(nodes[4].Path, ShouldEqual, "/sort-by-size-root/large.txt")
+			So(nodes[4].Size, ShouldEqual, 30)
 
 			resp, _ = send(ctx, s, "ListNodes", &tree.ListNodesRequest{Node: root, SortField: tree.MetaSortSize, SortDirDesc: true})
 			So(resp, ShouldNotBeNil)
 			nodes = collectListNodes(resp.(*List))
 			So(nodes, ShouldHaveLength, 5)
-			So(nodes[0].Type, ShouldEqual, tree.NodeType_COLLECTION)
-			So(nodes[1].Type, ShouldEqual, tree.NodeType_COLLECTION)
-			So(nodes[2].Path, ShouldEqual, "/sort-by-size-root/large.txt")
-			So(nodes[3].Path, ShouldEqual, "/sort-by-size-root/medium.txt")
-			So(nodes[4].Path, ShouldEqual, "/sort-by-size-root/small.txt")
+			So(nodes[0].Path, ShouldEqual, "/sort-by-size-root/large.txt")
+			So(nodes[0].Size, ShouldEqual, 30)
+			So(nodes[1].Path, ShouldEqual, "/sort-by-size-root/medium.txt")
+			So(nodes[1].Size, ShouldEqual, 20)
+			So(nodes[2].Path, ShouldEqual, "/sort-by-size-root/small.txt")
+			So(nodes[2].Size, ShouldEqual, 10)
+			So(nodes[3].Type, ShouldEqual, tree.NodeType_COLLECTION)
+			So(nodes[4].Type, ShouldEqual, tree.NodeType_COLLECTION)
 		})
 
 		Convey("Test List Nodes Output Pathes", t, func() {

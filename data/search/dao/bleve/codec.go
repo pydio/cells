@@ -382,9 +382,6 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 		for _, sf := range strings.Split(sortFields, ",") {
 			sf = strings.TrimSpace(sf)
 			if sortField, ok := validSortFields[sf]; ok {
-				if sf == tree.MetaSortSize {
-					sorts = append(sorts, "+NodeType")
-				}
 				if sortDesc {
 					sorts = append(sorts, "-"+sortField)
 				} else {

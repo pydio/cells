@@ -169,9 +169,6 @@ func (m *MetaFilter) Build(builder FilterBuilder) {
 			builder.OrderBy("leaf", "DESC")
 			builder.OrderBy("LOWER(name)", "ASC")
 		} else {
-			if m.sortField == MetaSortSize {
-				builder.OrderBy("leaf", "DESC")
-			}
 			sortDesc := m.sortDesc
 			if m.sortField == MetaSortType { // Switch for backward compat on "leaf" : v4 was 0/1, v5 is 1/2
 				sortDesc = !sortDesc

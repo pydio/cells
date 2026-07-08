@@ -37,20 +37,20 @@ func (r *recordingFilterBuilder) OrderBy(fieldName string, dir string) {
 func (r *recordingFilterBuilder) Ors(_ []string, _ []interface{}) interface{} { return nil }
 
 func TestMetaFilter(t *testing.T) {
-	Convey("Sort by size groups folders before files", t, func() {
+	Convey("Sort by size uses numeric size without type grouping", t, func() {
 		f := &MetaFilter{sortField: MetaSortSize}
 		builder := &recordingFilterBuilder{}
 
 		f.Build(builder)
 
-		So(builder.orders, ShouldResemble, [][2]string{{"leaf", "DESC"}, {"size", "ASC"}})
+		So(builder.orders, ShouldResemble, [][2]string{{"size", "ASC"}})
 
 		f = &MetaFilter{sortField: MetaSortSize, sortDesc: true}
 		builder = &recordingFilterBuilder{}
 
 		f.Build(builder)
 
-		So(builder.orders, ShouldResemble, [][2]string{{"leaf", "DESC"}, {"size", "DESC"}})
+		So(builder.orders, ShouldResemble, [][2]string{{"size", "DESC"}})
 	})
 
 	Convey("Test int filters", t, func() {

@@ -9,20 +9,20 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
-func TestBuildQueryOptionsSortSizeGroupsFoldersFirst(t *testing.T) {
+func TestBuildQueryOptionsSortSizeUsesNumericSizeOnly(t *testing.T) {
 	codex := &Codex{}
 
 	got, err := codex.BuildQueryOptions(nil, 0, 0, tree.MetaSortSize, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertMongoSort(t, got, bson.D{{Key: "node_type", Value: 1}, {Key: "size", Value: 1}})
+	assertMongoSort(t, got, bson.D{{Key: "size", Value: 1}})
 
 	got, err = codex.BuildQueryOptions(nil, 0, 0, tree.MetaSortSize, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertMongoSort(t, got, bson.D{{Key: "node_type", Value: 1}, {Key: "size", Value: -1}})
+	assertMongoSort(t, got, bson.D{{Key: "size", Value: -1}})
 }
 
 func assertMongoSort(t *testing.T, got interface{}, want bson.D) {

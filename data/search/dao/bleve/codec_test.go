@@ -2,7 +2,6 @@ package bleve
 
 import (
 	"encoding/json"
-	"strings"
 	"testing"
 
 	blevelib "github.com/blevesearch/bleve/v2"
@@ -10,23 +9,23 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
-func TestBuildQuerySortSizeGroupsFoldersFirst(t *testing.T) {
+func TestBuildQuerySortSizeUsesNumericSizeOnly(t *testing.T) {
 	codec := &Codec{}
 
 	got, _, err := codec.BuildQuery(&tree.Query{}, 0, 0, tree.MetaSortSize, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertBleveSortContains(t, got, `"NodeType"`, `"Size"`)
+	assertBleveSortEquals(t, got, `["Size"]`)
 
 	got, _, err = codec.BuildQuery(&tree.Query{}, 0, 0, tree.MetaSortSize, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertBleveSortContains(t, got, `"NodeType"`, `"-Size"`)
+	assertBleveSortEquals(t, got, `["-Size"]`)
 }
 
-func assertBleveSortContains(t *testing.T, got interface{}, parts ...string) {
+func assertBleveSortEquals(t *testing.T, got interface{}, want string) {
 	t.Helper()
 
 	request, ok := got.(*blevelib.SearchRequest)
@@ -37,10 +36,7 @@ func assertBleveSortContains(t *testing.T, got interface{}, parts ...string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	jsonSort := string(payload)
-	for _, part := range parts {
-		if !strings.Contains(jsonSort, part) {
-			t.Fatalf("sort %s does not contain %s", jsonSort, part)
-		}
+	if string(payload) != want {
+		t.Fatalf("unexpected sort\nwant: %s\n got: %s", want, payload)
 	}
 }

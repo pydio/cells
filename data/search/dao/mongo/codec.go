@@ -200,9 +200,6 @@ func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields
 		for _, sf := range strings.Split(sortFields, ",") {
 			sf = strings.TrimSpace(sf)
 			if sortField, ok := validSortFields[sf]; ok {
-				if sf == tree.MetaSortSize {
-					sorts = append(sorts, "node_type")
-				}
 				sorts = append(sorts, sortField)
 			} else if _, ok2 := nss[sf]; ok2 {
 				sorts = append(sorts, "meta."+sf)
@@ -215,11 +212,7 @@ func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields
 				value = -1
 			}
 			for _, key := range sorts {
-				sortValue := value
-				if key == "node_type" {
-					sortValue = 1
-				}
-				sorting = append(sorting, bson.E{Key: key, Value: sortValue})
+				sorting = append(sorting, bson.E{Key: key, Value: value})
 			}
 			opts.Sort = sorting
 		}
