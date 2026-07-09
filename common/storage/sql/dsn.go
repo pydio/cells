@@ -559,32 +559,37 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 			}
 		}
 
-		hostsStr, port, err := net2.SplitHostPort(conf.Addr)
-		if err != nil {
-			return "", err
-		}
+		// For unix socket connections, skip host/port parsing
+		if conf.Net == "unix" {
+			d.hosts = []string{conf.FormatDSN()}
+		} else {
+			hostsStr, port, err := net2.SplitHostPort(conf.Addr)
+			if err != nil {
+				return "", err
+			}
 
-		hosts := strings.Split(hostsStr, ",")
-		hosts = append(hosts, strings.Split(d.vars["replicasAddr"], ",")...)
+			hosts := strings.Split(hostsStr, ",")
+			hosts = append(hosts, strings.Split(d.vars["replicasAddr"], ",")...)
 
-		d.hosts = []string{}
-		for _, host := range hosts {
-			if !strings.Contains(host, ":") {
-				hostConf := conf.Clone()
-				hostConf.Addr = net2.JoinHostPort(host, port)
-				d.hosts = append(d.hosts, hostConf.FormatDSN())
-			} else {
-				replicaHost, replicaPort, err := net2.SplitHostPort(host)
-				if err != nil {
-					continue
+			d.hosts = []string{}
+			for _, host := range hosts {
+				if !strings.Contains(host, ":") {
+					hostConf := conf.Clone()
+					hostConf.Addr = net2.JoinHostPort(host, port)
+					d.hosts = append(d.hosts, hostConf.FormatDSN())
+				} else {
+					replicaHost, replicaPort, err := net2.SplitHostPort(host)
+					if err != nil {
+						continue
+					}
+					// Using port defined for all hosts
+					if replicaPort == "" {
+						replicaPort = port
+					}
+					hostConf := conf.Clone()
+					hostConf.Addr = net2.JoinHostPort(replicaHost, replicaPort)
+					d.hosts = append(d.hosts, hostConf.FormatDSN())
 				}
-				// Using port defined for all hosts
-				if replicaPort == "" {
-					replicaPort = port
-				}
-				hostConf := conf.Clone()
-				hostConf.Addr = net2.JoinHostPort(replicaHost, replicaPort)
-				d.hosts = append(d.hosts, hostConf.FormatDSN())
 			}
 		}
 
