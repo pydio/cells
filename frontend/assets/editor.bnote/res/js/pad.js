@@ -63,6 +63,7 @@ import {
     pasteHandler,
 } from './specs/NodeRef';
 import { alertBlockSpecs, insertAlertItem } from './specs/Alert';
+import { toolbarBlockSpecs, insertToolbarItem } from './specs/Toolbar';
 import { insertSubPageItem } from './specs/SubPage';
 import { SideMenuButton } from './SideMenuButton';
 import ContextMenuModel from 'pydio/model/context-menu';
@@ -79,6 +80,7 @@ const schema = BlockNoteSchema.create({
         ...defaultBlockSpecs,
         ...nodeBlockSpecs,
         ...alertBlockSpecs,
+        ...toolbarBlockSpecs,
         ...headerBlockSpecs,
         codeBlock: createCodeBlockSpec(codeBlockOptions),
     },
@@ -114,6 +116,7 @@ const getCustomSlashMenuItems = (editor) => {
         insertNodePickerBlock(editor),
         insertResultsList(editor),
         insertAlertItem(editor),
+        insertToolbarItem(editor),
         insertSubPageItem(editor),
     ];
     // Ensure Groups ordering and grouping
