@@ -51,6 +51,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/idm/user/grpc"
 )
@@ -653,7 +654,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 				"Password": inputUser.Password,
 			},
 		}
-		c := context.Background()
+		c := propagator.ForkContext(context.Background(), ctx)
 		if u := ctx.Value(common.PydioContextUserKey); u != nil {
 			c = context.WithValue(c, common.PydioContextUserKey, u)
 		}
