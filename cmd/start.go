@@ -378,7 +378,9 @@ ENVIRONMENT
 
 		bootstrap.MustReset(ctx, nil)
 
-		m.Bootstrap(bootstrap.String())
+		if err := m.Bootstrap(bootstrap.String()); err != nil {
+			return err
+		}
 
 		if err := m.ServeAll(); err != nil {
 			return err
