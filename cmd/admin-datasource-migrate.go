@@ -42,11 +42,8 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/object"
-	registry2 "github.com/pydio/cells/v5/common/proto/registry"
 	"github.com/pydio/cells/v5/common/proto/sync"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/registry"
-	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
@@ -90,7 +87,9 @@ DESCRIPTION
 
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
+
 		ctx := cmd.Context()
+
 		if !migrateForce {
 			fmt.Println("")
 			fmt.Println(" **************************************************************************************")
@@ -121,55 +120,56 @@ DESCRIPTION
 		authCtx := context.WithValue(cmd.Context(), common.PydioContextUserKey, common.PydioSystemUsername)
 
 		// Pick datasource to migrate
-		source, _, tgtFmt, srcBucket, tgtBucket, e := migratePickDS(ctx)
+		src, e := migratePickSourceDS(ctx)
 		if e != nil {
 			migrateLogger("[ERROR] "+e.Error(), true)
 			return e
-		}
-
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			return err
-		}
-
-		if item, err := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name); err == nil {
-			if len(reg.ListAdjacentItems(
-				registry.WithAdjacentSourceItems([]registry.Item{item}),
-				registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_SERVER)),
-			)) > 0 {
-				migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
-				return errors.New("sync is running")
-			}
 		}
 
 		// Prepare Clients
-		rootNode, idxClient, mc, e := migratePrepareClients(authCtx, source)
+		rootNode, idxClient, mc, e := migratePrepareClients(authCtx, src)
 		if e != nil {
 			migrateLogger("[ERROR] "+e.Error(), true)
 			return e
 		}
 
-		// Check source and target buckets
+		target, e := migratePickTargetBuckets(ctx, mc)
+		if e != nil {
+			migrateLogger("[ERROR] "+e.Error(), true)
+			return e
+		}
+
+		/*
+			reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+
+			if err != nil {
+				return err
+			}
+
+			if item, err := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name); err == nil {
+				if len(reg.ListAdjacentItems(
+					registry.WithAdjacentSourceItems([]registry.Item{item}),
+					registry.WithAdjacentTargetOptions(registry.WithType(registry2.ItemType_SERVER)),
+				)) > 0 {
+					migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
+					return errors.New("sync is running")
+				}
+			}
+		*/
+
+		// Check source buckets
 		bb, e := mc.ListBuckets(authCtx)
 		if e != nil {
 			return fmt.Errorf("cannot list bucket %+v", e)
 		}
-		var srcFound, tgtFound bool
+		var srcFound bool
 		for _, b := range bb {
-			if b.Name == srcBucket {
+			if b.Name == src.ObjectsBucket {
 				srcFound = true
-			}
-			if b.Name == tgtBucket {
-				tgtFound = true
 			}
 		}
 		if !srcFound {
-			e := fmt.Errorf("cannot find source bucket %s", srcBucket)
-			migrateLogger("[ERROR] "+e.Error(), true)
-			return e
-		}
-		if !tgtFound {
-			e := fmt.Errorf("cannot find target bucket %s, please create it manually", tgtBucket)
+			e := fmt.Errorf("cannot find source bucket %s", src.ObjectsBucket)
 			migrateLogger("[ERROR] "+e.Error(), true)
 			return e
 		}
@@ -191,7 +191,7 @@ DESCRIPTION
 		}
 
 		// Apply migration
-		hiddenNodes, e := migratePerformMigration(authCtx, source, mc, idxClient, srcBucket, tgtBucket, tgtFmt)
+		hiddenNodes, e := migratePerformMigration(authCtx, src, mc, idxClient, src.ObjectsBucket, target)
 		if e != nil {
 			return fmt.Errorf("error while moving files: %+v", e)
 		}
@@ -200,8 +200,8 @@ DESCRIPTION
 		if len(hiddenNodes) > 0 && !migrateDry {
 			p := promptui.Prompt{Label: "All objects were successfully copied, do you wish to clean the index table now", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
-				if tgtFmt == "flat" {
-					resyncClient := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+source.Name, longGrpcCallTimeout()))
+				if !src.FlatStorage {
+					resyncClient := sync.NewSyncEndpointClient(grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+src.Name, longGrpcCallTimeout()))
 					resp, e := resyncClient.TriggerResync(authCtx, &sync.ResyncRequest{Path: "flatten"})
 					if e != nil {
 						migrateLogger(fmt.Sprintf("[ERROR] while cleaning index from '.pydio' entries: %+v", e), true)
@@ -210,7 +210,7 @@ DESCRIPTION
 						migrateLogger("Cleaned index with result: "+resp.GetJsonDiff(), true)
 					}
 				} else {
-					streamClient := tree.NewNodeReceiverStreamClient(grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+source.Name, longGrpcCallTimeout()))
+					streamClient := tree.NewNodeReceiverStreamClient(grpc.ResolveConn(ctx, common.ServiceDataIndexGRPC_+src.Name, longGrpcCallTimeout()))
 					streamer, e := streamClient.CreateNodeStream(authCtx)
 					if e != nil {
 						migrateLogger(fmt.Sprintf("[ERROR] Cannot open stream to index service %s", e.Error()), true)
@@ -239,12 +239,12 @@ DESCRIPTION
 			p := promptui.Prompt{Label: "Objects format is fully re-structured, do you wish to update configuration", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
 
-				_ = config.Set(ctx, tgtBucket, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "ObjectsBucket")
-				if fKey, o := source.StorageConfiguration[object.StorageKeyFolder]; o {
-					fKey = path.Join(path.Dir(fKey), tgtBucket)
-					_ = config.Set(ctx, fKey, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "StorageConfiguration", object.StorageKeyFolder)
+				_ = config.Set(ctx, target, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src.Name, "ObjectsBucket")
+				if fKey, o := src.StorageConfiguration[object.StorageKeyFolder]; o {
+					fKey = path.Join(path.Dir(fKey), target)
+					_ = config.Set(ctx, fKey, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src.Name, "StorageConfiguration", object.StorageKeyFolder)
 				}
-				_ = config.Set(ctx, tgtFmt == "flat", "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "FlatStorage")
+				_ = config.Set(ctx, !src.FlatStorage, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src.Name, "FlatStorage")
 				_ = config.Save(ctx, common.PydioSystemUsername, "Migrating datasource format")
 				migrateLogger("Updated DataSource configuration after migration", true)
 			}
@@ -260,7 +260,7 @@ DESCRIPTION
 	},
 }
 
-func migratePickDS(ctx context.Context) (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtBucket string, e error) {
+func migratePickSourceDS(ctx context.Context) (source *object.DataSource, e error) {
 	dss := config.ListSourcesFromConfig(ctx)
 	var dsName string
 	var opts []string
@@ -286,18 +286,48 @@ func migratePickDS(ctx context.Context) (source *object.DataSource, srcFmt, tgtF
 	}
 
 	source = dss[dsName]
-	srcFmt = "structured"
-	tgtFmt = "flat"
-	srcBucket = source.ObjectsBucket
-	if source.FlatStorage {
-		srcFmt = "flat"
-		tgtFmt = "structured"
-	}
-	migrateLogger("Migrating "+srcFmt+" datasource "+source.Name+" to "+tgtFmt+" - Original bucket is "+srcBucket, true)
-	p3 := &promptui.Prompt{Label: "The following bucket will be used for migrating data, change the name if you want", Default: srcBucket + "-" + tgtFmt}
-	tgtBucket, e = p3.Run()
 
 	return
+}
+
+func migratePickTargetBuckets(ctx context.Context, mc nodes.StorageClient) (string, error) {
+	buckets, err := mc.ListBuckets(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	var opts []string
+	for _, bucket := range buckets {
+		opts = append(opts, bucket.Name)
+	}
+
+	opts = append(opts, "Create new bucket")
+
+	p := &promptui.Select{Label: "Select bucket you wish to migrate to", Items: opts}
+
+	_, bucketName, err := p.Run()
+	if err != nil {
+		return "", err
+	}
+
+	if bucketName == "Create new bucket" {
+		p2 := &promptui.Prompt{Label: "Please enter a name for the new datasource", Default: "migrated-ds"}
+		val, err := p2.Run()
+		if err != nil {
+			return "", err
+		}
+		bucketName = val
+
+		p3 := &promptui.Prompt{Label: "Please enter a location for the new datasource", Default: ""}
+		dsLocation, err := p3.Run()
+		if err != nil {
+			return "", err
+		}
+
+		mc.MakeBucket(ctx, bucketName, dsLocation)
+	}
+
+	return bucketName, nil
 }
 
 func migratePrepareClients(ctx context.Context, source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc nodes.StorageClient, e error) {
@@ -309,7 +339,7 @@ func migratePrepareClients(ctx context.Context, source *object.DataSource) (root
 		return
 	}
 	rootNode = r.GetNode()
-	objCli := object.NewObjectsEndpointClient(grpc.ResolveConn(ctx, common.ServiceDataObjects_+source.ObjectsServiceName))
+	objCli := object.NewObjectsEndpointClient(grpc.ResolveConn(ctx, common.ServiceGrpcNamespace_+common.ServiceDataObjects_+source.ObjectsServiceName))
 	or, er := objCli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 	if er != nil {
 		e = er
@@ -337,7 +367,7 @@ func migratePrepareClients(ctx context.Context, source *object.DataSource) (root
 	return
 }
 
-func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc nodes.StorageClient, idx tree.NodeProviderClient, src, tgt, tgtFmt string) (out []*tree.Node, ee error) {
+func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc nodes.StorageClient, idx tree.NodeProviderClient, src, tgt string) (out []*tree.Node, ee error) {
 
 	str, e := idx.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
 	if e != nil {
@@ -367,7 +397,8 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 		srcPath := n.GetPath()
 		tgtPath := ds.FlatShardedPath(n.GetUuid())
 		isPydio := path.Base(n.GetPath()) == common.PydioSyncHiddenFile
-		if tgtFmt != "flat" {
+		// Source is flat
+		if ds.FlatStorage {
 			srcPath = ds.FlatShardedPath(n.GetUuid())
 			tgtPath = strings.TrimLeft(n.GetPath(), "/")
 		}
@@ -405,10 +436,10 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 					migrateLogger("Removed original file "+srcPath, false)
 				}
 			}
-		} else if tgtFmt == "flat" && isPydio {
+		} else if !ds.FlatStorage && isPydio {
 			// Struct to flat => remove .pydio inside index
 			out = append(out, &tree.Node{Path: n.GetPath()})
-		} else if tgtFmt != "flat" && !n.IsLeaf() {
+		} else if ds.FlatStorage && !n.IsLeaf() {
 			// Flat to struct => recreate .pydio files for folders
 			hiddenPath := strings.TrimLeft(path.Join(tgtPath, common.PydioSyncHiddenFile), "/")
 			if migrateDry {
