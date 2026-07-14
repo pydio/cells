@@ -61,7 +61,10 @@ const Harness: React.FC<Args> = ({
         () => ({
             state: { formState, saving: false, shouldSave, errors },
             actions: {
-                setFormState,
+                // Must create a new Map so React detects the change.
+                // FieldEdit mutates in place (state.formState.set(name, v)),
+                // so we always copy to get a fresh reference.
+                setFormState: (next) => setFormState(new Map(next)),
                 setShouldSave,
             },
         }),
