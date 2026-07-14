@@ -29,7 +29,7 @@ import (
 	"fmt"
 	"strings"
 
-	hermes "github.com/matcornic/hermes/v2"
+	"github.com/matcornic/hermes"
 
 	"github.com/pydio/cells/v5/broker/mailer/lang"
 	"github.com/pydio/cells/v5/common/proto/mailer"

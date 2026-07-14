@@ -21,7 +21,7 @@
 package mailer
 
 import (
-	hermes "github.com/matcornic/hermes/v2"
+	"github.com/matcornic/hermes"
 
 	"github.com/pydio/cells/v5/common/proto/mailer"
 )
