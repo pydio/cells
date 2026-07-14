@@ -37,7 +37,7 @@ The Storybook config globs `*/res/**/*.stories.@(js|jsx|ts|tsx|mdx)`.
    never tries to parse legacy `.js` JSX.
 2. **Mocks/aliases** — `pydio/*`, `cells-sdk`, `material-ui`, `@mocks`, and the
    `../hoc/asMeta*` HOCs are aliased to `__mocks__/`, identical to vitest.
-3. **`vitest` stub** — root has `vitest@4`, but `@storybook/test@8.6` (loaded by the
+3. **`vitest` stub** — root has `vitest@4`, but `@storybook/test` (loaded by the
    preview runtime for the `expect` global) needs the vitest≤2 expect API. We alias
    `vitest` to `__mocks__/vitest.js` (no-op shims). Stories don't run tests.
 

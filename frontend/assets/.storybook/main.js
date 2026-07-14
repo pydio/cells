@@ -11,7 +11,7 @@ const config = {
 		'../*/res/**/*.mdx',
 	],
 	addons: [
-		'@storybook/addon-essentials',
+		'@storybook/addon-docs',
 	],
 	framework: {
 		name: '@storybook/react-vite',

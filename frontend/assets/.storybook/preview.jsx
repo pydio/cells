@@ -2,6 +2,7 @@ import React from 'react';
 import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import '@mdi/font/css/materialdesignicons.css';
 
 /** @type {import('@storybook/react').Preview} */
 const preview = {
