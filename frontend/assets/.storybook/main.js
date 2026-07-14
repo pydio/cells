@@ -1,6 +1,29 @@
 const path = require('path');
+const esbuild = require('esbuild');
 
 const assetsRoot = path.resolve(__dirname, '..');
+
+// Transform legacy .js files that contain JSX (assets/*/res/js/**/*.js).
+// esbuild's jsx loader runs as enforce:'pre' so JSX is stripped before
+// vite:import-analysis sees the file.
+const transformJsJsx = {
+	name: 'assets-transform-js-with-jsx',
+	enforce: 'pre',
+	async transform(code, id) {
+		if (
+			/\.js$/.test(id) &&
+			/\/res\/js\//.test(id) &&
+			!/node_modules|\.(test|spec|stories)\./.test(id)
+		) {
+			const result = await esbuild.transform(code, {
+				loader: 'jsx',
+				jsx: 'automatic',
+				sourcefile: id,
+			});
+			return { code: result.code, map: result.map };
+		}
+	},
+};
 
 
 
@@ -26,13 +49,22 @@ const config = {
 			const n = p && (p.name || (Array.isArray(p) && p[0]?.name));
 			return !(typeof n === 'string' && n.startsWith('vite:react'));
 		});
-		config.plugins.unshift(react({ include: [/\.jsx?$/, /\.tsx?$/] }));
+		config.plugins.unshift(
+			react({ include: [/\.jsx?$/, /\.tsx?$/] }),
+			transformJsJsx,
+		);
 		config.optimizeDeps = config.optimizeDeps || {};
 		// Only scan story files for dep pre-bundling so the esbuild scanner never
 		// walks into legacy .js files containing JSX (which it can't parse).
 		config.optimizeDeps.entries = [
 			path.resolve(assetsRoot, '*/res/**/*.stories.@(js|jsx|ts|tsx)'),
 		];
+		// Legacy .js files contain JSX. The esbuild dep-scanner needs the jsx
+		// loader for .js to parse imports through them.
+		config.optimizeDeps.esbuildOptions = {
+			...(config.optimizeDeps.esbuildOptions || {}),
+			loader: { '.js': 'jsx' },
+		};
 		config.resolve = config.resolve || {};
 		config.resolve.alias = {
 			...(config.resolve.alias || {}),
