@@ -41,6 +41,16 @@ const sortNodesNatural = (nodeA, nodeB, direction) => {
 };
 
 const nodesSorterByAttribute = (nodeA, nodeB, attribute, direction, sortType) => {
+    // Always push recycle to bottom
+    if(nodeA.isRecycle()) {
+        return 1
+    } else if (nodeB.isRecycle()) {
+        return -1;
+    }
+    // Folders first
+    if(nodeA.isLeaf() !== nodeB.isLeaf()) {
+        return nodeA.isLeaf() ? 1 : -1;
+    }
     const metaA = nodeA.getMetadata();
     const metaB = nodeB.getMetadata();
     let valA = metaA ? metaA.get(attribute) : undefined;
@@ -307,7 +317,7 @@ const useSortingColumns = ({columns, sortingInfo, onSortingInfoChanged}) => {
                     return {
                         text: label,
                         iconClassName:icon || 'mdi mdi-tag-outline',
-                        payload:() => {this.onHeaderClick(meta.name, callback)}
+                        callback:() => onSortingInfoChanged({...meta, attribute: meta.name})
                     }
                 })
             })
