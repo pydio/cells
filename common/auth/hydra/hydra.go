@@ -223,7 +223,7 @@ func PasswordCredentialsCode(ctx context.Context, username, password, challenge 
 		Challenge: challenge,
 	})
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return resp.GetCode(), nil
 }
