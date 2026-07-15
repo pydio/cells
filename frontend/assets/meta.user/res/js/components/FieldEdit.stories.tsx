@@ -3,13 +3,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { FieldEdit } from './FieldEdit';
 import type { NamespaceMeta } from './MetaSpec';
 
-// Stub the MetaClient tag loader used by tag_cloud/auto_complete fields.
-// Storybook Vite loads real modules, so we monkey-patch on first import.
-import MetaClient from '../MetaClient';
-(MetaClient as any).getInstance = () => ({
-    listTags: async () =>
-        ['document', 'image', 'report', 'archive', 'spreadsheet'],
-});
+// Use the shared mock setup so MetaClient.getInstance always has the full
+// API (getNamespaceSchema, loadConfigs, saveMeta, listTags). Without this,
+// switching between stories can leave a partial patch that crashes.
+import '../InfoPanel.stories.setup';
 
 /**
  * FieldEdit renders the correct input for a metadata namespace based on its
