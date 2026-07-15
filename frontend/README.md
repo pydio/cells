@@ -45,6 +45,8 @@ This project includes a `.nvmrc` file to specify the Node.js version for develop
 
 Add this to your shell config (`~/.bashrc`, `~/.zshrc`, or equivalent) to auto-switch when entering the directory:
 
+for `.zshrc` [Instructions](https://github.com/nvm-sh/nvm#zsh)
+
 ```bash
 # Auto-switch Node.js version with nvm
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -77,3 +79,4 @@ if [ -s "$HOME/.nvm/nvm.sh" ]; then
   load-nvmrc
 fi
 ```
+
