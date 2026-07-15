@@ -21,7 +21,7 @@
     "@storybook/react": "^10.5.0",
     "@storybook/react-vite": "^10.5.0",
     "storybook": "^10.5.0",
-    "vite": "^5.4.0",
+    "vite": "^7.3.6",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
@@ -35,7 +35,7 @@
     "prettier": "^3.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vitest": "^4.0.4"
+    "vitest": "^4.1.10"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [

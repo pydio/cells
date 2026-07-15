@@ -19,6 +19,7 @@ const transformJsJsx = {
 				loader: 'jsx',
 				jsx: 'automatic',
 				sourcefile: id,
+				sourcemap: true,
 			});
 			return { code: result.code, map: result.map };
 		}
