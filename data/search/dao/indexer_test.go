@@ -470,6 +470,22 @@ func TestSearchOnPathPrefixes(t *testing.T) {
 				Size:      24,
 				MetaStore: map[string]string{"name": "\"deleted-node.txt\""},
 			},
+			{
+				Uuid:      "docID101",
+				Path:      "/path/Folder E (new)/ReportDocE.docx",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"ReportDocE.docx\""},
+			},
+			{
+				Uuid:      "docID102",
+				Path:      "/path/Folder E [new]/ReportDocE.docx",
+				MTime:     time.Now().Unix(),
+				Type:      tree.NodeType_LEAF,
+				Size:      24,
+				MetaStore: map[string]string{"name": "\"ReportDocE.docx\""},
+			},
 		}
 		if err = createNodes(ctx, server, testNodes...); err != nil {
 			panic(err)
@@ -505,6 +521,17 @@ func TestSearchOnPathPrefixes(t *testing.T) {
 			results, _, e = performSearch(ctx, server, queryObject)
 			So(e, ShouldBeNil)
 			So(results, ShouldHaveLength, 1)
+
+			for _, prefix := range []string{"/path/Folder E (new)/", "/path/Folder E [new]/"} {
+				queryObject = &tree.Query{
+					FileName:   "ReportDocE",
+					PathPrefix: []string{prefix},
+				}
+
+				results, _, e = performSearch(ctx, server, queryObject)
+				So(e, ShouldBeNil)
+				So(results, ShouldHaveLength, 1)
+			}
 
 		})
 

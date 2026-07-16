@@ -257,6 +257,14 @@ func appendRegexTerm(metaName, term string, not bool, singleTerm bool, filters [
 	})
 }
 
+func anchoredPathRegex(path string, exact bool) string {
+	pattern := "^" + regexp.QuoteMeta(path)
+	if exact {
+		return pattern + "$"
+	}
+	return pattern
+}
+
 // TODO: optimize the regex for multiple terms with OR
 //
 //	parts := strings.Split(terms, "|")
@@ -352,14 +360,14 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	if len(queryObject.Paths) > 0 {
 		ors := bson.A{}
 		for _, pa := range queryObject.Paths {
-			ors = append(ors, bson.M{"path": primitive.Regex{Pattern: "^" + pa + "$", Options: "i"}})
+			ors = append(ors, bson.M{"path": primitive.Regex{Pattern: anchoredPathRegex(pa, true), Options: "i"}})
 		}
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 
 	} else if len(queryObject.PathPrefix) > 0 {
 		ors := bson.A{}
 		for _, prefix := range queryObject.PathPrefix {
-			ors = append(ors, bson.M{"path": primitive.Regex{Pattern: "^" + prefix, Options: "i"}})
+			ors = append(ors, bson.M{"path": primitive.Regex{Pattern: anchoredPathRegex(prefix, false), Options: "i"}})
 		}
 		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}
@@ -367,7 +375,7 @@ func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (int
 	if len(queryObject.ExcludedPathPrefix) > 0 {
 		nors := bson.A{}
 		for _, prefix := range queryObject.ExcludedPathPrefix {
-			nors = append(nors, bson.M{"path": primitive.Regex{Pattern: "^" + prefix, Options: "i"}})
+			nors = append(nors, bson.M{"path": primitive.Regex{Pattern: anchoredPathRegex(prefix, false), Options: "i"}})
 		}
 		filters = append(filters, bson.E{Key: "$nor", Value: nors})
 	}
