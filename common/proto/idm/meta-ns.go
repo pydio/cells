@@ -58,6 +58,9 @@ type MetaNsDef struct {
 		Items       []ChoiceItem `json:"items,omitempty"`
 		Steps       bool         `json:"steps,omitempty"`
 		EntityItems []string     `json:"entityItems,omitempty"`
+		// Similarly to PolicyContextEditable in other protos, this flag could be computed at runtime  by evaluating
+		// the EntityValues policies, to instruct UX about the current ability to create items or not.
+		PolicyContextEditable bool `json:"policyContextEditable,omitempty"`
 	} `json:"data,omitempty"`
 	GroupName string `json:"groupName,omitempty"`
 	Steps     bool   `json:"steps,omitempty"`

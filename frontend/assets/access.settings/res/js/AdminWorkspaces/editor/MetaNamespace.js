@@ -22,25 +22,30 @@ import React, { Fragment } from 'react';
 
 import PropTypes from 'prop-types';
 
-import Pydio from 'pydio'
-import { Dialog, FlatButton, Toggle } from 'material-ui'
-import { muiThemeable } from 'material-ui/styles'
-import { MantineProvider } from '@mantine/core';
-import { IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi } from 'cells-sdk'
-import Metadata from '../model/Metadata'
-import PydioApi from 'pydio/http/api'
+import Pydio from 'pydio';
+import { Dialog, FlatButton, Toggle } from 'material-ui';
+import { muiThemeable } from 'material-ui/styles';
+import { MantineProvider, Checkbox } from '@mantine/core';
+import {
+    IdmUserMetaNamespace,
+    ServiceResourcePolicy,
+    UserMetaServiceApi,
+} from 'cells-sdk';
+import Metadata from '../model/Metadata';
+import PydioApi from 'pydio/http/api';
 import MetaNamespaceFieldOptions from './MetaNamespaceFieldOptions';
-const { ModernTextField, ModernAutoComplete, ThemedModernStyles } = Pydio.requireLib('hoc');
-import FuncUtils from 'pydio/util/func'
-import ResourcesManager from 'pydio/http/resources-manager'
+const { ModernTextField, ModernAutoComplete, ThemedModernStyles } =
+    Pydio.requireLib('hoc');
+import FuncUtils from 'pydio/util/func';
+import ResourcesManager from 'pydio/http/resources-manager';
 
 const TYPES_WITHOUT_DEFAULTS = [
-    'tags', 
-    'tag_cloud', 
-    'auto_complete', 
-    'stars_rate', 
-    'css_label', 
-    'json', 
+    'tags',
+    'tag_cloud',
+    'auto_complete',
+    'stars_rate',
+    'css_label',
+    'json',
     'boolean',
     'choice',
     'date',
@@ -48,9 +53,9 @@ const TYPES_WITHOUT_DEFAULTS = [
 
 function getGroupValue(namespace) {
     try {
-        return JSON.parse(namespace.JsonDefinition).groupName || ""
+        return JSON.parse(namespace.JsonDefinition).groupName || '';
     } catch (e) {
-        return ""
+        return '';
     }
 }
 
@@ -58,50 +63,71 @@ function loadEditorClass(className = '', defaultComponent) {
     if (!className) {
         return Promise.resolve(defaultComponent);
     }
-    const parts = className.split(".");
+    const parts = className.split('.');
     const ns = parts.shift();
     const rest = parts.join('.');
-    return ResourcesManager.loadClass(ns).then(c => {
-        const comp = FuncUtils.getFunctionByName(rest, c);
-        if (!comp) {
-            if (typeof c === 'object' && c[ns]) {
-                const c2 = FuncUtils.getFunctionByName(rest, c[ns])
-                if (c2) {
-                    return c2
+    return ResourcesManager.loadClass(ns)
+        .then((c) => {
+            const comp = FuncUtils.getFunctionByName(rest, c);
+            if (!comp) {
+                if (typeof c === 'object' && c[ns]) {
+                    const c2 = FuncUtils.getFunctionByName(rest, c[ns]);
+                    if (c2) {
+                        return c2;
+                    }
+                }
+                if (defaultComponent) {
+                    console.error(
+                        'Cannot find editor component, using default instead',
+                        className,
+                        defaultComponent,
+                    );
+                    return defaultComponent;
+                } else {
+                    throw new Error('cannot find editor component');
                 }
             }
+            return comp;
+        })
+        .catch((e) => {
             if (defaultComponent) {
-                console.error('Cannot find editor component, using default instead', className, defaultComponent);
+                console.error(
+                    'Cannot find editor component, using default instead',
+                    className,
+                    defaultComponent,
+                );
                 return defaultComponent;
             } else {
-                throw new Error("cannot find editor component")
+                throw e;
             }
-        }
-        return comp;
-    }).catch(e => {
-        if (defaultComponent) {
-            console.error('Cannot find editor component, using default instead', className, defaultComponent);
-            return defaultComponent;
-        } else {
-            throw e
-        }
-    })
+        });
 }
 
 class MetaPoliciesBuilder extends React.Component {
-
     constructor(props) {
         super(props);
     }
 
     togglePolicies(right, value) {
         const { policies = [], onChangePolicies } = this.props;
-        let newPols = policies.filter(p => p.Action !== right);
-        newPols.push(ServiceResourcePolicy.constructFromObject({ Action: right, Effect: 'allow', Subject: value ? 'profile:admin' : '*' }));
+        let newPols = policies.filter((p) => p.Action !== right);
+        newPols.push(
+            ServiceResourcePolicy.constructFromObject({
+                Action: right,
+                Effect: 'allow',
+                Subject: value ? 'profile:admin' : '*',
+            }),
+        );
         if (right === 'READ' && value) {
             // if read - set write as well
-            newPols = newPols.filter(p => p.Action !== 'WRITE')
-            newPols.push(ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Effect: 'allow', Subject: 'profile:admin' }));
+            newPols = newPols.filter((p) => p.Action !== 'WRITE');
+            newPols.push(
+                ServiceResourcePolicy.constructFromObject({
+                    Action: 'WRITE',
+                    Effect: 'allow',
+                    Subject: 'profile:admin',
+                }),
+            );
         }
         onChangePolicies(newPols);
     }
@@ -109,11 +135,11 @@ class MetaPoliciesBuilder extends React.Component {
     render() {
         const { readonly, policies, pydio, muiTheme } = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const ModernStyles = ThemedModernStyles(muiTheme);
 
         let adminRead, adminWrite;
         if (policies) {
-            policies.map(p => {
+            policies.map((p) => {
                 if (p.Subject === 'profile:admin' && p.Action === 'READ') {
                     adminRead = true;
                 }
@@ -126,45 +152,64 @@ class MetaPoliciesBuilder extends React.Component {
         return (
             <Fragment>
                 <div>
-                    <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e, v) => { this.togglePolicies('READ', v) }} {...ModernStyles.toggleFieldV2} />
+                    <Toggle
+                        label={m('toggle.read')}
+                        disabled={readonly}
+                        labelPosition={'left'}
+                        toggled={adminRead}
+                        onToggle={(e, v) => {
+                            this.togglePolicies('READ', v);
+                        }}
+                        {...ModernStyles.toggleFieldV2}
+                    />
                 </div>
                 <div>
-                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e, v) => { this.togglePolicies('WRITE', v) }} {...ModernStyles.toggleFieldV2} />
+                    <Toggle
+                        label={m('toggle.write')}
+                        labelPosition={'left'}
+                        disabled={adminRead || readonly}
+                        toggled={adminWrite}
+                        onToggle={(e, v) => {
+                            this.togglePolicies('WRITE', v);
+                        }}
+                        {...ModernStyles.toggleFieldV2}
+                    />
                 </div>
             </Fragment>
-        )
-
+        );
     }
-
-
 }
 
-MetaPoliciesBuilder = muiThemeable()(MetaPoliciesBuilder)
+MetaPoliciesBuilder = muiThemeable()(MetaPoliciesBuilder);
 
 class MetaNamespace extends React.Component {
-
     constructor(props) {
         super(props);
         this.state = {
             namespace: this.cloneNs(props.namespace),
-            m: (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id,
+            m: (id) =>
+                props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id,
             selectorNewKey: '',
             selectorNewValue: '',
             namespaceValues: [],
-            PoliciesBuilder: MetaPoliciesBuilder
+            PoliciesBuilder: MetaPoliciesBuilder,
         };
         this.fieldOptionsRef = React.createRef();
-        ResourcesManager.loadClass('ReactMeta').then(c => {
+        ResourcesManager.loadClass('ReactMeta').then((c) => {
             this.setState({ metaModule: c });
             const { policiesBuilder } = this.props;
             if (policiesBuilder) {
-                loadEditorClass(policiesBuilder, MetaPoliciesBuilder).then(c => this.setState({ PoliciesBuilder: c }));
+                loadEditorClass(policiesBuilder, MetaPoliciesBuilder).then(
+                    (c) => this.setState({ PoliciesBuilder: c }),
+                );
             }
-        })
+        });
     }
 
     cloneNs(ns) {
-        return IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
+        return IdmUserMetaNamespace.constructFromObject(
+            JSON.parse(JSON.stringify(ns)),
+        );
     }
 
     componentWillReceiveProps(props) {
@@ -173,13 +218,16 @@ class MetaNamespace extends React.Component {
         }
 
         if (props.open && !this.state.types) {
-           this.getTypes();
+            this.getTypes();
         }
 
         const { create, namespaces } = props;
         const newNS = this.cloneNs(props.namespace);
         if (create && namespaces.length) {
-            newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a, c) => Math.max(a, c), 0) + 1;
+            newNS.Order =
+                namespaces
+                    .map((ns) => ns.Order || 0)
+                    .reduce((a, c) => Math.max(a, c), 0) + 1;
         }
         this.setState({ namespace: newNS });
     }
@@ -191,9 +239,13 @@ class MetaNamespace extends React.Component {
             namespace = this.fieldOptionsRef.current.getUpdatedNamespace();
         }
 
-        const hasSchema = namespace.JsonSchema && Object.keys(namespace.JsonSchema).length > 0;
+        const hasSchema =
+            namespace.JsonSchema &&
+            Object.keys(namespace.JsonSchema).length > 0;
         const doSave = (jsonSchema) => {
-            const nsToSave = jsonSchema ? { ...namespace, JsonSchema: jsonSchema } : namespace;
+            const nsToSave = jsonSchema
+                ? { ...namespace, JsonSchema: jsonSchema }
+                : namespace;
             Metadata.putNS(nsToSave).then(() => {
                 this.props.onRequestClose();
                 this.props.reloadList();
@@ -207,33 +259,37 @@ class MetaNamespace extends React.Component {
     }
 
     getTypes() {
-        this.setState({loading: true});
-        Metadata.getMetaSchema('types').then(res => {
+        this.setState({ loading: true });
+        Metadata.getMetaSchema('types').then((res) => {
             const types = res.JsonSchema || [];
-            this.setState({loading: false, types: types});
+            this.setState({ loading: false, types: types });
         });
     }
 
     getJsonSchema() {
         const { namespace } = this.state;
-        if(namespace.JsonDefinition?.length > 0) {
+        if (namespace.JsonDefinition?.length > 0) {
             try {
                 const fieldType = JSON.parse(namespace?.JsonDefinition).type;
                 const data = JSON.parse(namespace?.JsonDefinition).data || '';
                 if (!fieldType) return Promise.resolve(undefined);
                 if (!namespace.Namespace) return Promise.resolve(undefined);
 
-                let format = data?.format?.toString().length > 0 ? data.format : '';
-                    return Metadata.getJsonSchemaByType(fieldType, namespace.Namespace, format)
-                        .then(schema => {
-                            this.setState(prevState => ({
-                                namespace: {
-                                    ...prevState.namespace,
-                                    JsonSchema: schema.JsonSchema
-                                }
-                            }));
-                            return schema.JsonSchema;
-                        });
+                let format =
+                    data?.format?.toString().length > 0 ? data.format : '';
+                return Metadata.getJsonSchemaByType(
+                    fieldType,
+                    namespace.Namespace,
+                    format,
+                ).then((schema) => {
+                    this.setState((prevState) => ({
+                        namespace: {
+                            ...prevState.namespace,
+                            JsonSchema: schema.JsonSchema,
+                        },
+                    }));
+                    return schema.JsonSchema;
+                });
             } catch (e) {
                 console.error(e);
                 throw e;
@@ -245,53 +301,57 @@ class MetaNamespace extends React.Component {
     getHideValue() {
         const { namespace } = this.state;
         try {
-            return JSON.parse(namespace.JsonDefinition).hide
+            return JSON.parse(namespace.JsonDefinition).hide;
         } catch (e) {
-            return false
+            return false;
         }
     }
 
     setHideValue(v) {
         const { namespace } = this.state;
         const def = JSON.parse(namespace.JsonDefinition);
-        namespace.JsonDefinition = JSON.stringify({ ...def, hide: v })
+        namespace.JsonDefinition = JSON.stringify({ ...def, hide: v });
         this.setState({ namespace });
     }
 
     setGroupValue(v) {
         const { namespace } = this.state;
         const def = JSON.parse(namespace.JsonDefinition);
-        namespace.JsonDefinition = JSON.stringify({ ...def, groupName: v })
+        namespace.JsonDefinition = JSON.stringify({ ...def, groupName: v });
         this.setState({ namespace });
     }
 
     getAdditionalData(defaultValue = {}) {
         const { namespace } = this.state;
         try {
-            const add = JSON.parse(namespace.JsonDefinition).data || defaultValue;
+            const add =
+                JSON.parse(namespace.JsonDefinition).data || defaultValue;
             if (defaultValue.items && add.split) {
                 // Convert to new format
-                const items = add.split(',').map(i => {
-                    const [key, value] = i.split('|')
+                const items = add.split(',').map((i) => {
+                    const [key, value] = i.split('|');
                     return { key, value };
                 });
                 return { items };
             }
             return add;
-        } catch (e) { }
+        } catch (e) {}
         return defaultValue;
     }
 
     setEntityValues(valueStr) {
         const { namespace } = this.state;
         const def = JSON.parse(namespace.JsonDefinition);
-        const entityValues = valueStr.split(',').map(s => s.trim()).filter(Boolean);
+        const entityValues = valueStr
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
         const data = { ...def.data, entityItems: entityValues };
-        namespace.JsonDefinition = JSON.stringify({ ...def, data })
-        this.setState({ namespace });    
+        namespace.JsonDefinition = JSON.stringify({ ...def, data });
+        this.setState({ namespace });
     }
 
-    getCommaSeparatedEntities () {
+    getCommaSeparatedEntities() {
         const { namespace } = this.state;
         try {
             const parsed = JSON.parse(namespace.JsonDefinition || '{}');
@@ -303,36 +363,61 @@ class MetaNamespace extends React.Component {
         }
     }
 
-     getEntityItems () {
+    getEntityItems() {
         const { namespace } = this.state;
         try {
             const parsed = JSON.parse(namespace.JsonDefinition || '{}');
-            const entityItems = parsed && parsed.data && parsed.data.entityItems;
-            
-            return entityItems;
+            return parsed && parsed.data && parsed.data.entityItems;
         } catch (e) {
             return '';
         }
+    }
+
+    getEntityPolicyContextEditable() {
+        const { namespace } = this.state;
+        try {
+            const parsed = JSON.parse(namespace.JsonDefinition || '{}');
+            const data = parsed && parsed.data;
+            if (data['policyContextEditable'] !== undefined) {
+                return data['policyContextEditable'];
+            }
+            return true;
+        } catch (e) {
+            return true;
+        }
+    }
+
+    toggleEntityPolicyContextEditable(v) {
+        const { namespace } = this.state;
+        const def = JSON.parse(namespace.JsonDefinition);
+        const data = { ...def.data, policyContextEditable: v };
+        namespace.JsonDefinition = JSON.stringify({ ...def, data });
+        this.setState({ namespace });
     }
 
     // Append data key
     setAdditionalDataKey(key, value) {
         const { namespace } = this.state;
         let def = JSON.parse(namespace.JsonDefinition);
-        const add = { [key]: value }
+        const add = { [key]: value };
         def.data = { ...def.data, ...add };
         namespace.JsonDefinition = JSON.stringify(def);
         this.setState({ namespace });
-
     }
 
     togglePolicies(right, value) {
         const { namespace } = this.state;
         const pol = namespace.Policies || [];
-        let newPols = pol.filter(p => {
+        let newPols = pol.filter((p) => {
             return p.Action !== right;
         });
-        newPols.push(ServiceResourcePolicy.constructFromObject({ Action: right, Effect: 'allow', Subject: value ? 'profile:admin' : '*' }));
+        newPols.push(
+            ServiceResourcePolicy.constructFromObject({
+                Action: right,
+                Effect: 'allow',
+                Subject: value ? 'profile:admin' : '*',
+            }),
+        );
         namespace.Policies = newPols;
         this.setState({ namespace }, () => {
             if (right === 'READ' && value) {
@@ -341,22 +426,30 @@ class MetaNamespace extends React.Component {
         });
     }
 
-    toggleRequired(namespace){
-        if(!namespace.JsonSchema.required ||  namespace.JsonSchema.required.length === 0) {
+    toggleRequired(namespace) {
+        if (
+            !namespace.JsonSchema.required ||
+            namespace.JsonSchema.required.length === 0
+        ) {
             namespace.JsonSchema.required = [];
-            namespace?.JsonSchema?.required?.push(namespace.Namespace)
-        } else if(namespace.JsonSchema.required && namespace.JsonSchema.required.length > 0) {
+            namespace?.JsonSchema?.required?.push(namespace.Namespace);
+        } else if (
+            namespace.JsonSchema.required &&
+            namespace.JsonSchema.required.length > 0
+        ) {
             namespace.JsonSchema.required.pop();
         }
-        this.setState({ namespace })
+        this.setState({ namespace });
     }
 
     render() {
         const { create, namespaces, pydio, readonly, muiTheme } = this.props;
         const { namespace, m, PoliciesBuilder, metaModule } = this.state;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const ModernStyles = ThemedModernStyles(muiTheme);
         const configs = this.props.pydio.getPluginConfigs('access.settings');
-        const USERMETA_PROMPT_FF = Boolean(configs.get('USERMETA_NAMESPACE_PROMPT'));
+        const USERMETA_PROMPT_FF = Boolean(
+            configs.get('USERMETA_NAMESPACE_PROMPT'),
+        );
 
         if (!metaModule) {
             return null;
@@ -378,15 +471,23 @@ class MetaNamespace extends React.Component {
             }
         }
 
-        let invalid = false, nameError, labelError;
+        let invalid = false,
+            nameError,
+            labelError;
         if (!namespace.Label) {
             invalid = true;
-            labelError = m('editor.label.error')
-        } else if (!namespace.Namespace || namespace.Namespace === 'usermeta-') {
+            labelError = m('editor.label.error');
+        } else if (
+            !namespace.Namespace ||
+            namespace.Namespace === 'usermeta-'
+        ) {
             invalid = true;
-            nameError = m('editor.ns.error')
+            nameError = m('editor.ns.error');
         }
-        if (create && namespaces.filter(n => n.Namespace === namespace.Namespace).length) {
+        if (
+            create &&
+            namespaces.filter((n) => n.Namespace === namespace.Namespace).length
+        ) {
             invalid = true;
             nameError = m('editor.ns.exists');
         }
@@ -401,12 +502,15 @@ class MetaNamespace extends React.Component {
             invalid = true;
         }
 
-        const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
-
+        const knownGroups = [
+            ...new Set(
+                namespaces.map((n) => getGroupValue(n)).filter((g) => g),
+            ),
+        ];
 
         let adminRead, adminWrite;
         if (namespace.Policies) {
-            namespace.Policies.map(p => {
+            namespace.Policies.map((p) => {
                 if (p.Subject === 'profile:admin' && p.Action === 'READ') {
                     adminRead = true;
                 }
@@ -417,21 +521,48 @@ class MetaNamespace extends React.Component {
         }
 
         const actions = [
-            <FlatButton primary={true} label={pydio.MessageHash['54']} onClick={this.props.onRequestClose} />,
-            <FlatButton primary={true} disabled={invalid || readonly} label={pydio.MessageHash['53']} onClick={() => { this.save() }} />,
+            <FlatButton
+                primary={true}
+                label={pydio.MessageHash['54']}
+                onClick={this.props.onRequestClose}
+            />,
+            <FlatButton
+                primary={true}
+                disabled={invalid || readonly}
+                label={pydio.MessageHash['53']}
+                onClick={() => {
+                    this.save();
+                }}
+            />,
         ];
         if (type === 'tags' && !readonly) {
-            actions.unshift(<FlatButton primary={false} label={m('editor.tags.reset')} onClick={() => {
-                const api = new UserMetaServiceApi(PydioApi.getRestClient());
-                api.deleteUserMetaTags(namespace.Namespace, "*").then(() => {
-                    pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
-                }).catch(e => {
-                    pydio.UI.displayMessage('ERROR', e.message);
-                });
-            }} />);
+            actions.unshift(
+                <FlatButton
+                    primary={false}
+                    label={m('editor.tags.reset')}
+                    onClick={() => {
+                        const api = new UserMetaServiceApi(
+                            PydioApi.getRestClient(),
+                        );
+                        api.deleteUserMetaTags(namespace.Namespace, '*')
+                            .then(() => {
+                                pydio.UI.displayMessage(
+                                    'SUCCESS',
+                                    m('editor.tags.cleared').replace(
+                                        '%s',
+                                        namespace.Namespace,
+                                    ),
+                                );
+                            })
+                            .catch((e) => {
+                                pydio.UI.displayMessage('ERROR', e.message);
+                            });
+                    }}
+                />,
+            );
         }
         const styles = {
-            section: { marginTop: 10, fontWeight: 500, fontSize: 12 }
+            section: { marginTop: 10, fontWeight: 500, fontSize: 12 },
         };
 
         return (
@@ -451,7 +582,11 @@ class MetaNamespace extends React.Component {
                     namespace={namespace}
                     metaTypes={this.state.types}
                     forcePrefix={'usermeta-'}
-                    onChange={(ns) => { this.setState({ namespace: ns }, () => { this.getJsonSchema(); }) }}
+                    onChange={(ns) => {
+                        this.setState({ namespace: ns }, () => {
+                            this.getJsonSchema();
+                        });
+                    }}
                     readonly={readonly}
                     create={create}
                     labelError={labelError}
@@ -461,131 +596,195 @@ class MetaNamespace extends React.Component {
                 <ModernTextField
                     floatingLabelText={m('description')}
                     value={namespace.Description || ''}
-                    onChange={(e, v) => { namespace.Description = v; this.setState({ namespace }) }}
+                    onChange={(e, v) => {
+                        namespace.Description = v;
+                        this.setState({ namespace });
+                    }}
                     fullWidth={true}
                     readOnly={readonly}
-                    variant={"v2"}
+                    variant={'v2'}
                 />
-                
-                {(create && !namespace.JsonSchema || namespace.JsonSchema) && (
-                <>
-                    {(type === 'tag_cloud' || type === 'auto_complete') && (
-                        <MantineProvider>
-                            <TagsCloudInput
-                                label={m('tag_cloud.entity')}
-                                disabled={false}
-                                value={''}
-                                onCommitChange={(v) => this.setEntityValues(v)}
-                                hintText={m('tag_cloud.entity.hint')}
-                            />
-                        </MantineProvider>
-                    )}
-                    {USERMETA_PROMPT_FF && (
-                        namespace?.Namespace?.toString().length > 0 &&
-                        namespace.JsonDefinition?.toString().length > 0 && (
-                        <MetaNamespaceFieldOptions
-                            ns={namespace}
-                            ref={this.fieldOptionsRef}
-                            fieldType={JSON.parse(namespace.JsonDefinition).type}
-                            tagValues={type === 'tag_cloud' || type === 'auto_complete' ? this.getEntityItems() : this.getAdditionalData({ items: [] }).items}
-                        />
-                    ))}
-                    <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
-                    {USERMETA_PROMPT_FF && <Toggle
-                        label={m('toggle.prompt')}
-                        disabled={readonly}
-                        labelPosition={"left"}
-                        toggled={namespace.PromptOnUpload ? namespace.PromptOnUpload : false}
-                        onToggle={(e, v) => {
-                            namespace.PromptOnUpload = v;
-                            this.setState({ namespace })
-                            if (v === false) {
-                                this.toggleRequired(namespace)
-                            }
-                        }}
-                        {...ModernStyles.toggleFieldV2}
-                    />}
 
-                    {USERMETA_PROMPT_FF &&
+                {((create && !namespace.JsonSchema) ||
+                    namespace.JsonSchema) && (
                     <>
-                        <Toggle
-                            label={m('toggle.required')}
-                            disabled={!namespace?.PromptOnUpload || false}
-                            labelPosition={"left"}
-                            toggled={namespace?.JsonSchema?.required?.length > 0}
-                            onToggle={() => this.toggleRequired(namespace)}
-                            {...ModernStyles.toggleFieldV2}
-                        />
-                        {!TYPES_WITHOUT_DEFAULTS.includes(namespace.FieldType) &&
+                        {(type === 'tag_cloud' || type === 'auto_complete') && (
+                            <MantineProvider>
+                                <TagsCloudInput
+                                    label={m('tag_cloud.entity')}
+                                    disabled={false}
+                                    value={''}
+                                    onCommitChange={(v) =>
+                                        this.setEntityValues(v)
+                                    }
+                                    placeholder={m('tag_cloud.entity.hint')}
+                                />
+                                <Checkbox
+                                    style={{ paddingTop: 10 }}
+                                    checked={this.getEntityPolicyContextEditable()}
+                                    onChange={(event) =>
+                                        this.toggleEntityPolicyContextEditable(
+                                            event.currentTarget.checked,
+                                        )
+                                    }
+                                    label={m(
+                                        'tag_cloud.entity.values-editable.label.TODO',
+                                    )}
+                                />
+                            </MantineProvider>
+                        )}
+                        {USERMETA_PROMPT_FF &&
+                            namespace?.Namespace?.toString().length > 0 &&
+                            namespace.JsonDefinition?.toString().length > 0 && (
+                                <MetaNamespaceFieldOptions
+                                    ns={namespace}
+                                    ref={this.fieldOptionsRef}
+                                    fieldType={
+                                        JSON.parse(namespace.JsonDefinition)
+                                            .type
+                                    }
+                                    tagValues={
+                                        type === 'tag_cloud' ||
+                                        type === 'auto_complete'
+                                            ? this.getEntityItems()
+                                            : this.getAdditionalData({
+                                                  items: [],
+                                              }).items
+                                    }
+                                />
+                            )}
+                        <div style={styles.section}>
+                            {Pydio.getInstance().MessageHash[310]}
+                        </div>
+                        {USERMETA_PROMPT_FF && (
                             <Toggle
-                                label={m('toggle.defaults')}
-                                labelPosition={"left"}
-                                toggled={namespace?.EnforceDefault}
+                                label={m('toggle.prompt')}
+                                disabled={readonly}
+                                labelPosition={'left'}
+                                toggled={
+                                    namespace.PromptOnUpload
+                                        ? namespace.PromptOnUpload
+                                        : false
+                                }
                                 onToggle={(e, v) => {
-                                    namespace.EnforceDefault = v;
-                                    this.setState({ namespace })
+                                    namespace.PromptOnUpload = v;
+                                    this.setState({ namespace });
+                                    if (v === false) {
+                                        this.toggleRequired(namespace);
+                                    }
                                 }}
                                 {...ModernStyles.toggleFieldV2}
                             />
-                        }
+                        )}
+
+                        {USERMETA_PROMPT_FF && (
+                            <>
+                                <Toggle
+                                    label={m('toggle.required')}
+                                    disabled={
+                                        !namespace?.PromptOnUpload || false
+                                    }
+                                    labelPosition={'left'}
+                                    toggled={
+                                        namespace?.JsonSchema?.required
+                                            ?.length > 0
+                                    }
+                                    onToggle={() =>
+                                        this.toggleRequired(namespace)
+                                    }
+                                    {...ModernStyles.toggleFieldV2}
+                                />
+                                {!TYPES_WITHOUT_DEFAULTS.includes(
+                                    namespace.FieldType,
+                                ) && (
+                                    <Toggle
+                                        label={m('toggle.defaults')}
+                                        labelPosition={'left'}
+                                        toggled={namespace?.EnforceDefault}
+                                        onToggle={(e, v) => {
+                                            namespace.EnforceDefault = v;
+                                            this.setState({ namespace });
+                                        }}
+                                        {...ModernStyles.toggleFieldV2}
+                                    />
+                                )}
+                            </>
+                        )}
                     </>
-                    }
-                </>
                 )}
 
                 <Toggle
                     label={m('toggle.list-visibility')}
                     disabled={readonly}
-                    labelPosition={"left"}
+                    labelPosition={'left'}
                     toggled={!this.getHideValue()}
-                    onToggle={(e, v) => { this.setHideValue(!v) }}
+                    onToggle={(e, v) => {
+                        this.setHideValue(!v);
+                    }}
                     {...ModernStyles.toggleFieldV2}
                 />
                 <Toggle
                     label={m('toggle.index')}
                     disabled={readonly}
-                    labelPosition={"left"}
+                    labelPosition={'left'}
                     toggled={namespace.Indexable}
-                    onToggle={(e, v) => { namespace.Indexable = v; this.setState({ namespace }) }}
+                    onToggle={(e, v) => {
+                        namespace.Indexable = v;
+                        this.setState({ namespace });
+                    }}
                     {...ModernStyles.toggleFieldV2}
                 />
-                {PoliciesBuilder &&
+                {PoliciesBuilder && (
                     <PoliciesBuilder
                         policies={namespace.Policies}
                         readonly={readonly}
-                        onChangePolicies={(pols => this.setState({ namespace: { ...namespace, Policies: pols } }))}
+                        onChangePolicies={(pols) =>
+                            this.setState({
+                                namespace: { ...namespace, Policies: pols },
+                            })
+                        }
                         pydio={pydio}
                     />
-                }
+                )}
                 <div style={styles.section}>{m('order')}</div>
                 <ModernTextField
                     floatingLabelText={m('order')}
                     value={namespace.Order ? namespace.Order : '0'}
-                    onChange={(e, v) => { namespace.Order = parseInt(v); this.setState({ namespace }) }}
+                    onChange={(e, v) => {
+                        namespace.Order = parseInt(v);
+                        this.setState({ namespace });
+                    }}
                     fullWidth={true}
-                    type={"number"}
+                    type={'number'}
                     readOnly={readonly}
-                    variant={"v2"}
+                    variant={'v2'}
                 />
                 <ModernAutoComplete
                     floatingLabelFixed={true}
                     fullWidth={true}
                     floatingLabelText={m('group-field')}
-                    filter={(searchText, key) => (!searchText.indexOf || key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                    filter={(searchText, key) =>
+                        !searchText.indexOf ||
+                        key.toLowerCase().indexOf(searchText.toLowerCase()) ===
+                            0
+                    }
                     openOnFocus={true}
                     dataSource={knownGroups}
                     searchText={getGroupValue(namespace) || ''}
-                    onNewRequest={(s, i) => { this.setGroupValue(s) }}
-                    onUpdateInput={(v) => { this.setGroupValue(v) }}
+                    onNewRequest={(s, i) => {
+                        this.setGroupValue(s);
+                    }}
+                    onUpdateInput={(v) => {
+                        this.setGroupValue(v);
+                    }}
                     menuProps={{ maxHeight: 300, overflowY: 'auto' }}
                 />
             </Dialog>
         );
     }
-
 }
 
-MetaNamespace = muiThemeable()(MetaNamespace)
+MetaNamespace = muiThemeable()(MetaNamespace);
 
 MetaNamespace.PropTypes = {
     namespace: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
@@ -595,5 +794,5 @@ MetaNamespace.PropTypes = {
     onRequestClose: PropTypes.func,
 };
 
-export default MetaNamespace
-export { loadEditorClass, getGroupValue }
+export default MetaNamespace;
+export { loadEditorClass, getGroupValue };
