@@ -27,6 +27,7 @@ export interface NamespaceMeta {
         items?: SelectItem[];
         steps?: boolean;
         format?: string;
+        policyContextEditable?: boolean;
     };
     description?: string;
 }

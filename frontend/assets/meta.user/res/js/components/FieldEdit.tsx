@@ -140,12 +140,17 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
                 />
             );
         case 'tag_cloud':
+            const closedList =
+                data && data.policyContextEditable !== undefined
+                    ? !data.policyContextEditable
+                    : false;
             return (
                 <TagsCloudInput
                     {...baseProps}
                     value={state.formState.get(name) || ''}
                     data={[]}
                     dataLoader={localDataLoader}
+                    onlyValuesFromList={closedList}
                 />
             );
         case 'tags':

@@ -19,7 +19,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { TagsInput } from '@mantine/core';
+import { TagsInput, MultiSelect } from '@mantine/core';
 import { StringItemsInputProps } from './CommonInputProps';
 import {
     parseTagsValue as parseCSLtoArray,
@@ -80,30 +80,50 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
         if (dataLoader) {
             dataLoader().then((ss) => setItems(ss));
         }
-    }, [name]);
+    }, [name, dataLoader]);
 
     const onChangeJoin = (values: string[]) => {
         setLocalValue(values.filter((v) => v));
         onCommitChange(formatTagsArrayToString(values));
     };
 
+    const commonProps = {
+        ...props,
+        value: localValue,
+        data: items,
+        onFocus,
+        onChange: onChangeJoin,
+        disabled,
+        comboboxProps: { withinPortal: false },
+    };
+
+    if (onlyValuesFromList) {
+        return (
+            <MultiSelect
+                {...commonProps}
+                searchable
+                onBlur={(e) => {
+                    const { value } = e.target;
+                    onCommitChange(
+                        formatTagsArrayToString([...localValue, value]),
+                    );
+                    if (onBlur) {
+                        onBlur(e);
+                    }
+                }}
+            />
+        );
+    }
+
     return (
         <TagsInput
-            {...props}
-            value={localValue}
-            data={items}
-            onFocus={onFocus}
-            onChange={onChangeJoin}
-            disabled={disabled}
-            comboboxProps={{ withinPortal: false }}
+            {...commonProps}
             splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 const { key, target } = e;
                 const { value } = target;
 
                 if (key === 'Enter' || key === ',') {
-                    if (onlyValuesFromList && !items.includes(value)) return;
-
                     onCommitChange(
                         formatTagsArrayToString([...localValue, value]),
                     );
@@ -111,9 +131,6 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
             }}
             onBlur={(e) => {
                 const { value } = e.target;
-
-                if (onlyValuesFromList && !items.includes(value)) return;
-
                 onCommitChange(formatTagsArrayToString([...localValue, value]));
 
                 if (onBlur) {
