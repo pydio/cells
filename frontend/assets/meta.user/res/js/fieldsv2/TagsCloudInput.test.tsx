@@ -764,5 +764,59 @@ describe('TagsCloudInput', () => {
 
             expect(screen.getByRole('textbox')).toBeInTheDocument();
         });
+
+        it('rejects custom values not in list when onlyValuesFromList is true', async () => {
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2']);
+            const onCommitChange = vi.fn();
+
+            render(
+                <TagsCloudInput
+                    name="test-tags"
+                    dataLoader={dataLoader}
+                    onCommitChange={onCommitChange}
+                    onlyValuesFromList={true}
+                    value=""
+                />,
+            );
+
+            // Wait for data to load
+            await waitFor(() => {
+                expect(dataLoader).toHaveBeenCalled();
+            });
+
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'custom-value' } });
+
+            // custom-value is not in ['option1', 'option2'] — should be filtered out
+            expect(onCommitChange).toHaveBeenCalledWith('');
+        });
+
+        it('accepts values from the list when onlyValuesFromList is true', async () => {
+            const dataLoader = vi
+                .fn()
+                .mockResolvedValue(['option1', 'option2']);
+            const onCommitChange = vi.fn();
+
+            render(
+                <TagsCloudInput
+                    name="test-tags"
+                    dataLoader={dataLoader}
+                    onCommitChange={onCommitChange}
+                    onlyValuesFromList={true}
+                    value=""
+                />,
+            );
+
+            await waitFor(() => {
+                expect(dataLoader).toHaveBeenCalled();
+            });
+
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'option1,option2' } });
+
+            expect(onCommitChange).toHaveBeenCalledWith('option1,option2');
+        });
     });
 });
