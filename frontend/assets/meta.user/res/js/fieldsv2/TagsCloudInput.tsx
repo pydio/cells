@@ -63,6 +63,7 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
 }) => {
     const [localValue, setLocalValue] = useState(parseCSLtoArray(value));
     const [items, setItems] = useState<string[]>([]);
+    const [itemsLoading, setItemsLoading] = useState(false);
 
     const props = {
         label,
@@ -78,14 +79,22 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
 
     useEffect(() => {
         if (dataLoader) {
-            dataLoader().then((ss) => setItems(ss));
+            setItemsLoading(true);
+            dataLoader().then((ss) => {
+                setItems(ss);
+                setItemsLoading(false);
+            });
         }
     }, [name]);
 
-    const onChangeJoin = (values: string[]) => {
-        const filtered = onlyValuesFromList
+    const filterValues = (values: string[]): string[] => {
+        return onlyValuesFromList
             ? values.filter((v) => items.indexOf(v) !== -1)
             : values.filter((v) => v);
+    };
+
+    const commitValues = (values: string[]) => {
+        const filtered = filterValues(values);
         setLocalValue(filtered);
         onCommitChange(formatTagsArrayToString(filtered));
     };
@@ -96,33 +105,11 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
             value={localValue}
             data={items}
             onFocus={onFocus}
-            onChange={onChangeJoin}
-            disabled={disabled}
+            onBlur={onBlur}
+            onChange={commitValues}
+            disabled={disabled || (onlyValuesFromList && itemsLoading)}
             comboboxProps={{ withinPortal: false }}
-            splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
-            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            const { key } = e;
-            const { value } = e.target as HTMLInputElement;
-
-                if (key === 'Enter' || key === ',') {
-                    if (onlyValuesFromList && items.indexOf(value) === -1) return;
-
-                    onCommitChange(
-                        formatTagsArrayToString([...localValue, value]),
-                    );
-                }
-            }}
-            onBlur={(e) => {
-                const { value } = e.target;
-
-                if (onlyValuesFromList && items.indexOf(value) === -1) return;
-
-                onCommitChange(formatTagsArrayToString([...localValue, value]));
-
-                if (onBlur) {
-                    onBlur(e);
-                }
-            }}
+            splitChars={onlyValuesFromList ? [''] : undefined}
         />
     );
 };

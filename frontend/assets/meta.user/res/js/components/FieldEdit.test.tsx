@@ -24,6 +24,7 @@ import {
     render,
     screen,
     fireEvent,
+
     cleanup,
     waitFor,
 } from '@testing-library/react';
@@ -264,17 +265,11 @@ describe('FieldEdit Component', () => {
                 />,
             );
 
-            await waitFor(() => {
-                const input = screen.getByRole('textbox') as HTMLInputElement;
-                // User types a tag and presses comma
-                fireEvent.change(input, { target: { value: 'document' } });
-                fireEvent.keyPress(input, {
-                    key: ',',
-                    code: 'Comma',
-                    charCode: 44,
-                });
+            const input = await screen.findByRole('textbox') as HTMLInputElement;
+            fireEvent.change(input, { target: { value: 'document' } });
+            fireEvent.blur(input);
 
-                // setFormState should be called with new tag
+            await waitFor(() => {
                 expect(setFormState).toHaveBeenCalled();
             });
         });

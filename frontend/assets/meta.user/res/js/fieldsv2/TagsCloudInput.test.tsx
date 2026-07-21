@@ -555,6 +555,7 @@ describe('TagsCloudInput', () => {
             );
 
             const input = screen.getByRole('textbox');
+            fireEvent.change(input, { target: { value: 'newtag' } });
             fireEvent.blur(input);
 
             expect(onCommitChange).toHaveBeenCalled();
