@@ -98,6 +98,6 @@
     "other": "Backup most recent version only"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "Verwijder alle bestaande versies"
   }
 }
