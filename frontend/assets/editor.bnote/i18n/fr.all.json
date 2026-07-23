@@ -42,28 +42,28 @@
     "other": "Succès"
   },
   "toolbar-spec.title": {
-    "other": "Insert Toolbar Block"
+    "other": "Insérer un bloc de barre d'outils"
   },
   "toolbar-spec.subtext": {
-    "other": "Insert an action toolbar with configurable buttons"
+    "other": "Insérer une barre d'outils d'action avec des boutons configurables"
   },
   "toolbar-block.names-label": {
-    "other": "Toolbar Names (comma-separated)"
+    "other": "Noms de la barre d'outils (séparés par des virgules)"
   },
   "toolbar-block.type-label": {
-    "other": "Rendering Type"
+    "other": "Type de rendu"
   },
   "toolbar-block.alignment-label": {
-    "other": "Alignment"
+    "other": "Alignement"
   },
   "toolbar-block.confirm": {
-    "other": "Insert Toolbar"
+    "other": "Insérer une barre d'outils"
   },
   "toolbar-block.update": {
-    "other": "Update Toolbar"
+    "other": "Mettre à jour la barre d'outils"
   },
   "toolbar-block.edit": {
-    "other": "Edit Toolbar"
+    "other": "Éditer la barre d’outils"
   },
   "side-button.move-up": {
     "other": "Déplacer vers le haut"
