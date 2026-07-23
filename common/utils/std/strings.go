@@ -1,9 +1,19 @@
 package std
 
 import (
+	"path"
 	"strconv"
 	"strings"
 )
+
+var imageExtensions = map[string]bool{
+	".png": true, ".jpg": true, ".jpeg": true,
+	".gif": true, ".svg": true, ".webp": true,
+}
+
+func HasImageExtension(s string) bool {
+	return imageExtensions[strings.ToLower(path.Ext(s))]
+}
 
 type bytesec interface {
 	string | []byte

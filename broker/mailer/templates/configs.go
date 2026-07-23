@@ -32,14 +32,8 @@ import (
 	"github.com/pydio/cells/v5/broker/mailer/lang"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
-
-var imageURLPattern = regexp.MustCompile(`(?i)^https?://\S+\.(png|jpe?g|gif|svg|webp)$`)
-
-// isImageURL reports whether s looks like a URL pointing to an image file.
-func isImageURL(s string) bool {
-	return imageURLPattern.MatchString(s)
-}
 
 var copyrightParagraphPattern = regexp.MustCompile(`<p class="sub center">\s*\{\{\.Hermes\.Product\.Copyright\}\}\s*</p>`)
 
@@ -119,7 +113,7 @@ func GetApplicationConfig(ctx context.Context, languages ...string) ApplicationC
 		}
 	}
 
-	if copyright := strings.TrimSpace(a.Copyright); isImageURL(copyright) {
+	if copyright := strings.TrimSpace(a.Copyright); std.HasImageExtension(copyright) {
 		a.Theme = &pydioThemeWithCopyrightImage{imageURL: copyright}
 		a.Copyright = ""
 	}
