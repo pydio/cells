@@ -23,14 +23,19 @@ package templates
 import (
 	"context"
 	"fmt"
+	"html"
+	"regexp"
 	"strings"
 
-	hermes "github.com/matcornic/hermes/v2"
+	"github.com/matcornic/hermes"
 
 	"github.com/pydio/cells/v5/broker/mailer/lang"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
+	"github.com/pydio/cells/v5/common/utils/std"
 )
+
+var copyrightParagraphPattern = regexp.MustCompile(`<p class="sub center">\s*\{\{\.Hermes\.Product\.Copyright\}\}\s*</p>`)
 
 var templateFilters []FilterFunc
 
@@ -108,6 +113,11 @@ func GetApplicationConfig(ctx context.Context, languages ...string) ApplicationC
 		}
 	}
 
+	if copyright := strings.TrimSpace(a.Copyright); std.HasImageExtension(copyright) {
+		a.Theme = &pydioThemeWithCopyrightImage{imageURL: copyright}
+		a.Copyright = ""
+	}
+
 	return a
 }
 
@@ -119,5 +129,21 @@ func (p pydioTheme) HTMLTemplate() string {
 	s := p.Flat.HTMLTemplate()
 	s = strings.Replace(s, "height:45px;", "height:auto;", -1)
 	s = strings.Replace(s, "mso-hide: all;", "", -1)
+	return s
+}
+
+type pydioThemeWithCopyrightImage struct {
+	hermes.Flat
+	imageURL string
+}
+
+func (p pydioThemeWithCopyrightImage) HTMLTemplate() string {
+	s := p.Flat.HTMLTemplate()
+	s = strings.Replace(s, "height:45px;", "height:auto;", -1)
+	s = strings.Replace(s, "mso-hide: all;", "", -1)
+
+	img := fmt.Sprintf(`<img src="%s" style="max-width:200px;height:auto;display:block;margin:0 auto;" alt=""/>`, html.EscapeString(p.imageURL))
+	s = copyrightParagraphPattern.ReplaceAllString(s, img)
+
 	return s
 }

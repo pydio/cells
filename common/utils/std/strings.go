@@ -1,9 +1,23 @@
 package std
 
 import (
+	"net/url"
+	"path"
 	"strconv"
 	"strings"
 )
+
+var imageExtensions = map[string]bool{
+	".png": true, ".jpg": true, ".jpeg": true,
+	".gif": true, ".svg": true, ".webp": true,
+}
+
+func HasImageExtension(s string) bool {
+	if u, err := url.Parse(s); err == nil && u.Path != "" {
+		s = u.Path
+	}
+	return imageExtensions[strings.ToLower(path.Ext(s))]
+}
 
 type bytesec interface {
 	string | []byte
