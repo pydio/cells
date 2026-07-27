@@ -1067,6 +1067,7 @@ func TestOrdering(t *testing.T) {
 			sameOrder := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 			reverseOrder := []int{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
 			foldersFirstOrder := []int{1, 2, 3, 10, 8, 9, 4, 5, 6, 7}
+			recencyOrder := []int{10, 3, 2, 1, 9, 8, 7, 6, 5, 4}
 			type tCase struct {
 				expected     []int
 				defaultField string
@@ -1126,6 +1127,12 @@ func TestOrdering(t *testing.T) {
 					expected:     foldersFirstOrder,
 					defaultField: tree.MetaSortName,
 					sortField:    tree.MetaSortNatural,
+					orderDesc:    false,
+				},
+				{
+					expected:     recencyOrder,
+					defaultField: tree.MetaSortName,
+					sortField:    tree.MetaSortRecency,
 					orderDesc:    false,
 				},
 			}

@@ -46,6 +46,8 @@ var (
 	presignUseCacheControl     bool   = true
 	presignDefaultCacheControl string = "private, max-age=450"
 	presignBucketName                 = common.DefaultRouteBucketIO
+
+	defaultListingSort = tree.MetaSortNatural
 )
 
 func init() {
@@ -67,6 +69,30 @@ func init() {
 	if sb := os.Getenv("CELLS_PRESIGN_BUCKET_SECONDARY"); sb == "true" {
 		presignBucketName = common.DefaultRouteBucketData
 	}
+}
+
+// SetDefaultListingSort configures the sort used when a listing request omits one.
+// Distribution layers must call it during initialization, before serving requests.
+func SetDefaultListingSort(sortField string) {
+	if !tree.ValidSortField(sortField) {
+		panic(fmt.Sprintf("invalid default listing sort %q", sortField))
+	}
+	defaultListingSort = sortField
+}
+
+// GetDefaultListingSort returns the sort used when a listing request omits one.
+func GetDefaultListingSort() string {
+	return defaultListingSort
+}
+
+func applyLookupSort(input *rest.LookupRequest, bulkRequest *rest.GetBulkMetaRequest) {
+	if input.GetSortField() == "" {
+		bulkRequest.SortField = GetDefaultListingSort()
+		return
+	}
+
+	bulkRequest.SortField = input.GetSortField()
+	bulkRequest.SortDirDesc = input.GetSortDirDesc()
 }
 
 // Lookup Combines LS and FIND in one endpoint
@@ -284,12 +310,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 		// Use TreeHandler
 		bulkRequest.Offset = int32(input.GetOffset())
 		bulkRequest.Limit = int32(input.GetLimit())
-		if input.GetSortField() != "" {
-			bulkRequest.SortField = input.GetSortField()
-			bulkRequest.SortDirDesc = input.GetSortDirDesc()
-		} else {
-			bulkRequest.SortField = tree.MetaSortNatural
-		}
+		applyLookupSort(input, bulkRequest)
 		nn, coll.Pagination, er = h.TreeHandler.LoadNodes(ctx, bulkRequest, h.parseFlags(input.GetFlags()), bulkRecursive)
 		if er != nil {
 			return er

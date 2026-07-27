@@ -26,6 +26,18 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+type recordingFilterBuilder struct {
+	orders [][2]string
+}
+
+func (b *recordingFilterBuilder) And(interface{}, ...interface{}) {}
+
+func (b *recordingFilterBuilder) OrderBy(fieldName, direction string) {
+	b.orders = append(b.orders, [2]string{fieldName, direction})
+}
+
+func (b *recordingFilterBuilder) Ors([]string, []interface{}) interface{} { return nil }
+
 func TestMetaFilter(t *testing.T) {
 	Convey("Test int filters", t, func() {
 		f := &MetaFilter{
@@ -69,5 +81,22 @@ func TestMetaFilter(t *testing.T) {
 		So(f.Parse(), ShouldBeTrue)
 		So(f.Match("otherExt.jpg", n6), ShouldBeTrue)
 		So(f.Match("otherExt.ext", n6), ShouldBeTrue)
+	})
+}
+
+func TestMetaFilterRecencySort(t *testing.T) {
+	Convey("Recency sort keeps folders first and uses name as deterministic tie-breaker", t, func() {
+		filter := &MetaFilter{}
+		filter.AddSort(MetaSortName, MetaSortRecency, false)
+		builder := &recordingFilterBuilder{}
+
+		filter.Build(builder)
+
+		So(ValidSortField(MetaSortRecency), ShouldBeTrue)
+		So(builder.orders, ShouldResemble, [][2]string{
+			{"leaf", "DESC"},
+			{"mtime", "DESC"},
+			{"LOWER(name)", "ASC"},
+		})
 	})
 }

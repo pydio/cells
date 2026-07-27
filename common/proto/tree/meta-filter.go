@@ -45,8 +45,10 @@ const (
 	MetaSortNameCI = "name_ci"
 	MetaSortMPath  = "mpath1,mpath2,mpath3,mpath4"
 	MetaSortType   = "leaf"
-	// MetaSortNatural sorts first by folders then by names
+	// MetaSortNatural sorts first by folders then by names.
 	MetaSortNatural = "natural"
+	// MetaSortRecency sorts folders before files, newest before oldest, then by name.
+	MetaSortRecency = "recency"
 )
 
 var (
@@ -62,7 +64,7 @@ type cmp struct {
 
 func ValidSortField(sortField string) bool {
 	return sortField == MetaSortName || sortField == MetaSortNameCI || sortField == MetaSortTime || sortField == MetaSortSize ||
-		sortField == MetaSortType || sortField == MetaSortMPath || sortField == MetaSortNatural
+		sortField == MetaSortType || sortField == MetaSortMPath || sortField == MetaSortNatural || sortField == MetaSortRecency
 }
 
 // MetaFilter holds specific filtering conditions, generally transformed from standard
@@ -165,10 +167,15 @@ func (m *MetaFilter) Build(builder FilterBuilder) {
 
 	// Add orderBy
 	if m.sortField != "" {
-		if m.sortField == MetaSortNatural {
+		switch m.sortField {
+		case MetaSortNatural:
 			builder.OrderBy("leaf", "DESC")
 			builder.OrderBy("LOWER(name)", "ASC")
-		} else {
+		case MetaSortRecency:
+			builder.OrderBy("leaf", "DESC")
+			builder.OrderBy("mtime", "DESC")
+			builder.OrderBy("LOWER(name)", "ASC")
+		default:
 			sortDesc := m.sortDesc
 			if m.sortField == MetaSortType { // Switch for backward compat on "leaf" : v4 was 0/1, v5 is 1/2
 				sortDesc = !sortDesc
