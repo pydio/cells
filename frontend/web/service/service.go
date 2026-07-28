@@ -96,22 +96,37 @@ func init() {
 				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
-						data := map[string]interface{}{
-							"secureHeaders": map[string]interface{}{
-								"X-XSS-Protection": "1; mode=block",
-							},
-							"secureCookies": map[string]interface{}{
-								"SameSite": "Strict",
-							},
-							"plugin": map[string]interface{}{
-								"editor.libreoffice": map[string]interface{}{
-									"LIBREOFFICE_HOST": "localhost",
-									"LIBREOFFICE_PORT": "9980",
-									"LIBREOFFICE_SSL":  true,
-								},
-							},
+						// Write structural frontend defaults that are safe to always set on first run.
+						if err := config.Set(ctx, map[string]interface{}{"X-XSS-Protection": "1; mode=block"}, "frontend", "secureHeaders"); err != nil {
+							return err
 						}
-						return config.Set(ctx, data, "frontend")
+						if err := config.Set(ctx, map[string]interface{}{"SameSite": "Strict"}, "frontend", "secureCookies"); err != nil {
+							return err
+						}
+
+						// For plugin params: only write the manifest default when the installer
+						// has not already set a value via customconfigs, so that values like
+						// LIBREOFFICE_HOST are not silently reset to "localhost" on first start.
+						type pluginDefault struct {
+							key string
+							val interface{}
+						}
+						libreofficeDefaults := []pluginDefault{
+							{key: "LIBREOFFICE_HOST", val: "localhost"},
+							{key: "LIBREOFFICE_PORT", val: "9980"},
+							{key: "LIBREOFFICE_SSL", val: true},
+						}
+						for _, d := range libreofficeDefaults {
+							path := config.FrontendPluginPath("editor.libreoffice", d.key)
+							if config.Get(ctx, path...).Get() != nil {
+								// Already set by the installer (customconfigs) — do not overwrite.
+								continue
+							}
+							if err := config.Set(ctx, d.val, path...); err != nil {
+								return err
+							}
+						}
+						return nil
 					},
 				},
 				{
