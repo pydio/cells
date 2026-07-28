@@ -29,40 +29,6 @@ import (
 	"github.com/pydio/cells/v5/common/config"
 )
 
-// firstRunMigrationUp extracts the FirstRun migration Up func from the
-// service definition so tests can invoke it directly without starting a
-// full runtime.
-func firstRunMigrationUp(ctx context.Context) error {
-	// Write structural frontend defaults that are safe to always set on first run.
-	if err := config.Set(ctx, map[string]interface{}{"X-XSS-Protection": "1; mode=block"}, "frontend", "secureHeaders"); err != nil {
-		return err
-	}
-	if err := config.Set(ctx, map[string]interface{}{"SameSite": "Strict"}, "frontend", "secureCookies"); err != nil {
-		return err
-	}
-
-	type pluginDefault struct {
-		key string
-		val interface{}
-	}
-	libreofficeDefaults := []pluginDefault{
-		{key: "RANDOMSTRING", val: "foobar"},
-		{key: "LIBREOFFICE_HOST", val: "localhost"},
-		{key: "LIBREOFFICE_PORT", val: "9980"},
-		{key: "LIBREOFFICE_SSL", val: true},
-	}
-	for _, d := range libreofficeDefaults {
-		path := config.FrontendPluginPath("editor.libreoffice", d.key)
-		if config.Get(ctx, path...).Get() != nil {
-			continue
-		}
-		if err := config.Set(ctx, d.val, path...); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func TestFirstRunMigration(t *testing.T) {
 
 	Convey("Given a fresh install with no prior config", t, func() {
@@ -70,7 +36,7 @@ func TestFirstRunMigration(t *testing.T) {
 		Convey("It should write all LibreOffice manifest defaults", func() {
 			ctx := config.WithStubStore(context.Background())
 
-			err := firstRunMigrationUp(ctx)
+			err := firstRunMigration(ctx)
 			So(err, ShouldBeNil)
 
 			// Structural defaults are always written
@@ -86,9 +52,6 @@ func TestFirstRunMigration(t *testing.T) {
 
 			ssl := config.Get(ctx, config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_SSL")...).Bool()
 			So(ssl, ShouldBeTrue)
-
-			rnd := config.Get(ctx, config.FrontendPluginPath("editor.libreoffice", "RANDOMSTRING")...).String()
-			So(rnd, ShouldEqual, "foobar")
 		})
 	})
 
@@ -101,7 +64,7 @@ func TestFirstRunMigration(t *testing.T) {
 			err := config.Set(ctx, "office", config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_HOST")...)
 			So(err, ShouldBeNil)
 
-			err = firstRunMigrationUp(ctx)
+			err = firstRunMigration(ctx)
 			So(err, ShouldBeNil)
 
 			// Installer value must survive the migration
@@ -120,16 +83,13 @@ func TestFirstRunMigration(t *testing.T) {
 			_ = config.Set(ctx, "9981", config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_PORT")...)
 			_ = config.Set(ctx, false, config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_SSL")...)
 
-			err := firstRunMigrationUp(ctx)
+			err := firstRunMigration(ctx)
 			So(err, ShouldBeNil)
 
 			// All three installer values must be preserved
 			So(config.Get(ctx, config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_HOST")...).String(), ShouldEqual, "office")
 			So(config.Get(ctx, config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_PORT")...).String(), ShouldEqual, "9981")
 			So(config.Get(ctx, config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_SSL")...).Bool(), ShouldBeFalse)
-
-			// Key not set by installer must receive the manifest default
-			So(config.Get(ctx, config.FrontendPluginPath("editor.libreoffice", "RANDOMSTRING")...).String(), ShouldEqual, "foobar")
 		})
 	})
 
@@ -141,7 +101,7 @@ func TestFirstRunMigration(t *testing.T) {
 			// Pre-set a plugin value to confirm structural keys are independent
 			_ = config.Set(ctx, "office", config.FrontendPluginPath("editor.libreoffice", "LIBREOFFICE_HOST")...)
 
-			err := firstRunMigrationUp(ctx)
+			err := firstRunMigration(ctx)
 			So(err, ShouldBeNil)
 
 			So(config.Get(ctx, "frontend", "secureHeaders", "X-XSS-Protection").String(), ShouldEqual, "1; mode=block")

@@ -95,39 +95,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up: func(ctx context.Context) error {
-						// Write structural frontend defaults that are safe to always set on first run.
-						if err := config.Set(ctx, map[string]interface{}{"X-XSS-Protection": "1; mode=block"}, "frontend", "secureHeaders"); err != nil {
-							return err
-						}
-						if err := config.Set(ctx, map[string]interface{}{"SameSite": "Strict"}, "frontend", "secureCookies"); err != nil {
-							return err
-						}
-
-						// For plugin params: only write the manifest default when the installer
-						// has not already set a value via customconfigs, so that values like
-						// LIBREOFFICE_HOST are not silently reset to "localhost" on first start.
-						type pluginDefault struct {
-							key string
-							val interface{}
-						}
-						libreofficeDefaults := []pluginDefault{
-							{key: "LIBREOFFICE_HOST", val: "localhost"},
-							{key: "LIBREOFFICE_PORT", val: "9980"},
-							{key: "LIBREOFFICE_SSL", val: true},
-						}
-						for _, d := range libreofficeDefaults {
-							path := config.FrontendPluginPath("editor.libreoffice", d.key)
-							if config.Get(ctx, path...).Get() != nil {
-								// Already set by the installer (customconfigs) — do not overwrite.
-								continue
-							}
-							if err := config.Set(ctx, d.val, path...); err != nil {
-								return err
-							}
-						}
-						return nil
-					},
+					Up:            firstRunMigration,
 				},
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),
@@ -189,6 +157,44 @@ func init() {
 			}),
 		)
 	})
+}
+
+// firstRunMigration is the Up function for the FirstRun migration.
+// It writes structural frontend security defaults and fills in LibreOffice
+// plugin params from their manifest defaults — but only when the installer
+// has not already supplied a value via customconfigs, so that settings like
+// LIBREOFFICE_HOST are not silently reset to "localhost" on first start.
+func firstRunMigration(ctx context.Context) error {
+	// Structural defaults are always safe to set on first run.
+	if err := config.Set(ctx, map[string]interface{}{"X-XSS-Protection": "1; mode=block"}, "frontend", "secureHeaders"); err != nil {
+		return err
+	}
+	if err := config.Set(ctx, map[string]interface{}{"SameSite": "Strict"}, "frontend", "secureCookies"); err != nil {
+		return err
+	}
+
+	// For plugin params: only write the manifest default when the installer
+	// has not already set a value via customconfigs.
+	type pluginDefault struct {
+		key string
+		val interface{}
+	}
+	libreofficeDefaults := []pluginDefault{
+		{key: "LIBREOFFICE_HOST", val: "localhost"},
+		{key: "LIBREOFFICE_PORT", val: "9980"},
+		{key: "LIBREOFFICE_SSL", val: true},
+	}
+	for _, d := range libreofficeDefaults {
+		path := config.FrontendPluginPath("editor.libreoffice", d.key)
+		if config.Get(ctx, path...).Get() != nil {
+			// Already set by the installer (customconfigs) — do not overwrite.
+			continue
+		}
+		if err := config.Set(ctx, d.val, path...); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // DropLegacyStatics removes files and references to old PHP data in configuration
