@@ -85,6 +85,10 @@ Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add m
 
 Binaries are currently provided for [Linux, macOS and Windows distributions](https://pydio.com/en/download). To deploy them on a live system, please see the [Installation Guide](https://docs.pydio.com/cells-v4/admin-guide/quick-start/cells-installation/index/) instructions.
 
+If you would rather not run a server yourself, Cells can also be deployed as a managed instance:
+
+[![Deploy with Zenith](https://cdn.zenith.hosting/buttons/deploy-with-zenith.svg)](https://zenith.hosting/host/pydio-cells)
+
 
 ## Contributing
 
