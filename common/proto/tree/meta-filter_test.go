@@ -70,4 +70,19 @@ func TestMetaFilter(t *testing.T) {
 		So(f.Match("otherExt.jpg", n6), ShouldBeTrue)
 		So(f.Match("otherExt.ext", n6), ShouldBeTrue)
 	})
+
+	Convey("Test no-grep recycle anchoring (WPB-27814)", t, func() {
+		anchored := &MetaFilter{reqNode: &Node{MetaStore: map[string]string{
+			"no-grep": `"^recycle_bin$"`,
+		}}}
+		So(anchored.Parse(), ShouldBeTrue)
+		So(anchored.Match("wpb27814_recycle_bin_folder", &Node{}), ShouldBeTrue)
+		So(anchored.Match("recycle_bin", &Node{}), ShouldBeFalse)
+
+		unanchored := &MetaFilter{reqNode: &Node{MetaStore: map[string]string{
+			"no-grep": `"recycle_bin"`,
+		}}}
+		So(unanchored.Parse(), ShouldBeTrue)
+		So(unanchored.Match("wpb27814_recycle_bin_folder", &Node{}), ShouldBeFalse)
+	})
 }

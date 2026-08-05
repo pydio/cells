@@ -185,7 +185,7 @@ func (h *Handler) Lookup(req *restful.Request, resp *restful.Response) error {
 					bulkRequest.Filters["type"] = filter.Type.String()
 				}
 				if deletedStatus == rest.LookupFilter_StatusFilter_Not {
-					bulkRequest.Filters[tree.MetaFilterNoGrep] = common.RecycleBinName
+					bulkRequest.Filters[tree.MetaFilterNoGrep] = "^" + common.RecycleBinName + "$"
 				}
 			}
 			bulkRecursive = scope.Recursive
