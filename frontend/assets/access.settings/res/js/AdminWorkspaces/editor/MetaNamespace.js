@@ -34,11 +34,12 @@ import {
 import Metadata from '../model/Metadata';
 import PydioApi from 'pydio/http/api';
 import MetaNamespaceFieldOptions from './MetaNamespaceFieldOptions';
+import BoxContainer from '../../AdminComponents/cards/BoxContainer';
 const { ModernTextField, ModernAutoComplete, ThemedModernStyles } =
     Pydio.requireLib('hoc');
 import FuncUtils from 'pydio/util/func';
 import ResourcesManager from 'pydio/http/resources-manager';
-
+        
 const TYPES_WITHOUT_DEFAULTS = [
     'tags',
     'tag_cloud',
@@ -192,6 +193,7 @@ class MetaNamespace extends React.Component {
             selectorNewKey: '',
             selectorNewValue: '',
             namespaceValues: [],
+            entityValues: [],
             PoliciesBuilder: MetaPoliciesBuilder,
         };
         this.fieldOptionsRef = React.createRef();
@@ -446,6 +448,12 @@ class MetaNamespace extends React.Component {
         });
     }
 
+    getMetaTags() { 
+        return Metadata.getMetaData(this.state.namespace.Namespace).then((res) => {
+            this.setState({ entityValues: res.Tags || '' });
+        })
+    }
+
     toggleRequired(namespace) {
         if (
             !namespace.JsonSchema.required ||
@@ -630,15 +638,36 @@ class MetaNamespace extends React.Component {
                     <>
                         {(type === 'tag_cloud' || type === 'auto_complete') && (
                             <MantineProvider>
-                                <TagsCloudInput
-                                    label={m('tag_cloud.entity')}
-                                    disabled={false}
-                                    value={''}
-                                    onCommitChange={(v) =>
-                                        this.setEntityValues(v)
-                                    }
-                                    hintText={m('tag_cloud.entity.hint')}
-                                />
+                                <div style={{ ...styles.section }}>
+                                    {"Values"}
+                                 </div>
+                                <BoxContainer mt={8} bg="rgb(246 246 248)">
+                                    <TagsCloudInput
+                                        // label={m('tag_cloud.entity')}
+                                        // description={m('tag_cloud.entity.description')}
+                                        disabled={false}
+                                        fz="lg"
+                                        value={this.state.entityValues.join(', ')}
+                                        readOnly={ !create ? true : false }
+                                        dataLoader={create ? undefined : () =>
+                                            Metadata.listTags(namespace.Namespace).then(
+                                                (res) => {
+                                                    this.state.entityValues = res;
+                                                    this.setState({
+                                                        entityValues: res,
+                                                    });
+                                                    return res;
+                                                } 
+                                            )
+                                        }
+                                        onCommitChange={(v) =>
+                                            this.setEntityValues(v)
+                                        }
+                                        hintText={m('tag_cloud.entity.hint')}
+
+                                        {...ModernStyles.tagsCloudInputV2}
+                                    />
+                                </BoxContainer>
                             </MantineProvider>
                         )}
                         {USERMETA_PROMPT_FF &&
@@ -656,12 +685,12 @@ class MetaNamespace extends React.Component {
                                         type === 'auto_complete'
                                             ? this.getEntityItems()
                                             : this.getAdditionalData({
-                                                  items: [],
-                                              }).items
+                                                items: [],
+                                            }).items
                                     }
                                 />
                             )}
-                        <div style={styles.section}>
+                        <div style={{ marginTop: "8px", ...styles.section }}>
                             {Pydio.getInstance().MessageHash[310]}
                         </div>
                         {USERMETA_PROMPT_FF && (

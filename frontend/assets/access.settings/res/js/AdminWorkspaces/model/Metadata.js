@@ -187,8 +187,6 @@ class Metadata {
             //console.log(e)
         }
     }
-    
-
 }
 
 Metadata.MetaTypes = {
