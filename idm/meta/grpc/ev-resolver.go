@@ -13,13 +13,19 @@ import (
 // namespaces whose values are backed by entity values
 var entityBackedFieldTypes = []string{"tag_cloud", "choice", "auto_complete"}
 
-// EvResolver owns exactly one responsibility:
-// keeping meta <-> entity-value links (meta_values_rel) consistent with a
-// desired set of labels for a persisted meta row.
+// EvResolver keeps meta ↔ entity-value links (meta_values_rel) consistent
+// with a desired set of labels for a persisted meta row.
 //
-// Precondition: the meta already exists (real MetaUuid). Idempotent.
+// Precondition: the meta already exists (real MetaUuid). All operations are idempotent.
 type EvResolver interface {
+	// Resolve detaches removed labels, creates missing vocabulary, and links
+	// desired labels — all in a single pass with one DAO resolution.
+	// Used in the PUT path.
 	Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.UserMetaNamespace, labels []string) ([]*idm.EntityValue, error)
+	// Detach unlinks entity values not present in labels. Empty/nil labels = unlink all.
+	// Used standalone in the DELETE path.
+	Detach(ctx context.Context, m *idm.UserMeta, labels []string) error
+
 	Applies(ns *idm.UserMetaNamespace) bool
 }
 
@@ -35,12 +41,22 @@ func (r *entityBacked) Applies(ns *idm.UserMetaNamespace) bool {
 	return ns != nil && slices.Contains(entityBackedFieldTypes, ns.FieldType)
 }
 
+// normalizeLabels trims whitespace and deduplicates, dropping empty entries.
+func normalizeLabels(labels []string) map[string]struct{} {
+	out := make(map[string]struct{}, len(labels))
+	for _, l := range labels {
+		if l = strings.TrimSpace(l); l != "" {
+			out[l] = struct{}{}
+		}
+	}
+	return out
+}
+
 func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.UserMetaNamespace, labels []string) ([]*idm.EntityValue, error) {
 	if !r.Applies(ns) {
 		return nil, nil
 	}
 
-	// Resolve EntityValueDAO at call time
 	evDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
@@ -55,15 +71,31 @@ func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.Use
 		return nil, nil
 	}
 
-	// normalize desired set
-	desired := map[string]struct{}{}
-	for _, l := range labels {
-		if l = strings.TrimSpace(l); l != "" {
-			desired[l] = struct{}{}
+	desired := normalizeLabels(labels)
+
+	// Fetch currently linked values once — reused for both detach and link-skip.
+	linked, err := evDAO.GetMetaEntityValues(ctx, m.Uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	// Detach: unlink values no longer desired, and record what is still linked.
+	alreadyLinked := make(map[string]struct{}, len(linked))
+	for _, ev := range linked {
+		if _, keep := desired[ev.Label]; !keep {
+			if _, err := evDAO.UnlinkMetaValue(ctx, m.Uuid, ev.Uuid); err != nil {
+				return nil, err
+			}
+		} else {
+			alreadyLinked[ev.Label] = struct{}{}
 		}
 	}
 
-	// 1. existing vocabulary for this entity
+	if len(desired) == 0 {
+		return nil, nil
+	}
+
+	// Fetch existing vocabulary for this entity.
 	existing, err := evDAO.GetEntityValues(ctx, entityID)
 	if err != nil {
 		return nil, err
@@ -73,26 +105,7 @@ func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.Use
 		byLabel[ev.Label] = ev
 	}
 
-	// 2. currently linked values for this meta
-	linked, err := evDAO.GetMetaEntityValues(ctx, m.Uuid)
-	if err != nil {
-		return nil, err
-	}
-	linkedByLabel := make(map[string]*idm.EntityValue, len(linked))
-	for _, ev := range linked {
-		linkedByLabel[ev.Label] = ev
-	}
-
-	// 3. unlink removed
-	for label, ev := range linkedByLabel {
-		if _, keep := desired[label]; !keep {
-			if _, e := evDAO.UnlinkMetaValue(ctx, m.Uuid, ev.Uuid); e != nil {
-				return nil, e
-			}
-		}
-	}
-
-	// 4. create missing vocabulary
+	// Create vocabulary entries that don't exist yet.
 	var toCreate []*idm.EntityValue
 	for label := range desired {
 		if _, ok := byLabel[label]; !ok {
@@ -104,27 +117,53 @@ func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.Use
 		if e != nil {
 			return nil, e
 		}
-		// Add newly created entity values to byLabel map
-		// Use the returned values directly - they have the correct UUIDs
+
 		for _, ev := range created {
 			byLabel[ev.Label] = ev
 		}
 	}
 
-	// 5. link all desired (idempotent via OnConflict DoNothing in LinkMetaValue)
+	// Link desired values, skipping those that are already linked.
 	var result []*idm.EntityValue
 	for label := range desired {
 		ev := byLabel[label]
 		if ev == nil || ev.Uuid == "" {
-			// Entity value not in vocabulary or has no UUID - skip
 			continue
 		}
 
-		if _, e := evDAO.LinkMetaValue(ctx, m.Uuid, ev.Uuid); e != nil {
-			return nil, e
+		if _, linked := alreadyLinked[label]; !linked {
+			if _, e := evDAO.LinkMetaValue(ctx, m.Uuid, ev.Uuid); e != nil {
+				return nil, e
+			}
 		}
 		result = append(result, ev)
 	}
 
 	return result, nil
+}
+
+func (r *entityBacked) Detach(ctx context.Context, m *idm.UserMeta, labels []string) error {
+	evDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
+	if err != nil {
+		return err
+	}
+
+	linked, err := evDAO.GetMetaEntityValues(ctx, m.Uuid)
+	if err != nil {
+		return err
+	}
+
+	// Build the set of labels that should remain linked.
+	// An empty/nil labels slice means "keep nothing" — all links are removed.
+	keepLabels := normalizeLabels(labels)
+
+	for _, ev := range linked {
+		if _, keep := keepLabels[ev.Label]; !keep {
+			if _, err := evDAO.UnlinkMetaValue(ctx, m.Uuid, ev.Uuid); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
