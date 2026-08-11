@@ -81,8 +81,10 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	namespaces, _ := dao.GetNamespaceDao().List(ctx)
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
+	resolver := NewEvResolver()
 	for _, metaData := range request.MetaDatas {
 		var prevValue string
+
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// Check JsonValue is valid json
 			var data interface{}
@@ -91,28 +93,37 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
 			// ADD / UPDATE
-			if newMeta, prev, err := dao.Set(ctx, metaData); err == nil {
-				// Reconcile entity values if namespace is entity-backed
-				if ns, exists := namespaces[newMeta.Namespace]; exists {
-					resolver := NewEvResolver()
-					if resolver.Applies(ns) {
-						// Parse labels from JsonValue (comma-separated)
-						var labelsStr string
-						if e := json.Unmarshal([]byte(newMeta.JsonValue), &labelsStr); e == nil && labelsStr != "" {
-							labels := strings.Split(labelsStr, ",")
-							if _, e := resolver.Resolve(ctx, newMeta, ns, labels); e != nil {
-								return nil, e
-							}
-						}
-					}
-				}
-				response.MetaDatas = append(response.MetaDatas, newMeta)
-				prevValue = prev
-			} else {
+			newMeta, prev, err := dao.Set(ctx, metaData)
+			if err != nil {
 				return nil, err
 			}
+
+			if err := resolveEntityValues(ctx, resolver, namespaces, newMeta); err != nil {
+				return nil, err
+			}
+			response.MetaDatas = append(response.MetaDatas, newMeta)
+			prevValue = prev
 		} else {
 			// DELETE
+			if ns, exists := namespaces[metaData.Namespace]; exists && resolver.Applies(ns) {
+				// Always detach all entity value relations before deleting the meta record.
+				// Passing empty labels means "keep nothing" — all links are removed,
+				// preventing a FK violation when Del() runs next.
+				var labels []string
+				var labelsStr string
+				if e := json.Unmarshal([]byte(metaData.JsonValue), &labelsStr); e == nil && labelsStr != "" {
+					labels = strings.Split(labelsStr, ",")
+				}
+				// UUID is not provided by the client - resolve it from the DB.
+				if resolved, e := dao.GetMeta(ctx, metaData.NodeUuid, metaData.Namespace); e == nil && resolved != nil {
+					metaData.Uuid = resolved.Uuid
+				}
+				if e := resolver.Detach(ctx, metaData, labels); e != nil {
+					return nil, e
+				}
+			}
+			// This statement returns a foreign key violation
+			//violates foreign key constraint [0.916ms] [rows:0] [source] DELETE FROM `idm_usr_meta` WHERE `idm_usr_meta`.`uuid` = '70ce6aec-f02a-4b9a-b615-deab67ffdff7'  {"file": "/cells/common/storage/sql/logger.go:82", "layer": "sql", "tag": "idm"}
 			if prev, err := dao.Del(ctx, metaData); err == nil {
 				prevValue = prev
 				// Remove this namespace from ResolvedNode as it will used for targets later on
@@ -613,4 +624,28 @@ func (h *Handler) clearCacheForNode(ctx context.Context, nodeId string) {
 		}
 	}
 
+}
+
+// resolveEntityValues keeps meta ↔ entity-value links consistent after a successful PUT.
+// It delegates to Resolve which handles detach, vocabulary creation, and linking in one pass.
+func resolveEntityValues(ctx context.Context, resolver EvResolver, namespaces map[string]*idm.UserMetaNamespace, newMeta *idm.UserMeta) error {
+	ns, exists := namespaces[newMeta.Namespace]
+	if !exists || !resolver.Applies(ns) {
+		return nil
+	}
+
+	// Parse labels from JsonValue (JSON-encoded comma-separated string).
+	var labelsStr string
+	if err := json.Unmarshal([]byte(newMeta.JsonValue), &labelsStr); err != nil {
+		// Not a string value — nothing to resolve.
+		return nil
+	}
+
+	var labels []string
+	if labelsStr != "" {
+		labels = strings.Split(labelsStr, ",")
+	}
+
+	_, err := resolver.Resolve(ctx, newMeta, ns, labels)
+	return err
 }
