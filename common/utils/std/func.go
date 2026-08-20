@@ -57,7 +57,7 @@ func Retry(ctx context.Context, f func() error, seconds ...time.Duration) error 
 				return nil
 			}
 		case <-ctx.Done():
-			return nil
+			return ctx.Err()
 		case <-timeout.C:
 			return errors.New("timeout")
 		}
