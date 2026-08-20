@@ -165,7 +165,11 @@ func (d *cellDsn) OpenDB(ctx context.Context) ([]*sql.DB, error) {
 				pgxConfig.TLSConfig = tlsConfig
 			}
 
-			conn = append(conn, stdlib.OpenDB(*pgxConfig))
+			db := stdlib.OpenDB(*pgxConfig)
+			if err := db.Ping(); err != nil {
+				return nil, err
+			}
+			conn = append(conn, db)
 		}
 	case MySQLDriver:
 		for _, host := range d.hosts {

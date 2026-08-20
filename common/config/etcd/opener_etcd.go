@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/pydio/cells/v5/common/utils/kv"
-	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 	"net/url"
 	"os"
 	"strconv"
@@ -14,6 +12,8 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/kv/etcd"
 )
 
 const (
@@ -70,7 +70,6 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 	}
 
 	st := kv.NewStore()
-	//w := watcher.NewWatcher
 	st.Set(m.Get())
 
 	go func() {
@@ -87,7 +86,7 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 	// Watching remote store
 
 	return &etcdStore{
-		Store: base,
+		Store: st,
 		m:     m,
 	}, nil
 }
