@@ -125,7 +125,6 @@ class Metadata {
         });
 
         return Metadata.api.putEntity(request).then(r => {
-            console.log('Entity created', r);
             return r.Entity;
         }).catch(e => {
             console.error(e);
@@ -157,7 +156,7 @@ class Metadata {
             IdmEntityValue.constructFromObject({
                 Label: label,
                 EntityUuid: entityId,
-                Policies: policies || [],
+                Policies: [],
             })
         );
 
@@ -167,7 +166,31 @@ class Metadata {
 
         return Metadata.api.createEntityValues(request)
             .then(r => {
-                console.log('Entity values created', r);
+                return r;
+            })
+            .catch(e => {
+                console.error(e);
+                throw e;
+            });
+    }
+
+     /**
+     * Delete entity for a given Namespace with the same policies applied to all values
+     * @param {string} entityUuid - The UUID of the parent entity
+     * @returns {Promise<void>} Promise resolving when the entity is deleted
+     * @throws {Error} If entityUuid is empty
+     * @example
+     * Metadata.deleteEntity(
+     *   '3c6b2e2f-3592-4cfc-a0d1-bb3059a5c986'
+     * )
+     */
+    static deleteEntity(entityUuid) {
+        if (!entityUuid) {
+            throw new Error('Entity UUID is required and cannot be empty');
+        }
+
+        return Metadata.api.deleteEntity(entityUuid)
+            .then(r => {
                 return r;
             })
             .catch(e => {
