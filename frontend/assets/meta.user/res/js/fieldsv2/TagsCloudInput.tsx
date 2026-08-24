@@ -19,7 +19,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { TagsInput } from '@mantine/core';
+import { TagsInput, MultiSelect } from '@mantine/core';
 import { StringItemsInputProps } from './CommonInputProps';
 import {
     parseTagsValue as parseCSLtoArray,
@@ -48,6 +48,7 @@ import {
 
 type TagsCloudInputProps = StringItemsInputProps & {
     onlyValuesFromList?: boolean;
+
     /** Forwarded to Mantine TagsInput as aria-label.
      *  Required for screen readers when no visible label is rendered.
      *  When label is set this is not needed but is still forwarded. */
@@ -60,6 +61,10 @@ type TagsCloudInputProps = StringItemsInputProps & {
     /** Makes the input non-interactive without dimming it visually.
      *  Use instead of disabled when the value should still be readable. */
     readOnly?: boolean;
+
+    /** When true, renders a MultiSelect restricted to entity-backed values.
+     *  Derived from the entity's PoliciesContextEditable field. */
+    editableValues?: boolean;
 };
 
 /**
@@ -77,6 +82,7 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     errorText,
     value,
     onlyValuesFromList,
+    editableValues,
     ariaLabel,
     clearable,
     clearAriaLabel,
@@ -113,6 +119,26 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
         onCommitChange(formatTagsArrayToString(values));
     };
 
+    if (editableValues) {
+        return (
+            <MultiSelect
+                {...props}
+                value={localValue}
+                data={items}
+                onFocus={onFocus}
+                onChange={onChangeJoin}
+                disabled={disabled}
+                comboboxProps={{ withinPortal: false }}
+                searchable
+                onBlur={(e) => {
+                    if (onBlur) {
+                        onBlur(e);
+                    }
+                }}
+            />
+        );
+    }
+
     return (
         <TagsInput
             {...props}
@@ -125,7 +151,7 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
             clearable={clearable}
             clearButtonProps={clearAriaLabel ? { 'aria-label': clearAriaLabel } : undefined}
             comboboxProps={{ withinPortal: false }}
-            splitChars={onlyValuesFromList ? [''] : undefined} // Avoid auto-split on comma
+            splitChars={onlyValuesFromList ? [''] : undefined}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 const { key, target } = e;
                 const { value } = target;

@@ -118,6 +118,7 @@ class MetaClient {
                 readonly: !ns.PoliciesContextEditable,
                 description: ns.Description,
                 jsonSchema: JsonSchema,
+                ...(ns.EntityUUID ? { entityUUID: ns.EntityUUID } : {}),
                 required: JsonSchema.required && JsonSchema.required.length > 0,
             };
             if (ns.JsonDefinition) {
@@ -218,6 +219,13 @@ class MetaClient {
                 Tag: newTag,
             }),
         );
+    }
+
+    listEntities(){
+        const api = new UserMetaServiceApi(this.client);
+        return api.listEntities().then((result) => {
+            return result.Entities || [];
+        });
     }
 }
 

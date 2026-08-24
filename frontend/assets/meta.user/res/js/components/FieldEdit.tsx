@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { getCssLabels } from '../fields/CssLabelsField';
 import { TextInput } from '../fieldsv2/TextInput';
 import { Selector } from '../fieldsv2/Select';
@@ -66,7 +66,23 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
 }) => {
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
+    const [editableValues, setEditableValues] = useState<boolean>(false);
 
+    useEffect(() => {
+        if (type !== 'tag_cloud' || !meta.entityUUID) {
+            return;
+        }
+        MetaClient.getInstance()
+            .listEntities()
+            .then((entities) => {
+                const entity = entities.find((e) => e.Uuid === meta.entityUUID);
+                setEditableValues(!entity?.PoliciesContextEditable);
+            })
+            .catch(() => {
+                setEditableValues(true);
+            });
+    }, []);
+    
     const localDataLoader = useCallback(() => {
         return MetaClient.getInstance()
             .listTags(name)
@@ -146,6 +162,7 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
                     value={state.formState.get(name) || ''}
                     data={[]}
                     dataLoader={localDataLoader}
+                    {...(meta.entityUUID && { editableValues })}
                 />
             );
         case 'tags':
