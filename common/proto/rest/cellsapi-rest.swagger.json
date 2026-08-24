@@ -1893,6 +1893,10 @@
           "title": "Use default value from JsonSchema to enforce defaults",
           "type": "boolean"
         },
+        "EntityUUID": {
+          "title": "Associated Entity UUID",
+          "type": "string"
+        },
         "FieldType": {
           "title": "Namespace Type  \"boolean\", \"choice\", \"css_label\", \"date\", \"integer\", \"json\", \"multi_value\", \"stars_rate\", \"string\", \"tag_cloud\", \"tags\", \"textarea\", \"url\"",
           "type": "string"

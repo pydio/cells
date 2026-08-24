@@ -57,6 +57,7 @@ type MetaNamespace struct {
 	JsonSchema     *datatypes.JSON `gorm:"column:json_schema"`
 	Description    string          `gorm:"column:description;type:varchar(255)"`
 	FieldType      string          `gorm:"column:field_type;type:varchar(255)"`
+	EntityUUID     string          `gorm:"foreignKey:EntityUUID;references:UUID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 func (*MetaNamespace) TableName(namer schema.Namer) string {
@@ -78,7 +79,9 @@ func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
 	res.JsonSchema = schema
 	res.Description = u.Description
 	res.FieldType = u.FieldType
-
+	if u.EntityUUID != "" {
+		res.EntityUUID = u.EntityUUID
+	}
 	return res
 }
 
@@ -94,6 +97,11 @@ func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
 	u.JsonSchema = js
 	u.Description = res.Description
 	u.FieldType = res.FieldType
+	if res.EntityUUID != "" {
+		u.EntityUUID = res.EntityUUID
+	} else {
+		u.EntityUUID = ""
+	}
 	return u
 }
 
@@ -114,6 +122,11 @@ func (u *MetaNamespace) FromExisting(res *idm.UserMetaNamespace) (*MetaNamespace
 	u.JsonSchema = js
 	u.Description = res.Description
 	u.FieldType = res.FieldType
+	if res.EntityUUID != "" {
+		u.EntityUUID = res.EntityUUID
+	} else {
+		u.EntityUUID = ""
+	}
 	return u, nil
 }
 

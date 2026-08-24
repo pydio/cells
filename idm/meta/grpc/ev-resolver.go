@@ -19,13 +19,12 @@ var entityBackedFieldTypes = []string{"tag_cloud", "choice", "auto_complete"}
 // Precondition: the meta already exists (real MetaUuid). All operations are idempotent.
 type EvResolver interface {
 	// Resolve detaches removed labels, creates missing vocabulary, and links
-	// desired labels — all in a single pass with one DAO resolution.
 	// Used in the PUT path.
 	Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.UserMetaNamespace, labels []string) ([]*idm.EntityValue, error)
 	// Detach unlinks entity values not present in labels. Empty/nil labels = unlink all.
 	// Used standalone in the DELETE path.
 	Detach(ctx context.Context, m *idm.UserMeta, labels []string) error
-
+	// Applies returns true if this resolver is applicable to the given namespace.
 	Applies(ns *idm.UserMetaNamespace) bool
 }
 
@@ -38,7 +37,7 @@ func NewEvResolver() EvResolver {
 }
 
 func (r *entityBacked) Applies(ns *idm.UserMetaNamespace) bool {
-	return ns != nil && slices.Contains(entityBackedFieldTypes, ns.FieldType)
+	return slices.Contains(entityBackedFieldTypes, ns.FieldType) && ns.EntityUUID != ""
 }
 
 // normalizeLabels trims whitespace and deduplicates, dropping empty entries.
@@ -61,14 +60,16 @@ func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.Use
 	if err != nil {
 		return nil, err
 	}
-
-	def, err := ns.UnmarshallDefinition()
-	if err != nil || def == nil {
-		return nil, err
-	}
-	entityID := def.GetEntityId()
-	if entityID == "" {
-		return nil, nil
+	EntityUUID := ns.EntityUUID
+	if EntityUUID == "" {
+		def, err := ns.UnmarshallDefinition()
+		if err != nil || def == nil {
+			return nil, err
+		}
+		EntityUUID = def.GetEntityId()
+		if EntityUUID == "" {
+			return nil, nil
+		}
 	}
 
 	desired := normalizeLabels(labels)
@@ -96,7 +97,7 @@ func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.Use
 	}
 
 	// Fetch existing vocabulary for this entity.
-	existing, err := evDAO.GetEntityValues(ctx, entityID)
+	existing, err := evDAO.GetEntityValues(ctx, EntityUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (r *entityBacked) Resolve(ctx context.Context, m *idm.UserMeta, ns *idm.Use
 	var toCreate []*idm.EntityValue
 	for label := range desired {
 		if _, ok := byLabel[label]; !ok {
-			toCreate = append(toCreate, &idm.EntityValue{EntityUuid: entityID, Label: label})
+			toCreate = append(toCreate, &idm.EntityValue{EntityUuid: EntityUUID, Label: label})
 		}
 	}
 	if len(toCreate) > 0 {

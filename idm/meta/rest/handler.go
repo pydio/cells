@@ -162,6 +162,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 			return errors.WithMessage(errors.InvalidParameters, "user defined meta must start with "+common.MetaNamespaceUserspacePrefix+" prefix")
 		}
 	}
+
 	response, err := s.ServiceClient(ctx).UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
 		for _, ns := range input.Namespaces {
@@ -181,7 +182,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 	} else if input.Operation == idm.UpdateUserMetaNamespaceRequest_DELETE {
 		for _, ns := range input.Namespaces {
 			// Use helper to check if we need to cleanup
-			definition, _ := ns.UnmarshallDefinition()
+			definition, _ := ns.UnmarshallEntityDefinition()
 			if definition != nil && definition.GetType() != "" {
 				entityID := definition.GetEntityId()
 				if entityID == "" {
@@ -294,18 +295,23 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 
 	// Use the helper to get definition
 	if nss[ns].FieldType != "" && slices.Contains(ns_with_ev, nss[ns].FieldType) {
-		definition, err := nsObject.UnmarshallDefinition()
+		definition, err := nsObject.UnmarshallEntityDefinition()
 		if err != nil {
 			return err
 		}
 
-		// Check type through interface
 		if slices.Contains(ns_with_ev, definition.GetType()) {
-			entityID := definition.GetEntityId()
-			if entityID == "" {
-				return err
+			var entityUUID string
+			if nss[ns].EntityUUID != "" {
+				entityUUID = nss[ns].EntityUUID
+
+			} else {
+				entityID := definition.GetEntityId()
+				if entityID == "" {
+					return nil
+				}
 			}
-			entityValues, err := s.GetEntityValues(ctx, entityID)
+			entityValues, err := s.GetEntityValues(ctx, entityUUID)
 			if err != nil {
 				return err
 			}

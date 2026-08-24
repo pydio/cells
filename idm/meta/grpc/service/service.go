@@ -63,35 +63,26 @@ func init() {
 				{
 					TargetVersion: service.FirstRunOrChange(),
 					Up: func(ctx context.Context) error {
-						// Migrate main storage
-						if err := manager.StorageMigration()(ctx); err != nil {
-							return err
-						}
-						// Migrate entities storage (Entities table)
-						if err := manager.StorageMigration(manager.WithName("meta-entities"))(ctx); err != nil {
-							return err
-						}
-						// Migrate entity values storage (EntityValues table and relations)
-						return manager.StorageMigration(manager.WithName("meta-entity-values"))(ctx)
+						return manager.StorageMigration()(ctx)
 					},
 				},
 				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
-						// Migrate main DAO
-						dao, err := manager.Resolve[meta.DAO](ctx)
-						if err != nil {
-							return err
-						}
-						if err = dao.Migrate(ctx); err != nil {
-							return err
-						}
 						// Migrate EntityDAO (Entities table)
 						entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 						if err != nil {
 							return err
 						}
 						if err = entityDAO.Migrate(ctx); err != nil {
+							return err
+						}
+						// Migrate main DAO
+						dao, err := manager.Resolve[meta.DAO](ctx)
+						if err != nil {
+							return err
+						}
+						if err = dao.Migrate(ctx); err != nil {
 							return err
 						}
 						// Insert default metas and entities
@@ -140,6 +131,7 @@ func defaultMetas(ctx context.Context, dao meta.DAO, entityDAO meta.EntityDAO) e
 		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
 		Indexable:      true,
+		FieldType:      "tags",
 		JsonDefinition: "{\"type\":\"tags\"}",
 		Description:    "Default Tags",
 		Policies: []*service2.ResourcePolicy{
@@ -158,8 +150,8 @@ func defaultMetas(ctx context.Context, dao meta.DAO, entityDAO meta.EntityDAO) e
 			Label:       "tags",
 			Description: "Default tags entity",
 			Policies: []*service2.ResourcePolicy{
-				{Action: service2.ResourcePolicyAction_READ, Subject: "profile:admin", Effect: service2.ResourcePolicy_allow},
-				{Action: service2.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: service2.ResourcePolicy_allow},
+				{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
+				{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
 			},
 		},
 	}
