@@ -589,6 +589,8 @@ message UserMetaNamespace{
     string Description = 11;
     // Namespace Type  "boolean", "choice", "css_label", "date", "integer", "json", "multi_value", "stars_rate", "string", "tag_cloud", "tags", "textarea", "url"
     string FieldType = 12;
+    // Associated Entity UUID
+    string EntityUUID = 13;
 }
 
 // MetaEntity represents a metadata entity (e.g., "Department", "Project")

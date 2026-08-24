@@ -150,6 +150,7 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 		if !u.MatchPolicies(ctx, meta.Namespace, policies, serviceproto.ResourcePolicyAction_WRITE) {
 			return nil, errors.WithMessagef(errors.NamespaceNotAllowed, "Updating namespace %s is not allowed!", meta.Namespace)
 		}
+		// TODO deny updates to admin only tag values for tag_cloud namespaces with admin only policies
 		if meta.Uuid != "" {
 			loadUuids = append(loadUuids, meta.Uuid)
 		}
@@ -382,7 +383,8 @@ func (u *umClient) Entities(ctx context.Context) (map[string]*idm.MetaEntity, er
 		if !u.MatchPolicies(ctx, entity.Uuid, entity.Policies, serviceproto.ResourcePolicyAction_READ) {
 			continue
 		}
-		entity.PoliciesContextEditable = u.IsContextEditable(ctx, entity.Uuid, entity.Policies)
+		//TODO replace with a proper check for context editability since helper returns true always
+		entity.PoliciesContextEditable = *proto.Bool(false)
 		result[entity.Uuid] = entity
 	}
 	return result, nil
@@ -680,6 +682,6 @@ func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType
 }
 
 func (u *umClient) DeleteEntityValue(ctx context.Context, entityValueUuid string) (*idm.DeleteEntityValueResponse, error) {
-
+	// TODO Implement this method to delete an entity value by its UUID
 	return nil, nil
 }
