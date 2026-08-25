@@ -61,7 +61,6 @@ type TagsCloudInputProps = StringItemsInputProps & {
     /** Makes the input non-interactive without dimming it visually.
      *  Use instead of disabled when the value should still be readable. */
     readOnly?: boolean;
-
     /** When true, renders a MultiSelect restricted to entity-backed values.
      *  Derived from the entity's PoliciesContextEditable field. */
     editableValues?: boolean;
@@ -93,17 +92,6 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     const [localValue, setLocalValue] = useState(parseCSLtoArray(value));
     const [items, setItems] = useState<string[]>([]);
 
-    const props = {
-        label,
-        description,
-        placeholder,
-        error: errorText,
-        required,
-        // aria-label is announced by screen readers when no visible label is
-        // rendered. Mantine wires this onto the underlying <input> element.
-        'aria-label': ariaLabel,
-    };
-
     useEffect(() => {
         setLocalValue(parseCSLtoArray(value));
     }, [value]);
@@ -119,16 +107,27 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
         onCommitChange(formatTagsArrayToString(values));
     };
 
+    const commonProps = {
+        label,
+        description,
+        placeholder,
+        error: errorText,
+        required,
+        'aria-label': ariaLabel,
+        clearButtonProps: clearAriaLabel ? { 'aria-label': clearAriaLabel } : undefined,
+        readOnly,
+        value: localValue,
+        onChange: onChangeJoin,
+        onFocus,
+    };
+
     if (editableValues) {
         return (
             <MultiSelect
-                {...props}
-                value={localValue}
+                {...commonProps}
                 data={items}
-                onFocus={onFocus}
-                onChange={onChangeJoin}
                 disabled={disabled}
-                comboboxProps={{ withinPortal: false }}
+                comboboxProps={{ withinPortal: false, dropdownPadding: '4px' }}
                 searchable
                 onBlur={(e) => {
                     if (onBlur) {
@@ -141,15 +140,10 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
 
     return (
         <TagsInput
-            {...props}
-            value={localValue}
+            {...commonProps}
             data={items}
-            onFocus={onFocus}
-            onChange={onChangeJoin}
             disabled={disabled}
-            readOnly={readOnly}
             clearable={clearable}
-            clearButtonProps={clearAriaLabel ? { 'aria-label': clearAriaLabel } : undefined}
             comboboxProps={{ withinPortal: false }}
             splitChars={onlyValuesFromList ? [''] : undefined}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {

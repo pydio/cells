@@ -224,7 +224,7 @@ class MetaClient {
     listEntities(){
         const api = new UserMetaServiceApi(this.client);
         return api.listEntities().then((result) => {
-            return result.Entities || [];
+            return result.Entity || [];
         });
     }
 }

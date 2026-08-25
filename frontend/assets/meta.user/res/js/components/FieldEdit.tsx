@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { getCssLabels } from '../fields/CssLabelsField';
 import { TextInput } from '../fieldsv2/TextInput';
 import { Selector } from '../fieldsv2/Select';
@@ -34,6 +34,7 @@ import { AutoCompleteInput } from '../fieldsv2/AutoCompleteInput';
 import { InputProps, Items } from '../fieldsv2/CommonInputProps';
 import MetaClient from '../MetaClient';
 import { NamespaceMeta } from './MetaSpec';
+import { useEntityEditableValues } from '../hooks/useEntityEditableValues';
 import { getNumberPrefix, getNumberSuffix } from '../formatters/numbers';
 import './FieldEdit.css';
 
@@ -66,22 +67,9 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
 }) => {
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
-    const [editableValues, setEditableValues] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (type !== 'tag_cloud' || !meta.entityUUID) {
-            return;
-        }
-        MetaClient.getInstance()
-            .listEntities()
-            .then((entities) => {
-                const entity = entities.find((e) => e.Uuid === meta.entityUUID);
-                setEditableValues(!entity?.PoliciesContextEditable);
-            })
-            .catch(() => {
-                setEditableValues(true);
-            });
-    }, []);
+    const { editableValues } = useEntityEditableValues(
+        type === 'tag_cloud' ? meta.entityUUID : undefined, //TODO fall back to json def
+    );
     
     const localDataLoader = useCallback(() => {
         return MetaClient.getInstance()
