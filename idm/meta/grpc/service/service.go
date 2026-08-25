@@ -144,22 +144,5 @@ func defaultMetas(ctx context.Context, dao meta.DAO, entityDAO meta.EntityDAO) e
 	}
 	log.Logger(ctx).Info("Inserted default namespace for metadata")
 
-	// Insert default entities with admin-only policies
-	defaultEntities := []*idm.MetaEntity{
-		{
-			Label:       "tags",
-			Description: "Default tags entity",
-			Policies: []*service2.ResourcePolicy{
-				{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
-				{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
-			},
-		},
-	}
-	for _, entity := range defaultEntities {
-		if _, err = entityDAO.CreateEntity(ctx, entity); err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
-			log.Logger(ctx).Warn("could not insert default entity: " + entity.Label)
-		}
-	}
-	log.Logger(ctx).Info("Inserted default entities")
 	return nil
 }

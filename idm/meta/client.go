@@ -372,7 +372,8 @@ func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (
 	return
 }
 
-// Entities lists all entities the current context has READ access to
+// Entities lists all entities the current context has READ access to.
+// Visibility is gated on READ; editability is indicated separately via PoliciesContextEditable (WRITE check).
 func (u *umClient) Entities(ctx context.Context) (map[string]*idm.MetaEntity, error) {
 	resp, err := u.ServiceClient(ctx).ListEntities(ctx, &idm.ListEntitiesRequest{})
 	if err != nil {
@@ -383,8 +384,7 @@ func (u *umClient) Entities(ctx context.Context) (map[string]*idm.MetaEntity, er
 		if !u.MatchPolicies(ctx, entity.Uuid, entity.Policies, serviceproto.ResourcePolicyAction_READ) {
 			continue
 		}
-		//TODO replace with a proper check for context editability since helper returns true always
-		entity.PoliciesContextEditable = *proto.Bool(false)
+		entity.PoliciesContextEditable = u.IsContextEditable(ctx, entity.Uuid, entity.Policies)
 		result[entity.Uuid] = entity
 	}
 	return result, nil

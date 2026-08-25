@@ -176,6 +176,8 @@ var (
 						"rest:/user-meta/namespace/<.+>",
 						"rest:/user-meta/search",
 						"rest:/user-meta/tags/<.+>",
+						"rest:/user-meta/entity",
+						"rest:/user-meta/entity/<.+>",
 					},
 					Actions: []string{"GET", "POST"},
 					Effect:  ladon.AllowAccess,
@@ -910,6 +912,39 @@ func Upgrade4994(ctx context.Context) error {
 	return nil
 }
 
+// Upgrade503 grants standard and shared users GET access to the bare /user-meta/entity
+// path (entity listing). Previously only admins could reach that endpoint; the per-entity
+// path (entity/<id>) was already covered by user-meta-read.
+func Upgrade503(ctx context.Context) error {
+	dao, er := manager.Resolve[DAO](ctx)
+	if er != nil {
+		return er
+	}
+	groups, e := dao.ListPolicyGroups(ctx, nil)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.GetUuid() != "rest-apis-default-accesses" {
+			continue
+		}
+		for _, p := range group.Policies {
+			if p.GetID() == "user-meta-read" {
+				if !slices.Contains(p.Resources, "rest:/user-meta/entity") {
+					p.Resources = append(p.Resources, "rest:/user-meta/entity")
+				}
+			}
+		}
+		if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+			log.Logger(ctx).Error("could not update policy group "+group.GetUuid(), zap.Error(er))
+		} else {
+			log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
+		}
+	}
+	log.Logger(ctx).Info("Upgraded policy model to v5.0.3")
+	return nil
+}
+
 var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.5.0"),
@@ -922,6 +957,10 @@ var DefaultsServiceMigrationsAfter4416 = []*service.Migration{
 	{
 		TargetVersion: service.ValidVersion("4.9.94"),
 		Up:            Upgrade4994,
+	},
+	{
+		TargetVersion: service.ValidVersion("5.0.3"),
+		Up:            Upgrade503,
 	},
 }
 
