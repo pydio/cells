@@ -87,10 +87,7 @@ func (*MetaValuesRel) TableName(namer schema.Namer) string {
 
 func (s *evSqlImpl) MigrateEV(ctx context.Context) error {
 	db := s.Session(ctx)
-	if err := db.SetupJoinTable(&EntityValues{}, "Metas", &MetaValuesRel{}); err != nil {
-		return evTagError(err)
-	}
-	if err := db.AutoMigrate(&Entities{}, &EntityValues{}); err != nil {
+	if err := db.AutoMigrate(&EntityValues{}); err != nil {
 		return err
 	}
 
@@ -116,11 +113,6 @@ func (s *entitySqlImpl) Migrate(ctx context.Context) error {
 	return s.MigrateEntity(ctx)
 }
 
-// Migrate Add explicit Migrate for evSqlImpl to resolve ambiguity
-func (s *evSqlImpl) Migrate(ctx context.Context) error {
-	return s.MigrateEV(ctx)
-}
-
 func NewEntityDAO(db *gorm.DB) meta.EntityDAO {
 	return &entitySqlImpl{
 		Abstract:     sql.NewAbstract(db),
@@ -143,6 +135,14 @@ type entitySqlImpl struct {
 type evSqlImpl struct {
 	*sql.Abstract
 	resourcesDAO
+}
+
+func (s *evSqlImpl) Migrate(ctx context.Context) error {
+	db := s.Session(ctx)
+	if err := db.SetupJoinTable(&EntityValues{}, "Metas", &MetaValuesRel{}); err != nil {
+		return evTagError(err)
+	}
+	return db.AutoMigrate(&Entities{}, &EntityValues{})
 }
 
 // AsEntity converts an Entities model to an idm.MetaEntity
