@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/storage/sql"
-	"github.com/pydio/cells/v5/common/storage/sql/resources"
 	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/idm/meta"
 )
@@ -114,11 +113,6 @@ func (s *entitySqlImpl) Migrate(ctx context.Context) error {
 	return s.MigrateEntity(ctx)
 }
 
-// Migrate Add explicit Migrate for evSqlImpl to resolve ambiguity
-func (s *evSqlImpl) Migrate(ctx context.Context) error {
-	return s.MigrateEV(ctx)
-}
-
 func NewEntityDAO(db *gorm.DB) meta.EntityDAO {
 	return &entitySqlImpl{
 		Abstract:     sql.NewAbstract(db),
@@ -140,7 +134,7 @@ type entitySqlImpl struct {
 
 type evSqlImpl struct {
 	*sql.Abstract
-	resources.DAO
+	resourcesDAO
 }
 
 func (s *evSqlImpl) Migrate(ctx context.Context) error {
