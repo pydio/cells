@@ -27,6 +27,7 @@ import (
 	"github.com/pydio/cells/v5/common/config/revisions"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/utils/kv"
+	"github.com/pydio/cells/v5/common/utils/openurl"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/watch"
 )
@@ -38,8 +39,19 @@ type versionStore struct {
 	wrappedStore
 }
 
-func RevisionsStore(ctx context.Context) revisions.Store {
-	return propagator.MustWithHint[revisions.Store](ctx, RevisionsKey, "revisions")
+func RevisionsStore(ctx context.Context) (revisions.Store, error) {
+	out := propagator.MustWithHint[*openurl.Pool[revisions.Store]](ctx, RevisionsKey, "revisions")
+
+	st, err := out.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if st == nil {
+		return nil, errors.New("no revisions store found")
+	}
+
+	return st, nil
 }
 
 type RevisionsStoreOptions struct {

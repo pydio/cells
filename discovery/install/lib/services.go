@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common/registry"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/service"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
@@ -78,7 +79,8 @@ func actionConfigsSet(ctx context.Context, c *install.InstallConfig) error {
 
 	// OAuth web
 	oauthWeb := common.ServiceWebNamespace_ + common.ServiceOAuth
-	if config.Get(ctx, "services", oauthWeb, "secret").String() != "" {
+	confSecret := config.Get(ctx, "services", oauthWeb, "secret")
+	if confSecret.String() != "" {
 		// Secret already set
 		return nil
 	}
@@ -87,6 +89,7 @@ func actionConfigsSet(ctx context.Context, c *install.InstallConfig) error {
 	if err != nil {
 		return err
 	}
+	log.Logger(ctx).Warnf("Generating a new secret for %s because no existing secret was found", oauthWeb)
 
 	if er := config.Set(ctx, []string{"#insecure_binds...#/auth/callback"}, "services", oauthWeb, "insecureRedirects"); er != nil {
 		return er

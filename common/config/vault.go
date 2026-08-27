@@ -173,7 +173,7 @@ func (v *vaultvalues) Set(value interface{}) error {
 			return v.set(value)
 		}
 
-		if strings.HasPrefix(p, vPath) {
+		if strings.HasPrefix(vPath, p) {
 			// First removing keys that don't exist anymore
 			current := v.Values.Map()
 

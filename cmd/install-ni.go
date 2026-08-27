@@ -250,6 +250,16 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 		return nil, fmt.Errorf("error while performing installation: %s", err.Error())
 	}
 
+	// Installation must leave the configured database usable. This final
+	// check also makes sure a database-creation/reconnect failure cannot be
+	// mistaken for a successful YAML installation.
+	if result, checkErr := lib.PerformCheck(ctx, "DB", iConf); checkErr != nil || !result.Success {
+		if checkErr == nil {
+			checkErr = errors.New(result.JsonResult)
+		}
+		return nil, fmt.Errorf("database is not available after installation: %s", checkErr.Error())
+	}
+
 	return iConf, nil
 }
 

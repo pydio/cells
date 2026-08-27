@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"runtime"
+	"strings"
 	"unsafe"
 
 	"github.com/valyala/fasttemplate"
@@ -64,6 +66,63 @@ type ResolveOptions struct {
 
 type ResolveOption func(*ResolveOptions)
 
+// ResolveExplanation describes the registry state used when resolving a DAO.
+// It is intentionally side-effect free: storage connections are not opened and
+// DAO handlers are not called.
+type ResolveExplanation struct {
+	ServiceName string
+	ServiceID   string
+	StorageName string
+	Handlers    []ResolveHandler
+	Storages    []ResolveStorage
+	Edges       []ResolveEdge
+	Attempts    []ResolveAttempt
+}
+
+type ResolveHandler struct {
+	Name       string
+	Parameters []string
+}
+
+type ResolveStorage struct {
+	ID         string
+	Name       string
+	Driver     string
+	ReturnType string
+	Usable     bool
+	returnType reflect.Type
+}
+
+type ResolveEdge struct {
+	ID       string
+	Name     string
+	Vertices []string
+	Metadata map[string]string
+}
+
+type ResolveAttempt struct {
+	Handler       string
+	Parameter     int
+	ParameterType string
+	StorageID     string
+	HasEdge       bool
+	Compatible    bool
+	Reason        string
+}
+
+// Summary returns a compact, safe-to-log explanation. It deliberately omits
+// storage metadata values, which may contain credentials or other secrets.
+func (e *ResolveExplanation) Summary() string {
+	if e == nil {
+		return "no explanation available"
+	}
+	parts := []string{fmt.Sprintf("service=%s storage=%s handlers=%d storages=%d edges=%d", e.ServiceName, e.StorageName, len(e.Handlers), len(e.Storages), len(e.Edges))}
+	for _, attempt := range e.Attempts {
+		parts = append(parts, fmt.Sprintf("%s parameter[%d] %s storage=%s: %s", attempt.Handler, attempt.Parameter, attempt.ParameterType, attempt.StorageID, attempt.Reason))
+	}
+	return strings.Join(parts, "; ")
+}
+
 func WithName(name string) ResolveOption {
 	return func(o *ResolveOptions) {
 		o.Name = name
@@ -74,6 +133,150 @@ func WithCleanBeforeClose() ResolveOption {
 	return func(o *ResolveOptions) {
 		o.CleanBeforeClose = true
 	}
+}
+
+// ExplainResolve reports why the current service's DAO handlers can or cannot
+// be matched to the storages and edges visible in the registry.
+func ExplainResolve(ctx context.Context, opts ...ResolveOption) (*ResolveExplanation, error) {
+	o := ResolveOptions{Name: "main"}
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	var reg registry.Registry
+	if !propagator.Get(ctx, registry.ContextKey, &reg) {
+		return nil, errors.WithMessage(errors.ResolveError, "cannot find registry in context")
+	}
+	var svc service.Service
+	if !propagator.Get(ctx, service.ContextKey, &svc) {
+		return nil, errors.WithMessage(errors.ResolveError, "cannot find service in context")
+	}
+
+	explanation := &ResolveExplanation{
+		ServiceName: svc.Name(),
+		ServiceID:   svc.ID(),
+		StorageName: o.Name,
+	}
+
+	edges, err := reg.List(
+		registry.WithType(registry2.ItemType_EDGE),
+		registry.WithFilter(func(item registry.Item) bool {
+			if item.Name() != "storage_"+o.Name {
+				return false
+			}
+			var edge registry.Edge
+			if !item.As(&edge) {
+				return false
+			}
+			vertices := edge.Vertices()
+			return len(vertices) >= 2 && vertices[0] == svc.ID()
+		}),
+	)
+	if err != nil {
+		return nil, errors.Tag(err, errors.ResolveError)
+	}
+	for _, item := range edges {
+		var edge registry.Edge
+		if item.As(&edge) {
+			explanation.Edges = append(explanation.Edges, ResolveEdge{
+				ID: edge.ID(), Name: edge.Name(), Vertices: append([]string(nil), edge.Vertices()...), Metadata: cloneStringMap(edge.Metadata()),
+			})
+		}
+	}
+
+	storages, err := reg.List(registry.WithType(registry2.ItemType_STORAGE))
+	if err != nil {
+		return nil, errors.Tag(err, errors.ResolveError)
+	}
+	for _, item := range storages {
+		var st storage.Storage
+		entry := ResolveStorage{ID: item.ID(), Name: item.Name(), Driver: item.Metadata()["driver"]}
+		if item.As(&st) {
+			entry.Usable = true
+			if returnType := st.ReturnType(); returnType != nil {
+				entry.returnType = returnType
+				entry.ReturnType = returnType.String()
+			}
+		}
+		explanation.Storages = append(explanation.Storages, entry)
+	}
+
+	for _, driver := range svc.Options().StorageOptions.SupportedDrivers[o.Name] {
+		handlerType := reflect.TypeOf(driver.Handler)
+		if handlerType == nil || handlerType.Kind() != reflect.Func {
+			continue
+		}
+		handlerName := resolveHandlerName(driver.Handler)
+		handler := ResolveHandler{Name: handlerName}
+		for i := 0; i < handlerType.NumIn(); i++ {
+			handler.Parameters = append(handler.Parameters, handlerType.In(i).String())
+		}
+		explanation.Handlers = append(explanation.Handlers, handler)
+
+		start := 0
+		if handlerType.NumIn() > 0 && handlerType.In(0).Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
+			start = 1
+		}
+		for parameter := start; parameter < handlerType.NumIn(); parameter++ {
+			parameterType := handlerType.In(parameter)
+			for _, storageEntry := range explanation.Storages {
+				attempt := ResolveAttempt{
+					Handler: handlerName, Parameter: parameter, ParameterType: parameterType.String(), StorageID: storageEntry.ID,
+				}
+				for _, edge := range explanation.Edges {
+					if len(edge.Vertices) >= 2 && edge.Vertices[1] == storageEntry.ID {
+						attempt.HasEdge = true
+						break
+					}
+				}
+				if !attempt.HasEdge {
+					attempt.Reason = "no matching storage edge"
+				} else if !storageEntry.Usable {
+					attempt.Reason = "registry item cannot be converted to storage.Storage"
+				} else if storageEntry.ReturnType == "" {
+					attempt.Reason = "storage has no return type"
+				} else if returnTypeAssignable(storageEntry.returnType, parameterType) {
+					attempt.Compatible = true
+					attempt.Reason = "compatible"
+				} else {
+					attempt.Reason = "storage return type is not assignable to parameter"
+				}
+				explanation.Attempts = append(explanation.Attempts, attempt)
+			}
+		}
+	}
+
+	return explanation, nil
+}
+
+func resolveHandlerName(handler any) string {
+	value := reflect.ValueOf(handler)
+	if value.IsValid() && value.Kind() == reflect.Func {
+		if fn := runtime.FuncForPC(value.Pointer()); fn != nil {
+			return fn.Name()
+		}
+	}
+	return "<invalid handler>"
+}
+
+func cloneStringMap(input map[string]string) map[string]string {
+	if input == nil {
+		return nil
+	}
+	output := make(map[string]string, len(input))
+	for key, value := range input {
+		output[key] = value
+	}
+	return output
+}
+
+// returnTypeAssignable mirrors the useful part of the resolver's reflection
+// check while keeping the explanation independent of opening a storage.
+func returnTypeAssignable(returnType, parameterType reflect.Type) bool {
+	if returnType == nil || parameterType == nil {
+		return false
+	}
+	return returnType.AssignableTo(parameterType)
 }
 
 func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final error) {
@@ -246,7 +449,11 @@ func Resolve[T any](ctx context.Context, opts ...ResolveOption) (s T, final erro
 		return t, errors.WithMessage(errors.ResolveError, "cannot convert to T for "+svc.Name())
 	}
 
-	return t, errors.WithMessage(errors.ResolveError, "could not find compatible storage for DAO parameter")
+	message := "could not find compatible storage for DAO parameter"
+	if explanation, err := ExplainResolve(ctx, opts...); err == nil {
+		message += ": " + explanation.Summary()
+	}
+	return t, errors.WithMessage(errors.ResolveError, message)
 }
 
 func CloseStoragesForContext(ctx context.Context, opts ...ResolveOption) error {

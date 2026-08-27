@@ -61,6 +61,7 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 
 	m, err := etcd.NewStore(ctx, base.Val(), cli, strings.TrimLeft(u.Path, "/"), sessionTTL)
 	if err != nil {
+		_ = cli.Close()
 		return nil, err
 	}
 
@@ -70,7 +71,9 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 	}
 
 	st := kv.NewStore()
-	st.Set(m.Get())
+	if err := st.Set(m.Get()); err != nil {
+		return nil, err
+	}
 
 	go func() {
 		for {
@@ -79,12 +82,11 @@ func (o *EtcdOpener) Open(ctx context.Context, urlstr string, base config.Store)
 				continue
 			}
 
-			st.Set(m.Get())
+			_ = st.Set(m.Get())
 		}
 	}()
 
 	// Watching remote store
-
 	return &etcdStore{
 		Store: st,
 		m:     m,

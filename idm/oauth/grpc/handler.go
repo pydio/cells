@@ -49,10 +49,12 @@ import (
 	"github.com/pydio/cells/v5/common/middleware/keys"
 	pauth "github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/common/runtime/manager"
+	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/telemetry/tracing"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 	"github.com/pydio/cells/v5/idm/oauth"
+	"go.uber.org/zap"
 )
 
 func NewOAuthGRPCHandler() *Handler {
@@ -347,6 +349,13 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	}
 
 	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
+	log.Logger(ctx).Info("OAuth CreateAuthCode inputs",
+		zap.String("host", host),
+		zap.String("client_id", in.GetClientID()),
+		zap.String("redirect_uri", in.GetRedirectURI()),
+		zap.Bool("redirect_uri_empty", in.GetRedirectURI() == ""),
+		zap.Bool("pkce_challenge_present", in.GetCodeChallenge() != ""),
+	)
 
 	values := url.Values{}
 	values.Set("client_id", in.GetClientID())
@@ -375,6 +384,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	ar, err := reg.OAuth2Provider().NewAuthorizeRequest(ctx, req)
 	if err != nil {
+		log.Logger(ctx).Error("OAuth CreateAuthCode failed at NewAuthorizeRequest", zap.Error(err))
 		return nil, errors.WithMessage(err, "while trying to create authorize request")
 	}
 
@@ -452,6 +462,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	})
 
 	if err != nil {
+		log.Logger(ctx).Error("OAuth CreateAuthCode failed at NewAuthorizeResponse", zap.Error(err))
 		return nil, errors.WithMessage(err, "while trying to authorize response")
 	}
 
@@ -628,6 +639,7 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest) (*pauth.PasswordCredentialsTokenResponse, error) {
 
 	reg, err := manager.Resolve[oauth.Registry](ctx)
+	log.Logger(ctx).Info("PasswordCredentialsToken started", zap.String("client_id", config.DefaultOAuthClientID))
 	verif := h.makeUUID(false)
 	csrf := h.makeUUID(false)
 
@@ -638,12 +650,14 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 		Audiences: []string{},
 	}, verif, csrf)
 	if err != nil {
+		log.Logger(ctx).Error("PasswordCredentialsToken failed while creating login flow", zap.Error(err))
 		return nil, errors.WithMessage(err, "while trying to CreateLogin")
 	}
 
 	// Get login challenge
 	challenge, err := f.ToLoginChallenge(ctx, reg)
 	if err != nil {
+		log.Logger(ctx).Error("PasswordCredentialsToken failed while creating login challenge", zap.Error(err))
 		return nil, errors.WithMessage(err, "while trying to GetLogin")
 	}
 
@@ -655,16 +669,23 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	// Range PasswordConnectors
 	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
 	if err != nil {
+		log.Logger(ctx).Error("PasswordCredentialsToken failed while validating password connector", zap.Error(err))
 		return nil, err
 	}
+	log.Logger(ctx).Info("PasswordCredentialsToken password connector accepted", zap.String("auth_source", source))
 
 	code, err := h.loginToCode(ctx, challenge, identity, source, f.RequestedScope, f.RequestedAudience, f.RequestURL, clientID)
+	if err != nil {
+		log.Logger(ctx).Error("PasswordCredentialsToken failed while creating authorization code", zap.Error(err))
+		return nil, err
+	}
 
 	tokenResp, err := h.Exchange(ctx, &pauth.ExchangeRequest{
 		Code:         code,
 		CodeVerifier: verif,
 	})
 	if err != nil {
+		log.Logger(ctx).Error("PasswordCredentialsToken failed while exchanging authorization code", zap.Error(err))
 		return nil, err
 	}
 
@@ -756,6 +777,11 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 	values.Set("code", in.Code)
 	values.Set("code_verifier", "")
 	values.Set("redirect_uri", routing.GetDefaultSiteURL(ctx)+"/auth/callback")
+	log.Logger(ctx).Info("OAuth authorization-code exchange inputs",
+		zap.String("client_id", config.DefaultOAuthClientID),
+		zap.String("redirect_uri", values.Get("redirect_uri")),
+		zap.Bool("code_verifier_present", in.GetCodeVerifier() != ""),
+	)
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -765,11 +791,13 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 
 	ar, err := reg.OAuth2Provider().NewAccessRequest(ctx, req, session)
 	if err != nil {
+		log.Logger(ctx).Error("OAuth authorization-code exchange failed at NewAccessRequest", zap.Error(err))
 		return nil, err
 	}
 
 	resp, err := reg.OAuth2Provider().NewAccessResponse(ctx, ar)
 	if err != nil {
+		log.Logger(ctx).Error("OAuth authorization-code exchange failed at NewAccessResponse", zap.Error(err))
 		return nil, err
 	}
 
@@ -983,16 +1011,37 @@ func (h *Handler) rangePasswordConnectors(ctx context.Context, username, passwor
 
 // loginToCode mimicks a full password identification, login+challenge validation, consent creation/acceptation and finally a code
 func (h *Handler) loginToCode(ctx context.Context, challenge string, identity auth.Identity, source string, requestedScope, requestedAudience []string, requestURL, clientID string) (string, error) {
+	parsedURL, err := url.Parse(requestURL)
+	if err != nil {
+		log.Logger(ctx).Error("OAuth login flow contains an invalid request URL", zap.Error(err))
+		return "", err
+	}
+	requestURLValues := parsedURL.Query()
+	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
+	if err != nil {
+		log.Logger(ctx).Error("OAuth login flow contains an invalid redirect URI", zap.Error(err))
+		return "", err
+	}
+	log.Logger(ctx).Info("OAuth authorization-code inputs",
+		zap.String("client_id", clientID),
+		zap.String("request_host", parsedURL.Host),
+		zap.String("request_path", parsedURL.Path),
+		zap.Bool("redirect_uri_parameter_present", requestURLValues.Has("redirect_uri")),
+		zap.Bool("redirect_uri_empty", redirectURL == ""),
+		zap.Bool("pkce_parameter_present", requestURLValues.Get("code_challenge") != ""),
+	)
 
 	// Accepting login challenge
 	verifyLogin, err := h.AcceptLogin(ctx, &pauth.AcceptLoginRequest{Challenge: challenge, Subject: identity.UserID})
 	if err != nil {
+		log.Logger(ctx).Error("OAuth authorization-code flow failed at AcceptLogin", zap.Error(err))
 		return "", errors.WithMessage(err, "while trying to AcceptLogin")
 	}
 
 	// Creating consent
 	cstResp, err := h.CreateConsent(ctx, &pauth.CreateConsentRequest{LoginChallenge: verifyLogin.Challenge})
 	if err != nil {
+		log.Logger(ctx).Error("OAuth authorization-code flow failed at CreateConsent", zap.Error(err))
 		return "", errors.WithMessage(err, "while creating consent")
 	}
 	cst := cstResp.GetConsent()
@@ -1010,21 +1059,11 @@ func (h *Handler) loginToCode(ctx context.Context, challenge string, identity au
 		},
 	})
 	if err != nil {
+		log.Logger(ctx).Error("OAuth authorization-code flow failed at AcceptConsent", zap.Error(err))
 		return "", errors.WithMessage(err, "while accepting consent")
 	}
 	cst.Challenge = acceptResp.GetChallenge()
 
-	parsedURL, err := url.Parse(requestURL)
-	if err != nil {
-		return "", err
-	}
-
-	requestURLValues := parsedURL.Query()
-
-	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
-	if err != nil {
-		return "", err
-	}
 	var codeChallenge, codeChallengeMethod string
 	if cs := requestURLValues.Get("code_challenge"); cs != "" {
 		codeChallenge = cs
@@ -1039,6 +1078,7 @@ func (h *Handler) loginToCode(ctx context.Context, challenge string, identity au
 		CodeChallengeMethod: codeChallengeMethod,
 	})
 	if err != nil {
+		log.Logger(ctx).Error("OAuth authorization-code flow failed at CreateAuthCode", zap.Error(err))
 		return "", errors.WithMessage(err, "while creating auth code")
 	}
 

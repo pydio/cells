@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"database/sql"
+	stderrors "errors"
 	"fmt"
 	net2 "net"
 	"net/url"
@@ -167,6 +168,12 @@ func (d *cellDsn) OpenDB(ctx context.Context) ([]*sql.DB, error) {
 
 			db := stdlib.OpenDB(*pgxConfig)
 			if err := db.Ping(); err != nil {
+				// stdlib.OpenDB creates a database/sql handle even when the
+				// PostgreSQL startup handshake fails (for example when the
+				// target database does not exist). Do not leave that failed
+				// handle around: the temporary install pool may otherwise
+				// report the misleading "database is closed" error later.
+				_ = db.Close()
 				return nil, err
 			}
 			conn = append(conn, db)
@@ -291,6 +298,13 @@ func (d *cellDsn) Set(key, value string) error {
 	// Now recompute clean DSN
 	if md != nil {
 		d.clean = md.FormatDSN()
+		// OpenDB uses the expanded host list, not d.clean directly. Keep it
+		// in sync when changing the database name (the installer changes the
+		// target DSN to a server-level DSN in this way).
+		_, er = d.cleanDSN(MySQLDriver+"://"+d.clean, "mysql")
+		if er != nil {
+			return er
+		}
 	} else if u != nil {
 		d.original = u.String()
 		return d.Parse()
@@ -389,20 +403,7 @@ storages:
 	// First try a ping
 	var dbNotFound bool
 	if db, err := st.Get(ctx); err != nil {
-		switch resolvedDSN.Driver() {
-		case MySQLDriver:
-			if me, ok := err.(*mysql.MySQLError); ok && me.Number == 1049 {
-				dbNotFound = true
-			}
-		case PostgreDriver:
-			if strings.Contains(err.Error(), "3D000") {
-				dbNotFound = true
-			}
-		case SqliteDriver:
-			if errors.Is(err, os.ErrNotExist) {
-				dbNotFound = true
-			}
-		}
+		dbNotFound = isDatabaseNotFound(resolvedDSN.Driver(), err)
 		if !dbNotFound {
 			return nil, err
 		}
@@ -413,13 +414,26 @@ storages:
 			return nil, errors.WithMessage(errors.SqlDAO, "driver is not a gorm DB")
 		}
 		version, charset, er := d.getServerInfo(ctx, gdb)
-		install, admin, er := d.checkCellsInstallExists(ctx, gdb)
-		return &ServerInfos{
-			DbVersion:   version,
-			DbCharset:   charset,
-			TablesFound: install,
-			AdminFound:  admin,
-		}, er
+		if er != nil {
+			// MySQL opens lazily, so a missing database is reported by the
+			// first query rather than by st.Get(). Continue through the
+			// creation path instead of masking this error below.
+			if !isDatabaseNotFound(resolvedDSN.Driver(), er) {
+				return nil, er
+			}
+			dbNotFound = true
+		} else {
+			install, admin, er := d.checkCellsInstallExists(ctx, gdb)
+			if er != nil {
+				return nil, er
+			}
+			return &ServerInfos{
+				DbVersion:   version,
+				DbCharset:   charset,
+				TablesFound: install,
+				AdminFound:  admin,
+			}, nil
+		}
 
 	}
 
@@ -460,6 +474,18 @@ storages:
 				return nil, fmt.Errorf("could not auto-create database %q: %w — the install user may lack the CREATE DATABASE privilege; either grant it or pre-create the database", dbName, tx.Error)
 			}
 		}
+
+		// The target storage may already be cached from the failed existence
+		// check. Evict it so the next Get opens a connection after the database
+		// has been created instead of reusing the pre-creation handle.
+		if deleter, ok := st.(interface {
+			Del(context.Context, ...map[string]interface{}) (bool, error)
+		}); ok {
+			if _, err := deleter.Del(ctx); err != nil {
+				return nil, err
+			}
+		}
+
 		// Now reconnect to new DB to retrieve info
 		if db, err := st.Get(ctx); err == nil {
 			gdb, ok := db.(*gorm.DB)
@@ -476,6 +502,26 @@ storages:
 		}
 	}
 	return &ServerInfos{}, err
+}
+
+// isDatabaseNotFound reports errors that mean the server is reachable but the
+// configured database itself has not been created yet.
+func isDatabaseNotFound(driver string, err error) bool {
+	if err == nil {
+		return false
+	}
+
+	switch driver {
+	case MySQLDriver:
+		var me *mysql.MySQLError
+		return stderrors.As(err, &me) && me.Number == 1049
+	case PostgreDriver:
+		return strings.Contains(err.Error(), "3D000")
+	case SqliteDriver:
+		return stderrors.Is(err, os.ErrNotExist)
+	default:
+		return false
+	}
 }
 
 func (d *cellDsn) checkCellsInstallExists(ctx context.Context, db *gorm.DB) (install bool, admin bool, e error) {
@@ -573,7 +619,9 @@ func (d *cellDsn) cleanDSN(dsn string, parserType string) (string, error) {
 			}
 
 			hosts := strings.Split(hostsStr, ",")
-			hosts = append(hosts, strings.Split(d.vars["replicasAddr"], ",")...)
+			if replicas := d.vars["replicasAddr"]; replicas != "" {
+				hosts = append(hosts, strings.Split(replicas, ",")...)
+			}
 
 			d.hosts = []string{}
 			for _, host := range hosts {

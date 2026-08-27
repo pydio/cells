@@ -21,7 +21,7 @@ type Store struct {
 	ctx          context.Context
 	values       kv.Values
 	valuesLocker *sync.RWMutex
-	ops          chan clientv3.Op
+	ops          chan storeOp
 
 	prefix   string
 	withKeys bool
@@ -34,9 +34,11 @@ type Store struct {
 	receivers []*receiver
 	reset     chan bool
 	opts      []kv.Option
+}
 
-	saveCh    chan bool
-	saveTimer *time.Timer
+type storeOp struct {
+	op    clientv3.Op
+	flush chan error
 }
 
 var (
@@ -61,7 +63,7 @@ func NewStore(ctx context.Context, values kv.Values, cli *clientv3.Client, prefi
 		values:       values,
 		valuesLocker: &sync.RWMutex{},
 		cli:          cli,
-		ops:          make(chan clientv3.Op, 3000),
+		ops:          make(chan storeOp, 3000),
 		session:      session,
 		leaseID:      leaseID,
 		prefix:       prefix,
@@ -69,11 +71,14 @@ func NewStore(ctx context.Context, values kv.Values, cli *clientv3.Client, prefi
 		locks:        make(map[string]*concurrency.Mutex),
 		reset:        make(chan bool),
 		//opts:         opts,
-		saveCh:    make(chan bool),
-		saveTimer: time.NewTimer(100 * time.Millisecond),
 	}
 
-	m.get(ctx)
+	if err := m.get(ctx); err != nil {
+		if session != nil {
+			_ = session.Close()
+		}
+		return nil, fmt.Errorf("could not load etcd prefix %q: %w", prefix, err)
+	}
 
 	go m.watch(ctx)
 	go m.save(ctx)
@@ -107,10 +112,10 @@ func (m *Store) As(out any) bool {
 	return false
 }
 
-func (m *Store) get(ctx context.Context) {
+func (m *Store) get(ctx context.Context) error {
 	res, err := m.cli.Get(ctx, m.prefix, clientv3.WithPrefix())
 	if err != nil {
-		return
+		return err
 	}
 
 	for _, op := range res.Kvs {
@@ -119,10 +124,12 @@ func (m *Store) get(ctx context.Context) {
 		if op.Value == nil {
 			continue
 		}
-		if err := m.values.Val(key).Set(op.Value); err != nil {
-			fmt.Println("Error in etcd watch setting value for key ", op.Key)
+		if err := m.setRemoteValue(key, op.Value); err != nil {
+			return fmt.Errorf("could not load etcd key %q: %w", op.Key, err)
 		}
 	}
+
+	return nil
 }
 
 func (m *Store) watch(ctx context.Context) {
@@ -139,11 +146,11 @@ func (m *Store) watch(ctx context.Context) {
 				key = strings.TrimPrefix(key, "/")
 
 				if op.IsModify() || op.IsCreate() {
-					if err := m.values.Val(key).Set(op.Kv.Value); err != nil {
+					if err := m.setRemoteValue(key, op.Kv.Value); err != nil {
 						fmt.Println("Error in etcd watch setting value for key ", op.Kv.Key)
 					}
 				} else {
-					if err := m.values.Val(key).Del(); err != nil {
+					if err := m.deleteRemoteValue(key); err != nil {
 						fmt.Println("Error in etcd deleting key ", op.Kv.Key)
 					}
 				}
@@ -209,6 +216,26 @@ func (m *Store) watch(ctx context.Context) {
 	}
 }
 
+func (m *Store) setRemoteValue(key string, value []byte) error {
+	m.valuesLocker.Lock()
+	defer m.valuesLocker.Unlock()
+
+	if key == "" {
+		return m.values.Set(value)
+	}
+	return m.values.Val(key).Set(value)
+}
+
+func (m *Store) deleteRemoteValue(key string) error {
+	m.valuesLocker.Lock()
+	defer m.valuesLocker.Unlock()
+
+	if key == "" {
+		return m.values.Set(nil)
+	}
+	return m.values.Val(key).Del()
+}
+
 func (m *Store) Get() any {
 	m.valuesLocker.RLock()
 	defer m.valuesLocker.RUnlock()
@@ -228,7 +255,7 @@ func (m *Store) Set(data interface{}) error {
 		return err
 	}
 
-	m.ops <- clientv3.OpPut(m.prefix, string(m.values.Bytes()), clientv3.WithLease(m.leaseID))
+	m.ops <- storeOp{op: clientv3.OpPut(m.prefix, string(m.values.Bytes()), clientv3.WithLease(m.leaseID))}
 
 	return nil
 }
@@ -239,56 +266,92 @@ func (m *Store) Del() error {
 
 func (m *Store) save(ctx context.Context) {
 	var ops []clientv3.Op
+	timer := time.NewTimer(time.Hour)
+	if !timer.Stop() {
+		<-timer.C
+	}
 
-	batch := 20
+	resetTimer := func() {
+		if !timer.Stop() {
+			select {
+			case <-timer.C:
+			default:
+			}
+		}
+		timer.Reset(100 * time.Millisecond)
+	}
+	stopTimer := func() {
+		if !timer.Stop() {
+			select {
+			case <-timer.C:
+			default:
+			}
+		}
+	}
+
 	for {
 		select {
-		case op := <-m.ops:
-			ops = append(ops, op)
-		case <-m.saveCh:
-			m.saveTimer.Reset(100 * time.Millisecond)
-		case <-m.saveTimer.C:
-			var opsWithoutDuplicates []clientv3.Op
-
-			// First we remove all duplicate keys for transactions
-			var keys []string
-			var allKeys []string
-			for i := len(ops) - 1; i >= 0; i-- {
-				found := false
-
-				k := string(ops[i].KeyBytes())
-
-				allKeys = append(allKeys, k)
-				for _, key := range keys {
-					if k == key {
-						found = true
-					}
-				}
-
-				if !found {
-					keys = append(keys, k)
-					opsWithoutDuplicates = append(opsWithoutDuplicates, ops[i])
-				} else {
-				}
+		case request := <-m.ops:
+			if request.flush == nil {
+				ops = append(ops, request.op)
+				resetTimer()
+				continue
 			}
 
-			for i := 0; i < len(opsWithoutDuplicates); i += batch {
-				j := i + batch
-				if j >= len(opsWithoutDuplicates) {
-					j = len(opsWithoutDuplicates)
-				}
-
-				_, err := m.cli.Txn(ctx).Then(opsWithoutDuplicates[i:j]...).Commit()
-				if err != nil {
-					fmt.Println("Error in etcd save committing ops", err)
-				}
+			err := m.commit(ctx, ops)
+			if err == nil {
+				ops = nil
+				stopTimer()
 			}
-
-			ops = nil
+			request.flush <- err
+		case <-timer.C:
+			if err := m.commit(ctx, ops); err != nil {
+				fmt.Println("Error in etcd save committing ops", err)
+			} else {
+				ops = nil
+			}
 		case <-ctx.Done():
+			stopTimer()
 			return
 		}
 	}
+}
+
+func (m *Store) commit(ctx context.Context, ops []clientv3.Op) error {
+	const batch = 20
+
+	ops = latestOperations(ops)
+	for i := 0; i < len(ops); i += batch {
+		j := i + batch
+		if j > len(ops) {
+			j = len(ops)
+		}
+
+		if _, err := m.cli.Txn(ctx).Then(ops[i:j]...).Commit(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// latestOperations keeps only the newest operation for each key while
+// preserving the relative order of those surviving operations.
+func latestOperations(ops []clientv3.Op) []clientv3.Op {
+	seen := make(map[string]struct{}, len(ops))
+	latest := make([]clientv3.Op, 0, len(ops))
+	for i := len(ops) - 1; i >= 0; i-- {
+		key := string(ops[i].KeyBytes())
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		latest = append(latest, ops[i])
+	}
+	for left, right := 0, len(latest)-1; left < right; left, right = left+1, right-1 {
+		latest[left], latest[right] = latest[right], latest[left]
+	}
+	return latest
 }
 
 func (m *Store) Close(ctx context.Context) error {
@@ -308,12 +371,19 @@ func (m *Store) Done() <-chan struct{} {
 }
 
 func (m *Store) Save(ctxUser string, ctxMessage string) error {
+	done := make(chan error, 1)
 	select {
-	case m.saveCh <- true:
+	case m.ops <- storeOp{flush: done}:
 	case <-m.ctx.Done():
+		return m.ctx.Err()
 	}
 
-	return nil
+	select {
+	case err := <-done:
+		return err
+	case <-m.ctx.Done():
+		return m.ctx.Err()
+	}
 }
 
 func (m *Store) Lock() {
@@ -456,7 +526,7 @@ func (r receiver) Stop() {
 type values struct {
 	kv.Values
 	valuesLocker *sync.RWMutex
-	ops          chan clientv3.Op
+	ops          chan storeOp
 	leaseID      clientv3.LeaseID
 	withKeys     bool
 
@@ -479,7 +549,7 @@ func (v values) Set(value interface{}) error {
 		return err
 	}
 
-	v.ops <- clientv3.OpPut(strings.Join(append([]string{v.prefix}, v.Key()...), "/"), string(v.Values.Bytes()), clientv3.WithLease(v.leaseID))
+	v.ops <- storeOp{op: clientv3.OpPut(strings.Join(append([]string{v.prefix}, v.Key()...), "/"), string(v.Values.Bytes()), clientv3.WithLease(v.leaseID))}
 
 	return nil
 }
@@ -499,7 +569,7 @@ func (v values) Del() error {
 		return err
 	}
 
-	v.ops <- clientv3.OpDelete(strings.Join(append([]string{v.prefix}, v.Key()...), "/"), clientv3.WithLease(v.leaseID))
+	v.ops <- storeOp{op: clientv3.OpDelete(strings.Join(append([]string{v.prefix}, v.Key()...), "/"), clientv3.WithLease(v.leaseID))}
 
 	return nil
 }

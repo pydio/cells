@@ -179,14 +179,16 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				if len(sourcesDialect) == 0 {
 					sourcesDialect = append(sourcesDialect, &Dialector{
 						Dialector: mysql.New(mysql.Config{
-							Conn: conn,
+							Conn:                      conn,
+							SkipInitializeWithVersion: true,
 						}),
 						Helper: &mysqlHelper{},
 					})
 				} else {
 					replicasDialect = append(replicasDialect, &Dialector{
 						Dialector: mysql.New(mysql.Config{
-							Conn: conn,
+							Conn:                      conn,
+							SkipInitializeWithVersion: true,
 						}),
 						Helper: &mysqlHelper{},
 					})
@@ -301,6 +303,10 @@ func (p *pool) ReturnType() reflect.Type {
 
 func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
 	return p.Pool.Get(ctx, data...)
+}
+
+func (p *pool) Del(ctx context.Context, data ...map[string]interface{}) (bool, error) {
+	return p.Pool.Del(ctx, data...)
 }
 
 func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {
