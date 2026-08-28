@@ -34,13 +34,13 @@ func TestInitConfigOAuthSecret(t *testing.T) {
 	const expectedSecret = "test-oauth-secret"
 	oauthWeb := common.ServiceWebNamespace_ + common.ServiceOAuth
 
-	/*store, err := mainStorePool.Get(ctx)
+	store, err := mainStorePool.Get(ctx)
 	if err != nil {
 		t.Fatalf("getting config store failed: %v", err)
 	}
 	if err := store.Val("services", oauthWeb, "secret").Set(expectedSecret); err != nil {
 		t.Fatalf("setting OAuth secret failed: %v", err)
-	}*/
+	}
 
 	got := config.Get(ctx, "services", oauthWeb, "secret").String()
 	if got != expectedSecret {
