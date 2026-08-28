@@ -146,7 +146,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 					}()
 
 					select {
-					case <-time.After(10 * time.Second):
+					case <-time.After(10 * time.Minute):
 						return errors.New("[ERROR] BeforeServe timeout")
 					case err := <-ch:
 						return err
@@ -183,8 +183,8 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 					}()
 
 					select {
-					case <-time.After(10 * time.Second):
-						return errors.New("[ERROR] BeforeServe timeout")
+					case <-time.After(10 * time.Minute):
+						return errors.New("[ERROR] AfterServe timeout")
 					case err := <-ch:
 						return err
 					}
