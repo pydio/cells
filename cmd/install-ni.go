@@ -163,33 +163,10 @@ func installFromConf(ctx context.Context) (*install.InstallConfig, error) {
 	if updateMultiple {
 		installConf.ProxyConfigs = append(installConf.ProxyConfigs, installConf.ProxyConfig)
 	}
-	err = applyProxySites(ctx, installConf.ProxyConfigs)
-	if err != nil {
-		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
-	}
 
-	// Preconfiguring any custom value passed in Json/Yaml
-	if installConf.CustomConfigs != nil {
-		for k, v := range installConf.CustomConfigs {
-			var val interface{}
-			if strings.HasSuffix(k, "#json") {
-				k = strings.TrimSuffix(k, "#json")
-				if er := json.Unmarshal([]byte(v), &val); er != nil {
-					return nil, fmt.Errorf("could not unmarshal custom config %s: %s", k, er.Error())
-				}
-				fmt.Println(".... Setting custom configuration key " + k + " (JSON format)")
-			} else {
-				val = v
-				fmt.Println(".... Setting custom configuration key " + k)
-			}
-			cPath := strings.Split(k, "/")
-			if e := config.Set(ctx, val, cPath...); e != nil {
-				return nil, errors.New("could not set value for config key " + k)
-			}
-		}
-		if e := config.Save(ctx, common.PydioSystemUsername, "Setting custom configs from installation file"); e != nil {
-			return nil, e
-		}
+	err = applyInstallConfigs(ctx, installConf.ProxyConfigs, installConf.CustomConfigs)
+	if err != nil {
+		return nil, fmt.Errorf("could not preconfigure installation: %s", err.Error())
 	}
 
 	iConf := &installConf.InstallConfig
@@ -324,18 +301,48 @@ func unmarshallConf() (*NiInstallConfig, error) {
 }
 
 func applyProxySites(ctx context.Context, sites []*install.ProxyConfig) error {
+	return applyInstallConfigs(ctx, sites, nil)
+}
 
-	// Save configs
-	config.Set(ctx, sites, "defaults", "sites")
-	err := config.Save(ctx, "cli", "Saving sites configs")
-	if err != nil {
+// applyInstallConfigs builds and saves one configuration snapshot. In particular,
+// this prevents a distributed store watcher from replaying the sites-only save
+// over CustomConfigs while a non-interactive installation is still applying them.
+func applyInstallConfigs(ctx context.Context, sites []*install.ProxyConfig, customConfigs map[string]string) error {
+	if err := setProxySites(ctx, sites); err != nil {
 		return err
 	}
+	if err := setCustomConfigs(ctx, customConfigs); err != nil {
+		return err
+	}
+	user, message := "cli", "Saving sites configs"
+	if len(customConfigs) > 0 {
+		user = common.PydioSystemUsername
+		message = "Setting sites and custom configs from installation file"
+	}
+	return config.Save(ctx, user, message)
+}
 
-	// Clean TLS context after the update
-	// config.ResetTlsConfigs()
+func setProxySites(ctx context.Context, sites []*install.ProxyConfig) error {
+	return config.Set(ctx, sites, "defaults", "sites")
+}
+
+func setCustomConfigs(ctx context.Context, customConfigs map[string]string) error {
+	for key, value := range customConfigs {
+		configKey := strings.TrimSuffix(key, "#json")
+		var configValue interface{} = value
+		if strings.HasSuffix(key, "#json") {
+			if err := json.Unmarshal([]byte(value), &configValue); err != nil {
+				return fmt.Errorf("could not unmarshal custom config %s: %s", configKey, err.Error())
+			}
+			fmt.Println(".... Setting custom configuration key " + configKey + " (JSON format)")
+		} else {
+			fmt.Println(".... Setting custom configuration key " + configKey)
+		}
+		if err := config.Set(ctx, configValue, strings.Split(configKey, "/")...); err != nil {
+			return fmt.Errorf("could not set value for config key %s: %w", configKey, err)
+		}
+	}
 	return nil
-
 }
 
 // replaceEnvVars replaces all occurrences of environment variables.
