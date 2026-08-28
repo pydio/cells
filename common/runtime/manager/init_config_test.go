@@ -17,7 +17,7 @@ import (
 
 func TestInitConfigOAuthSecret(t *testing.T) {
 	r := viper.New()
-	r.Set(runtime.KeyConfig, "etcd://0.0.0.0:2379/config")
+	r.Set(runtime.KeyConfig, "mem://")
 	r.Set("computedVaultURL", "mem://?masterKey=whatever")
 	runtime.SetRuntime(r)
 
