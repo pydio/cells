@@ -10,7 +10,7 @@ FORCE_REBUILD ?=
 REBUILD_FLAGS := $(if $(FORCE_REBUILD),-a,)
 GO_BUILD_FLAGS := $(REBUILD_FLAGS) -trimpath
 
-.PHONY: all clean build main dev darwin arm win docker docker-image start ds licenses
+.PHONY: all clean build main dev darwin arm win docker docker-image start ds licenses frontend-assets
 
 GO_TOOLCHAIN := $(shell awk '/^toolchain/ {sub("go","",$$2); print $$2}' go.mod)
 DOCKER_IMAGE ?= pydio/cells
@@ -83,7 +83,7 @@ windows-amd64:
 	 -o cells.exe\
 	 .
 
-dev:
+dev: frontend-assets
 	env CGO_ENABLED=0 ${GOBIN} build\
 	 -tags dev\
 	 -gcflags "all=-N -l"\
@@ -137,6 +137,9 @@ docker-image-download:
 	 -t $(DOCKER_IMAGE):$(DOCKER_TAG) \
 	 --load \
 	 .
+
+frontend-assets:
+	cd frontend/assets && pnpm install && pnpm run build:gui.ajax
 
 start:
 	./cells start
