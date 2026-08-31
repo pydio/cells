@@ -131,9 +131,13 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 		return err
 	}
 
-	// Entities and EntityValues tables are migrated by their own named
-	// storages ("meta-entities" / "meta-entity-values"), which also create
-	// their dedicated policies table
+	if err := s.entityDAO.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := s.entityValueDAO.MigrateEV(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }

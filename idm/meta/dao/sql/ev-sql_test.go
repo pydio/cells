@@ -640,3 +640,255 @@ func TestGetMetaEntityValuesMap(t *testing.T) {
 		})
 	})
 }
+
+func TestDeleteEntityValues(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		eDAO := sqlDAO.entityDAO
+		// DeleteEntityValues is not part of the EntityValueDAO interface, so we
+		// cast to the concrete implementation to access it directly.
+		concreteEvDAO := sqlDAO.entityValueDAO.(*evSqlImpl)
+
+		Convey("Delete Entity Values Removes All Values For Entity", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "DEV Entity")
+			So(err, ShouldBeNil)
+
+			_, err = createTestEntityValue(ctx, concreteEvDAO, "DEV Value 1", entity.Uuid)
+			So(err, ShouldBeNil)
+			_, err = createTestEntityValue(ctx, concreteEvDAO, "DEV Value 2", entity.Uuid)
+			So(err, ShouldBeNil)
+
+			before, err := concreteEvDAO.GetEntityValues(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+			So(before, ShouldHaveLength, 2)
+
+			deleted, err := concreteEvDAO.DeleteEntityValues(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+			So(deleted, ShouldBeTrue)
+
+			after, err := concreteEvDAO.GetEntityValues(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+			So(after, ShouldHaveLength, 0)
+		})
+
+		Convey("Delete Entity Values Returns False When No Values Exist", t, func() {
+			deleted, err := concreteEvDAO.DeleteEntityValues(ctx, "00000000-0000-0000-0000-000000000099")
+			So(err, ShouldBeNil)
+			So(deleted, ShouldBeFalse)
+		})
+
+		Convey("Delete Entity Values Makes Links Disappear From GetMetaEntityValues", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "DEV Link Entity")
+			So(err, ShouldBeNil)
+
+			value, err := createTestEntityValue(ctx, concreteEvDAO, "DEV Linked Value", entity.Uuid)
+			So(err, ShouldBeNil)
+
+			metaWithId, err := createTestMeta(ctx, mockDAO, "dev-node", "dev-namespace")
+			So(err, ShouldBeNil)
+
+			linked, err := concreteEvDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			// Confirm the link is visible before deletion
+			linkedBefore, err := concreteEvDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(linkedBefore, ShouldHaveLength, 1)
+
+			// Delete all values for the entity
+			_, err = concreteEvDAO.DeleteEntityValues(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+
+			// GetMetaEntityValues uses INNER JOIN so orphaned rel rows yield no results
+			linkedAfter, err := concreteEvDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(linkedAfter, ShouldHaveLength, 0)
+		})
+	})
+}
+
+func TestDisplayJSONRoundTrip(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		eDAO := sqlDAO.entityDAO
+		evDAO := sqlDAO.entityValueDAO
+
+		Convey("DisplayJSON Is Preserved After Read Via GetEntityValues", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "JSON Round-trip Entity")
+			So(err, ShouldBeNil)
+
+			payload := `{"color":"blue","icon":"check","priority":42}`
+			value := &idm.EntityValue{
+				Label:       "JSON Value",
+				EntityUuid:  entity.Uuid,
+				DisplayJSON: payload,
+			}
+			created, err := evDAO.CreateEntityValue(ctx, value)
+			So(err, ShouldBeNil)
+			So(created.DisplayJSON, ShouldEqual, payload)
+
+			values, err := evDAO.GetEntityValues(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+			So(values, ShouldHaveLength, 1)
+			So(values[0].DisplayJSON, ShouldEqual, payload)
+		})
+
+		Convey("Entity Value Without DisplayJSON Returns Empty String From GetEntityValues", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "No JSON Entity")
+			So(err, ShouldBeNil)
+
+			created, err := createTestEntityValue(ctx, evDAO, "Plain Value", entity.Uuid)
+			So(err, ShouldBeNil)
+			So(created.DisplayJSON, ShouldBeEmpty)
+
+			values, err := evDAO.GetEntityValues(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+			So(values, ShouldHaveLength, 1)
+			So(values[0].DisplayJSON, ShouldBeEmpty)
+		})
+
+		Convey("Batch Create Preserves DisplayJSON Per Value", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "Batch JSON Entity")
+			So(err, ShouldBeNil)
+
+			values := []*idm.EntityValue{
+				{Label: "BJ 1", EntityUuid: entity.Uuid, DisplayJSON: `{"n":1}`},
+				{Label: "BJ 2", EntityUuid: entity.Uuid, DisplayJSON: `{"n":2}`},
+				{Label: "BJ 3", EntityUuid: entity.Uuid},
+			}
+
+			created, err := evDAO.CreateEntityValues(ctx, values)
+			So(err, ShouldBeNil)
+			So(created, ShouldHaveLength, 3)
+			So(created[0].DisplayJSON, ShouldEqual, `{"n":1}`)
+			So(created[1].DisplayJSON, ShouldEqual, `{"n":2}`)
+			So(created[2].DisplayJSON, ShouldBeEmpty)
+		})
+	})
+}
+
+func TestSetEntitiesEdgeCases(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		entityDAO := sqlDAO.entityDAO
+
+		Convey("Set Entities With Empty Slice Returns Empty Slice", t, func() {
+			created, err := entityDAO.SetEntities(ctx, []*idm.MetaEntity{})
+			So(err, ShouldBeNil)
+			So(created, ShouldHaveLength, 0)
+		})
+
+		Convey("Set Entities Assigns Unique UUIDs", t, func() {
+			entities := []*idm.MetaEntity{
+				{Label: "Unique A"},
+				{Label: "Unique B"},
+			}
+			created, err := entityDAO.SetEntities(ctx, entities)
+			So(err, ShouldBeNil)
+			So(created, ShouldHaveLength, 2)
+			So(created[0].Uuid, ShouldNotEqual, created[1].Uuid)
+		})
+	})
+}
+
+func TestGetMetaEntityValuesEmptySlice(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		evDAO := sqlDAO.entityValueDAO
+
+		Convey("GetMetaEntityValues Returns Empty Slice Not Nil For Unlinked Meta", t, func() {
+			metaWithId, err := createTestMeta(ctx, mockDAO, "empty-slice-node", "empty-slice-ns")
+			So(err, ShouldBeNil)
+
+			values, err := evDAO.GetMetaEntityValues(ctx, metaWithId.Uuid)
+			So(err, ShouldBeNil)
+			So(values, ShouldNotBeNil)
+			So(values, ShouldHaveLength, 0)
+		})
+	})
+}
+
+func TestUnlinkIdempotency(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		eDAO := sqlDAO.entityDAO
+		evDAO := sqlDAO.entityValueDAO
+
+		Convey("Second Unlink Of Same Pair Returns False Without Error", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "Idempotent Entity")
+			So(err, ShouldBeNil)
+
+			value, err := createTestEntityValue(ctx, evDAO, "Idempotent Value", entity.Uuid)
+			So(err, ShouldBeNil)
+
+			metaWithId, err := createTestMeta(ctx, mockDAO, "idempotent-node", "idempotent-ns")
+			So(err, ShouldBeNil)
+
+			linked, err := evDAO.LinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(linked, ShouldBeTrue)
+
+			unlinked, err := evDAO.UnlinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(unlinked, ShouldBeTrue)
+
+			// Second unlink — row is already gone
+			unlinked, err = evDAO.UnlinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
+			So(err, ShouldBeNil)
+			So(unlinked, ShouldBeFalse)
+		})
+	})
+}
+
+func TestListEntitiesAfterDelete(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		eDAO := sqlDAO.entityDAO
+
+		Convey("Deleted Entity Does Not Appear In ListEntities", t, func() {
+			entity, err := createTestEntity(ctx, eDAO, "To Be Deleted")
+			So(err, ShouldBeNil)
+
+			before, err := eDAO.ListEntities(ctx)
+			So(err, ShouldBeNil)
+			countBefore := len(before)
+
+			resp, err := eDAO.DeleteEntity(ctx, entity.Uuid)
+			So(err, ShouldBeNil)
+			So(resp.RowsDeleted, ShouldEqual, 1)
+
+			after, err := eDAO.ListEntities(ctx)
+			So(err, ShouldBeNil)
+			So(len(after), ShouldEqual, countBefore-1)
+
+			for _, e := range after {
+				So(e.Uuid, ShouldNotEqual, entity.Uuid)
+			}
+		})
+	})
+}

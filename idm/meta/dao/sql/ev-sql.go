@@ -23,6 +23,7 @@ package sql
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
@@ -88,10 +89,14 @@ func (*MetaValuesRel) TableName(namer schema.Namer) string {
 func (s *evSqlImpl) MigrateEV(ctx context.Context) error {
 	db := s.Session(ctx)
 	if err := db.SetupJoinTable(&EntityValues{}, "Metas", &MetaValuesRel{}); err != nil {
-		return evTagError(err)
+		if !strings.Contains(err.Error(), "already exists") {
+			return evTagError(err)
+		}
 	}
 	if err := db.AutoMigrate(&EntityValues{}); err != nil {
-		return err
+		if !strings.Contains(err.Error(), "already exists") {
+			return err
+		}
 	}
 
 	if err := s.resourcesDAO.Migrate(ctx); err != nil {
