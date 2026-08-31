@@ -47,6 +47,8 @@ export const Selector: React.FC<SelectInputProps> = ({
     disabled,
     stepper,
 }) => {
+    const normalizedValue: string | null = Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+
     const handleColors = items.find((i) => !!i.color);
     const renderOptions = useCallback(
         ({ option }: RenderOptionProps) => {
@@ -72,10 +74,10 @@ export const Selector: React.FC<SelectInputProps> = ({
         [items],
     );
 
-    const crtItem = items.find((i) => i.value === value);
+    const crtItem = items.find((i) => i.value === normalizedValue);
 
     let leftSection: React.ReactNode, rightSection: React.ReactNode;
-    if (handleColors && value) {
+    if (handleColors && normalizedValue) {
         if (crtItem && crtItem.color) {
             leftSection = (
                 <div
@@ -121,13 +123,14 @@ export const Selector: React.FC<SelectInputProps> = ({
             label={label}
             description={description}
             placeholder={placeholder}
-            value={value}
+            value={normalizedValue}
             error={errorText}
             disabled={disabled}
             onChange={onCommitChange}
-            data={items.map((i) => {
-                return { value: i.key, label: i.value };
-            })}
+            data={items.map((i) => ({
+                value: i.key,
+                label: i.value,
+            }))}
             allowDeselect={true}
             clearable={true}
             leftSection={leftSection}

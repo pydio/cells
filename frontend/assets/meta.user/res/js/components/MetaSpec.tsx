@@ -29,4 +29,6 @@ export interface NamespaceMeta {
         format?: string;
     };
     description?: string;
+    entityUUID?: string;
+    editableValues?: boolean;
 }
