@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"errors"
 
 	"github.com/pydio/cells/v5/common/utils/kv"
 )
@@ -16,6 +17,21 @@ type storeWithEncrypter struct {
 
 func (s storeWithEncrypter) Set(data any) error {
 	return s.Val().Set(data)
+}
+
+func (s storeWithEncrypter) Replace(data any) error {
+	if value, ok := data.(string); ok {
+		encrypted, err := s.Encrypter.Encrypt([]byte(value))
+		if err != nil {
+			return err
+		}
+		data = encrypted
+	}
+	replacer, ok := s.Store.(Replacer)
+	if !ok {
+		return errors.New("wrapped store does not support atomic replacement")
+	}
+	return replacer.Replace(data)
 }
 
 func (s storeWithEncrypter) Context(ctx context.Context) kv.Values {

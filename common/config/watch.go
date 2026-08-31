@@ -50,6 +50,18 @@ func (m *storeWithWatcher) Set(data any) error {
 	return m.Val().Set(data)
 }
 
+func (m *storeWithWatcher) Replace(data any) error {
+	replacer, ok := m.Store.(Replacer)
+	if !ok {
+		return errors.New("wrapped store does not support atomic replacement")
+	}
+	if err := replacer.Replace(data); err != nil {
+		return err
+	}
+	m.w.Reset()
+	return nil
+}
+
 func (m *storeWithWatcher) Watch(opts ...watch.WatchOption) (watch.Receiver, error) {
 	wo := &watch.WatchOptions{}
 	for _, o := range opts {

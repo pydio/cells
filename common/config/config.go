@@ -68,6 +68,26 @@ type Saver interface {
 	Save(string, string) error
 }
 
+// Replacer is implemented by stores that can atomically replace their complete
+// value. It is intentionally separate from Store so existing drivers keep
+// their current API and Set can retain its merge semantics.
+type Replacer interface {
+	Replace(any) error
+}
+
+// ErrConfigConflict indicates that a distributed configuration changed after
+// the caller loaded it and before the caller attempted to save it.
+var ErrConfigConflict = errors.New("configuration changed remotely")
+
+// Replace atomically replaces the complete value in a store.
+func Replace(store Store, value any) error {
+	replacer, ok := store.(Replacer)
+	if !ok {
+		return errors.New("store does not support atomic replacement")
+	}
+	return replacer.Replace(value)
+}
+
 // Save the config in the hard wrappedStore
 func Save(ctx context.Context, ctxUser string, ctxMessage string) error {
 	storePool := propagator.MustWithHint[*openurl.Pool[Store]](ctx, ContextKey, "config")

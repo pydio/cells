@@ -170,7 +170,13 @@ ENVIRONMENT
 		}
 		cmd.SetContext(ctx)
 
-		if err := config.SaveNewFromSample(ctx); err != nil {
+		nonInteractive := niYamlFile != "" || niJsonFile != "" || niBindUrl != ""
+		if nonInteractive {
+			err = config.LoadNewFromSample(ctx)
+		} else {
+			err = config.SaveNewFromSample(ctx)
+		}
+		if err != nil {
 			return err
 		}
 		var niModeBrowser bool
@@ -179,7 +185,7 @@ ENVIRONMENT
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
 		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")
 
-		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
+		if nonInteractive {
 			installConf, err := nonInteractiveInstall(ctx)
 			fatalIfError(cmd, err)
 			if installConf.FrontendLogin != "" {

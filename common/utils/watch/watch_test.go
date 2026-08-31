@@ -71,7 +71,6 @@ func TestWatch(t *testing.T) {
 	w := NewWatcher(&mockWatchType{v})
 
 	w.Reset()
-	go w.Flush()
 
 	r, _ := w.Watch()
 
@@ -135,8 +134,6 @@ func TestWatchSimple(t *testing.T) {
 	m := map[string]any{"sources": sources}
 
 	w := NewWatcher(&mockSimpleWatchType{m: m})
-
-	go w.Flush()
 
 	r, _ := w.Watch(WithPath("sources"))
 

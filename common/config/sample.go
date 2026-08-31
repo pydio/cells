@@ -27,17 +27,22 @@ import (
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
-// SaveNewFromSample parses Json default sample and save it to context config
-func SaveNewFromSample(ctx context.Context) error {
+// LoadNewFromSample parses the JSON default sample and loads it into the
+// context config without persisting it.
+func LoadNewFromSample(ctx context.Context) error {
 	var data interface{}
 	if err := json.Unmarshal([]byte(SampleConfig), &data); err != nil {
 		return err
 	}
-	if err := Set(ctx, data); err == nil {
-		return Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
-	} else {
+	return Set(ctx, data)
+}
+
+// SaveNewFromSample parses the JSON default sample and saves it to context config.
+func SaveNewFromSample(ctx context.Context) error {
+	if err := LoadNewFromSample(ctx); err != nil {
 		return err
 	}
+	return Save(ctx, common.PydioSystemUsername, "Initialize with sample config")
 }
 
 // SampleConfig is the default config used during the first install
