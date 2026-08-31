@@ -23,6 +23,7 @@ package sql
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
@@ -33,13 +34,18 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/storage/sql"
-	"github.com/pydio/cells/v5/common/storage/sql/resources"
+	resources2 "github.com/pydio/cells/v5/common/storage/sql/resources"
 	"github.com/pydio/cells/v5/idm/meta"
 )
 
 var (
 	EntityValueErr = errors.RegisterBaseSentinel(errors.SqlDAO, "sql entity values")
 )
+
+func init() {
+	meta.EntityDrivers.Register(NewEntityDAO)
+	meta.EntityValueDrivers.Register(NewEntityValueDAO)
+}
 
 func evTagError(err error) error {
 	return errors.Tag(err, EntityValueErr)
@@ -80,27 +86,71 @@ func (*MetaValuesRel) TableName(namer schema.Namer) string {
 	return namer.JoinTableName("meta_values_rel")
 }
 
-func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
-
-	return &evSqlImpl{
-		Abstract: sql.NewAbstract(db),
-		DAO:      resources.NewDAO(db),
+func (s *evSqlImpl) MigrateEV(ctx context.Context) error {
+	db := s.Session(ctx)
+	if err := db.SetupJoinTable(&EntityValues{}, "Metas", &MetaValuesRel{}); err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			return evTagError(err)
+		}
 	}
+	if err := db.AutoMigrate(&EntityValues{}); err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			return err
+		}
+	}
+
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *entitySqlImpl) MigrateEntity(ctx context.Context) error {
+	if err := s.Session(ctx).AutoMigrate(&Entities{}); err != nil {
+		return err
+	}
+
+	if err := s.resourcesDAO.Migrate(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Migrate Add explicit Migrate for entitySqlImpl to resolve ambiguity
+func (s *entitySqlImpl) Migrate(ctx context.Context) error {
+	return s.MigrateEntity(ctx)
+}
+
+func NewEntityDAO(db *gorm.DB) meta.EntityDAO {
+	return &entitySqlImpl{
+		Abstract:     sql.NewAbstract(db),
+		resourcesDAO: resources2.NewDAO(db),
+	}
+}
+
+func NewEntityValueDAO(db *gorm.DB) meta.EntityValueDAO {
+	return &evSqlImpl{
+		Abstract:     sql.NewAbstract(db),
+		resourcesDAO: resources2.NewDAO(db),
+	}
+}
+
+type entitySqlImpl struct {
+	*sql.Abstract
+	resourcesDAO
 }
 
 type evSqlImpl struct {
 	*sql.Abstract
-	resources.DAO
+	resourcesDAO
 }
 
+// Migrate Add explicit Migrate for evSqlImpl to resolve ambiguity
 func (s *evSqlImpl) Migrate(ctx context.Context) error {
-	db := s.Session(ctx)
-	if err := db.SetupJoinTable(&EntityValues{}, "Metas", &MetaValuesRel{}); err != nil {
-		return evTagError(err)
-	}
-	return db.AutoMigrate(&Entities{}, &EntityValues{})
+	return s.MigrateEV(ctx)
 }
 
+// AsEntity converts an Entities model to an idm.MetaEntity
 func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 	res.Uuid = u.UUID
 	res.Label = u.Label
@@ -109,6 +159,7 @@ func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 	return res
 }
 
+// FromEntity populates an Entities model from an idm.MetaEntity
 func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 	if u.UUID == "" {
 		u.UUID = uuid.New().String()
@@ -120,26 +171,27 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 }
 
 // CreateEntity creates a new entity
-func (s *evSqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
+func (s *entitySqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
 	res := (&Entities{}).FromEntity(entity)
-	// //check if entity with the same label exists
-	// var existing Entities
-	// tx := s.Session(ctx).Where("label = ?", res.Label).First(&existing)
-	// if tx.Error == nil {
-	// 	// if a row exists with the same label
-	// 	return nil, evTagError(errors.New("entity with the same label already exists"))
-	// }
 
 	tx := s.Session(ctx).Create(res)
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
 	}
 
-	return res.AsEntity(&idm.MetaEntity{}), nil
+	out := res.AsEntity(&idm.MetaEntity{})
+	if len(entity.Policies) > 0 {
+		if pols, err := s.AddPolicies(ctx, false, out.Uuid, entity.Policies); err != nil {
+			return nil, evTagError(err)
+		} else {
+			out.Policies = pols
+		}
+	}
+	return out, nil
 }
 
 // SetEntities creates multiple entities
-func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
+func (s *entitySqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity) ([]*idm.MetaEntity, error) {
 	createdEntities := make([]*idm.MetaEntity, 0, len(entities))
 
 	for _, entity := range entities {
@@ -154,7 +206,7 @@ func (s *evSqlImpl) SetEntities(ctx context.Context, entities []*idm.MetaEntity)
 }
 
 // GetEntity retrieves an entity by its UUID
-func (s *evSqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
+func (s *entitySqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.MetaEntity, error) {
 	var model Entities
 	tx := s.Session(ctx).Where(&Entities{UUID: entityUuid}).First(&model)
 	if tx.Error != nil {
@@ -164,9 +216,33 @@ func (s *evSqlImpl) GetEntity(ctx context.Context, entityUuid string) (*idm.Meta
 		return nil, evTagError(tx.Error)
 	}
 
-	return model.AsEntity(&idm.MetaEntity{}), nil
+	out := model.AsEntity(&idm.MetaEntity{})
+	if pols, err := s.GetPoliciesForResource(ctx, out.Uuid); err == nil {
+		out.Policies = pols
+	}
+	return out, nil
 }
 
+// ListEntities retrieves all entities
+func (s *entitySqlImpl) ListEntities(ctx context.Context) ([]*idm.MetaEntity, error) {
+	var models []*Entities
+	tx := s.Session(ctx).Find(&models)
+	if tx.Error != nil {
+		return nil, evTagError(tx.Error)
+	}
+
+	entities := make([]*idm.MetaEntity, 0, len(models))
+	for _, model := range models {
+		out := model.AsEntity(&idm.MetaEntity{})
+		if pols, err := s.GetPoliciesForResource(ctx, out.Uuid); err == nil {
+			out.Policies = pols
+		}
+		entities = append(entities, out)
+	}
+	return entities, nil
+}
+
+// AsEntityValue converts an EntityValues model to an idm.EntityValue
 func (u *EntityValues) AsEntityValue(res *idm.EntityValue) *idm.EntityValue {
 	res.Uuid = u.UUID
 	res.Label = u.Label
@@ -178,8 +254,13 @@ func (u *EntityValues) AsEntityValue(res *idm.EntityValue) *idm.EntityValue {
 	return res
 }
 
+// FromEntityValue populates an EntityValues model from an idm.EntityValue
 func (u *EntityValues) FromEntityValue(res *idm.EntityValue) *EntityValues {
-	u.UUID = uuid.New().String()
+	if res.Uuid != "" {
+		u.UUID = res.Uuid
+	} else {
+		u.UUID = uuid.New().String()
+	}
 	u.Label = res.Label
 	u.EntityUUID = res.EntityUuid
 	if res.DisplayJSON != "" {
@@ -192,13 +273,41 @@ func (u *EntityValues) FromEntityValue(res *idm.EntityValue) *EntityValues {
 
 // CreateEntityValue creates a new entity value and links it to its entity
 func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error) {
-	// Check if already exists
+	// Check if already exists by UUID first (if UUID is provided)
 	var existing EntityValues
-	tx := s.Session(ctx).Where("label = ? AND entity_uuid = ?", value.Label, value.EntityUuid).First(&existing)
+	var tx *gorm.DB
+
+	if value.Uuid != "" {
+		// UUID provided, check by UUID
+		tx = s.Session(ctx).Where("uuid = ?", value.Uuid).First(&existing)
+	} else {
+		// No UUID, check by label + entity_uuid
+		tx = s.Session(ctx).Where("label = ? AND entity_uuid = ?", value.Label, value.EntityUuid).First(&existing)
+	}
 
 	if tx.Error == nil {
-		// Found existing, return it
-		return existing.AsEntityValue(&idm.EntityValue{}), nil
+		// Found existing, update it rather than creating a new one
+		if value.Label != "" {
+			existing.Label = value.Label
+		}
+		if value.DisplayJSON != "" {
+			j := datatypes.JSON(value.DisplayJSON)
+			existing.DisplayJSON = &j
+		}
+		tx = s.Session(ctx).Model(&existing).Updates(existing)
+		if tx.Error != nil {
+			return nil, evTagError(tx.Error)
+		}
+
+		out := existing.AsEntityValue(&idm.EntityValue{})
+		if len(value.Policies) > 0 {
+			if pols, err := s.AddPolicies(ctx, false, out.Uuid, value.Policies); err != nil {
+				return nil, evTagError(err)
+			} else {
+				out.Policies = pols
+			}
+		}
+		return out, nil
 	}
 
 	// Return error only if it's not "record not found"
@@ -215,7 +324,15 @@ func (s *evSqlImpl) CreateEntityValue(ctx context.Context, value *idm.EntityValu
 		return nil, evTagError(tx.Error)
 	}
 
-	return model.AsEntityValue(&idm.EntityValue{}), nil
+	out := model.AsEntityValue(&idm.EntityValue{})
+	if len(value.Policies) > 0 {
+		if pols, err := s.AddPolicies(ctx, false, out.Uuid, value.Policies); err != nil {
+			return nil, evTagError(err)
+		} else {
+			out.Policies = pols
+		}
+	}
+	return out, nil
 }
 
 // CreateEntityValues creates multiple entity values
@@ -316,33 +433,55 @@ func (s *evSqlImpl) GetMetaEntityValues(ctx context.Context, metaUuid string) ([
 }
 
 // DeleteEntity deletes an entity and all its values, as well as the links between those values and any meta
-func (s *evSqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
-	if err := s.validateUUIDs(entityID); err != nil {
-		return nil, err
+func (s *entitySqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityResponse, error) {
+
+	// Validate UUID format
+	if entityID == "" {
+		return nil, evTagError(errors.New("entity uuid cannot be empty"))
+	}
+	if _, err := uuid.Parse(entityID); err != nil {
+		return nil, evTagError(errors.New("invalid entity uuid: " + entityID))
 	}
 
+	// Delete related MetaValuesRel entries (cascade)
 	subQuery := s.Session(ctx).Model(&EntityValues{}).Select("uuid").Where("entity_uuid = ?", entityID)
-
 	tx := s.Session(ctx).Where("e_value_uuid IN (?)", subQuery).Delete(&MetaValuesRel{})
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
 	}
 
-	EntityValuesModel := &EntityValues{}
-	tx = s.Session(ctx).Where(&EntityValues{EntityUUID: entityID}).Delete(EntityValuesModel)
+	// Delete all entity values for this entity (cascade)
+	tx = s.Session(ctx).Model(&EntityValues{}).Where(&EntityValues{EntityUUID: entityID}).Delete(&EntityValues{})
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
 	}
 
+	// Delete policies for the entity
+	if err := s.DeletePoliciesForResource(ctx, entityID); err != nil {
+		return nil, evTagError(err)
+	}
+
+	// Delete the entity itself - only count this for RowsDeleted
 	EntitiesModel := &Entities{}
 	tx = s.Session(ctx).Where(&Entities{UUID: entityID}).Delete(EntitiesModel)
 	if tx.Error != nil {
 		return nil, evTagError(tx.Error)
 	}
 
-	return &idm.DeleteEntityValuesResponse{
+	return &idm.DeleteEntityResponse{
 		RowsDeleted: tx.RowsAffected,
 	}, nil
+}
+
+func (s *evSqlImpl) DeleteEntityValues(ctx context.Context, entityID string) (bool, error) {
+	tx := s.Session(ctx).Model(&EntityValues{}).Where(&EntityValues{EntityUUID: entityID}).Delete(&EntityValues{})
+	if tx.Error != nil {
+		return false, evTagError(tx.Error)
+	}
+	if tx.RowsAffected > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // GetMetaEntityValuesMap retrieves a map of meta UUIDs to their linked entity values for a given list of meta UUIDs

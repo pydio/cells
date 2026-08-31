@@ -122,11 +122,7 @@ class MetadataBoard extends React.Component{
             ...(PROMPTONUPLOAD_FF ? [promptOnUploadColumn, requiredColumn] : []),
             {name:'JsonDefinition', label:m('definition'), hideSmall:true, renderCell:(row => {
                 const def = row.JsonDefinition;
-                if(!def) {
-                    return '';
-                }
-                const data = JSON.parse(def);
-                return Metadata.MetaTypes[data.type] || data.type;
+                return row.FieldType ? row.FieldType : def ? Metadata.MetaTypes[ JSON.parse(def)?.type] : JSON.parse(def)?.type;
             }), sorter:{type:'string'}}
         ].filter(Boolean);
 

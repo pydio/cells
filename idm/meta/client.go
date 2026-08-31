@@ -24,7 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"slices"
+
 	"strconv"
 	"strings"
 	"text/template"
@@ -89,11 +89,14 @@ type UserMetaClient interface {
 	GetEntityValues(ctx context.Context, entityID string) ([]*idm.EntityValue, error)
 	IsContextEditable(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy) bool
 	MatchPolicies(ctx context.Context, resourceId string, policies []*serviceproto.ResourcePolicy, action serviceproto.ResourcePolicyAction, subjects ...string) bool
-	DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error)
+	Entities(ctx context.Context) (map[string]*idm.MetaEntity, error)
+	DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityResponse, error)
+	GetEntity(ctx context.Context, entityID string) (*idm.MetaEntity, error)
 	CreateEntity(ctx context.Context, input *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error)
 	CreateEntityValues(ctx context.Context, input *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error)
 	LinkMetaToEntityValue(ctx context.Context, metaUuid string, valueUuid string) (*idm.MetaToEntityValueResponse, error)
 	UnlinkMetaFromEntityValue(ctx context.Context, metaUuid string, valueUuid string) (*idm.MetaToEntityValueResponse, error)
+	DeleteEntityValue(ctx context.Context, entityValueUuid string) (*idm.DeleteEntityValueResponse, error)
 }
 
 type umClient struct {
@@ -147,6 +150,7 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 		if !u.MatchPolicies(ctx, meta.Namespace, policies, serviceproto.ResourcePolicyAction_WRITE) {
 			return nil, errors.WithMessagef(errors.NamespaceNotAllowed, "Updating namespace %s is not allowed!", meta.Namespace)
 		}
+		// TODO deny updates to admin only tag values for tag_cloud namespaces with admin only policies
 		if meta.Uuid != "" {
 			loadUuids = append(loadUuids, meta.Uuid)
 		}
@@ -195,129 +199,13 @@ func (u *umClient) UpdateMetaResolved(ctx context.Context, input *idm.UpdateUser
 		}
 	}
 
-	// First persist metadata to get UUIDs assigned
+	// Persist metadata and let server handle entity value reconciliation
 	resp, err := svc.UpdateUserMeta(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	// Now link to entity values using the persisted metadata with valid UUIDs
-	for _, m := range resp.MetaDatas {
-		var metaValue string
-		// Check if namespace is linked to an entity
-		if e := json.Unmarshal([]byte(m.JsonValue), &metaValue); e != nil {
-			// if we cannot unmarshal the value, it means it's not linked to an entity and we can skip it
-			// if this throws an error it breaks the Integration tests, one of the tests was passing with an invalid payload //generate64KJsonString()
-			continue
-		}
-		if len(metaValue) == 0 && !slices.Contains([]string{"tag_cloud", "auto_complete"}, nsList[m.Namespace].FieldType) {
-			continue
-			// if  JsonValue is empty, should we unlink meta from evalue?
-			// get all linked entity values
-
-			// unlink all
-			// continue to next meta
-
-		}
-		if ns, exists := nsList[m.Namespace]; exists {
-			if slices.Contains([]string{"tag_cloud", "auto_complete"}, ns.FieldType) {
-				definition, _ := ns.UnmarshallDefinition()
-				if definition != nil {
-					entityID := definition.GetEntityId()
-					if len(entityID) == 0 {
-						continue // no entity linked to this namespace, nothing to do
-					}
-					evals, err := u.ServiceClient(ctx).GetEntityValues(ctx, &idm.GetMetaEntityValuesRequest{
-						EntityUuid: entityID,
-					})
-					if len(metaValue) == 0 && len(evals.EntityValue) > 0 {
-						meta, _ := u.ServiceClient(ctx).GetMetadata(ctx, &idm.GetMetadataRequest{NodeUuid: m.NodeUuid, Namespace: m.Namespace})
-						for _, val := range evals.EntityValue {
-							// unlink all values
-							_, err = u.ServiceClient(ctx).UnlinkMetaFromEntityValue(ctx, &idm.MetaToEntityValueRequest{
-								MetaUuid:        meta.Uuid,
-								EntityValueUuid: val.Uuid,
-							})
-							if err != nil {
-								return nil, err
-							}
-						}
-						continue
-					} else if len(metaValue) > 0 && len(evals.EntityValue) > 0 {
-						// unlink the diff
-						for _, val := range evals.EntityValue {
-							if !slices.Contains(strings.Split(metaValue, ","), val.Label) {
-								//unlink value
-								meta, _ := u.ServiceClient(ctx).GetMetadata(ctx, &idm.GetMetadataRequest{NodeUuid: m.NodeUuid, Namespace: m.Namespace})
-								_, err = u.ServiceClient(ctx).UnlinkMetaFromEntityValue(ctx, &idm.MetaToEntityValueRequest{
-									MetaUuid:        meta.Uuid,
-									EntityValueUuid: val.Uuid,
-								})
-								if err != nil {
-									return nil, err
-								}
-							}
-						}
-					}
-					if err != nil || len(evals.EntityValue) == 0 && len(metaValue) > 0 {
-						// if no entity values exist for this entity but we have a meta value throw an error
-						return nil, err
-					}
-
-					for _, val := range evals.EntityValue {
-						//string already exists
-						if metaValue == val.Label || slices.Contains(strings.Split(metaValue, ","), val.Label) {
-							meta, _ := u.ServiceClient(ctx).GetMetadata(ctx, &idm.GetMetadataRequest{NodeUuid: m.NodeUuid, Namespace: m.Namespace})
-
-							u.ServiceClient(ctx).LinkMetaToEntityValue(ctx, &idm.MetaToEntityValueRequest{
-								MetaUuid:        meta.Uuid,
-								EntityValueUuid: val.Uuid,
-							})
-						}
-					}
-
-					if ns.FieldType == "tag_cloud" || ns.FieldType == "auto_complete" {
-						// get the diff of labels from metaValue
-						var newLabels []string
-						// combine all EntityValue labels into an array
-						var existingLabels []string
-						for _, val := range evals.EntityValue {
-							existingLabels = append(existingLabels, val.Label)
-						}
-						for _, label := range strings.Split(metaValue, ",") {
-							if !slices.Contains(existingLabels, label) {
-								newLabels = append(newLabels, label)
-							}
-						}
-						// create new EntityValues for the diff
-						entityValues := make([]*idm.EntityValue, 0, len(newLabels))
-
-						meta, _ := u.ServiceClient(ctx).GetMetadata(ctx, &idm.GetMetadataRequest{NodeUuid: m.NodeUuid, Namespace: m.Namespace})
-						for _, label := range newLabels {
-							// append and create many instead of one by one
-							entityValues = append(entityValues, &idm.EntityValue{
-								EntityUuid: entityID,
-								Label:      label,
-							})
-						}
-						if len(entityValues) > 0 {
-							createValResp, err := u.CreateEntityValues(ctx, &idm.CreateEntityValueRequest{EntityValue: entityValues})
-							if err != nil {
-								return nil, err
-							}
-							// Link meta to entity value
-							for _, createVal := range createValResp.EntityValue {
-								_, err = u.LinkMetaToEntityValue(ctx, meta.Uuid, createVal.Uuid)
-								if err != nil {
-									return nil, err
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	// Server-side EvResolver now handles vocabulary creation, linking, and unlinking
 	return resp, nil
 }
 
@@ -484,6 +372,35 @@ func (u *umClient) PoliciesForMeta(_ context.Context, _ string, _ interface{}) (
 	return
 }
 
+// Entities lists all entities the current context has READ access to.
+// Visibility is gated on READ; editability is indicated separately via PoliciesContextEditable (WRITE check).
+func (u *umClient) Entities(ctx context.Context) (map[string]*idm.MetaEntity, error) {
+	resp, err := u.ServiceClient(ctx).ListEntities(ctx, &idm.ListEntitiesRequest{})
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[string]*idm.MetaEntity)
+	for _, entity := range resp.Entity {
+		if !u.MatchPolicies(ctx, entity.Uuid, entity.Policies, serviceproto.ResourcePolicyAction_READ) {
+			continue
+		}
+		entity.PoliciesContextEditable = u.IsContextEditable(ctx, entity.Uuid, entity.Policies)
+		result[entity.Uuid] = entity
+	}
+	return result, nil
+}
+
+func (u *umClient) GetEntity(ctx context.Context, entityID string) (*idm.MetaEntity, error) {
+	req := &idm.GetEntityRequest{
+		EntityUuid: entityID,
+	}
+	resp, err := u.ServiceClient(ctx).GetEntity(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Entity, nil
+}
+
 func (u *umClient) GetEntityValues(ctx context.Context, entityID string) ([]*idm.EntityValue, error) {
 	req := &idm.GetMetaEntityValuesRequest{
 		EntityUuid: entityID,
@@ -495,9 +412,9 @@ func (u *umClient) GetEntityValues(ctx context.Context, entityID string) ([]*idm
 	return resp.EntityValue, nil
 }
 
-func (u *umClient) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityValuesResponse, error) {
-	req := &idm.GetMetaEntityValuesRequest{
-		EntityUuid: entityID,
+func (u *umClient) DeleteEntity(ctx context.Context, entityID string) (*idm.DeleteEntityResponse, error) {
+	req := &idm.DeleteEntityRequest{
+		EntityId: entityID,
 	}
 	resp, err := u.ServiceClient(ctx).DeleteEntity(ctx, req)
 	if err != nil {
@@ -762,4 +679,9 @@ func (u *umClient) incomingDefaults(ctx context.Context, inputType tree.NodeType
 		}
 	}
 	return
+}
+
+func (u *umClient) DeleteEntityValue(ctx context.Context, entityValueUuid string) (*idm.DeleteEntityValueResponse, error) {
+	// TODO Implement this method to delete an entity value by its UUID
+	return nil, nil
 }
