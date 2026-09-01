@@ -3,6 +3,7 @@ package rest
 import (
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"strings"
 )
@@ -17,9 +18,9 @@ const (
 // /frontend/binaries/{BinaryType}/{Uuid} route.
 //
 // This route is used for browser-facing frontend binaries, notably:
-// - USER binaries for avatars/profile pictures
-// - GLOBAL binaries for frontend assets such as progressive backgrounds
-//   (see frontend/assets/gui.ajax/res/js/ui/ReactUI/withProgressiveBg.js)
+//   - USER binaries for avatars/profile pictures
+//   - GLOBAL binaries for frontend assets such as progressive backgrounds
+//     (see frontend/assets/gui.ajax/res/js/ui/ReactUI/withProgressiveBg.js)
 //
 // Keep this list restricted to browser-safe raster image formats. Do not broaden
 // it to match generic image processing support (for example the thumbnail job in
@@ -54,11 +55,14 @@ func detectBinaryExtension(content io.Reader) (string, error) {
 	buf = buf[:n]
 
 	detected := http.DetectContentType(buf)
-	// DetectContentType returns "type; charset=..." sometimes — take only the MIME part
-	detected = strings.SplitN(detected, ";", 2)[0]
-	detected = strings.TrimSpace(detected)
+	// http.DetectContentType may append parameters (e.g. "type; charset=...").
+	// Parse the media type to compare the clean, lowercased MIME type.
+	mediatype, _, err := mime.ParseMediaType(detected)
+	if err != nil {
+		return "", fmt.Errorf("cannot parse detected content type %q: %w", detected, err)
+	}
 
-	if ext, ok := allowedBinaryTypes[detected]; ok {
+	if ext, ok := allowedBinaryTypes[mediatype]; ok {
 		return ext, nil
 	}
 
