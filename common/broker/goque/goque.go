@@ -73,6 +73,8 @@ type gq struct {
 	pQu     *goque.PrefixQueue
 	prefix  string
 	dataDir string
+	sq      *serviceQueue // added: back-reference for ref counting
+	id      string        // added: map key for cleanup
 }
 
 func (g *gq) Push(ctx context.Context, msg proto.Message) error {
@@ -136,11 +138,24 @@ func (g *gq) Consume(callback func(context.Context, ...broker.Message)) error {
 	return nil
 }
 
-func (g *gq) Close(ctx context.Context) error {
+func (g *gq) Close(_ context.Context) error {
+	ql.Lock()
+	g.sq.rc--
+	shouldClose := g.sq.rc == 0
+	if shouldClose {
+		delete(queues, g.id)
+	}
+	ql.Unlock()
+
+	if !shouldClose {
+		return nil
+	}
+
+	if g.pQu != nil {
+		return g.pQu.Close()
+	}
 	if g.qu != nil {
 		return g.qu.Close()
-	} else if g.pQu != nil {
-		return g.pQu.Close()
 	}
 	return nil
 }
@@ -148,7 +163,7 @@ func (g *gq) Close(ctx context.Context) error {
 func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	//srv := u.Query().Get("serviceName")
 	//if srv == "" {
-	//	return nil, fmt.Errorf("please provide a service name")
+	//  return nil, fmt.Errorf("please provide a service name")
 	//}
 	streamName := u.Query().Get("name")
 	if streamName == "" {
@@ -160,6 +175,8 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		prefix = ""
 	}
 
+	dataDir := filepath.Join(u.Path, queueName)
+
 	// Compute a cached identifier : use full URL, but remove prefix
 	IDU := *u
 	qq := IDU.Query()
@@ -168,20 +185,25 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 	id := IDU.String()
 
 	ql.Lock()
-	if q, ok := queues[id]; ok {
-		q.rc++
+	if sq, ok := queues[id]; ok {
+		sq.rc++
 		ql.Unlock()
-		return &gq{
-			ctx:    ctx,
-			qu:     q.q,
-			pQu:    q.pq,
-			prefix: prefix,
-		}, nil
+		instance := &gq{
+			ctx:     ctx,
+			qu:      sq.q,
+			pQu:     sq.pq,
+			prefix:  prefix,
+			dataDir: filepath.Join(u.Path, queueName),
+			sq:      sq, // wire up back-reference
+			id:      id,
+		}
+		go func() {
+			<-ctx.Done()
+			_ = instance.Close(ctx)
+		}()
+		return instance, nil
 	}
 
-	dataDir := filepath.Join(u.Path, queueName)
-
-	var sq *serviceQueue
 	var pq *goque.PrefixQueue
 	var q *goque.Queue
 	var err error
@@ -195,25 +217,22 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error)
 		ql.Unlock()
 		return nil, err
 	}
-	sq = &serviceQueue{q: q, pq: pq, rc: 0}
+	sq := &serviceQueue{q: q, pq: pq, rc: 1}
 	queues[id] = sq
 	ql.Unlock()
-	go func() {
-		<-ctx.Done()
-		sq.rc--
-		if sq.rc == 0 {
-			if pq != nil {
-				_ = pq.Close()
-			} else {
-				_ = q.Close()
-			}
-		}
-	}()
-	return &gq{
+
+	instance := &gq{
 		ctx:     ctx,
 		qu:      q,
 		pQu:     pq,
 		prefix:  prefix,
 		dataDir: dataDir,
-	}, nil
+		sq:      sq,
+		id:      id,
+	}
+	go func() {
+		<-ctx.Done()
+		_ = instance.Close(ctx)
+	}()
+	return instance, nil
 }
