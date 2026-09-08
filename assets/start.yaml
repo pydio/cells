@@ -226,7 +226,10 @@ services: &services
       meta-entities:
         - type: sql
           prefix: idm_usr_
-          policies: idm_usr_entity_policies
+          policies: idm_usr_meta_entity_policies
+      meta-entity-values:
+        - type: sql
+          prefix: idm_usr_
   pydio.grpc.data.index:
     storages:
       main:

@@ -487,7 +487,7 @@ func (s *UserMetaHandler) PerformPutEntity(ctx context.Context, request *idm.Cre
 	response, err := s.ServiceClient(ctx).CreateEntity(ctx, request)
 	if err != nil {
 		log.Logger(ctx).Error("failed to create entity", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessagef(errors.StatusBadRequest, "failed to create entity: %v", err)
 	}
 	return response, nil
 }
@@ -535,8 +535,9 @@ func (s *UserMetaHandler) CreateEntityValues(req *restful.Request, rsp *restful.
 func (s *UserMetaHandler) PerformCreateEntityValues(ctx context.Context, request *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
 	response, err := s.ServiceClient(ctx).CreateEntityValues(ctx, request)
 	if err != nil {
+
 		log.Logger(ctx).Error("failed to create entity values", zap.Error(err))
-		return nil, err
+		return nil, errors.WithMessagef(errors.StatusBadRequest, "failed to create entity values: %v", err)
 	}
 	return response, nil
 }
