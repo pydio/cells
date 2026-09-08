@@ -313,7 +313,6 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
                         p.Effect === 'allow' &&
                         p.Subject === 'profile:admin',
                 );
-                console.log('Resolved isClosedValues for', namespaceProp.Namespace, 'to', closed);
                 setIsClosedValues(closed);
             })
             .catch(() => {
@@ -593,7 +592,7 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
             />,
         );
     }
-    console.log({USERMETA_PROMPT_FF})
+
     const styles = { section: { marginTop: 10, fontWeight: 500, fontSize: 12 } };
 
     return (
