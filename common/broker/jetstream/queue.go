@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/nats-io/nats-server/conf"
@@ -49,6 +50,8 @@ var (
 	nc *nats.Conn
 )
 
+const retentionQueryParameter = "retention"
+
 func init() {
 	runtime.Register("system", func(ctx context.Context) {
 		var mgr manager.Manager
@@ -67,6 +70,10 @@ type streamOpener struct {
 	useLocalConn bool
 }
 
+// OpenURL opens a JetStream-backed queue. The optional retention query
+// parameter accepts interest (the default), limits, or workqueue. For example:
+//
+//	nats://localhost:4222/queue?name=jobs&retention=interest
 func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
 	streamName := u.Query().Get("name")
 	if streamName == "" {
@@ -85,11 +92,49 @@ func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQue
 	return NewNatsQueue(ctx, u, sha, s.useLocalConn)
 }
 
+// parseRetentionPolicy parses the retention query parameter used by nats queue
+// URLs. Interest retention is the default because this adapter creates one
+// durable consumer and acknowledged queue messages no longer need to be kept.
+func parseRetentionPolicy(value string) (jetstream.RetentionPolicy, error) {
+	switch strings.ToLower(value) {
+	case "", "interest":
+		return jetstream.InterestPolicy, nil
+	case "limits":
+		return jetstream.LimitsPolicy, nil
+	case "workqueue":
+		return jetstream.WorkQueuePolicy, nil
+	default:
+		return 0, errors.Errorf("invalid JetStream retention policy %q: expected interest, limits, or workqueue", value)
+	}
+}
+
+func newStreamConfig(streamName string, retention jetstream.RetentionPolicy) jetstream.StreamConfig {
+	return jetstream.StreamConfig{
+		Name:      streamName,
+		Subjects:  []string{streamName + ".*"},
+		Retention: retention,
+	}
+}
+
+func validateRetentionUpdate(current, desired jetstream.RetentionPolicy) error {
+	if current == desired {
+		return nil
+	}
+	if current == jetstream.WorkQueuePolicy || desired == jetstream.WorkQueuePolicy {
+		return errors.Errorf(
+			"cannot change JetStream retention policy from %s to %s: NATS requires a new stream for changes to or from workqueue retention",
+			current.String(), desired.String(),
+		)
+	}
+	return nil
+}
+
 type Queue struct {
-	rootCtx    context.Context
-	streamName string
-	js         jetstream.JetStream
-	conn       *nats.Conn
+	rootCtx         context.Context
+	streamName      string
+	retentionPolicy jetstream.RetentionPolicy
+	js              jetstream.JetStream
+	conn            *nats.Conn
 }
 
 // Push serializes json-encoded context metadata and proto-encoded event together
@@ -108,11 +153,20 @@ func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
 
 // Consume creates a jetstream Consumer with the current streamName
 func (q *Queue) Consume(process func(context.Context, ...broker.Message)) error {
+	// Retention can be updated between limits and interest, but NATS does not
+	// allow an existing stream to change to or from workqueue retention.
+	if existing, err := q.js.Stream(q.rootCtx, q.streamName); err == nil {
+		if info := existing.CachedInfo(); info != nil {
+			if err := validateRetentionUpdate(info.Config.Retention, q.retentionPolicy); err != nil {
+				return err
+			}
+		}
+	} else if !errors.Is(err, jetstream.ErrStreamNotFound) {
+		return err
+	}
+
 	// Create a stream
-	s, er := q.js.CreateOrUpdateStream(q.rootCtx, jetstream.StreamConfig{
-		Name:     q.streamName,
-		Subjects: []string{q.streamName + ".*"},
-	})
+	s, er := q.js.CreateOrUpdateStream(q.rootCtx, newStreamConfig(q.streamName, q.retentionPolicy))
 	if er != nil {
 		return er
 	}
@@ -149,6 +203,11 @@ func (q *Queue) Close(ctx context.Context) error {
 }
 
 func NewNatsQueue(ctx context.Context, u *url.URL, streamName string, useLocalConn bool) (*Queue, error) {
+	retention, err := parseRetentionPolicy(u.Query().Get(retentionQueryParameter))
+	if err != nil {
+		return nil, err
+	}
+
 	var conn *nats.Conn
 	if !useLocalConn && nc != nil && !nc.IsClosed() {
 		conn = nc
@@ -226,10 +285,11 @@ func NewNatsQueue(ctx context.Context, u *url.URL, streamName string, useLocalCo
 	}
 
 	q := &Queue{
-		rootCtx:    ctx,
-		conn:       conn,
-		streamName: streamName,
-		js:         js,
+		rootCtx:         ctx,
+		conn:            conn,
+		streamName:      streamName,
+		retentionPolicy: retention,
+		js:              js,
 	}
 
 	return q, nil
