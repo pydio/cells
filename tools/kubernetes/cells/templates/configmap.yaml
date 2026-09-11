@@ -144,7 +144,9 @@ data:
         uri: "mem://?debounce={{"{{"}} .debounce {{"}}"}}&idle={{"{{"}} .idle {{"}}"}}&max={{"{{"}} .max {{"}}"}}&openerID={{"{{"}} .openerID {{"}}"}}"
       persistent:
         {{- $authParamsBroker := (include "cells.urlUser" (dict "enabled" false)) }}
-        uri: "{{ include "cells.broker.url" (dict "path" "queue" "context" . "authParams" $authParamsBroker "params" (dict "name" "{{ .name }}" "serviceName" "{{ .Service }}" "prefix" "{{ .prefix }}" "serverConfEnv" "BROKER_SERVER_CONF" ))}}"
+        {{- $brokerParams := (include "cells.broker.params" . | default "{}" | fromJson) }}
+        {{- $queueParams := merge (dict "name" "{{ .name }}" "serviceName" "{{ .Service }}" "prefix" "{{ .prefix }}" "serverConfEnv" "BROKER_SERVER_CONF") $brokerParams }}
+        uri: "{{ include "cells.broker.url" (dict "path" "queue" "context" . "authParams" $authParamsBroker "params" $queueParams)}}"
     caches:
       local:
         uri: "pm://?evictionTime={{"{{"}} .evictionTime {{"}}"}}&cleanWindow={{"{{"}} .cleanWindow {{"}}"}}&prefix={{"{{"}} .prefix {{"}}"}}"
