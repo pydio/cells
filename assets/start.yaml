@@ -55,7 +55,8 @@ queues:
   debouncer:
     uri: "mem://?debounce={{ .debounce }}&idle={{ .idle }}&max={{ .max }}&openerID={{ .openerID }}"
   persistent:
-    uri: "fifo://{{ autoMkdir ( serviceDataDir .Service ) }}?name={{ .name }}&prefix={{ .prefix }}"
+    uri: "nats://0.0.0.0:4222?name={{ .name }}&prefix={{ .prefix }}&max={{ .max }}&idle={{ .idle }}&debounce={{ .debounce }}&openerID={{ .openerID }}"
+    #uri: "fifo://{{ autoMkdir ( serviceDataDir .Service ) }}?name={{ .name }}&prefix={{ .prefix }}"
 
 caches:
   local:
