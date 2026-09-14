@@ -51,10 +51,10 @@
     "other": "Si le serveur n'a pas accès au net, ne pas essayer pas de contacter le serveur de mises à jour."
   },
   "Update.Process.Start": {
-    "other": "Upgrading Binary"
+    "other": "Mise à jour du binaire"
   },
   "Update.Process.Progress": {
-    "other": "Downloading Binary {progress}%..."
+    "other": "Téléchargement du binaire en cours {progress}%..."
   },
   "Update.Process.Verify": {
     "other": "Download Finished, now verifying package..."

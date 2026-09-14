@@ -168,7 +168,7 @@
     "other": "Request Method"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "Verzoek-URI"
   },
   "contextMetaField.ServerTime": {
     "other": "Server Time"
@@ -321,7 +321,7 @@
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "niet"
   },
   "workspaceSingleQuery.AttributeName": {
     "other": "Attribute Name"
@@ -468,6 +468,6 @@
     "other": "Manual Trigger"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "Gebeurtenissen"
   }
 }

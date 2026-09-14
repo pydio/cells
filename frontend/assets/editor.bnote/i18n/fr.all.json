@@ -41,6 +41,30 @@
   "alert-block.success": {
     "other": "Succès"
   },
+  "toolbar-spec.title": {
+    "other": "Insérer un bloc de barre d'outils"
+  },
+  "toolbar-spec.subtext": {
+    "other": "Insérer une barre d'outils d'action avec des boutons configurables"
+  },
+  "toolbar-block.names-label": {
+    "other": "Noms de la barre d'outils (séparés par des virgules)"
+  },
+  "toolbar-block.type-label": {
+    "other": "Type de rendu"
+  },
+  "toolbar-block.alignment-label": {
+    "other": "Alignement"
+  },
+  "toolbar-block.confirm": {
+    "other": "Insérer une barre d'outils"
+  },
+  "toolbar-block.update": {
+    "other": "Mettre à jour la barre d'outils"
+  },
+  "toolbar-block.edit": {
+    "other": "Éditer la barre d’outils"
+  },
   "side-button.move-up": {
     "other": "Déplacer vers le haut"
   },
