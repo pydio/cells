@@ -74,6 +74,12 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	} else {
 		f.UserFriendlyName = claims.DisplayName
 	}
+	f.DisableExport = true
+	f.HideExportOption = true
+	f.DisablePrint = true
+	f.HidePrintOption = true
+	f.DisableCopy = true
+
 	pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
 	if pydioReadOnly == "true" {
 		f.UserCanWrite = false
