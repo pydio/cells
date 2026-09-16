@@ -52,6 +52,7 @@ type BaseFileInfoResponseBuilder struct {
 	OwnerID string
 }
 
+// Build builds a FileInfo response from a tree.Node and an http.Request
 func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node, _ *http.Request) (*FileInfo, error) {
 	f := &FileInfo{
 		BaseFileName:     n.GetStringMeta(common.MetaNamespaceNodeName),
