@@ -104,7 +104,6 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 		}
 	}
 
-	f.EnableOwnerTermination = conf.Val("COLLABORA_DISABLE_OWNER_TERMINATION").Default(false).Bool()
 	f.HideRepairOption = conf.Val("COLLABORA_DISABLE_REPAIR").Default(false).Bool()
 
 	return f, nil
