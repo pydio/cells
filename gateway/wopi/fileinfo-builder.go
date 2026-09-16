@@ -42,7 +42,7 @@ var (
 )
 
 func init() {
-	runtime.RegisterEnvVariable("DISABLE_CELLS_COLLABORA_EXPORT", "", "Set to 'true' to disable export and print buttons in Collabora")
+	runtime.RegisterEnvVariable("CELLS_COLLABORA_DISABLE_EXPORT", "", "Set to 'true' to disable export and print buttons in Collabora")
 }
 
 // SetFileInfoResponseBuilder is a hook for replace the default info response builder
@@ -80,7 +80,7 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	} else {
 		f.UserFriendlyName = claims.DisplayName
 	}
-	if os.Getenv("DISABLE_CELLS_COLLABORA_EXPORT") == "true" {
+	if os.Getenv("CELLS_COLLABORA_DISABLE_EXPORT") == "true" {
 		f.DisableCopy = true
 		f.DisablePrint = true
 		f.DisableExport = true
