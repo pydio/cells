@@ -11,7 +11,13 @@
         <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host for Libre Office]" default="localhost" mandatory="true" expose="true"/>
         <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Port for Libre Office]" default="9980" mandatory="true" expose="true"/>
         <global_param name="LIBREOFFICE_INTERNAL_CELLS_BASE_URL" type="string" label="CONF_MESSAGE[Base URL for the Cells backend from the LibreOffice backend]" description="CONF_MESSAGE[Base URL for the Cells backend from the LibreOffice backend]" default="" mandatory="true" expose="true"/>
-        <global_param name="COLLABORA_DISABLE_EXPORT" type="boolean" label="CONF_MESSAGE[Disable Export &amp; Print]" description="CONF_MESSAGE[Hide copy, print and export actions for all users in Collabora Online]" default="false" mandatory="false" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_PRINT" type="boolean" label="CONF_MESSAGE[Disable Print]" description="CONF_MESSAGE[Hide the print button and disable printing for all users in Collabora Online]" default="false" mandatory="false" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_EXPORT" type="boolean" label="CONF_MESSAGE[Disable Export / Download As]" description="CONF_MESSAGE[Hide the export menu and disable downloading for all users in Collabora Online]" default="false" mandatory="false" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_SAVE" type="boolean" label="CONF_MESSAGE[Disable Save / Save As]" description="CONF_MESSAGE[Hide the save button and block Save As for all users in Collabora Online]" default="false" mandatory="false" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_COPY" type="boolean" label="CONF_MESSAGE[Disable Copy]" description="CONF_MESSAGE[Block copying document content to external apps (internal copy/paste still works)]" default="false" mandatory="false" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_MODE" type="select" label="CONF_MESSAGE[Default Access Mode]" description="CONF_MESSAGE[Downgrade the opening mode for all users: edit, comment-only, or read-only]" default="edit" mandatory="false" expose="true" choices="edit|Edit,comment|Comment only,readonly|Read only"/>
+        <global_param name="COLLABORA_DISABLE_OWNER_TERMINATION" type="boolean" label="CONF_MESSAGE[Owner Can Terminate Sessions]" description="CONF_MESSAGE[Allow the document owner to terminate other editing sessions]" default="false" mandatory="false" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_REPAIR" type="boolean" label="CONF_MESSAGE[Hide Repair Button]" description="CONF_MESSAGE[Hide the Repair document button in Collabora]" default="false" mandatory="false" expose="true"/>
     </server_settings>
     <client_settings>
         <resources>
