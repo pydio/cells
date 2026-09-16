@@ -693,6 +693,9 @@ externalBroker:
   enabled: true
   host: cells-nats
   port: 4222
+  ## Additional NATS URL query parameters. JetStream queues accept retention
+  ## values interest (default), limits, and workqueue.
+  params: {}
   auth:
     enabled: true
     user: "nats"
