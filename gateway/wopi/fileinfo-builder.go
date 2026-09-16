@@ -24,11 +24,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/runtime"
 )
 
 type FileInfoResponseBuilder interface {
@@ -38,6 +40,10 @@ type FileInfoResponseBuilder interface {
 var (
 	responseBuilder FileInfoResponseBuilder = &BaseFileInfoResponseBuilder{OwnerID: "pydio"}
 )
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_COLLABORA_DISABLE_EXPORT", "", "Set to 'true' to disable export and print buttons in Collabora")
+}
 
 // SetFileInfoResponseBuilder is a hook for replace the default info response builder
 func SetFileInfoResponseBuilder(b FileInfoResponseBuilder) {
@@ -75,6 +81,14 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	} else {
 		f.UserFriendlyName = claims.DisplayName
 	}
+	if os.Getenv("CELLS_COLLABORA_DISABLE_EXPORT") == "true" {
+		f.DisableCopy = true
+		f.DisablePrint = true
+		f.DisableExport = true
+		f.HideExportOption = true
+		f.HidePrintOption = true
+	}
+
 	pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
 	if pydioReadOnly == "true" {
 		f.UserCanWrite = false
