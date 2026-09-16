@@ -11,6 +11,7 @@
         <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host for Libre Office]" default="localhost" mandatory="true" expose="true"/>
         <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Port for Libre Office]" default="9980" mandatory="true" expose="true"/>
         <global_param name="LIBREOFFICE_INTERNAL_CELLS_BASE_URL" type="string" label="CONF_MESSAGE[Base URL for the Cells backend from the LibreOffice backend]" description="CONF_MESSAGE[Base URL for the Cells backend from the LibreOffice backend]" default="" mandatory="true" expose="true"/>
+        <global_param name="COLLABORA_DISABLE_EXPORT" type="boolean" label="CONF_MESSAGE[Disable Export &amp; Print]" description="CONF_MESSAGE[Hide copy, print and export actions for all users in Collabora Online]" default="false" mandatory="false" expose="true"/>
     </server_settings>
     <client_settings>
         <resources>
