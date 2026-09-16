@@ -76,22 +76,37 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	} else {
 		f.UserFriendlyName = claims.DisplayName
 	}
-	libreOfficeConf := config.Get(ctx, "frontend/plugin/editor.libreoffice")
-	disableExport := libreOfficeConf.Val("COLLABORA_DISABLE_EXPORT").Default(false).Bool()
-	if disableExport {
-		f.DisableCopy = true
-		f.DisablePrint = true
-		f.DisableExport = true
-		f.HideExportOption = true
+	conf := config.Get(ctx, "frontend/plugin/editor.libreoffice")
+
+	if conf.Val("COLLABORA_DISABLE_PRINT").Default(false).Bool() {
 		f.HidePrintOption = true
+		f.DisablePrint = true
+	}
+	if conf.Val("COLLABORA_DISABLE_EXPORT").Default(false).Bool() {
+		f.HideExportOption = true
+		f.DisableExport = true
+	}
+	if conf.Val("COLLABORA_DISABLE_SAVE").Default(false).Bool() {
+		f.HideSaveOption = true
+		f.UserCanNotWriteRelative = true
+	}
+	if conf.Val("COLLABORA_DISABLE_COPY").Default(false).Bool() {
+		f.DisableCopy = true
 	}
 
-	pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
-	if pydioReadOnly == "true" {
+	// Access mode: downgrade only; most restrictive between node flag and config wins.
+	f.UserCanWrite = n.GetStringMeta(common.MetaFlagReadonly) != "true"
+	switch conf.Val("COLLABORA_DISABLE_MODE").Default("edit").String() {
+	case "readonly":
 		f.UserCanWrite = false
-	} else {
-		f.UserCanWrite = true
+	case "comment":
+		if f.UserCanWrite {
+			f.UserCanOnlyComment = true
+		}
 	}
+
+	f.EnableOwnerTermination = conf.Val("COLLABORA_DISABLE_OWNER_TERMINATION").Default(false).Bool()
+	f.HideRepairOption = conf.Val("COLLABORA_DISABLE_REPAIR").Default(false).Bool()
 
 	return f, nil
 }
