@@ -93,9 +93,8 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	if conf.Val("COLLABORA_DISABLE_COPY").Default(false).Bool() {
 		f.DisableCopy = true
 	}
-
-	// Access mode: downgrade only; most restrictive between node flag and config wins.
 	f.UserCanWrite = n.GetStringMeta(common.MetaFlagReadonly) != "true"
+
 	switch conf.Val("COLLABORA_DISABLE_MODE").Default("edit").String() {
 	case "readonly":
 		f.UserCanWrite = false
