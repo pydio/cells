@@ -1,0 +1,46 @@
+name: Build Cells
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - v5-dev
+
+permissions:
+  contents: read
+
+env:
+  CGO_ENABLED: 0
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: v5-dev
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: true
+
+      - name: Build cells executable
+        run: make dev
+
+      - name: Verify executable
+        run: |
+          test -f cells
+          file cells
+          chmod +x cells
+
+      - name: Upload cells executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: cells-linux-amd64-v5-dev
+          path: cells
+          if-no-files-found: error
+          retention-days: 14
