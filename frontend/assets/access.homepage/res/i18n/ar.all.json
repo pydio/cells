@@ -1,266 +1,266 @@
 {
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "فيما يلي قائمة بمساحات العمل التي يمكنك الوصول إليها. يمكن أن تكون شخصية أو مشتركة مع مستخدمين آخرين أو من قبلهم."
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "مرحبًا، %s! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "استخدم هذه المساحة كمساحة افتراضية"
   },
   "42": {
-    "other": "Enter"
+    "other": "دخول"
   },
   "43": {
     "other": "ملفي الشخصي"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "كل بياناتي الشخصية"
   },
   "44": {
-    "other": "My Account"
+    "other": "حسابي"
   },
   "45": {
-    "other": "Personal data"
+    "other": "البيانات الشخصية"
   },
   "46": {
-    "other": "Address Book"
+    "other": "دفتر العناوين"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "المستخدمون والفِرق التي أنشأتها"
   },
   "48": {
-    "other": "My Users"
+    "other": "مستخدمونِي"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "المستخدمون الخارجيون الذين أنشأتهم"
   },
   "50": {
-    "other": "My Teams"
+    "other": "فرقِي"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "أفرقة المستخدمين، وتُستخدم كاختصارات عند المشاركة"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "هل أنت متأكد أنك تريد حذف هذه المجموعة؟ لن يؤدي هذا إلى حذف أي مستخدم."
   },
   "53": {
-    "other": "Getting Started"
+    "other": "البدء"
   },
   "54": {
-    "other": "Get started with APPLICATION_TITLE by following How-to videos"
+    "other": "ابدأ مع APPLICATION_TITLE من خلال مشاهدة مقاطع الفيديو التوضيحية"
   },
   "55": {
-    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
+    "other": "هل أنت جديد على APPLICATION_TITLE؟ <a>شاهد دروسنا</a>!"
   },
   "56": {
-    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
+    "other": "هل تبدأ استخدام APPLICATION_TITLE؟ إليك بعض المقاطع الفيديوية لك!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "حمّل APPLICATION_TITLE لـ..."
   },
   "58": {
-    "other": "Android"
+    "other": "أندرويد"
   },
   "59": {
     "other": "iPhone/iPad"
   },
   "60": {
-    "other": "Mac OS"
+    "other": "ماك"
   },
   "61": {
-    "other": "Windows"
+    "other": "ويندوز"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] ما هي مساحة العمل؟</h2>\n            يشرح هذا الفيديو ما هي مساحات العمل في APPLICATION_TITLE\n            <ul>\n                <li>لماذا تمثل مساحات العمل محورًا أساسيًا في APPLICATION_TITLE</li>\n                <li>كيف تنظم عملك داخل مساحة واحدة أو أكثر</li>\n            </ul>"
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] رفع الملفات إلى APPLICATION_TITLE</h2>\n            ابدأ مع APPLICATION_TITLE وشاهد كيف يمكن رفع الملفات\n            <ul>\n                <li>اسحب الملفات وأفلتها داخل APPLICATION_TITLE</li>\n                <li>حمّل الملفات من جهازك</li>\n            </ul>"
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] البحث والتصفح وإدارة ملفاتك</h2>\n            يوضح لك هذا الفيديو نصائح متنوعة لإدارة ملفاتك بكفاءة في APPLICATION_TITLE\n            <ul>\n                <li>بحث سريع بحسب الاسم أو المحتوى</li>\n                <li>تنظيم الملفات والمجلدات</li>\n            </ul>"
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "اكتشف المزيد على قناة APPLICATION_TITLE!"
   },
   "66": {
-    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+    "other": "<h2>[إرشادات] استخدام APPLICATION_TITLE على جهاز iOS</h2>\n                            يشرح هذا الفيديو كيفية استخدام تطبيق APPLICATION_TITLE (المتاحة على App Store).\n                            <ul>\n                                <li>تصفح الملفات</li>\n                                <li>مشاركة الروابط والملفات</li>\n                            </ul>"
   },
   "67": {
-    "other": "If you are not %s, %logout."
+    "other": "إذا لم تكن %s، %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "تحميل عميل المزامنة لنظام Windows"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "تحميل عميل المزامنة لنظام macOS"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "تطبيق أصلي لأجهزة iOS"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "تطبيق أصلي لأجهزة Android"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "رمز QR للخادم"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "قم بربط تطبيقاتك المحمولة بسهولة"
   },
   "74": {
-    "other": "Scan this QRCode to easily configure your mobile application"
+    "other": "امسح رمز QR هذا لتكوين تطبيقك المحمول بسهولة"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "البحث عن جميع الملفات..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "الوصول إلى %1 من خلال القائمة العلوية اليمنى"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "لوحة الإدارة"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "اختر مساحة عمل الهدف"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] مشاركة الملفات والمجلدات</h2>\n            يوضح لك هذا الدليل كيفية مشاركة الملفات والمجلدات، داخليًا أو خارجيًا\n            <ul>\n                <li>إنشاء رابط مشاركة</li>\n                <li>إدارة الأذونات</li>\n            </ul>"
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] المشاركة: ميزات الأمان</h2>\n            يتناول هذا الفيديو إعدادات المشاركة المختلفة التي تساعدك على تأمين مشاركاتك\n            <ul>\n                <li>الحماية بكلمة مرور</li>\n                <li>التحكم في حقوق الوصول</li>\n            </ul>"
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[إرشادات] تخصيص روابط المشاركة</h2>\n            شاهد كيف يمكنك تخصيص عنوان URL الخاص برابط المشاركة ليصبح أسهل في الاستخدام."
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] حقوق مخصصة على روابط المشاركة</h2>\n            يوضح لك هذا الفيديو كيفية إدارة الأذونات المرفقة بمشاركاتك\n            <ul>\n                <li>معاينة</li>\n                <li>تحميل</li>\n            </ul>"
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[إرشادات] اللغة</h2>\n            يتوفر APPLICATION_TITLE في 28 لغة. يوضح لك هذا الفيديو كيفية تغيير لغة APPLICATION_TITLE."
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[إرشادات] التنبيهات</h2>\n            تعلم كيفية إعداد التنبيهات على ملف ما، لمعرفة متى تم تعديله أو تمت مشاهدته."
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[إرشادات] التحرير التعاوني</h2>\n            يوضح لك هذا الفيديو كيفية التعاون على المستندات المكتبية بفضل مجموعة Collabora Office عبر الإنترنت\n            <ul>\n                <li>مشاركة المستندات</li>\n                <li>تحريرها في الوقت الفعلي</li>\n            </ul>"
   },
   "86": {
-    "other": "Play video"
+    "other": "تشغيل الفيديو"
   },
   "87": {
-    "other": "My Recent Activity"
+    "other": "نشاطي الأخير"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "أسقط ملفًا هنا من سطح المكتب"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "الملف المحدد للرفع"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "اختر مساحة العمل الهدف"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "احتفظ بملفاتك غير متصلة بالإنترنت باستخدام عميل المزامنة الخاص بنا"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "تحميل التطبيقات"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "رفع سريع"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "دروس فيديو"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "صفحة الترحيب"
   },
   "title": {
-    "other": "Home"
+    "other": "الرئيسية"
   },
   "search.result.location": {
     "other": "المجلد"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "تصفية النتائج..."
   },
   "search.facet.type": {
-    "other": "Type"
+    "other": "النوع"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "الامتداد"
   },
   "search.facet.size": {
-    "other": "Size"
+    "other": "الحجم"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "تاريخ التعديل"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "وجد في"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "البيانات الوصفية"
   },
   "search.sorter.relevant.desc": {
-    "other": "Most Relevant First"
+    "other": "الأكثر صلة أولاً"
   },
   "search.sorter.modified.desc": {
-    "other": "Recently Added First"
+    "other": "الأحدث أولاً"
   },
   "search.sorter.modified.asc": {
-    "other": "Oldest First"
+    "other": "الأقدم أولاً"
   },
   "search.sorter.size.desc": {
-    "other": "Biggest First"
+    "other": "الأكبر أولاً"
   },
   "search.sorter.size.asc": {
-    "other": "Smallest First"
+    "other": "الأصغر أولاً"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "ملف"
   },
   "facet.label.folder": {
-    "other": "المجلد"
+    "other": "مجلد"
   },
   "facet.label.size.lt.1MB": {
-    "other": "< 1MB"
+    "other": "أقل من 1 ميجابايت"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "من 1 ميجابايت إلى 10 ميجابايت"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "من 10 ميجابايت إلى 100 ميجابايت"
   },
   "facet.label.size.gt.100MB": {
-    "other": "> 100MB"
+    "other": "أكثر من 100 ميجابايت"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "منذ لحظات"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "اليوم"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "آخر 7 أيام"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "آخر 30 يومًا"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "أكثر من 30 يومًا"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "المحتويات"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "اسم الملف"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "إشارة مرجعية"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "مساحة العمل"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "خلية"
   }
 }
