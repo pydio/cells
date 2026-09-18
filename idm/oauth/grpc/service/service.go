@@ -161,6 +161,7 @@ func insertPruningJob(ctx context.Context) error {
 func initDefaults(ctx context.Context) error {
 
 	if secret := os.Getenv("CELLS_GLOBAL_SECRET"); secret != "" {
+		log2.Logger(ctx).Warn("Overriding pydio.web.oauth secret from CELLS_GLOBAL_SECRET")
 		if err := config.Get(ctx).Val("services/pydio.web.oauth/secret").Set(secret); err != nil {
 			return err
 		}

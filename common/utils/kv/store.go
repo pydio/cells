@@ -68,12 +68,14 @@ func NewStore(opt ...Option) *Store {
 	}
 }
 
-// Clone preserves your previous “shared store” behavior: clones share the same underlying state.
-// (Matches your old pointer-field pattern.)
+// Clone returns an independent snapshot of the store.
 func (c *Store) Clone() *Store {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	return &Store{
-		m:    std.DeepClone(c.m), // note: actual root is accessed under c.lock; this field is not authoritative by itself
-		lock: c.lock,
+		m:    std.DeepClone(c.m),
+		lock: new(sync.RWMutex),
 	}
 }
 
@@ -92,6 +94,15 @@ func (m *Store) Key() []string { return m.Val().Key() }
 func (m *Store) Get() any { return m.Val().Get() }
 
 func (m *Store) Set(value any) error { return m.Val().Set(value) }
+
+// Replace atomically replaces the complete value instead of applying Set's
+// merge semantics.
+func (m *Store) Replace(value any) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	m.m = value
+	return nil
+}
 
 func (m *Store) Context(ctx context.Context) Values { return m.Val().Context(ctx) }
 

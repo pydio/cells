@@ -21,9 +21,11 @@
 package sql
 
 import (
+	stderrors "errors"
 	"strings"
 	"testing"
 
+	"github.com/go-sql-driver/mysql"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -74,6 +76,15 @@ func TestNewStorageDSN(t *testing.T) {
 			So(sd.GetReservedVar("policies"), ShouldEqual, "pol1")
 			So(sd.DSN(), ShouldNotContainSubstring, "prefix=")
 			So(sd.DSN(), ShouldNotContainSubstring, "singular=")
+		})
+
+		Convey("Changing the database updates the connection hosts", func() {
+			sd, err := NewStorageDSN("mysql://root:secret@tcp(127.0.0.1:3306)/cells?parseTime=true")
+			So(err, ShouldBeNil)
+			So(sd.Set("DB", ""), ShouldBeNil)
+			md, err := mysql.ParseDSN(sd.(*cellDsn).hosts[0])
+			So(err, ShouldBeNil)
+			So(md.DBName, ShouldBeEmpty)
 		})
 
 		Convey("TCP connections still work after unix socket fix", func() {
@@ -127,5 +138,14 @@ func TestNewStorageDSN(t *testing.T) {
 				So(err, ShouldNotBeNil)
 			})
 		})
+	})
+}
+
+func TestIsDatabaseNotFound(t *testing.T) {
+	Convey("isDatabaseNotFound", t, func() {
+		So(isDatabaseNotFound(MySQLDriver, &mysql.MySQLError{Number: 1049}), ShouldBeTrue)
+		So(isDatabaseNotFound(PostgreDriver, stderrors.New("ERROR: database \\\"cells\\\" does not exist (SQLSTATE 3D000)")), ShouldBeTrue)
+		So(isDatabaseNotFound(MySQLDriver, &mysql.MySQLError{Number: 1045}), ShouldBeFalse)
+		So(isDatabaseNotFound(PostgreDriver, stderrors.New("sql: database is closed")), ShouldBeFalse)
 	})
 }

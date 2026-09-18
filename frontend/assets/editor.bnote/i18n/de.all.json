@@ -41,6 +41,30 @@
   "alert-block.success": {
     "other": "Erfolgreich"
   },
+  "toolbar-spec.title": {
+    "other": "Toolbar Block einfügen"
+  },
+  "toolbar-spec.subtext": {
+    "other": "Eine Aktions-Symbolleiste mit konfigurierbaren Tasten einfügen"
+  },
+  "toolbar-block.names-label": {
+    "other": "Namen der Symbolleisten (durch Kommas getrennt)"
+  },
+  "toolbar-block.type-label": {
+    "other": "Darstellungstyp"
+  },
+  "toolbar-block.alignment-label": {
+    "other": "Ausrichtung"
+  },
+  "toolbar-block.confirm": {
+    "other": "Symbolleiste einfügen"
+  },
+  "toolbar-block.update": {
+    "other": "Update-Symbolleiste"
+  },
+  "toolbar-block.edit": {
+    "other": "Symbolleiste bearbeiten"
+  },
   "side-button.move-up": {
     "other": "Nach oben"
   },

@@ -62,4 +62,11 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.convertTools.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp-storage
+              mountPath: /tmp
+      volumes:
+        - name: tmp-storage
+          emptyDir:
+            sizeLimit: 10Gi
 {{- end }}

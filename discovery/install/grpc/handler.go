@@ -150,7 +150,8 @@ func (h *Handler) Migrate(ctx context.Context, request *service2.MigrateRequest)
 					}
 				}
 				if outE := multierr.Combine(errs...); outE != nil {
-					log.Logger(ctx).Error("One specific upgrade was not performed successfully, but process is continued", zap.Error(outE))
+					log.Logger(ctx).Error("One or more specific upgrades failed", zap.String("service", s.Name()), zap.Error(outE))
+					return nil, errors.WithMessagef(outE, "migration failed for service %s", s.Name())
 				}
 			} else {
 				ctx := propagator.With(ctx, service.ContextKey, s)

@@ -59,9 +59,12 @@ DESCRIPTION
   A version is created at each call to config.Save() inside the application, along with a log message
   and the user originating this call.
 `,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
-		store := config.RevisionsStore(cmd.Context())
+		store, err := config.RevisionsStore(cmd.Context())
+		if err != nil {
+			return err
+		}
 
 		if configVersionShow != "" {
 			if id, e := strconv.ParseUint(configVersionShow, 10, 64); e == nil {
@@ -74,7 +77,7 @@ DESCRIPTION
 			} else {
 				log.Fatal("Cannot parse version Id")
 			}
-			return
+			return nil
 		}
 
 		if configVersionDiff != "" {
@@ -119,7 +122,7 @@ DESCRIPTION
 				}
 				if !d.Modified() {
 					cmd.Println("No differences found between two versions")
-					return
+					return nil
 				}
 
 				config := formatter.AsciiFormatterConfig{
@@ -137,7 +140,7 @@ DESCRIPTION
 			} else {
 				log.Fatal("Cannot parse version Id")
 			}
-			return
+			return nil
 		}
 
 		if configVersionRestore != "" {
@@ -159,7 +162,7 @@ DESCRIPTION
 			} else {
 				log.Fatal("Cannot parse version Id")
 			}
-			return
+			return nil
 		}
 
 		versions, e := store.List(uint64(configVersionListOffset), uint64(configVersionListSize))
@@ -182,6 +185,8 @@ DESCRIPTION
 
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
+
+		return nil
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {
 		if configVersionRestore != "" {

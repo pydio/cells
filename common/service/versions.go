@@ -89,8 +89,6 @@ func DefaultConfigMigration(serviceName string, data interface{}) *Migration {
 
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
 func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) (bool, error) {
-
-	//tID := runtime.MultiContextManager().Current(ctx)
 	refName := opts.Name
 	if opts.MigrateIterator.ContextKey != nil {
 		var s string
@@ -99,17 +97,6 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) (bool, erro
 		}
 	}
 
-	/*var run bool
-	opts.migrateOnceL.Lock()
-	if !opts.migrateOnce[tID+"-"+refName] {
-		run = true
-		opts.migrateOnce[tID+"-"+refName] = true
-	}
-	opts.migrateOnceL.Unlock()
-	if !run {
-		return nil
-	}*/
-
 	prefix := []string{"versions", refName}
 
 	var store config.Store
@@ -117,13 +104,14 @@ func UpdateServiceVersion(ctx context.Context, opts *ServiceOptions) (bool, erro
 		return false, fmt.Errorf("could not find config for %s during updateServiceVersion", refName)
 	}
 
-	newVersion, _ := version.NewVersion(opts.Version)
-	lastVersion, e := lastKnownVersion(ctx, store, refName, prefix...)
-	if e != nil {
-		return false, fmt.Errorf("cannot update service version for %s (%v)", refName, e)
-	}
-
 	if len(opts.Migrations) > 0 {
+		newVersion, _ := version.NewVersion(opts.Version)
+		lastVersion, e := lastKnownVersion(ctx, store, refName, prefix...)
+		log.Logger(ctx).Debug("last version", zap.String("ref", refName), zap.String("newversion", newVersion.String()), zap.String("lastversion", lastVersion.String()), zap.Error(e))
+		if e != nil {
+			return false, fmt.Errorf("cannot update service version for %s (%v)", refName, e)
+		}
+
 		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
 		if err != nil {
 			return false, fmt.Errorf("cannot update service version for %s (%v)", refName, err)

@@ -126,6 +126,8 @@ type FileInfo struct {
 	SaveAsPostmessage bool `json:"SaveAsPostMessage,omitempty"`
 	// EnableOwnerTermination if set to true, it allows the document owner (the one with OwnerId =UserId) to send a closedocument message.
 	EnableOwnerTermination bool `json:"EnableOwnerTermination,omitempty"`
+	// HideRepairOption If set to true, hides the "Repair" document button in the UI.
+	HideRepairOption bool `json:"HideRepairOption,omitempty"`
 
 	// UserExtraInfo is a JSON object that contains additional info about the user, for example the avatar image.
 	// Example keys are 'avatar' or 'mail'

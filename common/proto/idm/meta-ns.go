@@ -48,17 +48,24 @@ type metaNsDef struct {
 	Hide  bool        `json:"hide,omitempty"`
 }
 
-// MetaNsDef is the full structured type with entity support
+// MetaNsDef represents a metadata namespace definition for configuration or serialization purposes.
 type MetaNsDef struct {
-	Type   string `json:"type,omitempty"`
+	Type string `json:"type,omitempty"`
+
+	// Output only for the moment
+	// Input to be added at a later date to reuse existant entity
 	Entity struct {
 		EntityID string `json:"entity_id,omitempty"`
 	} `json:"entity,omitempty"`
+
+	// Items and Steps legacy
+	// EntityItems input only, to be deprecated when entity api available
 	Data struct {
 		Items       []ChoiceItem `json:"items,omitempty"`
 		Steps       bool         `json:"steps,omitempty"`
 		EntityItems []string     `json:"entityItems,omitempty"`
 	} `json:"data,omitempty"`
+
 	GroupName string `json:"groupName,omitempty"`
 	Steps     bool   `json:"steps,omitempty"`
 	Hide      bool   `json:"hide,omitempty"`

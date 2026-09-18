@@ -112,26 +112,19 @@ func (w *watcher[T]) Flush() {
 		case <-w.reset:
 			w.timer.Reset(w.timeout)
 		case <-w.timer.C:
-
-			settings := w.object.Get()
+			clone := w.object.Clone()
+			settings := clone.Get()
 			if settings == nil {
 				continue
 			}
 
-			w.object.RLock()
 			snapSettings := w.snap
-
-			patch, err := diff.Diff(snapSettings, settings, diff.CustomValueDiffers(CustomValueDiffers...), diff.DisableStructValues(), diff.AllowTypeMismatch(true)) // , diff.CustomValueDiffers(config.CustomValueDiffers...))
-			w.object.RUnlock()
+			patch, err := diffValues(snapSettings, settings)
 			if err != nil {
 				continue
 			}
 
-			w.object.RLock()
-			clone := w.object.Clone()
-			w.object.RUnlock()
-
-			w.snap = clone.Get()
+			w.snap = settings
 
 			for _, op := range patch {
 				var updated []*receiver

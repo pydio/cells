@@ -179,14 +179,16 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 				if len(sourcesDialect) == 0 {
 					sourcesDialect = append(sourcesDialect, &Dialector{
 						Dialector: mysql.New(mysql.Config{
-							Conn: conn,
+							Conn:                      conn,
+							SkipInitializeWithVersion: true,
 						}),
 						Helper: &mysqlHelper{},
 					})
 				} else {
 					replicasDialect = append(replicasDialect, &Dialector{
 						Dialector: mysql.New(mysql.Config{
-							Conn: conn,
+							Conn:                      conn,
+							SkipInitializeWithVersion: true,
 						}),
 						Helper: &mysqlHelper{},
 					})
@@ -236,7 +238,8 @@ func OpenPool(ctx context.Context, uu string) (storage.Storage, error) {
 		}
 
 		db, err := gorm.Open(sourcesDialect[0], &gorm.Config{
-			TranslateError: true,
+			DisableAutomaticPing: true,
+			TranslateError:       true,
 			Logger: NewLogger(logger.Config{
 				SlowThreshold:             time.Second, // Slow SQL threshold
 				LogLevel:                  logLevel,    // Log level
@@ -300,7 +303,15 @@ func (p *pool) ReturnType() reflect.Type {
 }
 
 func (p *pool) Get(ctx context.Context, data ...map[string]interface{}) (any, error) {
-	return p.Pool.Get(ctx, data...)
+	db, err := p.Pool.Get(ctx, data...)
+	if err != nil {
+		return nil, err
+	}
+	return db.WithContext(ctx), nil
+}
+
+func (p *pool) Del(ctx context.Context, data ...map[string]interface{}) (bool, error) {
+	return p.Pool.Del(ctx, data...)
 }
 
 func (p *pool) Close(ctx context.Context, iterate ...func(key string, res storage.Storage) error) error {

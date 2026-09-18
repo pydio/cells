@@ -61,6 +61,7 @@ func init() {
 			service.Migrations([]*service.Migration{{
 				TargetVersion: service.FirstRun(),
 				Up: func(ctx context.Context) error {
+					log.Logger(ctx).Warn("Initializing pydio.web.oauth configuration; existing OAuth configuration, including secret, will be replaced")
 					if err := config.Get(ctx, "services", common.ServiceWebNamespace_+common.ServiceOAuth).Set(map[string]any{
 						"secret": "a-very-insecure-secret-for-checking-out-the-demo",
 						"connectors": []any{

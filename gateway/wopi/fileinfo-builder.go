@@ -28,6 +28,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
@@ -52,6 +53,7 @@ type BaseFileInfoResponseBuilder struct {
 	OwnerID string
 }
 
+// Build builds a FileInfo response from a tree.Node and an http.Request
 func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node, _ *http.Request) (*FileInfo, error) {
 	f := &FileInfo{
 		BaseFileName:     n.GetStringMeta(common.MetaNamespaceNodeName),
@@ -74,12 +76,35 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	} else {
 		f.UserFriendlyName = claims.DisplayName
 	}
-	pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
-	if pydioReadOnly == "true" {
-		f.UserCanWrite = false
-	} else {
-		f.UserCanWrite = true
+	conf := config.Get(ctx, "frontend/plugin/editor.libreoffice")
+
+	if conf.Val("COLLABORA_DISABLE_PRINT").Default(false).Bool() {
+		f.HidePrintOption = true
+		f.DisablePrint = true
 	}
+	if conf.Val("COLLABORA_DISABLE_EXPORT").Default(false).Bool() {
+		f.HideExportOption = true
+		f.DisableExport = true
+	}
+	if conf.Val("COLLABORA_DISABLE_SAVE").Default(false).Bool() {
+		f.HideSaveOption = true
+		f.UserCanNotWriteRelative = true
+	}
+	if conf.Val("COLLABORA_DISABLE_COPY").Default(false).Bool() {
+		f.DisableCopy = true
+	}
+	f.UserCanWrite = n.GetStringMeta(common.MetaFlagReadonly) != "true"
+
+	switch conf.Val("COLLABORA_DISABLE_MODE").Default("edit").String() {
+	case "readonly":
+		f.UserCanWrite = false
+	case "comment":
+		if f.UserCanWrite {
+			f.UserCanOnlyComment = true
+		}
+	}
+
+	f.HideRepairOption = conf.Val("COLLABORA_DISABLE_REPAIR").Default(false).Bool()
 
 	return f, nil
 }

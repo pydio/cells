@@ -31,6 +31,7 @@ import (
 	"path"
 	"reflect"
 	osruntime "runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -162,6 +163,50 @@ func TestGetNodeChildren(t *testing.T) {
 			for node := range dao.GetNodeChildren(ctx, tree.NewMPath(1, 3289, 8, 18, 4, 1, 1)) {
 				fmt.Println(node.(*tree.TreeNode).MPath)
 			}
+		}
+	})
+}
+
+func TestNoGrepRecycleExactMatch(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("no-grep ^recycle_bin$ excludes only the exact recycle folder", t, func() {
+				parent, _, err := dao.GetOrCreateNodeByPath(ctx, "/wpb27814", &tree.Node{
+					Uuid: "wpb27814-parent",
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+
+				for _, name := range []string{"recycle_bin", "wpb27814_recycle_bin_folder", "other"} {
+					_, _, err = dao.GetOrCreateNodeByPath(ctx, "/wpb27814/"+name, &tree.Node{
+						Uuid: name,
+						Type: tree.NodeType_COLLECTION,
+					})
+					So(err, ShouldBeNil)
+				}
+
+				anchored := tree.NewMetaFilter(&tree.Node{MetaStore: map[string]string{
+					"no-grep": `"^recycle_bin$"`,
+				}})
+				So(anchored.Parse(), ShouldBeTrue)
+				var names []string
+				for node := range dao.GetNodeChildren(ctx, parent.GetMPath(), anchored) {
+					names = append(names, node.(*tree.TreeNode).Name)
+				}
+				sort.Strings(names)
+				So(names, ShouldResemble, []string{"other", "wpb27814_recycle_bin_folder"})
+
+				unanchored := tree.NewMetaFilter(&tree.Node{MetaStore: map[string]string{
+					"no-grep": `"recycle_bin"`,
+				}})
+				So(unanchored.Parse(), ShouldBeTrue)
+				var unanchoredNames []string
+				for node := range dao.GetNodeChildren(ctx, parent.GetMPath(), unanchored) {
+					unanchoredNames = append(unanchoredNames, node.(*tree.TreeNode).Name)
+				}
+				sort.Strings(unanchoredNames)
+				So(unanchoredNames, ShouldResemble, []string{"other"})
+			})
 		}
 	})
 }

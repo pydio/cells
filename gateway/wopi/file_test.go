@@ -27,6 +27,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	auth2 "github.com/pydio/cells/v5/common/auth"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -38,6 +39,7 @@ func TestFileInfo(t *testing.T) {
 	Convey("TestFileInfo", t, func() {
 		builder := GetFileInfoResponseBuilder()
 		ctx := context.Background()
+		ctx = config.WithStubStore(ctx)
 		ctx = auth2.WithImpersonate(ctx, &idm.User{
 			Login: "user1",
 			Attributes: map[string]string{
@@ -57,5 +59,59 @@ func TestFileInfo(t *testing.T) {
 		So(e, ShouldBeNil)
 		bb, _ := json.Marshal(f)
 		So(string(bb), ShouldEqual, `{"BaseFileName":"baseName.docs","OwnerId":"pydio","Size":36,"UserId":"user1","Version":"1768477881","UserFriendlyName":"User One","UserCanWrite":true,"LastModifiedTime":"2026-01-15T12:51:21+01:00","PydioPath":"/path/to/file"}`)
+
+		Convey("With COLLABORA_DISABLE_PRINT=true", func() {
+			So(config.Set(ctx, true, "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_PRINT"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.HidePrintOption, ShouldBeTrue)
+			So(f.DisablePrint, ShouldBeTrue)
+		})
+
+		Convey("With COLLABORA_DISABLE_EXPORT=true", func() {
+			So(config.Set(ctx, true, "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_EXPORT"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.HideExportOption, ShouldBeTrue)
+			So(f.DisableExport, ShouldBeTrue)
+		})
+
+		Convey("With COLLABORA_DISABLE_SAVE=true", func() {
+			So(config.Set(ctx, true, "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_SAVE"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.HideSaveOption, ShouldBeTrue)
+			So(f.UserCanNotWriteRelative, ShouldBeTrue)
+		})
+
+		Convey("With COLLABORA_DISABLE_COPY=true", func() {
+			So(config.Set(ctx, true, "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_COPY"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.DisableCopy, ShouldBeTrue)
+		})
+
+		Convey("With COLLABORA_DISABLE_MODE=readonly", func() {
+			So(config.Set(ctx, "readonly", "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_MODE"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.UserCanWrite, ShouldBeFalse)
+		})
+
+		Convey("With COLLABORA_DISABLE_MODE=comment", func() {
+			So(config.Set(ctx, "comment", "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_MODE"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.UserCanWrite, ShouldBeTrue)
+			So(f.UserCanOnlyComment, ShouldBeTrue)
+		})
+
+		Convey("With COLLABORA_DISABLE_REPAIR=true", func() {
+			So(config.Set(ctx, true, "frontend", "plugin", "editor.libreoffice", "COLLABORA_DISABLE_REPAIR"), ShouldBeNil)
+			f, e := builder.Build(ctx, node, nil)
+			So(e, ShouldBeNil)
+			So(f.HideRepairOption, ShouldBeTrue)
+		})
+
 	})
 }

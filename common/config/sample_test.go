@@ -21,14 +21,27 @@
 package config
 
 import (
+	"context"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/utils/configx"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/openurl"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+type sampleCountingStore struct {
+	Store
+	saves int
+}
+
+func (s *sampleCountingStore) Save(string, string) error {
+	s.saves++
+	return nil
+}
 
 func TestLoadSampleConf(t *testing.T) {
 
@@ -50,4 +63,30 @@ func TestLoadSampleConf(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(len(tpl), ShouldEqual, 2)
 	})
+}
+
+func TestLoadNewFromSampleDoesNotSave(t *testing.T) {
+	ctx := context.Background()
+	store := &sampleCountingStore{Store: NewStore()}
+	pool := openurl.MustMemPool[Store](ctx, func(context.Context, string) Store {
+		return store
+	})
+	ctx = propagator.With[*openurl.Pool[Store]](ctx, ContextKey, pool)
+
+	if err := LoadNewFromSample(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if store.saves != 0 {
+		t.Fatalf("expected sample to be loaded without saving, got %d saves", store.saves)
+	}
+	if got := Get(ctx, "defaults", "sites", "0", "TLSConfig", "SelfSigned").Get(); got == nil {
+		t.Fatal("expected sample config to be loaded")
+	}
+
+	if err := SaveNewFromSample(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if store.saves != 1 {
+		t.Fatalf("expected SaveNewFromSample to save once, got %d saves", store.saves)
+	}
 }

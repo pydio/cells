@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	pb "github.com/pydio/cells/v5/common/proto/registry"
+	"github.com/pydio/cells/v5/common/storage"
 )
 
 const (
@@ -218,6 +219,12 @@ func (o *Options) filterItems(items ...Item) []Item {
 				case pb.ItemType_EDGE:
 					var edge Edge
 					if item.As(&edge) {
+						foundType = true
+						break L
+					}
+				case pb.ItemType_STORAGE:
+					var storageItem storage.Storage
+					if item.As(&storageItem) {
 						foundType = true
 						break L
 					}

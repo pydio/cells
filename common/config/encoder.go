@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"errors"
 
 	"github.com/spf13/cast"
 
@@ -18,6 +19,21 @@ type storeWithEncoder struct {
 
 func (s storeWithEncoder) Set(data any) error {
 	return s.Val().Set(data)
+}
+
+func (s storeWithEncoder) Replace(data any) error {
+	if encoded, ok := data.([]byte); ok {
+		var decoded any
+		if err := s.Unmarshaler.Unmarshal(encoded, &decoded); err != nil {
+			return err
+		}
+		data = decoded
+	}
+	replacer, ok := s.Store.(Replacer)
+	if !ok {
+		return errors.New("wrapped store does not support atomic replacement")
+	}
+	return replacer.Replace(data)
 }
 
 func (s storeWithEncoder) Context(ctx context.Context) kv.Values {

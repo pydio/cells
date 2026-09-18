@@ -1442,12 +1442,13 @@ func (m *manager) stopService(svc service.Service, oo ...registry.RegisterOption
 func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption {
 	return []server.ServeOption{
 		server.WithBeforeServe(func(...registry.RegisterOption) error {
+			// Storage migrations resolve DAOs through the service-to-storage
+			// edges, so create those edges before starting the service. Starting
+			// the service runs its migrations.
+			if err := m.linkServiceToStorages(svc); err != nil {
+				return err
+			}
 			return svc.Start(registry.WithContextR(m.ctx))
-		}),
-
-		// Adding a first iteration that loop through the currently initiated storages
-		server.WithAfterServe(func(...registry.RegisterOption) error {
-			return m.linkServiceToStorages(svc)
 		}),
 
 		server.WithAfterServe(func(...registry.RegisterOption) error {

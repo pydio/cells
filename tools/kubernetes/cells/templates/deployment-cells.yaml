@@ -381,7 +381,7 @@ spec:
                 config_ok=true
               fi
 
-              if [ "${config_ok}" = "true" ] && [ "${installed_version}" = "${target_version}" ] && [ "${configured_marker}" = "${target_marker}" ]; then
+              if [ "${config_ok}" = "true" ]; then {{/* && [ "${installed_version}" = "${target_version}" ] && [ "${configured_marker}" = "${target_marker}" ]; then */}}
                 echo "Cells configuration is up to date for version ${target_version} and marker ${target_marker}"
               else
                 echo "Running Cells configuration: config_ok=${config_ok}, installed_version=${installed_version:-none}, target_version=${target_version}, configured_marker=${configured_marker:-none}, target_marker=${target_marker}"

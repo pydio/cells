@@ -7,7 +7,10 @@ import (
 	diff "github.com/r3labs/diff/v3"
 )
 
-var CustomValueDiffers []diff.ValueDiffer
+var (
+	CustomValueDiffers     []diff.ValueDiffer
+	customValueDiffersLock sync.Mutex
+)
 
 func init() {
 	RegisterCustomValueDiffer(&noopDiffer{})
@@ -15,7 +18,18 @@ func init() {
 }
 
 func RegisterCustomValueDiffer(differ diff.ValueDiffer) {
+	customValueDiffersLock.Lock()
+	defer customValueDiffersLock.Unlock()
 	CustomValueDiffers = append(CustomValueDiffers, differ)
+}
+
+func diffValues(a, b any) (diff.Changelog, error) {
+	// r3labs/diff injects its recursive differ into each registered ValueDiffer.
+	// The registered instances are shared, so differ construction and use must
+	// remain serialized to prevent one watcher replacing another's callback.
+	customValueDiffersLock.Lock()
+	defer customValueDiffersLock.Unlock()
+	return diff.Diff(a, b, diff.CustomValueDiffers(CustomValueDiffers...), diff.DisableStructValues(), diff.AllowTypeMismatch(true))
 }
 
 type noopDiffer struct{}
