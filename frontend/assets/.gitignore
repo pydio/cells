@@ -1,4 +1,5 @@
 */res/build
+storybook-static/
 **/*.min.js.LICENSE.txt
 
 gui.ajax/res/dist/pydio.material.min.js
