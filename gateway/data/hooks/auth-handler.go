@@ -89,6 +89,14 @@ func (a *pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		userName = claims.Name
 
 		if fromPydioJWT {
+			// The legacy pydio_jwt path re-signs the request with gateway credentials
+			// before MinIO validates it. Copy-source requests are not supported on
+			// this compatibility path.
+			if errCode := validateLegacyCopySource(r); errCode != cmd.ErrNone {
+				cmd.ExposedWriteErrorResponse(ctx, w, errCode, r.URL)
+				return
+			}
+
 			// V4 accepted pydio_jwt on presigned S3 URLs. Strip it from the canonical query,
 			// verify the JWT, then re-sign with gateway credentials before MinIO validates it.
 			var ok bool
@@ -107,6 +115,16 @@ func (a *pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		r = r.WithContext(ctx)
 		if errCode := cmd.ExposedValidateRequestSignature(r); errCode != cmd.ErrNone {
+			cmd.ExposedWriteErrorResponse(ctx, w, errCode, r.URL)
+			return
+		}
+
+		if errCode := validateCopySourceSignature(r); errCode != cmd.ErrNone {
+			cmd.ExposedWriteErrorResponse(ctx, w, errCode, r.URL)
+			return
+		}
+
+		if errCode := validateExtractSignature(r); errCode != cmd.ErrNone {
 			cmd.ExposedWriteErrorResponse(ctx, w, errCode, r.URL)
 			return
 		}
@@ -186,6 +204,153 @@ func (a *pydioAuthHandler) resignPydioJWTPresignedRequest(r *http.Request) (*htt
 
 func isPresignedV4(query url.Values) bool {
 	return query.Get("X-Amz-Credential") != "" && query.Get("X-Amz-Signature") != "" && query.Get("X-Amz-Date") != ""
+}
+
+// validateLegacyCopySource reports whether copy-source is supported on the
+// pydio_jwt compatibility path.
+func validateLegacyCopySource(r *http.Request) cmd.APIErrorCode {
+	if r.Header.Get("X-Amz-Copy-Source") != "" {
+		return cmd.ErrAccessDenied
+	}
+	return cmd.ErrNone
+}
+
+// validateCopySourceSignature verifies copy-source requests against the
+// signed headers selected for the request, so copy dispatch stays consistent
+// with signature coverage.
+func validateCopySourceSignature(r *http.Request) cmd.APIErrorCode {
+	if r.Header.Get("X-Amz-Copy-Source") == "" {
+		return cmd.ErrNone
+	}
+	if len(r.Header.Values("X-Amz-Copy-Source")) != 1 {
+		return cmd.ErrAccessDenied
+	}
+	return requireSignedHeaderCoverage(r, "x-amz-copy-source")
+}
+
+// validateExtractSignature verifies that a snowball auto-extract header is
+// covered by the signed headers selected for the request, so extract
+// dispatch stays consistent with signature coverage. MinIO routes object
+// writes carrying this header to its extract handler, but only when the
+// value marks extraction; any other value keeps plain put dispatch.
+func validateExtractSignature(r *http.Request) cmd.APIErrorCode {
+	for _, value := range r.Header.Values("X-Amz-Meta-Snowball-Auto-Extract") {
+		if strings.Contains(strings.ToLower(value), "true") {
+			return requireSignedHeaderCoverage(r, "x-amz-meta-snowball-auto-extract")
+		}
+	}
+	return cmd.ErrNone
+}
+
+// requireSignedHeaderCoverage checks that the given header is part of the
+// SignedHeaders list of the signature mode selected for the request. SigV2
+// authenticates x-amz-* headers implicitly, so those requests are accepted.
+func requireSignedHeaderCoverage(r *http.Request, wanted string) cmd.APIErrorCode {
+	signedHeaders, implicit, ok := selectedSignedHeaders(r)
+	if implicit {
+		return cmd.ErrNone
+	}
+	if !ok || !signedHeaderListContains(signedHeaders, wanted) {
+		return cmd.ErrAccessDenied
+	}
+	return cmd.ErrNone
+}
+
+// selectedSignedHeaders resolves the SignedHeaders list for the signature
+// mode MinIO selects for the request. implicit reports modes that cover
+// x-amz-* headers by construction, where no list applies. ok reports
+// whether a list was resolved for a list-based mode.
+func selectedSignedHeaders(r *http.Request) (signedHeaders string, implicit bool, ok bool) {
+	authorization := strings.TrimSpace(r.Header.Get("Authorization"))
+	if strings.HasPrefix(authorization, "AWS4-HMAC-SHA256") {
+		// Authorization SigV4 is selected whenever the Authorization header is
+		// present; SignedHeaders must come from that header.
+		if queryHasSignedHeaders(r) {
+			return "", false, false
+		}
+		signedHeaders, ok = authorizationSignedHeaders(authorization)
+		return signedHeaders, false, ok
+	}
+
+	if authorization != "" {
+		// An Authorization value alone does not select SigV2. Query credentials
+		// select query-presigned mode and use the query SignedHeaders.
+		if queryHasV4Credentials(r) {
+			signedHeaders, present, valid := querySignedHeaders(r)
+			return signedHeaders, false, present && valid
+		}
+
+		// SigV2 has no SignedHeaders list. Its canonicalization authenticates
+		// x-amz-* headers implicitly.
+		return "", true, true
+	}
+
+	// With no Authorization header, MinIO selects query-presigned mode. Read
+	// the SignedHeaders parameter strictly from the query.
+	signedHeaders, present, ok := querySignedHeaders(r)
+	if !present {
+		// A valid query SigV2 request has no SignedHeaders parameter.
+		return "", true, true
+	}
+	return signedHeaders, false, ok
+}
+
+func queryHasV4Credentials(r *http.Request) bool {
+	query := r.URL.Query()
+	for key := range query {
+		if key == "X-Amz-Credential" {
+			return true
+		}
+	}
+	return false
+}
+
+func queryHasSignedHeaders(r *http.Request) bool {
+	present := false
+	for key := range r.URL.Query() {
+		if strings.EqualFold(key, "X-Amz-SignedHeaders") {
+			present = true
+		}
+	}
+	return present
+}
+
+func querySignedHeaders(r *http.Request) (value string, present bool, valid bool) {
+	query := r.URL.Query()
+	for key, values := range query {
+		if !strings.EqualFold(key, "X-Amz-SignedHeaders") {
+			continue
+		}
+		present = true
+		if key != "X-Amz-SignedHeaders" || len(values) != 1 || values[0] == "" || value != "" {
+			return "", true, false
+		}
+		value = values[0]
+	}
+	return value, present, value != ""
+}
+
+func authorizationSignedHeaders(authorization string) (string, bool) {
+	var signedHeaders string
+	count := 0
+	for _, field := range strings.Split(authorization, ",") {
+		name, value, ok := strings.Cut(strings.TrimSpace(field), "=")
+		if !ok || !strings.EqualFold(name, "SignedHeaders") {
+			continue
+		}
+		count++
+		signedHeaders = value
+	}
+	return signedHeaders, count == 1 && signedHeaders != ""
+}
+
+func signedHeaderListContains(signedHeaders, wanted string) bool {
+	for _, header := range strings.Split(signedHeaders, ";") {
+		if strings.EqualFold(strings.TrimSpace(header), wanted) {
+			return true
+		}
+	}
+	return false
 }
 
 func presignWithGatewayCredentials(r *http.Request) *http.Request {
