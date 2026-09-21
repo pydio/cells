@@ -3,3 +3,11 @@
 
 gui.ajax/res/dist/pydio.material.min.js
 gui.ajax/res/dist/pydio.material.min.js.gz
+gui.ajax/res/dist/pydio.material.min.css
+gui.ajax/res/dist/pydio.material.min.css.gz
+
+.nx/
+gui.ajax/res/dist/boot/*
+gui.ajax/res/dist/core/*.*
+gui.ajax/res/dist/libs/*
+gui.ajax/res/dist/.*
