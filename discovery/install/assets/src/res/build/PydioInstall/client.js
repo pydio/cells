@@ -37,18 +37,20 @@ var Client = function (_ApiClient) {
             args[_key] = arguments[_key];
         }
 
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Client.__proto__ || Object.getPrototypeOf(Client)).call.apply(_ref, [this].concat(args))), _this), _this.basePath = '/a', _temp), _possibleConstructorReturn(_this, _ret);
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Client.__proto__ || Object.getPrototypeOf(Client)).call.apply(_ref, [this].concat(args))), _this), _this.basePath = '/a', _this.hasReceivedEvents = false, _temp), _possibleConstructorReturn(_this, _ret);
     }
 
     _createClass(Client, [{
         key: 'pollEvents',
+        // true once the install has started publishing real events
+
         value: function pollEvents(observer, reloadObserver) {
             var _this2 = this;
 
-            var params = {
-                timeout: 10,
-                category: 'install'
-            };
+            var emptyCount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+            var MAX_EMPTY = 5; // 5 × 4s = 20s of no new events → install done, move on
+            var params = { timeout: 10, category: 'install' };
             if (this.lastEventsTimestamp) {
                 params['since_time'] = this.lastEventsTimestamp;
             }
@@ -58,41 +60,89 @@ var Client = function (_ApiClient) {
                         var events = [].concat(_toConsumableArray(response.data.events));
                         var lastEvent = events.pop();
                         _this2.lastEventsTimestamp = lastEvent.timestamp;
+                        _this2.hasReceivedEvents = true; // install is running
                         observer(response.data.events);
                         if (lastEvent.data.Progress < 99) {
-                            _this2.pollEvents(observer, reloadObserver);
+                            _this2.pollEvents(observer, reloadObserver, 0); // reset empty counter on real events
                         } else {
-                            // This is finished now, do not poll events again but poll any url to detect that services are loaded
                             _this2.pollDiscovery(reloadObserver);
                         }
                     } else if (response.data.timestamp) {
                         _this2.lastEventsTimestamp = response.data.timestamp;
+                        // Only count empty responses toward MAX_EMPTY once the install has started.
+                        // Before install, empty responses are expected (user is still on the form).
+                        if (_this2.hasReceivedEvents && emptyCount >= MAX_EMPTY) {
+                            // Final event was missed (eventManager shut down before we polled) - move to discovery
+                            _this2.pollDiscovery(reloadObserver);
+                            return;
+                        }
                         setTimeout(function () {
-                            _this2.pollEvents(observer, reloadObserver);
+                            _this2.pollEvents(observer, reloadObserver, _this2.hasReceivedEvents ? emptyCount + 1 : 0);
                         }, 4000);
                     }
                 } else {
-                    // Not sure what happened, let's switch to discovery endpoint
                     _this2.pollDiscovery(reloadObserver);
                 }
-            }).catch(function (reason) {
+            }).catch(function () {
                 _this2.pollDiscovery(reloadObserver);
             });
         }
+
+        // Phase 1: wait for the REST API to come up (/config/discovery is only served
+        // by the full Cells gateway, not the lightweight installer server).
+
     }, {
         key: 'pollDiscovery',
         value: function pollDiscovery(reloadObserver) {
             var _this3 = this;
 
-            this.timeout = 100;
-            _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(function (response) {
-                // A proper response means that server is ready - but gateway may be restarting!
-                setTimeout(reloadObserver, 6000);
-            }).catch(function (reason) {
-                // API error means services are not available yet
+            var retries = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+            var MAX_RETRIES = 40; // ~120s
+            _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(function () {
+                // REST API is up - now confirm the web frontend is actually serving pages.
+                _this3.pollFrontend(reloadObserver);
+            }).catch(function () {
+                if (retries >= MAX_RETRIES) {
+                    reloadObserver();
+                    return;
+                }
                 setTimeout(function () {
-                    _this3.pollDiscovery(reloadObserver);
-                }, 4000);
+                    return _this3.pollDiscovery(reloadObserver, retries + 1);
+                }, 3000);
+            });
+        }
+
+        // Phase 2: fetch '/' directly to confirm the web UI is serving before navigating.
+        // This eliminates any arbitrary delay - we navigate exactly when the server is ready.
+
+    }, {
+        key: 'pollFrontend',
+        value: function pollFrontend(reloadObserver) {
+            var _this4 = this;
+
+            var retries = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+            var MAX_RETRIES = 10; // ~30s
+            fetch('/', { method: 'GET', redirect: 'follow' }).then(function (resp) {
+                if (resp.ok) {
+                    reloadObserver();
+                } else {
+                    // Server responded but with an error - keep retrying
+                    if (retries >= MAX_RETRIES) {
+                        reloadObserver();return;
+                    }
+                    setTimeout(function () {
+                        return _this4.pollFrontend(reloadObserver, retries + 1);
+                    }, 3000);
+                }
+            }).catch(function () {
+                if (retries >= MAX_RETRIES) {
+                    reloadObserver();return;
+                }
+                setTimeout(function () {
+                    return _this4.pollFrontend(reloadObserver, retries + 1);
+                }, 3000);
             });
         }
     }]);
