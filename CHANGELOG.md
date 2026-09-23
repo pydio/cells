@@ -1,12 +1,54 @@
-# Changes between v5.0.1 and v5.0.2
+# Changes between v5.0.2 and v5.0.3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v5.0.1...v5.0.2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v5.0.2...v5.0.3)
 
-- [#6f36448](https://github.com/pydio/cells/commit/6f3644895ef0d55991aa60fce3c2d8c8528f55d5): test(sync): Fix pubsub GetWriter on assertion (#949)
-- [#cd267e2](https://github.com/pydio/cells/commit/cd267e2758651e3685fee914897459f502cdebff): fix(helm): remove duplicate selector labels in deployment template (#943)
-- [#1153639](https://github.com/pydio/cells/commit/115363969d3664d7d4855e084df4d7110872c321): Revert "fix(flows): prevent panic on nil ActionMessage logging (#946)" (#948)
-- [#e7c0a66](https://github.com/pydio/cells/commit/e7c0a663c2e870f0888079303eed50a0c22384b4): fix(flows): prevent panic on nil ActionMessage logging (#946)
-- [#8741c62](https://github.com/pydio/cells/commit/8741c62317c8cdbc3a269ffeeeb3248e919b7dbd): Fix/WPB-26343/ S2S Sync diff issues (#947)
-- [#b9c1ce6](https://github.com/pydio/cells/commit/b9c1ce6acc14958cb8ac24eb2bd4a40ef58f2d22): fix(namespace): WPB-26203- Fix add policy for Upsert method update path (#941)
-- [#139564a](https://github.com/pydio/cells/commit/139564a52ebe071242ce9c9444b989c13e9caf69): chore: toolchain
-- [#53b9810](https://github.com/pydio/cells/commit/53b9810e40179c5de69901e8f19762881858229a): chore: next development cycle
+- [#adf139e](https://github.com/pydio/cells/commit/adf139e111c6bfb8c427203a19ff167c6d3f1347): fix(installer): Fix installer reload and graceful shutdown (#1006)
+- [#6e83541](https://github.com/pydio/cells/commit/6e835411a19eb8ac83cf961eb8522d86e2d80999): Revert "Fix installer restart detection: two-phase polling + CSS warning (#1004)" (#1005)
+- [#7146395](https://github.com/pydio/cells/commit/714639545d6dd236309c8b08d32d1c1a3aa3b8b7): Fix installer restart detection: two-phase polling + CSS warning (#1004)
+- [#f394d3d](https://github.com/pydio/cells/commit/f394d3d3e2bbdcd6d1b6be70a9a0b5223ba04dea): Merge commit from fork
+- [#aaaa2e1](https://github.com/pydio/cells/commit/aaaa2e13886aafd1b56fbd9ec85c411ec803cfee): chore: go.sum
+- [#d4d504b](https://github.com/pydio/cells/commit/d4d504b95313ab7ef47404931674f8be5726a85b): fix: dependencies
+- [#c9e4cb6](https://github.com/pydio/cells/commit/c9e4cb6b4077f2140fd6896aa185bd71aae8d563): build(deps): bump github.com/google/cel-go from 0.27.0 to 0.29.0 (#975)
+- [#601ab0c](https://github.com/pydio/cells/commit/601ab0c0615ea17549730704124a35268643f2ed): build(deps): bump github.com/rabbitmq/amqp091-go from 1.10.0 to 1.13.0 (#988)
+- [#74e5644](https://github.com/pydio/cells/commit/74e5644c02d4988adc0861e22df7b8a7da1c3d3a): build(deps): bump google.golang.org/grpc from 1.83.0 to 1.83.2 (#987)
+- [#6ef0819](https://github.com/pydio/cells/commit/6ef081942615febc2bb0a563e6be28e1abe5d242): build(deps): bump google.golang.org/grpc in /cmd/cells-fuse (#989)
+- [#c342d71](https://github.com/pydio/cells/commit/c342d719518cd37593c604c39f0e9408e48c8593): chore: align security policy (#996)
+- [#96ccb53](https://github.com/pydio/cells/commit/96ccb53965f966d5145d0b331b97e85db6d1dd32): build(deps): bump go.opentelemetry.io/otel/exporters/zipkin (#1002)
+- [#442b703](https://github.com/pydio/cells/commit/442b703fa7642f732bf721e7f46a70e43283a521): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp (#1001)
+- [#c555fdb](https://github.com/pydio/cells/commit/c555fdbdb437cd5ced1e50d36132679410476fdb): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc (#1000)
+- [#80d8040](https://github.com/pydio/cells/commit/80d804073bf4e9cf030a7154651a47b41d0aa6a7): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc (#999)
+- [#484dec3](https://github.com/pydio/cells/commit/484dec3c43d16889b1e0bffd2f068d065f12cc20): build(deps): bump go.opentelemetry.io/otel/sdk in /cmd/cells-fuse (#997)
+- [#2c7eefa](https://github.com/pydio/cells/commit/2c7eeface77233a8d9a8909e27e177ccac2ebeee): build(deps): bump go.opentelemetry.io/otel/exporters/otlp/otlptrace (#998)
+- [#c57f02f](https://github.com/pydio/cells/commit/c57f02f4962835447df694c63bd0fd8c22bd7baf): feat: [WPB-27403] hide collabora action buttons (#995)
+- [#5ea6aac](https://github.com/pydio/cells/commit/5ea6aac96cdf42198e6580b0a1b2b030cb7b076f): feat(i18n): more messages
+- [#396b967](https://github.com/pydio/cells/commit/396b967c4e132ebbe391486c8005888a4526d3b3): Fix/wpb 27645 nats jetstream queue retention policy (#990)
+- [#2ab2b5b](https://github.com/pydio/cells/commit/2ab2b5b72554f2d9c554152c5a24a6cfb15927ec): chore: helm chart 1.0.1
+- [#5ae3e54](https://github.com/pydio/cells/commit/5ae3e54bdcdb3962acb58b1491270e102d56d3c1): fix: etcd race conditions fix
+- [#839cdc5](https://github.com/pydio/cells/commit/839cdc51f7fab620459eab1286ab2a7a7d695261): fix: increasing before serve timeout
+- [#1771bd0](https://github.com/pydio/cells/commit/1771bd01cd0e3e648ef04018dd53c21dc22ea878): fix: default sites not working with etcd
+- [#f23aef1](https://github.com/pydio/cells/commit/f23aef1b3a2a1a35920fc053d1b9efc0f170c4b9): fix: wrong test error
+- [#48eb1bf](https://github.com/pydio/cells/commit/48eb1bf81a38cd76dbadf60ce2a5b559a6ddb62a): fix: wrong test error
+- [#f407de5](https://github.com/pydio/cells/commit/f407de50cce7601d374ab552d6a839531f44a0ee): fix: vault error breaking the mailer WPB-28271
+- [#77f082a](https://github.com/pydio/cells/commit/77f082a19142a95149f6893e75067e095902754b): fix: latest fixes to startup with etcd WPB-28271
+- [#a35a8af](https://github.com/pydio/cells/commit/a35a8af09c06c59e4d110a3fb12820bbdc561e36): fix: stabilising migration + fix to etcd (#983)
+- [#214bac9](https://github.com/pydio/cells/commit/214bac9942ead82a54a1bac6502341060247606b): fix(convert-tools): fix 'read-only filesystem' error when writing to /tmp (#982)
+- [#e140937](https://github.com/pydio/cells/commit/e14093733f1750843a43e5dc61cb23fc41d5cb3b): fix(lookup): [WPB-27814] anchor recycle_bin no-grep to exact leaf-name match (#979)
+- [#d5ce1bc](https://github.com/pydio/cells/commit/d5ce1bce66d77274de2bfc2ba439948967f629da): fix(WPB-25927): prevent FirstRun migration from overwriting installer configs (#976)
+- [#7f1a54b](https://github.com/pydio/cells/commit/7f1a54bbeb69d60f86eed6ffae952ed6c4316a6f): fix(emails): Support footer images in email templates (#966)
+- [#af657de](https://github.com/pydio/cells/commit/af657decb9a0cdfa4f80f2dfbb8569e375f5128e): fix(meta.search): enforce onlyValuesFromList in onChange handler (#972)
+- [#8ee4472](https://github.com/pydio/cells/commit/8ee4472503a92447548aa36efce9b828326e15a5): fix: returning error when going through PasswordCredentialsCode func (#969)
+- [#84af3dc](https://github.com/pydio/cells/commit/84af3dc8160a8b57a723158b314183ba786debba): fix(search): escape special characters in Mongo path filters (#970)
+- [#529b6a8](https://github.com/pydio/cells/commit/529b6a86b698b67dcbaba5140085cc74257e0d14): build(deps): bump golang.org/x/net in /cmd/cells-fuse (#965)
+- [#419e6d2](https://github.com/pydio/cells/commit/419e6d22eafa8489b931a51abf40cc83c78a4aaf): chore(tooling): pin Node.js version with nvm and auto-switch setup (#968)
+- [#38ba2d1](https://github.com/pydio/cells/commit/38ba2d1dab86d40dfe2ba18fb270e362629d4891): fix(frontend-sorting): Fixes sorting hook for flie lists in bnote (#960)
+- [#f91abe1](https://github.com/pydio/cells/commit/f91abe10d3e88f2a55afe480630f960777666217): fix(admin): improve datasource migration flow and validate DSN connections (#964)
+- [#bc47ce9](https://github.com/pydio/cells/commit/bc47ce957f801a526152be754546cd2138448463): fix: displaying error on bootstrap failure
+- [#9e6122b](https://github.com/pydio/cells/commit/9e6122b9c25f2efd248348d539e7b5746a57135a): fix: do use cache by default (#942)
+- [#e04b73e](https://github.com/pydio/cells/commit/e04b73e7b8ced3172d6cd21fa6bb62c0a2343eee): build(deps): bump golang.org/x/crypto in /cmd/cells-fuse (#962)
+- [#d5722b1](https://github.com/pydio/cells/commit/d5722b14a0ecaa6f225eeefce87cc00706ba0dc3): fix(idm): propagate request context during user creation notification (#961)
+- [#72cf1be](https://github.com/pydio/cells/commit/72cf1beb4666bc6445978c7f48e1a369dbe4a8c5): build(deps): bump golang.org/x/crypto from 0.51.0 to 0.52.0 (#958)
+- [#f528918](https://github.com/pydio/cells/commit/f52891823ac96858d16521ac7f429c27d8d66636): fix(pages): Create new block to insert a custom Toolbar. (#951)
+- [#8b663a4](https://github.com/pydio/cells/commit/8b663a48de72ffc8f1506aca8f8d6f9fc7db5114): fix(dsn): Skip host/port parsing for unix socket connection (#959)
+- [#0c9159c](https://github.com/pydio/cells/commit/0c9159c3793c1019da482bcda3bf464b3db26a09): build(deps): bump golang.org/x/net from 0.52.0 to 0.55.0 (#952)
+- [#da264b5](https://github.com/pydio/cells/commit/da264b5e8366f4fa2dfd5c8eab1781d4363ed68b): build(deps): bump golang.org/x/image from 0.38.0 to 0.41.0 (#953)
+- [#191b827](https://github.com/pydio/cells/commit/191b8271fdb3a95847ecdcae6ceb6ef98a6ddff2): chore: v5.0.3-dev
