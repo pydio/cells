@@ -85,16 +85,8 @@ var v2Block = {
     boxSizing: 'border-box'
 };
 var underline = {
-    idle: {
-        borderBottomWidth: '1px',
-        borderBottomStyle: 'solid',
-        borderBottomColor: 'rgb(193, 199, 206)'
-    },
-    focus: {
-        borderBottomWidth: '2px',
-        borderBottomStyle: 'solid',
-        borderBottomColor: 'var(--md-sys-color-primary)'
-    }
+    idle: { borderBottom: '1px solid rgb(193 199 206)' },
+    focus: { borderBottom: '2px solid var(--md-sys-color-primary)' }
 };
 
 var fieldStyles = {
@@ -284,7 +276,6 @@ var InstallForm = function (_React$Component) {
             installEvents: [],
             installProgress: 0,
             serverRestarted: false,
-            restartPhase: 'installing', // 'installing' | 'restarting' | 'ready'
             lang: defaultLanguage
         };
 
@@ -344,21 +335,35 @@ var InstallForm = function (_React$Component) {
 
             client.pollEvents(function (events) {
                 var newEvents = [].concat(_toConsumableArray(_this2.state.installEvents), _toConsumableArray(events));
-                var last = events.pop();
+                var last = events.pop(); // update last progress
                 var p = _this2.state.installProgress;
                 if (last.data.Progress) {
                     p = last.data.Progress;
                 }
-                // Transition to 'restarting' once progress reaches 99 - install is done,
-                // server is about to restart.
-                var restartPhase = p >= 99 ? 'restarting' : 'installing';
-                _this2.setState({ installEvents: newEvents, installProgress: p, restartPhase: restartPhase });
+                _this2.setState({ installEvents: newEvents, installProgress: p });
             }, function () {
-                // reloadObserver: pollFrontend confirmed '/' is serving - navigate now.
-                _this2.setState({ serverRestarted: true, restartPhase: 'ready' });
+                // This is call when it is finished
+                var newEvents = [].concat(_toConsumableArray(_this2.state.installEvents), [{ data: { Progress: 100, Message: "Server Restarted" } }]);
+                _this2.setState({
+                    installEvents: newEvents,
+                    serverRestarted: true,
+                    willReloadIn: 5
+                });
                 setTimeout(function () {
-                    window.location.href = '/';
+                    _this2.setState({ willReloadIn: 4 });
+                }, 1000);
+                setTimeout(function () {
+                    _this2.setState({ willReloadIn: 3 });
                 }, 2000);
+                setTimeout(function () {
+                    _this2.setState({ willReloadIn: 2 });
+                }, 3000);
+                setTimeout(function () {
+                    _this2.setState({ willReloadIn: 1 });
+                }, 4000);
+                setTimeout(function () {
+                    window.location.reload();
+                }, 5000);
             });
         }
     }, {
@@ -682,7 +687,7 @@ var InstallForm = function (_React$Component) {
                 installEvents = _state3.installEvents,
                 installProgress = _state3.installProgress,
                 serverRestarted = _state3.serverRestarted,
-                restartPhase = _state3.restartPhase,
+                willReloadIn = _state3.willReloadIn,
                 agreementText = _state3.agreementText,
                 dbCheckError = _state3.dbCheckError,
                 dbCheckSuccess = _state3.dbCheckSuccess,
@@ -1406,7 +1411,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: { padding: '20px 0' } },
-                            !serverRestarted && _react2.default.createElement(_materialUi.LinearProgress, { min: 0, max: 100, value: installProgress, style: { width: '100%' }, mode: "indeterminate" })
+                            _react2.default.createElement(_materialUi.LinearProgress, { min: 0, max: 100, value: installProgress, style: { width: '100%' }, mode: "indeterminate" })
                         ),
                         _react2.default.createElement(
                             'div',
@@ -1429,15 +1434,15 @@ var InstallForm = function (_React$Component) {
                                 );
                             })
                         ),
-                        installPerformed && restartPhase === 'restarting' && _react2.default.createElement(
-                            'div',
-                            { style: { opacity: 0.7 } },
-                            'Services are restarting, please wait\u2026'
-                        ),
-                        installPerformed && restartPhase === 'ready' && _react2.default.createElement(
+                        installPerformed && !serverRestarted && _react2.default.createElement(
                             'div',
                             null,
-                            this.t('apply.success.restarted').replace('%1', '')
+                            this.t('apply.success')
+                        ),
+                        installPerformed && serverRestarted && _react2.default.createElement(
+                            'div',
+                            null,
+                            this.t('apply.success.restarted').replace('%1', willReloadIn)
                         ),
                         installError && _react2.default.createElement(
                             'div',
@@ -1449,21 +1454,25 @@ var InstallForm = function (_React$Component) {
                             installError
                         )
                     ),
-                    installPerformed && restartPhase === 'ready' && _react2.default.createElement(
+                    installPerformed && serverRestarted && _react2.default.createElement(
                         'div',
                         { style: { margin: '12px 0', display: 'flex', alignItems: 'center' } },
                         _react2.default.createElement('span', { style: { flex: 1 } }),
-                        _react2.default.createElement(_materialUi.RaisedButton, {
-                            label: this.t('stepper.button.reload'),
-                            secondary: true,
-                            onClick: function onClick() {
-                                window.location.href = '/';
-                            },
-                            style: { borderRadius: 20 },
-                            buttonStyle: { borderRadius: 20 },
-                            overlayStyle: { borderRadius: 20 },
-                            labelStyle: { textTransform: 'none', fontWeight: 400 }
-                        })
+                        _react2.default.createElement(
+                            'div',
+                            null,
+                            _react2.default.createElement(_materialUi.RaisedButton, {
+                                label: this.t('stepper.button.reload'),
+                                secondary: true,
+                                onClick: function onClick() {
+                                    window.location.reload();
+                                },
+                                style: { borderRadius: 20 },
+                                buttonStyle: { borderRadius: 20 },
+                                overlayStyle: { borderRadius: 20 },
+                                labelStyle: { textTransform: 'none', fontWeight: 400 }
+                            })
+                        )
                     )
                 )
             ));
