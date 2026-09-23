@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/jcuga/golongpoll"
@@ -154,6 +155,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) error
 
 	log.Logger(ctx).Info("Install done: trigger onSuccess now")
 	// go func() {
+	time.Sleep(3 * time.Second)
 	if err := h.onSuccess(); err != nil {
 		fmt.Println("Error finishing install", err)
 	}
