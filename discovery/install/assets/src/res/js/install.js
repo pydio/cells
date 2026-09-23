@@ -39,16 +39,8 @@ const v2Block = {
     boxSizing: 'border-box'
 };
 const underline = {
-    idle: {
-        borderBottomWidth: '1px',
-        borderBottomStyle: 'solid',
-        borderBottomColor: 'rgb(193, 199, 206)'
-    },
-    focus: {
-        borderBottomWidth: '2px',
-        borderBottomStyle: 'solid',
-        borderBottomColor: 'var(--md-sys-color-primary)'
-    }
+    idle: {borderBottom:'1px solid rgb(193 199 206)'},
+    focus: {borderBottom:'2px solid var(--md-sys-color-primary)'}
 };
 
 const fieldStyles = {
@@ -218,9 +210,8 @@ class InstallForm extends React.Component {
         showAdvanced: false,
         installEvents: [],
         installProgress: 0,
-        serverRestarted: false,
-        restartPhase: 'installing', // 'installing' | 'restarting' | 'ready'
-        lang: defaultLanguage
+        serverRestarted:false,
+        lang:defaultLanguage
     };
 
     constructor(props) {
@@ -251,19 +242,27 @@ class InstallForm extends React.Component {
     componentDidMount(){
         client.pollEvents((events) => {
             const newEvents = [...this.state.installEvents, ...events];
-            const last = events.pop();
+            const last = events.pop();// update last progress
             let p = this.state.installProgress;
-            if (last.data.Progress) {
+            if(last.data.Progress){
                 p = last.data.Progress;
             }
-            // Transition to 'restarting' once progress reaches 99 - install is done,
-            // server is about to restart.
-            const restartPhase = p >= 99 ? 'restarting' : 'installing';
-            this.setState({installEvents: newEvents, installProgress: p, restartPhase});
+            this.setState({installEvents:newEvents, installProgress: p});
         }, () => {
-            // reloadObserver: pollFrontend confirmed '/' is serving - navigate now.
-            this.setState({serverRestarted: true, restartPhase: 'ready'});
-            setTimeout(() => { window.location.href = '/'; }, 2000);
+            // This is call when it is finished
+            const newEvents = [...this.state.installEvents, {data:{Progress:100, Message: "Server Restarted"}}];
+            this.setState({
+                installEvents:newEvents,
+                serverRestarted: true,
+                willReloadIn: 5
+            });
+            setTimeout(()=>{this.setState({willReloadIn: 4})}, 1000);
+            setTimeout(()=>{this.setState({willReloadIn: 3})}, 2000);
+            setTimeout(()=>{this.setState({willReloadIn: 2})}, 3000);
+            setTimeout(()=>{this.setState({willReloadIn: 1})}, 4000);
+            setTimeout(() => {
+                window.location.reload()
+            }, 5000);
         });
     }
 
@@ -505,7 +504,7 @@ class InstallForm extends React.Component {
         const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString,
             frontendPassword, frontendLogin, frontendRepeatPassword, DocumentsDSN, change} = this.props;
 
-        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, restartPhase,
+        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn,
             agreementText, dbCheckError, dbCheckSuccess, s3CheckKeysSuccess, s3CheckKeysError, s3BucketsPrefix, s3CheckBucketsError, licCheckFailed,
             performingCheck, tablesFoundConfirm, adminFoundOverride, mongoDSNValid, mongoDSNError, lang} = this.state;
 
@@ -973,9 +972,7 @@ class InstallForm extends React.Component {
                     <div style={stepperStyles.contentScroller}>
                         <h3>{this.t('apply.title')}</h3>
                         <div style={{padding: '20px 0'}}>
-                            {!serverRestarted &&
-                                <LinearProgress min={0} max={100} value={installProgress} style={{width: '100%'}} mode={"indeterminate"}/>
-                            }
+                            <LinearProgress min={0} max={100} value={installProgress} style={{width: '100%'}} mode={"indeterminate"}/>
                         </div>
                         <div style={{...flexContainer, paddingRight: 20, paddingTop: 10, fontSize: 14, paddingBottom: 20}}>
                             {installEvents.map((e,i) => {
@@ -987,14 +984,14 @@ class InstallForm extends React.Component {
                                 return <div key={i} style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>{e.data.Message}</div>{icon}</div>
                             })}
                         </div>
-                        {installPerformed && restartPhase === 'restarting' &&
-                        <div style={{opacity: 0.7}}>
-                            Services are restarting, please wait&hellip;
+                        {installPerformed && !serverRestarted &&
+                        <div>
+                            {this.t('apply.success')}
                         </div>
                         }
-                        {installPerformed && restartPhase === 'ready' &&
+                        {installPerformed && serverRestarted &&
                         <div>
-                            {this.t('apply.success.restarted').replace('%1', '')}
+                            {this.t('apply.success.restarted').replace('%1', willReloadIn)}
                         </div>
                         }
                         {installError &&
@@ -1005,18 +1002,20 @@ class InstallForm extends React.Component {
                         </div>
                         }
                     </div>
-                    {installPerformed && restartPhase === 'ready' &&
+                    {installPerformed && serverRestarted &&
                     <div style={{margin: '12px 0', display:'flex', alignItems: 'center'}}>
                         <span style={{flex: 1}}/>
-                        <RaisedButton
-                            label={this.t('stepper.button.reload')}
-                            secondary={true}
-                            onClick={() => { window.location.href = '/'; }}
-                            style={{borderRadius: 20}}
-                            buttonStyle={{borderRadius: 20}}
-                            overlayStyle={{borderRadius: 20}}
-                            labelStyle={{textTransform: 'none', fontWeight: 400}}
-                        />
+                        <div>
+                            <RaisedButton
+                                label={this.t('stepper.button.reload')}
+                                secondary={true}
+                                onClick={() => {window.location.reload()}}
+                                style={{borderRadius: 20}}
+                                buttonStyle={{borderRadius: 20}}
+                                overlayStyle={{borderRadius: 20}}
+                                labelStyle={{textTransform: 'none', fontWeight: 400}}
+                            />
+                        </div>
                     </div>
                     }
                 </StepContent>

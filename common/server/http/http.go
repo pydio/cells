@@ -112,9 +112,6 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 
 func (s *Server) Stop() error {
 	// Shutdown may wait indefinitely for open connections to close - Force close after a timeout
-	if s.Server == nil {
-		return nil
-	}
 	ctx, can := context.WithTimeout(context.Background(), 5*time.Second)
 	defer can()
 	return s.Server.Shutdown(ctx)
