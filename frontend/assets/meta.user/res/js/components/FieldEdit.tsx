@@ -34,6 +34,7 @@ import { AutoCompleteInput } from '../fieldsv2/AutoCompleteInput';
 import { InputProps, Items } from '../fieldsv2/CommonInputProps';
 import MetaClient from '../MetaClient';
 import { NamespaceMeta } from './MetaSpec';
+import { useEntityEditableValues } from '../hooks/useEntityEditableValues';
 import { getNumberPrefix, getNumberSuffix } from '../formatters/numbers';
 import './FieldEdit.css';
 
@@ -66,7 +67,15 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
 }) => {
     const { state, actions } = context;
     const { type, readonly, required, label, data } = meta;
-
+    // A pre-computed editableValues (e.g. evaluated by the uploader from the
+    // session's entities) takes precedence; otherwise resolve it via the hook.
+    const { editableValues: fetchedEditableValues } = useEntityEditableValues(
+        type === 'tag_cloud' && meta.editableValues === undefined
+            ? meta.entityUUID
+            : undefined,
+    );
+    const editableValues = meta.editableValues ?? fetchedEditableValues;
+    
     const localDataLoader = useCallback(() => {
         return MetaClient.getInstance()
             .listTags(name)
@@ -146,6 +155,7 @@ const FieldEditInternal: React.FC<FieldEditInternalProps> = ({
                     value={state.formState.get(name) || ''}
                     data={[]}
                     dataLoader={localDataLoader}
+                    {...(meta.entityUUID && { editableValues })}
                 />
             );
         case 'tags':

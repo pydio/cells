@@ -21,6 +21,8 @@
 package idm
 
 import (
+	"errors"
+
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
 )
 
@@ -76,6 +78,8 @@ type ChoiceItem struct {
 	Value string `json:"value"`
 	Color string `json:"color,omitempty"`
 }
+
+// Add Applies
 
 // Implement MetaNamespaceDefinition interface for legacy metaNsDef
 func (d *metaNsDef) GetType() string {
@@ -164,14 +168,19 @@ func (d *MetaNsDef) SetEntityId(entityID string) {
 	d.Entity.EntityID = entityID
 }
 
-func (m *UserMetaNamespace) UnmarshallDefinition() (MetaNamespaceDefinition, error) {
+func (m *UserMetaNamespace) UnmarshallEntityDefinition() (MetaNamespaceDefinition, error) {
 	var fullDef MetaNsDef
 	if e := json.Unmarshal([]byte(m.JsonDefinition), &fullDef); e == nil {
 		if fullDef.Entity.EntityID != "" || len(fullDef.Data.Items) > 0 || len(fullDef.Data.EntityItems) > 0 {
 			return &fullDef, nil
 		}
+		return nil, errors.New("not a full definition")
+	} else {
+		return nil, e
 	}
+}
 
+func (m *UserMetaNamespace) UnmarshallDefinition() (MetaNamespaceDefinition, error) {
 	// Default to legacy metaNsDef for backward compatibility
 	var legacyDef metaNsDef
 	if e := json.Unmarshal([]byte(m.JsonDefinition), &legacyDef); e != nil {

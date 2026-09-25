@@ -19,6 +19,7 @@
  */
 
 import React, { useCallback } from 'react';
+import { useEntityEditableValues } from '../hooks/useEntityEditableValues';
 import { getCssLabels } from '../fields/CssLabelsField';
 import { Selector } from '../fieldsv2/Select';
 import { RatingInput } from '../fieldsv2/RatingInput';
@@ -72,6 +73,9 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({
     );
 
     const { type, readonly, required, errorText, label, data } = meta;
+    const { editableValues } = useEntityEditableValues(
+        type === 'tag_cloud' ? meta.entityUUID : undefined,
+    );
 
     const formatType = data?.format as NumberFormat;
 
@@ -123,6 +127,7 @@ export const FieldSearch: React.FC<FieldSearchProps> = ({
                     {...baseProps}
                     data={[]}
                     dataLoader={localDataLoader}
+                    {...(meta.entityUUID && { editableValues })}
                 />
             );
         case 'date':

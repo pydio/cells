@@ -19,7 +19,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { TagsInput } from '@mantine/core';
+import { TagsInput, MultiSelect } from '@mantine/core';
 import { StringItemsInputProps } from './CommonInputProps';
 import {
     parseTagsValue as parseCSLtoArray,
@@ -37,10 +37,33 @@ import {
  * @property {string} errorText
  * @property {string} value
  * @property {function} onCommitChange
+ * @property {boolean} onlyValuesFromList
+ * @property {string} ariaLabel
+ * @property {boolean} clearable
+ * @property {string} clearAriaLabel
+ * @property {boolean} readOnly
+ * @property {function} onFocus
+ * @property {function} onBlur
  */
 
 type TagsCloudInputProps = StringItemsInputProps & {
     onlyValuesFromList?: boolean;
+
+    /** Forwarded to Mantine TagsInput as aria-label.
+     *  Required for screen readers when no visible label is rendered.
+     *  When label is set this is not needed but is still forwarded. */
+    ariaLabel?: string;
+    /** Allow the user to clear all tags with a single button.
+     *  When set, provide clearAriaLabel so the button is announced correctly. */
+    clearable?: boolean;
+    /** aria-label for the clear button; only relevant when clearable is true. */
+    clearAriaLabel?: string;
+    /** Makes the input non-interactive without dimming it visually.
+     *  Use instead of disabled when the value should still be readable. */
+    readOnly?: boolean;
+    /** When true, renders a MultiSelect restricted to entity-backed values.
+     *  Derived from the entity's PoliciesContextEditable field. */
+    editableValues?: boolean;
 };
 
 /**
@@ -53,25 +76,21 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
     description,
     placeholder,
     disabled,
+    readOnly,
     dataLoader,
     errorText,
     value,
     onlyValuesFromList,
+    editableValues,
+    ariaLabel,
+    clearable,
+    clearAriaLabel,
     onCommitChange,
     onFocus,
     onBlur,
 }) => {
     const [localValue, setLocalValue] = useState(parseCSLtoArray(value));
     const [items, setItems] = useState<string[]>([]);
-    const [itemsLoading, setItemsLoading] = useState(false);
-
-    const props = {
-        label,
-        description,
-        placeholder,
-        error: errorText,
-        required,
-    };
 
     useEffect(() => {
         setLocalValue(parseCSLtoArray(value));
@@ -79,37 +98,77 @@ export const TagsCloudInput: React.FC<TagsCloudInputProps> = ({
 
     useEffect(() => {
         if (dataLoader) {
-            setItemsLoading(true);
-            dataLoader().then((ss) => {
-                setItems(ss);
-                setItemsLoading(false);
-            });
+            dataLoader().then((ss) => setItems(ss));
         }
     }, [name]);
 
-    const filterValues = (values: string[]): string[] => {
-        return onlyValuesFromList
-            ? values.filter((v) => items.indexOf(v) !== -1)
-            : values.filter((v) => v);
+    const onChangeJoin = (values: string[]) => {
+        setLocalValue(values.filter((v) => v));
+        onCommitChange(formatTagsArrayToString(values));
     };
 
-    const commitValues = (values: string[]) => {
-        const filtered = filterValues(values);
-        setLocalValue(filtered);
-        onCommitChange(formatTagsArrayToString(filtered));
+    const commonProps = {
+        label,
+        description,
+        placeholder,
+        error: errorText,
+        required,
+        'aria-label': ariaLabel,
+        clearButtonProps: clearAriaLabel ? { 'aria-label': clearAriaLabel } : undefined,
+        readOnly,
+        value: localValue,
+        onChange: onChangeJoin,
+        onFocus,
     };
+
+    if (editableValues) {
+        return (
+            <MultiSelect
+                {...commonProps}
+                data={items}
+                disabled={disabled}
+                comboboxProps={{ withinPortal: false, dropdownPadding: '4px' }}
+                searchable
+                onBlur={(e) => {
+                    if (onBlur) {
+                        onBlur(e);
+                    }
+                }}
+            />
+        );
+    }
 
     return (
         <TagsInput
-            {...props}
-            value={localValue}
+            {...commonProps}
             data={items}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            onChange={commitValues}
-            disabled={disabled || (onlyValuesFromList && itemsLoading)}
+            disabled={disabled}
+            clearable={clearable}
             comboboxProps={{ withinPortal: false }}
             splitChars={onlyValuesFromList ? [''] : undefined}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                const { key, target } = e;
+                const { value } = target;
+
+                if (key === 'Enter' || key === ',') {
+                    if (onlyValuesFromList && !items.includes(value)) return;
+
+                    onCommitChange(
+                        formatTagsArrayToString([...localValue, value]),
+                    );
+                }
+            }}
+            onBlur={(e) => {
+                const { value } = e.target;
+
+                if (onlyValuesFromList && !items.includes(value)) return;
+
+                onCommitChange(formatTagsArrayToString([...localValue, value]));
+
+                if (onBlur) {
+                    onBlur(e);
+                }
+            }}
         />
     );
 };

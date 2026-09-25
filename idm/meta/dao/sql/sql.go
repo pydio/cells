@@ -57,10 +57,11 @@ func tag(err error) error {
 
 func NewDAO(db *gorm.DB) meta.DAO {
 	return &sqlimpl{
-		Abstract:     sql.NewAbstract(db),
-		resourcesDAO: resources2.NewDAO(db),
-		nsDAO:        NewNSDAO(db),
-		evDAO:        NewEntityValueDAO(db),
+		Abstract:       sql.NewAbstract(db),
+		resourcesDAO:   resources2.NewDAO(db),
+		nsDAO:          NewNSDAO(db),
+		entityDAO:      NewEntityDAO(db),
+		entityValueDAO: NewEntityValueDAO(db),
 	}
 }
 
@@ -68,8 +69,9 @@ func NewDAO(db *gorm.DB) meta.DAO {
 type sqlimpl struct {
 	*sql.Abstract
 	resourcesDAO
-	nsDAO meta.NamespaceDAO
-	evDAO meta.EntityValueDAO
+	nsDAO          meta.NamespaceDAO
+	entityDAO      meta.EntityDAO
+	entityValueDAO meta.EntityValueDAO
 }
 
 type Meta struct {
@@ -116,10 +118,6 @@ func (s *sqlimpl) GetNamespaceDao() meta.NamespaceDAO {
 	return s.nsDAO
 }
 
-func (s *sqlimpl) GetEntityValueDao() meta.EntityValueDAO {
-	return s.evDAO
-}
-
 func (s *sqlimpl) Migrate(ctx context.Context) error {
 	if err := s.Session(ctx).AutoMigrate(&Meta{}, &MetaNamespace{}); err != nil {
 		return err
@@ -133,7 +131,11 @@ func (s *sqlimpl) Migrate(ctx context.Context) error {
 		return err
 	}
 
-	if err := s.evDAO.Migrate(ctx); err != nil {
+	if err := s.entityDAO.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := s.entityValueDAO.MigrateEV(ctx); err != nil {
 		return err
 	}
 
@@ -147,6 +149,16 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 	prev := ""
 	update := false
 
+	// Check if record already exists
+	var existing Meta
+	existsQuery := s.Session(ctx).Where(&Meta{
+		NodeUUID:  old.NodeUUID,
+		Namespace: old.Namespace,
+		Owner:     old.Owner,
+	}).First(&existing)
+
+	recordExists := existsQuery.Error == nil
+
 	// Attempting to create
 	tx := s.Session(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "node_uuid"}, {Name: "namespace"}, {Name: "owner"}},
@@ -156,19 +168,15 @@ func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, s
 		return nil, "", tag(tx.Error)
 	}
 
-	if tx.RowsAffected == 0 {
-		target.UUID = old.UUID
-
-		prev = string(target.Data)
-
+	if recordExists {
+		// This was an update - use the existing UUID
+		old.UUID = existing.UUID
+		target.UUID = existing.UUID
+		prev = string(existing.Data)
 		update = true
-		if tx2 := s.Session(ctx).Where(&Meta{UUID: old.UUID}).Updates(target); tx2.Error != nil {
-			return nil, "", tag(tx2.Error)
-		}
-	} else {
-		target = old
 	}
 
+	target = old
 	meta = target.As(meta)
 
 	var err error
@@ -255,7 +263,7 @@ func (s *sqlimpl) Search(ctx context.Context, query service.Enquirer) ([]*idm.Us
 
 	entityValuesMap := make(map[string][]string)
 	if len(metaUUIDs) > 0 {
-		evMap, err := s.evDAO.GetMetaEntityValuesMap(ctx, metaUUIDs)
+		evMap, err := s.entityValueDAO.GetMetaEntityValuesMap(ctx, metaUUIDs)
 		if err == nil { // Ignoring the error since it's not guaranteed to have entity values for all metas
 			for metaUUID, entityValues := range evMap {
 				labels := make([]string, len(entityValues))

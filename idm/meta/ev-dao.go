@@ -28,37 +28,26 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v5/common/proto/idm"
-	service2 "github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/service"
 	"github.com/pydio/cells/v5/common/storage/sql/resources"
-	"google.golang.org/protobuf/types/known/structpb"
 )
 
-var Drivers = service.StorageDrivers{}
+var EntityValueDrivers = service.StorageDrivers{}
 
-// DAO interface
-type DAO interface {
-	resources.DAO
-	GetNamespaceDao() NamespaceDAO
-
-	Migrate(ctx context.Context) error
-	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
-	Del(ctx context.Context, meta *idm.UserMeta) (prevValue string, e error)
-	Search(ctx context.Context, query service2.Enquirer) ([]*idm.UserMeta, error)
-	GetMeta(ctx context.Context, nodeUuid string, namespace string) (*idm.UserMeta, error)
-}
-
-const (
-	ReservedNamespaceBookmark = "bookmark"
-)
-
-// NamespaceDAO interface
-type NamespaceDAO interface {
+// EntityValueDAO interface for managing meta entities and their values
+type EntityValueDAO interface {
 	resources.DAO
 
-	Upsert(ctx context.Context, ns *idm.UserMetaNamespace) (error, bool)
-	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
-	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
-	GetJSONSchema(ctx context.Context) (*structpb.Struct, error)
-	GetNamespaceSchemaSample(ctx context.Context, fieldType string, namespace string, format string) (*structpb.Struct, error)
+	MigrateEV(ctx context.Context) error
+
+	// CreateEntityValues Entity Value operations
+	CreateEntityValues(ctx context.Context, values []*idm.EntityValue) ([]*idm.EntityValue, error)
+	CreateEntityValue(ctx context.Context, value *idm.EntityValue) (*idm.EntityValue, error)
+	GetEntityValues(ctx context.Context, entityUuid string) ([]*idm.EntityValue, error)
+
+	// LinkMetaValue Link operations
+	LinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error)
+	UnlinkMetaValue(ctx context.Context, metaUuid string, valueUuid string) (bool, error)
+	GetMetaEntityValues(ctx context.Context, metaUuid string) ([]*idm.EntityValue, error)
+	GetMetaEntityValuesMap(ctx context.Context, metaUuids []string) (map[string][]*idm.EntityValue, error)
 }

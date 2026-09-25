@@ -57,19 +57,29 @@ func init() {
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
 			service.WithStorageDrivers(meta.Drivers),
+			service.WithNamedStorageDrivers("meta-entities", meta.EntityDrivers),
+			service.WithNamedStorageDrivers("meta-entity-values", meta.EntityValueDrivers),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRunOrChange(),
-					Up:            manager.StorageMigration(),
+					Up: func(ctx context.Context) error {
+						// Each connection migrates its own schema: the named ones create
+						// their dedicated policies tables (see "policies" storage option)
+						if err := manager.StorageMigration()(ctx); err != nil {
+							return err
+						}
+						if err := manager.StorageMigration(manager.WithName("meta-entities"))(ctx); err != nil {
+							return err
+						}
+						return manager.StorageMigration(manager.WithName("meta-entity-values"))(ctx)
+					},
 				},
 				{
 					TargetVersion: service.FirstRun(),
 					Up: func(ctx context.Context) error {
+						// Schema migrations are already handled by StorageMigration above
 						dao, err := manager.Resolve[meta.DAO](ctx)
 						if err != nil {
-							return err
-						}
-						if err = dao.Migrate(ctx); err != nil {
 							return err
 						}
 						return defaultMetas(ctx, dao)
@@ -105,6 +115,7 @@ func defaultMetas(ctx context.Context, dao meta.DAO) error {
 		Namespace:      common.MetaNamespaceUserspacePrefix + "tags",
 		Label:          "Tags",
 		Indexable:      true,
+		FieldType:      "tags",
 		JsonDefinition: "{\"type\":\"tags\"}",
 		Description:    "Default Tags",
 		Policies: []*service2.ResourcePolicy{
@@ -112,13 +123,10 @@ func defaultMetas(ctx context.Context, dao meta.DAO) error {
 			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
 		},
 	})
-	if err == nil {
-		log.Logger(ctx).Info("Inserted default namespace for metadata")
-		return nil
+	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+		return err
 	}
-	if errors.Is(err, gorm.ErrDuplicatedKey) {
-		// This is a duplicate error, we ignore it
-		return nil
-	}
-	return err
+	log.Logger(ctx).Info("Inserted default namespace for metadata")
+
+	return nil
 }

@@ -32,7 +32,7 @@ const UsePool = true;
 
 class Session extends FolderItem {
 
-    constructor(repositoryId, targetNode, metaNamespaces = []) {
+    constructor(repositoryId, targetNode, metaNamespaces = [], entities = []) {
         super('/', targetNode);
         this._uuid = uuid4()
         this._repositoryId = repositoryId;
@@ -40,6 +40,7 @@ class Session extends FolderItem {
         delete this.children.pg[this.getId()];
         this._analyzeStatus = ''
         this._promptNamespaces = metaNamespaces.filter(ns => ns.PromptOnUpload)
+        this._entities = Array.isArray(entities) && entities.length > 0 ? entities.filter(e => e.PoliciesContextEditable) : [];
     }
 
     getUuid() {
@@ -65,6 +66,10 @@ class Session extends FolderItem {
 
     getPromptNamespaces() {
         return this._promptNamespaces;
+    }
+
+    getEntities() {
+        return this._entities;
     }
 
     getFullPath(){

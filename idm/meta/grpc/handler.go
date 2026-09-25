@@ -81,8 +81,10 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	namespaces, _ := dao.GetNamespaceDao().List(ctx)
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
+	resolver := NewEvResolver()
 	for _, metaData := range request.MetaDatas {
 		var prevValue string
+
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// Check JsonValue is valid json
 			var data interface{}
@@ -91,14 +93,37 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
 			// ADD / UPDATE
-			if newMeta, prev, err := dao.Set(ctx, metaData); err == nil {
-				response.MetaDatas = append(response.MetaDatas, newMeta)
-				prevValue = prev
-			} else {
+			newMeta, prev, err := dao.Set(ctx, metaData)
+			if err != nil {
 				return nil, err
 			}
+
+			if err := resolveEntityValues(ctx, resolver, namespaces, newMeta); err != nil {
+				return nil, err
+			}
+			response.MetaDatas = append(response.MetaDatas, newMeta)
+			prevValue = prev
 		} else {
 			// DELETE
+			if ns, exists := namespaces[metaData.Namespace]; exists && resolver.Applies(ns) {
+				// Always detach all entity value relations before deleting the meta record.
+				// Passing empty labels means "keep nothing" — all links are removed,
+				// preventing a FK violation when Del() runs next.
+				var labels []string
+				var labelsStr string
+				if e := json.Unmarshal([]byte(metaData.JsonValue), &labelsStr); e == nil && labelsStr != "" {
+					labels = strings.Split(labelsStr, ",")
+				}
+				// UUID is not provided by the client - resolve it from the DB.
+				if resolved, e := dao.GetMeta(ctx, metaData.NodeUuid, metaData.Namespace); e == nil && resolved != nil {
+					metaData.Uuid = resolved.Uuid
+				}
+				if e := resolver.Detach(ctx, metaData, labels); e != nil {
+					return nil, e
+				}
+			}
+			// This statement returns a foreign key violation
+			//violates foreign key constraint [0.916ms] [rows:0] [source] DELETE FROM `idm_usr_meta` WHERE `idm_usr_meta`.`uuid` = '70ce6aec-f02a-4b9a-b615-deab67ffdff7'  {"file": "/cells/common/storage/sql/logger.go:82", "layer": "sql", "tag": "idm"}
 			if prev, err := dao.Del(ctx, metaData); err == nil {
 				prevValue = prev
 				// Remove this namespace from ResolvedNode as it will used for targets later on
@@ -430,13 +455,12 @@ func (h *Handler) GetNamespaceSchema(ctx context.Context, req *idm.GetNamespaceS
 }
 
 func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.MetaEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	entityDAO := dao.GetEntityValueDao()
 
-	values, err := entityDAO.GetEntityValues(ctx, req.EntityUuid)
+	values, err := entityValueDAO.GetEntityValues(ctx, req.EntityUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -446,14 +470,13 @@ func (h *Handler) GetEntityValues(ctx context.Context, req *idm.GetMetaEntityVal
 	}, nil
 }
 
-func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValuesRequest) (*idm.DeleteEntityValuesResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+func (h *Handler) DeleteEntity(ctx context.Context, req *idm.DeleteEntityRequest) (*idm.DeleteEntityResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
 
-	resp, err := evDAO.DeleteEntity(ctx, req.EntityUuid)
+	resp, err := entityDAO.DeleteEntity(ctx, req.EntityId)
 	if err != nil {
 		return nil, err
 	}
@@ -461,14 +484,41 @@ func (h *Handler) DeleteEntity(ctx context.Context, req *idm.GetMetaEntityValues
 	return resp, nil
 }
 
-func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+func (h *Handler) ListEntities(ctx context.Context, req *idm.ListEntitiesRequest) (*idm.ListEntitiesResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
 
-	entity, err := evDAO.CreateEntity(ctx, req.Entity)
+	entities, err := entityDAO.ListEntities(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.ListEntitiesResponse{Entity: entities}, nil
+}
+
+func (h *Handler) GetEntity(ctx context.Context, req *idm.GetEntityRequest) (*idm.GetEntityResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
+	if err != nil {
+		return nil, err
+	}
+
+	entity, err := entityDAO.GetEntity(ctx, req.EntityUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idm.GetEntityResponse{Entity: entity}, nil
+}
+
+func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest) (*idm.CreateEntityResponse, error) {
+	entityDAO, err := manager.Resolve[meta.EntityDAO](ctx, manager.WithName("meta-entities"))
+	if err != nil {
+		return nil, err
+	}
+
+	entity, err := entityDAO.CreateEntity(ctx, req.Entity)
 	if err != nil {
 		return nil, err
 	}
@@ -479,13 +529,12 @@ func (h *Handler) CreateEntity(ctx context.Context, req *idm.CreateEntityRequest
 }
 
 func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityValueRequest) (*idm.CreateEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
 
-	values, err := evDAO.CreateEntityValues(ctx, req.EntityValue)
+	values, err := entityValueDAO.CreateEntityValues(ctx, req.EntityValue)
 	if err != nil {
 		return nil, err
 	}
@@ -496,12 +545,11 @@ func (h *Handler) CreateEntityValues(ctx context.Context, req *idm.CreateEntityV
 }
 
 func (h *Handler) LinkMetaToEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
-	link, er := evDAO.LinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	link, er := entityValueDAO.LinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
 	if er != nil {
 		return nil, er
 	}
@@ -525,12 +573,11 @@ func (h *Handler) GetMetadata(ctx context.Context, req *idm.GetMetadataRequest) 
 }
 
 func (h *Handler) UnlinkMetaFromEntityValue(ctx context.Context, req *idm.MetaToEntityValueRequest) (*idm.MetaToEntityValueResponse, error) {
-	dao, err := manager.Resolve[meta.DAO](ctx)
+	entityValueDAO, err := manager.Resolve[meta.EntityValueDAO](ctx, manager.WithName("meta-entity-values"))
 	if err != nil {
 		return nil, err
 	}
-	evDAO := dao.GetEntityValueDao()
-	unlink, er := evDAO.UnlinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
+	unlink, er := entityValueDAO.UnlinkMetaValue(ctx, req.MetaUuid, req.EntityValueUuid)
 	if er != nil {
 		return nil, er
 	}
@@ -577,4 +624,28 @@ func (h *Handler) clearCacheForNode(ctx context.Context, nodeId string) {
 		}
 	}
 
+}
+
+// resolveEntityValues keeps meta ↔ entity-value links consistent after a successful PUT.
+// It delegates to Resolve which handles detach, vocabulary creation, and linking in one pass.
+func resolveEntityValues(ctx context.Context, resolver EvResolver, namespaces map[string]*idm.UserMetaNamespace, newMeta *idm.UserMeta) error {
+	ns, exists := namespaces[newMeta.Namespace]
+	if !exists || !resolver.Applies(ns) {
+		return nil
+	}
+
+	// Parse labels from JsonValue (JSON-encoded comma-separated string).
+	var labelsStr string
+	if err := json.Unmarshal([]byte(newMeta.JsonValue), &labelsStr); err != nil {
+		// Not a string value — nothing to resolve.
+		return nil
+	}
+
+	var labels []string
+	if labelsStr != "" {
+		labels = strings.Split(labelsStr, ",")
+	}
+
+	_, err := resolver.Resolve(ctx, newMeta, ns, labels)
+	return err
 }

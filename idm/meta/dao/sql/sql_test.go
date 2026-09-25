@@ -294,24 +294,28 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		evDAO := mockDAO.GetEntityValueDao()
-		nsDAO := mockDAO.GetNamespaceDao()
+
+		// Access internal entity DAOs from the main DAO
+		sqlDAO := mockDAO.(*sqlimpl)
+		entityDAO := sqlDAO.entityDAO
+		entityValueDAO := sqlDAO.entityValueDAO
+		nsDAO := sqlDAO.nsDAO
 
 		Convey("Search Returns Entity Values for Tag Cloud Namespace", t, func() {
 			// Create an entity and values
-			entity, err := evDAO.CreateEntity(ctx, &idm.MetaEntity{
+			entity, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
 				Label:       "Tags",
 				Description: "Tag entity for tag cloud",
 			})
 			So(err, ShouldBeNil)
 
-			tag1, err := evDAO.CreateEntityValue(ctx, &idm.EntityValue{
+			tag1, err := entityValueDAO.CreateEntityValue(ctx, &idm.EntityValue{
 				Label:      "important",
 				EntityUuid: entity.Uuid,
 			})
 			So(err, ShouldBeNil)
 
-			tag2, err := evDAO.CreateEntityValue(ctx, &idm.EntityValue{
+			tag2, err := entityValueDAO.CreateEntityValue(ctx, &idm.EntityValue{
 				Label:      "urgent",
 				EntityUuid: entity.Uuid,
 			})
@@ -343,11 +347,11 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 			})
 			So(err, ShouldBeNil)
 
-			linked, err := evDAO.LinkMetaValue(ctx, meta.Uuid, tag1.Uuid)
+			linked, err := entityValueDAO.LinkMetaValue(ctx, meta.Uuid, tag1.Uuid)
 			So(err, ShouldBeNil)
 			So(linked, ShouldBeTrue)
 
-			linked, err = evDAO.LinkMetaValue(ctx, meta.Uuid, tag2.Uuid)
+			linked, err = entityValueDAO.LinkMetaValue(ctx, meta.Uuid, tag2.Uuid)
 			So(err, ShouldBeNil)
 			So(linked, ShouldBeTrue)
 
@@ -373,7 +377,7 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 
 		Convey("Search Returns Original Value When No Entity Values Linked", t, func() {
 			// Create entity and namespace
-			entity, err := evDAO.CreateEntity(ctx, &idm.MetaEntity{
+			entity, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
 				Label: "Status",
 			})
 			So(err, ShouldBeNil)
@@ -419,12 +423,12 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 
 		Convey("Search Handles Mixed Namespace Types", t, func() {
 			// Create tag_cloud namespace with entity values
-			entity, err := evDAO.CreateEntity(ctx, &idm.MetaEntity{
+			entity, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
 				Label: "Tags",
 			})
 			So(err, ShouldBeNil)
 
-			tag1, err := evDAO.CreateEntityValue(ctx, &idm.EntityValue{
+			tag1, err := entityValueDAO.CreateEntityValue(ctx, &idm.EntityValue{
 				Label:      "featured",
 				EntityUuid: entity.Uuid,
 			})
@@ -468,7 +472,7 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 			})
 			So(err, ShouldBeNil)
 
-			linked, err := evDAO.LinkMetaValue(ctx, metaTags.Uuid, tag1.Uuid)
+			linked, err := entityValueDAO.LinkMetaValue(ctx, metaTags.Uuid, tag1.Uuid)
 			So(err, ShouldBeNil)
 			So(linked, ShouldBeTrue)
 
