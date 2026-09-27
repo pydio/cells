@@ -38,6 +38,8 @@ const COMMON_IGNORES = [
   "**/*.xsd",
   "webpack-commons.js",
   "**/webpack-commons.js",
+  ".storybook/",
+  "**/.storybook/",
   "*.min.js",
   "**/*.min.js",
   "*.map",
