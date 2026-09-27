@@ -37,7 +37,11 @@ func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, outpu
 			return e
 		}
 		defer reader.Close()
-		headers.Set("Content-Type", "image/"+extension)
+		contentType, ok := binaryContentType(extension)
+		if !ok {
+			return fmt.Errorf("unsupported binary extension %q", extension)
+		}
+		headers.Set("Content-Type", contentType)
 
 		if _, e := io.Copy(output, reader); e != nil {
 			return e
