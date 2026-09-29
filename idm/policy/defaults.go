@@ -941,7 +941,7 @@ func Upgrade510(ctx context.Context) error {
 			log.Logger(ctx).Info("Updated policy group " + group.GetUuid())
 		}
 	}
-	log.Logger(ctx).Info("Upgraded policy model to v5.0.3")
+	log.Logger(ctx).Info("Upgraded policy model to v5.1.0")
 	return nil
 }
 
