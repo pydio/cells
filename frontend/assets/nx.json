@@ -1,0 +1,32 @@
+{
+    "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "extends": "nx/presets/npm.json",
+    "namedInputs": {
+        "sharedGlobals": [
+            "{workspaceRoot}/webpack-commons.js",
+            "{workspaceRoot}/libdefs.js",
+            "{workspaceRoot}/pnpm-lock.yaml",
+            "{workspaceRoot}/pnpm-workspace.yaml"
+        ],
+        "default": [
+            "{projectRoot}/**/*",
+            "!{projectRoot}/res/dist/**/*",
+            "!{projectRoot}/node_modules/**/*",
+            "sharedGlobals"
+        ],
+        "production": [
+            "default",
+            "!{projectRoot}/**/*.test.*",
+            "!{projectRoot}/**/*.spec.*",
+            "!{projectRoot}/__mocks__/**/*"
+        ]
+    },
+    "targetDefaults": {
+        "build": {
+            "cache": true,
+            "inputs": ["production", "^production"],
+            "outputs": ["{projectRoot}/res/dist"]
+        }
+    },
+    "analytics": false
+}
