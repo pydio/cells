@@ -1209,8 +1209,8 @@ importers:
         specifier: ^2.847.0
         version: 2.1693.0
       cells-sdk:
-        specifier: github:pydio/cells-sdk-js#feat/entity-value-policy-editing
-        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/44a91b4a689dd67315b230b66ee94bcdb8a92926
+        specifier: github:pydio/cells-sdk-js#next
+        version: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ad7d970d913710ea1dae1c79f72d6607db289eed
       classnames:
         specifier: ~2.1.3
         version: 2.1.5
@@ -4217,8 +4217,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-ts/tar.gz/cbea7de85ff1ac4602a86e8196d583b9ef6c9893}
     version: 0.1.0
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/44a91b4a689dd67315b230b66ee94bcdb8a92926:
-    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/44a91b4a689dd67315b230b66ee94bcdb8a92926}
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ad7d970d913710ea1dae1c79f72d6607db289eed:
+    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ad7d970d913710ea1dae1c79f72d6607db289eed}
     version: 3.0.0
 
   chai@6.2.2:
@@ -11792,7 +11792,7 @@ snapshots:
       - debug
       - supports-color
 
-  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/44a91b4a689dd67315b230b66ee94bcdb8a92926:
+  cells-sdk@https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ad7d970d913710ea1dae1c79f72d6607db289eed:
     dependencies:
       superagent: 6.1.0
     transitivePeerDependencies:
