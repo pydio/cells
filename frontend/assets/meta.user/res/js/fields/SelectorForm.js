@@ -47,8 +47,9 @@ class SelectorForm extends React.Component {
 
     render() {
         const { stepper, labels = {}, keys = [] } = this.state;
-        const { value, label, updateValue, errorText, search, muiTheme, mode } =
+        const { value: rawValue, label, updateValue, errorText, search, muiTheme, mode } =
             this.props;
+        const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
         let menuItems;
         if (this.state.menuItems === undefined) {
             menuItems = [...this.props.menuItems];

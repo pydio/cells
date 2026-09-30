@@ -23,8 +23,9 @@ import asMetaField from '../hoc/asMetaField';
 class SelectorField extends React.Component {
     render() {
         const { configs, getRealValue, column } = this.props;
-        const value = getRealValue();
-        let displayValue = getRealValue();
+        const raw = getRealValue();
+        const value = Array.isArray(raw) ? raw[0] : raw;
+        let displayValue = value;
         let fieldConfig = configs.get(column.name);
         let color;
         if (fieldConfig && fieldConfig.data && fieldConfig.data.items) {
