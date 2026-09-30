@@ -139,7 +139,7 @@ docker-image-download:
 	 .
 
 start:
-	go run -tags=dev ./cells start
+	go run ./cells start
 
 ds: dev start
 
