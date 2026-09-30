@@ -120,6 +120,7 @@
     "build-core-prod": "NODE_ENV=production webpack --config webpack.core.js",
     "build-boot-prod": "NODE_ENV=production webpack --config webpack.boot.js",
     "build-css-prod": "NODE_ENV=production webpack --config webpack.css.js",
-    "all": "pnpm run build-boot && pnpm run build-core && pnpm run build-libs"
+    "all": "pnpm run build-boot && pnpm run build-core && pnpm run build-libs",
+    "build": "NODE_ENV=production pnpm run build-boot && NODE_ENV=production pnpm run build-core && NODE_ENV=production pnpm run build-libs && NODE_ENV=production pnpm run build-css"
   }
 }

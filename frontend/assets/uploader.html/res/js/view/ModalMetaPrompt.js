@@ -24,7 +24,7 @@ import Node from 'pydio/model/node'
 import { Dialog, FlatButton } from 'material-ui'
 const { PydioMantineProvider } = Pydio.requireLib('hoc');
 
-export default ({ namespaces, onDismiss, metaLib }) => {
+export default ({ namespaces, entities = [], onDismiss, metaLib }) => {
     const [errorsScope, setErrorsScope] = useState('local');
     const [data, setData] = useState({})
     const [valid, setValid] = useState(false)
@@ -47,8 +47,17 @@ export default ({ namespaces, onDismiss, metaLib }) => {
     const metaPanel = useRef(null)
 
     const loader = useCallback(() => {
-        return Promise.resolve(MetaClient.getInstance().namespacesAsPanelConfig(namespaces));
-    }, [namespaces]);
+        const configs = MetaClient.getInstance().namespacesAsPanelConfig(namespaces);
+        // Same evaluation as useEntityEditableValues: values are freely editable
+        // unless the backing entity carries a PoliciesContextEditable key.
+        // Session already filtered `entities` down to the restricted ones.
+        configs.forEach((cfg) => {
+            if (cfg.type === 'tag_cloud' && cfg.entityUUID) {
+                cfg.editableValues = !entities.some((e) => e.Uuid === cfg.entityUUID);
+            }
+        });
+        return Promise.resolve(configs);
+    }, [namespaces, entities]);
     const actions = []
     if (!submitted) {
         actions.push(<FlatButton label={pydio.MessageHash[54]} onClick={cancel} />)

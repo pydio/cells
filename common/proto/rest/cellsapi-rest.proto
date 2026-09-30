@@ -633,6 +633,38 @@ service UserMetaService {
             delete: "/user-meta/tags/{Namespace}/{Tags}"
         };
     }
+
+   rpc PutEntity(idm.CreateEntityRequest) returns (idm.CreateEntityResponse){
+       option (google.api.http) = {
+           put: "/user-meta/entity"
+           body: "*"
+       };
+   }
+
+   rpc DeleteEntity(idm.DeleteEntityRequest) returns (idm.DeleteEntityResponse){
+       option (google.api.http) = {
+           delete: "/user-meta/entity/{EntityId}"
+       };
+   }
+
+   rpc ListEntities(idm.ListEntitiesRequest) returns (idm.ListEntitiesResponse){
+       option (google.api.http) = {
+           get: "/user-meta/entity"
+       };
+   }
+    rpc CreateEntityValues(idm.CreateEntityValueRequest) returns (idm.CreateEntityValueResponse){
+        option (google.api.http) = {
+            put: "/user-meta/entity/values"
+            body: "*"
+       };
+    }
+
+    rpc DeleteEntityValue(idm.DeleteEntityValueRequest) returns (idm.DeleteEntityValueResponse){
+        option (google.api.http) = {
+            delete: "/user-meta/entity/values/{EntityValueUuid}"
+       };
+    }
+    
 }
 
 // User-accessible Jobs service

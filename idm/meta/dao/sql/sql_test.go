@@ -294,12 +294,14 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		evDAO := mockDAO.GetEntityValueDao()
-		nsDAO := mockDAO.GetNamespaceDao()
+		sqlDAO := mockDAO.(*sqlimpl)
+		evDAO := sqlDAO.entityValueDAO
+		entityDAO := sqlDAO.entityDAO
+		nsDAO := sqlDAO.nsDAO
 
 		Convey("Search Returns Entity Values for Tag Cloud Namespace", t, func() {
 			// Create an entity and values
-			entity, err := evDAO.CreateEntity(ctx, &idm.MetaEntity{
+			entity, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
 				Label:       "Tags",
 				Description: "Tag entity for tag cloud",
 			})
@@ -373,7 +375,7 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 
 		Convey("Search Returns Original Value When No Entity Values Linked", t, func() {
 			// Create entity and namespace
-			entity, err := evDAO.CreateEntity(ctx, &idm.MetaEntity{
+			entity, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
 				Label: "Status",
 			})
 			So(err, ShouldBeNil)
@@ -419,7 +421,7 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 
 		Convey("Search Handles Mixed Namespace Types", t, func() {
 			// Create tag_cloud namespace with entity values
-			entity, err := evDAO.CreateEntity(ctx, &idm.MetaEntity{
+			entity, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
 				Label: "Tags",
 			})
 			So(err, ShouldBeNil)
@@ -503,6 +505,127 @@ func TestSearchWithTagCloudEntityValues(t *testing.T) {
 			So(resultsByNamespace[nsKeyTags].JsonValue, ShouldContainSubstring, "featured")
 			// Verify string returns original value
 			So(resultsByNamespace[nsKeyTitle].JsonValue, ShouldEqual, `"My Document"`)
+		})
+	})
+}
+
+func TestSet(t *testing.T) {
+
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		Convey("Set creates a new meta and returns an assigned UUID with no prev value", t, func() {
+			m, prev, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-1",
+				Namespace: "set-ns",
+				JsonValue: `"first"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:alice", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(m.Uuid, ShouldNotBeEmpty)
+			So(prev, ShouldBeEmpty) // no previous value on first create
+		})
+
+		Convey("Set on existing node/namespace/owner updates data, preserves UUID, and returns prev value", t, func() {
+			// First call – create
+			created, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-2",
+				Namespace: "set-ns",
+				JsonValue: `"original"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:bob", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(created.Uuid, ShouldNotBeEmpty)
+
+			// Second call – update same owner/node/namespace
+			updated, prev, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-2",
+				Namespace: "set-ns",
+				JsonValue: `"updated"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:bob", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(updated.Uuid, ShouldEqual, created.Uuid)  // UUID must be stable across updates
+			So(prev, ShouldContainSubstring, "original") // prev must reflect the old stored value
+
+			// Verify exactly one record exists for this owner/node/namespace
+			subQ, _ := anypb.New(&idm.SearchUserMetaRequest{
+				NodeUuids:            []string{"set-node-2"},
+				ResourceSubjectOwner: "user:bob",
+			})
+			query := &service.Query{SubQueries: []*anypb.Any{subQ}}
+			results, er := mockDAO.Search(ctx, query)
+			So(er, ShouldBeNil)
+			So(results, ShouldHaveLength, 1)
+			So(results[0].JsonValue, ShouldEqual, `"updated"`)
+		})
+
+		Convey("Set with different owners on same node/namespace creates distinct records", t, func() {
+			_, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-3",
+				Namespace: "set-ns",
+				JsonValue: `"alice-value"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:alice", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+
+			_, _, err = mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-3",
+				Namespace: "set-ns",
+				JsonValue: `"bob-value"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:bob", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+
+			subQ, _ := anypb.New(&idm.SearchUserMetaRequest{
+				NodeUuids: []string{"set-node-3"},
+			})
+			query := &service.Query{SubQueries: []*anypb.Any{subQ}}
+			results, er := mockDAO.Search(ctx, query)
+			So(er, ShouldBeNil)
+			So(results, ShouldHaveLength, 2) // one per owner
+		})
+
+		Convey("Set attaches policies on create and update path", t, func() {
+			// Create – policies must be returned
+			m, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-4",
+				Namespace: "set-ns",
+				JsonValue: `"v1"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:carol", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+					{Subject: "user:carol", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(m.Policies, ShouldHaveLength, 2)
+
+			// Update – UUID stable, policies still present
+			m2, _, err := mockDAO.Set(ctx, &idm.UserMeta{
+				NodeUuid:  "set-node-4",
+				Namespace: "set-ns",
+				JsonValue: `"v2"`,
+				Policies: []*service.ResourcePolicy{
+					{Subject: "user:carol", Action: service.ResourcePolicyAction_OWNER, Effect: service.ResourcePolicy_allow},
+					{Subject: "user:carol", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(m2.Uuid, ShouldEqual, m.Uuid)
+			So(m2.Policies, ShouldHaveLength, 2)
 		})
 	})
 }
