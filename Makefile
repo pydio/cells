@@ -1,4 +1,4 @@
-DEV_VERSION=5.1.0-dev
+DEV_VERSION=5.1.0
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -139,7 +139,7 @@ docker-image-download:
 	 .
 
 start:
-	./cells start
+	go run -tags=dev ./cells start
 
 ds: dev start
 
