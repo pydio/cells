@@ -1,8 +1,6 @@
 /cells-*
 /main
 /cells
-/cells.exe
-/local-*.yaml
 
 CHANGELOG.html
 
@@ -37,6 +35,4 @@ minio.exe
 /frontend/assets/*
 
 .env
-install*.yaml
-
 .claude
