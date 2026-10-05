@@ -38,11 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/queue"
-	"github.com/pydio/cells/v5/common/runtime/controller"
-	"github.com/pydio/cells/v5/common/runtime/manager"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 )
 
 var (
@@ -51,29 +47,10 @@ var (
 
 const retentionQueryParameter = "retention"
 
-func init() {
-	runtime.Register("system", func(ctx context.Context) {
-		var mgr manager.Manager
-		if !propagator.Get(ctx, manager.ContextKey, &mgr) {
-			return
-		}
-		mgr.RegisterQueue("nats", controller.WithCustomOpener(func(ctx context.Context, url string) (broker.AsyncQueuePool, error) {
-			return broker.NewWrappedPool(url, broker.MakeWrappedOpener(&streamOpener{}))
-		}))
-	})
-	// For standalone queues, set useLocalConn to not re-use global nc variable
-	broker.RegisterAsyncQueue("nats", &streamOpener{useLocalConn: true})
-}
+type streamOpener struct{}
 
-type streamOpener struct {
-	useLocalConn bool
-}
-
-// OpenURL opens a JetStream-backed queue. The optional retention query
-// parameter accepts interest (the default), limits, or workqueue. For example:
-//
-//	nats://localhost:4222/queue?name=jobs&retention=interest
-func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (broker.AsyncQueue, error) {
+// nats://localhost:4222/queue?name=jobs&retention=interest
+func (s *streamOpener) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error) {
 	streamName := u.Query().Get("name")
 	if streamName == "" {
 		return nil, fmt.Errorf("missing query parameter 'name' for opening queue")
@@ -155,7 +132,8 @@ func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
 }
 
 // Consume creates a jetstream Consumer with the current streamName
-func (q *Queue) Consume(process func(context.Context, ...broker.Message)) error {
+func (q *Queue) Consume(process func(...broker.Message)) error {
+
 	// Retention can be updated between limits and interest, but NATS does not
 	// allow an existing stream to change to or from workqueue retention.
 	if existing, err := q.js.Stream(q.rootCtx, q.streamName); err == nil {
@@ -205,21 +183,14 @@ func (q *Queue) Close(ctx context.Context) error {
 	return nil
 }
 
-func NewNatsQueue(ctx context.Context, u *url.URL, streamName string, useLocalConn bool) (*Queue, error) {
+func NewNatsQueue(ctx context.Context, u *url.URL, streamName string) (*Queue, error) {
+
 	retention, err := parseRetentionPolicy(u.Query().Get(retentionQueryParameter))
 	if err != nil {
 		return nil, err
 	}
 
-	var conn *nats.Conn
-	if !useLocalConn && nc != nil && !nc.IsClosed() {
-		conn = nc
-	} else {
-		// Create new conn
-		opts := []nats.Option{
-			nats.Timeout(10 * time.Second),
-		}
-
+	if nc == nil {
 		tlsConfig, err := crypto.TLSConfigFromURL(u)
 		if err != nil {
 			return nil, err
@@ -244,7 +215,7 @@ func NewNatsQueue(ctx context.Context, u *url.URL, streamName string, useLocalCo
 
 	q := &Queue{
 		rootCtx:         ctx,
-		conn:            conn,
+		conn:            nc,
 		streamName:      streamName,
 		retentionPolicy: retention,
 		js:              js,
