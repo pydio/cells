@@ -93,7 +93,7 @@ require (
 	github.com/rs/xid v1.6.0
 	github.com/rubenv/sql-migrate v1.8.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
-	github.com/schollz/progressbar/v3 v3.8.6
+	github.com/schollz/progressbar/v3 v3.19.0
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/sethvargo/go-limiter v0.7.2
 	github.com/shibukawa/configdir v0.0.0-20170330084843-e180dbdc8da0
@@ -415,7 +415,7 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.48.2 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
