@@ -35,3 +35,4 @@ minio.exe
 /frontend/assets/*
 
 .env
+.claude

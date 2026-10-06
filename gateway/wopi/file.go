@@ -35,6 +35,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -42,15 +43,24 @@ import (
 )
 
 type File struct {
-	BaseFileName     string
-	OwnerId          string
-	Size             int64
-	UserId           string
-	Version          string
-	UserFriendlyName string
-	UserCanWrite     bool
-	LastModifiedTime string
-	PydioPath        string
+	BaseFileName            string
+	OwnerId                 string
+	Size                    int64
+	UserId                  string
+	Version                 string
+	UserFriendlyName        string
+	UserCanWrite            bool
+	LastModifiedTime        string
+	PydioPath               string
+	HidePrintOption         bool   `json:"HidePrintOption,omitempty"`
+	DisablePrint            bool   `json:"DisablePrint,omitempty"`
+	HideExportOption        bool   `json:"HideExportOption,omitempty"`
+	DisableExport           bool   `json:"DisableExport,omitempty"`
+	HideSaveOption          bool   `json:"HideSaveOption,omitempty"`
+	UserCanNotWriteRelative bool   `json:"UserCanNotWriteRelative,omitempty"`
+	DisableCopy             bool   `json:"DisableCopy,omitempty"`
+	UserCanOnlyComment      bool   `json:"UserCanOnlyComment,omitempty"`
+	HideRepairOption        bool   `json:"HideRepairOption,omitempty"`
 }
 
 func getNodeInfos(w http.ResponseWriter, r *http.Request) {
@@ -185,11 +195,34 @@ func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
 				f.UserFriendlyName = claims.DisplayName
 			}
 
-			pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
-			if pydioReadOnly == "true" {
+			conf := config.Get("frontend", "plugin", "editor.libreoffice")
+
+			if conf.Val("COLLABORA_DISABLE_PRINT").Default(false).Bool() {
+				f.HidePrintOption = true
+				f.DisablePrint = true
+			}
+			if conf.Val("COLLABORA_DISABLE_EXPORT").Default(false).Bool() {
+				f.HideExportOption = true
+				f.DisableExport = true
+			}
+			if conf.Val("COLLABORA_DISABLE_SAVE").Default(false).Bool() {
+				f.HideSaveOption = true
+				f.UserCanNotWriteRelative = true
+			}
+			if conf.Val("COLLABORA_DISABLE_COPY").Default(false).Bool() {
+				f.DisableCopy = true
+			}
+			f.HideRepairOption = conf.Val("COLLABORA_DISABLE_REPAIR").Default(false).Bool()
+
+			f.UserCanWrite = n.GetStringMeta(common.MetaFlagReadonly) != "true"
+
+			switch conf.Val("COLLABORA_DISABLE_MODE").Default("edit").String() {
+			case "readonly":
 				f.UserCanWrite = false
-			} else {
-				f.UserCanWrite = true
+			case "comment":
+				if f.UserCanWrite {
+					f.UserCanOnlyComment = true
+				}
 			}
 		}
 	} else {
