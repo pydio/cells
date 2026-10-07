@@ -24,7 +24,9 @@ package cells
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
+	"hash"
 	"io"
 	"path"
 	"strings"
@@ -39,6 +41,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/put"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
@@ -598,18 +601,26 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 			meta[k] = v
 		}
 	}
+	var body io.Reader = reader
+	var contentHash hash.Hash
+	if c.Options.SourceEtags {
+		// Compute the Cells hash of the content on the way, with the function the router uses:
+		// it is not always readable on the node as soon as PutObject returns.
+		contentHash = put.HashFunc()
+		body = io.TeeReader(reader, contentHash)
+	}
 	go func() {
 		defer func() {
 			close(writeDone)
 			close(writeErr)
 		}()
-		_, e := cli.PutObject(ctx, n, reader, &models.PutRequestData{Size: targetSize, Metadata: meta})
+		_, e := cli.PutObject(ctx, n, body, &models.PutRequestData{Size: targetSize, Metadata: meta})
 		if e != nil {
 			fmt.Println("[ERROR]", "Cannot PutObject", e.Error())
 			writeErr <- e
 		} else if c.Options.SourceEtags {
 			// Record source etag before writeDone is closed, so that it is visible when the operation completes
-			if er := c.recordSourceEtag(ctx, p, node); er != nil {
+			if er := c.recordSourceEtag(ctx, p, node, hex.EncodeToString(contentHash.Sum(nil))); er != nil {
 				log.Logger(ctx).Error("Cannot record source etag", zap.String("path", p), zap.Error(er))
 				writeErr <- er
 			}

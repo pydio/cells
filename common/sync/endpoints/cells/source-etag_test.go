@@ -22,18 +22,19 @@ package cells
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"sort"
 	"sync"
 	"testing"
-	"time"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/put"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 
@@ -48,10 +49,15 @@ type fakeTree struct {
 	// does not carry its Cells hash yet, as observed on a live server.
 	hashLag     int
 	pendingHash map[string]int
+	// alterHash makes PutObject store a hash that does not match the content.
+	alterHash bool
+	// keepOldHash makes pending reads show the previous hash instead of none (update in progress).
+	keepOldHash bool
+	oldHash     map[string]string
 }
 
 func newFakeTree() *fakeTree {
-	return &fakeTree{nodes: map[string]*tree.Node{}, pendingHash: map[string]int{}}
+	return &fakeTree{nodes: map[string]*tree.Node{}, pendingHash: map[string]int{}, oldHash: map[string]string{}}
 }
 
 func (t *fakeTree) set(n *tree.Node) {
@@ -83,6 +89,10 @@ func (t *fakeTree) view(n *tree.Node) *tree.Node {
 	if t.pendingHash[n.Path] > 0 {
 		t.pendingHash[n.Path]--
 		delete(out.MetaStore, common.MetaNamespaceHash)
+		if old := t.oldHash[n.Path]; t.keepOldHash && old != "" {
+			out.MustSetMeta(common.MetaNamespaceHash, old)
+			out.Etag = old
+		}
 		return out
 	}
 	if h := out.GetStringMeta(common.MetaNamespaceHash); h != "" {
@@ -135,7 +145,12 @@ func (t *fakeTree) PutObject(_ context.Context, node *tree.Node, reader io.Reade
 	}
 	n.Size = int64(len(data))
 	n.Etag = storageEtag(string(data))
-	n.MustSetMeta(common.MetaNamespaceHash, cellsHash(string(data)))
+	t.oldHash[n.Path] = n.GetStringMeta(common.MetaNamespaceHash)
+	if t.alterHash {
+		n.MustSetMeta(common.MetaNamespaceHash, cellsHash(string(data)+"-altered"))
+	} else {
+		n.MustSetMeta(common.MetaNamespaceHash, cellsHash(string(data)))
+	}
 	t.pendingHash[n.Path] = t.hashLag
 	return models.ObjectInfo{}, nil
 }
@@ -179,8 +194,11 @@ func storageEtag(content string) string {
 	return fmt.Sprintf("s3-%x", len(content)) + content
 }
 
+// cellsHash is the hash the router computes for content (x-cells-hash).
 func cellsHash(content string) string {
-	return fmt.Sprintf("cells-%x", len(content)) + content
+	h := put.HashFunc()
+	h.Write([]byte(content))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 type fakeFactory struct {
@@ -373,31 +391,60 @@ func TestSourceEtagsWrite(t *testing.T) {
 }
 
 func TestSourceEtagsHashLag(t *testing.T) {
-	prevWait, prevInterval := cellsHashWait, cellsHashInterval
-	cellsHashWait, cellsHashInterval = 200*time.Millisecond, time.Millisecond
-	defer func() { cellsHashWait, cellsHashInterval = prevWait, prevInterval }()
-
-	Convey("Given a router where the Cells hash shows up a few reads after PutObject", t, func() {
+	Convey("Given a router where the Cells hash shows up only later after PutObject", t, func() {
 		c, ft, rec := newTestAbstract(true)
+		ft.hashLag = 1 << 20
 
-		Convey("the pair records the Cells hash, not the storage ETag", func() {
-			ft.hashLag = 3
+		Convey("the pair is recorded at once, with the hash of the written content", func() {
 			errs := writeFile(c, rec, "file.txt", "content", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1"})
 			So(errs, ShouldBeEmpty)
 			So(rec.calls, ShouldHaveLength, 1)
 			pair, er := UnmarshalSourceEtag(rec.calls[0].MetaStore[MetaSyncSourceEtag])
 			So(er, ShouldBeNil)
 			So(pair.Hash, ShouldEqual, cellsHash("content"))
+
+			// Until the hash is visible, the node reports its storage ETag...
 			n, er := c.LoadNode(context.Background(), "file.txt")
+			So(er, ShouldBeNil)
+			So(n.GetEtag(), ShouldEqual, storageEtag("content"))
+			// ...then the source ETag.
+			ft.pendingHash["root/file.txt"] = 0
+			n, er = c.LoadNode(context.Background(), "file.txt")
 			So(er, ShouldBeNil)
 			So(n.GetEtag(), ShouldEqual, "sha1")
 		})
+	})
 
-		Convey("a hash that never shows up fails the write", func() {
+	Convey("Given a router storing a hash that differs from the written content", t, func() {
+		c, ft, rec := newTestAbstract(true)
+		ft.alterHash = true
+
+		Convey("the pair never applies: the node keeps reporting its Cells hash", func() {
+			So(writeFile(c, rec, "file.txt", "content", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1"}), ShouldBeEmpty)
+			n, er := c.LoadNode(context.Background(), "file.txt")
+			So(er, ShouldBeNil)
+			So(n.GetEtag(), ShouldEqual, cellsHash("content-altered"))
+		})
+	})
+
+	Convey("Given an update while the previous hash is still visible", t, func() {
+		c, ft, rec := newTestAbstract(true)
+		So(writeFile(c, rec, "file.txt", "v1", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1-v1"}), ShouldBeEmpty)
+
+		Convey("the new pair is recorded and applies once the new hash is visible", func() {
 			ft.hashLag = 1 << 20
-			errs := writeFile(c, rec, "file.txt", "content", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1"})
-			So(errs, ShouldNotBeEmpty)
-			So(rec.calls, ShouldBeEmpty)
+			ft.keepOldHash = true
+			So(writeFile(c, rec, "file.txt", "v2", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1-v2"}), ShouldBeEmpty)
+			pair, er := UnmarshalSourceEtag(rec.calls[len(rec.calls)-1].MetaStore[MetaSyncSourceEtag])
+			So(er, ShouldBeNil)
+			So(pair.Hash, ShouldEqual, cellsHash("v2"))
+			So(pair.Etag, ShouldEqual, "sha1-v2")
+
+			ft.keepOldHash = false
+			ft.pendingHash["root/file.txt"] = 0
+			n, er := c.LoadNode(context.Background(), "file.txt")
+			So(er, ShouldBeNil)
+			So(n.GetEtag(), ShouldEqual, "sha1-v2")
 		})
 	})
 }
