@@ -23,6 +23,7 @@ package cells
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -81,19 +82,47 @@ func (c *Abstract) applySourceEtag(n *tree.Node) {
 	}
 }
 
+// Polling used by waitCellsHash. The Cells hash of a written node is not
+// always visible as soon as PutObject returns, even on flat storage.
+var (
+	cellsHashWait     = 10 * time.Second
+	cellsHashInterval = 200 * time.Millisecond
+)
+
+// waitCellsHash reloads a freshly written node until it carries its Cells
+// hash (x-cells-hash), and returns the node and that hash. Until then, the
+// router reports the storage ETag instead, which later reads would not
+// match.
+func (c *Abstract) waitCellsHash(ctx context.Context, p string) (*tree.Node, string, error) {
+	deadline := time.Now().Add(cellsHashWait)
+	for {
+		written, er := c.loadNode(ctx, p)
+		if er != nil {
+			return nil, "", fmt.Errorf("cannot reload node to record source etag: %w", er)
+		}
+		if hash := written.GetStringMeta(common.MetaNamespaceHash); hash != "" {
+			return written, hash, nil
+		}
+		if time.Now().After(deadline) {
+			return nil, "", fmt.Errorf("cannot record source etag for %s: cells hash not available after %s", p, cellsHashWait)
+		}
+		select {
+		case <-ctx.Done():
+			return nil, "", ctx.Err()
+		case <-time.After(cellsHashInterval):
+		}
+	}
+}
+
 // recordSourceEtag reloads a freshly written node and stores the pair (Cells hash, source ETag) as
 // core metadata if they differ. If they are equal, a previously stored pair is cleared (best effort).
 func (c *Abstract) recordSourceEtag(ctx context.Context, p string, source tree.N) error {
 	if source == nil || !source.IsLeaf() || source.GetEtag() == "" {
 		return nil
 	}
-	written, er := c.loadNode(ctx, p)
+	written, hash, er := c.waitCellsHash(ctx, p)
 	if er != nil {
-		return fmt.Errorf("cannot reload node to record source etag: %w", er)
-	}
-	hash := written.GetEtag()
-	if hash == "" || hash == common.NodeFlagEtagTemporary {
-		return fmt.Errorf("cannot record source etag for %s: cells hash is not ready", p)
+		return er
 	}
 	if written.GetUuid() == "" {
 		return fmt.Errorf("cannot record source etag for %s: node has no uuid", p)

@@ -27,9 +27,11 @@ import (
 	"sort"
 	"sync"
 	"testing"
+	"time"
 
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -42,10 +44,14 @@ import (
 type fakeTree struct {
 	sync.Mutex
 	nodes map[string]*tree.Node
+	// hashLag is the number of reads after a PutObject during which the node
+	// does not carry its Cells hash yet, as observed on a live server.
+	hashLag     int
+	pendingHash map[string]int
 }
 
 func newFakeTree() *fakeTree {
-	return &fakeTree{nodes: map[string]*tree.Node{}}
+	return &fakeTree{nodes: map[string]*tree.Node{}, pendingHash: map[string]int{}}
 }
 
 func (t *fakeTree) set(n *tree.Node) {
@@ -67,7 +73,22 @@ func (t *fakeTree) ReadNode(_ context.Context, in *tree.ReadNodeRequest, _ ...gr
 	if !ok {
 		return nil, errors.WithMessage(errors.NodeNotFound, in.GetNode().GetPath())
 	}
-	return &tree.ReadNodeResponse{Success: true, Node: n.Clone()}, nil
+	return &tree.ReadNodeResponse{Success: true, Node: t.view(n)}, nil
+}
+
+// view renders a node as the router returns it: the Cells hash replaces the
+// storage ETag once it is visible (WithHashesAsETags).
+func (t *fakeTree) view(n *tree.Node) *tree.Node {
+	out := n.Clone()
+	if t.pendingHash[n.Path] > 0 {
+		t.pendingHash[n.Path]--
+		delete(out.MetaStore, common.MetaNamespaceHash)
+		return out
+	}
+	if h := out.GetStringMeta(common.MetaNamespaceHash); h != "" {
+		out.Etag = h
+	}
+	return out
 }
 
 func (t *fakeTree) ListNodes(_ context.Context, _ *tree.ListNodesRequest, _ ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
@@ -80,7 +101,7 @@ func (t *fakeTree) ListNodes(_ context.Context, _ *tree.ListNodesRequest, _ ...g
 	sort.Strings(paths)
 	st := &fakeListStream{}
 	for _, p := range paths {
-		st.nodes = append(st.nodes, t.nodes[p].Clone())
+		st.nodes = append(st.nodes, t.view(t.nodes[p]))
 	}
 	return st, nil
 }
@@ -113,7 +134,9 @@ func (t *fakeTree) PutObject(_ context.Context, node *tree.Node, reader io.Reade
 		t.nodes[node.Path] = n
 	}
 	n.Size = int64(len(data))
-	n.Etag = cellsHash(string(data))
+	n.Etag = storageEtag(string(data))
+	n.MustSetMeta(common.MetaNamespaceHash, cellsHash(string(data)))
+	t.pendingHash[n.Path] = t.hashLag
 	return models.ObjectInfo{}, nil
 }
 
@@ -150,6 +173,10 @@ func (t *fakeTree) writeMeta(node *tree.Node) {
 func setPair(n *tree.Node, hash, etag string) {
 	v, _ := (&SourceEtag{Hash: hash, Etag: etag}).Marshal()
 	n.SetRawMetadata(map[string]string{MetaSyncSourceEtag: v})
+}
+
+func storageEtag(content string) string {
+	return fmt.Sprintf("s3-%x", len(content)) + content
 }
 
 func cellsHash(content string) string {
@@ -274,7 +301,7 @@ func TestSourceEtagsOff(t *testing.T) {
 		errs := writeFile(c, rec, "file.txt", "content", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1"})
 		So(errs, ShouldBeEmpty)
 		So(rec.calls, ShouldBeEmpty)
-		So(ft.get("root/file.txt").Etag, ShouldEqual, cellsHash("content"))
+		So(ft.get("root/file.txt").GetStringMeta(common.MetaNamespaceHash), ShouldEqual, cellsHash("content"))
 
 		// Even a stored pair is ignored
 		setPair(ft.get("root/file.txt"), cellsHash("content"), "sha1")
@@ -301,7 +328,7 @@ func TestSourceEtagsWrite(t *testing.T) {
 			So(pair.Hash, ShouldEqual, cellsHash("content"))
 			So(pair.Etag, ShouldEqual, "sha1")
 			// Index still holds the Cells hash
-			So(written.Etag, ShouldEqual, cellsHash("content"))
+			So(written.GetStringMeta(common.MetaNamespaceHash), ShouldEqual, cellsHash("content"))
 		})
 
 		Convey("records nothing when source etag equals the Cells hash", func() {
@@ -345,6 +372,36 @@ func TestSourceEtagsWrite(t *testing.T) {
 	})
 }
 
+func TestSourceEtagsHashLag(t *testing.T) {
+	prevWait, prevInterval := cellsHashWait, cellsHashInterval
+	cellsHashWait, cellsHashInterval = 200*time.Millisecond, time.Millisecond
+	defer func() { cellsHashWait, cellsHashInterval = prevWait, prevInterval }()
+
+	Convey("Given a router where the Cells hash shows up a few reads after PutObject", t, func() {
+		c, ft, rec := newTestAbstract(true)
+
+		Convey("the pair records the Cells hash, not the storage ETag", func() {
+			ft.hashLag = 3
+			errs := writeFile(c, rec, "file.txt", "content", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1"})
+			So(errs, ShouldBeEmpty)
+			So(rec.calls, ShouldHaveLength, 1)
+			pair, er := UnmarshalSourceEtag(rec.calls[0].MetaStore[MetaSyncSourceEtag])
+			So(er, ShouldBeNil)
+			So(pair.Hash, ShouldEqual, cellsHash("content"))
+			n, er := c.LoadNode(context.Background(), "file.txt")
+			So(er, ShouldBeNil)
+			So(n.GetEtag(), ShouldEqual, "sha1")
+		})
+
+		Convey("a hash that never shows up fails the write", func() {
+			ft.hashLag = 1 << 20
+			errs := writeFile(c, rec, "file.txt", "content", &tree.Node{Path: "file.txt", Type: tree.NodeType_LEAF, Etag: "sha1"})
+			So(errs, ShouldNotBeEmpty)
+			So(rec.calls, ShouldBeEmpty)
+		})
+	})
+}
+
 func TestSourceEtagsRead(t *testing.T) {
 	Convey("With option on, reading nodes", t, func() {
 		c, ft, rec := newTestAbstract(true)
@@ -368,7 +425,7 @@ func TestSourceEtagsRead(t *testing.T) {
 		})
 
 		Convey("reports the Cells hash once content has changed", func() {
-			ft.get("root/file.txt").Etag = cellsHash("modified")
+			ft.get("root/file.txt").MustSetMeta(common.MetaNamespaceHash, cellsHash("modified"))
 			n, er := c.LoadNode(context.Background(), "file.txt")
 			So(er, ShouldBeNil)
 			So(n.GetEtag(), ShouldEqual, cellsHash("modified"))
