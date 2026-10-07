@@ -21,15 +21,12 @@ func UserMetaToModelEvent(change *idm.UpdateUserMetaEvent, eventTime time.Time, 
 	}
 
 	metaNode := &tree.Node{
-		Uuid: m.GetUuid(),
-		Type: merger.NodeType_METADATA,
-		Path: path.Join(m.GetResolvedNode().GetPath(), m.GetNamespace()),
-		Size: int64(len(m.GetJsonValue())),
-		Etag: m.GetJsonValue(),
-		MetaStore: map[string]string{
-			merger.MetaNodeParentPathMeta: `"` + m.GetResolvedNode().GetPath() + `"`,
-			merger.MetaNodeParentUUIDMeta: `"` + m.GetResolvedNode().GetUuid() + `"`,
-		},
+		Uuid:      m.GetUuid(),
+		Type:      merger.NodeType_METADATA,
+		Path:      path.Join(m.GetResolvedNode().GetPath(), m.GetNamespace()),
+		Size:      int64(len(m.GetJsonValue())),
+		Etag:      m.GetJsonValue(),
+		MetaStore: merger.ParentMetaStore(m.GetResolvedNode().GetUuid(), m.GetResolvedNode().GetPath()),
 	}
 
 	var ty model.EventType

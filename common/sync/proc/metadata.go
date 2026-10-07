@@ -45,6 +45,11 @@ func (pr *Processor) processMetadata(canceler context.Context, operation merger.
 		if parentUuid == "" {
 			return errors.New("cannot find parent Uuid for operating on Metadata")
 		}
+		if parentPath == "" {
+			// Metadata always belong to a non-root node: an empty path means the parent path could not
+			// be decoded, and must not resolve to the endpoint root.
+			return errors.New("cannot find parent Path for operating on Metadata")
+		}
 		switch operation.Type() {
 		case merger.OpCreateMeta:
 			return mr.CreateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.GetEtag())

@@ -80,6 +80,39 @@ func metaPatch(t *testing.T, left, right *memory.MemDB, dir model.DirectionType,
 	return ops
 }
 
+// trickyPath needs JSON escaping: quotes, backslash, unicode.
+const trickyPath = `a/double "quotes" \\ back – é.txt`
+
+func TestMetaNodeParentEncoding(t *testing.T) {
+
+	Convey("Metadata nodes keep the exact parent uuid and path, whatever the characters", t, func() {
+		parent := NewTreeNode(&tree.Node{Path: trickyPath, Uuid: `u"1`, Type: tree.NodeType_LEAF, Etag: "h"})
+		m := newMetaNode(parent, "usermeta-x", `"v"`).AsProto()
+		So(m.GetStringMeta(MetaNodeParentPathMeta), ShouldEqual, trickyPath)
+		So(m.GetStringMeta(MetaNodeParentUUIDMeta), ShouldEqual, `u"1`)
+		So(ParentMetaStore(`u"1`, trickyPath), ShouldResemble, m.GetMetaStore())
+	})
+
+	Convey("Metadata operations of a file with a tricky name point to that file", t, func() {
+		left := memWith(
+			metaFixtureNode{path: "a", uuid: "fa", folder: true},
+			metaFixtureNode{path: trickyPath, uuid: "f1", etag: "h1", meta: map[string]string{"usermeta-x": `"1"`}},
+		)
+		right := memWith(metaFixtureNode{path: "a", uuid: "fa", folder: true})
+		diff := NewTreeDiff(left, right)
+		diff.includeMetas = testMetaGlobs
+		So(diff.Compute(testCtx, "", nil, nil), ShouldBeNil)
+		p := newTreePatch(left, right, PatchOptions{MoveDetection: true})
+		So(diff.ToUnidirectionalPatch(testCtx, model.DirectionRight, p), ShouldBeNil)
+		p.Filter(testCtx)
+		var parents []string
+		p.WalkOperations([]OperationType{OpCreateMeta}, func(o Operation) {
+			parents = append(parents, o.GetNode().AsProto().GetStringMeta(MetaNodeParentPathMeta))
+		})
+		So(parents, ShouldResemble, []string{trickyPath})
+	})
+}
+
 func TestMissingNodesMetadata(t *testing.T) {
 
 	Convey("A new file on the source gets its metadata created", t, func() {

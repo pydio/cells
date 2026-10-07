@@ -136,6 +136,9 @@ func TestSyncMetadataOfNewNodes(t *testing.T) {
 			MetaStore: map[string]string{"usermeta-x": `"folder"`}}, true), ShouldBeNil)
 		So(left.CreateNode(ctx, &tree.Node{Path: "a/f", Uuid: "f1", Type: tree.NodeType_LEAF, Etag: "h1", Size: 1,
 			MetaStore: map[string]string{"usermeta-x": `"file"`, "other": `"ignored"`}}, true), ShouldBeNil)
+		// A name needing JSON escaping in the metadata nodes' parent path.
+		So(left.CreateNode(ctx, &tree.Node{Path: `a/double "quotes".txt`, Uuid: "f2", Type: tree.NodeType_LEAF, Etag: "h2", Size: 1,
+			MetaStore: map[string]string{"usermeta-x": `"quoted"`}}, true), ShouldBeNil)
 		left.Close()
 		right := &routerLike{}
 
@@ -167,6 +170,13 @@ func TestSyncMetadataOfNewNodes(t *testing.T) {
 			So(f.GetMetaStore()["usermeta-x"], ShouldEqual, `"file"`)
 			So(f.GetMetaStore(), ShouldNotContainKey, "other")
 			So(load("a").GetMetaStore()["usermeta-x"], ShouldEqual, `"folder"`)
+			So(load(`a/double "quotes".txt`).GetMetaStore()["usermeta-x"], ShouldEqual, `"quoted"`)
+			root := openSnap(t, rightFile)
+			rn, err := root.LoadNode(ctx, "")
+			root.Close()
+			if err == nil && rn != nil {
+				So(rn.GetMetaStore(), ShouldNotContainKey, "usermeta-x")
+			}
 
 			So(pendingOps(run(true)), ShouldEqual, 0)
 		})
