@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -444,9 +445,26 @@ func (diff *TreeDiff) toMissingMeta(ctx context.Context, patch Patch, in []tree.
 		eventType = model.EventCreate
 		batchEventType = OpCreateMeta
 	}
+	// When removing, skip metadata of nodes that are themselves missing (deleted, or moved
+	// away): deleting a node removes its metadata, moving it carries them along. A separate
+	// delete would target a path that no longer exists.
+	var removedNodes map[string]struct{}
+	if removes {
+		removedNodes = make(map[string]struct{}, len(in))
+		for _, n := range in {
+			if n.GetType() != NodeType_METADATA {
+				removedNodes[strings.Trim(n.GetPath(), "/")] = struct{}{}
+			}
+		}
+	}
 	for _, n := range in {
 		if n.GetType() != NodeType_METADATA {
 			continue
+		}
+		if removes {
+			if _, gone := removedNodes[path.Dir(strings.Trim(n.GetPath(), "/"))]; gone {
+				continue
+			}
 		}
 		patch.Enqueue(NewOperation(batchEventType, model.NodeToEventInfo(ctx, n.GetPath(), n, eventType), n))
 	}
