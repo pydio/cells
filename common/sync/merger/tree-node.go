@@ -170,10 +170,11 @@ func (t *TreeNode) GetCursor() *ChildrenCursor {
 // Enqueue recursively appends al tree.N and the children's tree.N to a slice
 func (t *TreeNode) Enqueue(nodes []tree.N) []tree.N {
 	nodes = append(nodes, t.N)
-	if !t.IsLeaf() {
-		for _, c := range t.SortedChildren() {
-			nodes = c.Enqueue(nodes)
-		}
+	// Folders enqueue their whole branch. Files only have metadata children
+	// (see addMetadataAsChildNodes): enqueue them too, so that metadata of a
+	// file missing on one side is synced along with the file.
+	for _, c := range t.SortedChildren() {
+		nodes = c.Enqueue(nodes)
 	}
 	return nodes
 }

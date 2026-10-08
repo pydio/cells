@@ -24,7 +24,9 @@ package cells
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
+	"hash"
 	"io"
 	"path"
 	"strings"
@@ -39,6 +41,7 @@ import (
 	"github.com/pydio/cells/v5/common/broker"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/put"
 	"github.com/pydio/cells/v5/common/proto/idm"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
@@ -74,6 +77,10 @@ type Options struct {
 	RenewFolderUuids bool
 	// Define supported metadata
 	MetadataGlobs []glob.Glob
+	// When writing a file, remember the ETag reported by the sync source along with the Cells hash, and
+	// report the source ETag instead of the Cells hash as long as the content is unchanged. Use this when
+	// the other endpoint computes ETags differently (e.g. SHA-1), so that the merger compares like with like.
+	SourceEtags bool
 }
 
 type Abstract struct {
@@ -86,6 +93,9 @@ type Abstract struct {
 	Options      Options
 	RecentMkDirs []tree.N
 	GlobalCtx    context.Context
+	// CoreMetaWriter persists the MetaStore of a node (identified by its Uuid, values JSON-encoded)
+	// as core metadata through the meta service. Required by Options.SourceEtags.
+	CoreMetaWriter func(ctx context.Context, node *tree.Node) error
 
 	watchConn         chan model.WatchConnectionInfo
 	updateSnapshot    model.PathSyncTarget
@@ -122,6 +132,16 @@ func (c *Abstract) parseMicroErrors(e error) error {
 
 // LoadNode forwards call to cli.ReadNode
 func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
+	out, er := c.loadNode(ctx, path, extendedStats...)
+	if er != nil {
+		return nil, er
+	}
+	c.applySourceEtag(out)
+	return out, nil
+}
+
+// loadNode reads a node from the router, reporting its ETag as stored in Cells.
+func (c *Abstract) loadNode(ctx context.Context, path string, extendedStats ...bool) (*tree.Node, error) {
 	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
@@ -180,6 +200,7 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 		if !n.IsLeaf() {
 			n.Etag = "-1" // Force recomputing Etags for Folders
 		}
+		c.applySourceEtag(n)
 		if c.Options.BrowseOnly {
 			var s string
 			if e := n.GetMeta(common.MetaFlagWorkspaceScope, &s); e == nil && s != "" {
@@ -314,7 +335,7 @@ func (c *Abstract) deferEventUntilEtagReady(ctx context.Context, change *tree.No
 				zap.String("path", nodePath))
 			return
 		}
-		n, err := c.LoadNode(ctx, c.unrooted(nodePath))
+		n, err := c.loadNode(ctx, c.unrooted(nodePath))
 		if err != nil {
 			continue
 		}
@@ -540,7 +561,7 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 	if err != nil {
 		return err
 	}
-	if from, err := c.LoadNode(ctx, oldPath); err == nil {
+	if from, err := c.loadNode(ctx, oldPath); err == nil {
 		to := from.AsProto().Clone()
 		to.SetPath(c.rooted(newPath))
 		from.SetPath(c.rooted(from.GetPath()))
@@ -580,15 +601,29 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 			meta[k] = v
 		}
 	}
+	var body io.Reader = reader
+	var contentHash hash.Hash
+	if c.Options.SourceEtags {
+		// Compute the Cells hash of the content on the way, with the function the router uses:
+		// it is not always readable on the node as soon as PutObject returns.
+		contentHash = put.HashFunc()
+		body = io.TeeReader(reader, contentHash)
+	}
 	go func() {
 		defer func() {
 			close(writeDone)
 			close(writeErr)
 		}()
-		_, e := cli.PutObject(ctx, n, reader, &models.PutRequestData{Size: targetSize, Metadata: meta})
+		_, e := cli.PutObject(ctx, n, body, &models.PutRequestData{Size: targetSize, Metadata: meta})
 		if e != nil {
 			fmt.Println("[ERROR]", "Cannot PutObject", e.Error())
 			writeErr <- e
+		} else if c.Options.SourceEtags {
+			// Record source etag before writeDone is closed, so that it is visible when the operation completes
+			if er := c.recordSourceEtag(ctx, p, node, hex.EncodeToString(contentHash.Sum(nil))); er != nil {
+				log.Logger(ctx).Error("Cannot record source etag", zap.String("path", p), zap.Error(er))
+				writeErr <- er
+			}
 		}
 		reader.Close()
 	}()

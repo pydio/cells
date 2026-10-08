@@ -76,6 +76,9 @@ func init() {
 		if values.Get("renewFolderUuids") == "true" {
 			opts.RenewFolderUuids = true
 		}
+		if values.Get("sourceEtags") == "true" {
+			opts.SourceEtags = true
+		}
 		if metas := values.Get("metadataGlobs"); metas != "" {
 			for _, m := range strings.Split(metas, ",") {
 				gl, er := glob.Compile(m)
@@ -127,6 +130,7 @@ func NewLocal(root string, options cells.Options) *Local {
 		router: compose.PathClient(nodes.AsAdmin(), nodes.WithSynchronousTasks(), nodes.WithHashesAsETags()),
 	}
 	l.Source = l
+	l.CoreMetaWriter = l.writeCoreMeta
 	l.GlobalCtx = runtime.WithServiceName(l.GlobalCtx, "endpoint.cells.local")
 	return l
 }
@@ -260,6 +264,12 @@ func (l *Local) DeleteMetadata(ctx context.Context, node tree.N, namespace strin
 	} else {
 		return errors.New("Not Implemented for internal metadata")
 	}
+}
+
+// writeCoreMeta stores the node MetaStore as core metadata through the meta service.
+func (l *Local) writeCoreMeta(ctx context.Context, node *tree.Node) error {
+	_, er := l.metaClient(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
+	return er
 }
 
 var imc tree.NodeReceiverClient

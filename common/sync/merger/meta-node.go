@@ -21,6 +21,7 @@
 package merger
 
 import (
+	"encoding/json"
 	"path"
 	"regexp"
 
@@ -41,17 +42,25 @@ type MetaConfig struct {
 	MetaRegexp []*regexp.Regexp
 }
 
+// ParentMetaStore returns the MetaStore of a metadata node, holding the JSON-encoded uuid and path of
+// the node it belongs to. Values must be properly encoded: paths may contain quotes or backslashes.
+func ParentMetaStore(parentUuid, parentPath string) map[string]string {
+	u, _ := json.Marshal(parentUuid)
+	p, _ := json.Marshal(parentPath)
+	return map[string]string{
+		MetaNodeParentUUIDMeta: string(u),
+		MetaNodeParentPathMeta: string(p),
+	}
+}
+
 // newMetaNode create a new MetaNode from an existing metadata
 func newMetaNode(parentNode *TreeNode, name, value string) *TreeNode {
 	tN := NewTreeNode(&tree.Node{
-		Path: path.Join(parentNode.GetPath(), name),
-		Uuid: parentNode.GetUuid() + "-" + name,
-		Type: NodeType_METADATA,
-		Etag: value,
-		MetaStore: map[string]string{
-			MetaNodeParentUUIDMeta: `"` + parentNode.GetUuid() + `"`, // Json-encode parent Uuid
-			MetaNodeParentPathMeta: `"` + parentNode.GetPath() + `"`, // Json-encode parent Path
-		},
+		Path:      path.Join(parentNode.GetPath(), name),
+		Uuid:      parentNode.GetUuid() + "-" + name,
+		Type:      NodeType_METADATA,
+		Etag:      value,
+		MetaStore: ParentMetaStore(parentNode.GetUuid(), parentNode.GetPath()),
 	})
 	return tN
 }
