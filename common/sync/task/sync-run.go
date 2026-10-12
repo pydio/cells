@@ -323,7 +323,10 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 			select {
 			case status := <-indexStatus:
 				if root, ok := rootsInfo[status.EndpointURI()]; ok {
-					if pgStatus, ok := s.computeIndexProgress(status, root); ok && pgStatus != nil {
+					s.rootsInfoLock.Lock()
+					pgStatus, ok := s.computeIndexProgress(status, root)
+					s.rootsInfoLock.Unlock()
+					if ok && pgStatus != nil {
 						log.Logger(ctx).Info(pgStatus.String())
 						if s.statuses != nil {
 							s.statuses <- pgStatus
@@ -333,10 +336,12 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 			case <-done:
 				var totalStrings []string
 				var total int64
+				s.rootsInfoLock.Lock()
 				for uri, root := range rootsInfo {
 					total += root.PgChildren
 					totalStrings = append(totalStrings, fmt.Sprintf("%d on %s", root.PgChildren, uri))
 				}
+				s.rootsInfoLock.Unlock()
 				tString := strings.Join(totalStrings, ", ")
 				log.Logger(ctx).Info(fmt.Sprintf("Finished analyze : %d nodes (%s)", total, tString), zap.Any("i", total))
 				if s.statuses != nil {

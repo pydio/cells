@@ -72,6 +72,9 @@ type Sync struct {
 	connClosing bool
 	connDone    chan struct{}
 	connSenders sync.WaitGroup
+
+	// rootsInfoLock protects root stats updated by concurrent diff monitors (bidirectional with snapshots)
+	rootsInfoLock sync.Mutex
 }
 
 // NewSync creates a new sync task
