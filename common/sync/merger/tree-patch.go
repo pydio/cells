@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"path"
 	"sort"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -64,11 +65,12 @@ type TreePatch struct {
 func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) *TreePatch {
 	p := &TreePatch{
 		AbstractPatch: AbstractPatch{
-			uuid:    uuid.New(),
-			source:  source,
-			target:  target,
-			options: options,
-			mTime:   time.Now(),
+			uuid:      uuid.New(),
+			source:    source,
+			target:    target,
+			options:   options,
+			mTime:     time.Now(),
+			stateLock: &sync.Mutex{},
 		},
 		TreeNode:      *NewTree(),
 		createFiles:   make(map[string]Operation),
@@ -224,8 +226,8 @@ func (t *TreePatch) HasTransfers() bool {
 
 // HasErrors checks if this patch has a global error status or any operation in Error state
 func (t *TreePatch) HasErrors() (errs []error, has bool) {
-	if t.patchError != nil {
-		errs = append(errs, t.patchError)
+	if pe := t.getPatchError(); pe != nil {
+		errs = append(errs, pe)
 	}
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		if e := operation.Error(); e != nil {
@@ -238,7 +240,7 @@ func (t *TreePatch) HasErrors() (errs []error, has bool) {
 }
 
 func (t *TreePatch) CleanErrors() {
-	t.patchError = nil
+	t.SetError(nil)
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		operation.CleanError()
 	})
@@ -318,8 +320,8 @@ func (t *TreePatch) MarshalJSON() ([]byte, error) {
 		"Root":  &t.TreeNode,
 		"Stats": t.Stats(),
 	}
-	if t.patchError != nil {
-		data["Error"] = t.patchError.Error()
+	if pe := t.getPatchError(); pe != nil {
+		data["Error"] = pe.Error()
 	}
 	return json.Marshal(data)
 }

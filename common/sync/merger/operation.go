@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"sync"
 
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -39,6 +40,8 @@ type patchOperation struct {
 
 	processingError error
 	patch           Patch
+	// statusMu protects InternalStatus and processingError, updated from processing goroutines
+	statusMu sync.Mutex
 }
 
 type marshalOperation struct {
@@ -144,6 +147,8 @@ func (o *patchOperation) UnmarshalJSON(bytes []byte) error {
 }
 
 func (o *patchOperation) MarshalJSON() ([]byte, error) {
+	o.statusMu.Lock()
+	defer o.statusMu.Unlock()
 	mo := &marshalOperation{
 		OpType: o.OpType,
 		Dir:    o.Dir,
@@ -282,16 +287,20 @@ func (o *patchOperation) IsProcessed() bool {
 }
 
 func (o *patchOperation) CleanError() {
+	o.statusMu.Lock()
 	o.processingError = nil
+	o.statusMu.Unlock()
 }
 
 func (o *patchOperation) Error() error {
+	o.statusMu.Lock()
+	defer o.statusMu.Unlock()
 	return o.processingError
 }
 
 func (o *patchOperation) ErrorString() string {
-	if o.processingError != nil {
-		return o.processingError.Error()
+	if e := o.Error(); e != nil {
+		return e.Error()
 	}
 	return ""
 }
@@ -303,16 +312,20 @@ func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
 
 func (o *patchOperation) Status(status model.Status) {
 	// Transform status to ProcessingStatus
+	o.statusMu.Lock()
 	if p, ok := status.(*model.ProcessingStatus); ok {
 		o.InternalStatus = p
 	}
 	if status.IsError() {
 		o.processingError = status.Error()
 	}
+	o.statusMu.Unlock()
 	o.patch.Status(status)
 }
 
 func (o *patchOperation) GetStatus() model.Status {
+	o.statusMu.Lock()
+	defer o.statusMu.Unlock()
 	// This is super important!
 	// nil struct model.ProcessingStatus is NOT nil interface model.Status
 	if o.InternalStatus == nil {

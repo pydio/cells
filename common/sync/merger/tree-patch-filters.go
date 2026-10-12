@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -57,7 +58,7 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 	if len(t.deletes) > 20 {
 		// Build a fake patch from the Deletes to easily detect top level modified branches
 		temp := &TreePatch{
-			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target()},
+			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target(), stateLock: &sync.Mutex{}},
 			TreeNode:      *NewTree(),
 		}
 		for _, d := range t.deletes {

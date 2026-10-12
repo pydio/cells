@@ -112,7 +112,7 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 		for _, e := range b.unexpected {
 			ss = append(ss, e.Error())
 		}
-		b.patchError = fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
+		b.SetError(fmt.Errorf("error during merge: %s", strings.Join(ss, "|")))
 		return b, fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
 	}
 	return b, e

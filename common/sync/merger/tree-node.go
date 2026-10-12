@@ -182,17 +182,18 @@ func (t *TreeNode) Enqueue(nodes []tree.N) []tree.N {
 // SortedChildren sorts children by their labels. An internal flag avoids resorting if
 // it was already sorted once.
 func (t *TreeNode) SortedChildren() []*TreeNode {
+	t.Lock()
+	defer t.Unlock()
 	if t.sorted != nil {
 		return t.sorted
 	}
-	t.Lock()
-	defer t.Unlock()
 	sort.Strings(t.childrenKeys)
-	t.sorted = make([]*TreeNode, 0, len(t.childrenKeys))
+	sorted := make([]*TreeNode, 0, len(t.childrenKeys))
 	for _, k := range t.childrenKeys {
-		t.sorted = append(t.sorted, t.children[k])
+		sorted = append(sorted, t.children[k])
 	}
-	return t.sorted
+	t.sorted = sorted
+	return sorted
 }
 
 // PrintTree sends to fmt.Println a tree version of this node
@@ -221,10 +222,10 @@ func (t *TreeNode) AddChild(n *TreeNode) {
 	t.Lock()
 	t.children[n.GetPath()] = n
 	t.childrenKeys = append(t.childrenKeys, n.GetPath())
-	t.Unlock()
 	n.parent = t
 	// Will force resorting keys next time
 	t.sorted = nil
+	t.Unlock()
 }
 
 func (t *TreeNode) ClearChildren() {

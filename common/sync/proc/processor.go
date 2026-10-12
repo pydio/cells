@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -74,11 +75,12 @@ func NewProcessor(ctx context.Context) *Processor {
 // Process calls all Operations to be performed on a Patch
 func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
-	var interrupted bool
+	// interrupted is set by the command listener and read by processing goroutines
+	var interrupted atomic.Bool
 
 	// Send the patch itself on the doneChan
 	defer func() {
-		if interrupted {
+		if interrupted.Load() {
 			patch.Status(model.NewProcessingStatus("Patch interrupted by user").SetError(errors.New("patch interrupted by user")))
 		}
 		patch.Done(patch)
@@ -169,7 +171,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 				select {
 				case cmd := <-cmdChan:
 					if cmd == model.Interrupt {
-						interrupted = true
+						interrupted.Store(true)
 						cancel()
 						return
 					}
@@ -183,7 +185,10 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	parallel := make(chan merger.Operation)
 	opsFinished := make(chan struct{})
 	done := make(chan struct{})
+	// previousType is shared by the parallel dispatcher and the serial walker: typeLock also
+	// serializes session flushes triggered when the operation type changes
 	previousType := merger.OpUnknown
+	typeLock := &sync.Mutex{}
 	go func() {
 		defer close(done)
 		wg := &sync.WaitGroup{}
@@ -193,11 +198,13 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 			case op := <-parallel:
 
 				// Flush for next type if it's different
+				typeLock.Lock()
 				if previousType != merger.OpCreateFile && previousType != merger.OpUpdateFile {
 					flusher(merger.OpCreateFile, merger.OpUpdateFile)
 				}
 				previousType = op.Type()
-				if interrupted || op.IsProcessed() {
+				typeLock.Unlock()
+				if interrupted.Load() || op.IsProcessed() {
 					break
 				}
 				wg.Add(1)
@@ -208,7 +215,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 						<-throttle
 						wg.Done()
 					}()
-					if interrupted {
+					if interrupted.Load() {
 						return
 					}
 					pr.applyProcessFunc(ctx, patch, opCopy, processUUID, &cursor, total, true)
@@ -224,11 +231,13 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
 	serialWalker := func(op merger.Operation) {
 		// Flush for next type if it's different
+		typeLock.Lock()
 		if previousType != merger.OpUnknown && op.Type() != previousType {
 			flusher(op.Type())
 		}
 		previousType = op.Type()
-		if interrupted || op.IsProcessed() {
+		typeLock.Unlock()
+		if interrupted.Load() || op.IsProcessed() {
 			return
 		}
 		pr.applyProcessFunc(ctx, patch, op, processUUID, &cursor, total, false)
@@ -282,13 +291,15 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 
 	callback, progressString, completeString, errorString, fields := pr.dataForOperation(p, op)
 
+	// Progress is reported by a dedicated goroutine, which must be drained before sending the
+	// final status. cursor is shared by parallel operations.
 	pgs := make(chan int64)
+	pgsDone := make(chan struct{})
 	var lastProgress float32
-	defer close(pgs)
 	go func() {
+		defer close(pgsDone)
 		for pg := range pgs {
-			*cursor += pg
-			progress := float32(*cursor) / float32(total)
+			progress := float32(atomic.AddInt64(cursor, pg)) / float32(total)
 			if pg < 0 || progress-lastProgress > 0.01 { // Send percent per percent, or if it's negative (error reverted pg value)
 				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
 				op.Status(model.NewProcessingStatus(pr.logAsString(progressString, nil, fields...)).SetProgress(progress))
@@ -309,6 +320,8 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 	} else {
 		err = callback(ctx, op, operationId, pgs)
 	}
+	close(pgs)
+	<-pgsDone
 	if err != nil {
 		fields = append(fields, zap.Error(err))
 		if !pr.Silent {
@@ -327,7 +340,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 	}
 	var end float32
 	if total > 0 {
-		end = float32(*cursor) / float32(total)
+		end = float32(atomic.LoadInt64(cursor)) / float32(total)
 	}
 	op.Status(model.NewProcessingStatus(pr.logAsString(loggerString, err, fields...)).SetError(err).SetProgress(end))
 
