@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/gobwas/glob"
 	"github.com/pkg/errors"
@@ -35,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -316,7 +316,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 				op.Status(model.NewProcessingStatus(fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error())).SetError(e))
 			}
 			return e
-		}, 5*time.Second, 20*time.Second)
+		}, timings.ProcessorRetryInterval.Get(), timings.ProcessorRetryTimeout.Get())
 	} else {
 		err = callback(ctx, op, operationId, pgs)
 	}

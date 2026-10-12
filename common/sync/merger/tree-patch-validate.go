@@ -27,6 +27,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
@@ -70,11 +71,11 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 		}
 		// If we are validating with a cache, it's probably a remote server, and it has probably a small delay
 		// => wait before first try
-		<-time.After(1 * time.Second)
+		<-time.After(timings.ValidateFirstWait.Get())
 		t.Status(model.NewProcessingStatus("Validating modifications have been correctly reported...").SetProgress(1))
 		return model.RetryWithCtx(ctx, func(retry int) error {
 			return t.validateWithPreLoad(ctx, branches, syncSource)
-		}, 6*time.Second, 4*time.Minute)
+		}, timings.ValidateRetryInterval.Get(), timings.ValidateRetryTimeout.Get())
 
 	} else {
 

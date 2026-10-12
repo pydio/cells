@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/filters"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/sync/proc"
@@ -133,7 +134,7 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 		s.connLock.Unlock()
 		go func() {
 			select {
-			case <-time.After(2 * time.Second):
+			case <-time.After(timings.StartConnectedDelay.Get()):
 			case <-done:
 				return
 			}

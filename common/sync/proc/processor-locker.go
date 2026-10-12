@@ -24,6 +24,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 )
@@ -94,7 +95,7 @@ func (pr *ConnectedProcessor) UnlockFile(operation merger.Operation, path string
 		if source.GetEndpointInfo().IsAsynchronous {
 			return // no lock needed, do nothing
 		}
-		d := 2 * time.Second
+		d := timings.EchoUnlockDelay.Get()
 		if source.GetEndpointInfo().EchoTime > 0 {
 			d = source.GetEndpointInfo().EchoTime
 		}

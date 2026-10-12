@@ -30,6 +30,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -83,7 +84,7 @@ func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target m
 	if len(debounce) > 0 {
 		b.debounce = debounce[0]
 	} else {
-		b.debounce = 1 * time.Second
+		b.debounce = timings.BatcherDebounce.Get()
 	}
 
 	return b
@@ -104,7 +105,7 @@ func (ev *EventsBatcher) MonitorActivity() {
 		select {
 		case <-ev.activeChan:
 			ev.setActivity(true)
-		case <-time.After(500 * time.Millisecond):
+		case <-time.After(timings.BatcherIdleDelay.Get()):
 			ev.setActivity(false)
 		case <-ev.activeDone:
 			return

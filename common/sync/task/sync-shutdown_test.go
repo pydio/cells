@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/model"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -40,7 +41,9 @@ func startGoroutineAlive() bool {
 }
 
 func TestShutdownRightAfterStartWithoutWatches(t *testing.T) {
-	Convey("Shutdown within 2s of a Start without watchers must not panic nor leak", t, func() {
+	defer timings.ForTests()()
+
+	Convey("Shutdown within the connected delay of a Start without watchers must not panic nor leak", t, func() {
 		left, right := memory.NewMemDB(), memory.NewMemDB()
 		left.SetTestPathURI("left")
 		right.SetTestPathURI("right")
@@ -52,7 +55,7 @@ func TestShutdownRightAfterStartWithoutWatches(t *testing.T) {
 		s.Shutdown()
 		So(s.watchConn, ShouldBeNil)
 
-		<-time.After(2500 * time.Millisecond)
+		<-time.After(5 * timings.StartConnectedDelay.Get())
 		So(startGoroutineAlive(), ShouldBeFalse)
 	})
 
