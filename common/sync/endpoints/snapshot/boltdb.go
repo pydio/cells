@@ -108,6 +108,10 @@ type BoltSnapshot struct {
 
 	autoBatchChan  chan tree.N
 	autoBatchClose chan struct{}
+	// autoBatchDone is closed once the auto-batcher has flushed and exited
+	autoBatchDone chan struct{}
+	stopBatchOnce sync.Once
+	closeOnce     sync.Once
 
 	manualCollector  bool
 	captureStripPath bool
@@ -141,6 +145,7 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 
 	s.autoBatchChan = make(chan tree.N)
 	s.autoBatchClose = make(chan struct{}, 1)
+	s.autoBatchDone = make(chan struct{})
 
 	go s.startAutoBatching()
 
@@ -149,7 +154,7 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 
 func (s *BoltSnapshot) AutoCreateBucket() error {
 	s.manualCollector = true
-	close(s.autoBatchClose) // Disable batching
+	s.stopAutoBatching() // Disable batching
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b == nil {
 			_, er := tx.CreateBucket(bucketName)
@@ -183,10 +188,17 @@ func (s *BoltSnapshot) sortByKey(data map[string]tree.N) (output []tree.N) {
 	return
 }
 
+// stopAutoBatching asks the auto-batcher to flush and exit. It can be called several times.
+func (s *BoltSnapshot) stopAutoBatching() {
+	s.stopBatchOnce.Do(func() {
+		close(s.autoBatchClose)
+	})
+}
+
+// startAutoBatching receives nodes on autoBatchChan. This channel is never closed, as CreateNode
+// may still send on it: senders select on autoBatchDone instead.
 func (s *BoltSnapshot) startAutoBatching() {
-	defer func() {
-		close(s.autoBatchChan)
-	}()
+	defer close(s.autoBatchDone)
 	creates := make(map[string]tree.N, 500)
 	nextTime := 1 * time.Hour
 	flush := func() {
@@ -320,7 +332,7 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 			return nil
 		})
 		if er != nil {
-			return
+			return er
 		}
 		if s.manualCollector {
 			// Do not AutoBatch
@@ -336,7 +348,11 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 			})
 		}
 		for _, n := range nn {
-			s.autoBatchChan <- n
+			select {
+			case s.autoBatchChan <- n:
+			case <-s.autoBatchDone:
+				return errors.New("snapshot is closed")
+			}
 		}
 		return nil
 	}
@@ -397,16 +413,16 @@ func (s *BoltSnapshot) IsEmpty() bool {
 	return s.empty
 }
 
+// Close flushes pending auto-batched writes, then closes the DB. Calling it again does nothing.
 func (s *BoltSnapshot) Close(delete ...bool) {
-	if !s.manualCollector {
-		close(s.autoBatchClose)
-	}
-	<-time.After(500 * time.Millisecond)
-	s.db.Close()
-	<-time.After(500 * time.Millisecond)
-	if len(delete) > 0 && delete[0] && s.folderPath != "" {
-		os.RemoveAll(s.folderPath)
-	}
+	s.closeOnce.Do(func() {
+		s.stopAutoBatching()
+		<-s.autoBatchDone
+		s.db.Close()
+		if len(delete) > 0 && delete[0] && s.folderPath != "" {
+			os.RemoveAll(s.folderPath)
+		}
+	})
 }
 
 // Shutdown implements Shutdowner
