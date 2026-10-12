@@ -446,6 +446,14 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 		}
 		if len(paths) == 0 {
 			return source.Walk(ctx, func(path string, node tree.N, err error) error {
+				if err != nil {
+					log.Logger(ctx).Error("BoltDB:Capture: walk error", zap.String("path", path), zap.Error(err))
+					return err
+				}
+				// Some endpoints report the root itself, possibly with an empty path (not a valid key)
+				if path == "" || path == "/" {
+					return nil
+				}
 				return capture.Put([]byte(path), s.marshal(node))
 			}, "/", true)
 		} else {
