@@ -144,17 +144,17 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 				}
 			})
 			if len(ops) > 50 {
-				// Recheck deleted resources
+				// Recheck deleted resources on the patch source, where the deletion was observed
 				for _, op := range ops {
 					log.Logger(ctx).Debug("Failsafe : rechecking deletion operation is real on " + op.GetRefPath())
-					ep := op.Source()
-					if s.Direction == model.DirectionLeft {
-						ep = op.Target().(model.PathSyncSource)
-					}
-					n, er := ep.LoadNode(ctx, op.GetRefPath())
-					if er == nil || n != nil {
+					n, er := op.Source().LoadNode(ctx, op.GetRefPath())
+					if er == nil && n != nil {
 						// This is not normal - this node should not exist
 						return errors.New("detected delete of existing node " + op.GetRefPath())
+					}
+					if er != nil && !model.IsNotFound(er) {
+						// The source may be unhealthy: the deletion cannot be confirmed
+						return errors.Wrap(er, "cannot confirm delete of node "+op.GetRefPath())
 					}
 				}
 			}

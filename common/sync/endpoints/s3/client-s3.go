@@ -27,6 +27,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -149,6 +150,15 @@ func (c *Client) getFullPath(path string) string {
 	}
 }
 
+// isMissingObject tells if a storage error proves that an object does not exist
+func isMissingObject(e error) bool {
+	if model.IsNotFound(e) {
+		return true
+	}
+	r := minio.ToErrorResponse(e)
+	return r.Code == "NoSuchKey" || r.Code == "NotFound" || r.StatusCode == http.StatusNotFound
+}
+
 // isUnder tells if an object key is the object at fullPath itself or inside the folder at fullPath
 // (fullPath without trailing slash): listing by fullPath as a bare prefix also returns siblings
 // like fullPath.bak or fullPath-2020/x.
@@ -178,6 +188,11 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 		// Try folder
 		folderInfo, e2 := c.Oc.StatObject(ctx, c.Bucket, path.Join(fullPath, common.PydioSyncHiddenFile), models.ReadMeta{})
 		if e2 != nil {
+			if isMissingObject(e) && isMissingObject(e2) {
+				return nil, errors.WithMessage(errors.NodeNotFound, fullPath)
+			} else if isMissingObject(e) {
+				return nil, e2
+			}
 			return nil, e
 		}
 		return newFolderInfo(folderInfo), nil
