@@ -401,7 +401,9 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 
 	db := memory.NewMemDB()
 	if er := source.Walk(ctx, func(path string, node tree.N, err error) error {
-
+		if err != nil {
+			return err
+		}
 		return db.CreateNode(ctx, node, false)
 
 	}, "/", true); er != nil {

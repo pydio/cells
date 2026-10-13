@@ -101,6 +101,11 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 				statusChan <- s
 			}()
 		}
+		if err != nil {
+			// A node that cannot be read would be missing from the tree, and its absence diffed as
+			// a deletion: abort the whole loading instead.
+			return fmt.Errorf("cannot walk %s on %s: %w", p, uri, err)
+		}
 		if len(p) == 0 || p == "/" || ignoreMatcher(p) {
 			return nil
 		}

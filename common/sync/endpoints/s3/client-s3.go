@@ -301,7 +301,10 @@ func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root st
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
 
-	wrapper := func(path string, info *fileInfo, node tree.N) error {
+	wrapper := func(path string, info *fileInfo, node tree.N, err error) error {
+		if err != nil {
+			return walkFunc(path, nil, err)
+		}
 		node.SetMTime(info.ModTime().Unix())
 		node.SetSize(info.Size())
 		node.SetMode(int32(info.Mode()))
@@ -355,7 +358,9 @@ func (c *Client) actualLsRecursive(ctx context.Context, recursive bool, recursiv
 		}
 		folderKey := path.Dir(objectInfo.Key)
 		if strings.HasSuffix(objectInfo.Key, "/") {
-			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			if er := c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false); er != nil {
+				return er
+			}
 			continue
 		}
 		if strings.HasSuffix(objectInfo.Key, common.PydioSyncHiddenFile) {
@@ -369,26 +374,39 @@ func (c *Client) actualLsRecursive(ctx context.Context, recursive bool, recursiv
 					// Walk the .pydio before continuing, otherwise this creates an issue if another hidden file like ".aaa"
 					// is appearing in the folder before arriving to the ".pydio" file
 					s3FileInfo := newFileInfo(objectInfo)
-					_ = walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+					if er := walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil); er != nil {
+						return er
+					}
 				}
 				continue
 			}
 			folderObjectInfo := objectInfo
 			//This will be called again inside the walknFc
-			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, true)
-			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(ctx, folderKey)
+			if er := c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, true); er != nil {
+				return er
+			}
+			var er error
+			if folderObjectInfo.ETag, _, er = c.readOrCreateFolderId(ctx, folderKey); er != nil {
+				return er
+			}
 			s3FileInfo := newFolderInfo(folderObjectInfo)
-			_ = walknFc(c.normalize(folderKey), s3FileInfo, nil)
+			if er = walknFc(c.normalize(folderKey), s3FileInfo, nil); er != nil {
+				return er
+			}
 			createdDirs[folderKey] = true
 		}
 		if c.isIgnoredFile(objectInfo.Key) {
 			continue
 		}
 		if folderKey != "" && folderKey != "." {
-			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			if er := c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false); er != nil {
+				return er
+			}
 		}
 		s3FileInfo := newFileInfo(objectInfo)
-		_ = walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+		if er := walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil); er != nil {
+			return er
+		}
 	}
 	return nil
 }
@@ -459,14 +477,14 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 }
 
 // Will try to create PydioSyncHiddenFile to avoid missing empty folders
-func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs map[string]bool, walknFc func(path string, info *fileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
+func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs map[string]bool, walknFc func(path string, info *fileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) error {
 
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
 	if skipLast {
 		max = len(parts) - 1
 		if max == 0 {
-			return
+			return nil
 		}
 	}
 	for i := 0; i < max; i++ {
@@ -474,7 +492,10 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 		if _, exists := createdDirs[testDir]; exists {
 			continue
 		}
-		uid, created, _ := c.readOrCreateFolderId(ctx, testDir)
+		uid, created, er := c.readOrCreateFolderId(ctx, testDir)
+		if er != nil {
+			return er
+		}
 		dirObjectInfo := models.ObjectInfo{
 			ETag:         uid,
 			Key:          testDir,
@@ -482,13 +503,18 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 			Size:         0,
 		}
 		s3FolderInfo := newFolderInfo(dirObjectInfo)
-		_ = walknFc(c.normalize(testDir), s3FolderInfo, nil)
+		if er = walknFc(c.normalize(testDir), s3FolderInfo, nil); er != nil {
+			return er
+		}
 		if created.Key != "" {
-			_ = walknFc(c.normalize(created.Key), newFileInfo(created), nil)
+			if er = walknFc(c.normalize(created.Key), newFileInfo(created), nil); er != nil {
+				return er
+			}
 		}
 
 		createdDirs[testDir] = true
 	}
+	return nil
 
 }
 

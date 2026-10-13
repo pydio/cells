@@ -272,7 +272,7 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...b
 func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return walkFunc("", nil, err)
+			return walkFunc(c.normalize(path), nil, err)
 		}
 		if len(path) == 0 || path == "/" || c.normalize(path) == strings.TrimLeft(root, "/") || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
 			return nil
@@ -280,7 +280,7 @@ func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 
 		path = c.normalize(path)
 		if node, e := c.loadNode(ctx, path, info); e != nil {
-			return walkFunc("", nil, e)
+			return walkFunc(path, nil, e)
 		} else {
 			return walkFunc(path, node, nil)
 		}

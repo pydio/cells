@@ -186,7 +186,8 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 	}
 	for {
 		resp, e := s.Recv()
-		if e == io.EOF || e == io.ErrUnexpectedEOF || (e == nil && resp == nil) {
+		// Only io.EOF ends the listing: a truncated one (io.ErrUnexpectedEOF) would make the missing nodes look deleted
+		if e == io.EOF || (e == nil && resp == nil) {
 			break
 		}
 		if e != nil {
