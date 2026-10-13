@@ -95,7 +95,14 @@ func (w *WrapperWriter) Close() error {
 		w.client.FS.Remove(w.tmpPath)
 		return w.cancellable.Err()
 	default:
-		err := w.WriteCloser.Close()
+		var err error
+		// Flush content to disk before renaming, so that a crash cannot commit a partial file
+		if syncer, ok := w.WriteCloser.(interface{ Sync() error }); ok {
+			err = syncer.Sync()
+		}
+		if cErr := w.WriteCloser.Close(); err == nil {
+			err = cErr
+		}
 		if err != nil {
 			w.client.FS.Remove(w.tmpPath)
 			return err
@@ -508,7 +515,8 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 	snapshotPath := path
 	path = c.denormalize(path)
 	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
-	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
+	// Truncate: a temporary file may be left over by an interrupted transfer
+	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if openErr != nil {
 		return nil, writeDone, writeErr, openErr
 	}
