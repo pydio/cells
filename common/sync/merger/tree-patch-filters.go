@@ -188,6 +188,9 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 				} else if createOps, ok := createsByETag[dbNode.GetEtag()]; ok {
 					// Look by Etag
 					for _, createOp := range createOps {
+						if _, available := t.createFiles[createOp.GetRefPath()]; !available {
+							continue // already matched by UUID
+						}
 						log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
 						move := &Move{
 							deleteOp: deleteOp,
@@ -230,6 +233,13 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 	}
 
 	for _, move := range moves {
+		// Deletes are visited in random order: the create (or delete) may have been matched by UUID after
+		// this ETag move was registered, never use an operation twice
+		_, deleteAvailable := t.deletes[move.deleteOp.GetRefPath()]
+		_, createAvailable := t.createFiles[move.createOp.GetRefPath()]
+		if !deleteAvailable || !createAvailable {
+			continue
+		}
 		log.Logger(ctx).Debug("Picked closest move", zap.Object("move", move))
 		// Remove from deletes/creates
 		delete(t.deletes, move.deleteOp.GetRefPath())

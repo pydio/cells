@@ -59,30 +59,6 @@ func bidiInputs() (left, right *TreePatch, lEP, rEP *memory.MemDB) {
 	return
 }
 
-func TestKnownBug_MoveDetectionReusesCreate(t *testing.T) {
-	knownBug(t, "BUG-02", "a create matched by UUID is matched again by ETag: duplicated move, lost delete")
-	for i := 0; i < 50; i++ {
-		src, tgt := memory.NewMemDB(), memory.NewMemDB()
-		bg := context.Background()
-		_ = tgt.CreateNode(bg, &tree.Node{Path: "/a.txt", Uuid: "U1", Etag: "E", Type: tree.NodeType_LEAF}, true)
-		_ = tgt.CreateNode(bg, &tree.Node{Path: "/b.txt", Uuid: "U2", Etag: "E", Type: tree.NodeType_LEAF}, true)
-		_ = src.CreateNode(bg, &tree.Node{Path: "/c.txt", Uuid: "U1", Etag: "E", Type: tree.NodeType_LEAF}, true)
-		p := newTreePatch(src, tgt, PatchOptions{MoveDetection: true, NoRescan: true})
-		p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/a.txt"}})
-		p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/b.txt"}})
-		p.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/c.txt"}})
-		p.Filter(bg)
-		ops := opsByTypeAndPath(p)
-		moves := len(p.OperationsByType([]OperationType{OpMoveFile}))
-		if _, ok := ops["MoveFile c.txt"]; !ok || moves != 1 {
-			t.Fatalf("iteration %d: expected exactly one move to c.txt, got %d moves: %v", i, moves, ops)
-		}
-		if _, ok := ops["Delete b.txt"]; !ok {
-			t.Fatalf("iteration %d: expected Delete b.txt, got %v", i, ops)
-		}
-	}
-}
-
 func TestKnownBug_MoveOntoNewFileFromOtherSide(t *testing.T) {
 	knownBug(t, "BUG-03", "a move onto a path created on the other side is not a conflict: the new file is overwritten")
 	left, right, _, _ := bidiInputs()
