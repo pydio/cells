@@ -176,7 +176,13 @@ func newBiFixture(t *testing.T, withWatches ...bool) *biFixture {
 // run runs the sync and waits for the processed patch
 func (f *biFixture) run(t *testing.T, dryRun bool) merger.Patch {
 	t.Helper()
-	go func() { _, _ = f.sync.Run(context.Background(), dryRun, false) }()
+	return f.runForced(t, dryRun, false)
+}
+
+// runForced runs the sync, optionally as a forced resync, and waits for the processed patch
+func (f *biFixture) runForced(t *testing.T, dryRun, force bool) merger.Patch {
+	t.Helper()
+	go func() { _, _ = f.sync.Run(context.Background(), dryRun, force) }()
 	select {
 	case d := <-f.done:
 		p, _ := d.(merger.Patch)
@@ -214,6 +220,24 @@ func TestDeletedFileNotResurrected(t *testing.T) {
 	f.run(t, false)
 	if f.has(f.left, "a") || f.has(f.right, "a") {
 		t.Fatalf("a deleted locally should be deleted on both sides (left=%v right=%v)", f.has(f.left, "a"), f.has(f.right, "a"))
+	}
+}
+
+// (a') A forced resync (version change, manual resync) must capture snapshots too (BUG-41): otherwise the
+// next run diffs the sources without history and resurrects files deleted in the meantime.
+func TestForcedResyncCapturesSnapshots(t *testing.T) {
+	f := newBiFixture(t)
+	ctx := context.Background()
+	_ = f.left.CreateNode(ctx, leaf("a", "E1"), false)
+	_ = f.right.CreateNode(ctx, leaf("a", "E1"), false)
+	f.runForced(t, false, true) // in sync: nothing to do
+	if l, r := f.snaps.paths(t, "left"), f.snaps.paths(t, "right"); len(l) == 0 || len(r) == 0 {
+		t.Fatalf("snapshots were not captured by the forced resync (left %v, right %v)", l, r)
+	}
+	_ = f.left.DeleteNode(ctx, "a")
+	f.run(t, false)
+	if f.has(f.left, "a") || f.has(f.right, "a") {
+		t.Fatalf("a deleted after a forced resync should be deleted on both sides (left=%v right=%v)", f.has(f.left, "a"), f.has(f.right, "a"))
 	}
 }
 

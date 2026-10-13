@@ -201,6 +201,13 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 				useSnapshots = true
 			}
 		}
+	} else if s.snapshotFactory != nil {
+		// Forced resync: diff the sources, but re-capture the snapshots once the patch succeeded, otherwise
+		// the next run has no history and resurrects deleted files (BUG-41). Updaters are unhooked until then.
+		var er1, er2 error
+		leftSnap, er1 = s.forcedSnapshot(source)
+		rightSnap, er2 = s.forcedSnapshot(targetAsSource)
+		captureSnapshots = er1 == nil && er2 == nil
 	}
 
 	if useSnapshots || captureSnapshots {
@@ -286,6 +293,14 @@ func (s *Sync) captureAfterSuccess(ctx context.Context, bb *merger.Bidirectional
 		}
 		return nil
 	})
+}
+
+// forcedSnapshot loads the snapshot of a source for a forced resync and unhooks it from the source
+func (s *Sync) forcedSnapshot(source model.PathSyncSource) (model.Snapshoter, error) {
+	if updater, ok := source.(model.SnapshotUpdater); ok {
+		updater.SetUpdateSnapshot(nil)
+	}
+	return s.snapshotFactory.Load(source)
 }
 
 func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*model.EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
