@@ -350,3 +350,14 @@ func TestMoveVsEditKeepsMoveOrigin(t *testing.T) {
 		}
 	}
 }
+
+// Conflict errors must name their path (seen live: "diff has conflicts [conflict on path  conflict on path ]").
+func TestConflictErrorsNameTheirPath(t *testing.T) {
+	patch := newTreePatch(memory.NewMemDB(), memory.NewMemDB(), PatchOptions{})
+	n := &tree.Node{Path: "d/f", Type: tree.NodeType_LEAF}
+	patch.Enqueue(NewConflictOperation(n, ConflictFileContent, NewOperation(OpCreateFile, model.EventInfo{Path: "d/f"}, n), NewOperation(OpCreateFile, model.EventInfo{Path: "d/f"}, n)))
+	errs, _ := patch.HasErrors()
+	if len(errs) != 1 || !strings.Contains(errs[0].Error(), "d/f") {
+		t.Fatalf("conflict error does not name its path: %v", errs)
+	}
+}

@@ -228,11 +228,16 @@ func NewOperation(t OperationType, e model.EventInfo, loadedNode ...tree.N) Oper
 }
 
 func NewConflictOperation(node tree.N, t ConflictType, left, right Operation) Operation {
+	var e model.EventInfo
+	if node != nil {
+		e.Path = node.GetPath() // ref path, used in conflict errors
+	}
 	return &conflictOperation{
 		patchOperation: patchOperation{
-			OpType: OpConflict,
-			Node:   node,
-			Dir:    OperationDirDefault,
+			OpType:    OpConflict,
+			EventInfo: e,
+			Node:      node,
+			Dir:       OperationDirDefault,
 		},
 		ConflictType: t,
 		LeftOp:       left,
