@@ -319,7 +319,9 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 			e := callback(ctx, op, operationId, pgs)
 			if e != nil {
 				pr.Logger().Error(errorString, fields...)
-				op.Status(model.NewProcessingStatus(fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error())).SetError(e))
+				// Not an error status: it would flag the operation and the patch as failed even if a retry
+				// succeeds. If all attempts fail, the final status carries the error.
+				op.Status(model.NewProcessingStatus(fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error())))
 			}
 			return e
 		}, timings.ProcessorRetryInterval.Get(), timings.ProcessorRetryTimeout.Get())

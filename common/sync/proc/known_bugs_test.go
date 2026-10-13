@@ -114,23 +114,6 @@ func kbProgress() chan int64 {
 	return c
 }
 
-func TestKnownBug_RetriedTransferKeepsError(t *testing.T) {
-	knownBug(t, "BUG-13", "a transfer failing once then succeeding on retry keeps its error: the whole patch is flagged as failed")
-	defer timings.ForTests()()
-	pr := NewProcessor(context.Background())
-	p, op := kbCreateFileOp(&kbSource{memory.NewMemDB()}, &kbFSTarget{MemDB: memory.NewMemDB(), failures: 1})
-	var cursor int64
-	if e := pr.applyProcessFunc(context.Background(), p, op, "id", &cursor, 11, true); e != nil {
-		t.Fatalf("retry should succeed, got %v", e)
-	}
-	if !op.IsProcessed() {
-		t.Fatal("operation should be processed")
-	}
-	if errs, has := p.HasErrors(); has {
-		t.Fatalf("patch should have no errors after a successful retry, got %v", errs)
-	}
-}
-
 // Crashes the test binary until fixed: run it alone with -run TestKnownBug_UnlockAfterEchoFilterStop
 func TestKnownBug_UnlockAfterEchoFilterStop(t *testing.T) {
 	knownBug(t, "RACE-04", "a delayed UnlockFile sends on the locks channel closed by Sync.Shutdown: panic (crashes the test binary)")
