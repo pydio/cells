@@ -495,3 +495,13 @@ func TestSourceEtagsRead(t *testing.T) {
 		})
 	})
 }
+
+// Watch events and the snapshot updates they trigger carry the Cells hash, not the source ETag reported by
+// LoadNode/Walk (EP-CELLS-01): SourceEtags is only supported for one-way imports, without watcher.
+func TestWatchRefusedWithSourceEtags(t *testing.T) {
+	c, _, _ := newTestAbstract(true)
+	wo, e := c.Watch(context.Background(), "")
+	if e == nil || wo != nil {
+		t.Fatalf("Watch should be refused when SourceEtags is set, got %v, %v", wo, e)
+	}
+}

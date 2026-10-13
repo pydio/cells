@@ -80,6 +80,11 @@ type Options struct {
 	// When writing a file, remember the ETag reported by the sync source along with the Cells hash, and
 	// report the source ETag instead of the Cells hash as long as the content is unchanged. Use this when
 	// the other endpoint computes ETags differently (e.g. SHA-1), so that the merger compares like with like.
+	//
+	// Only supported for one-way imports into this endpoint, without watcher: LoadNode and Walk report the
+	// source ETag, but change events (and the snapshot updates they trigger) still carry the Cells hash, so a
+	// watched or bidirectional sync would see the files written by the sync as modified (EP-CELLS-01).
+	// Watch returns an error when it is set.
 	SourceEtags bool
 }
 
@@ -244,6 +249,9 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (mode
 
 // Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the Tree Service via a Router).
 func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.WatchObject, error) {
+	if c.Options.SourceEtags {
+		return nil, errors.WithMessage(errors.StatusNotImplemented, "watch is not supported with sourceEtags (one-way imports only)")
+	}
 
 	c.watchConn = make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
