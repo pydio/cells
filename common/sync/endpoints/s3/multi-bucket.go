@@ -210,7 +210,10 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 		}
 		return nil
 	} else {
-		return c.Walk(nil, walknFc, i, recursive)
+		// Walk inside a bucket: report paths with the bucket prefix, like walks from the root
+		return c.Walk(ctx, func(iPath string, node tree.N, err error) error {
+			return walknFc(m.patchPath(b, node, iPath), node, err)
+		}, i, recursive)
 	}
 }
 

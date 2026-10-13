@@ -25,6 +25,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/nodes/models"
@@ -104,4 +106,47 @@ func TestWalkReportsErrors(t *testing.T) {
 		So(e, ShouldEqual, stop)
 		So(calls, ShouldEqual, 1)
 	})
+}
+
+func TestMultiBucketWalkInsideBucket(t *testing.T) {
+	ctx := context.Background()
+	m, e := NewMultiBucketClient(ctx, mock.New(), "az", "^cell", model.EndpointOptions{BrowseOnly: true})
+	if e != nil {
+		t.Fatal(e)
+	}
+	st := &prefixStorage{Client: mock.New("cell1")}
+	for _, k := range []string{"dir/a", "dir/sub/b", "other"} {
+		_, _ = st.PutObject(ctx, "cell1", k, bytes.NewBufferString(k), int64(len(k)), models.PutMeta{})
+	}
+	m.mainClient = NewS3Mock()
+	m.bucketClients = map[string]*Client{"cell1": NewObjectClient(ctx, st, "az", "cell1", "", model.EndpointOptions{BrowseOnly: true})}
+
+	var paths []string
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				t.Fatalf("Walk panicked: %v", r)
+			}
+		}()
+		e = m.Walk(ctx, func(p string, n tree.N, err error) error {
+			if err != nil {
+				return err
+			}
+			if !n.IsLeaf() {
+				return nil
+			}
+			if p != n.GetPath() {
+				t.Errorf("walked path %s differs from node path %s", p, n.GetPath())
+			}
+			paths = append(paths, p)
+			return nil
+		}, "cell1/dir", true)
+	}()
+	if e != nil {
+		t.Fatal(e)
+	}
+	sort.Strings(paths)
+	if strings.Join(paths, ",") != "cell1/dir/a,cell1/dir/sub/b" {
+		t.Fatalf("expected the files of cell1/dir with the bucket prefix, got %v", paths)
+	}
 }
