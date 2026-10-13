@@ -108,6 +108,13 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (target node is not there)", zap.String("path", n.ProcessedPath(false)))
 					n.PathOperation = nil
 				}
+			} else if n.PathOperation.IsTypeMove() {
+				// Asynchronous targets (Cells) echo our own moves back without echo lock: drop moves already applied
+				op := n.PathOperation
+				if missing(op.Target(), op.GetMoveOriginPath()) && exists(op.Target(), op.GetRefPath()) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring Move Operation (already applied on target)", zap.String("from", op.GetMoveOriginPath()), zap.String("to", op.GetRefPath()))
+					n.PathOperation = nil
+				}
 			}
 		}
 		return false
