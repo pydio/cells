@@ -324,3 +324,29 @@ func TestFolderDeleteVsChildChanges(t *testing.T) {
 		}
 	}
 }
+
+// A file moved on one side and edited on the other: the move is applied on the editing side and the edit is
+// written at the moved path. Seen live: redirecting the edit to the moved path renamed the node it shared with the
+// tree, and the move came out from the moved path onto itself (NotFound on the server, never converging).
+func TestMoveVsEditKeepsMoveOrigin(t *testing.T) {
+	left, right, _, _ := bidiInputs()
+	left.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "d/f", Type: tree.NodeType_LEAF, Etag: "new"}, EventInfo: model.EventInfo{Path: "d/f"}})
+	right.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "d/f", Type: tree.NodeType_LEAF, Etag: "old"}, EventInfo: model.EventInfo{Path: "d/g"}})
+	bi, e := ComputeBidirectionalPatch(context.Background(), left, right)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for pass := 0; pass < 3; pass++ { // operations are walked many times before and during processing
+		ops := opsByTypeAndPath(bi)
+		move, update := ops["MoveFile d/g"], ops["UpdateFile d/g"]
+		if move == nil || update == nil {
+			t.Fatalf("expected a move and an update on d/g: %v", ops)
+		}
+		if move.GetMoveOriginPath() != "d/f" || move.Target() != left.Source().(model.PathSyncTarget) {
+			t.Fatalf("pass %d: the move must go from d/f to d/g on the editing side, got origin %s", pass, move.GetMoveOriginPath())
+		}
+		if update.Target() != right.Source().(model.PathSyncTarget) {
+			t.Fatalf("the edit must be written on the moving side")
+		}
+	}
+}

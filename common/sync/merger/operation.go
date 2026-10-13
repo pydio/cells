@@ -342,7 +342,7 @@ func (o *patchOperation) UpdateRefPath(p string) {
 	o.EventInfo.Path = p
 	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
 	if o.Node != nil && !o.IsTypeMove() {
-		o.Node.SetPath(p)
+		o.setNodePath(p)
 	}
 }
 
@@ -351,6 +351,16 @@ func (o *patchOperation) GetMoveOriginPath() string {
 }
 
 func (o *patchOperation) UpdateMoveOriginPath(p string) {
+	o.setNodePath(p)
+}
+
+// setNodePath changes the path of a copy of the operation node: the node may be shared with a TreeNode, whose path
+// must not change (a data operation redirected to a move target would otherwise rename the move origin).
+func (o *patchOperation) setNodePath(p string) {
+	if o.Node.GetPath() == p {
+		return
+	}
+	o.Node = o.Node.AsProto().Clone()
 	o.Node.SetPath(p)
 }
 

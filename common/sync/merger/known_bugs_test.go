@@ -80,12 +80,16 @@ func TestKnownBug_MoveAndEditVsEdit(t *testing.T) {
 	left.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: n, EventInfo: model.EventInfo{Path: "a"}})
 	right.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "a", Type: tree.NodeType_LEAF, Etag: "R"}, EventInfo: model.EventInfo{Path: "a"}})
 	bi, e := ComputeBidirectionalPatch(context.Background(), left, right)
-	etags := map[string]bool{}
-	for _, o := range bi.OperationsByType([]OperationType{OpUpdateFile}) {
-		etags[o.GetNode().GetEtag()] = true
+	if e != nil || len(bi.OperationsByType([]OperationType{OpConflict})) > 0 {
+		return // conflict detected
 	}
-	if e == nil && etags["L"] && etags["R"] {
-		t.Fatalf("both edits are applied over each other without conflict")
+	// Without conflict, both versions must survive at distinct paths: an edit written over the other one is lost
+	paths := map[string]string{}
+	for _, o := range bi.OperationsByType([]OperationType{OpUpdateFile, OpCreateFile}) {
+		paths[o.GetNode().GetEtag()] = o.GetRefPath()
+	}
+	if paths["L"] == "" || paths["R"] == "" || paths["L"] == paths["R"] {
+		t.Fatalf("one edit is written over the other without conflict: %v", paths)
 	}
 }
 
