@@ -149,6 +149,12 @@ func (c *Client) getFullPath(path string) string {
 	}
 }
 
+// isUnder tells if an object key is the object at fullPath itself or inside the folder at fullPath:
+// listing by fullPath as a bare prefix also returns siblings like fullPath.bak or fullPath-2020/x.
+func isUnder(key, fullPath string) bool {
+	return fullPath == "" || key == fullPath || strings.HasPrefix(key, fullPath+"/")
+}
+
 func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error) {
 	fullPath := c.getFullPath(pa)
 	if fullPath == "" || fullPath == "/" {
@@ -193,6 +199,12 @@ func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
 	ctx2, cancel := context.WithCancel(ctx)
 	defer cancel()
 	for object := range c.listAllObjects(ctx2, c.Bucket, path, true) {
+		if object.Err != nil {
+			return object.Err
+		}
+		if !isUnder(object.Key, path) {
+			continue
+		}
 		if err = c.Oc.RemoveObject(ctx, c.Bucket, object.Key); err != nil {
 			log.Logger(c.globalContext).Error("Error while deleting object", zap.String("key", object.Key), zap.Error(err))
 			return err
@@ -211,6 +223,12 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 	ctx2, cancel := context.WithCancel(ctx)
 	defer cancel()
 	for object := range c.listAllObjects(ctx2, c.Bucket, oldPath, true) {
+		if object.Err != nil {
+			return object.Err
+		}
+		if !isUnder(object.Key, oldPath) {
+			continue
+		}
 		targetKey := newPath + strings.TrimPrefix(object.Key, oldPath)
 		// Switch to multipart for copy
 		if object.Size > c.Oc.CopyObjectMultipartThreshold() {
