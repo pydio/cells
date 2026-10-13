@@ -261,3 +261,66 @@ func TestMergeMatrixIsSymmetric(t *testing.T) {
 		}
 	}
 }
+
+// BUG-05: a folder deleted on one side while files were created or edited inside it on the other side. The delete
+// must not win (seen live: a file added on the server was permanently deleted). The folder is re-created on the
+// deleting side with the surviving content.
+func TestFolderDeleteVsChildChanges(t *testing.T) {
+	ctx := context.Background()
+	for _, tc := range []struct {
+		name    string
+		childOp OperationType
+		child   string
+	}{
+		{"edited file", OpUpdateFile, "A/x"},
+		{"created file", OpCreateFile, "A/new"},
+		{"created folder", OpCreateFolder, "A/sub"},
+	} {
+		for _, deleteOnLeft := range []bool{false, true} {
+			name := tc.name
+			if deleteOnLeft {
+				name += ", deleted on left"
+			}
+			t.Run(name, func(t *testing.T) {
+				left, right, lEP, rEP := bidiInputs()
+				keptPatch, keptEP, deletingPatch, deletingEP := left, lEP, right, model.PathSyncTarget(rEP)
+				if deleteOnLeft {
+					keptPatch, keptEP, deletingPatch, deletingEP = right, rEP, left, lEP
+				}
+				childType := tree.NodeType_LEAF
+				if tc.childOp == OpCreateFolder {
+					childType = tree.NodeType_COLLECTION
+				}
+				_ = keptEP.CreateNode(ctx, &tree.Node{Path: "A", Uuid: "uA", Type: tree.NodeType_COLLECTION}, false)
+				_ = keptEP.CreateNode(ctx, &tree.Node{Path: "A/keep", Uuid: "uk", Type: tree.NodeType_LEAF, Etag: "k"}, false)
+				_ = keptEP.CreateNode(ctx, &tree.Node{Path: tc.child, Uuid: "uc", Type: childType, Etag: "new"}, false)
+				keptPatch.Enqueue(&patchOperation{OpType: tc.childOp, Node: &tree.Node{Path: tc.child, Type: childType, Etag: "new"}, EventInfo: model.EventInfo{Path: tc.child}})
+				deletingPatch.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "A", Type: tree.NodeType_COLLECTION}, EventInfo: model.EventInfo{Path: "A"}})
+
+				bi, e := ComputeBidirectionalPatch(ctx, left, right)
+				if e != nil {
+					t.Fatalf("unexpected merge error: %v", e)
+				}
+				ops := opsByTypeAndPath(bi)
+				if _, has := ops["Delete A"]; has {
+					t.Fatalf("folder A is deleted although its content changed on the other side: %v", ops)
+				}
+				childKeys := []string{"CreateFile " + tc.child, tc.childOp.String() + " " + tc.child}
+				for _, keys := range [][]string{{"CreateFolder A"}, {"CreateFile A/keep"}, childKeys} {
+					var op Operation
+					for _, k := range keys {
+						if o, has := ops[k]; has {
+							op = o
+						}
+					}
+					if op == nil {
+						t.Fatalf("missing %v to re-create the folder on the deleting side: %v", keys, ops)
+					}
+					if op.Target() != deletingEP {
+						t.Fatalf("%v is not applied on the deleting side", keys)
+					}
+				}
+			})
+		}
+	}
+}

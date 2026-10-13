@@ -89,19 +89,6 @@ func TestKnownBug_MoveAndEditVsEdit(t *testing.T) {
 	}
 }
 
-func TestKnownBug_FolderDeleteVsChildEdit(t *testing.T) {
-	knownBug(t, "BUG-05", "a folder deleted on one side wins over a file edited inside it on the other side")
-	left, right, _, _ := bidiInputs()
-	left.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "/A/x", Type: tree.NodeType_LEAF, Etag: "new"}, EventInfo: model.EventInfo{Path: "/A/x"}})
-	right.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "/A", Type: tree.NodeType_COLLECTION}, EventInfo: model.EventInfo{Path: "/A"}})
-	bi, e := ComputeBidirectionalPatch(context.Background(), left, right)
-	ops := opsByTypeAndPath(bi)
-	_, hasDelete := ops["Delete A"]
-	if e == nil && hasDelete {
-		t.Fatalf("folder A is deleted although a file was edited inside it: %v", ops)
-	}
-}
-
 func TestKnownBug_SecondPassDropsConflictCopies(t *testing.T) {
 	knownBug(t, "BUG-06", "when a second merge pass runs, the conflict copies created by the first pass are not synced")
 	bg := context.Background()

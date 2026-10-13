@@ -224,14 +224,15 @@ func (p *BidirectionalPatch) initMatrix() {
 	cnT := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictNodeType) }
 	cnP := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictPathOperation) }
 	mgm := p.mergeMetaOperations
+	dvb := p.deleteVsBranch
 	// Rows are left operations, columns right operations. Every cell is explicit and the matrix is mirror-symmetric
 	// (eql and eqr swapped): a reverse lookup would apply asymmetric solvers to the wrong side (BUG-40).
 	p.matrix = map[OperationType]map[OperationType]Solver{
-		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
+		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: dvb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
 		OpCreateFolder: {OpNone: eqb, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
 		OpMoveFile:     {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cmt, OpMoveFolder: cnT, OpDelete: rst, OpCreateFile: cnP, OpUpdateFile: eqb, OpMoveTarget: eqb},
 		OpMoveFolder:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cnT, OpMoveFolder: cmt, OpDelete: rst, OpCreateFile: cnT, OpUpdateFile: cnT, OpMoveTarget: eqb},
-		OpDelete:       {OpNone: eqb, OpCreateFolder: eqr, OpMoveFile: rst, OpMoveFolder: rst, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
+		OpDelete:       {OpNone: dvb, OpCreateFolder: eqr, OpMoveFile: rst, OpMoveFolder: rst, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
 		OpCreateFile:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cnP, OpMoveFolder: cnT, OpDelete: eql, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
 		OpUpdateFile:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: eqb, OpMoveFolder: cnT, OpDelete: eql, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
 		OpMoveTarget:   {OpNone: eqb, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: cms},
@@ -372,6 +373,59 @@ func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictTy
 	}
 	op := NewConflictOperation(left.N, t, leftOp, rightOp)
 	p.QueueOperation(op)
+}
+
+// deleteVsBranch solves a node deleted on one side and unchanged on the other side. If the other side changed the
+// content of this folder (created, edited or moved files inside), the delete must not win (BUG-05): it is dropped
+// and the folder is re-created on the deleting side with the content of the other side, in a second merge pass.
+func (p *BidirectionalPatch) deleteVsBranch(left, right *TreeNode) {
+	deleted, kept := left, right
+	if right.PathOperation != nil && right.PathOperation.Type() == OpDelete {
+		deleted, kept = right, left
+	}
+	var source model.PathSyncSource
+	changed := map[string]bool{}
+	kept.WalkOperations([]OperationType{}, func(o Operation) {
+		if o.Type() == OpDelete || o.Type() == OpDeleteMeta {
+			return
+		}
+		changed[o.GetRefPath()] = true
+		if source == nil {
+			source, _ = model.AsPathSyncSource(o.Source())
+		}
+	})
+	if len(changed) == 0 || source == nil {
+		p.enqueueBoth(left, right)
+		return
+	}
+	folder := deleted.PathOperation.GetRefPath()
+	log.Logger(p.ctx).Info("Folder deleted on one side but modified on the other side: re-creating it", zap.String("path", folder))
+	deleted.PathOperation = nil
+	n, e := source.LoadNode(p.ctx, folder)
+	if e != nil {
+		// Cannot read the folder on the other side: neither delete nor re-create it, the next run will decide
+		log.Logger(p.ctx).Warn("Cannot load folder to re-create it, delete is skipped", zap.String("path", folder), zap.Error(e))
+		return
+	}
+	root := kept.getRoot()
+	queue := func(p string, node tree.N) {
+		node = node.AsProto().Clone()
+		node.SetPath(p)
+		oType := OpCreateFolder
+		if node.IsLeaf() {
+			oType = OpCreateFile
+		}
+		root.QueueOperation(NewOperation(oType, model.EventInfo{Path: p, Folder: !node.IsLeaf(), Etag: node.GetEtag()}, node))
+	}
+	queue(folder, n)
+	_ = source.Walk(p.ctx, func(path string, node tree.N, err error) error {
+		// Unreadable children are not re-created now: they are missing on the deleting side for the next run
+		if err == nil && node != nil && !changed[path] && path != folder {
+			queue(path, node)
+		}
+		return nil
+	}, folder, true)
+	p.inputsModified = true
 }
 
 // reSyncTarget tries to fix a Deleted resource that has been recreated on the other target by recreating it recursively
