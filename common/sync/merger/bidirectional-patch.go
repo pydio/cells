@@ -47,8 +47,11 @@ type Solver func(left, right *TreeNode)
 // It handles conflicts detection and tries to solve them automatically if possible
 type BidirectionalPatch struct {
 	TreePatch
-	matrix              map[OperationType]map[OperationType]Solver
-	inputsModified      bool
+	matrix         map[OperationType]map[OperationType]Solver
+	inputsModified bool
+	// conflictCopies are the copies created by the "keep both" solver, which already renamed the files on the
+	// endpoints and removed the input operations: they are re-enqueued after a second pass resets the patch
+	conflictCopies      []Operation
 	unexpected          []error
 	ctx                 context.Context
 	ignoreUUIDConflicts bool
@@ -104,6 +107,9 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 			log.Logger(ctx).Info("Input trees modified, running a second pass")
 			b.TreePatch = *newTreePatch(source, target, PatchOptions{MoveDetection: false})
 			b.mergeTrees(&l.TreeNode, &r.TreeNode)
+			for _, op := range b.conflictCopies {
+				b.Enqueue(op)
+			}
 		}
 		log.Logger(ctx).Info("Merged Patch", zap.Any("stats", b.Stats()))
 	}
@@ -564,14 +570,14 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 
 		lOp.UpdateRefPath(basePath + "-" + leftSuffix + ext)
 		lOp.UpdateType(OpCreateFile)
-		p.Enqueue(lOp.Clone().SetDirection(OperationDirRight))
+		p.enqueueConflictCopy(lOp.Clone().SetDirection(OperationDirRight))
 
 		rightSource, _ := model.AsPathSyncTarget(right.DataOperation.Source())
 		rightSource.MoveNode(p.ctx, initialPath, basePath+"-"+rightSuffix+ext)
 
 		rOp.UpdateRefPath(basePath + "-" + rightSuffix + ext)
 		rOp.UpdateType(OpCreateFile)
-		p.Enqueue(rOp.Clone().SetDirection(OperationDirLeft))
+		p.enqueueConflictCopy(rOp.Clone().SetDirection(OperationDirLeft))
 		// Remove original ones
 		left.DataOperation = nil
 		right.DataOperation = nil
@@ -582,6 +588,12 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 		p.Enqueue(right.DataOperation.Clone().SetDirection(OperationDirLeft))
 	}
 
+}
+
+// enqueueConflictCopy enqueues a copy created by the "keep both" solver and keeps it for a second pass (BUG-06)
+func (p *BidirectionalPatch) enqueueConflictCopy(op Operation) {
+	p.conflictCopies = append(p.conflictCopies, op)
+	p.Enqueue(op)
 }
 
 func (p *BidirectionalPatch) computeAutoFixSuffixes(source, target model.EndpointInfo) (string, string) {

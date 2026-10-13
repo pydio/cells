@@ -361,3 +361,45 @@ func TestConflictErrorsNameTheirPath(t *testing.T) {
 		t.Fatalf("conflict error does not name its path: %v", errs)
 	}
 }
+
+// BUG-06: the conflict copies created by the "keep both" solver must survive the second merge pass, which resets the
+// patch. Seen live: a second pass triggered by a folder deleted on one side and modified on the other (BUG-05) lost
+// the copy of an edit conflict in the same patch, and the server echo of the conflict rename then failed.
+func TestSecondPassKeepsConflictCopies(t *testing.T) {
+	bg := context.Background()
+	for name, secondPass := range map[string]func(left, right *TreePatch, lEP, rEP *memory.MemDB){
+		"delete vs move (reSyncTarget)": func(left, right *TreePatch, lEP, rEP *memory.MemDB) {
+			_ = lEP.CreateNode(bg, &tree.Node{Path: "z-moved", Type: tree.NodeType_LEAF, Etag: "Z"}, true)
+			left.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "z", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "z-moved"}})
+			right.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "z", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "z"}})
+		},
+		"folder delete vs content change (deleteVsBranch)": func(left, right *TreePatch, lEP, rEP *memory.MemDB) {
+			_ = lEP.CreateNode(bg, &tree.Node{Path: "F", Uuid: "uF", Type: tree.NodeType_COLLECTION}, true)
+			_ = lEP.CreateNode(bg, &tree.Node{Path: "F/new", Uuid: "un", Type: tree.NodeType_LEAF, Etag: "N"}, true)
+			left.Enqueue(&patchOperation{OpType: OpCreateFile, Node: &tree.Node{Path: "F/new", Type: tree.NodeType_LEAF, Etag: "N"}, EventInfo: model.EventInfo{Path: "F/new"}})
+			right.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "F", Type: tree.NodeType_COLLECTION}, EventInfo: model.EventInfo{Path: "F"}})
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			left, right, lEP, rEP := bidiInputs()
+			_ = lEP.CreateNode(bg, &tree.Node{Path: "a.txt", Type: tree.NodeType_LEAF, Etag: "L"}, true)
+			_ = rEP.CreateNode(bg, &tree.Node{Path: "a.txt", Type: tree.NodeType_LEAF, Etag: "R"}, true)
+			left.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "a.txt", Etag: "L", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "a.txt"}})
+			right.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "a.txt", Etag: "R", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "a.txt"}})
+			secondPass(left, right, lEP, rEP)
+			bi, e := ComputeBidirectionalPatch(bg, left, right)
+			if e != nil {
+				t.Fatal(e)
+			}
+			var copies int
+			for _, o := range bi.OperationsByType([]OperationType{OpCreateFile}) {
+				if strings.HasPrefix(o.GetRefPath(), "a-") {
+					copies++
+				}
+			}
+			if copies != 2 {
+				t.Fatalf("expected both conflict copies of a.txt to be synced, got %d: %v", copies, opsByTypeAndPath(bi))
+			}
+		})
+	}
+}

@@ -93,33 +93,6 @@ func TestKnownBug_MoveAndEditVsEdit(t *testing.T) {
 	}
 }
 
-func TestKnownBug_SecondPassDropsConflictCopies(t *testing.T) {
-	knownBug(t, "BUG-06", "when a second merge pass runs, the conflict copies created by the first pass are not synced")
-	bg := context.Background()
-	left, right, lEP, rEP := bidiInputs()
-	_ = lEP.CreateNode(bg, &tree.Node{Path: "/a.txt", Type: tree.NodeType_LEAF, Etag: "L"}, true)
-	_ = rEP.CreateNode(bg, &tree.Node{Path: "/a.txt", Type: tree.NodeType_LEAF, Etag: "R"}, true)
-	_ = lEP.CreateNode(bg, &tree.Node{Path: "/z-moved", Type: tree.NodeType_LEAF, Etag: "Z"}, true)
-	left.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "/a.txt", Etag: "L", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "/a.txt"}})
-	right.Enqueue(&patchOperation{OpType: OpUpdateFile, Node: &tree.Node{Path: "/a.txt", Etag: "R", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "/a.txt"}})
-	// A move/delete pair forcing a second pass (reSyncTarget)
-	left.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "/z", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "/z-moved"}})
-	right.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "/z", Type: tree.NodeType_LEAF}, EventInfo: model.EventInfo{Path: "/z"}})
-	bi, e := ComputeBidirectionalPatch(bg, left, right)
-	if e != nil {
-		t.Fatal(e)
-	}
-	var copies int
-	for _, o := range bi.OperationsByType([]OperationType{OpCreateFile}) {
-		if strings.HasPrefix(strings.Trim(o.GetRefPath(), "/"), "a-") {
-			copies++
-		}
-	}
-	if copies != 2 {
-		t.Fatalf("expected both conflict copies of a.txt to be synced, got %d: %v", copies, opsByTypeAndPath(bi))
-	}
-}
-
 func TestKnownBug_ValidateIsNoopForCachedTargets(t *testing.T) {
 	knownBug(t, "BUG-14", "Validate skips processed operations, so it validates nothing on cached (remote/index) targets")
 	defer timings.ForTests()()
