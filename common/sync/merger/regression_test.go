@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -94,5 +95,59 @@ func TestPruneKeepsMoveOutOfDeletedFolder(t *testing.T) {
 	}
 	if _, ok := ops["Delete A"]; !ok || len(ops) != 2 {
 		t.Fatalf("expected the move and the delete of A only, got %v", ops)
+	}
+}
+
+func TestMergeMetadataOperations(t *testing.T) {
+	meta := func(op OperationType, value string) *patchOperation {
+		return &patchOperation{OpType: op, Node: &tree.Node{Path: "/f/usermeta-tags", Type: NodeType_METADATA, Etag: value}, EventInfo: model.EventInfo{Path: "/f/usermeta-tags"}}
+	}
+	for _, tc := range []struct {
+		name        string
+		left, right *patchOperation
+		want        []string // "Type Direction Value"
+	}{
+		{"left only", meta(OpUpdateMeta, `"a"`), nil, []string{"UpdateMetadata right \"a\""}},
+		{"right only", nil, meta(OpCreateMeta, `"b"`), []string{"CreateMetadata left \"b\""}},
+		{"same value", meta(OpUpdateMeta, `"a"`), meta(OpUpdateMeta, `"a"`), nil},
+		{"different values: right wins", meta(OpUpdateMeta, `"a"`), meta(OpUpdateMeta, `"b"`), []string{"UpdateMetadata left \"b\""}},
+		{"created on both sides: right wins", meta(OpCreateMeta, `"a"`), meta(OpCreateMeta, `"b"`), []string{"CreateMetadata left \"b\""}},
+		{"deleted left, updated right: value kept", meta(OpDeleteMeta, ""), meta(OpUpdateMeta, `"b"`), []string{"UpdateMetadata left \"b\""}},
+		{"updated left, deleted right: value kept", meta(OpUpdateMeta, `"a"`), meta(OpDeleteMeta, ""), []string{"UpdateMetadata right \"a\""}},
+		{"deleted on both sides", meta(OpDeleteMeta, ""), meta(OpDeleteMeta, ""), nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			left, right, _, _ := bidiInputs()
+			if tc.left != nil {
+				left.Enqueue(tc.left)
+			}
+			if tc.right != nil {
+				right.Enqueue(tc.right)
+			}
+			var bi *BidirectionalPatch
+			var e error
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Fatalf("merge panicked: %v", r)
+					}
+				}()
+				bi, e = ComputeBidirectionalPatch(context.Background(), left, right)
+			}()
+			if e != nil {
+				t.Fatal(e)
+			}
+			var got []string
+			for _, op := range bi.OperationsByType(nil) {
+				dir := "right"
+				if op.(*patchOperation).Dir == OperationDirLeft {
+					dir = "left"
+				}
+				got = append(got, op.Type().String()+" "+dir+" "+op.GetNode().GetEtag())
+			}
+			if strings.Join(got, ",") != strings.Join(tc.want, ",") {
+				t.Fatalf("got %v, want %v", got, tc.want)
+			}
+		})
 	}
 }

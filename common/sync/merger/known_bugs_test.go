@@ -144,19 +144,6 @@ func TestKnownBug_ValidateIsNoopForCachedTargets(t *testing.T) {
 	}
 }
 
-func TestKnownBug_MetadataOnBothSidesPanics(t *testing.T) {
-	knownBug(t, "BUG-15", "the bidirectional merge has no solver for metadata operations: nil solver panic")
-	defer func() {
-		if r := recover(); r != nil {
-			t.Fatalf("merge panicked: %v", r)
-		}
-	}()
-	left, right, _, _ := bidiInputs()
-	left.Enqueue(&patchOperation{OpType: OpUpdateMeta, Node: &tree.Node{Path: "/f/usermeta-tags", Type: NodeType_METADATA, Etag: "\"a\""}, EventInfo: model.EventInfo{Path: "/f/usermeta-tags"}})
-	right.Enqueue(&patchOperation{OpType: OpUpdateMeta, Node: &tree.Node{Path: "/f/usermeta-tags", Type: NodeType_METADATA, Etag: "\"b\""}, EventInfo: model.EventInfo{Path: "/f/usermeta-tags"}})
-	_, _ = ComputeBidirectionalPatch(context.Background(), left, right)
-}
-
 func TestKnownBug_UnloadableCreateDropsDelete(t *testing.T) {
 	knownBug(t, "BUG-16", "a create that cannot be loaded also removes the delete of the same path")
 	bg := context.Background()

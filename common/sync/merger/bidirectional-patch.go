@@ -223,6 +223,7 @@ func (p *BidirectionalPatch) initMatrix() {
 	mrg := p.mergeDataOperations
 	cnT := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictNodeType) }
 	cnP := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictPathOperation) }
+	mgm := p.mergeMetaOperations
 	p.matrix = map[OperationType]map[OperationType]Solver{
 		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
 		OpCreateFolder: {OpNone: nil, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
@@ -233,6 +234,12 @@ func (p *BidirectionalPatch) initMatrix() {
 		OpUpdateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: mrg, OpMoveTarget: eqb},
 		OpMoveTarget:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: nil, OpMoveTarget: cms},
 	}
+	// Metadata operations: all directions are explicit, merge() reverse lookup would apply the wrong side
+	// of asymmetric solvers. A value set on one side wins over a delete on the other side.
+	p.matrix[OpNone][OpCreateMeta], p.matrix[OpNone][OpUpdateMeta], p.matrix[OpNone][OpDeleteMeta] = eqb, eqb, eqb
+	p.matrix[OpCreateMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: mgm, OpUpdateMeta: mgm, OpDeleteMeta: eql}
+	p.matrix[OpUpdateMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: mgm, OpUpdateMeta: mgm, OpDeleteMeta: eql}
+	p.matrix[OpDeleteMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: eqr, OpUpdateMeta: eqr, OpDeleteMeta: ign}
 }
 
 // mergeTrees performs the walk of left and right to enqueue operations to the current Patch
@@ -306,7 +313,25 @@ func (p *BidirectionalPatch) merge(left, right *TreeNode) {
 	if solver == nil {
 		solver = p.matrix[opRight][opLeft]
 	}
+	if solver == nil {
+		// Unexpected combination: register a conflict rather than crash
+		log.Logger(p.ctx).Error("-- No solver for operations", zap.String("left", opLeft.String()), zap.String("right", opRight.String()), zap.String("path", left.GetPath()))
+		p.enqueueConflict(left, right, ConflictPathOperation)
+		return
+	}
 	solver(left, right)
+}
+
+// mergeMetaOperations solves a metadata changed on both sides: nothing to do if values are equal, otherwise the
+// right value wins. Metadata nodes have no modification time to pick the most recent change, and a conflict would
+// block the whole patch.
+func (p *BidirectionalPatch) mergeMetaOperations(left, right *TreeNode) {
+	if left.DataOperation.GetNode().GetEtag() == right.DataOperation.GetNode().GetEtag() {
+		log.Logger(p.ctx).Debug("-- Same metadata value on both sides, ignore", zap.String("path", left.GetPath()))
+		return
+	}
+	log.Logger(p.ctx).Info("-- Metadata changed on both sides with different values, right wins", zap.String("path", left.GetPath()))
+	p.enqueueRight(left, right)
 }
 
 // ignore does not enqueue anything to patch
