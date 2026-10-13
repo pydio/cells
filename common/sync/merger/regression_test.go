@@ -75,3 +75,24 @@ func TestDivergingMovesLoadTargetsFromEndpoints(t *testing.T) {
 		t.Fatalf("expected one surviving move, got %v", opsByTypeAndPath(bi))
 	}
 }
+
+func TestPruneKeepsMoveOutOfDeletedFolder(t *testing.T) {
+	bg := context.Background()
+	src, tgt := memory.NewMemDB(), memory.NewMemDB()
+	_ = tgt.CreateNode(bg, &tree.Node{Path: "/A", Uuid: "UA", Type: tree.NodeType_COLLECTION}, true)
+	_ = tgt.CreateNode(bg, &tree.Node{Path: "/A/x", Uuid: "UX", Etag: "E", Type: tree.NodeType_LEAF}, true)
+	_ = src.CreateNode(bg, &tree.Node{Path: "/C", Uuid: "UC", Type: tree.NodeType_COLLECTION}, true)
+	_ = src.CreateNode(bg, &tree.Node{Path: "/C/x", Uuid: "UX", Etag: "E", Type: tree.NodeType_LEAF}, true)
+	p := newTreePatch(src, tgt, PatchOptions{MoveDetection: true, NoRescan: true})
+	p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/A/x"}})
+	p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/A"}})
+	p.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/C/x"}})
+	p.Filter(bg)
+	ops := opsByTypeAndPath(p)
+	if _, ok := ops["MoveFile C/x"]; !ok {
+		t.Fatalf("expected the move to C/x to be kept, got %v", ops)
+	}
+	if _, ok := ops["Delete A"]; !ok || len(ops) != 2 {
+		t.Fatalf("expected the move and the delete of A only, got %v", ops)
+	}
+}

@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -360,8 +361,30 @@ func (t *TreePatch) prune(ctx context.Context) {
 		}
 		if n.PathOperation != nil && n.PathOperation.Type() == OpDelete && !n.IsLeaf() {
 			log.Logger(ctx).Debug("Delete folder found, remove all branches underneath!", n.ZapPath())
-			prune = true
+			// Keep moves out of the deleted folder: they are processed before deletes
+			outMoves := movesOutOf(n)
+			n.ClearChildren()
+			for _, op := range outMoves {
+				log.Logger(ctx).Debug("Keeping move out of deleted folder", zap.String("from", op.GetMoveOriginPath()), zap.String("to", op.GetRefPath()))
+				t.QueueOperation(op)
+			}
 		}
 		return
 	})
+}
+
+// movesOutOf collects the moves of nodes below folder toward a path outside of it
+func movesOutOf(folder *TreeNode) (moves []Operation) {
+	fp := strings.Trim(folder.GetPath(), "/")
+	for _, c := range folder.SortedChildren() {
+		c.Walk(func(n *TreeNode) bool {
+			if op := n.PathOperation; op != nil && (op.Type() == OpMoveFile || op.Type() == OpMoveFolder) {
+				if tp := strings.Trim(op.GetRefPath(), "/"); tp != fp && !strings.HasPrefix(tp, fp+"/") {
+					moves = append(moves, op)
+				}
+			}
+			return false
+		})
+	}
+	return
 }
