@@ -47,6 +47,7 @@ type AbstractPatch struct {
 
 	skipFilterToTarget bool
 	postFilter         []func() error
+	postProcess        []func() error
 
 	statusChan chan model.Status
 	doneChan   chan interface{}
@@ -215,6 +216,14 @@ func (b *AbstractPatch) PostFilter(f ...func() error) []func() error {
 		b.postFilter = append(b.postFilter, f...)
 	}
 	return b.postFilter
+}
+
+// PostProcess gets or sets a callback to be triggered once the patch is processed, before it is Done
+func (b *AbstractPatch) PostProcess(f ...func() error) []func() error {
+	if len(f) > 0 {
+		b.postProcess = append(b.postProcess, f...)
+	}
+	return b.postProcess
 }
 
 func (b *AbstractPatch) zapSource() zapcore.Field {

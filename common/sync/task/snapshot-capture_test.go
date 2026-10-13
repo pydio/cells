@@ -141,7 +141,8 @@ type biFixture struct {
 	statues chan model.Status
 }
 
-func newBiFixture(t *testing.T) *biFixture {
+// newBiFixture starts a bidirectional sync between MemDBs with bolt snapshots, optionally with watchers
+func newBiFixture(t *testing.T, withWatches ...bool) *biFixture {
 	restore := timings.ForTests()
 	t.Cleanup(restore)
 	left := memory.NewMemDB()
@@ -153,13 +154,13 @@ func newBiFixture(t *testing.T) *biFixture {
 		left:    left,
 		right:   right,
 		snaps:   &snapFactory{dir: t.TempDir(), snaps: map[string]*snapshot.BoltSnapshot{}},
-		done:    make(chan interface{}, 10),
+		done:    make(chan interface{}, 100),
 		statues: make(chan model.Status, 10000),
 	}
 	f.sync = NewSync(left, right, model.DirectionBi)
 	f.sync.SetSnapshotFactory(f.snaps)
 	f.sync.SetupEventsChan(f.statues, f.done, nil)
-	f.sync.Start(context.Background(), false)
+	f.sync.Start(context.Background(), len(withWatches) > 0 && withWatches[0])
 	t.Cleanup(func() {
 		// Sync.Shutdown is not called: it closes the echo locks channel without synchronizing with
 		// UnlockFile senders, a known race (RACE-04) that these tests are not about.
@@ -203,8 +204,7 @@ func leaf(p, etag string) *tree.Node {
 }
 
 // (a)
-func TestKnownBug_DeletedFileResurrected(t *testing.T) {
-	knownBug(t, "BUG-12/V5R-02", "snapshots are captured before applying the first patch and never after: a local delete is reverted")
+func TestDeletedFileNotResurrected(t *testing.T) {
 	f := newBiFixture(t)
 	ctx := context.Background()
 	_ = f.left.CreateNode(ctx, leaf("a", "E1"), false)
@@ -218,8 +218,7 @@ func TestKnownBug_DeletedFileResurrected(t *testing.T) {
 }
 
 // (c)
-func TestKnownBug_FailedFirstRunTransferNotRetried(t *testing.T) {
-	knownBug(t, "BUG-12", "the first run captures snapshots before applying the patch: a failed transfer is never retried")
+func TestFailedFirstRunTransferRetried(t *testing.T) {
 	f := newBiFixture(t)
 	ctx := context.Background()
 	_ = f.left.CreateNode(ctx, leaf("a", "E1"), false)
@@ -278,11 +277,36 @@ func TestSnapshotsUnchangedOnDryRun(t *testing.T) {
 }
 
 // (b) Change made on the source while a patch is being processed. With "capture after success"
-// (BUG-12 option B), the post-success capture may record it without syncing it: this test keeps
-// that trade-off visible. If the BUG-12 fix makes it fail, either capture only the paths touched
-// by the patch, or turn it into a knownBug documenting the accepted trade-off.
-func TestChangeDuringPatchIsSyncedByNextRun(t *testing.T) {
+// (BUG-12 option B), the post-success capture records it without syncing it. This is an accepted
+// trade-off (2026-10-13): realtime tasks get the change from their watchers, non-realtime tasks
+// only sync it when the file changes again. Fixing it means capturing only the paths touched by
+// the patch, or updating snapshots per operation (ARCH-01).
+func TestKnownBug_ChangeDuringPatchAbsorbedBySnapshot(t *testing.T) {
+	knownBug(t, "BUG-12 trade-off", "a change made while a patch is processing is absorbed by the post-success snapshot capture: without watcher, it is never synced")
 	f := newBiFixture(t)
+	f.changeDuringPatch(t)
+	f.run(t, false)
+	if !f.has(f.right, "d") {
+		t.Fatal("d, created while a patch was processing, should be synced by the next run")
+	}
+}
+
+// The same change is synced when the task watches its endpoints: the watcher event becomes a patch of its own.
+func TestChangeDuringPatchSyncedByWatcher(t *testing.T) {
+	f := newBiFixture(t, true)
+	f.changeDuringPatch(t)
+	deadline := time.Now().Add(10 * time.Second)
+	for !f.has(f.right, "d") {
+		if time.Now().After(deadline) {
+			t.Fatal("d, created while a patch was processing, should be synced from its watcher event")
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
+// changeDuringPatch syncs a, then creates d on the left while the transfer of c is processing.
+func (f *biFixture) changeDuringPatch(t *testing.T) {
+	t.Helper()
 	ctx := context.Background()
 	_ = f.left.CreateNode(ctx, leaf("a", "E1"), false)
 	f.run(t, false)
@@ -304,9 +328,4 @@ func TestChangeDuringPatchIsSyncedByNextRun(t *testing.T) {
 	_ = f.left.CreateNode(ctx, leaf("d", "E4"), false) // changed while the patch is processing
 	close(release)
 	<-result
-
-	f.run(t, false)
-	if !f.has(f.right, "d") {
-		t.Fatal("d, created while a patch was processing, should be synced by the next run")
-	}
 }

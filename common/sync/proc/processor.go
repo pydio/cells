@@ -82,6 +82,12 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	defer func() {
 		if interrupted.Load() {
 			patch.Status(model.NewProcessingStatus("Patch interrupted by user").SetError(errors.New("patch interrupted by user")))
+		} else {
+			for _, f := range patch.PostProcess() {
+				if e := f(); e != nil {
+					_ = patch.SetPatchError(e)
+				}
+			}
 		}
 		patch.Done(patch)
 	}()

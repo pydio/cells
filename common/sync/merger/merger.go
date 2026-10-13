@@ -237,6 +237,9 @@ type Patch interface {
 	SkipFilterToTarget(bool)
 	// PostFilter gets or sets a callback to be triggered after filtering
 	PostFilter(...func() error) []func() error
+	// PostProcess gets or sets a callback to be triggered once the patch is processed, before it is Done,
+	// unless processing is interrupted. A callback error is set as the patch error.
+	PostProcess(...func() error) []func() error
 	// Validate browses target to verify all changes are correctly reflected (and indexed)
 	Validate(ctx context.Context) error
 

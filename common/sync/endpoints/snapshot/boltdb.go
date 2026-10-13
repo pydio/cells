@@ -32,6 +32,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -100,7 +101,7 @@ type BoltSnapshot struct {
 	ctx        context.Context
 	db         *bbolt.DB
 	name       string
-	empty      bool
+	empty      atomic.Bool // set by Capture, read concurrently by later runs
 	folderPath string
 
 	createsSession     map[string]tree.N
@@ -135,7 +136,7 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 	s.folderPath = folderOrFullPath
 	p := filepath.Join(s.folderPath, openName)
 	if _, err := os.Stat(p); err != nil {
-		s.empty = true
+		s.empty.Store(true)
 	}
 	db, err := bbolt.Open(p, 0644, options)
 	if err != nil {
@@ -410,7 +411,7 @@ func (s *BoltSnapshot) MoveNode(ctx context.Context, oldPath string, newPath str
 }
 
 func (s *BoltSnapshot) IsEmpty() bool {
-	return s.empty
+	return s.empty.Load()
 }
 
 // Close flushes pending auto-batched writes, then closes the DB. Calling it again does nothing.
@@ -501,7 +502,7 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 		}
 		return tx.DeleteBucket(captureBucketName)
 	}); e == nil {
-		s.empty = false
+		s.empty.Store(false)
 	}
 	return e
 }

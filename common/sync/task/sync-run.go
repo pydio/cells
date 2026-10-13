@@ -203,6 +203,10 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 		}
 	}
 
+	if useSnapshots || captureSnapshots {
+		s.captureAfterSuccess(ctx, bb, leftSnap, rightSnap, roots, captureSnapshots)
+	}
+
 	if useSnapshots {
 
 		log.Logger(ctx).Info("Computing patches from Snapshots")
@@ -238,26 +242,50 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 
 		}
 
-		if captureSnapshots {
-			log.Logger(ctx).Info("Capturing first snapshots now")
-			leftSnap.Capture(ctx, source, roots...)
-			rightSnap.Capture(ctx, targetAsSource, roots...)
-			log.Logger(ctx).Info("Hooking Snapshots to clients")
-			if updater, ok := source.(model.SnapshotUpdater); ok {
-				if pst, ok2 := leftSnap.(model.PathSyncTarget); ok2 {
-					updater.SetUpdateSnapshot(pst)
-				}
-			}
-			if updater, ok := targetAsSource.(model.SnapshotUpdater); ok {
-				if pst, ok2 := rightSnap.(model.PathSyncTarget); ok2 {
-					updater.SetUpdateSnapshot(pst)
-				}
-			}
-		}
-
 	}
 
 	return nil
+}
+
+// captureAfterSuccess (re-)captures both snapshots once the patch is processed without errors (BUG-12 / V5R-02):
+// snapshots must only record changes applied on both sides, so that the next run retries failed operations, and
+// they must be refreshed after each run, otherwise stale snapshots revert local changes (e.g. resurrect deleted
+// files). Dry-runs are never processed, interrupted or failed patches do not capture.
+// Known trade-off: a change made on an endpoint while the patch is processing is absorbed by the capture without
+// being synced (see TestKnownBug_ChangeDuringPatchAbsorbedBySnapshot).
+func (s *Sync) captureAfterSuccess(ctx context.Context, bb *merger.BidirectionalPatch, leftSnap, rightSnap model.Snapshoter, roots []string, hookUpdaters bool) {
+	source, _ := model.AsPathSyncSource(s.Source)
+	targetAsSource, _ := model.AsPathSyncSource(s.Target)
+	// The patch is processed after Run returns
+	ctx = context.WithoutCancel(ctx)
+	bb.PostProcess(func() error {
+		if _, has := bb.HasErrors(); has {
+			log.Logger(ctx).Info("Patch has errors, keeping previous snapshots")
+			return nil
+		}
+		log.Logger(ctx).Info("Capturing snapshots after successful patch")
+		if e := leftSnap.Capture(ctx, source, roots...); e != nil {
+			return errors.Wrap(e, "cannot capture left snapshot")
+		}
+		if e := rightSnap.Capture(ctx, targetAsSource, roots...); e != nil {
+			return errors.Wrap(e, "cannot capture right snapshot")
+		}
+		if !hookUpdaters {
+			return nil
+		}
+		log.Logger(ctx).Info("Hooking Snapshots to clients")
+		if updater, ok := source.(model.SnapshotUpdater); ok {
+			if pst, ok2 := leftSnap.(model.PathSyncTarget); ok2 {
+				updater.SetUpdateSnapshot(pst)
+			}
+		}
+		if updater, ok := targetAsSource.(model.SnapshotUpdater); ok {
+			if pst, ok2 := rightSnap.(model.PathSyncTarget); ok2 {
+				updater.SetUpdateSnapshot(pst)
+			}
+		}
+		return nil
+	})
 }
 
 func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*model.EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
@@ -296,13 +324,10 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 		}
 		patches[r] = patch
 	}
-	// NOTE: snap.Capture is NOT called here anymore. It will be called after patch operations
-	// are successfully applied to the target. This prevents capturing files into the snapshot
-	// before they are actually transferred, which could cause them to be permanently skipped
-	// if they had temporary ETags during diff.Compute but real ETags when Capture runs.
-	// if e := snap.Capture(ctx, source, roots...); e != nil {
-	// 	log.Logger(ctx).Error("Error while capturing snapshot!", zap.Error(e))
-	// }
+	// NOTE: snap.Capture is NOT called here: it is called once the patch is successfully applied (see
+	// captureAfterSuccess). This prevents capturing files into the snapshot before they are actually
+	// transferred, which could cause them to be permanently skipped if they had temporary ETags during
+	// diff.Compute but real ETags when Capture runs.
 	updatable, ok1 := snap.(model.PathSyncTarget)
 	if ok1 && ok2 {
 		snapUpdater.SetUpdateSnapshot(updatable)
