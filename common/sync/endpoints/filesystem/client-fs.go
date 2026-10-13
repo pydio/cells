@@ -31,7 +31,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -449,17 +448,13 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 	oldPath = c.denormalize(oldPath)
 	newPath = c.denormalize(newPath)
 
-	stat, e := c.FS.Stat(oldPath)
-	if !os.IsNotExist(e) {
-		typeOfMem := reflect.TypeOf(afero.NewMemMapFs())
-		typeOfBasePathFs := reflect.TypeOf(&afero.BasePathFs{})
-		typeOfFs := reflect.TypeOf(c.FS)
-		if stat.IsDir() && (typeOfFs == typeOfMem || typeOfFs == typeOfBasePathFs) {
-			c.moveRecursively(ctx, oldPath, newPath)
-		} else {
-			err = c.FS.Rename(oldPath, newPath)
-		}
+	if _, e := c.FS.Stat(oldPath); os.IsNotExist(e) {
+		return errors.WithMessage(errors.NodeNotFound, "cannot move missing "+oldInitial)
+	} else if e != nil {
+		return e
 	}
+	// Rename moves folders with their content, on OS and in-memory filesystems
+	err = c.FS.Rename(oldPath, newPath)
 	if err == nil && c.updateSnapshot != nil {
 		log.Logger(ctx).Debug("[FS] Update Snapshot - Move from " + oldPath + " to " + newPath)
 		c.updateSnapshot.MoveNode(ctx, oldInitial, newInitial)
@@ -535,36 +530,6 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 func (c *FSClient) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
 
 	return c.FS.Open(c.denormalize(path))
-
-}
-
-// Internal function expects already denormalized form
-func (c *FSClient) moveRecursively(ctx context.Context, oldPath string, newPath string) (err error) {
-
-	// Some fs require moving resources recursively
-	moves := make(map[int]string)
-	indexes := make([]int, 0)
-	i := 0
-	afero.Walk(c.FS, oldPath, func(wPath string, info os.FileInfo, err error) error {
-		//newWPath := newPath + strings.TrimPrefix(wPath, oldPath)
-		indexes = append(indexes, i)
-		moves[i] = wPath
-		i++
-		return nil
-	})
-	total := len(indexes)
-	for key := range indexes {
-		//c.FS.Rename(moveK, moveV)
-		key = total - key
-		wPath := moves[key]
-		if len(wPath) == 0 {
-			continue
-		}
-		msg := fmt.Sprintf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-		log.Logger(ctx).Debug(msg)
-		c.FS.Rename(wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-	}
-	return c.FS.Rename(oldPath, newPath)
 
 }
 
