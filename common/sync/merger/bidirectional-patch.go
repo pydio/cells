@@ -416,8 +416,9 @@ func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
 	if left.OpMoveTarget.GetPath() == right.OpMoveTarget.GetPath() {
 		log.Logger(p.ctx).Debug("-- Moved toward the same path, ignore!")
 	} else {
+		// Load both move targets from the endpoints where the moves happened (patches sources)
 		l, err1 := left.PathOperation.Source().LoadNode(p.ctx, left.OpMoveTarget.GetPath())
-		r, err2 := right.PathOperation.Target().LoadNode(p.ctx, right.OpMoveTarget.GetPath())
+		r, err2 := right.PathOperation.Source().LoadNode(p.ctx, right.OpMoveTarget.GetPath())
 		if err1 != nil {
 			p.unexpected = append(p.unexpected, err1)
 		} else if err2 != nil {

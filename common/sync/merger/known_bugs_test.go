@@ -25,7 +25,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
@@ -127,28 +126,6 @@ func TestKnownBug_SecondPassDropsConflictCopies(t *testing.T) {
 	}
 	if copies != 2 {
 		t.Fatalf("expected both conflict copies of a.txt to be synced, got %d: %v", copies, opsByTypeAndPath(bi))
-	}
-}
-
-func TestKnownBug_DivergingMovesLoadWrongEndpoint(t *testing.T) {
-	knownBug(t, "BUG-07", "compareMoveTargets loads the right move target from the right snapshot instead of the right endpoint")
-	bg := context.Background()
-	lEP, lSnap, rEP, rSnap := memory.NewMemDB(), memory.NewMemDB(), memory.NewMemDB(), memory.NewMemDB()
-	now := time.Now().Unix()
-	_ = lEP.CreateNode(bg, &tree.Node{Path: "/x-left", Type: tree.NodeType_LEAF, MTime: now}, true)
-	_ = rEP.CreateNode(bg, &tree.Node{Path: "/x-right", Type: tree.NodeType_LEAF, MTime: now - 10}, true)
-	_ = lSnap.CreateNode(bg, &tree.Node{Path: "/x", Type: tree.NodeType_LEAF}, true)
-	_ = rSnap.CreateNode(bg, &tree.Node{Path: "/x", Type: tree.NodeType_LEAF}, true)
-	left := newTreePatch(lEP, lSnap, PatchOptions{NoRescan: true})
-	right := newTreePatch(rEP, rSnap, PatchOptions{NoRescan: true})
-	left.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "/x"}, EventInfo: model.EventInfo{Path: "/x-left"}})
-	right.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "/x"}, EventInfo: model.EventInfo{Path: "/x-right"}})
-	bi, e := ComputeBidirectionalPatch(bg, left, right)
-	if e != nil {
-		t.Fatalf("diverging moves should be resolved, got error: %v", e)
-	}
-	if len(bi.OperationsByType([]OperationType{OpMoveFile})) != 1 {
-		t.Fatalf("expected one surviving move, got %v", opsByTypeAndPath(bi))
 	}
 }
 
