@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -180,6 +181,83 @@ func TestCreatedThenDeletedNodeIgnored(t *testing.T) {
 		p.Filter(bg)
 		if ops := opsByTypeAndPath(p); len(ops) != 0 {
 			t.Fatalf("%v: expected no operation, got %v", typ, ops)
+		}
+	}
+}
+
+// BUG-40: the merge must not depend on which side an operation comes from. A local edit (or create) wins over a
+// delete on the other side, whatever the side.
+func TestMergeEditVsDeleteBothOrientations(t *testing.T) {
+	mk := func(o OperationType) *patchOperation {
+		n := &tree.Node{Path: "/x", Type: tree.NodeType_LEAF, Etag: "e"}
+		if o == OpCreateFolder {
+			n.Type = tree.NodeType_COLLECTION
+		}
+		return &patchOperation{OpType: o, Node: n, EventInfo: model.EventInfo{Path: "/x"}}
+	}
+	for _, kept := range []OperationType{OpUpdateFile, OpCreateFile, OpCreateFolder} {
+		for _, keptOnLeft := range []bool{true, false} {
+			left, right, _, _ := bidiInputs()
+			want := kept.String() + " right"
+			if keptOnLeft {
+				left.Enqueue(mk(kept))
+				right.Enqueue(mk(OpDelete))
+			} else {
+				left.Enqueue(mk(OpDelete))
+				right.Enqueue(mk(kept))
+				want = kept.String() + " left"
+			}
+			bi, e := ComputeBidirectionalPatch(context.Background(), left, right)
+			if e != nil {
+				t.Fatal(e)
+			}
+			var got []string
+			for _, op := range bi.OperationsByType(nil) {
+				dir := "right"
+				if op.(*patchOperation).Dir == OperationDirLeft {
+					dir = "left"
+				}
+				got = append(got, op.Type().String()+" "+dir)
+			}
+			if strings.Join(got, ",") != want {
+				t.Errorf("%v on left: %v, delete on the other side: got %v, want %v", keptOnLeft, kept, got, want)
+			}
+		}
+	}
+}
+
+// The merge matrix must be explicit and mirror-symmetric: the solver for (b, a) is the solver for (a, b) with
+// enqueueLeft and enqueueRight swapped.
+func TestMergeMatrixIsSymmetric(t *testing.T) {
+	p := NewBidirectionalPatch(context.Background(), memory.NewMemDB(), memory.NewMemDB())
+	ptr := func(s Solver) uintptr {
+		if s == nil {
+			return 0
+		}
+		return reflect.ValueOf(s).Pointer()
+	}
+	eql, eqr := ptr(p.enqueueLeft), ptr(p.enqueueRight)
+	mirror := func(v uintptr) uintptr {
+		switch v {
+		case eql:
+			return eqr
+		case eqr:
+			return eql
+		}
+		return v
+	}
+	files := []OperationType{OpNone, OpCreateFolder, OpMoveFile, OpMoveFolder, OpDelete, OpCreateFile, OpUpdateFile, OpMoveTarget}
+	metas := []OperationType{OpNone, OpCreateMeta, OpUpdateMeta, OpDeleteMeta}
+	for _, group := range [][]OperationType{files, metas} {
+		for _, a := range group {
+			for _, b := range group {
+				ab, ba := ptr(p.matrix[a][b]), ptr(p.matrix[b][a])
+				if ab == 0 {
+					t.Errorf("no solver for %v x %v", a, b)
+				} else if ab != mirror(ba) {
+					t.Errorf("solver for %v x %v is not the mirror of %v x %v", a, b, b, a)
+				}
+			}
 		}
 	}
 }

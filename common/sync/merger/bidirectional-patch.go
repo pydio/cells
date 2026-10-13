@@ -224,18 +224,19 @@ func (p *BidirectionalPatch) initMatrix() {
 	cnT := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictNodeType) }
 	cnP := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictPathOperation) }
 	mgm := p.mergeMetaOperations
+	// Rows are left operations, columns right operations. Every cell is explicit and the matrix is mirror-symmetric
+	// (eql and eqr swapped): a reverse lookup would apply asymmetric solvers to the wrong side (BUG-40).
 	p.matrix = map[OperationType]map[OperationType]Solver{
 		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
-		OpCreateFolder: {OpNone: nil, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
-		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: cmt, OpMoveFolder: cnT, OpDelete: rst, OpCreateFile: cnP, OpUpdateFile: eqb, OpMoveTarget: eqb},
-		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: cmt, OpDelete: rst, OpCreateFile: cnT, OpUpdateFile: cnT, OpMoveTarget: eqb},
-		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
-		OpCreateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
-		OpUpdateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: mrg, OpMoveTarget: eqb},
-		OpMoveTarget:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: nil, OpMoveTarget: cms},
+		OpCreateFolder: {OpNone: eqb, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
+		OpMoveFile:     {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cmt, OpMoveFolder: cnT, OpDelete: rst, OpCreateFile: cnP, OpUpdateFile: eqb, OpMoveTarget: eqb},
+		OpMoveFolder:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cnT, OpMoveFolder: cmt, OpDelete: rst, OpCreateFile: cnT, OpUpdateFile: cnT, OpMoveTarget: eqb},
+		OpDelete:       {OpNone: eqb, OpCreateFolder: eqr, OpMoveFile: rst, OpMoveFolder: rst, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
+		OpCreateFile:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cnP, OpMoveFolder: cnT, OpDelete: eql, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
+		OpUpdateFile:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: eqb, OpMoveFolder: cnT, OpDelete: eql, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
+		OpMoveTarget:   {OpNone: eqb, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: cms},
 	}
-	// Metadata operations: all directions are explicit, merge() reverse lookup would apply the wrong side
-	// of asymmetric solvers. A value set on one side wins over a delete on the other side.
+	// Metadata operations: a value set on one side wins over a delete on the other side.
 	p.matrix[OpNone][OpCreateMeta], p.matrix[OpNone][OpUpdateMeta], p.matrix[OpNone][OpDeleteMeta] = eqb, eqb, eqb
 	p.matrix[OpCreateMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: mgm, OpUpdateMeta: mgm, OpDeleteMeta: eql}
 	p.matrix[OpUpdateMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: mgm, OpUpdateMeta: mgm, OpDeleteMeta: eql}
@@ -310,9 +311,6 @@ func (p *BidirectionalPatch) merge(left, right *TreeNode) {
 		opRight = OpMoveTarget
 	}
 	solver := p.matrix[opLeft][opRight]
-	if solver == nil {
-		solver = p.matrix[opRight][opLeft]
-	}
 	if solver == nil {
 		// Unexpected combination: register a conflict rather than crash
 		log.Logger(p.ctx).Error("-- No solver for operations", zap.String("left", opLeft.String()), zap.String("right", opRight.String()), zap.String("path", left.GetPath()))
