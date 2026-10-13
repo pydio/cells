@@ -155,7 +155,7 @@ func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...boo
 	db.indexLock.RLock()
 	defer db.indexLock.RUnlock()
 	if n, ok := db.pathIndex[normalize(path)]; ok {
-		return n, nil
+		return cloneNode(n), nil
 	} else {
 		return nil, errors.WithMessagef(errors.NodeNotFound, "node not found in memdb %s", path)
 	}
@@ -163,6 +163,8 @@ func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...boo
 }
 
 func (db *MemDB) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
+	// Store a copy, like a real storage: the caller may keep modifying its node
+	node = cloneNode(node)
 	db.indexLock.Lock()
 	db.pathIndex[normalize(node.GetPath())] = node
 	db.indexLock.Unlock()
@@ -275,7 +277,7 @@ func (db *MemDB) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 	sort.Strings(nn)
 	nodes := make([]tree.N, 0, len(nn))
 	for _, p := range nn {
-		nodes = append(nodes, db.pathIndex[p])
+		nodes = append(nodes, cloneNode(db.pathIndex[p]))
 	}
 	db.indexLock.RUnlock()
 

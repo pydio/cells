@@ -21,6 +21,7 @@
 package memory
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -173,4 +174,31 @@ func TestMemDBWatchContract(t *testing.T) {
 			So(db.CreateNode(memTestCtx, &tree.Node{Path: "/i", Type: tree.NodeType_COLLECTION}, false), ShouldBeNil)
 		}
 	})
+}
+
+// MemDB must not share nodes with its callers, like a real storage: patches modify their
+// operation nodes (e.g. UpdateRefPath) while other goroutines read the endpoint.
+func TestMemDBDoesNotShareNodes(t *testing.T) {
+	ctx := context.Background()
+	db := NewMemDB()
+	n := &tree.Node{Path: "a.txt", Type: tree.NodeType_LEAF, Etag: "e"}
+	if e := db.CreateNode(ctx, n, false); e != nil {
+		t.Fatal(e)
+	}
+	n.SetPath("changed-by-caller")
+	loaded, e := db.LoadNode(ctx, "a.txt")
+	if e != nil || loaded.GetPath() != "a.txt" {
+		t.Fatalf("a node modified after CreateNode should not change the stored node (got %v, %v)", loaded, e)
+	}
+	loaded.SetPath("changed-after-load")
+	_ = db.Walk(ctx, func(p string, w tree.N, err error) error {
+		if w.IsLeaf() && w.GetPath() != "a.txt" {
+			t.Errorf("a node modified after LoadNode should not change the stored node, got %s", w.GetPath())
+		}
+		w.SetPath("changed-after-walk")
+		return nil
+	}, "/", true)
+	if again, _ := db.LoadNode(ctx, "a.txt"); again == nil || again.GetPath() != "a.txt" {
+		t.Fatalf("a node modified after Walk should not change the stored node, got %v", again)
+	}
 }
