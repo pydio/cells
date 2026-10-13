@@ -149,8 +149,9 @@ func (c *Client) getFullPath(path string) string {
 	}
 }
 
-// isUnder tells if an object key is the object at fullPath itself or inside the folder at fullPath:
-// listing by fullPath as a bare prefix also returns siblings like fullPath.bak or fullPath-2020/x.
+// isUnder tells if an object key is the object at fullPath itself or inside the folder at fullPath
+// (fullPath without trailing slash): listing by fullPath as a bare prefix also returns siblings
+// like fullPath.bak or fullPath-2020/x.
 func isUnder(key, fullPath string) bool {
 	return fullPath == "" || key == fullPath || strings.HasPrefix(key, fullPath+"/")
 }
@@ -194,7 +195,8 @@ func (c *Client) CreateNode(ctx context.Context, node tree.N, updateIfExists boo
 }
 
 func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
-	path = c.getFullPath(path)
+	// No trailing slash: a folder is the objects under path + "/"
+	path = strings.TrimRight(c.getFullPath(path), "/")
 
 	ctx2, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -217,8 +219,9 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 
 	doneChan := make(chan struct{})
 	defer close(doneChan)
-	oldPath = c.getFullPath(oldPath)
-	newPath = c.getFullPath(newPath)
+	// No trailing slash: a folder is the objects under path + "/"
+	oldPath = strings.TrimRight(c.getFullPath(oldPath), "/")
+	newPath = strings.TrimRight(c.getFullPath(newPath), "/")
 
 	ctx2, cancel := context.WithCancel(ctx)
 	defer cancel()

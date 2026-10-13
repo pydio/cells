@@ -116,6 +116,18 @@ func TestDeleteMoveByPathNotByPrefix(t *testing.T) {
 		So(st.keys(), ShouldResemble, siblings)
 	})
 
+	Convey("DeleteNode on a folder given with a trailing slash deletes its content and its marker", t, func() {
+		c, st := newPrefixClient("", append([]string{"x/", "x/.pydio", "x/a", "x/sub/b"}, siblings...)...)
+		So(c.DeleteNode(context.Background(), "x/"), ShouldBeNil)
+		So(st.keys(), ShouldResemble, siblings)
+	})
+
+	Convey("MoveNode on a folder given with trailing slashes moves its content only", t, func() {
+		c, st := newPrefixClient("", "foo/.pydio", "foo/a", "foobar")
+		So(c.MoveNode(context.Background(), "foo/", "baz/"), ShouldBeNil)
+		So(st.keys(), ShouldResemble, []string{"baz/.pydio", "baz/a", "foobar"})
+	})
+
 	Convey("DeleteNode below a root path does not touch siblings of the root path", t, func() {
 		c, st := newPrefixClient("root", "root/x", "root/x.bak", "rootbis/x")
 		So(c.DeleteNode(context.Background(), "x"), ShouldBeNil)
