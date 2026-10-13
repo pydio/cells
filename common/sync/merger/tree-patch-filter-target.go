@@ -62,6 +62,18 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 		check := n[0]
 		return node.GetEtag() == check.GetEtag()
 	}
+	// Check that a node is known to be missing: target cannot be read or load errors do not prove it
+	missing := func(target model.PathSyncTarget, path string) bool {
+		src := sources[target]
+		if src == nil {
+			return false
+		}
+		node, err := src.LoadNode(ctx, path)
+		if err != nil {
+			return model.IsNotFound(err)
+		}
+		return node == nil
+	}
 
 	stats := t.Stats()
 	var total, idx, crtPercent int
@@ -92,7 +104,7 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 					n.PathOperation = nil
 				}
 			} else if n.PathOperation.Type() == OpDelete {
-				if !exists(n.PathOperation.Target(), n.ProcessedPath(false)) {
+				if missing(n.PathOperation.Target(), n.ProcessedPath(false)) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (target node is not there)", zap.String("path", n.ProcessedPath(false)))
 					n.PathOperation = nil
 				}

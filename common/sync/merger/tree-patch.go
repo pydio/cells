@@ -186,8 +186,13 @@ func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model
 				}
 			}
 		}()
-		inMemory, _ := cacheProvider.GetCachedBranches(ctx, branches...)
+		inMemory, err := cacheProvider.GetCachedBranches(ctx, branches...)
 		close(done)
+		if err != nil {
+			// Do not use a partial or missing cache: callers fall back to the endpoint itself
+			log.Logger(ctx).Warn("[BranchCache] Cannot load branches in cache, using endpoint", zap.String("endpoint", endpoint.GetEndpointInfo().URI), zap.Error(err))
+			return nil, false
+		}
 		return inMemory, true
 	}
 	return nil, false
