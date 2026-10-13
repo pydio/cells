@@ -151,3 +151,35 @@ func TestMergeMetadataOperations(t *testing.T) {
 		})
 	}
 }
+
+func TestUnloadableCreateKeepsDelete(t *testing.T) {
+	bg := context.Background()
+	src, tgt := memory.NewMemDB(), memory.NewMemDB()
+	_ = tgt.CreateNode(bg, &tree.Node{Path: "/a", Uuid: "U", Etag: "E", Type: tree.NodeType_LEAF}, true)
+	p := newTreePatch(src, tgt, PatchOptions{MoveDetection: true, NoRescan: true})
+	p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/a"}})
+	p.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/a"}})
+	p.Filter(bg)
+	if _, ok := opsByTypeAndPath(p)["Delete a"]; !ok {
+		t.Fatalf("expected Delete a, got %v", opsByTypeAndPath(p))
+	}
+}
+
+// A file created then deleted in the same batch, never synced to the target: both operations are dropped.
+func TestCreatedThenDeletedNodeIgnored(t *testing.T) {
+	bg := context.Background()
+	src, tgt := memory.NewMemDB(), memory.NewMemDB()
+	for _, typ := range []tree.NodeType{tree.NodeType_LEAF, tree.NodeType_COLLECTION} {
+		p := newTreePatch(src, tgt, PatchOptions{MoveDetection: true, NoRescan: true})
+		p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/tmp"}})
+		if typ == tree.NodeType_LEAF {
+			p.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/tmp"}})
+		} else {
+			p.Enqueue(&patchOperation{OpType: OpCreateFolder, EventInfo: model.EventInfo{Path: "/tmp"}, Node: &tree.Node{Path: "/tmp", Type: typ}})
+		}
+		p.Filter(bg)
+		if ops := opsByTypeAndPath(p); len(ops) != 0 {
+			t.Fatalf("%v: expected no operation, got %v", typ, ops)
+		}
+	}
+}

@@ -144,20 +144,6 @@ func TestKnownBug_ValidateIsNoopForCachedTargets(t *testing.T) {
 	}
 }
 
-func TestKnownBug_UnloadableCreateDropsDelete(t *testing.T) {
-	knownBug(t, "BUG-16", "a create that cannot be loaded also removes the delete of the same path")
-	bg := context.Background()
-	src, tgt := memory.NewMemDB(), memory.NewMemDB()
-	_ = tgt.CreateNode(bg, &tree.Node{Path: "/a", Uuid: "U", Etag: "E", Type: tree.NodeType_LEAF}, true)
-	p := newTreePatch(src, tgt, PatchOptions{MoveDetection: true, NoRescan: true})
-	p.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/a"}})
-	p.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/a"}})
-	p.Filter(bg)
-	if _, ok := opsByTypeAndPath(p)["Delete a"]; !ok {
-		t.Fatalf("expected Delete a, got %v", opsByTypeAndPath(p))
-	}
-}
-
 func TestKnownBug_RescanDuplicatesDetectedMove(t *testing.T) {
 	knownBug(t, "BUG-17", "the folder rescan re-adds a create for a file already detected as moved into the new folder")
 	bg := context.Background()

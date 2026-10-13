@@ -104,8 +104,9 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 	for _, createEvent := range t.createFiles {
 		node, err := createEvent.NodeFromSource(ctx)
 		if err != nil {
+			// Only drop the create: a delete of the same path is still valid if the node is in the target
+			// (otherwise detectFileMoves drops it)
 			delete(t.createFiles, createEvent.GetRefPath())
-			delete(t.deletes, createEvent.GetRefPath())
 			continue
 		}
 		if node.GetUuid() == "" && !model.IsFolderHiddenFile(node.GetPath()) {
@@ -130,8 +131,8 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 	}
 	for _, createOp := range t.createFolders {
 		if _, err := createOp.NodeFromSource(ctx); err != nil {
+			// Only drop the create, see filterCreateFiles
 			delete(t.createFolders, createOp.GetRefPath())
-			delete(t.deletes, createOp.GetRefPath())
 			continue
 		}
 		if refresher != nil && existingFolders != nil {
