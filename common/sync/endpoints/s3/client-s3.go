@@ -718,13 +718,17 @@ func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (u
 	if err == nil {
 		defer object.Close()
 		bb, er := io.ReadAll(object)
-		if er == nil {
-			uid = string(bb)
-			if len(strings.TrimSpace(uid)) > 0 {
-				log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
-				return
-			}
+		if er != nil {
+			return "", models.ObjectInfo{}, er
 		}
+		uid = string(bb)
+		if len(strings.TrimSpace(uid)) > 0 {
+			log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
+			return
+		}
+	} else if !isMissingObject(err) {
+		// Do not replace the folder identity on a transient error (network, permissions, server error)
+		return "", models.ObjectInfo{}, err
 	}
 
 	// Readonly mode, return a stable UUID based on folderPath

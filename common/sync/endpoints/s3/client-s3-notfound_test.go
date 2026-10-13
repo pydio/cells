@@ -22,11 +22,13 @@ package s3
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	minio "github.com/minio/minio-go/v7"
 
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/model"
 )
 
@@ -61,5 +63,32 @@ func TestLoadNodeNotFound(t *testing.T) {
 		if e == nil || model.IsNotFound(e) != tc.notFound {
 			t.Errorf("StatObject error %v: LoadNode returned %v, not found expected: %v", tc.err, e, tc.notFound)
 		}
+	}
+}
+
+func TestFolderIdNotReplacedOnReadError(t *testing.T) {
+	ctx := context.Background()
+	c, st := newPrefixClient("", "dir/.pydio", "dir/a")
+	// newPrefixClient stores each key as its own content: the folder id of dir is "dir/.pydio"
+	st.getErrs = map[string]error{"dir/.pydio": minio.ErrorResponse{Code: "SlowDown", StatusCode: 503}}
+	if _, e := c.LoadNode(ctx, "dir"); e == nil {
+		t.Fatal("a read error on the folder id should be reported")
+	}
+	st.getErrs = nil
+	n, e := c.LoadNode(ctx, "dir")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if n.GetUuid() != "dir/.pydio" {
+		t.Fatalf("the folder id must not be replaced after a read error, got %s", n.GetUuid())
+	}
+
+	// A missing folder id is created while walking
+	c, st = newPrefixClient("", "other/a")
+	if e := c.Walk(ctx, func(string, tree.N, error) error { return nil }, "", true); e != nil {
+		t.Fatal(e)
+	}
+	if keys := strings.Join(st.keys(), ","); keys != "other/.pydio,other/a" {
+		t.Fatalf("a missing folder id should be created, got %s", keys)
 	}
 }
