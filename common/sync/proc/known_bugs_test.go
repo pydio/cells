@@ -114,31 +114,6 @@ func kbProgress() chan int64 {
 	return c
 }
 
-func TestKnownBug_FailedUploadReportedAsSuccess(t *testing.T) {
-	knownBug(t, "BUG-01", "S3/Cells writers: writeErr races with the closed writeDone, failed uploads are reported as success")
-	pr := NewProcessor(context.Background())
-	for i := 0; i < 200; i++ {
-		_, op := kbCreateFileOp(&kbSource{memory.NewMemDB()}, &kbS3Target{MemDB: memory.NewMemDB()})
-		pg := kbProgress()
-		e := pr.processCreateFile(context.Background(), op, "id", pg)
-		close(pg)
-		if e == nil {
-			t.Fatalf("iteration %d: failed upload reported as success", i)
-		}
-	}
-}
-
-func TestKnownBug_WriterCloseErrorIgnored(t *testing.T) {
-	knownBug(t, "BUG-01", "FS writer: the commit error returned by writer.Close() is ignored")
-	pr := NewProcessor(context.Background())
-	_, op := kbCreateFileOp(&kbSource{memory.NewMemDB()}, &kbFSTarget{MemDB: memory.NewMemDB(), failures: -1})
-	pg := kbProgress()
-	defer close(pg)
-	if e := pr.processCreateFile(context.Background(), op, "id", pg); e == nil {
-		t.Fatal("writer.Close() error should be returned")
-	}
-}
-
 func TestKnownBug_RetriedTransferKeepsError(t *testing.T) {
 	knownBug(t, "BUG-13", "a transfer failing once then succeeding on retry keeps its error: the whole patch is flagged as failed")
 	defer timings.ForTests()()

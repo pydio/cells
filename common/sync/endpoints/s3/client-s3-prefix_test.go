@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"sort"
 	"strings"
 	"testing"
@@ -36,11 +37,20 @@ import (
 )
 
 // prefixStorage is the objects mock with a listing filtered by prefix and sorted by key, like
-// a real S3 server (the mock lists the whole bucket), and optional StatObject errors by key.
+// a real S3 server (the mock lists the whole bucket), and optional StatObject / PutObject errors.
 type prefixStorage struct {
 	*mock.Client
 	listErr  error
 	statErrs map[string]error
+	putErr   error
+}
+
+func (p *prefixStorage) PutObject(ctx context.Context, bucket, key string, r io.Reader, size int64, opts models.PutMeta) (models.ObjectInfo, error) {
+	if p.putErr != nil {
+		_, _ = io.CopyN(io.Discard, r, size) // the body was sent, the server answered an error
+		return models.ObjectInfo{}, p.putErr
+	}
+	return p.Client.PutObject(ctx, bucket, key, r, size, opts)
 }
 
 func (p *prefixStorage) StatObject(ctx context.Context, bucket, key string, opts models.ReadMeta) (models.ObjectInfo, error) {
