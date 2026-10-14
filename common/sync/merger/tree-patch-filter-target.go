@@ -109,7 +109,7 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 					n.PathOperation = nil
 				}
 			} else if n.PathOperation.IsTypeMove() {
-				// Asynchronous targets (Cells) echo our own moves back without echo lock: drop moves already applied
+				// Echoes of our own moves on asynchronous targets (Cells) are dropped by client UUID; if one gets through, drop it here
 				op := n.PathOperation
 				if missing(op.Target(), op.GetMoveOriginPath()) && exists(op.Target(), op.GetRefPath()) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring Move Operation (already applied on target)", zap.String("from", op.GetMoveOriginPath()), zap.String("to", op.GetRefPath()))

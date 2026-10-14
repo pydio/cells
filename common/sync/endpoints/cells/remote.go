@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v5/common/sync/endpoints/cells/transport/oidc"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/common/utils/uuid"
 )
 
@@ -85,6 +86,14 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	if config.IdToken != "" {
 		useCache = false
 	}
+	// HTTP requests (S3) carry the client UUID as a header: the server copies it into change events, which lets
+	// Watch drop the echoes of our own operations. gRPC calls get it from the context (getContext).
+	clientUUID := uuid.New()
+	headers := make(map[string]string, len(config.CustomHeaders)+1)
+	for k, v := range config.CustomHeaders {
+		headers[k] = v
+	}
+	headers[common.XPydioClientUuid] = clientUUID
 	sdkConfig := &transport.SdkConfig{
 		Url:        config.Url,
 		SkipVerify: config.SkipVerify,
@@ -98,14 +107,14 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 		IdToken:        config.IdToken,
 		RefreshToken:   config.RefreshToken,
 		TokenExpiresAt: config.ExpiresAt,
-		CustomHeaders:  config.CustomHeaders,
+		CustomHeaders:  headers,
 	}
 
 	c := &Remote{
 		Abstract: Abstract{
 			Root:       strings.TrimLeft(root, "/"),
 			Options:    options,
-			ClientUUID: uuid.New(),
+			ClientUUID: clientUUID,
 		},
 		config: sdkConfig,
 	}
@@ -198,6 +207,12 @@ func (f *remoteClientFactory) bearerContext(ctx context.Context) (context.Contex
 	}
 	md := metadata.MD{}
 	md.Set("x-pydio-bearer", jwt)
+	// Forward the client UUID: the server copies it into change events, which lets Watch drop our own echoes
+	if pm, ok := propagator.FromContextRead(ctx); ok {
+		if cu, o := pm[common.XPydioClientUuid]; o && cu != "" {
+			md.Set(strings.ToLower(common.XPydioClientUuid), cu)
+		}
+	}
 	if f.config.CustomHeaders != nil {
 		if ua, ok := f.config.CustomHeaders["User-Agent"]; ok {
 			md.Set("x-pydio-grpc-user-agent", ua)
