@@ -337,13 +337,15 @@ func (c *FSClient) Watch(ctx context.Context, recursivePath string) (*model.Watc
 		return nil, e
 	}
 
-	// wait for doneChan to close the watcher, eventChan and errorChan
+	// On doneChan, stop the watcher. eventChan and errorChan are closed by the dispatcher below,
+	// once it and all its debouncers have exited: closing them here could make a pending
+	// debouncer send on a closed channel (RACE-E01). Sends give up on stop, as nobody may read
+	// them anymore.
+	stop := make(chan struct{})
 	go func() {
 		<-doneChan
-
+		close(stop)
 		notify.Stop(in)
-		close(eventChan)
-		close(errorChan)
 		close(in)
 	}()
 
@@ -352,35 +354,61 @@ func (c *FSClient) Watch(ctx context.Context, recursivePath string) (*model.Watc
 	go func() {
 		writes := make(map[string]*FSEventDebouncer)
 		writesMux := &sync.Mutex{}
+		debouncers := &sync.WaitGroup{}
+		defer func() {
+			debouncers.Wait()
+			close(eventChan)
+			close(errorChan)
+		}()
 		for event := range out {
 			if strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
 				continue
 			}
 			eventInfo, eventError := notifyEventToEventInfo(c, event)
 			if eventError != nil {
-				errorChan <- eventError
+				select {
+				case errorChan <- eventError:
+				case <-stop:
+				}
 			} else if eventInfo.Path != "" {
 
 				if !eventInfo.Folder {
 
-					var d *FSEventDebouncer
-					writesMux.Lock()
-					d, o := writes[event.Path()]
-					if !o {
-						p := event.Path()
-						d = NewFSEventDebouncer(eventChan, errorChan, c, func() {
-							writesMux.Lock()
-							delete(writes, p)
-							writesMux.Unlock()
-						})
-						writes[event.Path()] = d
+					p := event.Path()
+					for delivered := false; !delivered; {
+						writesMux.Lock()
+						d, o := writes[p]
+						if !o {
+							debouncers.Add(1)
+							var nd *FSEventDebouncer
+							nd = NewFSEventDebouncer(eventChan, errorChan, c, stop, func() {
+								writesMux.Lock()
+								if writes[p] == nd {
+									delete(writes, p)
+								}
+								writesMux.Unlock()
+								debouncers.Done()
+							})
+							d = nd
+							writes[p] = d
+						}
+						writesMux.Unlock()
+						select {
+						case d.Input <- eventInfo:
+							delivered = true
+						case <-d.Done:
+							// The debouncer exited before reading: start a new one (RACE-E02).
+						case <-stop:
+							delivered = true
+						}
 					}
-					writesMux.Unlock()
-					d.Input <- eventInfo
 
 				} else {
 
-					eventChan <- eventInfo
+					select {
+					case eventChan <- eventInfo:
+					case <-stop:
+					}
 
 				}
 
