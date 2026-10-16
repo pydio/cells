@@ -102,9 +102,7 @@ type Abstract struct {
 	// as core metadata through the meta service. Required by Options.SourceEtags.
 	CoreMetaWriter func(ctx context.Context, node *tree.Node) error
 
-	watchConn         chan model.WatchConnectionInfo
-	updateSnapshot    model.PathSyncTarget
-	watchCtxCancelled bool
+	updateSnapshot model.PathSyncTarget
 }
 
 // SetUpdateSnapshot registers a snapshot to be updated when events are received from server
@@ -253,53 +251,80 @@ func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.Watch
 		return nil, errors.WithMessage(errors.StatusNotImplemented, "watch is not supported with sourceEtags (one-way imports only)")
 	}
 
-	c.watchConn = make(chan model.WatchConnectionInfo)
+	// Each watch has its own connection channel and state: watchers restarted without being
+	// stopped must not share them (closing the shared channel twice panicked).
+	conn := make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
-	// Reset watchCtxCancelled if it's a Resume after a Pause
-	c.watchCtxCancelled = false
 	ctx, cancel := context.WithCancel(ct)
+	// receivers tracks the goroutines that send to this watch's channels: they are closed only
+	// once all of them have returned.
+	receivers := &sync.WaitGroup{}
+	receive := func() {
+		receivers.Add(1)
+		go func() {
+			defer receivers.Done()
+			c.receiveEvents(ctx, changes, finished, conn)
+		}()
+	}
 
 	obj := &model.WatchObject{
 		EventInfoChan:  make(chan model.EventInfo),
 		DoneChan:       make(chan bool, 1),
 		ErrorChan:      make(chan error),
-		ConnectionInfo: c.watchConn,
+		ConnectionInfo: conn,
 	}
 	go func() {
 		defer func() {
-			close(obj.EventInfoChan)
-			close(c.watchConn)
 			cancel()
+			receivers.Wait()
+			close(obj.EventInfoChan)
+			close(conn)
 		}()
 		for {
 			select {
 			case changeEvent := <-changes:
 				if event, send := c.changeToEventInfo(changeEvent); send {
-					obj.EventInfoChan <- event
+					select {
+					case obj.EventInfoChan <- event:
+					case <-obj.DoneChan:
+						log.Logger(c.GlobalCtx).Info("Stopping event watcher")
+						return
+					}
 				} else if changeEvent.Target != nil && changeEvent.Target.Etag == common.NodeFlagEtagTemporary &&
 					(changeEvent.Type == tree.NodeChangeEvent_CREATE || changeEvent.Type == tree.NodeChangeEvent_UPDATE_CONTENT) {
-					go c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan)
+					receivers.Add(1)
+					go func() {
+						defer receivers.Done()
+						c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan)
+					}()
 				}
 			case er := <-finished:
 				if !strings.Contains(er.Error(), "DeadlineExceeded") {
 					log.Logger(c.GlobalCtx).Info("Connection finished " + er.Error())
 				}
-				if c.watchConn != nil {
-					c.watchConn <- model.WatchDisconnected
+				select {
+				case conn <- model.WatchDisconnected:
+				case <-obj.DoneChan:
+					log.Logger(c.GlobalCtx).Info("Stopping event watcher")
+					return
 				}
-				<-time.After(5 * time.Second)
+				select {
+				case <-time.After(5 * time.Second):
+				case <-obj.DoneChan:
+					log.Logger(c.GlobalCtx).Info("Stopping event watcher")
+					return
+				}
 				log.Logger(c.GlobalCtx).Info("Restarting events watcher after 5s")
-				go c.receiveEvents(ctx, changes, finished)
+				receive()
 			case <-obj.DoneChan:
 				log.Logger(c.GlobalCtx).Info("Stopping event watcher")
-				c.watchCtxCancelled = true
 				return
 			}
 		}
 	}()
 
-	go c.receiveEvents(ctx, changes, finished)
+	receive()
 
 	if len(c.Options.MetadataGlobs) > 0 {
 		_ = broker.SubscribeCancellable(ctx, common.TopicUserMetaDiffs, func(ctx context.Context, msg broker.Message) error {
@@ -454,38 +479,41 @@ func (c *Abstract) metaDiffToEventInfo(ct context.Context, ev *idm.UpdateUserMet
 
 }
 
-// receiveEvents starts a streamer to the GRPC gateway
-func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error) {
+// receiveEvents starts a streamer to the GRPC gateway. All its sends give up once ctx is cancelled
+// (watch stopped), so that the watch can close its channels after it returns.
+func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error, conn chan model.WatchConnectionInfo) {
+	fail := func(e error) {
+		select {
+		case finished <- e:
+		case <-ctx.Done():
+		}
+	}
 	ctx, cli, err := c.Factory.GetNodeChangesStreamClient(c.getContext(ctx))
 	if err != nil {
-		if !c.watchCtxCancelled {
-			finished <- err
-		}
+		fail(err)
 		return
 	}
 
 	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root})
 	if e != nil {
-		if !c.watchCtxCancelled {
-			finished <- e
-		}
+		fail(e)
 		return
 	}
 	defer streamer.CloseSend()
-	if c.watchConn != nil {
-		c.watchConn <- model.WatchConnected
+	select {
+	case conn <- model.WatchConnected:
+	case <-ctx.Done():
+		return
 	}
 	for {
 		change, e := streamer.Recv()
-		if c.watchCtxCancelled {
+		if ctx.Err() != nil {
 			return
 		}
 		if e != nil {
 			log.Logger(c.GlobalCtx).Error("Stopping watcher on error" + e.Error())
-			if !c.watchCtxCancelled {
-				finished <- e
-			}
-			break
+			fail(e)
+			return
 		}
 		if change.Source != nil {
 			change.Source.Path = c.unrooted(change.Source.Path)
@@ -493,7 +521,11 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		if change.Target != nil {
 			change.Target.Path = c.unrooted(change.Target.Path)
 		}
-		changes <- change
+		select {
+		case changes <- change:
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
