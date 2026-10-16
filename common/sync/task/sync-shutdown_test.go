@@ -27,6 +27,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/model"
@@ -81,5 +82,39 @@ func TestShutdownRightAfterStartWithoutWatches(t *testing.T) {
 		}
 		So(connected, ShouldResemble, []string{left.GetEndpointInfo().URI, right.GetEndpointInfo().URI})
 		s.Shutdown()
+	})
+}
+
+// A processed patch unlocks its files after a delay. A Shutdown within that
+// delay closed the echo filter's locks channel, and the delayed unlocks panicked.
+func TestShutdownRightAfterPatch(t *testing.T) {
+	defer timings.ForTests()()
+
+	Convey("Shutdown right after a patch, while unlocks are pending, must not panic", t, func() {
+		left, right := memory.NewMemDB(), memory.NewMemDB()
+		left.SetTestPathURI("left")
+		right.SetTestPathURI("right")
+		ctx := context.Background()
+		for _, p := range []string{"/a", "/b", "/c"} {
+			So(left.CreateNode(ctx, &tree.Node{Path: p, Uuid: "uuid" + p, Etag: "etag" + p, Type: tree.NodeType_LEAF}, true), ShouldBeNil)
+		}
+		s := NewSync(left, right, model.DirectionBi)
+		statuses, done := make(chan model.Status, 1000), make(chan interface{}, 10)
+		s.SetupEventsChan(statuses, done, nil)
+		s.SetupCmd(model.NewCommand())
+		s.Start(ctx, false)
+
+		_, err := s.Run(ctx, false, true)
+		So(err, ShouldBeNil)
+		select {
+		case <-done:
+		case <-time.After(5 * time.Second):
+			t.Fatal("timeout waiting for the patch to be processed")
+		}
+		s.Shutdown()
+		// Let the delayed unlocks fire: before the fix, they sent on a closed channel.
+		<-time.After(5 * timings.EchoUnlockDelay.Get())
+		n, _ := right.LoadNode(ctx, "/a")
+		So(n, ShouldNotBeNil)
 	})
 }
