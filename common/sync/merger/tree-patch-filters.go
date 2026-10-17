@@ -77,11 +77,18 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 		}
 	}
 
-	t.detectFolderMoves(ctx, cachedTarget)
+	folderMoves := t.detectFolderMoves(ctx, cachedTarget)
 	n = track("filter:DetectFolderMoves", n)
 
 	t.detectFileMoves(ctx, cachedTarget)
 	n = track("filter:DetectFileMoves", n)
+
+	// Watchers send a delete per child of a moved folder, at the old path, without the creates a
+	// diff has: those deletes are left unpaired. Applied after the move, under the new path, they
+	// deleted the moved content.
+	for _, m := range folderMoves {
+		t.dropMovedChildrenDeletes(ctx, m.from, m.to)
+	}
 
 	// ENQUEUE REMAINING operations to patch
 	t.enqueueRemaining(ctx)
@@ -255,7 +262,10 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 	}
 }
 
-func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
+type folderMove struct{ from, to string }
+
+// detectFolderMoves turns folder delete/create pairs with the same UUID into moves, and returns them.
+func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.PathSyncSource) (moves []folderMove) {
 	sorted := t.sortedKeys(t.deletes)
 	//target, ok := model.AsPathSyncTarget(t.Target())
 
@@ -291,8 +301,26 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.Pa
 				t.QueueOperation(opCreate)
 				delete(t.deletes, deleteOp.GetRefPath())
 				delete(t.createFolders, opCreate.GetRefPath())
+				moves = append(moves, folderMove{from: deleteOp.GetRefPath(), to: opCreate.GetRefPath()})
 				break
 			}
+		}
+	}
+	return
+}
+
+// dropMovedChildrenDeletes removes the deletes of the children of a moved folder that still exist
+// at the new path in the source: the move covers them. Children really deleted are kept, and are
+// applied under the new path after the move.
+func (t *TreePatch) dropMovedChildrenDeletes(ctx context.Context, from, to string) {
+	prefix := strings.TrimSuffix(from, "/") + "/"
+	for p, op := range t.deletes {
+		if !strings.HasPrefix(p, prefix) {
+			continue
+		}
+		moved := strings.TrimSuffix(to, "/") + "/" + strings.TrimPrefix(p, prefix)
+		if _, err := t.Source().LoadNode(op.CreateContext(ctx), moved); err == nil {
+			delete(t.deletes, p)
 		}
 	}
 }
