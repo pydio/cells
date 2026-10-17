@@ -47,7 +47,7 @@ type patchOperation struct {
 type marshalOperation struct {
 	OpType                OperationType
 	Dir                   OperationDirection
-	Node                  tree.N
+	Node                  *tree.Node
 	EventInfo             marshalEventInfo
 	InternalStatus        *model.ProcessingStatus
 	Processed             bool
@@ -66,10 +66,19 @@ type marshalEventInfo struct {
 	UserAgent      string
 	OperationId    string
 	ScanEvent      bool
-	ScanSourceNode tree.N
+	ScanSourceNode *tree.Node
 	Metadata       map[string]string
-	MoveSource     tree.N
-	MoveTarget     tree.N
+	MoveSource     *tree.Node
+	MoveTarget     *tree.Node
+}
+
+// protoOrNil converts a node for JSON: light nodes (filesystem, merger) have no exported fields
+// and were serialized as {}, losing path, type and size.
+func protoOrNil(n tree.N) *tree.Node {
+	if n == nil {
+		return nil
+	}
+	return n.AsProto()
 }
 
 // unmarshalOperation mirrors marshalOperation with concrete node types: tree.N is an
@@ -152,7 +161,7 @@ func (o *patchOperation) MarshalJSON() ([]byte, error) {
 	mo := &marshalOperation{
 		OpType: o.OpType,
 		Dir:    o.Dir,
-		Node:   o.Node,
+		Node:   protoOrNil(o.Node),
 		EventInfo: marshalEventInfo{
 			Time:        o.EventInfo.Time,
 			Size:        o.EventInfo.Size,
@@ -170,15 +179,9 @@ func (o *patchOperation) MarshalJSON() ([]byte, error) {
 		InternalStatus: o.InternalStatus,
 		Processed:      o.Processed,
 	}
-	if o.EventInfo.ScanSourceNode != nil {
-		mo.EventInfo.ScanSourceNode = o.EventInfo.ScanSourceNode
-	}
-	if o.EventInfo.MoveSource != nil {
-		mo.EventInfo.MoveSource = o.EventInfo.MoveSource
-	}
-	if o.EventInfo.MoveTarget != nil {
-		mo.EventInfo.MoveTarget = o.EventInfo.MoveTarget
-	}
+	mo.EventInfo.ScanSourceNode = protoOrNil(o.EventInfo.ScanSourceNode)
+	mo.EventInfo.MoveSource = protoOrNil(o.EventInfo.MoveSource)
+	mo.EventInfo.MoveTarget = protoOrNil(o.EventInfo.MoveTarget)
 	if o.processingError != nil {
 		mo.ProcessingErrorString = o.processingError.Error()
 	}
