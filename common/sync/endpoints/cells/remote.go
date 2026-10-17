@@ -29,6 +29,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -49,8 +50,10 @@ import (
 )
 
 var (
-	memCerts          map[string]*x509.CertPool
-	detectedGrpcPorts map[string]string
+	// Shared by all remotes, which may connect concurrently (task endpoints, browsing)
+	cacheMu           sync.Mutex
+	memCerts          = map[string]*x509.CertPool{}
+	detectedGrpcPorts = map[string]string{}
 )
 
 // RemoteConfig is a dependency-free struct similar to SdkConfig
@@ -120,7 +123,6 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	}
 	c.Factory = &remoteClientFactory{
 		config: sdkConfig,
-		//registry: NewDynamicRegistry(sdkConfig),
 	}
 	c.Source = c
 	logCtx := context.Background()
@@ -131,10 +133,12 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 
 // RefreshRemoteConfig is used to refresh ID Token / Refresh Token from outside
 func (c *Remote) RefreshRemoteConfig(config RemoteConfig) {
-	c.config.IdToken = config.IdToken
-	c.config.RefreshToken = config.RefreshToken
-	c.config.TokenExpiresAt = config.ExpiresAt
-	c.Factory.(*remoteClientFactory).config = c.config
+	f := c.Factory.(*remoteClientFactory)
+	f.configMu.Lock()
+	defer f.configMu.Unlock()
+	f.config.IdToken = config.IdToken
+	f.config.RefreshToken = config.RefreshToken
+	f.config.TokenExpiresAt = config.ExpiresAt
 }
 
 // GetEndpointInfo returns Endpoint information in standard format.
@@ -151,8 +155,20 @@ func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 
 // remoteClientFactory implements the clientProviderFactory interface
 type remoteClientFactory struct {
-	config *transport.SdkConfig
+	// configMu guards the tokens of config, updated by RefreshRemoteConfig while clients read them.
+	configMu sync.RWMutex
+	config   *transport.SdkConfig
+
+	connMu sync.Mutex
 	conn   grpc.ClientConnInterface
+}
+
+// currentConfig returns a copy of the config, with the current tokens.
+func (f *remoteClientFactory) currentConfig() *transport.SdkConfig {
+	f.configMu.RLock()
+	defer f.configMu.RUnlock()
+	c := *f.config
+	return &c
 }
 
 func (f *remoteClientFactory) GetNodeProviderClient(ctx context.Context) (context.Context, tree.NodeProviderClient, error) {
@@ -196,12 +212,13 @@ func (f *remoteClientFactory) GetNodeProviderStreamClient(ctx context.Context) (
 }
 
 func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, ObjectsClient, error) {
-	return ctx, mc.NewS3Client(f.config), nil
+	return ctx, mc.NewS3Client(f.currentConfig()), nil
 
 }
 
 func (f *remoteClientFactory) bearerContext(ctx context.Context) (context.Context, error) {
-	jwt, err := oidc.RetrieveToken(f.config)
+	config := f.currentConfig()
+	jwt, err := oidc.RetrieveToken(config)
 	if err != nil {
 		return ctx, err
 	}
@@ -213,8 +230,8 @@ func (f *remoteClientFactory) bearerContext(ctx context.Context) (context.Contex
 			md.Set(strings.ToLower(common.XPydioClientUuid), cu)
 		}
 	}
-	if f.config.CustomHeaders != nil {
-		if ua, ok := f.config.CustomHeaders["User-Agent"]; ok {
+	if config.CustomHeaders != nil {
+		if ua, ok := config.CustomHeaders["User-Agent"]; ok {
 			md.Set("x-pydio-grpc-user-agent", ua)
 		}
 	}
@@ -222,7 +239,9 @@ func (f *remoteClientFactory) bearerContext(ctx context.Context) (context.Contex
 }
 
 func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, grpc.ClientConnInterface, error) {
-
+	// One connection per remote, even when several goroutines ask for it at once
+	f.connMu.Lock()
+	defer f.connMu.Unlock()
 	if f.conn != nil {
 		return ctx, f.conn, nil
 	}
@@ -274,10 +293,10 @@ func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, g
 
 // serverCerts loads certificates from https served server to be set inside the client
 func (f *remoteClientFactory) serverCerts() (*x509.CertPool, error) {
-	if memCerts == nil {
-		memCerts = make(map[string]*x509.CertPool)
-	}
-	if pool, ok := memCerts[f.config.Url]; ok {
+	cacheMu.Lock()
+	pool, ok := memCerts[f.config.Url]
+	cacheMu.Unlock()
+	if ok {
 		return pool, nil
 	}
 	u, _ := url.Parse(f.config.Url)
@@ -297,14 +316,15 @@ func (f *remoteClientFactory) serverCerts() (*x509.CertPool, error) {
 	defer conn.Close()
 	cert := conn.ConnectionState().PeerCertificates
 
-	var pool *x509.CertPool
 	if pool, err = x509.SystemCertPool(); err != nil {
 		pool = x509.NewCertPool()
 	}
 	for _, c := range cert {
 		pool.AddCert(c)
 	}
+	cacheMu.Lock()
 	memCerts[f.config.Url] = pool
+	cacheMu.Unlock()
 	return pool, nil
 }
 
@@ -327,11 +347,10 @@ func (f *remoteClientFactory) detectGrpcPort(config *transport.SdkConfig, reload
 	}
 	useTls = u.Scheme == "https"
 
-	var ok bool
-	if detectedGrpcPorts == nil {
-		detectedGrpcPorts = make(map[string]string)
-	}
-	if port, ok = detectedGrpcPorts[host]; !ok || reload {
+	cacheMu.Lock()
+	port, ok := detectedGrpcPorts[host]
+	cacheMu.Unlock()
+	if !ok || reload {
 		httpClient := http.DefaultClient
 		if config.SkipVerify {
 			httpClient = &http.Client{
@@ -342,7 +361,9 @@ func (f *remoteClientFactory) detectGrpcPort(config *transport.SdkConfig, reload
 		if e != nil {
 			err = errors.Wrap(e, "cannot connect to discovery endpoint")
 			return
-		} else if resp.StatusCode != 200 {
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
 			err = errors.New("cannot connect to discovery endpoint")
 			return
 		}
@@ -354,7 +375,6 @@ func (f *remoteClientFactory) detectGrpcPort(config *transport.SdkConfig, reload
 				if endpoints, ok := ep.(map[string]interface{}); ok {
 					if p, ok := endpoints["grpc"]; ok {
 						port = strings.Split(p.(string), ",")[0]
-						detectedGrpcPorts[host] = port
 						found = true
 					}
 				}
@@ -367,9 +387,10 @@ func (f *remoteClientFactory) detectGrpcPort(config *transport.SdkConfig, reload
 			} else {
 				port = mainPort
 			}
-			detectedGrpcPorts[host] = port
-			return
 		}
+		cacheMu.Lock()
+		detectedGrpcPorts[host] = port
+		cacheMu.Unlock()
 	}
 	return
 
