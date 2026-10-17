@@ -120,7 +120,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	// Compute Diff
 	diff := merger.NewDiff(source, targetAsSource)
 	lock := s.monitorDiff(ctx, diff, rootsInfo)
-	if e := diff.Compute(ctx, rootPath, lock, rootsInfo, s.Ignores...); e != nil {
+	if e := diff.Compute(ctx, rootPath, lock, s.statsForRoot(ctx, rootPath, rootsInfo), s.Ignores...); e != nil {
 		return patch.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 	}
 
@@ -234,7 +234,7 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
 			diff := merger.NewDiff(source, targetAsSource)
-			if e := diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...); e != nil {
+			if e := diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), s.statsForRoot(ctx, r, rootsInfo), s.Ignores...); e != nil {
 				return bb.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 			}
 			if dryRun {
@@ -327,7 +327,7 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 	patches := make(map[string]merger.Patch, len(roots))
 	for _, r := range roots {
 		diff := merger.NewDiff(source, snap)
-		er = diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...)
+		er = diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), s.statsForRoot(ctx, r, rootsInfo), s.Ignores...)
 		if er != nil {
 			return nil, nil, er
 		}

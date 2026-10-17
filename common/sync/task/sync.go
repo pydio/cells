@@ -415,9 +415,33 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 }
 
 func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *model.EndpointRootStat, e error) {
+	return s.statRootsOf(ctx, source, s.Roots)
+}
+
+// statsForRoot returns the stats to check the diff of one root against. RootStats sums all the
+// roots: with several, an empty root (or one whose files are all in other roots) was reported as
+// an "endpoints stat and collected children discrepancy". Each root is then stat'ed alone.
+func (s *Sync) statsForRoot(ctx context.Context, root string, all map[string]*model.EndpointRootStat) map[string]*model.EndpointRootStat {
+	if len(s.Roots) <= 1 || all == nil {
+		return all
+	}
+	out := make(map[string]*model.EndpointRootStat, len(all))
+	for _, ep := range []model.Endpoint{s.Source, s.Target} {
+		uri := ep.GetEndpointInfo().URI
+		if _, ok := all[uri]; !ok {
+			continue
+		}
+		if st, err := s.statRootsOf(ctx, ep, []string{root}); err == nil {
+			out[uri] = st
+		}
+	}
+	return out
+}
+
+func (s *Sync) statRootsOf(ctx context.Context, source model.Endpoint, selected []string) (stat *model.EndpointRootStat, e error) {
 	stat = &model.EndpointRootStat{}
 	var roots []string
-	roots = append(roots, s.Roots...)
+	roots = append(roots, selected...)
 	if len(roots) == 0 {
 		roots = append(roots, "/")
 	}
