@@ -40,6 +40,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints"
@@ -532,9 +533,13 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 	}
 	if len(extendedStats) > 0 && extendedStats[0] {
 		var size, folders, files int64
-		_ = s.Walk(nil, func(path string, node tree.N, err error) error {
-			if node.IsLeaf() {
-				size += node.GetSize()
+		_ = s.Walk(nil, func(p string, n tree.N, err error) error {
+			// Like the endpoints' own stats: hidden folder markers are not user files
+			if n == nil || p == common.PydioSyncHiddenFile || strings.HasSuffix(p, "/"+common.PydioSyncHiddenFile) {
+				return nil
+			}
+			if n.IsLeaf() {
+				size += n.GetSize()
 				files += 1
 			} else {
 				folders += 1
