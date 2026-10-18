@@ -132,14 +132,14 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 		name: name,
 		ctx:  ctx,
 	}
-	options := bbolt.DefaultOptions
+	options := *bbolt.DefaultOptions // a copy: DefaultOptions is a shared pointer
 	options.Timeout = 5 * time.Second
 	s.folderPath = folderOrFullPath
 	p := filepath.Join(s.folderPath, openName)
 	if _, err := os.Stat(p); err != nil {
 		s.empty.Store(true)
 	}
-	db, err := bbolt.Open(p, 0644, options)
+	db, err := bbolt.Open(p, 0644, &options)
 	if err != nil {
 		return nil, err
 	}
