@@ -398,6 +398,45 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
         }
     };
 
+    const toggleEntityPolicies = async (adminOnly: boolean) => {
+        const entityUuid = namespaceProp.EntityUUID;
+        if (!entityUuid) return;
+
+        // Fetch the live entity so we preserve its label and description
+        const entities: any[] = await Metadata.listEntities();
+        const entity = entities.find((e) => e.Uuid === entityUuid);
+        if (!entity) return;
+
+        const policies = adminOnly
+            ? [
+                  ServiceResourcePolicy.constructFromObject({
+                      Action: 'WRITE',
+                      Effect: 'allow',
+                      Subject: 'profile:admin',
+                  }),
+                  ServiceResourcePolicy.constructFromObject({
+                      Action: 'READ',
+                      Effect: 'allow',
+                      Subject: '*',
+                  }),
+              ]
+            : [
+                  ServiceResourcePolicy.constructFromObject({
+                      Action: 'READ',
+                      Effect: 'allow',
+                      Subject: '*',
+                  }),
+                  ServiceResourcePolicy.constructFromObject({
+                      Action: 'WRITE',
+                      Effect: 'allow',
+                      Subject: '*',
+                  }),
+              ];
+
+        await Metadata.updateEntityPolicies(entityUuid, entity.Label, entity.Description, policies);
+        setIsClosedValues(adminOnly);
+    };
+
     const togglePolicies = (right: string, value: boolean) => {
         setNamespace((prev) => {
             const pol = prev.Policies || [];
@@ -714,7 +753,7 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
                                 label={m('toggle.closed.values')}
                                 labelPosition={'left'}
                                 toggled={isClosedValues}
-                                onToggle={(_e: unknown, v: boolean) => setIsClosedValues(v)}
+                                onToggle={(_e: unknown, v: boolean) => create ? setIsClosedValues(v) : toggleEntityPolicies(v)}
                                 {...ModernStyles.toggleFieldV2}
                                 />
                             )}

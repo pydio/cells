@@ -132,6 +132,33 @@ class Metadata {
         });
     }
     /**
+     * Updates policies on an existing entity identified by UUID.
+     * Passes the Uuid so the backend upserts in-place without creating a new record.
+     * @param {string} uuid - The UUID of the entity to update
+     * @param {string} label - The entity label (preserved from the existing record)
+     * @param {string} description - The entity description
+     * @param {Array} policies - New policies to apply
+     * @returns {Promise<IdmMetaEntity>}
+     */
+    static updateEntityPolicies(uuid, label, description, policies) {
+        const entity = IdmMetaEntity.constructFromObject({
+            Uuid: uuid,
+            Label: label || '',
+            Description: description || '',
+            Policies: policies || [],
+        });
+        const request = IdmCreateEntityRequest.constructFromObject({
+            Entity: entity,
+        });
+        return Metadata.api.putEntity(request).then(r => {
+            return r.Entity;
+        }).catch(e => {
+            console.error(e);
+            throw e;
+        });
+    }
+
+    /**
      * Creates entity values for a given entity with the same policies applied to all values
      * @param {string} entityId - The entity identifier
      * @param {string} entityUuid - The UUID of the parent entity
