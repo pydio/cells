@@ -22,6 +22,7 @@ package cells
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -84,5 +85,38 @@ func TestWatchTwiceThenStop(t *testing.T) {
 		case <-time.After(2 * time.Second):
 			t.Fatalf("watch %d: connection channel not closed after stop", i)
 		}
+	}
+}
+
+// failingChangesFactory cannot reach the server, like remoteClientFactory: nil context and an error.
+type failingChangesFactory struct {
+	clientProviderFactory
+}
+
+func (failingChangesFactory) GetNodeChangesStreamClient(context.Context) (context.Context, tree.NodeChangesStreamerClient, error) {
+	return nil, nil, errors.New("dial tcp 127.0.0.1:8080: connect: connection refused")
+}
+
+// Watching an unreachable server: reporting the error used the factory's nil context (panic: nil
+// pointer dereference in receiveEvents). The watch must report a disconnection and stop cleanly.
+func TestWatchServerUnreachable(t *testing.T) {
+	c := &Abstract{Factory: failingChangesFactory{}, GlobalCtx: context.Background()}
+	w, err := c.Watch(context.Background(), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case info := <-w.ConnectionInfo:
+		if info != model.WatchDisconnected {
+			t.Fatalf("got %v, want WatchDisconnected", info)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("no disconnection reported")
+	}
+	w.DoneChan <- true
+	select {
+	case <-w.ConnectionInfo:
+	case <-time.After(2 * time.Second):
+		t.Fatal("connection channel not closed after stop")
 	}
 }

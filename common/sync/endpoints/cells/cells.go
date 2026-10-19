@@ -488,13 +488,14 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		case <-ctx.Done():
 		}
 	}
-	ctx, cli, err := c.Factory.GetNodeChangesStreamClient(c.getContext(ctx))
+	// sctx, not ctx: the factory returns a nil context on error, and fail needs the watch's.
+	sctx, cli, err := c.Factory.GetNodeChangesStreamClient(c.getContext(ctx))
 	if err != nil {
 		fail(err)
 		return
 	}
 
-	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root})
+	streamer, e := cli.StreamChanges(sctx, &tree.StreamChangesRequest{RootPath: c.Root})
 	if e != nil {
 		fail(e)
 		return

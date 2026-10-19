@@ -509,13 +509,19 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 }
 
 func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
-	if path == "/" {
+	// Keys are stored without the leading slash (like Walk expects), but callers like the selective
+	// roots of a task pass "/folder".
+	key := strings.Trim(path, "/")
+	if key == "" {
 		// Return fake Root
 		node = &tree.Node{Path: "/"}
 	} else {
 		err = s.db.View(func(tx *bbolt.Tx) error {
 			if b := tx.Bucket(bucketName); b != nil {
-				value := b.Get([]byte(path))
+				value := b.Get([]byte(key))
+				if value == nil && key != path {
+					value = b.Get([]byte(path))
+				}
 				if value != nil {
 					if node, err = s.unmarshal(value); err != nil {
 						return err
