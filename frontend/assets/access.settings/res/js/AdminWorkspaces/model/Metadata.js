@@ -105,51 +105,25 @@ class Metadata {
 
     }
     /**
-     * Creates a new entity with the given description, label, and policies.
-     * @param label String
-     * @param description String
-     * @param policies Array
-     */
-    static createEntity(label,description, policies) {
-        if (!label) {
-            throw new Error('Label is required to create an entity');
-        }
-        const entity = IdmMetaEntity.constructFromObject({
-            Description: description || '',
-            Label: label,
-            Policies: policies || []
-        });
-
-        const request = IdmCreateEntityRequest.constructFromObject({
-            Entity: entity,
-        });
-
-        return Metadata.api.putEntity(request).then(r => {
-            return r.Entity;
-        }).catch(e => {
-            console.error(e);
-            throw e;
-        });
-    }
-    /**
-     * Updates policies on an existing entity identified by UUID.
-     * Passes the Uuid so the backend upserts in-place without creating a new record.
-     * @param {string} uuid - The UUID of the entity to update
-     * @param {string} label - The entity label (preserved from the existing record)
-     * @param {string} description - The entity description
-     * @param {Array} policies - New policies to apply
+     * Creates a new entity or updates an existing one.
+     * Omit `uuid` (or pass null/undefined) to create; supply it to update in-place.
+     * @param {string} label - Entity label (required)
+     * @param {string} description - Entity description
+     * @param {Array} policies - Access control policies
+     * @param {string} [uuid] - Existing entity UUID for updates
      * @returns {Promise<IdmMetaEntity>}
      */
-    static updateEntityPolicies(uuid, label, description, policies) {
+    static createOrUpdateEntity(label, description, policies, uuid) {
+        if (!label) {
+            throw new Error('Label is required');
+        }
         const entity = IdmMetaEntity.constructFromObject({
-            Uuid: uuid,
-            Label: label || '',
+            ...(uuid ? { Uuid: uuid } : {}),
+            Label: label,
             Description: description || '',
             Policies: policies || [],
         });
-        const request = IdmCreateEntityRequest.constructFromObject({
-            Entity: entity,
-        });
+        const request = IdmCreateEntityRequest.constructFromObject({ Entity: entity });
         return Metadata.api.putEntity(request).then(r => {
             return r.Entity;
         }).catch(e => {
