@@ -55,17 +55,19 @@ type sqlimpl struct {
 
 	Manager
 
-	once *sync.Once
+	once sync.Once
 }
 
-func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
-	if s.once == nil {
-		s.once = &sync.Once{}
-	}
+// joinTablesMu serializes SetupJoinTable calls: they write gorm's cached schemas, which are
+// shared by every DAO instance built on the same DB config.
+var joinTablesMu sync.Mutex
 
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
 	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
 	s.once.Do(func() {
+		joinTablesMu.Lock()
+		defer joinTablesMu.Unlock()
 		db.SetupJoinTable(&idm.PolicyGroup{}, "Policies", &idm.PolicyRel{})
 		db.SetupJoinTable(&idm.Policy{}, "OrmActions", &idm.PolicyActionRel{})
 		db.SetupJoinTable(&idm.Policy{}, "OrmResources", &idm.PolicyResourceRel{})
