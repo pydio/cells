@@ -214,6 +214,7 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
     const [namespace, setNamespace] = useState<IdmUserMetaNamespace>(() => cloneNs(namespaceProp));
     const [entityValues, setEntityValues] = useState<string[]>([]);
     const [isClosedValues, setIsClosedValues] = useState(false);
+    const savedClosedValuesRef = useRef(false);
     const [PoliciesBuilder, setPoliciesBuilder] = useState<React.ComponentType<MetaPoliciesBuilderProps>>(
         () => MetaPoliciesBuilder,
     );
@@ -300,6 +301,7 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
     // mounted with the dialog already open, as MetadataBoard does in edit mode.
     useEffect(() => {
         setIsClosedValues(false);
+        savedClosedValuesRef.current = false;
         if (!open || create || !namespaceProp.EntityUUID) return;
 
         let stale = false;
@@ -314,6 +316,7 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
                         p.Subject === 'profile:admin',
                 );
                 setIsClosedValues(closed);
+                savedClosedValuesRef.current = closed;
             })
             .catch(() => {
                 // Leave the toggle off if the entity list cannot be loaded
@@ -457,25 +460,15 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
             defType === 'tag_cloud' || defType === 'auto_complete' || defType === 'choice';
         const entityItems: string[] = def.data?.entityItems || [];
 
-        if (needsEntity && !def.entity?.entity_id) {
-            const r = await Metadata.createEntity(
-                `Entity for ${ns.Namespace}`,
-                ns.Description,
-                isClosedValues
-                    ? [
-                        ServiceResourcePolicy.constructFromObject({
-                            Action: 'WRITE',
-                            Effect: 'allow',
-                            Subject: 'profile:admin',
-                        }),
-                        ServiceResourcePolicy.constructFromObject({
-                            Action: 'READ',
-                            Effect: 'allow',
-                            Subject: 'profile:standard',
-                        }),
-                    ]
-                    : ns.Policies,
-            );
+        if (needsEntity && !def.entity?.entity_id && !ns.EntityUUID) {
+            // Create mode: entity doesn't exist yet — create it now with the chosen policies.
+            const entityPolicies = isClosedValues
+                ? [
+                      ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Effect: 'allow', Subject: 'profile:admin' }),
+                      ServiceResourcePolicy.constructFromObject({ Action: 'READ',  Effect: 'allow', Subject: 'profile:standard' }),
+                  ]
+                : ns.Policies;
+            const r = await Metadata.createOrUpdateEntity(`Entity for ${ns.Namespace}`, ns.Description, entityPolicies);
             ns = {
                 ...ns,
                 EntityUUID: r.Uuid,
@@ -493,6 +486,24 @@ const MetaNamespaceInner: React.FC<MetaNamespaceProps> = ({
                     : []),
             ]);
         } else {
+            // Edit mode: flush a deferred closed-values change if the toggle moved.
+            const entityUuid = def.entity?.entity_id || ns.EntityUUID;
+            if (needsEntity && entityUuid && isClosedValues !== savedClosedValuesRef.current) {
+                const entities: any[] = await Metadata.listEntities();
+                const entity = entities.find((e: any) => e.Uuid === entityUuid);
+                if (entity) {
+                    const entityPolicies = isClosedValues
+                        ? [
+                              ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Effect: 'allow', Subject: 'profile:admin' }),
+                              ServiceResourcePolicy.constructFromObject({ Action: 'READ',  Effect: 'allow', Subject: '*' }),
+                          ]
+                        : [
+                              ServiceResourcePolicy.constructFromObject({ Action: 'READ',  Effect: 'allow', Subject: '*' }),
+                              ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Effect: 'allow', Subject: '*' }),
+                          ];
+                    await Metadata.createOrUpdateEntity(entity.Label, entity.Description, entityPolicies, entityUuid);
+                }
+            }
             await Metadata.putNS(ns);
         }
 
