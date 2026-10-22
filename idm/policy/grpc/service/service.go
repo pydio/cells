@@ -72,7 +72,7 @@ func init() {
 			service.WithStorageDrivers(policy.Drivers),
 			service.Migrations(migs),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				handler := grpc2.NewHandler()
+				handler := grpc2.NewHandler(ctx)
 				idm.RegisterPolicyEngineServiceServer(srv, handler)
 				return nil
 			}),
