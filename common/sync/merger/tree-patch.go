@@ -22,7 +22,6 @@ package merger
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"sort"
 	"sync"
@@ -229,7 +228,8 @@ func (t *TreePatch) HasTransfers() bool {
 	return ht
 }
 
-// HasErrors checks if this patch has a global error status or any operation in Error state
+// HasErrors checks if this patch has a global error status, any operation in Error state, or a conflict that was not
+// solved (ConflictError)
 func (t *TreePatch) HasErrors() (errs []error, has bool) {
 	if pe := t.getPatchError(); pe != nil {
 		errs = append(errs, pe)
@@ -237,8 +237,12 @@ func (t *TreePatch) HasErrors() (errs []error, has bool) {
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		if e := operation.Error(); e != nil {
 			errs = append(errs, e)
-		} else if operation.Type() == OpConflict {
-			errs = append(errs, fmt.Errorf("conflict on path %s", operation.GetRefPath()))
+		} else if operation.Type() == OpConflict && !isSolvedConflict(operation) {
+			ce := &ConflictError{Path: operation.GetRefPath()}
+			if c, ok := operation.(ConflictOperation); ok {
+				ce.Type, _, _ = c.ConflictInfo()
+			}
+			errs = append(errs, ce)
 		}
 	})
 	return errs, len(errs) > 0
@@ -286,6 +290,9 @@ func (t *TreePatch) Stats() map[string]interface{} {
 		"Target": t.Target().GetEndpointInfo().URI,
 	}
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
+		if isSolvedConflict(operation) {
+			return // its copies are counted
+		}
 		var target map[string]int
 		if operation.IsProcessed() {
 			target = processed

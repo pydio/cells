@@ -141,3 +141,30 @@ func TestShutdownDuringRootStats(t *testing.T) {
 		}
 	})
 }
+
+func TestShutdownWhileWatchersReportStatus(t *testing.T) {
+	defer timings.ForTests()()
+
+	Convey("Shutdown while the watchers report their connection to an unread events chan must not block nor panic", t, func() {
+		left, right := memory.NewMemDB(), memory.NewMemDB()
+		left.SetTestPathURI("left")
+		right.SetTestPathURI("right")
+		s := NewSync(left, right, model.DirectionBi)
+		s.SetupEventsChan(make(chan model.Status, 10), make(chan interface{}, 1), make(chan interface{}))
+
+		started := make(chan struct{})
+		go func() {
+			defer close(started)
+			s.Start(context.Background(), true)
+		}()
+		// Let Start block on the second "connected" status: the first one is stuck in the events forwarder
+		<-time.After(100 * time.Millisecond)
+		s.Shutdown()
+		select {
+		case <-started:
+		case <-time.After(5 * time.Second):
+			t.Fatal("Start is still blocked on watchConn after Shutdown")
+		}
+		So(s.watchConn, ShouldBeNil)
+	})
+}

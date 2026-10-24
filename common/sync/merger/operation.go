@@ -193,10 +193,11 @@ type conflictOperation struct {
 	ConflictType ConflictType
 	LeftOp       Operation
 	RightOp      Operation
+	Solved       bool
 }
 
 // MarshalJSON adds conflict details to the base operation fields. Without it, the promoted
-// patchOperation.MarshalJSON was used and ConflictType/LeftOp/RightOp were silently dropped.
+// patchOperation.MarshalJSON was used and ConflictType/LeftOp/RightOp/Solved were silently dropped.
 // Decoding is left to callers (see cells-sync PatchStore.unmarshalConflict), as
 // NewOpForUnmarshall returns a plain patchOperation.
 func (c *conflictOperation) MarshalJSON() ([]byte, error) {
@@ -208,7 +209,7 @@ func (c *conflictOperation) MarshalJSON() ([]byte, error) {
 	if er := json.Unmarshal(base, &m); er != nil {
 		return nil, er
 	}
-	for k, v := range map[string]interface{}{"ConflictType": c.ConflictType, "LeftOp": c.LeftOp, "RightOp": c.RightOp} {
+	for k, v := range map[string]interface{}{"ConflictType": c.ConflictType, "LeftOp": c.LeftOp, "RightOp": c.RightOp, "Solved": c.Solved} {
 		raw, er := json.Marshal(v)
 		if er != nil {
 			return nil, er
@@ -248,12 +249,26 @@ func NewConflictOperation(node tree.N, t ConflictType, left, right Operation) Op
 	}
 }
 
+// NewSolvedConflictOperation records a conflict solved by keeping both versions: left and right are the creations
+// of the two copies, at their new paths. It is not processed and is not an error.
+func NewSolvedConflictOperation(node tree.N, t ConflictType, leftCopy, rightCopy Operation) Operation {
+	c := NewConflictOperation(node, t, leftCopy, rightCopy).(*conflictOperation)
+	c.Solved = true
+	return c
+}
+
 func (c *conflictOperation) ConflictInfo() (t ConflictType, left Operation, right Operation) {
 	return c.ConflictType, c.LeftOp, c.RightOp
 }
 
+func (c *conflictOperation) IsSolved() bool {
+	return c.Solved
+}
+
 func (c *conflictOperation) Clone(_ ...OperationType) Operation {
-	return NewConflictOperation(c.Node, c.ConflictType, c.LeftOp, c.RightOp)
+	cl := NewConflictOperation(c.Node, c.ConflictType, c.LeftOp, c.RightOp).(*conflictOperation)
+	cl.Solved = c.Solved
+	return cl
 }
 
 func (o *patchOperation) Clone(replaceType ...OperationType) Operation {

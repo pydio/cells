@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -103,6 +104,11 @@ type Abstract struct {
 	CoreMetaWriter func(ctx context.Context, node *tree.Node) error
 
 	updateSnapshot model.PathSyncTarget
+
+	// deletedFolders are the folders deleted by this client, with the time until which the delete events of their
+	// content are dropped (see isOwnDeleteEcho). A zero time means the delete request is still running.
+	deletedFolders     map[string]time.Time
+	deletedFoldersLock sync.Mutex
 }
 
 // SetUpdateSnapshot registers a snapshot to be updated when events are received from server
@@ -419,6 +425,10 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 		return
 	}
 	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.ClientUUID
+	if send && change.Type == tree.NodeChangeEvent_DELETE && c.isOwnDeleteEcho(change.Source.GetPath()) {
+		log.Logger(c.GlobalCtx).Debug("Dropping echo of our own folder delete " + change.Source.GetPath())
+		send = false // the snapshot is still updated below
+	}
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
 		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
 		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
@@ -592,8 +602,47 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	}
 	sendCtx, can := context.WithTimeout(ctx, 5*time.Minute)
 	defer can()
+	if !read.Node.IsLeaf() {
+		c.markFolderDeleted(name, true)
+		defer c.markFolderDeleted(name, false)
+	}
 	_, err = cliWrite.DeleteNode(sendCtx, &tree.DeleteNodeRequest{Node: proto.Clone(read.Node).(*tree.Node)})
 	return
+}
+
+// markFolderDeleted records a folder deleted by this client: while the request runs, then for EchoDeleteWindow
+func (c *Abstract) markFolderDeleted(name string, running bool) {
+	c.deletedFoldersLock.Lock()
+	defer c.deletedFoldersLock.Unlock()
+	if c.deletedFolders == nil {
+		c.deletedFolders = make(map[string]time.Time)
+	}
+	until := time.Time{}
+	if !running {
+		until = time.Now().Add(timings.EchoDeleteWindow.Get())
+	}
+	c.deletedFolders[strings.Trim(name, "/")] = until
+}
+
+// isOwnDeleteEcho tells if a deleted path is in a folder deleted by this client. The server deletes the content of
+// a folder asynchronously, and these delete events don't carry our client UUID: applied late, they deleted files
+// recreated in the meantime on the other side (#30).
+func (c *Abstract) isOwnDeleteEcho(p string) bool {
+	p = strings.Trim(p, "/")
+	c.deletedFoldersLock.Lock()
+	defer c.deletedFoldersLock.Unlock()
+	now := time.Now()
+	echo := false
+	for folder, until := range c.deletedFolders {
+		if !until.IsZero() && now.After(until) {
+			delete(c.deletedFolders, folder)
+			continue
+		}
+		if p == folder || strings.HasPrefix(p, folder+"/") {
+			echo = true
+		}
+	}
+	return echo
 }
 
 // MoveNode renames a file or folder and *blocks* until the node has been properly moved (sync)

@@ -59,10 +59,10 @@ type EventsBatcher struct {
 	cmd      *model.Command
 
 	// Monitor batcher activity (receiving events)
-	active       bool
-	activeChan   chan bool
-	activeDone   chan bool
-	epStatusChan chan *model.EndpointStatus
+	active     bool
+	activeChan chan bool
+	activeDone chan bool
+	epStatus   func(*model.EndpointStatus)
 }
 
 // NewEventsBatcher creates a new EventsBatcher
@@ -123,17 +123,17 @@ func (ev *EventsBatcher) setActivity(active bool) {
 	}
 	log.Logger(ev.globalContext).Debug("Updating watcher activity", zap.Bool("active", active))
 	ev.active = active
-	if ev.epStatusChan != nil {
+	if ev.epStatus != nil {
 		if active {
-			ev.epStatusChan <- &model.EndpointStatus{
+			ev.epStatus(&model.EndpointStatus{
 				EndpointInfo:    ev.Source.GetEndpointInfo(),
 				WatchConnection: model.WatchActive,
-			}
+			})
 		} else {
-			ev.epStatusChan <- &model.EndpointStatus{
+			ev.epStatus(&model.EndpointStatus{
 				EndpointInfo:    ev.Source.GetEndpointInfo(),
 				WatchConnection: model.WatchIdle,
-			}
+			})
 		}
 	}
 }
@@ -294,7 +294,13 @@ func (ev *EventsBatcher) SetupChannels(status chan model.Status, done chan inter
 }
 
 func (ev *EventsBatcher) SetEndpointStatusChan(c chan *model.EndpointStatus) {
-	ev.epStatusChan = c
+	ev.epStatus = func(st *model.EndpointStatus) { c <- st }
+}
+
+// SetEndpointStatusSender is like SetEndpointStatusChan, for an owner that must guard the sends (e.g. against a
+// channel closed concurrently)
+func (ev *EventsBatcher) SetEndpointStatusSender(send func(*model.EndpointStatus)) {
+	ev.epStatus = send
 }
 
 func (ev *EventsBatcher) Status(s model.Status) {

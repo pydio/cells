@@ -65,6 +65,9 @@ var (
 	ValidateFirstWait     = newDuration(1 * time.Second)
 	ValidateRetryInterval = newDuration(6 * time.Second)
 	ValidateRetryTimeout  = newDuration(4 * time.Minute)
+	// EchoDeleteWindow is how long a remote drops the delete events under a folder it deleted itself: the server
+	// deletes the content asynchronously, and these events don't carry our client UUID (#30)
+	EchoDeleteWindow = newDuration(10 * time.Second)
 	// StartConnectedDelay delays the "connected" status sent by a sync started without watchers
 	StartConnectedDelay = newDuration(2 * time.Second)
 )
@@ -83,6 +86,7 @@ func ForTests() (restore func()) {
 		ValidateRetryInterval:  20 * time.Millisecond,
 		ValidateRetryTimeout:   200 * time.Millisecond,
 		StartConnectedDelay:    20 * time.Millisecond,
+		EchoDeleteWindow:       100 * time.Millisecond,
 	}
 	previous := make(map[*Duration]time.Duration, len(short))
 	for d, v := range short {

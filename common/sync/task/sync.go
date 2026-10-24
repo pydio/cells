@@ -73,6 +73,11 @@ type Sync struct {
 	connDone    chan struct{}
 	connSenders sync.WaitGroup
 
+	// watchersLock protects watchersChan and eventsBatchers: Shutdown may run while Start is still setting up the
+	// watchers. Once watchersShutdown is set, new watchers are stopped right away.
+	watchersLock     sync.Mutex
+	watchersShutdown bool
+
 	// rootsInfoLock protects root stats updated by concurrent diff monitors (bidirectional with snapshots)
 	rootsInfoLock sync.Mutex
 }
@@ -170,6 +175,9 @@ func (s *Sync) Shutdown() {
 		// ignore 'close on closed channel'
 		recover()
 	}()
+	s.watchersLock.Lock()
+	s.watchersShutdown = true
+	s.watchersLock.Unlock()
 	s.stopWatchers()
 	s.connLock.Lock()
 	wc := s.watchConn
@@ -293,7 +301,10 @@ func (s *Sync) SetupCmd(cmd *model.Command) {
 
 // BroadcastCloseSession forwards session id to underlying batchers
 func (s *Sync) BroadcastCloseSession(sessionUuid string) {
-	for _, b := range s.eventsBatchers {
+	s.watchersLock.Lock()
+	batchers := s.eventsBatchers
+	s.watchersLock.Unlock()
+	for _, b := range batchers {
 		b.ForceCloseSession(sessionUuid)
 	}
 }

@@ -93,8 +93,9 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}()
 
 	patch.Filter(pr.GlobalContext, pr.Ignores...)
-	if errs, b := patch.HasErrors(); b {
-		for _, e := range errs {
+	// Unsolved conflicts are held back, they don't stop the rest of the patch (CS-U-06)
+	if errs, _ := patch.HasErrors(); len(merger.WithoutConflicts(errs)) > 0 {
+		for _, e := range merger.WithoutConflicts(errs) {
 			log.Logger(pr.GlobalContext).Error("Errors after filtering patch", zap.Error(e))
 		}
 		return // Errors while filtering, stop now

@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -75,6 +76,28 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 		return node == nil
 	}
 
+	// Paths of the other operations, case-folded: a case-only rename on a case-insensitive source (a -> A) must not
+	// make the delete of "a" look stale
+	otherPaths := make(map[string]string)
+	t.WalkOperations([]OperationType{}, func(op Operation) {
+		if op.Type() != OpDelete {
+			otherPaths[strings.ToLower(op.GetRefPath())] = op.GetRefPath()
+		}
+	})
+	// A delete is stale if its path exists again on the source: it was recreated there after the delete event
+	// (e.g. late server events of our own recursive delete, #30). Load errors do not prove anything.
+	stale := func(op Operation, path string) bool {
+		if p, ok := otherPaths[strings.ToLower(path)]; ok && p != path {
+			return false
+		}
+		src := sources[op.Source()]
+		if src == nil {
+			return false
+		}
+		node, err := src.LoadNode(ctx, path)
+		return err == nil && node != nil
+	}
+
 	stats := t.Stats()
 	var total, idx, crtPercent int
 	if p, ok := stats["Pending"]; ok {
@@ -106,6 +129,9 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 			} else if n.PathOperation.Type() == OpDelete {
 				if missing(n.PathOperation.Target(), n.ProcessedPath(false)) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (target node is not there)", zap.String("path", n.ProcessedPath(false)))
+					n.PathOperation = nil
+				} else if stale(n.PathOperation, n.ProcessedPath(false)) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (node exists again on source)", zap.String("path", n.ProcessedPath(false)))
 					n.PathOperation = nil
 				}
 			} else if n.PathOperation.IsTypeMove() {
