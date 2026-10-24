@@ -118,3 +118,26 @@ func TestShutdownRightAfterPatch(t *testing.T) {
 		So(n, ShouldNotBeNil)
 	})
 }
+
+func TestShutdownDuringRootStats(t *testing.T) {
+	defer timings.ForTests()()
+
+	Convey("Shutdown while RootStats reports to watchConn must not race nor panic", t, func() {
+		for i := 0; i < 20; i++ {
+			left, right := memory.NewMemDB(), memory.NewMemDB()
+			left.SetTestPathURI("left")
+			right.SetTestPathURI("right")
+			s := NewSync(left, right, model.DirectionBi)
+			s.SetupEventsChan(make(chan model.Status, 10), make(chan interface{}, 1), make(chan interface{}))
+
+			done := make(chan struct{})
+			go func() {
+				defer close(done)
+				_, _ = s.RootStats(context.Background(), false)
+			}()
+			s.Shutdown()
+			<-done
+			So(s.watchConn, ShouldBeNil)
+		}
+	})
+}

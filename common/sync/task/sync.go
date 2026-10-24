@@ -353,6 +353,11 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 	}
 	lock := sync.Mutex{}
 	result := make(map[string]*model.EndpointRootStat, len(endpoints))
+	// Read watchConn under connLock and send through sendWatchConn: Shutdown may nil and close it
+	// while stats are running.
+	s.connLock.Lock()
+	wc := s.watchConn
+	s.connLock.Unlock()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(endpoints))
@@ -367,24 +372,22 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 				log.Logger(ctx).Info("Got Stats for "+keyCopy, zap.Any("stats", *sourceRoots))
 				result[keyCopy] = sourceRoots
 				lock.Unlock()
-				if !useSnapshots && s.watchConn != nil {
-					go func() {
-						s.watchConn <- &model.EndpointStatus{
-							WatchConnection: model.WatchStats,
-							EndpointInfo:    epCopy.GetEndpointInfo(),
-							Stats:           sourceRoots,
-						}
-					}()
+				if !useSnapshots && wc != nil {
+					go s.sendWatchConn(wc, &model.EndpointStatus{
+						WatchConnection: model.WatchStats,
+						EndpointInfo:    epCopy.GetEndpointInfo(),
+						Stats:           sourceRoots,
+					})
 				}
 			} else {
+				lock.Lock()
 				errs = append(errs, e)
-				if !useSnapshots && s.watchConn != nil {
-					go func() {
-						s.watchConn <- &model.EndpointStatus{
-							WatchConnection: model.WatchDisconnected,
-							EndpointInfo:    epCopy.GetEndpointInfo(),
-						}
-					}()
+				lock.Unlock()
+				if !useSnapshots && wc != nil {
+					go s.sendWatchConn(wc, &model.EndpointStatus{
+						WatchConnection: model.WatchDisconnected,
+						EndpointInfo:    epCopy.GetEndpointInfo(),
+					})
 				}
 			}
 		}()
