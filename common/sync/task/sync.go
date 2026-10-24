@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/filters"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/sync/proc"
@@ -64,6 +65,21 @@ type Sync struct {
 	runDone      chan interface{}
 	cmd          *model.Command
 	patchChan    chan merger.Patch
+
+	// connLock, connClosing, connDone and connSenders let Shutdown close watchConn
+	// without racing with goroutines still sending on it (see sendWatchConn)
+	connLock    sync.Mutex
+	connClosing bool
+	connDone    chan struct{}
+	connSenders sync.WaitGroup
+
+	// watchersLock protects watchersChan and eventsBatchers: Shutdown may run while Start is still setting up the
+	// watchers. Once watchersShutdown is set, new watchers are stopped right away.
+	watchersLock     sync.Mutex
+	watchersShutdown bool
+
+	// rootsInfoLock protects root stats updated by concurrent diff monitors (bidirectional with snapshots)
+	rootsInfoLock sync.Mutex
 }
 
 // NewSync creates a new sync task
@@ -120,16 +136,23 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 
 	if withWatches {
 		s.startWatchers(ctx)
-	} else if s.watchConn != nil {
+	} else if wc := s.watchConn; wc != nil {
+		s.connLock.Lock()
+		done := s.connDone
+		s.connLock.Unlock()
 		go func() {
-			<-time.After(2 * time.Second)
-			s.watchConn <- &model.EndpointStatus{
-				WatchConnection: model.WatchConnected,
-				EndpointInfo:    s.Source.GetEndpointInfo(),
+			select {
+			case <-time.After(timings.StartConnectedDelay.Get()):
+			case <-done:
+				return
 			}
-			s.watchConn <- &model.EndpointStatus{
-				WatchConnection: model.WatchConnected,
-				EndpointInfo:    s.Target.GetEndpointInfo(),
+			for _, ep := range []model.Endpoint{s.Source, s.Target} {
+				if !s.sendWatchConn(wc, &model.EndpointStatus{
+					WatchConnection: model.WatchConnected,
+					EndpointInfo:    ep.GetEndpointInfo(),
+				}) {
+					return
+				}
 			}
 		}()
 	}
@@ -152,10 +175,24 @@ func (s *Sync) Shutdown() {
 		// ignore 'close on closed channel'
 		recover()
 	}()
+	s.watchersLock.Lock()
+	s.watchersShutdown = true
+	s.watchersLock.Unlock()
 	s.stopWatchers()
-	if s.watchConn != nil {
-		close(s.watchConn)
-		s.watchConn = nil
+	s.connLock.Lock()
+	wc := s.watchConn
+	s.watchConn = nil
+	if !s.connClosing {
+		s.connClosing = true
+		if s.connDone != nil {
+			close(s.connDone)
+		}
+	}
+	s.connLock.Unlock()
+	// Wait for guarded senders to give up before closing the channel
+	s.connSenders.Wait()
+	if wc != nil {
+		close(wc)
 	}
 	s.processor.Stop()
 	// process.Stop closes the underlying patchChan - nullify it locally
@@ -221,15 +258,40 @@ func (s *Sync) SetupEventsChan(statusChan chan model.Status, batchDone chan inte
 	s.runDone = batchDone
 	if events != nil {
 		// Forward internal events to sync event
-		s.watchConn = make(chan *model.EndpointStatus)
+		wc := make(chan *model.EndpointStatus)
+		s.connLock.Lock()
+		s.watchConn = wc
+		s.connClosing = false
+		s.connDone = make(chan struct{})
+		s.connLock.Unlock()
 		go func() {
 			defer func() {
 				recover()
 			}()
-			for e := range s.watchConn {
+			for e := range wc {
 				events <- e
 			}
 		}()
+	}
+}
+
+// sendWatchConn sends a status on wc unless Shutdown has started, in which case it gives up
+// and returns false. Shutdown waits for pending sends to return before closing wc.
+func (s *Sync) sendWatchConn(wc chan *model.EndpointStatus, status *model.EndpointStatus) bool {
+	s.connLock.Lock()
+	if s.connClosing {
+		s.connLock.Unlock()
+		return false
+	}
+	s.connSenders.Add(1)
+	done := s.connDone
+	s.connLock.Unlock()
+	defer s.connSenders.Done()
+	select {
+	case wc <- status:
+		return true
+	case <-done:
+		return false
 	}
 }
 
@@ -239,7 +301,10 @@ func (s *Sync) SetupCmd(cmd *model.Command) {
 
 // BroadcastCloseSession forwards session id to underlying batchers
 func (s *Sync) BroadcastCloseSession(sessionUuid string) {
-	for _, b := range s.eventsBatchers {
+	s.watchersLock.Lock()
+	batchers := s.eventsBatchers
+	s.watchersLock.Unlock()
+	for _, b := range batchers {
 		b.ForceCloseSession(sessionUuid)
 	}
 }
@@ -299,6 +364,11 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 	}
 	lock := sync.Mutex{}
 	result := make(map[string]*model.EndpointRootStat, len(endpoints))
+	// Read watchConn under connLock and send through sendWatchConn: Shutdown may nil and close it
+	// while stats are running.
+	s.connLock.Lock()
+	wc := s.watchConn
+	s.connLock.Unlock()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(endpoints))
@@ -313,24 +383,22 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 				log.Logger(ctx).Info("Got Stats for "+keyCopy, zap.Any("stats", *sourceRoots))
 				result[keyCopy] = sourceRoots
 				lock.Unlock()
-				if !useSnapshots && s.watchConn != nil {
-					go func() {
-						s.watchConn <- &model.EndpointStatus{
-							WatchConnection: model.WatchStats,
-							EndpointInfo:    epCopy.GetEndpointInfo(),
-							Stats:           sourceRoots,
-						}
-					}()
+				if !useSnapshots && wc != nil {
+					go s.sendWatchConn(wc, &model.EndpointStatus{
+						WatchConnection: model.WatchStats,
+						EndpointInfo:    epCopy.GetEndpointInfo(),
+						Stats:           sourceRoots,
+					})
 				}
 			} else {
+				lock.Lock()
 				errs = append(errs, e)
-				if !useSnapshots && s.watchConn != nil {
-					go func() {
-						s.watchConn <- &model.EndpointStatus{
-							WatchConnection: model.WatchDisconnected,
-							EndpointInfo:    epCopy.GetEndpointInfo(),
-						}
-					}()
+				lock.Unlock()
+				if !useSnapshots && wc != nil {
+					go s.sendWatchConn(wc, &model.EndpointStatus{
+						WatchConnection: model.WatchDisconnected,
+						EndpointInfo:    epCopy.GetEndpointInfo(),
+					})
 				}
 			}
 		}()
@@ -347,7 +415,9 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 
 	db := memory.NewMemDB()
 	if er := source.Walk(ctx, func(path string, node tree.N, err error) error {
-
+		if err != nil {
+			return err
+		}
 		return db.CreateNode(ctx, node, false)
 
 	}, "/", true); er != nil {
@@ -359,9 +429,33 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 }
 
 func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *model.EndpointRootStat, e error) {
+	return s.statRootsOf(ctx, source, s.Roots)
+}
+
+// statsForRoot returns the stats to check the diff of one root against. RootStats sums all the
+// roots: with several, an empty root (or one whose files are all in other roots) was reported as
+// an "endpoints stat and collected children discrepancy". Each root is then stat'ed alone.
+func (s *Sync) statsForRoot(ctx context.Context, root string, all map[string]*model.EndpointRootStat) map[string]*model.EndpointRootStat {
+	if len(s.Roots) <= 1 || all == nil {
+		return all
+	}
+	out := make(map[string]*model.EndpointRootStat, len(all))
+	for _, ep := range []model.Endpoint{s.Source, s.Target} {
+		uri := ep.GetEndpointInfo().URI
+		if _, ok := all[uri]; !ok {
+			continue
+		}
+		if st, err := s.statRootsOf(ctx, ep, []string{root}); err == nil {
+			out[uri] = st
+		}
+	}
+	return out
+}
+
+func (s *Sync) statRootsOf(ctx context.Context, source model.Endpoint, selected []string) (stat *model.EndpointRootStat, e error) {
 	stat = &model.EndpointRootStat{}
 	var roots []string
-	roots = append(roots, s.Roots...)
+	roots = append(roots, selected...)
 	if len(roots) == 0 {
 		roots = append(roots, "/")
 	}

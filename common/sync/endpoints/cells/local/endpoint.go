@@ -76,6 +76,7 @@ func init() {
 		if values.Get("renewFolderUuids") == "true" {
 			opts.RenewFolderUuids = true
 		}
+		// sourceEtags: one-way imports into the router only, Watch is refused (see cells.Options.SourceEtags)
 		if values.Get("sourceEtags") == "true" {
 			opts.SourceEtags = true
 		}

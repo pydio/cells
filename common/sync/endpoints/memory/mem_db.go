@@ -23,7 +23,6 @@ package memory
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -34,6 +33,7 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints"
 	"github.com/pydio/cells/v5/common/sync/model"
@@ -50,9 +50,14 @@ type DBEvent struct {
 	Type   string
 	Source string
 	Target string
+	// Node is the created or deleted node, or the moved node at its new location
+	Node tree.N
+	// MoveSource is the moved node at its original location
+	MoveSource tree.N
 }
 
 type MemDB struct {
+	eventLock     sync.Mutex
 	eventChannels []chan DBEvent
 	// Used for testing
 	ignores     []string
@@ -99,13 +104,36 @@ func (db *MemDB) SetTestPathURI(s string) {
 /* Event Emitter 	 */
 /*************************/
 
+// RegisterEventChannel registers a channel receiving all DB events. Events are sent
+// synchronously: the channel must be read until it is unregistered.
 func (db *MemDB) RegisterEventChannel(out chan DBEvent) {
+	db.eventLock.Lock()
 	db.eventChannels = append(db.eventChannels, out)
+	db.eventLock.Unlock()
 }
 
-func (db *MemDB) sendEvent(event DBEvent) {
-	for _, channel := range db.eventChannels {
-		channel <- event
+// unregisterEventChannel removes and closes a channel registered with RegisterEventChannel.
+// The channel must be drained while unregistering, as a pending sendEvent holds eventLock.
+func (db *MemDB) unregisterEventChannel(out chan DBEvent) {
+	db.eventLock.Lock()
+	defer db.eventLock.Unlock()
+	for i, c := range db.eventChannels {
+		if c == out {
+			db.eventChannels = append(db.eventChannels[:i], db.eventChannels[i+1:]...)
+			break
+		}
+	}
+	close(out)
+}
+
+// sendEvents must be called without holding indexLock, so that receivers can read the DB.
+func (db *MemDB) sendEvents(events ...DBEvent) {
+	db.eventLock.Lock()
+	defer db.eventLock.Unlock()
+	for _, event := range events {
+		for _, channel := range db.eventChannels {
+			channel <- event
+		}
 	}
 }
 
@@ -114,7 +142,12 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /*************************/
 
 func normalize(s string) string {
-	return strings.TrimLeft(norm.NFC.String(s), "/")
+	return strings.Trim(norm.NFC.String(s), "/")
+}
+
+// cloneNode avoids mutating nodes that were already handed out
+func cloneNode(n tree.N) tree.N {
+	return n.AsProto().Clone()
 }
 
 func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
@@ -122,27 +155,29 @@ func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...boo
 	db.indexLock.RLock()
 	defer db.indexLock.RUnlock()
 	if n, ok := db.pathIndex[normalize(path)]; ok {
-		return n, nil
+		return cloneNode(n), nil
 	} else {
-		return nil, errors.New("not found")
+		return nil, errors.WithMessagef(errors.NodeNotFound, "node not found in memdb %s", path)
 	}
 
 }
 
 func (db *MemDB) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
+	// Store a copy, like a real storage: the caller may keep modifying its node
+	node = cloneNode(node)
 	db.indexLock.Lock()
-	defer db.indexLock.Unlock()
 	db.pathIndex[normalize(node.GetPath())] = node
-	db.sendEvent(DBEvent{
+	db.indexLock.Unlock()
+	db.sendEvents(DBEvent{
 		Type:   "Create",
 		Target: node.GetPath(),
+		Node:   node,
 	})
 	return nil
 }
 
 func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
 	db.indexLock.Lock()
-	defer db.indexLock.Unlock()
 	nfc := normalize(path)
 	var dd []string
 	for p := range db.pathIndex {
@@ -150,14 +185,19 @@ func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
 			dd = append(dd, p)
 		}
 	}
+	sort.Strings(dd)
+	var events []DBEvent
 	for _, rd := range dd {
 		n := db.pathIndex[rd]
 		delete(db.pathIndex, rd)
-		db.sendEvent(DBEvent{
+		events = append(events, DBEvent{
 			Type:   "Delete",
 			Source: n.GetPath(),
+			Node:   n,
 		})
 	}
+	db.indexLock.Unlock()
+	db.sendEvents(events...)
 
 	return nil
 }
@@ -165,26 +205,46 @@ func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
 func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 
 	db.indexLock.Lock()
-	defer db.indexLock.Unlock()
 	nfcOld := normalize(oldPath)
+	nfcNew := normalize(newPath)
 
+	var source, target tree.N
 	todos := map[string]tree.N{}
 	for p, node := range db.pathIndex {
 		if strings.HasPrefix(p, nfcOld+"/") || p == nfcOld {
-			node.SetPath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
-			todos[p] = node
+			// Store a moved copy: nodes already handed out keep their original path
+			moved := cloneNode(node)
+			newKey := nfcNew + strings.TrimPrefix(p, nfcOld)
+			if strings.HasPrefix(node.GetPath(), "/") {
+				moved.SetPath("/" + newKey)
+			} else {
+				moved.SetPath(newKey)
+			}
+			todos[p] = moved
+			if p == nfcOld {
+				source, target = node, moved
+			}
 		}
 	}
+	for p := range todos {
+		delete(db.pathIndex, p)
+	}
+	for _, node := range todos {
+		db.pathIndex[normalize(node.GetPath())] = node
+	}
+	db.indexLock.Unlock()
 	if len(todos) > 0 {
-		for p, node := range todos {
-			delete(db.pathIndex, p)
-			db.pathIndex[normalize(node.GetPath())] = node
+		ev := DBEvent{
+			Type:       "Moved",
+			Source:     oldPath,
+			Target:     newPath,
+			Node:       target,
+			MoveSource: source,
 		}
-		db.sendEvent(DBEvent{
-			Type:   "Moved",
-			Source: oldPath,
-			Target: newPath,
-		})
+		if target != nil {
+			ev.Target = target.GetPath()
+		}
+		db.sendEvents(ev)
 	}
 	return nil
 }
@@ -193,22 +253,35 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /* Path Sync Source 	 */
 /*************************/
 
+// Walk lists nodes sorted by path. The root node itself is included. Nodes are collected
+// before calling walknFc, which can therefore modify the DB.
 func (db *MemDB) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+	r := normalize(root)
 	var nn []string
 	db.indexLock.RLock()
-	defer db.indexLock.RUnlock()
 	for p := range db.pathIndex {
+		if r != "" && p != r && !strings.HasPrefix(p, r+"/") {
+			continue
+		}
+		if !recursive {
+			rel := p
+			if r != "" {
+				rel = strings.TrimPrefix(strings.TrimPrefix(p, r), "/")
+			}
+			if strings.Contains(rel, "/") {
+				continue
+			}
+		}
 		nn = append(nn, p)
 	}
 	sort.Strings(nn)
+	nodes := make([]tree.N, 0, len(nn))
 	for _, p := range nn {
-		node := db.pathIndex[p]
-		if root != "/" && !strings.HasPrefix(node.GetPath(), root) {
-			continue
-		}
-		if !recursive && strings.Contains(strings.TrimPrefix(node.GetPath(), root), "/") {
-			return nil
-		}
+		nodes = append(nodes, cloneNode(db.pathIndex[p]))
+	}
+	db.indexLock.RUnlock()
+
+	for _, node := range nodes {
 		if er := walknFc(node.GetPath(), node, nil); er != nil {
 			return er
 		}
@@ -221,15 +294,7 @@ func (db *MemDB) Watch(ctx context.Context, recursivePath string) (*model.WatchO
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
 	doneChan := make(chan bool)
-
-	// wait for doneChan to close the other channels
-	go func() {
-		<-doneChan
-
-		close(eventChan)
-		close(errorChan)
-		close(inChan)
-	}()
+	db.RegisterEventChannel(inChan)
 
 	wo := &model.WatchObject{
 		EventInfoChan: eventChan,
@@ -237,47 +302,68 @@ func (db *MemDB) Watch(ctx context.Context, recursivePath string) (*model.WatchO
 		DoneChan:      doneChan,
 	}
 
+	// Stops on a value sent on DoneChan, or when it is closed (WatchObject.Close)
 	go func() {
-		defer wo.Close()
-
-		for ev := range inChan {
-			switch v := ev.Type; v {
-			case "Create":
-				eventChan <- model.EventInfo{
-					Time:   time.Now().String(),
-					Size:   0,
-					Etag:   "",
-					Path:   ev.Target,
-					Folder: false,
-					Source: db,
-					Type:   model.EventCreate,
+		defer func() {
+			// Drain pending sends while unregistering
+			drained := make(chan struct{})
+			go func() {
+				for range inChan {
 				}
-			case "Moved":
-				eventChan <- model.EventInfo{
-					Time:   time.Now().String(),
-					Size:   0,
-					Etag:   "",
-					Path:   ev.Target,
-					Folder: false,
-					Source: db,
-					Type:   model.EventSureMove,
+				close(drained)
+			}()
+			db.unregisterEventChannel(inChan)
+			<-drained
+			close(eventChan)
+			close(errorChan)
+		}()
+		for {
+			select {
+			case ev := <-inChan:
+				ei, ok := db.toEventInfo(ev)
+				if !ok {
+					continue
 				}
-			case "Deleted":
-				eventChan <- model.EventInfo{
-					Time:   time.Now().String(),
-					Size:   0,
-					Etag:   "",
-					Path:   ev.Source,
-					Folder: false,
-					Source: db,
-					Type:   model.EventRemove,
+				select {
+				case eventChan <- ei:
+				case <-doneChan:
+					return
 				}
+			case <-doneChan:
+				return
 			}
-
 		}
 	}()
 
 	return wo, nil
+}
+
+func (db *MemDB) toEventInfo(ev DBEvent) (model.EventInfo, bool) {
+	ei := model.EventInfo{
+		Time:   time.Now().String(),
+		Source: db,
+	}
+	switch ev.Type {
+	case "Create":
+		ei.Type = model.EventCreate
+		ei.Path = ev.Target
+	case "Moved":
+		ei.Type = model.EventSureMove
+		ei.Path = ev.Target
+		ei.MoveSource = ev.MoveSource
+		ei.MoveTarget = ev.Node
+	case "Delete":
+		ei.Type = model.EventRemove
+		ei.Path = ev.Source
+	default:
+		return ei, false
+	}
+	if ev.Node != nil {
+		ei.Folder = !ev.Node.IsLeaf()
+		ei.Etag = ev.Node.GetEtag()
+		ei.Size = ev.Node.GetSize()
+	}
+	return ei, true
 }
 
 /*************************/

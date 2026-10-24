@@ -22,8 +22,11 @@ package proc
 
 import (
 	"context"
+	"sync"
+	"sync/atomic"
 	"time"
 
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 )
@@ -35,6 +38,13 @@ type ConnectedProcessor struct {
 	PatchChan chan merger.Patch
 	LocksChan chan model.LockEvent
 	Cmd       *model.Command
+
+	// done is closed by Stop: lock events are no longer sent (unlocks fire after a delay, possibly
+	// after Stop). loopDone is closed when ProcessPatches returns.
+	done     chan struct{}
+	loopDone chan struct{}
+	stopOnce sync.Once
+	started  atomic.Bool
 }
 
 // NewConnectedProcessor creates a new connected processor
@@ -43,6 +53,8 @@ func NewConnectedProcessor(ctx context.Context, cmd *model.Command) *ConnectedPr
 		Processor: *NewProcessor(ctx),
 		PatchChan: make(chan merger.Patch, 1),
 		Cmd:       cmd,
+		done:      make(chan struct{}),
+		loopDone:  make(chan struct{}),
 	}
 	p.Locker = p
 	return p
@@ -55,16 +67,27 @@ func (pr *ConnectedProcessor) SetLocksChan(locks chan model.LockEvent) {
 
 // Start starts listening for Patch channel
 func (pr *ConnectedProcessor) Start() {
+	pr.started.Store(true)
 	go pr.ProcessPatches()
 }
 
-// Stop closes Patch Channel and Interrupt Channel
+// Stop closes the Patch channel and waits for the patch being processed, if any, to finish: its
+// operations use the locks channel, which the caller closes after Stop. To stop quickly, interrupt
+// the patch through the Command first. Callers must keep reading the status and done channels of
+// the patch until Stop returns. Stop can be called several times.
 func (pr *ConnectedProcessor) Stop() {
-	close(pr.PatchChan)
+	pr.stopOnce.Do(func() {
+		close(pr.done)
+		close(pr.PatchChan)
+	})
+	if pr.started.Load() {
+		<-pr.loopDone
+	}
 }
 
 // ProcessPatches listens to PatchChan for processing
 func (pr *ConnectedProcessor) ProcessPatches() {
+	defer close(pr.loopDone)
 
 	for patch := range pr.PatchChan {
 		pr.Process(patch, pr.Cmd)
@@ -79,12 +102,12 @@ func (pr *ConnectedProcessor) LockFile(operation merger.Operation, path string, 
 		if source.GetEndpointInfo().IsAsynchronous {
 			return // no lock needed, do nothing
 		}
-		pr.LocksChan <- model.LockEvent{
+		pr.sendLock(model.LockEvent{
 			Type:        model.LockEventLock,
 			Source:      source,
 			Path:        path,
 			OperationId: operationId,
-		}
+		})
 	}
 }
 
@@ -94,17 +117,25 @@ func (pr *ConnectedProcessor) UnlockFile(operation merger.Operation, path string
 		if source.GetEndpointInfo().IsAsynchronous {
 			return // no lock needed, do nothing
 		}
-		d := 2 * time.Second
+		d := timings.EchoUnlockDelay.Get()
 		if source.GetEndpointInfo().EchoTime > 0 {
 			d = source.GetEndpointInfo().EchoTime
 		}
 		go func() {
 			<-time.After(d)
-			pr.LocksChan <- model.LockEvent{
+			pr.sendLock(model.LockEvent{
 				Type:   model.LockEventUnlock,
 				Source: source,
 				Path:   path,
-			}
+			})
 		}()
+	}
+}
+
+// sendLock sends a lock event, unless the processor is stopped.
+func (pr *ConnectedProcessor) sendLock(ev model.LockEvent) {
+	select {
+	case pr.LocksChan <- ev:
+	case <-pr.done:
 	}
 }

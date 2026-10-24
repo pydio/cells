@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/utils/filesystem"
@@ -55,7 +56,7 @@ func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 		if pref == "." {
 			pref = ""
 		}
-		<-time.After(3 * time.Second) // Wait to make sure indexation is finished
+		<-time.After(timings.RefreshUuidDelay.Get()) // Wait to make sure indexation is finished
 		_ = target.Walk(context.TODO(), func(path string, node tree.N, err error) error {
 			if err != nil {
 				return err

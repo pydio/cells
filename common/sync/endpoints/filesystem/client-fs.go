@@ -31,7 +31,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -95,7 +94,14 @@ func (w *WrapperWriter) Close() error {
 		w.client.FS.Remove(w.tmpPath)
 		return w.cancellable.Err()
 	default:
-		err := w.WriteCloser.Close()
+		var err error
+		// Flush content to disk before renaming, so that a crash cannot commit a partial file
+		if syncer, ok := w.WriteCloser.(interface{ Sync() error }); ok {
+			err = syncer.Sync()
+		}
+		if cErr := w.WriteCloser.Close(); err == nil {
+			err = cErr
+		}
 		if err != nil {
 			w.client.FS.Remove(w.tmpPath)
 			return err
@@ -272,7 +278,7 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...b
 func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return walkFunc("", nil, err)
+			return walkFunc(c.normalize(path), nil, err)
 		}
 		if len(path) == 0 || path == "/" || c.normalize(path) == strings.TrimLeft(root, "/") || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
 			return nil
@@ -280,7 +286,7 @@ func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 
 		path = c.normalize(path)
 		if node, e := c.loadNode(ctx, path, info); e != nil {
-			return walkFunc("", nil, e)
+			return walkFunc(path, nil, e)
 		} else {
 			return walkFunc(path, node, nil)
 		}
@@ -331,13 +337,15 @@ func (c *FSClient) Watch(ctx context.Context, recursivePath string) (*model.Watc
 		return nil, e
 	}
 
-	// wait for doneChan to close the watcher, eventChan and errorChan
+	// On doneChan, stop the watcher. eventChan and errorChan are closed by the dispatcher below,
+	// once it and all its debouncers have exited: closing them here could make a pending
+	// debouncer send on a closed channel (RACE-E01). Sends give up on stop, as nobody may read
+	// them anymore.
+	stop := make(chan struct{})
 	go func() {
 		<-doneChan
-
+		close(stop)
 		notify.Stop(in)
-		close(eventChan)
-		close(errorChan)
 		close(in)
 	}()
 
@@ -346,35 +354,61 @@ func (c *FSClient) Watch(ctx context.Context, recursivePath string) (*model.Watc
 	go func() {
 		writes := make(map[string]*FSEventDebouncer)
 		writesMux := &sync.Mutex{}
+		debouncers := &sync.WaitGroup{}
+		defer func() {
+			debouncers.Wait()
+			close(eventChan)
+			close(errorChan)
+		}()
 		for event := range out {
 			if strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
 				continue
 			}
 			eventInfo, eventError := notifyEventToEventInfo(c, event)
 			if eventError != nil {
-				errorChan <- eventError
+				select {
+				case errorChan <- eventError:
+				case <-stop:
+				}
 			} else if eventInfo.Path != "" {
 
 				if !eventInfo.Folder {
 
-					var d *FSEventDebouncer
-					writesMux.Lock()
-					d, o := writes[event.Path()]
-					if !o {
-						p := event.Path()
-						d = NewFSEventDebouncer(eventChan, errorChan, c, func() {
-							writesMux.Lock()
-							delete(writes, p)
-							writesMux.Unlock()
-						})
-						writes[event.Path()] = d
+					p := event.Path()
+					for delivered := false; !delivered; {
+						writesMux.Lock()
+						d, o := writes[p]
+						if !o {
+							debouncers.Add(1)
+							var nd *FSEventDebouncer
+							nd = NewFSEventDebouncer(eventChan, errorChan, c, stop, func() {
+								writesMux.Lock()
+								if writes[p] == nd {
+									delete(writes, p)
+								}
+								writesMux.Unlock()
+								debouncers.Done()
+							})
+							d = nd
+							writes[p] = d
+						}
+						writesMux.Unlock()
+						select {
+						case d.Input <- eventInfo:
+							delivered = true
+						case <-d.Done:
+							// The debouncer exited before reading: start a new one (RACE-E02).
+						case <-stop:
+							delivered = true
+						}
 					}
-					writesMux.Unlock()
-					d.Input <- eventInfo
 
 				} else {
 
-					eventChan <- eventInfo
+					select {
+					case eventChan <- eventInfo:
+					case <-stop:
+					}
 
 				}
 
@@ -442,17 +476,13 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 	oldPath = c.denormalize(oldPath)
 	newPath = c.denormalize(newPath)
 
-	stat, e := c.FS.Stat(oldPath)
-	if !os.IsNotExist(e) {
-		typeOfMem := reflect.TypeOf(afero.NewMemMapFs())
-		typeOfBasePathFs := reflect.TypeOf(&afero.BasePathFs{})
-		typeOfFs := reflect.TypeOf(c.FS)
-		if stat.IsDir() && (typeOfFs == typeOfMem || typeOfFs == typeOfBasePathFs) {
-			c.moveRecursively(ctx, oldPath, newPath)
-		} else {
-			err = c.FS.Rename(oldPath, newPath)
-		}
+	if _, e := c.FS.Stat(oldPath); os.IsNotExist(e) {
+		return errors.WithMessage(errors.NodeNotFound, "cannot move missing "+oldInitial)
+	} else if e != nil {
+		return e
 	}
+	// Rename moves folders with their content, on OS and in-memory filesystems
+	err = c.FS.Rename(oldPath, newPath)
 	if err == nil && c.updateSnapshot != nil {
 		log.Logger(ctx).Debug("[FS] Update Snapshot - Move from " + oldPath + " to " + newPath)
 		c.updateSnapshot.MoveNode(ctx, oldInitial, newInitial)
@@ -508,7 +538,8 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 	snapshotPath := path
 	path = c.denormalize(path)
 	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
-	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
+	// Truncate: a temporary file may be left over by an interrupted transfer
+	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if openErr != nil {
 		return nil, writeDone, writeErr, openErr
 	}
@@ -527,36 +558,6 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 func (c *FSClient) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {
 
 	return c.FS.Open(c.denormalize(path))
-
-}
-
-// Internal function expects already denormalized form
-func (c *FSClient) moveRecursively(ctx context.Context, oldPath string, newPath string) (err error) {
-
-	// Some fs require moving resources recursively
-	moves := make(map[int]string)
-	indexes := make([]int, 0)
-	i := 0
-	afero.Walk(c.FS, oldPath, func(wPath string, info os.FileInfo, err error) error {
-		//newWPath := newPath + strings.TrimPrefix(wPath, oldPath)
-		indexes = append(indexes, i)
-		moves[i] = wPath
-		i++
-		return nil
-	})
-	total := len(indexes)
-	for key := range indexes {
-		//c.FS.Rename(moveK, moveV)
-		key = total - key
-		wPath := moves[key]
-		if len(wPath) == 0 {
-			continue
-		}
-		msg := fmt.Sprintf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-		log.Logger(ctx).Debug(msg)
-		c.FS.Rename(wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-	}
-	return c.FS.Rename(oldPath, newPath)
 
 }
 

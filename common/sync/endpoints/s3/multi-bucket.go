@@ -142,7 +142,10 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 				continue
 			}
 			bC, _, _, _ := m.getClient(bucket.Name)
-			uid, _, _ := bC.readOrCreateFolderId(ctx, "")
+			uid, _, er := bC.readOrCreateFolderId(ctx, "")
+			if er != nil {
+				return er
+			}
 			// Walk bucket as a folder
 			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
 			// Additional read of bucket tagging if configured
@@ -163,20 +166,28 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 					taggingError = err
 				}
 			}
-			walknFc(bucket.Name, fNode, nil)
+			if er := walknFc(bucket.Name, fNode, nil); er != nil {
+				return er
+			}
 			if !m.options.BrowseOnly {
 				// Walk associated .pydio file
 				metaId, metaHash, metaSize, er := bC.getFileHash(ctx, common.PydioSyncHiddenFile)
 				if er != nil {
 					log.Logger(m.globalContext).Error("cannot get filehash for bucket hidden file", zap.Error(er))
+					return er
 				}
 				metaFilePath := path.Join(bucket.Name, common.PydioSyncHiddenFile)
-				walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
+				if er := walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil); er != nil {
+					return er
+				}
 			}
 			// Walk children
 			if recursive {
 				e := bC.Walk(ctx, func(iPath string, node tree.N, err error) error {
 					wrapped := m.patchPath(bucket.Name, node, iPath)
+					if err != nil {
+						return walknFc(wrapped, nil, err)
+					}
 					if collect && node.IsLeaf() {
 						eTags = append(eTags, node.GetEtag())
 					}
@@ -199,7 +210,10 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 		}
 		return nil
 	} else {
-		return c.Walk(nil, walknFc, i, recursive)
+		// Walk inside a bucket: report paths with the bucket prefix, like walks from the root
+		return c.Walk(ctx, func(iPath string, node tree.N, err error) error {
+			return walknFc(m.patchPath(b, node, iPath), node, err)
+		}, i, recursive)
 	}
 }
 
