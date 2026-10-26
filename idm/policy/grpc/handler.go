@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
@@ -41,6 +42,7 @@ import (
 	"github.com/pydio/cells/v5/common/utils/cache"
 	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
+	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/policy"
 	"github.com/pydio/cells/v5/idm/policy/converter"
 )
@@ -51,102 +53,246 @@ var groupsCacheConfig = cache.Config{
 	CleanWindow: "72h",
 }
 
+// engineEntry holds the result of an in-flight engine rebuild.
+// Multiple concurrent callers wait on ready to serialize access.
+type engineEntry struct {
+	ready chan struct{}
+	err   error
+}
+
 type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
+
+	mu           sync.Mutex // guards cachedEngine and rebuildEntry
+	cachedEngine *ladon.Ladon
+	rebuildEntry *engineEntry // non-nil while a rebuild is in flight
 }
 
-func NewHandler() idm.PolicyEngineServiceServer {
-	return &Handler{}
+func NewHandler(ctx context.Context) idm.PolicyEngineServiceServer {
+	h := &Handler{}
+	go h.warmEngine(ctx) // IsAllowed waits for engine to warm
+	h.watchPolicyChanges(ctx)
+	return h
 }
 
-func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+// getOrRebuildEngine serializes access to engine rebuilds using a ready channel.
+// Only one goroutine does the DB work; all others wait for the result.
+// Returns the cached engine and any error from the rebuild attempt.
+func (h *Handler) getOrRebuildEngine(ctx context.Context) (*ladon.Ladon, error) {
+	h.mu.Lock()
+	if h.cachedEngine != nil {
+		e := h.cachedEngine
+		h.mu.Unlock()
+		return e, nil
+	}
+	if h.rebuildEntry != nil {
+		// A rebuild is already in flight; join it.
+		entry := h.rebuildEntry
+		h.mu.Unlock()
+		<-entry.ready
+		h.mu.Lock()
+		e := h.cachedEngine
+		h.mu.Unlock()
+		return e, entry.err
+	}
+	// We are the first; become responsible for the rebuild.
+	entry := &engineEntry{ready: make(chan struct{})}
+	h.rebuildEntry = entry
+	h.mu.Unlock()
 
-	var checker func(context.Context, *ladon.Request) error
+	err := h.rebuildEngine(ctx)
 
+	h.mu.Lock()
+	h.rebuildEntry = nil
+	h.mu.Unlock()
+
+	entry.err = err
+	close(entry.ready) // broadcast to all waiters
+
+	h.mu.Lock()
+	e := h.cachedEngine
+	h.mu.Unlock()
+	return e, err
+}
+
+// rebuildEngine loads all policy groups from the DAO, builds a new ladon engine,
+// swaps it under the write-lock, and refreshes the shared cache.
+func (h *Handler) rebuildEngine(ctx context.Context) error {
+	dao, err := manager.Resolve[policy.DAO](ctx)
+	if err != nil {
+		return fmt.Errorf("policy: resolve DAO: %w", err)
+	}
+	groups, err := dao.ListPolicyGroups(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("policy: list groups: %w", err)
+	}
+
+	mem := memory.NewMemoryManager()
+	for _, g := range groups {
+		for _, p := range g.Policies {
+			if er := mem.Create(ctx, converter.ProtoToLadonPolicy(p)); er != nil {
+				log.Logger(ctx).Warn("policy: skipping bad policy during engine rebuild",
+					zap.String("id", p.GetID()), zap.Error(er))
+			}
+		}
+	}
+
+	engine := &ladon.Ladon{Manager: mem}
+
+	h.mu.Lock()
+	h.cachedEngine = engine
+	h.mu.Unlock() // Notify waiters in getOrRebuildEngine
+
+	log.Logger(ctx).Info("policy: engine rebuilt", zap.Int("groups", len(groups)))
+
+	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); er == nil {
+		if msg, er := json.Marshal(groups); er == nil {
+			_ = ka.Set("policyGroup", msg)
+		}
+
+	} else {
+		log.Logger(ctx).Error("policy: failed to cache engine groups in Redis", zap.Error(er))
+	}
+
+	return nil
+}
+
+// warmEngine populates cachedEngine on startup, trying Redis before falling back to the DB.
+func (h *Handler) warmEngine(ctx context.Context) {
 	var bb []byte
 	if ka, err := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); err == nil && ka.Get("policyGroup", &bb) {
-		var all []*idm.PolicyGroup
-		if json.Unmarshal(bb, &all) == nil {
-			log.Logger(ctx).Debug("Policies.IsAllowed - checking with Memory Manager from cache")
+		var groups []*idm.PolicyGroup
+		if json.Unmarshal(bb, &groups) == nil && len(groups) > 0 {
 			mem := memory.NewMemoryManager()
-			for _, g := range all {
+			for _, g := range groups {
 				for _, p := range g.Policies {
 					_ = mem.Create(ctx, converter.ProtoToLadonPolicy(p))
 				}
 			}
-			checker = func(_ context.Context, r *ladon.Request) error {
-				return (&ladon.Ladon{Manager: mem}).IsAllowed(ctx, r)
+			h.mu.Lock()
+			h.cachedEngine = &ladon.Ladon{Manager: mem}
+			h.mu.Unlock()
+			log.Logger(ctx).Info("policy: engine warmed from Redis cache", zap.Int("groups", len(groups)))
+			return
+		}
+	}
+	if _, err := h.getOrRebuildEngine(ctx); err != nil {
+		log.Logger(ctx).Error("policy: failed to warm engine from DB on startup", zap.Error(err))
+	}
+}
+
+// watchPolicyChanges subscribes to TopicIdmPolicies and rebuilds the engine on any mutation.
+func (h *Handler) watchPolicyChanges(ctx context.Context) {
+	subCtx := propagator.ForkedBackgroundWithMeta(ctx)
+	if err := broker.SubscribeCancellable(subCtx, common.TopicIdmPolicies,
+		func(evCtx context.Context, msg broker.Message) error {
+			log.Logger(evCtx).Info("policy: change event received, rebuilding engine")
+			if err := h.rebuildEngine(context.WithoutCancel(evCtx)); err != nil {
+				log.Logger(evCtx).Error("policy: engine rebuild failed", zap.Error(err))
 			}
-		}
+			return nil
+		},
+		broker.WithCounterName("policy-engine-rebuild"),
+	); err != nil {
+		// Without this subscription, other pods' engines are never refreshed on
+		// policy changes made elsewhere; make sure that's visible in the logs.
+		log.Logger(ctx).Error("policy: failed to subscribe to policy change events, engine may serve stale policies", zap.Error(err))
 	}
-	if checker == nil {
-		dao, er := manager.Resolve[policy.DAO](ctx)
-		if er != nil {
-			return nil, er
-		}
-		checker = dao.IsAllowed
-		log.Logger(ctx).Debug("Policies.IsAllowed - checking directly in DB and heating cache")
-		defer func() {
-			_, _ = h.ListPolicyGroups(context.WithoutCancel(ctx), &idm.ListPolicyGroupsRequest{})
-		}()
+}
+
+// notifyPolicyChange rebuilds this pod's engine synchronously so the write is
+// immediately reflected locally, then best-effort notifies other pods via the
+// broker. The broker publish is not relied upon for local consistency: it may
+// fail or be delayed, and we must not keep enforcing a stale/revoked policy
+// on this pod while waiting for it.
+func (h *Handler) notifyPolicyChange(ctx context.Context) {
+	if err := h.rebuildEngine(context.WithoutCancel(ctx)); err != nil {
+		log.Logger(ctx).Error("policy: local engine rebuild after policy change failed", zap.Error(err))
 	}
+	if err := broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE}); err != nil {
+		log.Logger(ctx).Error("policy: failed to publish policy change event, other pods may serve stale policies", zap.Error(err))
+	}
+}
 
-	response := &idm.PolicyEngineResponse{}
+func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+	engine, err := h.getOrRebuildEngine(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if engine == nil {
+		// Still no engine after rebuild attempt; should not happen, but fail safely.
+		return nil, fmt.Errorf("policy: engine unavailable")
+	}
+	return h.isAllowedFromEngine(ctx, engine, request)
+}
 
-	reqContext := make(map[string]interface{})
+// isAllowedFromEngine checks permissions against the in-process ladon engine.
+func (h *Handler) isAllowedFromEngine(ctx context.Context, engine *ladon.Ladon, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+	return runChecks(ctx, request, func(ctx context.Context, r *ladon.Request) error {
+		return engine.IsAllowed(ctx, r)
+	})
+}
+
+// runChecks fans out one goroutine per subject and aggregates the results.
+// Shared by isAllowedFromEngine and isAllowedFromDAO.
+func runChecks(ctx context.Context, request *idm.PolicyEngineRequest, checkFn func(context.Context, *ladon.Request) error) (*idm.PolicyEngineResponse, error) {
+	reqContext := make(map[string]interface{}, len(request.Context))
 	for k, v := range request.Context {
 		reqContext[k] = v
 	}
-	var allowed bool
-	var explicitDeny bool
-	var checkError error
+
+	var (
+		allowed       atomic.Bool
+		explicitDeny  atomic.Bool
+		checkErrorPtr atomic.Pointer[error]
+	)
+
+	ctx, can := context.WithCancel(ctx)
+	defer can()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(request.Subjects))
-	var can context.CancelFunc
-	ctx, can = context.WithCancel(ctx)
-	defer can()
-
 	for _, subject := range request.Subjects {
-
 		go func(sub string) {
 			defer wg.Done()
-			ladonRequest := &ladon.Request{
+			r := &ladon.Request{
 				Subject:  sub,
 				Resource: request.Resource,
 				Action:   request.Action,
 				Context:  reqContext,
 			}
-			if err := checker(ctx, ladonRequest); err == nil {
-				// Explicit allow
-				allowed = true
-			} else if errors.Is(err, ladon.ErrRequestForcefullyDenied) {
-				// Explicitly Deny : break and return false, cancel other policies
-				explicitDeny = true
+			err := checkFn(ctx, r)
+			switch {
+			case err == nil:
+				allowed.Store(true)
+			case errors.Is(err, ladon.ErrRequestForcefullyDenied):
+				explicitDeny.Store(true)
 				can()
-			} else if !errors.Is(err, ladon.ErrRequestDenied) && !errors.Is(err, context.Canceled) {
+			case errors.Is(err, ladon.ErrRequestDenied), errors.Is(err, context.Canceled):
+				// deny-by-default; not an error
+			default:
 				if strings.Contains(err.Error(), "connection refused") {
-					log.Logger(ctx).Error("Connection to DB error", zap.String("error", err.Error()))
 					err = errors.New("DAO error received")
 				}
-				checkError = err
+				checkErrorPtr.CompareAndSwap(nil, &err)
 				can()
 			}
 		}(subject)
 	}
 	wg.Wait()
 
-	if checkError != nil {
-		return response, checkError
+	response := &idm.PolicyEngineResponse{}
+	if ptr := checkErrorPtr.Load(); ptr != nil {
+		return response, *ptr
 	}
-	if explicitDeny {
+	switch {
+	case explicitDeny.Load():
 		response.ExplicitDeny = true
-	} else if allowed {
+	case allowed.Load():
 		response.Allowed = true
-	} else {
+	default:
 		response.DefaultDeny = true
 	}
-
 	return response, nil
 }
 
@@ -175,7 +321,6 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	// Do we still need that here ?
 	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig)
 	var bb []byte
 	if er == nil && request.GetFilter() == "" && request.GetQuery() == nil && ka.Get("policyGroup", &bb) {
@@ -185,7 +330,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 		}
 	}
 
-	// Legacy code - making sure we convert
+	// TODO Convert legacy string filter to a structured query.
 	if filter := request.GetFilter(); request.GetQuery() == nil && filter != "" {
 		var queries []*anypb.Any
 
@@ -248,10 +393,6 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		return nil, er
 	}
 
-	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); er == nil {
-		_ = ka.Delete("policyGroup")
-	}
-
 	response := &idm.StorePolicyGroupResponse{}
 
 	stored, err := dao.StorePolicyGroup(ctx, request.PolicyGroup)
@@ -265,7 +406,9 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		log.GetAuditId(common.AuditPolicyGroupStore),
 		stored.ZapUuid(),
 	)
-	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
+
+	// Rebuild this pod's engine immediately
+	h.notifyPolicyChange(ctx)
 
 	return response, nil
 }
@@ -275,10 +418,6 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 	dao, er := manager.Resolve[policy.DAO](ctx)
 	if er != nil {
 		return nil, er
-	}
-
-	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); er == nil {
-		_ = ka.Delete("policyGroup")
 	}
 
 	response := &idm.DeletePolicyGroupResponse{}
@@ -294,7 +433,9 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		log.GetAuditId(common.AuditPolicyGroupDelete),
 		request.PolicyGroup.ZapUuid(),
 	)
-	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
+
+	// Rebuild this pod's engine immediately
+	h.notifyPolicyChange(ctx)
 
 	return response, nil
 }
