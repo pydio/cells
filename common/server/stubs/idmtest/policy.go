@@ -16,7 +16,7 @@ import (
 func NewPolicyService(ctx context.Context, svc service.Service) (grpc.ClientConnInterface, error) {
 
 	serv := &idm.PolicyEngineServiceStub{
-		PolicyEngineServiceServer: srv.NewHandler(),
+		PolicyEngineServiceServer: srv.NewHandler(ctx),
 	}
 	mock := &inject.SvcInjectorMock{ClientConnInterface: serv, Svc: svc}
 	ctx = propagator.With(ctx, service.ContextKey, svc)
