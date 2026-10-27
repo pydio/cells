@@ -24,6 +24,7 @@ package sql
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/proto/idm"
@@ -75,6 +76,17 @@ func createTestMeta(ctx context.Context, metaDAO meta.DAO, nodeUuid, namespace s
 		JsonValue: "test-value",
 	})
 	return metaWithId, err
+}
+
+// assertJSONEquivalent compares two JSON strings for semantic equality
+// (ignoring key order and formatting), since Postgres' JSON/JSONB column type
+// does not preserve the exact byte representation of stored JSON.
+func assertJSONEquivalent(t *testing.T, actual, expected string) {
+	t.Helper()
+	var actualVal, expectedVal interface{}
+	So(json.Unmarshal([]byte(actual), &actualVal), ShouldBeNil)
+	So(json.Unmarshal([]byte(expected), &expectedVal), ShouldBeNil)
+	So(actualVal, ShouldResemble, expectedVal)
 }
 
 func TestEntityCrud(t *testing.T) {
@@ -740,7 +752,11 @@ func TestDisplayJSONRoundTrip(t *testing.T) {
 			values, err := evDAO.GetEntityValues(ctx, entity.Uuid)
 			So(err, ShouldBeNil)
 			So(values, ShouldHaveLength, 1)
-			So(values[0].DisplayJSON, ShouldEqual, payload)
+			// Compare semantically rather than byte-for-byte: on Postgres the
+			// display_json column is stored as JSON/JSONB, which the server
+			// reformats (whitespace) and may reorder keys on read, even though
+			// the value is unchanged.
+			assertJSONEquivalent(t, values[0].DisplayJSON, payload)
 		})
 
 		Convey("Entity Value Without DisplayJSON Returns Empty String From GetEntityValues", t, func() {
