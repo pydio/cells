@@ -500,6 +500,13 @@ func (s *entitySqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm
 }
 
 func (s *evSqlImpl) DeleteEntityValues(ctx context.Context, entityID string) (bool, error) {
+	// Delete related MetaValuesRel entries first to satisfy the FK constraint
+	// on meta_values_rel.e_value_uuid (same pattern as DeleteEntity).
+	subQuery := s.Session(ctx).Model(&EntityValues{}).Select("uuid").Where("entity_uuid = ?", entityID)
+	if tx := s.Session(ctx).Where("e_value_uuid IN (?)", subQuery).Delete(&MetaValuesRel{}); tx.Error != nil {
+		return false, evTagError(tx.Error)
+	}
+
 	tx := s.Session(ctx).Model(&EntityValues{}).Where(&EntityValues{EntityUUID: entityID}).Delete(&EntityValues{})
 	if tx.Error != nil {
 		return false, evTagError(tx.Error)
