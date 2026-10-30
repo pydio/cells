@@ -276,7 +276,11 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	<-done
 
 	// Now that all files are created, we can process metadata operations
-	patch.WalkOperations([]merger.OperationType{merger.OpCreateMeta, merger.OpUpdateMeta, merger.OpDeleteMeta}, serialWalker)
+	if br, ok := patch.Target().(model.MetadataBatchReceiver); ok {
+		pr.processMetadataBatches(ctx, patch, br, &interrupted)
+	} else {
+		patch.WalkOperations(metadataTypes, serialWalker)
+	}
 
 	finalFlusher()
 

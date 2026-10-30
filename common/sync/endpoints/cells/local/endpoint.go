@@ -212,59 +212,69 @@ func (l *Local) metaNodeTarget(ctx context.Context, node tree.N) (*tree.Node, er
 }
 
 func (l *Local) CreateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error {
-	if !l.namespaceSupported(namespace) {
-		return nil
-	}
-	metaNode, err := l.metaNodeTarget(ctx, node)
-	if err != nil {
-		return err
-	}
-	if strings.HasPrefix(namespace, "usermeta-") {
-		_, er := l.userMetaClient(ctx).UpdateMetaResolved(ctx, &idm.UpdateUserMetaRequest{
-			Operation: idm.UpdateUserMetaRequest_PUT,
-			MetaDatas: []*idm.UserMeta{{
-				NodeUuid:     metaNode.GetUuid(),
-				Namespace:    namespace,
-				JsonValue:    jsonValue,
-				ResolvedNode: metaNode,
-			}},
-		})
-		return er
-	} else {
-		metaNode.SetRawMetadata(map[string]string{namespace: jsonValue})
-		_, er := l.metaClient(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode})
-		return er
-	}
+	return l.ApplyMetadata(ctx, node, map[string]string{namespace: jsonValue}, nil)
 }
 
 func (l *Local) UpdateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error {
-	if !l.namespaceSupported(namespace) {
-		return nil
-	}
-	return l.CreateMetadata(ctx, node, namespace, jsonValue)
+	return l.ApplyMetadata(ctx, node, map[string]string{namespace: jsonValue}, nil)
 }
 
 func (l *Local) DeleteMetadata(ctx context.Context, node tree.N, namespace string) error {
-	if !l.namespaceSupported(namespace) {
+	return l.ApplyMetadata(ctx, node, nil, []string{namespace})
+}
+
+// ApplyMetadata writes all the metadata changes of a node with one node read and one request per kind:
+// the user-meta service then publishes one event for the node instead of one per value.
+func (l *Local) ApplyMetadata(ctx context.Context, node tree.N, values map[string]string, deleted []string) error {
+	var puts, dels []*idm.UserMeta
+	core := make(map[string]string)
+	for namespace, jsonValue := range values {
+		if !l.namespaceSupported(namespace) {
+			continue
+		}
+		if strings.HasPrefix(namespace, "usermeta-") {
+			puts = append(puts, &idm.UserMeta{Namespace: namespace, JsonValue: jsonValue})
+		} else {
+			core[namespace] = jsonValue
+		}
+	}
+	for _, namespace := range deleted {
+		if !l.namespaceSupported(namespace) {
+			continue
+		}
+		if !strings.HasPrefix(namespace, "usermeta-") {
+			return errors.New("Not Implemented for internal metadata")
+		}
+		dels = append(dels, &idm.UserMeta{Namespace: namespace})
+	}
+	if len(puts)+len(dels)+len(core) == 0 {
 		return nil
 	}
 	metaNode, err := l.metaNodeTarget(ctx, node)
 	if err != nil {
 		return err
 	}
-	if strings.HasPrefix(namespace, "usermeta-") {
-		_, er := l.userMetaClient(ctx).UpdateMetaResolved(ctx, &idm.UpdateUserMetaRequest{
-			Operation: idm.UpdateUserMetaRequest_DELETE,
-			MetaDatas: []*idm.UserMeta{{
-				NodeUuid:     metaNode.GetUuid(),
-				Namespace:    namespace,
-				ResolvedNode: metaNode,
-			}},
-		})
-		return er
-	} else {
-		return errors.New("Not Implemented for internal metadata")
+	for op, metas := range map[idm.UpdateUserMetaRequest_UserMetaOp][]*idm.UserMeta{
+		idm.UpdateUserMetaRequest_PUT:    puts,
+		idm.UpdateUserMetaRequest_DELETE: dels,
+	} {
+		if len(metas) == 0 {
+			continue
+		}
+		for _, m := range metas {
+			m.NodeUuid = metaNode.GetUuid()
+			m.ResolvedNode = metaNode
+		}
+		if _, er := l.userMetaClient(ctx).UpdateMetaResolved(ctx, &idm.UpdateUserMetaRequest{Operation: op, MetaDatas: metas}); er != nil {
+			return er
+		}
 	}
+	if len(core) > 0 {
+		metaNode.SetRawMetadata(core)
+		_, er := l.metaClient(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode})
+		return er
+	}
+	return nil
 }
 
 // writeCoreMeta stores the node MetaStore as core metadata through the meta service.
@@ -273,20 +283,26 @@ func (l *Local) writeCoreMeta(ctx context.Context, node *tree.Node) error {
 	return er
 }
 
-var imc tree.NodeReceiverClient
+var (
+	imc     tree.NodeReceiverClient
+	imcOnce sync.Once
+)
 
 func (l *Local) metaClient(ctx context.Context) tree.NodeReceiverClient {
-	if imc == nil {
+	imcOnce.Do(func() {
 		imc = tree.NewNodeReceiverClient(grpc.ResolveConn(ctx, common.ServiceMetaGRPC))
-	}
+	})
 	return imc
 }
 
-var umc meta.UserMetaClient
+var (
+	umc     meta.UserMetaClient
+	umcOnce sync.Once
+)
 
 func (l *Local) userMetaClient(ctx context.Context) meta.UserMetaClient {
-	if umc == nil {
+	umcOnce.Do(func() {
 		umc = meta.NewUserMetaClient()
-	}
+	})
 	return umc
 }

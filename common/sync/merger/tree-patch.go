@@ -135,6 +135,11 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 			return // Skip Processed Operations
 		}
 		d := path.Dir(operation.GetRefPath())
+		if operation.Type() == OpCreateMeta || operation.Type() == OpUpdateMeta || operation.Type() == OpDeleteMeta {
+			// Metadata paths are <node>/<namespace>: the branch is the node's parent, never the node itself.
+			// A file as walk root is listed as a virtual folder by the router when it is an archive.
+			d = path.Dir(d)
+		}
 		if d == "." {
 			d = ""
 		}

@@ -260,6 +260,12 @@ type MetadataReceiver interface {
 	DeleteMetadata(ctx context.Context, node tree.N, namespace string) error
 }
 
+// MetadataBatchReceiver applies all the metadata changes of one node at once
+type MetadataBatchReceiver interface {
+	// ApplyMetadata sets values (namespace => JSON value) and deletes the deleted namespaces
+	ApplyMetadata(ctx context.Context, node tree.N, values map[string]string, deleted []string) error
+}
+
 type Versioner interface {
 	Commit(node tree.N)
 	ListVersions(node tree.N) (versions map[int]string, lastVersion int)
