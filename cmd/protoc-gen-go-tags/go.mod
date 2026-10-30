@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v5/cmd/protoc-gen-go-tags
 
-go 1.26.1
+go 1.27
 
 require (
 	github.com/fatih/structtag v1.2.0

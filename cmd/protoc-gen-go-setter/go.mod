@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v5/cmd/protoc-gen-go-setter
 
-go 1.26.1
+go 1.27
 
 require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.3
