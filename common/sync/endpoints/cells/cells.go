@@ -265,13 +265,18 @@ func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.Watch
 	ctx, cancel := context.WithCancel(ct)
 	// receivers tracks the goroutines that send to this watch's channels: they are closed only
 	// once all of them have returned.
+	// spawn is only called by this function and its dispatcher goroutine, which runs Wait itself:
+	// every Add happens before Wait.
 	receivers := &sync.WaitGroup{}
-	receive := func() {
+	spawn := func(f func()) {
 		receivers.Add(1)
 		go func() {
 			defer receivers.Done()
-			c.receiveEvents(ctx, changes, finished, conn)
+			f()
 		}()
+	}
+	receive := func() {
+		spawn(func() { c.receiveEvents(ctx, changes, finished, conn) })
 	}
 
 	obj := &model.WatchObject{
@@ -299,11 +304,7 @@ func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.Watch
 					}
 				} else if changeEvent.Target != nil && changeEvent.Target.Etag == common.NodeFlagEtagTemporary &&
 					(changeEvent.Type == tree.NodeChangeEvent_CREATE || changeEvent.Type == tree.NodeChangeEvent_UPDATE_CONTENT) {
-					receivers.Add(1)
-					go func() {
-						defer receivers.Done()
-						c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan)
-					}()
+					spawn(func() { c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan) })
 				}
 			case er := <-finished:
 				if !strings.Contains(er.Error(), "DeadlineExceeded") {
