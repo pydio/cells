@@ -22,6 +22,8 @@ package merger
 
 import (
 	"context"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -57,7 +59,7 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 	if len(t.deletes) > 20 {
 		// Build a fake patch from the Deletes to easily detect top level modified branches
 		temp := &TreePatch{
-			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target()},
+			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target(), stateLock: &sync.Mutex{}},
 			TreeNode:      *NewTree(),
 		}
 		for _, d := range t.deletes {
@@ -75,11 +77,18 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 		}
 	}
 
-	t.detectFolderMoves(ctx, cachedTarget)
+	folderMoves := t.detectFolderMoves(ctx, cachedTarget)
 	n = track("filter:DetectFolderMoves", n)
 
 	t.detectFileMoves(ctx, cachedTarget)
 	n = track("filter:DetectFileMoves", n)
+
+	// Watchers send a delete per child of a moved folder, at the old path, without the creates a
+	// diff has: those deletes are left unpaired. Applied after the move, under the new path, they
+	// deleted the moved content.
+	for _, m := range folderMoves {
+		t.dropMovedChildrenDeletes(ctx, m.from, m.to)
+	}
 
 	// ENQUEUE REMAINING operations to patch
 	t.enqueueRemaining(ctx)
@@ -102,8 +111,9 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 	for _, createEvent := range t.createFiles {
 		node, err := createEvent.NodeFromSource(ctx)
 		if err != nil {
+			// Only drop the create: a delete of the same path is still valid if the node is in the target
+			// (otherwise detectFileMoves drops it)
 			delete(t.createFiles, createEvent.GetRefPath())
-			delete(t.deletes, createEvent.GetRefPath())
 			continue
 		}
 		if node.GetUuid() == "" && !model.IsFolderHiddenFile(node.GetPath()) {
@@ -128,8 +138,8 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 	}
 	for _, createOp := range t.createFolders {
 		if _, err := createOp.NodeFromSource(ctx); err != nil {
+			// Only drop the create, see filterCreateFiles
 			delete(t.createFolders, createOp.GetRefPath())
-			delete(t.deletes, createOp.GetRefPath())
 			continue
 		}
 		if refresher != nil && existingFolders != nil {
@@ -187,6 +197,9 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 				} else if createOps, ok := createsByETag[dbNode.GetEtag()]; ok {
 					// Look by Etag
 					for _, createOp := range createOps {
+						if _, available := t.createFiles[createOp.GetRefPath()]; !available {
+							continue // already matched by UUID
+						}
 						log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
 						move := &Move{
 							deleteOp: deleteOp,
@@ -229,6 +242,13 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 	}
 
 	for _, move := range moves {
+		// Deletes are visited in random order: the create (or delete) may have been matched by UUID after
+		// this ETag move was registered, never use an operation twice
+		_, deleteAvailable := t.deletes[move.deleteOp.GetRefPath()]
+		_, createAvailable := t.createFiles[move.createOp.GetRefPath()]
+		if !deleteAvailable || !createAvailable {
+			continue
+		}
 		log.Logger(ctx).Debug("Picked closest move", zap.Object("move", move))
 		// Remove from deletes/creates
 		delete(t.deletes, move.deleteOp.GetRefPath())
@@ -242,7 +262,10 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 	}
 }
 
-func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
+type folderMove struct{ from, to string }
+
+// detectFolderMoves turns folder delete/create pairs with the same UUID into moves, and returns them.
+func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.PathSyncSource) (moves []folderMove) {
 	sorted := t.sortedKeys(t.deletes)
 	//target, ok := model.AsPathSyncTarget(t.Target())
 
@@ -278,8 +301,26 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.Pa
 				t.QueueOperation(opCreate)
 				delete(t.deletes, deleteOp.GetRefPath())
 				delete(t.createFolders, opCreate.GetRefPath())
+				moves = append(moves, folderMove{from: deleteOp.GetRefPath(), to: opCreate.GetRefPath()})
 				break
 			}
+		}
+	}
+	return
+}
+
+// dropMovedChildrenDeletes removes the deletes of the children of a moved folder that still exist
+// at the new path in the source: the move covers them. Children really deleted are kept, and are
+// applied under the new path after the move.
+func (t *TreePatch) dropMovedChildrenDeletes(ctx context.Context, from, to string) {
+	prefix := strings.TrimSuffix(from, "/") + "/"
+	for p, op := range t.deletes {
+		if !strings.HasPrefix(p, prefix) {
+			continue
+		}
+		moved := strings.TrimSuffix(to, "/") + "/" + strings.TrimPrefix(p, prefix)
+		if _, err := t.Source().LoadNode(op.CreateContext(ctx), moved); err == nil {
+			delete(t.deletes, p)
 		}
 	}
 }
@@ -349,8 +390,30 @@ func (t *TreePatch) prune(ctx context.Context) {
 		}
 		if n.PathOperation != nil && n.PathOperation.Type() == OpDelete && !n.IsLeaf() {
 			log.Logger(ctx).Debug("Delete folder found, remove all branches underneath!", n.ZapPath())
-			prune = true
+			// Keep moves out of the deleted folder: they are processed before deletes
+			outMoves := movesOutOf(n)
+			n.ClearChildren()
+			for _, op := range outMoves {
+				log.Logger(ctx).Debug("Keeping move out of deleted folder", zap.String("from", op.GetMoveOriginPath()), zap.String("to", op.GetRefPath()))
+				t.QueueOperation(op)
+			}
 		}
 		return
 	})
+}
+
+// movesOutOf collects the moves of nodes below folder toward a path outside of it
+func movesOutOf(folder *TreeNode) (moves []Operation) {
+	fp := strings.Trim(folder.GetPath(), "/")
+	for _, c := range folder.SortedChildren() {
+		c.Walk(func(n *TreeNode) bool {
+			if op := n.PathOperation; op != nil && (op.Type() == OpMoveFile || op.Type() == OpMoveFolder) {
+				if tp := strings.Trim(op.GetRefPath(), "/"); tp != fp && !strings.HasPrefix(tp, fp+"/") {
+					moves = append(moves, op)
+				}
+			}
+			return false
+		})
+	}
+	return
 }

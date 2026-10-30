@@ -180,8 +180,41 @@ type PathSyncTarget interface {
 // DataSyncTarget provides a way to write some actual content to the nodes
 type DataSyncTarget interface {
 	PathSyncTarget
-	// GetWriterOn provides a writeCloser for writing content to a given path.
+	// GetWriterOn provides a writeCloser for writing content to a given path. Cancelling the context aborts the write.
+	//
+	// Completion contract: the caller writes the content then closes out, and an error returned by Close is a
+	// failure. If writeDone and writeErr are not nil, the write is only complete once writeDone receives a value or
+	// is closed, and an implementation must send its error on writeErr (buffered) before that: see WaitWriteResult.
 	GetWriterOn(cancel context.Context, path string, targetSize int64, node tree.N) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
+}
+
+// WaitWriteResult waits for the completion of a write started with DataSyncTarget.GetWriterOn, once its writer
+// is closed, and returns its error. It returns immediately if writeDone is nil (the write completed with Close).
+func WaitWriteResult(ctx context.Context, writeDone chan bool, writeErr chan error) error {
+	if writeDone == nil {
+		return nil
+	}
+	for {
+		select {
+		case <-writeDone:
+			// The error, if any, was sent before writeDone was signalled
+			select {
+			case e := <-writeErr:
+				return e
+			default:
+				return nil
+			}
+		case e, ok := <-writeErr:
+			if e != nil {
+				return e
+			}
+			if !ok {
+				writeErr = nil // closed without error: wait for writeDone
+			}
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
 }
 
 // DataSyncSource provides a way to read the actual content of the nodes
@@ -225,6 +258,12 @@ type MetadataReceiver interface {
 	UpdateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error
 	// DeleteMetadata deletes a metadata by namespace
 	DeleteMetadata(ctx context.Context, node tree.N, namespace string) error
+}
+
+// MetadataBatchReceiver applies all the metadata changes of one node at once
+type MetadataBatchReceiver interface {
+	// ApplyMetadata sets values (namespace => JSON value) and deletes the deleted namespaces
+	ApplyMetadata(ctx context.Context, node tree.N, values map[string]string, deleted []string) error
 }
 
 type Versioner interface {

@@ -38,6 +38,8 @@ type EchoFilter struct {
 	sync.Mutex
 	sources   map[model.PathSyncSource]map[string]string
 	locksChan chan model.LockEvent
+	done      chan struct{}
+	stopOnce  sync.Once
 }
 
 // NewEchoFilter creates a new EchoFilter
@@ -45,6 +47,7 @@ func NewEchoFilter() *EchoFilter {
 	e := &EchoFilter{
 		sources:   make(map[model.PathSyncSource]map[string]string),
 		locksChan: make(chan model.LockEvent),
+		done:      make(chan struct{}),
 	}
 	//go e.listenLocks()
 	return e
@@ -58,8 +61,12 @@ func (f *EchoFilter) Start() {
 	go f.listenLocks()
 }
 
+// Stop stops listening to lock events. The locks channel is not closed: delayed unlocks of the
+// processor may still be sent (they give up once the processor is stopped).
 func (f *EchoFilter) Stop() {
-	close(f.locksChan)
+	f.stopOnce.Do(func() {
+		close(f.done)
+	})
 }
 
 func (f *EchoFilter) Pipe(in chan model.EventInfo) (out chan model.EventInfo) {
@@ -85,14 +92,19 @@ func (f *EchoFilter) Pipe(in chan model.EventInfo) (out chan model.EventInfo) {
 
 func (f *EchoFilter) listenLocks() {
 
-	for lock := range f.locksChan {
-		f.Lock()
-		if lock.Type == model.LockEventLock {
-			f.lockFileTo(lock.Source, lock.Path, lock.OperationId)
-		} else {
-			f.unlockFile(lock.Source, lock.Path)
+	for {
+		select {
+		case <-f.done:
+			return
+		case lock := <-f.locksChan:
+			f.Lock()
+			if lock.Type == model.LockEventLock {
+				f.lockFileTo(lock.Source, lock.Path, lock.OperationId)
+			} else {
+				f.unlockFile(lock.Source, lock.Path)
+			}
+			f.Unlock()
 		}
-		f.Unlock()
 	}
 
 }

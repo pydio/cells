@@ -548,6 +548,7 @@ func (m *mockDataSyncTarget) GetWriterOn(ctx context.Context, uuid string, size 
 	}
 	done := make(chan bool, 1)
 	errChan := make(chan error, 1)
+	done <- true // the write completes as soon as it is closed
 	return &nopWriteCloser{&bytes.Buffer{}}, done, errChan, nil
 }
 func (m *mockDataSyncTarget) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) error {
@@ -1370,7 +1371,7 @@ func TestGetReaderOnSourceError(t *testing.T) {
 
 func TestGetWriterOnCallbackTriggersCreateNode(t *testing.T) {
 	ctx := context.Background()
-	Convey("GetWriterOn wrapper callback calls CreateNode on close", t, func() {
+	Convey("GetWriterOn wrapper calls CreateNode once the write is complete", t, func() {
 		q := &mockQueue{}
 		snap := newMockSnapshot()
 		tgt := &mockDataSyncTarget{}
@@ -1385,15 +1386,13 @@ func TestGetWriterOnCallbackTriggersCreateNode(t *testing.T) {
 		}
 
 		node := &tree.Node{Path: "/test", Uuid: "uuid", Type: tree.NodeType_LEAF}
-		out, _, _, err := ep.GetWriterOn(ctx, "/path", 1024, node)
+		out, done, errs, err := ep.GetWriterOn(ctx, "/path", 1024, node)
 		So(err, ShouldBeNil)
 
-		// Verify snapshot has not yet seen the node
-		So(len(snap.created), ShouldEqual, 0)
-
-		// Close the writer - should trigger CreateNode callback
+		// Close the writer and wait for the write - should trigger CreateNode
 		err = out.Close()
 		So(err, ShouldBeNil)
+		So(model.WaitWriteResult(ctx, done, errs), ShouldBeNil)
 
 		// Now snapshot should have the node
 		So(len(snap.created), ShouldEqual, 1)

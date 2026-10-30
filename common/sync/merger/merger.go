@@ -23,6 +23,7 @@ package merger
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"time"
@@ -94,6 +95,8 @@ func (t OperationType) String() string {
 		return "CreateMetadata"
 	case OpDeleteMeta:
 		return "DeleteMetadata"
+	case OpConflict:
+		return "Conflict"
 	}
 	return ""
 }
@@ -177,6 +180,37 @@ type Operation interface {
 
 type ConflictOperation interface {
 	ConflictInfo() (t ConflictType, left Operation, right Operation)
+	// IsSolved tells if the merger solved the conflict by keeping both versions: left and right operations are then
+	// the creations of the two copies. Otherwise, the path is held back (not synced) until the conflict is resolved.
+	IsSolved() bool
+}
+
+// ConflictError is reported by Patch.HasErrors for a conflict the merger could not solve. The other operations of
+// the patch are still processed: only the conflicting path (and its children) is held back (CS-U-06).
+type ConflictError struct {
+	Path string
+	Type ConflictType
+}
+
+func (c *ConflictError) Error() string {
+	return fmt.Sprintf("conflict on path %s", c.Path)
+}
+
+// WithoutConflicts filters out ConflictError from a list of errors
+func WithoutConflicts(errs []error) (out []error) {
+	for _, e := range errs {
+		var ce *ConflictError
+		if !errors.As(e, &ce) {
+			out = append(out, e)
+		}
+	}
+	return
+}
+
+// isSolvedConflict tells if an operation is a conflict solved by the merger
+func isSolvedConflict(op Operation) bool {
+	c, ok := op.(ConflictOperation)
+	return ok && c.IsSolved()
 }
 
 // OpWalker is a callback passed to the Walk functions of a patch
@@ -237,6 +271,9 @@ type Patch interface {
 	SkipFilterToTarget(bool)
 	// PostFilter gets or sets a callback to be triggered after filtering
 	PostFilter(...func() error) []func() error
+	// PostProcess gets or sets a callback to be triggered once the patch is processed, before it is Done,
+	// unless processing is interrupted. A callback error is set as the patch error.
+	PostProcess(...func() error) []func() error
 	// Validate browses target to verify all changes are correctly reflected (and indexed)
 	Validate(ctx context.Context) error
 

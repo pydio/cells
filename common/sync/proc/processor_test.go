@@ -23,7 +23,6 @@ package proc
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 
@@ -93,8 +92,8 @@ func TestProcess(t *testing.T) {
 		patch.Enqueue(merger.NewOperation(merger.OpMoveFile, model.EventInfo{Path: "moved-file"}, &tree.Node{Path: "to-be-moved", Type: tree.NodeType_LEAF}))
 		patch.Enqueue(merger.NewOperation(merger.OpMoveFolder, model.EventInfo{Path: "moved-folder"}, &tree.Node{Path: "folder-to-be-moved", Type: tree.NodeType_COLLECTION}))
 
+		// Process is synchronous: all operations are applied when it returns
 		m.Process(patch, nil)
-		time.Sleep(2 * time.Second)
 
 		newDir, derr := target.LoadNode(testCtx, "mkdir")
 		So(newDir, ShouldNotBeNil)
