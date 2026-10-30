@@ -28,11 +28,9 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
-	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 )
@@ -112,21 +110,4 @@ func kbProgress() chan int64 {
 		}
 	}()
 	return c
-}
-
-// Crashes the test binary until fixed: run it alone with -run TestKnownBug_UnlockAfterEchoFilterStop
-func TestKnownBug_UnlockAfterEchoFilterStop(t *testing.T) {
-	knownBug(t, "RACE-04", "a delayed UnlockFile sends on the locks channel closed by Sync.Shutdown: panic (crashes the test binary)")
-	defer timings.ForTests()()
-	cp := NewConnectedProcessor(context.Background(), nil)
-	locks := make(chan model.LockEvent)
-	go func() {
-		for range locks {
-		}
-	}()
-	cp.SetLocksChan(locks)
-	_, op := kbCreateFileOp(&kbSource{memory.NewMemDB()}, memory.NewMemDB())
-	cp.UnlockFile(op, "a.txt") // sends after EchoUnlockDelay
-	close(locks)               // what echoFilter.Stop() does during Sync.Shutdown
-	<-time.After(5 * timings.EchoUnlockDelay.Get())
 }

@@ -24,8 +24,11 @@ import (
 	"context"
 	"testing"
 
+	"go.uber.org/goleak"
+
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v5/common/sync/internal/timings"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 // Tests in this file pin bugs that were fixed (formerly in known_bugs_test.go).
@@ -57,4 +60,17 @@ func TestFailedRetriesKeepError(t *testing.T) {
 	if _, has := p.HasErrors(); !has || op.Error() == nil {
 		t.Fatal("the operation and the patch should have errors when all attempts fail")
 	}
+}
+
+// RACE-04: a delayed UnlockFile sent on the locks channel closed by the echo filter during Sync.Shutdown (panic).
+// The locks channel is no longer closed, and delayed unlocks give up once the processor is stopped.
+func TestUnlockAfterStopGivesUp(t *testing.T) {
+	defer goleak.VerifyNone(t, goleak.IgnoreCurrent())
+	defer timings.ForTests()()
+	cp := NewConnectedProcessor(context.Background(), nil)
+	cp.SetLocksChan(make(chan model.LockEvent)) // nobody reads it after Shutdown, like the echo filter's
+	_, op := kbCreateFileOp(&kbSource{memory.NewMemDB()}, memory.NewMemDB())
+	cp.UnlockFile(op, "a.txt") // sends after EchoUnlockDelay
+	cp.Stop()
+	// goleak fails if the delayed unlock is still blocked on the channel
 }

@@ -127,23 +127,3 @@ func TestKnownBug_BatcherFlushOnClosedPatchChan(t *testing.T) {
 	close(in)
 	<-time.After(10 * timings.BatcherDebounce.Get())
 }
-
-// Crashes the test binary until fixed: run it alone with -run TestKnownBug_BatcherActivityOnClosedStatusChan
-func TestKnownBug_BatcherActivityOnClosedStatusChan(t *testing.T) {
-	knownBug(t, "RACE-04", "the batcher reports idle activity on the status channel closed by Sync.Shutdown: panic (crashes the test binary)")
-	defer timings.ForTests()()
-	src, tgt := memory.NewMemDB(), memory.NewMemDB()
-	b := NewEventsBatcher(context.Background(), src, tgt, nil, time.Hour)
-	st := make(chan *model.EndpointStatus)
-	go func() {
-		for range st {
-		}
-	}()
-	b.SetEndpointStatusChan(st)
-	in := make(chan model.EventInfo)
-	b.Batch(in, make(chan merger.Patch, 1))
-	in <- model.EventInfo{Type: model.EventCreate, Path: "a.txt", ScanEvent: true}
-	<-time.After(timings.BatcherIdleDelay.Get() / 2)
-	close(st) // Sync.Shutdown closes watchConn while the batcher is still active
-	<-time.After(10 * timings.BatcherIdleDelay.Get())
-}

@@ -71,8 +71,8 @@ func (pr *ConnectedProcessor) Start() {
 	go pr.ProcessPatches()
 }
 
-// Stop closes the Patch channel and waits for the patch being processed, if any, to finish: its
-// operations use the locks channel, which the caller closes after Stop. To stop quickly, interrupt
+// Stop closes the Patch channel and waits for the patch being processed, if any, to finish. The locks
+// channel must not be closed: delayed unlocks may still fire, and give up once stopped. To stop quickly, interrupt
 // the patch through the Command first. Callers must keep reading the status and done channels of
 // the patch until Stop returns. Stop can be called several times.
 func (pr *ConnectedProcessor) Stop() {
