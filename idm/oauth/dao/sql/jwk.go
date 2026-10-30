@@ -25,6 +25,7 @@ import (
 	"reflect"
 
 	jose "github.com/go-jose/go-jose/v3"
+	"github.com/gofrs/uuid"
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/errorsx"
@@ -79,7 +80,10 @@ func (j *jwkDriver) addKey(db *gorm.DB, ctx context.Context, set string, key *jo
 		return err
 	}
 
+	// ID is the primary key: left empty, every row would get the zero UUID
+	// and any key after the first one would fail with a duplicated key.
 	data := &jwk.SQLData{
+		ID:      uuid.Must(uuid.NewV4()),
 		Set:     set,
 		KID:     key.KeyID,
 		Version: 0,
