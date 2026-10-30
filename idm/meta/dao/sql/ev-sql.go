@@ -159,9 +159,12 @@ func (u *Entities) AsEntity(res *idm.MetaEntity) *idm.MetaEntity {
 	return res
 }
 
-// FromEntity populates an Entities model from an idm.MetaEntity
+// FromEntity populates an Entities model from an idm.MetaEntity.
+// If the entity carries a non-empty Uuid it is used as-is; otherwise a new UUID is generated.
 func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
-	if u.UUID == "" {
+	if res.Uuid != "" {
+		u.UUID = res.Uuid
+	} else if u.UUID == "" {
 		u.UUID = uuid.New().String()
 	}
 	u.Label = res.Label
@@ -170,9 +173,32 @@ func (u *Entities) FromEntity(res *idm.MetaEntity) *Entities {
 	return u
 }
 
-// CreateEntity creates a new entity
+// CreateEntity creates a new entity, or updates label/description if one with the same UUID already exists.
 func (s *entitySqlImpl) CreateEntity(ctx context.Context, entity *idm.MetaEntity) (*idm.MetaEntity, error) {
 	res := (&Entities{}).FromEntity(entity)
+
+	// If a record with this UUID already exists, update it in-place
+	if existing, _ := s.GetEntity(ctx, res.UUID); existing != nil {
+		tx := s.Session(ctx).Model(&Entities{}).Where("uuid = ?", res.UUID).Updates(map[string]any{
+			"label":       res.Label,
+			"description": res.Description,
+		})
+		if tx.Error != nil {
+			return nil, evTagError(tx.Error)
+		}
+		out := res.AsEntity(&idm.MetaEntity{})
+		if len(entity.Policies) > 0 {
+			if existPols, err := s.GetPoliciesForResource(ctx, out.Uuid); err == nil && len(existPols) > 0 {
+				_ = s.DeletePoliciesForResource(ctx, out.Uuid)
+			}
+			if pols, err := s.AddPolicies(ctx, false, out.Uuid, entity.Policies); err != nil {
+				return nil, evTagError(err)
+			} else {
+				out.Policies = pols
+			}
+		}
+		return out, nil
+	}
 
 	tx := s.Session(ctx).Create(res)
 	if tx.Error != nil {
@@ -474,6 +500,13 @@ func (s *entitySqlImpl) DeleteEntity(ctx context.Context, entityID string) (*idm
 }
 
 func (s *evSqlImpl) DeleteEntityValues(ctx context.Context, entityID string) (bool, error) {
+	// Delete related MetaValuesRel entries first to satisfy the FK constraint
+	// on meta_values_rel.e_value_uuid (same pattern as DeleteEntity).
+	subQuery := s.Session(ctx).Model(&EntityValues{}).Select("uuid").Where("entity_uuid = ?", entityID)
+	if tx := s.Session(ctx).Where("e_value_uuid IN (?)", subQuery).Delete(&MetaValuesRel{}); tx.Error != nil {
+		return false, evTagError(tx.Error)
+	}
+
 	tx := s.Session(ctx).Model(&EntityValues{}).Where(&EntityValues{EntityUUID: entityID}).Delete(&EntityValues{})
 	if tx.Error != nil {
 		return false, evTagError(tx.Error)

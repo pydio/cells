@@ -25,6 +25,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -106,9 +108,36 @@ func (o *URLOpener) Open(ctx context.Context, u *url.URL) (cache.Cache, error) {
 		return nil, err
 	}
 
+	// Size the local TinyLFU using CELLS_CACHES_HARD_LIMIT (MB) when set.
+	// The env var was previously only wired to bigcache; honour it here too.
+	// Default: 1000 items. With the env var: limit_MB × 100 items (≈ 10 KB
+	// average item assumption), clamped to [100, 50000].
+	localSize := 1000
+	if limitStr := os.Getenv("CELLS_CACHES_HARD_LIMIT"); limitStr != "" {
+		if limitMB, e := strconv.ParseInt(limitStr, 10, 64); e == nil && limitMB > 0 {
+			localSize = int(limitMB * 100)
+			if localSize < 100 {
+				localSize = 100
+			} else if localSize > 50000 {
+				localSize = 50000
+			}
+		}
+	}
+
+	// Derive the local TTL from the configured Redis eviction time so the
+	// TinyLFU doesn't expire entries far more aggressively than Redis does.
+	// Cap between 1 minute (minimum useful) and 10 minutes (avoid stale reads
+	// when a key is mutated between the Redis TTL refresh and local expiry).
+	localTTL := opt.EvictionTime / 4
+	if localTTL < time.Minute {
+		localTTL = time.Minute
+	} else if localTTL > 10*time.Minute {
+		localTTL = 10 * time.Minute
+	}
+
 	mycache := redisc.New(&redisc.Options{
 		Redis:      cli,
-		LocalCache: redisc.NewTinyLFU(1000, time.Minute),
+		LocalCache: redisc.NewTinyLFU(localSize, localTTL),
 	})
 
 	c := &redisCache{

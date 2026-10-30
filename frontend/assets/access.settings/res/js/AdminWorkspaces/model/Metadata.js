@@ -105,25 +105,25 @@ class Metadata {
 
     }
     /**
-     * Creates a new entity with the given description, label, and policies.
-     * @param label String
-     * @param description String
-     * @param policies Array
+     * Creates a new entity or updates an existing one.
+     * Omit `uuid` (or pass null/undefined) to create; supply it to update in-place.
+     * @param {string} label - Entity label (required)
+     * @param {string} description - Entity description
+     * @param {Array} policies - Access control policies
+     * @param {string} [uuid] - Existing entity UUID for updates
+     * @returns {Promise<IdmMetaEntity>}
      */
-    static createEntity(label,description, policies) {
+    static createOrUpdateEntity(label, description, policies, uuid) {
         if (!label) {
-            throw new Error('Label is required to create an entity');
+            throw new Error('Label is required');
         }
         const entity = IdmMetaEntity.constructFromObject({
-            Description: description || '',
+            ...(uuid ? { Uuid: uuid } : {}),
             Label: label,
-            Policies: policies || []
+            Description: description || '',
+            Policies: policies || [],
         });
-
-        const request = IdmCreateEntityRequest.constructFromObject({
-            Entity: entity,
-        });
-
+        const request = IdmCreateEntityRequest.constructFromObject({ Entity: entity });
         return Metadata.api.putEntity(request).then(r => {
             return r.Entity;
         }).catch(e => {
@@ -131,6 +131,7 @@ class Metadata {
             throw e;
         });
     }
+
     /**
      * Creates entity values for a given entity with the same policies applied to all values
      * @param {string} entityId - The entity identifier

@@ -24,9 +24,11 @@ package sql
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
 	"github.com/pydio/cells/v5/idm/meta"
@@ -74,6 +76,17 @@ func createTestMeta(ctx context.Context, metaDAO meta.DAO, nodeUuid, namespace s
 		JsonValue: "test-value",
 	})
 	return metaWithId, err
+}
+
+// assertJSONEquivalent compares two JSON strings for semantic equality
+// (ignoring key order and formatting), since Postgres' JSON/JSONB column type
+// does not preserve the exact byte representation of stored JSON.
+func assertJSONEquivalent(t *testing.T, actual, expected string) {
+	t.Helper()
+	var actualVal, expectedVal interface{}
+	So(json.Unmarshal([]byte(actual), &actualVal), ShouldBeNil)
+	So(json.Unmarshal([]byte(expected), &expectedVal), ShouldBeNil)
+	So(actualVal, ShouldResemble, expectedVal)
 }
 
 func TestEntityCrud(t *testing.T) {
@@ -739,7 +752,11 @@ func TestDisplayJSONRoundTrip(t *testing.T) {
 			values, err := evDAO.GetEntityValues(ctx, entity.Uuid)
 			So(err, ShouldBeNil)
 			So(values, ShouldHaveLength, 1)
-			So(values[0].DisplayJSON, ShouldEqual, payload)
+			// Compare semantically rather than byte-for-byte: on Postgres the
+			// display_json column is stored as JSON/JSONB, which the server
+			// reformats (whitespace) and may reorder keys on read, even though
+			// the value is unchanged.
+			assertJSONEquivalent(t, values[0].DisplayJSON, payload)
 		})
 
 		Convey("Entity Value Without DisplayJSON Returns Empty String From GetEntityValues", t, func() {
@@ -857,6 +874,107 @@ func TestUnlinkIdempotency(t *testing.T) {
 			unlinked, err = evDAO.UnlinkMetaValue(ctx, metaWithId.Uuid, value.Uuid)
 			So(err, ShouldBeNil)
 			So(unlinked, ShouldBeFalse)
+		})
+	})
+}
+
+// TestCreateEntityUpsert covers the FromEntity + CreateEntity upsert path introduced
+// to prevent duplicate-key errors when a known UUID is passed (e.g. from the frontend
+// when toggling entity policies on an existing namespace).
+func TestCreateEntityUpsert(t *testing.T) {
+	test.RunStorageTests(mainTestcases, t, func(ctx context.Context) {
+		mockDAO, err := manager.Resolve[meta.DAO](ctx)
+		if err != nil {
+			panic(err)
+		}
+		sqlDAO := mockDAO.(*sqlimpl)
+		entityDAO := sqlDAO.entityDAO
+
+		Convey("CreateEntity with explicit UUID upserts instead of inserting a duplicate row", t, func() {
+			// First call — no UUID; backend generates one.
+			first, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
+				Label:       "Upsert Entity",
+				Description: "original description",
+			})
+			So(err, ShouldBeNil)
+			So(first.Uuid, ShouldNotBeEmpty)
+
+			// Second call — same UUID, updated fields. Must not create a new row.
+			second, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
+				Uuid:        first.Uuid,
+				Label:       "Upsert Entity",
+				Description: "updated description",
+			})
+			So(err, ShouldBeNil)
+			So(second.Uuid, ShouldEqual, first.Uuid)
+
+			// Only one entity with this UUID should exist.
+			all, err := entityDAO.ListEntities(ctx)
+			So(err, ShouldBeNil)
+			count := 0
+			for _, e := range all {
+				if e.Uuid == first.Uuid {
+					count++
+				}
+			}
+			So(count, ShouldEqual, 1)
+		})
+
+		Convey("CreateEntity with explicit UUID replaces existing policies", t, func() {
+			readPol := []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow, Subject: "*"},
+				{Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow, Subject: "*"},
+			}
+			adminOnlyPol := []*service.ResourcePolicy{
+				{Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow, Subject: "*"},
+				{Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow, Subject: "profile:admin"},
+			}
+
+			// Create with open policies.
+			created, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
+				Label:    "Policy Upsert Entity",
+				Policies: readPol,
+			})
+			So(err, ShouldBeNil)
+			So(created.Uuid, ShouldNotBeEmpty)
+
+			// Upsert with restrictive policies — simulates the "closed values" toggle.
+			updated, err := entityDAO.CreateEntity(ctx, &idm.MetaEntity{
+				Uuid:     created.Uuid,
+				Label:    "Policy Upsert Entity",
+				Policies: adminOnlyPol,
+			})
+			So(err, ShouldBeNil)
+			So(updated.Uuid, ShouldEqual, created.Uuid)
+			So(updated.Policies, ShouldHaveLength, 2)
+
+			// Verify the stored policies reflect the new values, not the old ones.
+			fetched, err := entityDAO.GetEntity(ctx, created.Uuid)
+			So(err, ShouldBeNil)
+			So(fetched.Policies, ShouldHaveLength, 2)
+			writeSubjects := make([]string, 0, 2)
+			for _, p := range fetched.Policies {
+				if p.Action == service.ResourcePolicyAction_WRITE {
+					writeSubjects = append(writeSubjects, p.Subject)
+				}
+			}
+			So(writeSubjects, ShouldContain, "profile:admin")
+		})
+
+		Convey("FromEntity uses incoming Uuid when non-empty", t, func() {
+			knownUUID := "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+			model := (&Entities{}).FromEntity(&idm.MetaEntity{
+				Uuid:  knownUUID,
+				Label: "Known UUID Entity",
+			})
+			So(model.UUID, ShouldEqual, knownUUID)
+		})
+
+		Convey("FromEntity generates a UUID when incoming Uuid is empty", t, func() {
+			model := (&Entities{}).FromEntity(&idm.MetaEntity{
+				Label: "Auto UUID Entity",
+			})
+			So(model.UUID, ShouldNotBeEmpty)
 		})
 	})
 }
