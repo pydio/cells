@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
@@ -54,6 +55,11 @@ type FileInfo struct {
 	UserFriendlyName string
 	UserCanWrite     bool
 	LastModifiedTime string
+
+	// SupportsLocks and SupportsUpdate advertise the WOPI operations implemented
+	// by this host. They are enabled only for the Euro-Office integration.
+	SupportsLocks  bool `json:"SupportsLocks,omitempty"`
+	SupportsUpdate bool `json:"SupportsUpdate,omitempty"`
 
 	UserCanRename bool `json:"UserCanRename,omitempty"`
 
@@ -214,6 +220,99 @@ func download(w http.ResponseWriter, r *http.Request) {
 	log.Logger(r.Context()).Debug("data sent to output", zap.Int64("Data Length", written))
 }
 
+// wopiLock handles the WOPI LOCK, REFRESH_LOCK, and UNLOCK operations.
+func wopiLock(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	n, err := findNodeFromRequest(r)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
+	if err != nil {
+		log.Logger(ctx).Error("cannot resolve WOPI write permissions", zap.Error(err))
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	if !accessList.CanWrite(ctx, n) {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	lockID := r.Header.Get("X-WOPI-Lock")
+	if lockID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	currentLock, locked, err := permissions.GetWOPILock(ctx, n.GetUuid())
+	if err != nil {
+		log.Logger(ctx).Error("cannot read WOPI lock", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	conflict := func() {
+		w.Header().Set("X-WOPI-Lock", currentLock)
+		w.WriteHeader(http.StatusConflict)
+	}
+
+	switch r.Header.Get("X-WOPI-Override") {
+	case "LOCK":
+		if locked {
+			if currentLock != lockID {
+				conflict()
+				return
+			}
+			err = permissions.RefreshWOPILock(ctx, n.GetUuid(), lockID, permissions.WOPILockExpiration)
+		} else {
+			err = permissions.AcquireWOPILock(ctx, n.GetUuid(), lockID, permissions.WOPILockExpiration)
+			if err != nil {
+				// A concurrent LOCK may have won the unique ACL insert.
+				currentLock, locked, _ = permissions.GetWOPILock(ctx, n.GetUuid())
+				if locked {
+					if currentLock != lockID {
+						conflict()
+						return
+					}
+					err = permissions.RefreshWOPILock(ctx, n.GetUuid(), lockID, permissions.WOPILockExpiration)
+				}
+			}
+		}
+	case "REFRESH_LOCK":
+		if !locked || currentLock != lockID {
+			conflict()
+			return
+		}
+		err = permissions.RefreshWOPILock(ctx, n.GetUuid(), lockID, permissions.WOPILockExpiration)
+	case "UNLOCK":
+		if !locked || currentLock != lockID {
+			conflict()
+			return
+		}
+		var deleted int64
+		deleted, err = permissions.ReleaseWOPILock(ctx, n.GetUuid(), lockID)
+		if err == nil && deleted == 0 {
+			currentLock, locked, _ = permissions.GetWOPILock(ctx, n.GetUuid())
+			if locked {
+				conflict()
+				return
+			}
+		}
+	default:
+		w.WriteHeader(http.StatusNotImplemented)
+		return
+	}
+
+	if err != nil {
+		log.Logger(ctx).Error("WOPI lock operation failed", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func uploadStream(w http.ResponseWriter, r *http.Request) {
 	log.Logger(r.Context()).Debug("WOPI BACKEND - Upload")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -223,6 +322,24 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
+	// WOPI PutFile is accepted only while the caller presents the current lock
+	// for this exact node. The context marker lets the normal Cells lock filter
+	// bypass this one validated lock, without weakening other lock checks.
+	lockID := r.Header.Get("X-WOPI-Lock")
+	currentLock, locked, lockErr := permissions.GetWOPILock(r.Context(), n.GetUuid())
+	if lockErr != nil {
+		log.Logger(r.Context()).Error("cannot read WOPI lock", zap.Error(lockErr))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !locked || lockID == "" || lockID != currentLock {
+		w.Header().Set("X-WOPI-Lock", currentLock)
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+	ctx := permissions.WithWOPILockBypass(r.Context(), n.GetUuid(), lockID)
+	r = r.WithContext(ctx)
 
 	// Check if LastModifiedTime changed, ask user to resolve the conflict
 	coolTimeStr := r.Header.Get("X-COOL-WOPI-Timestamp")

@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/config"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
@@ -75,6 +76,15 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 		f.UserFriendlyName = claims.Name
 	} else {
 		f.UserFriendlyName = claims.DisplayName
+	}
+	if claims.Issuer == "eurooffice" {
+		accessList, err := permissions.AccessListFromContextClaims(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("cannot resolve Euro-Office WOPI permissions: %w", err)
+		}
+		f.UserCanWrite = accessList.CanWrite(ctx, n)
+		f.SupportsLocks = true
+		f.SupportsUpdate = true
 	}
 	conf := config.Get(ctx, "frontend/plugin/editor.libreoffice")
 

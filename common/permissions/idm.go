@@ -276,7 +276,26 @@ func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver)
 
 	accessList = NewAccessList()
 
-	acls, _ := GetACLsForActions(ctx, AclLock)
+	acls, searchErr := GetACLsForActions(ctx, AclLock)
+	if searchErr != nil {
+		return nil, searchErr
+	}
+
+	// A WOPI write may bypass only the lock belonging to the exact node and
+	// lock ID that was validated by the WOPI gateway. Parent and other-node
+	// locks remain effective.
+	if bypass, ok := wopiLockBypassFromContext(ctx); ok {
+		filtered := make([]*idm.ACL, 0, len(acls))
+		for _, acl := range acls {
+			if acl.GetNodeID() == bypass.NodeUUID &&
+				acl.GetAction().GetName() == AclLock.Name &&
+				acl.GetAction().GetValue() == bypass.LockID {
+				continue
+			}
+			filtered = append(filtered, acl)
+		}
+		acls = filtered
+	}
 
 	accessList.AppendACLs(acls...)
 	accessList.masksByUUIDs = make(map[string]Bitmask)

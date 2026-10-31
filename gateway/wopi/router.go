@@ -81,6 +81,14 @@ var myRoutes = wopiRoutes{
 		getNodeInfos,
 	},
 
+	// WOPI clients use POST /files/{uuid} with X-WOPI-Override to manage locks.
+	route{
+		"Lock",
+		"POST",
+		"/files/{uuid}",
+		wopiLock,
+	},
+
 	route{
 		"Download",
 		"GET",
