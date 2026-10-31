@@ -1,111 +1,85 @@
-<img src="https://github.com/pydio/cells/wiki/images/PydioCellsColor.png" width="400" />
+# Pydio Cells v5 — Personal Fork
 
-[Homepage](https://pydio.com/) | [Dev Guide](https://pydio.com/en/docs/developer-guide) | [GitHub-Repository](https://github.com/pydio/cells) |
-[Issue-Tracker](https://github.com/pydio/cells/issues)
+An independent, experimental fork of [Pydio Cells](https://github.com/pydio/cells), exploring a more open and self-hosting-friendly direction for the Cells platform.
 
-[![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/pydio/cells/v5?status.svg)](https://godoc.org/github.com/pydio/cells/v5)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells/v5?rand=6)](https://goreportcard.com/report/github.com/pydio/cells/v5)
+<badge>Work in progress</badge>
 
-**-------------**  
-**WORK IN PROGRESS - CELLS V5 - USE THIS BRANCH AT YOUR OWN RISKS**  
-**-------------**
+> **This fork is under active development.** It is not a production-ready replacement for Pydio Cells. Features, compatibility, deployment instructions, and project direction may change.
 
-Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
+## Project direction
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/pydio/cells-dist/master/resources/v4.0.0/home.png" width="600" style="border: 3px solid #e0e0e0; border-radius: 5px;"/>
-</p>
+The goal is to build on the existing Cells v5 codebase rather than start another file-platform rewrite from scratch.
 
-## Getting Started
+Current areas of interest:
 
-These instructions will get you a copy of the project up and running on your local machine for **development** and testing purposes. See the [Deployment section below](#pre-built-binaries) for notes on how to deploy the project on a live system.
+- **Document editing:** investigate integration with [Euro-Office](https://www.euro-office.org/) as the preferred collaborative office suite.
+- **Open integrations:** keep core functionality and integrations accessible without making essential capabilities dependent on an enterprise-only edition.
+- **Self-hosting:** make the platform practical to operate on independently managed infrastructure.
+- **Maintainability:** preserve useful upstream work and make changes deliberately, with clear documentation.
 
-### A - Prerequisites
+These are project goals, not claims that the integrations or changes are already implemented. In particular, Euro-Office integration is planned work.
 
-The following elements are required to compile and run Pydio Cells on your machine:
+## Current status
 
-- Go language **v1.21** or higher and a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
-- MySQL database 5.6 or higher (or MariaDB equivalent).
+This repository is based on the Pydio Cells v5 development code. It currently retains substantial upstream code and project structure; fork-specific changes are at an early stage.
 
-_Note: We have developed and tested Pydio Cells on macOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
+- Upstream: [pydio/cells](https://github.com/pydio/cells)
+- Development branch: `v5-dev`
+- Language: Go
+- License: [GNU Affero General Public License v3](LICENSE)
 
-### B - Build From Sources
+Expect incomplete work and upstream behavior until changes are implemented and documented here.
 
-Assuming that your system meets the above prerequisites, building the **Pydio Cells** backend from the source code is quite straightforward:
+## Building from source
+
+### Requirements
+
+The current `go.mod` declares Go **1.27.3** as its toolchain version. Use a compatible Go toolchain.
+
+### Get the source
 
 ```sh
-# Retrieve the code
-git clone https://github.com/pydio/cells
-# Enter cells directory
-cd cells
-# Build your binary
+git clone https://github.com/italiatroller-1990/cells-personal-fork.git
+cd cells-personal-fork
+git switch v5-dev
+```
+
+### Build
+
+The repository includes the upstream development build target:
+
+```sh
 make dev
 ```
 
-### C - Configure Environment
+Runtime configuration and database requirements are still being reviewed for this fork. Do not assume that upstream deployment documentation describes the final supported setup here.
 
-To have the environment running, you must also:
+## Tests
 
-- Create a database in your chosen DB server,
-- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://docs.pydio.com/cells-v4/admin-guide/quick-start/cells-installation/index/) for additional information.
-
+Run the Go test suite with:
 
 ```sh
-./cells configure
+go test ./...
 ```
 
-### D - Start Server
-
-```sh
-./cells start
-```
-Access the default site https://localhost:8080/ and you are good to go. Learn more about Cells features 
-and advanced configuration in the [Documentation](https://pydio.com/en/docs).
-
-## Running the tests
-
-To run the tests, simply do
-
-```sh
-go test -v ./...
-```
-
-## Running with live reload
-First install [air](https://github.com/air-verse/air)
-`go install github.com/air-verse/air@latest`
-Run with live reload
-```sh
-air -c .air.toml
-```
-
-Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add more tests or contribute to the code.
-
-## Pre-built Binaries
-
-Binaries are currently provided for [Linux, macOS and Windows distributions](https://pydio.com/en/download). To deploy them on a live system, please see the [Installation Guide](https://docs.pydio.com/cells-v4/admin-guide/quick-start/cells-installation/index/) instructions.
-
+The project is large, and a successful build or test run does not by itself mean every feature is production-ready.
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us. You can find a comprehensive [Developer Guide](https://pydio.com/en/docs/developer-guide) on our website. Our online docs are open-source as well, feel free to improve them by contributing!
+This is currently a personal development fork. Before proposing substantial changes, open an issue or discussion so the intended behavior and scope can be agreed upon.
 
-We are also looking for help to translate the Cells interface in various languages.
-It is really easy to participate: just navigate to [our page in the Crowdin translation tool](https://crowdin.com/project/pydio-cells), create an account and get started.
+Please include relevant tests and documentation with code changes. Be clear about whether a feature is implemented, experimental, or only planned.
 
-Pydio Cells uses many open-source libraries. The most important ones are listed below, please see [DEPENDENCIES](DEPENDENCIES) for an exhaustive list of other libs and their licenses.
+## Upstream project and attribution
 
-## Versioning & Branches
+This project is derived from [Pydio Cells](https://github.com/pydio/cells). The upstream project, its contributors, and its documentation remain important references for understanding the codebase.
 
-Please note that git main branch moved from `master` for Cells v1 to v3 (vendoring, no modules) to `main` for Cells v4 (go modules).
+- [Pydio website](https://pydio.com/)
+- [Upstream source repository](https://github.com/pydio/cells)
+- [Upstream developer guide](https://pydio.com/en/docs/developer-guide)
 
-We use [Semantic Versioning](http://semver.org/). For all available versions, see the [release list](https://github.com/pydio/cells/releases).
-
-## Authors
-
-See the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the code that can be found under `frontend/assets`.
+This fork is independent and is not presented as an official Pydio project.
 
 ## License
 
-This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for more details.
-
+This fork retains the upstream project's **AGPLv3** licensing. See [LICENSE](LICENSE) for the license text.
