@@ -25,6 +25,8 @@ import (
 	"net/http"
 	"time"
 
+	"go.uber.org/zap"
+
 	commonauth "github.com/pydio/cells/v5/common/auth"
 	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -42,6 +44,13 @@ func auth(inner http.Handler) http.Handler {
 			var claims claim.Claims
 			ctx, claims, err = jwtVerifier.Verify(ctx, bearer)
 			if err == nil && claims.Name != "" {
+				if claims.Issuer == "eurooffice" {
+					if proofErr := validateEuroOfficeWOPIRequest(ctx, r, bearer); proofErr != nil {
+						log.Logger(ctx).Error("Euro-Office WOPI proof validation failed", zap.Error(proofErr))
+						w.WriteHeader(http.StatusInternalServerError)
+						return
+					}
+				}
 				r = r.WithContext(ctx)
 				inner.ServeHTTP(w, r)
 				return
