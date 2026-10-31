@@ -301,8 +301,12 @@ func wopiLock(w http.ResponseWriter, r *http.Request) {
 		var deleted int64
 		deleted, err = permissions.ReleaseWOPILock(ctx, n.GetUuid(), lockID)
 		if err == nil && deleted == 0 {
-			currentLock, locked, _ = permissions.GetWOPILock(ctx, n.GetUuid())
-			if locked {
+			currentLock, locked, err = permissions.GetWOPILock(ctx, n.GetUuid())
+			if err != nil {
+				break
+			}
+			// Unlock on a missing lock is also a lock mismatch in WOPI.
+			if !locked || locked {
 				conflict()
 				return
 			}

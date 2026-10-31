@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -237,8 +238,8 @@ func validateEuroOfficeWOPIRequest(ctx context.Context, r *http.Request, accessT
 	if timestampText == "" {
 		return fmt.Errorf("missing X-WOPI-TimeStamp header")
 	}
-	var timestamp uint64
-	if _, err := fmt.Sscan(timestampText, &timestamp); err != nil {
+	timestamp, err := strconv.ParseUint(strings.TrimSpace(timestampText), 10, 64)
+	if err != nil {
 		return fmt.Errorf("invalid X-WOPI-TimeStamp header: %w", err)
 	}
 	if !wopiTimestampIsFresh(timestamp, time.Now()) {
