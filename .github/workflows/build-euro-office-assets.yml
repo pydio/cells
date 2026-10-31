@@ -1,0 +1,51 @@
+name: Build Euro-Office frontend assets
+
+on:
+  push:
+    branches:
+      - feat/euro-office-wopi
+    paths:
+      - "frontend/assets/editor.eurooffice/**"
+      - "frontend/assets/webpack-commons.js"
+      - "frontend/assets/libdefs.js"
+      - "frontend/assets/package.json"
+      - "frontend/assets/pnpm-workspace.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.7.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/assets/package.json
+
+      - name: Install workspace dependencies
+        working-directory: frontend/assets
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Euro-Office editor bundle
+        working-directory: frontend/assets
+        run: pnpm --filter editor.eurooffice run build-prod
+
+      - name: Upload compiled editor bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: euro-office-editor-assets
+          path: frontend/assets/editor.eurooffice/res/dist/
+          if-no-files-found: error
+          retention-days: 7

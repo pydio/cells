@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor
+        id="editor.eurooffice" enabled="false" openable="true" order="2"
+        text="eurooffice.1" title="eurooffice.1"
+        canWrite="true" iconClass="mdi mdi-file-document-edit"
+        className="PydioEuroOffice" mimes="docx,pptx,xlsx,dotx,xltx,ppsx,doc,ppt,xls,dot,xlt,pps,odt,odp,ods,ots,ott,otp,rtf,csv"
+        label="CONF_MESSAGE[Euro-Office]"
+        description="CONF_MESSAGE[Edit office documents with the Euro-Office document server]">
+
+    <server_settings>
+        <global_param name="EUROOFFICE_INTERNAL_URL" type="string"
+                      label="CONF_MESSAGE[Internal Euro-Office URL]"
+                      description="CONF_MESSAGE[URL used by the Cells backend to retrieve Euro-Office discovery and proof keys]"
+                      default="" mandatory="true" expose="true"/>
+        <global_param name="EUROOFFICE_PUBLIC_URL" type="string"
+                      label="CONF_MESSAGE[Public Euro-Office URL]"
+                      description="CONF_MESSAGE[HTTPS origin that users' browsers use to access Euro-Office]"
+                      default="" mandatory="true" expose="true"/>
+        <global_param name="WOPI_HOST_BASE_URL" type="string"
+                      label="CONF_MESSAGE[Public Cells WOPI URL]"
+                      description="CONF_MESSAGE[Public HTTPS origin that Euro-Office uses to call the Cells WOPI endpoint]"
+                      default="" mandatory="true" expose="true"/>
+    </server_settings>
+
+    <client_settings>
+        <resources>
+            <js file="plug/editor.eurooffice/res/dist/PydioEuroOffice.min.js" className="PydioEuroOffice"/>
+            <i18n namespace="eurooffice" remote="plug/editor.eurooffice/res/i18n"/>
+        </resources>
+    </client_settings>
+</editor>
