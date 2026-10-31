@@ -2,9 +2,7 @@
 
 An independent, experimental fork of [Pydio Cells](https://github.com/pydio/cells), exploring a more open and self-hosting-friendly direction for the Cells platform.
 
-<badge>Work in progress</badge>
-
-> **This fork is under active development.** It is not a production-ready replacement for Pydio Cells. Features, compatibility, deployment instructions, and project direction may change.
+> **Work in progress:** This fork is not a production-ready replacement for Pydio Cells. Features, compatibility, deployment instructions, and project direction may change.
 
 ## Project direction
 
@@ -12,7 +10,7 @@ The goal is to build on the existing Cells v5 codebase rather than start another
 
 Current areas of interest:
 
-- **Document editing:** investigate integration with [Euro-Office](https://www.euro-office.org/) as the preferred collaborative office suite.
+- **Document editing:** investigate integration with [Euro-Office](https://github.com/Euro-Office), an open-source collaborative office suite project, as the preferred office integration.
 - **Open integrations:** keep core functionality and integrations accessible without making essential capabilities dependent on an enterprise-only edition.
 - **Self-hosting:** make the platform practical to operate on independently managed infrastructure.
 - **Maintainability:** preserve useful upstream work and make changes deliberately, with clear documentation.
@@ -24,6 +22,7 @@ These are project goals, not claims that the integrations or changes are already
 This repository is based on the Pydio Cells v5 development code. It currently retains substantial upstream code and project structure; fork-specific changes are at an early stage.
 
 - Upstream: [pydio/cells](https://github.com/pydio/cells)
+- Euro-Office: [Euro-Office organization on GitHub](https://github.com/Euro-Office)
 - Development branch: `v5-dev`
 - Language: Go
 - License: [GNU Affero General Public License v3](LICENSE)
