@@ -103,14 +103,16 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 	if conf.Val("COLLABORA_DISABLE_COPY").Default(false).Bool() {
 		f.DisableCopy = true
 	}
-	f.UserCanWrite = n.GetStringMeta(common.MetaFlagReadonly) != "true"
+	if claims.Issuer != "eurooffice" {
+		f.UserCanWrite = n.GetStringMeta(common.MetaFlagReadonly) != "true"
 
-	switch conf.Val("COLLABORA_DISABLE_MODE").Default("edit").String() {
-	case "readonly":
-		f.UserCanWrite = false
-	case "comment":
-		if f.UserCanWrite {
-			f.UserCanOnlyComment = true
+		switch conf.Val("COLLABORA_DISABLE_MODE").Default("edit").String() {
+		case "readonly":
+			f.UserCanWrite = false
+		case "comment":
+			if f.UserCanWrite {
+				f.UserCanOnlyComment = true
+			}
 		}
 	}
 

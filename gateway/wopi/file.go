@@ -33,6 +33,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/permissions"
@@ -223,6 +224,12 @@ func download(w http.ResponseWriter, r *http.Request) {
 // wopiLock handles the WOPI LOCK, REFRESH_LOCK, and UNLOCK operations.
 func wopiLock(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	claims, ok := claim.FromContext(ctx)
+	if !ok || claims.Issuer != "eurooffice" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	n, err := findNodeFromRequest(r)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -323,23 +330,24 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// WOPI PutFile is accepted only while the caller presents the current lock
-	// for this exact node. The context marker lets the normal Cells lock filter
-	// bypass this one validated lock, without weakening other lock checks.
-	lockID := r.Header.Get("X-WOPI-Lock")
-	currentLock, locked, lockErr := permissions.GetWOPILock(r.Context(), n.GetUuid())
-	if lockErr != nil {
-		log.Logger(r.Context()).Error("cannot read WOPI lock", zap.Error(lockErr))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	// Euro-Office editing uses WOPI locks. Keep the existing Collabora WOPI
+	// behavior unchanged; its token issuer is not the Euro-Office marker.
+	if claims, ok := claim.FromContext(r.Context()); ok && claims.Issuer == "eurooffice" {
+		lockID := r.Header.Get("X-WOPI-Lock")
+		currentLock, locked, lockErr := permissions.GetWOPILock(r.Context(), n.GetUuid())
+		if lockErr != nil {
+			log.Logger(r.Context()).Error("cannot read WOPI lock", zap.Error(lockErr))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if !locked || lockID == "" || lockID != currentLock {
+			w.Header().Set("X-WOPI-Lock", currentLock)
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
+		ctx := permissions.WithWOPILockBypass(r.Context(), n.GetUuid(), lockID)
+		r = r.WithContext(ctx)
 	}
-	if !locked || lockID == "" || lockID != currentLock {
-		w.Header().Set("X-WOPI-Lock", currentLock)
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-	ctx := permissions.WithWOPILockBypass(r.Context(), n.GetUuid(), lockID)
-	r = r.WithContext(ctx)
 
 	// Check if LastModifiedTime changed, ask user to resolve the conflict
 	coolTimeStr := r.Header.Get("X-COOL-WOPI-Timestamp")

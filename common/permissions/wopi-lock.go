@@ -98,8 +98,33 @@ func AcquireWOPILock(ctx context.Context, nodeUUID, lockID string, ttl time.Dura
 		return fmt.Errorf("WOPI lock expiration must be between 0 and %s", WOPILockExpiration)
 	}
 
-	lock := NewLockSession(nodeUUID, lockID, ttl)
-	if err := lock.Lock(ctx); err != nil {
+	aclClient := idmc.ACLServiceClient(ctx)
+	_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+		ACL: &idm.ACL{
+			NodeID: nodeUUID,
+			Action: &idm.ACLAction{Name: AclLock.Name, Value: lockID},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	query, err := wopiLockQuery(nodeUUID, lockID)
+	if err == nil {
+		var response *idm.ExpireACLResponse
+		response, err = aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
+			Query:     query,
+			Timestamp: time.Now().Add(ttl).Unix(),
+		})
+		if err == nil && response.GetRows() == 0 {
+			err = fmt.Errorf("new WOPI lock could not be assigned an expiry")
+		}
+	}
+	if err != nil {
+		// Never leave a lock behind without its required expiry.
+		if query != nil {
+			_, _ = aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: query})
+		}
 		return err
 	}
 	return nil
