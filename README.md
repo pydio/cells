@@ -17,6 +17,60 @@ Current areas of interest:
 
 These are project goals, not claims that the integrations or changes are already implemented. In particular, Euro-Office integration is planned work.
 
+## Enhanced Document Editing
+
+The fork now includes **Euro-Office integration** for collaborative document editing:
+
+- **Direct Euro-Office editor** embedded in the web interface
+- **WOPI protocol** integration for real-time collaboration
+- **File type auto-detection** for Office documents (.docx, .xlsx, .pptx, etc.)
+- **Configurable editor preferences** (Euro-Office vs LibreOffice)
+- **Session management** with timeout controls
+- **Batch operations** for multiple files
+- **Version history** tracking per document
+
+### Euro-Office Configuration
+Configure Euro-Office via `common/config/eurooffice.yaml`:
+
+```yaml
+# Core Euro-Office settings
+services:
+  pydio.web.editor:
+    eurooffice:
+      # Internal URL for Euro-Office discovery (used by backend)
+      internal_url: "http://localhost:8080"
+      # Public URL for frontend access (used by browser)
+      public_url: "http://localhost:8080"
+      # WOPI host base URL (must match Euro-Office server)
+      wopi_host_base_url: "http://localhost:8080"
+      # Auto-refresh window for access tokens (seconds)
+      auto_refresh_window: 3600
+      # Default language for UI
+      default_language: "en"
+      # File extensions to open with Euro-Office
+      extensions: ["docx", "xlsx", "pptx", "doc", "xls", "ppt", "pdf"]
+      # Enable/disable Euro-Office editor globally
+      enabled: true
+      # Fallback to LibreOffice when Euro-Office not available
+      fallback_to_libreoffice: true
+
+# Backend configuration for Euro-Office WOPI handler
+gateway:
+  restv2:
+    editor:
+      eurooffice:
+        # WOPI server endpoint
+        wopi_server: "http://localhost:8080/wopi"
+        # Authentication token for WOPI requests
+        auth_token: "${EUROOFFICE_WOPI_TOKEN:-}"
+        # Proof key validation
+        validate_proof: true
+        # Auto-save interval (seconds)
+        auto_save_interval: 30
+        # Enable real-time collaboration
+        enable_realtime: true
+```
+
 ## Current status
 
 This repository is based on the Pydio Cells v5 development code. It currently retains substantial upstream code and project structure; fork-specific changes are at an early stage.
