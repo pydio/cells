@@ -242,7 +242,7 @@ func wopiLock(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	if !accessList.CanWrite(ctx, n) {
+	if !accessList.CanWrite(ctx, n) || n.GetStringMeta(common.MetaFlagReadonly) == "true" {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -301,15 +301,13 @@ func wopiLock(w http.ResponseWriter, r *http.Request) {
 		var deleted int64
 		deleted, err = permissions.ReleaseWOPILock(ctx, n.GetUuid(), lockID)
 		if err == nil && deleted == 0 {
-			currentLock, locked, err = permissions.GetWOPILock(ctx, n.GetUuid())
+			currentLock, _, err = permissions.GetWOPILock(ctx, n.GetUuid())
 			if err != nil {
 				break
 			}
 			// Unlock on a missing lock is also a lock mismatch in WOPI.
-			if !locked || locked {
-				conflict()
-				return
-			}
+			conflict()
+			return
 		}
 	default:
 		w.WriteHeader(http.StatusNotImplemented)
@@ -337,6 +335,10 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 	// Euro-Office editing uses WOPI locks. Keep the existing Collabora WOPI
 	// behavior unchanged; its token issuer is not the Euro-Office marker.
 	if claims, ok := claim.FromContext(r.Context()); ok && claims.Issuer == "eurooffice" {
+		if n.GetStringMeta(common.MetaFlagReadonly) == "true" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 		lockID := r.Header.Get("X-WOPI-Lock")
 		currentLock, locked, lockErr := permissions.GetWOPILock(r.Context(), n.GetUuid())
 		if lockErr != nil {

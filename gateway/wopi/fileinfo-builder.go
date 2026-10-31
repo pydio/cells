@@ -82,7 +82,7 @@ func (dfi *BaseFileInfoResponseBuilder) Build(ctx context.Context, n *tree.Node,
 		if err != nil {
 			return nil, fmt.Errorf("cannot resolve Euro-Office WOPI permissions: %w", err)
 		}
-		f.UserCanWrite = accessList.CanWrite(ctx, n)
+		f.UserCanWrite = accessList.CanWrite(ctx, n) && n.GetStringMeta(common.MetaFlagReadonly) != "true"
 		f.SupportsLocks = true
 		f.SupportsUpdate = true
 	}

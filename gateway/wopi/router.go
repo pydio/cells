@@ -53,6 +53,11 @@ func NewRouter() *mux.Router {
 			Handler(handler)
 	}
 
+	// The launch page is intentionally public: the short-lived PAT is carried
+	// only in the URL fragment and is never sent to this endpoint.
+	launchHandler := logger(http.HandlerFunc(wopiLaunch), "Launch")
+	router.Methods(http.MethodGet).Path("/launch").Name("Launch").Handler(launchHandler)
+
 	return router
 }
 
