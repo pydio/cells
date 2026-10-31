@@ -116,26 +116,21 @@ func euroOfficeDiscoveryActions(ctx context.Context, serverURL string) ([]euroOf
 		return nil, fmt.Errorf("decode Euro-Office WOPI discovery: %w", err)
 	}
 
-	var selectedZone *struct {
-		Name string `xml:"name,attr"`
-		Apps []struct {
-			Actions []euroOfficeDiscoveryAction `xml:"action"`
-		} `xml:"app"`
-	}
+	selectedZoneIndex := -1
 	for i := range discovery.NetZones {
 		if discovery.NetZones[i].Name == "external-https" {
-			selectedZone = &discovery.NetZones[i]
+			selectedZoneIndex = i
 			break
 		}
 	}
-	if selectedZone == nil && len(discovery.NetZones) > 0 {
-		selectedZone = &discovery.NetZones[0]
+	if selectedZoneIndex < 0 && len(discovery.NetZones) > 0 {
+		selectedZoneIndex = 0
 	}
-	if selectedZone == nil {
+	if selectedZoneIndex < 0 {
 		return nil, fmt.Errorf("Euro-Office WOPI discovery contains no network zones")
 	}
 	var actions []euroOfficeDiscoveryAction
-	for _, app := range selectedZone.Apps {
+	for _, app := range discovery.NetZones[selectedZoneIndex].Apps {
 		for _, action := range app.Actions {
 			name := strings.ToLower(strings.TrimSpace(action.Name))
 			if name != "edit" && name != "view" {
@@ -182,9 +177,9 @@ func euroOfficeActionPath(action euroOfficeDiscoveryAction) (string, error) {
 }
 
 func (p *EuroOfficeProvider) Provides(ext string) bool {
-	ext := strings.TrimPrefix(strings.ToLower(ext), ".")
+	normalizedExt := strings.TrimPrefix(strings.ToLower(ext), ".")
 	for _, action := range p.Actions {
-		if strings.EqualFold(strings.TrimPrefix(action.Ext, "."), ext) &&
+		if strings.EqualFold(strings.TrimPrefix(strings.ToLower(action.Ext), "."), normalizedExt) &&
 			(strings.EqualFold(action.Name, "view") || strings.EqualFold(action.Name, "edit")) {
 			return true
 		}
@@ -194,7 +189,7 @@ func (p *EuroOfficeProvider) Provides(ext string) bool {
 
 func (p *EuroOfficeProvider) findAction(ext, mode string) (euroOfficeDiscoveryAction, bool) {
 	for _, action := range p.Actions {
-		if strings.EqualFold(strings.TrimPrefix(action.Ext, "."), ext) &&
+		if strings.EqualFold(strings.TrimPrefix(strings.ToLower(action.Ext), "."), strings.TrimPrefix(strings.ToLower(ext), ".")) &&
 			strings.EqualFold(action.Name, mode) {
 			if mode != "edit" || euroOfficeActionRequires(action, "locks", "update") {
 				return action, true

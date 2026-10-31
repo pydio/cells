@@ -34,14 +34,12 @@ const euroOfficeLaunchPage = `<!doctype html>
   const status = document.getElementById("status");
   try {
     const encoded = location.hash.slice(1).replace(/-/g, "+").replace(/_/g, "/");
+    history.replaceState(null, document.title, location.pathname + location.search);
     if (!encoded) throw new Error("The editor launch information is missing.");
     const padded = encoded + "=".repeat((4 - encoded.length % 4) % 4);
     const raw = atob(padded);
     const bytes = Uint8Array.from(raw, character => character.charCodeAt(0));
     const data = JSON.parse(new TextDecoder().decode(bytes));
-
-    // Remove the short-lived token from the visible URL and browser history.
-    history.replaceState(null, document.title, location.pathname + location.search);
 
     const action = new URL(data.actionUrl);
     const source = new URL(data.wopiSrc);
