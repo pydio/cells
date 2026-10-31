@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"os"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -112,9 +113,16 @@ func parseWOPIProofKeys(discovery io.Reader) (wopiProofKeys, error) {
 	return wopiProofKeys{current: current, old: old}, nil
 }
 
+func euroOfficeWOPISetting(ctx context.Context, key, env string) string {
+	value := strings.TrimSpace(config.Get(ctx, "frontend/plugin/editor.eurooffice").Val(key).String())
+	if value == "" {
+		value = strings.TrimSpace(os.Getenv(env))
+	}
+	return value
+}
+
 func euroOfficeInternalURL(ctx context.Context) (string, error) {
-	conf := config.Get(ctx, "frontend/plugin/editor.eurooffice")
-	serverURL := strings.TrimRight(strings.TrimSpace(conf.Val("EUROOFFICE_INTERNAL_URL").String()), "/")
+	serverURL := strings.TrimRight(euroOfficeWOPISetting(ctx, "EUROOFFICE_INTERNAL_URL", "CELLS_EUROOFFICE_INTERNAL_URL"), "/")
 	parsed, err := url.Parse(serverURL)
 	if err != nil || parsed.Host == "" || (parsed.Scheme != "https" && parsed.Scheme != "http") ||
 		parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" {
@@ -219,8 +227,7 @@ func verifyWOPIProof(proof, proofOld string, keys wopiProofKeys, expected []byte
 }
 
 func euroOfficeWOPIRequestURL(ctx context.Context, r *http.Request) (string, error) {
-	conf := config.Get(ctx, "frontend/plugin/editor.eurooffice")
-	base := strings.TrimRight(strings.TrimSpace(conf.Val("WOPI_HOST_BASE_URL").String()), "/")
+	base := strings.TrimRight(euroOfficeWOPISetting(ctx, "WOPI_HOST_BASE_URL", "CELLS_EUROOFFICE_WOPI_HOST_BASE_URL"), "/")
 	parsed, err := url.Parse(base)
 	if err != nil || parsed.Host == "" || (parsed.Scheme != "https" && parsed.Scheme != "http") ||
 		parsed.User != nil || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" {

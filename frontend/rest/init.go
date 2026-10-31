@@ -57,6 +57,7 @@ var BasePluginsBox = service.PluginBox{
 		"editor.ckeditor",
 		"editor.codemirror",
 		"editor.diaporama",
+		"editor.eurooffice",
 		"editor.exif",
 		"editor.infopanel",
 		"editor.libreoffice",

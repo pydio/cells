@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/pydio/cells/v5/common/config"
@@ -96,13 +97,20 @@ func configuredOrigin(raw, name string) (string, error) {
 }
 
 func wopiLaunch(w http.ResponseWriter, r *http.Request) {
-	conf := config.Get(r.Context(), "frontend/plugin/editor.eurooffice")
-	officeOrigin, err := configuredOrigin(conf.Val("EUROOFFICE_PUBLIC_URL").String(), "EUROOFFICE_PUBLIC_URL")
+	officeURL := strings.TrimSpace(config.Get(r.Context(), "frontend/plugin/editor.eurooffice").Val("EUROOFFICE_PUBLIC_URL").String())
+	if officeURL == "" {
+		officeURL = strings.TrimSpace(os.Getenv("CELLS_EUROOFFICE_PUBLIC_URL"))
+	}
+	officeOrigin, err := configuredOrigin(officeURL, "EUROOFFICE_PUBLIC_URL")
 	if err != nil {
 		http.Error(w, "Euro-Office launch is not configured", http.StatusServiceUnavailable)
 		return
 	}
-	wopiOrigin, err := configuredOrigin(conf.Val("WOPI_HOST_BASE_URL").String(), "WOPI_HOST_BASE_URL")
+	wopiURL := strings.TrimSpace(config.Get(r.Context(), "frontend/plugin/editor.eurooffice").Val("WOPI_HOST_BASE_URL").String())
+	if wopiURL == "" {
+		wopiURL = strings.TrimSpace(os.Getenv("CELLS_EUROOFFICE_WOPI_HOST_BASE_URL"))
+	}
+	wopiOrigin, err := configuredOrigin(wopiURL, "WOPI_HOST_BASE_URL")
 	if err != nil {
 		http.Error(w, "WOPI host URL is not configured", http.StatusServiceUnavailable)
 		return

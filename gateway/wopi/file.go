@@ -293,6 +293,17 @@ func wopiLock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = permissions.RefreshWOPILock(ctx, n.GetUuid(), lockID, permissions.WOPILockExpiration)
+		if err != nil {
+			currentLock, locked, lookupErr := permissions.GetWOPILock(ctx, n.GetUuid())
+			if lookupErr != nil {
+				err = lookupErr
+				break
+			}
+			if !locked || currentLock != lockID {
+				conflict()
+				return
+			}
+		}
 	case "UNLOCK":
 		if !locked || currentLock != lockID {
 			conflict()

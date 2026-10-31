@@ -16,6 +16,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -269,16 +270,28 @@ func GetEuroOfficeProvider(ctx context.Context, req *restful.Request) (EditorPro
 	if !conf.Val(config.KeyFrontPluginEnabled).Bool() {
 		return nil, false
 	}
-	internalURL := strings.TrimRight(strings.TrimSpace(conf.Val("EUROOFFICE_INTERNAL_URL").String()), "/")
+	internalURL := strings.TrimSpace(conf.Val("EUROOFFICE_INTERNAL_URL").String())
+	if internalURL == "" {
+		internalURL = strings.TrimSpace(os.Getenv("CELLS_EUROOFFICE_INTERNAL_URL"))
+	}
+	internalURL = strings.TrimRight(internalURL, "/")
 	internalOrigin, err := euroOfficeOrigin(internalURL, "EUROOFFICE_INTERNAL_URL")
 	if err != nil {
 		return nil, false
 	}
-	publicURL, err := euroOfficeOrigin(conf.Val("EUROOFFICE_PUBLIC_URL").String(), "EUROOFFICE_PUBLIC_URL")
+	publicURLValue := strings.TrimSpace(conf.Val("EUROOFFICE_PUBLIC_URL").String())
+	if publicURLValue == "" {
+		publicURLValue = strings.TrimSpace(os.Getenv("CELLS_EUROOFFICE_PUBLIC_URL"))
+	}
+	publicURL, err := euroOfficeOrigin(publicURLValue, "EUROOFFICE_PUBLIC_URL")
 	if err != nil {
 		return nil, false
 	}
-	wopiHostBaseURL, err := euroOfficeOrigin(conf.Val("WOPI_HOST_BASE_URL").String(), "WOPI_HOST_BASE_URL")
+	wopiHostBaseURLValue := strings.TrimSpace(conf.Val("WOPI_HOST_BASE_URL").String())
+	if wopiHostBaseURLValue == "" {
+		wopiHostBaseURLValue = strings.TrimSpace(os.Getenv("CELLS_EUROOFFICE_WOPI_HOST_BASE_URL"))
+	}
+	wopiHostBaseURL, err := euroOfficeOrigin(wopiHostBaseURLValue, "WOPI_HOST_BASE_URL")
 	if err != nil {
 		return nil, false
 	}

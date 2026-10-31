@@ -58,6 +58,11 @@ func NewRouter() *mux.Router {
 	launchHandler := logger(http.HandlerFunc(wopiLaunch), "Launch")
 	router.Methods(http.MethodGet).Path("/launch").Name("Launch").Handler(launchHandler)
 
+	// Browser clients request a short-lived document URL with their normal Cells
+	// bearer token. The returned launch token is never placed in the query string.
+	editorHandler := logger(http.HandlerFunc(euroOfficeEditorURL), "EuroOfficeEditorURL")
+	router.Methods(http.MethodGet).Path("/editor/{uuid}").Name("EuroOfficeEditorURL").Handler(editorHandler)
+
 	return router
 }
 
