@@ -103,7 +103,8 @@ func (streamer *setBlockStream) SendBlock(block *encryption2.Block) error {
 	return streamer.err
 }
 
-func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
+// ClearBlocks removes the node blocks stored for ownerId only: the same node UUID may hold blocks for another datasource
+func (streamer *setBlockStream) ClearBlocks(ownerId string) error {
 	if streamer.err != nil {
 		return streamer.err
 	}
@@ -112,6 +113,7 @@ func (streamer *setBlockStream) ClearBlocks(NodeId string) error {
 		Action: encryption2.SetNodeInfoActionType_CLEAR,
 		SetBlock: &encryption2.SetNodeBlockRequest{
 			NodeUuid: streamer.nodeUuid,
+			Block:    &encryption2.Block{OwnerId: ownerId},
 		},
 	}
 

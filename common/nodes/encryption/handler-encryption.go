@@ -250,6 +250,12 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to set nodeKey", zap.Error(err))
 			return models.ObjectInfo{}, err
 		}
+		// Drop blocks a previous failed write may have left for this datasource
+		err = streamer.ClearBlocks(info.NodeKey.OwnerId)
+		if err != nil {
+			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to clear old blocks", zap.Error(err))
+			return models.ObjectInfo{}, err
+		}
 
 	} else {
 		encryptionKeyPlainBytes, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
@@ -258,7 +264,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			return models.ObjectInfo{}, err
 		}
 
-		err = streamer.ClearBlocks(clone.Uuid)
+		err = streamer.ClearBlocks(info.NodeKey.OwnerId)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to clear old blocks", zap.Error(err))
 			return models.ObjectInfo{}, err
@@ -466,7 +472,7 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 	}
 	defer streamer.Close()
 
-	_, err = e.getNodeInfoForWrite(ctx, clone, true)
+	existing, err := e.getNodeInfoForWrite(ctx, clone, true)
 	if err != nil {
 		if !errors.Is(err, errors.StatusNotFound) {
 			return "", err
@@ -490,9 +496,15 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to create nodeInfo", zap.Error(err))
 			return "", err
 		}
+		// Drop blocks a previous failed write may have left for this datasource
+		err = streamer.ClearBlocks(info.NodeKey.OwnerId)
+		if err != nil {
+			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to clear old blocks", zap.Error(err))
+			return "", err
+		}
 
 	} else {
-		err = streamer.ClearBlocks(clone.Uuid)
+		err = streamer.ClearBlocks(existing.NodeKey.OwnerId)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to clear old blocks", zap.Error(err))
 			return "", err

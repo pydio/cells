@@ -32,18 +32,22 @@ var Drivers service.StorageDrivers
 
 type DAO interface {
 	Migrate(ctx context.Context) error
-	ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error)
+	// ListEncryptedBlockInfo lists blocks of a node for a given owner (e.g. "ds:name"), or for all owners if empty
+	ListEncryptedBlockInfo(ctx context.Context, nodeUuid, owner string) ([]*encryption.RangedBlock, error)
 	SaveEncryptedBlockInfo(ctx context.Context, nodeUuid string, b *encryption.RangedBlock) error
 	GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid string) (*encryption.RangedBlock, error)
 	ClearNodeEncryptedPartBlockInfo(ctx context.Context, nodeUuid string, partId int) error
-	ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid string) error
+	ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid, owner string) error
 
 	CopyNode(ctx context.Context, srcUuid, targetUuid string) error
 
+	// SaveNode inserts a node entry, or does nothing if it already exists (a moved node keeps its UUID across datasources)
 	SaveNode(ctx context.Context, node *encryption.Node) error
 	UpgradeNodeVersion(ctx context.Context, nodeUuid string) error
 	GetNode(ctx context.Context, nodeUuid string) (*encryption.Node, error)
-	DeleteNode(ctx context.Context, nodeUuid string) error
+	// DeleteNode removes keys and blocks of a node for a given owner, and the node entry once no key remains.
+	// An empty owner removes everything.
+	DeleteNode(ctx context.Context, nodeUuid, owner string) error
 
 	SaveNodeKey(ctx context.Context, nodeKey *encryption.NodeKey) error
 	GetNodeKey(ctx context.Context, node string, user string) (*encryption.NodeKey, error)

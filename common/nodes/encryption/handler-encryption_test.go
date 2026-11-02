@@ -243,16 +243,39 @@ func TestHandler_GetPut_Encrypted(t *testing.T) {
 			So(reader, ShouldBeNil)
 		})
 
-		Convey("Test Put same UUID in another datasource (cross-ds move) fails when key cannot be stored", t, func() {
+		Convey("Test Put same UUID in another datasource (cross-ds move) keeps both readable", t, func() {
 			otherInfo := nodes.BranchInfo{}
 			otherInfo.DataSource = &object.DataSource{
 				Name:           "test2",
 				EncryptionMode: object.EncryptionMode_MASTER,
 			}
+			otherCtx := nodes.WithBranchInfo(ctx, "in", otherInfo)
 			node := tree.Node{Path: "test-moved", Uuid: "test"}
 			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test2")
-			_, e := handler.PutObject(nodes.WithBranchInfo(ctx, "in", otherInfo), &node, strings.NewReader(data), &models.PutRequestData{})
-			So(e, ShouldNotBeNil)
+			_, e := handler.PutObject(otherCtx, &node, strings.NewReader(data), &models.PutRequestData{})
+			So(e, ShouldBeNil)
+
+			// Plain size sums the node blocks: each datasource must only see its own
+			keyClient := encryption.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
+			for _, ds := range []string{"test", "test2"} {
+				ps, er := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{NodeId: "test", UserId: "ds:" + ds})
+				So(er, ShouldBeNil)
+				So(ps.GetSize(), ShouldEqual, len(data))
+			}
+
+			// Ranged reads list blocks too
+			for _, c := range []struct {
+				ctx  context.Context
+				ds   string
+				node *tree.Node
+			}{{ctx, "test", &tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}}, {otherCtx, "test2", &tree.Node{Path: "test-moved", Uuid: "test", Size: int64(len(data))}}} {
+				c.node.MustSetMeta(common.MetaNamespaceDatasourceName, c.ds)
+				reader, e := handler.GetObject(c.ctx, c.node, &models.GetRequestData{StartOffset: 15, Length: 30})
+				So(e, ShouldBeNil)
+				readData, err := io.ReadAll(reader)
+				So(err, ShouldBeNil)
+				So(string(readData), ShouldEqual, data[15:45])
+			}
 		})
 	})
 
