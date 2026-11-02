@@ -288,6 +288,13 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 
 	n, err := e.Next.PutObject(ctx, node, encryptionMaterials, requestData)
+	// Key and blocks are only acknowledged on close: without them the object cannot be read, so callers (e.g. move) must not go on
+	if err == nil {
+		if err = streamer.Close(); err != nil {
+			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to store encryption info", zap.Error(err))
+			return models.ObjectInfo{}, err
+		}
+	}
 
 	if err == nil && plainSizeUnknown && branchInfo.FlatStorage {
 		ps, psErr := e.recomputeNodePlainSize(ctx, node, dsName)
@@ -491,6 +498,11 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 			return "", err
 		}
 	}
+	// Make sure the key is stored before creating the upload
+	if err = streamer.Close(); err != nil {
+		log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to store encryption info", zap.Error(err))
+		return "", err
+	}
 
 	return e.Next.MultipartCreate(ctx, target, requestData)
 }
@@ -558,6 +570,8 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 	part, err := e.Next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, encryptionMaterials, requestData)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: Next handler failed", zap.Error(err))
+	} else if err = nodeBlocksStreamer.Close(); err != nil {
+		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to store blocks info", zap.Error(err))
 	}
 	// Replace part Size with plain size value
 	part.Size = plainSize
