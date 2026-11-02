@@ -156,6 +156,18 @@ func NewTestPoolWithDataSources(ctx context.Context, sc StorageClient, dss ...st
 
 }
 
+// NewTestPoolWithSources creates a test pool from fully configured sources (e.g. flat or encrypted, one client each)
+func NewTestPoolWithSources(ctx context.Context, sources map[string]LoadedSource) *openurl.Pool[SourcesPool] {
+	return openurl.MustMemPool[SourcesPool](ctx, func(ctx context.Context, url string) SourcesPool {
+		return &ClientsPool{
+			ctx:     ctx,
+			sources: sources,
+			aliases: make(map[string]sourceAlias),
+			reload:  make(chan bool),
+		}
+	})
+}
+
 func openPool(ctx context.Context) *ClientsPool {
 	var reg registry.Registry
 	if !propagator.Get(ctx, registry.ContextKey, &reg) {
