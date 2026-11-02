@@ -23,9 +23,11 @@ package proc
 import (
 	"context"
 	"errors"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -123,8 +125,27 @@ func TestProcessMetadataBatches(t *testing.T) {
 
 	Convey("Metadata operations are applied with one call per node", t, func() {
 		target, patch, ops := setup(nil)
+		statuses := make(chan model.Status, 10)
+		patch.SetupChannels(statuses, nil, nil)
 		NewProcessor(testCtx).processMetadataBatches(testCtx, patch, target, &atomic.Bool{})
+		// Statuses are sent asynchronously
+		var lines []string
+		for len(lines) < 2 {
+			select {
+			case st := <-statuses:
+				lines = append(lines, st.String())
+			case <-time.After(5 * time.Second):
+				t.Fatal("missing status")
+			}
+		}
+		time.Sleep(100 * time.Millisecond)
+		So(statuses, ShouldBeEmpty)
+		sort.Strings(lines)
 
+		So(lines, ShouldResemble, []string{
+			"Updated metadata - a/file.zip - usermeta-x, usermeta-y, usermeta-z",
+			"Updated metadata - b/other.txt - usermeta-x",
+		})
 		So(target.calls, ShouldEqual, 2)
 		So(target.values["a/file.zip"], ShouldResemble, map[string]string{"usermeta-x": `"x"`, "usermeta-y": `"y"`})
 		So(target.deleted["a/file.zip"], ShouldResemble, []string{"usermeta-z"})

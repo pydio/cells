@@ -23,6 +23,8 @@ package proc
 import (
 	"context"
 	"path"
+	"sort"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -129,23 +131,33 @@ func (pr *Processor) processMetadataBatches(ctx context.Context, patch merger.Pa
 				wg.Done()
 			}()
 			err := br.ApplyMetadata(ctx, b.node, b.values, b.deleted)
-			msg := "Updated metadata"
-			fields := []zapcore.Field{zap.String(common.KeyNodePath, b.node.GetPath()), zap.Int("count", len(b.ops))}
+			namespaces := make([]string, 0, len(b.ops))
+			for _, op := range b.ops {
+				namespaces = append(namespaces, path.Base(op.GetNode().GetPath()))
+			}
+			sort.Strings(namespaces)
+			fields := []zapcore.Field{zap.String(common.KeyNodePath, b.node.GetPath()), zap.String("namespaces", strings.Join(namespaces, ", "))}
 			if err != nil {
-				msg = "Error while updating metadata"
-				fields = append(fields, zap.Error(err))
+				msg := "Error while updating metadata"
 				if !pr.Silent {
-					pr.Logger().Error(msg, fields...)
+					pr.Logger().Error(msg, append(fields, zap.Error(err))...)
 				}
-			} else if !pr.Silent {
+				// Each failed value gets its error status: the patch reports them as errors
+				for _, op := range b.ops {
+					opFields := []zapcore.Field{zap.String(common.KeyNodePath, b.node.GetPath()), zap.String("namespace", path.Base(op.GetNode().GetPath()))}
+					op.Status(model.NewProcessingStatus(pr.logAsString(msg, err, opFields...)).SetError(err))
+				}
+				return
+			}
+			msg := "Updated metadata"
+			if !pr.Silent {
 				pr.Logger().Info(msg, fields...)
 			}
 			for _, op := range b.ops {
-				if err == nil {
-					op.SetProcessed()
-				}
-				op.Status(model.NewProcessingStatus(pr.logAsString(msg, err, fields...)).SetError(err))
+				op.SetProcessed()
 			}
+			// One status for the node: statuses are forwarded as task log lines
+			patch.Status(model.NewProcessingStatus(pr.logAsString(msg, nil, fields...)))
 		}()
 	}
 	wg.Wait()
