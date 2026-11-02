@@ -192,6 +192,8 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 	var rangedBlocks *encryption.RangedBlock
 	var nodeUuid string
 	received := make(map[string]int64, 4)
+	// First failed key/block save: returned to the client so it does not treat the object as readable
+	var saveErr error
 
 	for {
 
@@ -211,6 +213,9 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 
 			if err = km.saveNodeKey(ctx, req.SetNodeKey.NodeKey); err != nil {
 				log.Logger(ctx).Error("failed to save key", zap.Error(err))
+				if saveErr == nil {
+					saveErr = err
+				}
 			}
 
 		case encryption.SetNodeInfoActionType_CLEAR:
@@ -243,6 +248,9 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 			} else if req.SetBlock.Block.BlockSize != rangedBlocks.BlockSize || req.SetBlock.Block.HeaderSize != rangedBlocks.HeaderSize {
 				if err = dao.SaveEncryptedBlockInfo(ctx, nodeUuid, rangedBlocks); err != nil {
 					log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to save block", zap.Error(err))
+					if saveErr == nil {
+						saveErr = err
+					}
 				} else {
 					newEnd := rangedBlocks.SeqEnd + 1
 					tmpRangeBlock.SeqStart = newEnd
@@ -260,10 +268,16 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 	if rangedBlocks != nil {
 		if err = dao.SaveEncryptedBlockInfo(ctx, nodeUuid, rangedBlocks); err != nil {
 			log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to save block", zap.Error(err))
+			if saveErr == nil {
+				saveErr = err
+			}
 		} else {
 			log.Logger(ctx).Debug("Saved RangedBlocks info", zap.String("nodeUuid", nodeUuid))
 		}
 		rangedBlocks = nil
+	}
+	if saveErr != nil {
+		return saveErr
 	}
 
 	return stream.SendAndClose(&encryption.SetNodeInfoResponse{Processed: received})
