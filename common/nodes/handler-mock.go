@@ -170,33 +170,7 @@ func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.
 	log.Logger(ctx).Info("[MOCK] PutObject" + node.Path)
 
 	if len(h.RootDir) > 0 {
-		output, err := os.OpenFile(filepath.Join(h.RootDir, node.Path), os.O_WRONLY|os.O_CREATE, os.ModePerm)
-		if err != nil {
-			return models.ObjectInfo{}, err
-		}
-
-		buffer := make([]byte, 1024)
-		n := 0
-
-		var totalWritten int64 = 0
-
-		eof := false
-		for !eof {
-			n, err = reader.Read(buffer)
-			if err != nil {
-				eof = err == io.EOF
-				if !eof {
-					return models.ObjectInfo{}, err
-				}
-			}
-
-			written, err := output.Write(buffer[:n])
-			if err != nil {
-				return models.ObjectInfo{}, err
-			}
-			totalWritten += int64(written)
-		}
-		return models.ObjectInfo{Size: totalWritten}, nil
+		return h.writeFile(node.Path, reader, os.O_TRUNC)
 	}
 
 	h.Nodes["in"] = node
@@ -204,11 +178,30 @@ func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.
 	return models.ObjectInfo{}, nil
 }
 
+// writeFile writes reader to a file under RootDir, flag being os.O_TRUNC (replace) or os.O_APPEND (multipart parts)
+func (h *HandlerMock) writeFile(p string, reader io.Reader, flag int) (models.ObjectInfo, error) {
+	output, err := os.OpenFile(filepath.Join(h.RootDir, p), os.O_WRONLY|os.O_CREATE|flag, os.ModePerm)
+	if err != nil {
+		return models.ObjectInfo{}, err
+	}
+	defer output.Close()
+	written, err := io.Copy(output, reader)
+	return models.ObjectInfo{Size: written}, err
+}
+
 func (h *HandlerMock) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	log.Logger(ctx).Info("[MOCK] CopyObject " + from.Path + " to " + to.Path)
 	h.Nodes["from"] = from
 	h.Nodes["to"] = to
 	h.Context = ctx
+	if len(h.RootDir) > 0 {
+		input, err := os.Open(filepath.Join(h.RootDir, from.Path))
+		if err != nil {
+			return models.ObjectInfo{}, err
+		}
+		defer input.Close()
+		return h.writeFile(to.Path, input, os.O_TRUNC)
+	}
 	return models.ObjectInfo{Size: to.Size}, nil
 }
 
@@ -219,6 +212,11 @@ func (h *HandlerMock) MultipartCreate(ctx context.Context, target *tree.Node, re
 }
 
 func (h *HandlerMock) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (op models.MultipartObjectPart, e error) {
+	if len(h.RootDir) > 0 {
+		// shortcut: parts are appended in call order, upload them in order
+		oi, er := h.writeFile(target.Path, reader, os.O_APPEND)
+		return models.MultipartObjectPart{PartNumber: partNumberMarker, Size: oi.Size}, er
+	}
 	return
 }
 

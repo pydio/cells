@@ -91,11 +91,11 @@ type sqlimpl struct {
 	*sql.Abstract
 }
 
-func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid string) ([]*encryption.RangedBlock, error) {
+func (s *sqlimpl) ListEncryptedBlockInfo(ctx context.Context, nodeUuid, owner string) ([]*encryption.RangedBlock, error) {
 
 	var res []*encryption.RangedBlock
 
-	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid}).Order(clause.OrderBy{Columns: []clause.OrderByColumn{
+	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid, OwnerId: owner}).Order(clause.OrderBy{Columns: []clause.OrderByColumn{
 		{Column: clause.Column{Name: "part_id"}, Desc: false},
 		{Column: clause.Column{Name: "seq_start"}, Desc: false},
 	}}).Find(&res)
@@ -131,8 +131,8 @@ func (s *sqlimpl) GetEncryptedLegacyBlockInfo(ctx context.Context, nodeUuid stri
 	return rb, nil
 }
 
-func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid string) error {
-	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid}).Delete(&encryption.RangedBlock{})
+func (s *sqlimpl) ClearNodeEncryptedBlockInfo(ctx context.Context, nodeUuid, owner string) error {
+	tx := s.Session(ctx).Where(&encryption.RangedBlock{NodeId: nodeUuid, OwnerId: owner}).Delete(&encryption.RangedBlock{})
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -155,7 +155,7 @@ func (s *sqlimpl) CopyNode(ctx context.Context, srcUuid string, targetUuid strin
 		return err
 	}
 
-	blocks, er := s.ListEncryptedBlockInfo(ctx, srcUuid)
+	blocks, er := s.ListEncryptedBlockInfo(ctx, srcUuid, "")
 	if er != nil {
 		log.Logger(ctx).Error("failed to list source block list", zap.Error(er))
 		return er
@@ -196,7 +196,7 @@ func (s *sqlimpl) CopyNode(ctx context.Context, srcUuid string, targetUuid strin
 }
 
 func (s *sqlimpl) SaveNode(ctx context.Context, node *encryption.Node) error {
-	tx := s.Session(ctx).Create(node)
+	tx := s.Session(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(node)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -230,14 +230,27 @@ func (s *sqlimpl) GetNode(ctx context.Context, nodeUuid string) (*encryption.Nod
 	return row, nil
 }
 
-func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid string) error {
-	tx := s.Session(ctx).Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{})
-	if tx.Error != nil {
-		return tx.Error
-	}
-	// Delete corresponding NodeKeys
-	tx2 := s.Session(ctx).Where(&encryption.NodeKey{NodeId: nodeUuid}).Delete(&encryption.NodeKey{})
-	return tx2.Error
+func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid, owner string) error {
+	return s.Session(ctx).Transaction(func(tx *gorm.DB) error {
+		if owner != "" {
+			if er := tx.Where(&encryption.NodeKey{NodeId: nodeUuid, UserId: owner}).Delete(&encryption.NodeKey{}).Error; er != nil {
+				return er
+			}
+			if er := tx.Where(&encryption.RangedBlock{NodeId: nodeUuid, OwnerId: owner}).Delete(&encryption.RangedBlock{}).Error; er != nil {
+				return er
+			}
+			// Same UUID still used by another datasource: keep the node entry
+			var remaining int64
+			if er := tx.Model(&encryption.NodeKey{}).Where(&encryption.NodeKey{NodeId: nodeUuid}).Count(&remaining).Error; er != nil || remaining > 0 {
+				return er
+			}
+		}
+		if er := tx.Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{}).Error; er != nil {
+			return er
+		}
+		// Delete corresponding NodeKeys
+		return tx.Where(&encryption.NodeKey{NodeId: nodeUuid}).Delete(&encryption.NodeKey{}).Error
+	})
 }
 
 func (s *sqlimpl) SaveNodeKey(ctx context.Context, key *encryption.NodeKey) error {

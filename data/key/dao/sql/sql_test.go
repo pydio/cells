@@ -104,8 +104,38 @@ func TestCrudKeys(t *testing.T) {
 			})
 			So(err, ShouldBeNil)
 
-			err = mockDAO.DeleteNode(ctx, "pydio")
+			err = mockDAO.DeleteNode(ctx, "pydio", "")
 			So(err, ShouldBeNil)
+		})
+
+		Convey("Same node UUID in two datasources (cross-datasource move)", t, func() {
+			for _, owner := range []string{"ds:a", "ds:b"} {
+				So(mockDAO.SaveNode(ctx, &encryption.Node{NodeId: "moved"}), ShouldBeNil)
+				So(mockDAO.SaveNodeKey(ctx, &encryption.NodeKey{NodeId: "moved", UserId: owner, OwnerId: owner, KeyData: []byte(owner)}), ShouldBeNil)
+				So(mockDAO.SaveEncryptedBlockInfo(ctx, "moved", &encryption.RangedBlock{OwnerId: owner, BlockSize: 10, SeqEnd: 1}), ShouldBeNil)
+			}
+			bb, err := mockDAO.ListEncryptedBlockInfo(ctx, "moved", "ds:a")
+			So(err, ShouldBeNil)
+			So(bb, ShouldHaveLength, 1)
+			bb, err = mockDAO.ListEncryptedBlockInfo(ctx, "moved", "")
+			So(err, ShouldBeNil)
+			So(bb, ShouldHaveLength, 2)
+
+			So(mockDAO.ClearNodeEncryptedBlockInfo(ctx, "moved", "ds:a"), ShouldBeNil)
+			bb, _ = mockDAO.ListEncryptedBlockInfo(ctx, "moved", "ds:b")
+			So(bb, ShouldHaveLength, 1)
+
+			So(mockDAO.DeleteNode(ctx, "moved", "ds:a"), ShouldBeNil)
+			_, err = mockDAO.GetNodeKey(ctx, "moved", "ds:a")
+			So(err, ShouldNotBeNil)
+			_, err = mockDAO.GetNodeKey(ctx, "moved", "ds:b")
+			So(err, ShouldBeNil)
+			_, err = mockDAO.GetNode(ctx, "moved")
+			So(err, ShouldBeNil)
+
+			So(mockDAO.DeleteNode(ctx, "moved", "ds:b"), ShouldBeNil)
+			_, err = mockDAO.GetNode(ctx, "moved")
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

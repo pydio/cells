@@ -23,9 +23,11 @@ package grpc
 import (
 	"context"
 	"io"
+	"strings"
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/encryption"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -50,15 +52,49 @@ func NewNodeKeyManagerHandler() *NodeKeyManagerHandler {
 	return &NodeKeyManagerHandler{}
 }
 
+// HandleTreeChanges removes keys and blocks of deleted nodes. A node UUID can exist in two datasources at once
+// (cross-datasource move keeps the UUID), so only the datasource the event refers to is cleaned.
 func (km *NodeKeyManagerHandler) HandleTreeChanges(ctx context.Context, msg *tree.NodeChangeEvent) error {
-	if !msg.Optimistic && msg.Type == tree.NodeChangeEvent_DELETE {
-		req := &encryption.DeleteNodeRequest{
-			NodeId: msg.Source.Uuid,
-		}
-		_, e := km.DeleteNode(ctx, req)
-		return e
+	if msg.Optimistic {
+		return nil
 	}
-	return nil
+	var nodeUuid, ds string
+	switch msg.Type {
+	case tree.NodeChangeEvent_DELETE:
+		nodeUuid, ds = msg.GetSource().GetUuid(), dataSourceOf(msg.GetSource())
+	case tree.NodeChangeEvent_UPDATE_PATH:
+		// Cross-datasource move: the target now holds its own key and blocks, drop the source ones
+		src, tgt := dataSourceOf(msg.GetSource()), dataSourceOf(msg.GetTarget())
+		if src == "" || tgt == "" || src == tgt {
+			return nil
+		}
+		nodeUuid, ds = msg.GetSource().GetUuid(), src
+	default:
+		return nil
+	}
+	if nodeUuid == "" {
+		return nil
+	}
+	dao, err := manager.Resolve[key.DAO](ctx)
+	if err != nil {
+		return err
+	}
+	var owner string
+	if ds != "" {
+		owner = "ds:" + ds
+	}
+	return dao.DeleteNode(ctx, nodeUuid, owner)
+}
+
+// dataSourceOf finds the datasource of a tree event node, from its metadata or from the first segment of its path
+func dataSourceOf(n *tree.Node) string {
+	if ds := n.GetStringMeta(common.MetaNamespaceDatasourceName); ds != "" {
+		return ds
+	}
+	if parts := strings.SplitN(strings.TrimLeft(n.GetPath(), "/"), "/", 2); len(parts) == 2 {
+		return parts[0]
+	}
+	return ""
 }
 
 func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryption.GetNodeInfoRequest) (*encryption.GetNodeInfoResponse, error) {
@@ -94,7 +130,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 			Nonce: block.Nonce,
 		}
 	} else if req.WithRange {
-		blocks, err := dao.ListEncryptedBlockInfo(ctx, req.NodeId)
+		blocks, err := dao.ListEncryptedBlockInfo(ctx, req.NodeId, req.UserId)
 		if err != nil {
 			log.Logger(ctx).Error("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
 			return nil, err
@@ -164,7 +200,7 @@ func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encr
 		return nil, err
 	}
 
-	blocks, err := dao.ListEncryptedBlockInfo(ctx, req.NodeId)
+	blocks, err := dao.ListEncryptedBlockInfo(ctx, req.NodeId, req.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +256,8 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 
 		case encryption.SetNodeInfoActionType_CLEAR:
 
-			if err = dao.ClearNodeEncryptedBlockInfo(ctx, req.SetBlock.NodeUuid); err != nil {
+			// Older clients send no owner: clear blocks of all owners
+			if err = dao.ClearNodeEncryptedBlockInfo(ctx, req.SetBlock.NodeUuid, req.SetBlock.GetBlock().GetOwnerId()); err != nil {
 				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
 				return err
 			}
@@ -300,7 +337,7 @@ func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption
 	}
 
 	rsp := &encryption.DeleteNodeResponse{}
-	return rsp, dao.DeleteNode(ctx, req.NodeId)
+	return rsp, dao.DeleteNode(ctx, req.NodeId, "")
 }
 
 func (km *NodeKeyManagerHandler) DeleteNodeKey(ctx context.Context, req *encryption.DeleteNodeKeyRequest) (*encryption.DeleteNodeKeyResponse, error) {
