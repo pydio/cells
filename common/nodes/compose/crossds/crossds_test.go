@@ -21,7 +21,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
-	"github.com/pydio/cells/v5/common/nodes/encryption/encryptiontest"
+	"github.com/pydio/cells/v5/common/nodes/mocks"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	omock "github.com/pydio/cells/v5/common/nodes/objects/mock"
 	"github.com/pydio/cells/v5/common/proto/encryption"
@@ -302,7 +302,7 @@ func registerServices(ctx context.Context, events *eventLog) error {
 	// In-process stubs share request pointers, unlike real gRPC: the tree server rewrites node.Path in place
 	grpc.RegisterMock(common.ServiceTreeGRPC, &cloneArgsConn{ClientConnInterface: &inject.SvcInjectorMock{ClientConnInterface: mux, Svc: svc[common.ServiceTreeGRPC]}})
 
-	keyStub := &encryptiontest.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{NodeKeyManagerServer: keysrv.NewNodeKeyManagerHandler()}}
+	keyStub := &mocks.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{NodeKeyManagerServer: keysrv.NewNodeKeyManagerHandler()}}
 	grpc.RegisterMock(common.ServiceEncKeyGRPC, &inject.SvcInjectorMock{ClientConnInterface: keyStub, Svc: svc[common.ServiceEncKeyGRPC]})
 	mk := make([]byte, 32)
 	_, _ = rand.Read(mk)

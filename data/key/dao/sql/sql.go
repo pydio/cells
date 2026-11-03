@@ -247,11 +247,13 @@ func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid, owner string) error 
 				// Same UUID still used by another datasource: keep the node entry
 				return nil
 			}
-			// No NodeKey rows remain for this node: safe to delete it entirely
-			return tx.Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{}).Error
 		}
 		if er := tx.Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{}).Error; er != nil {
 			return er
+		}
+		if owner != "" {
+			// No NodeKey rows remain for this node (checked above): nothing left to clean up
+			return nil
 		}
 		// Delete corresponding NodeKeys
 		return tx.Where(&encryption.NodeKey{NodeId: nodeUuid}).Delete(&encryption.NodeKey{}).Error

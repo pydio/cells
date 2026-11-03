@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
-	"github.com/pydio/cells/v5/common/nodes/encryption/encryptiontest"
+	"github.com/pydio/cells/v5/common/nodes/mocks"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/encryption"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -125,7 +125,7 @@ func TestHandler_GetPut_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryptiontest.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &mocks.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
 	}})
 
@@ -316,7 +316,7 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryptiontest.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &mocks.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
 	}})
 
