@@ -1,0 +1,51 @@
+package main
+
+import (
+    "fmt"
+    "os"
+    "gopkg.in/yaml.v3"
+)
+
+// EuroOfficeConfig represents the configuration structure
+type EuroOfficeConfig struct {
+    Services struct {
+        PydioWebEditor struct {
+            Eurooffice struct {
+                InternalURL    string   `yaml:"internal_url"`
+                PublicURL      string   `yaml:"public_url"`
+                WOPHostBaseURL string   `yaml:"wopi_host_base_url"`
+                Enabled        bool     `yaml:"enabled"`
+                Extensions     []string `yaml:"extensions"`
+                MimeTypes      []string `yaml:"mime_types"`
+                AuthMethod     string   `yaml:"auth_method"`
+            } `yaml:"eurooffice"`
+        } `yaml:"pydio.web.editor"`
+    } `yaml:"services"`
+}
+
+func main() {
+    // Load Euro-Office config
+    data, err := os.ReadFile("common/config/eurooffice.yaml")
+    if err != nil {
+        fmt.Println("Error reading config:", err)
+        return
+    }
+
+    var cfg EuroOfficeConfig
+    if err := yaml.Unmarshal(data, &cfg); err != nil {
+        fmt.Println("Error parsing YAML:", err)
+        return
+    }
+
+    // Check if EuroOffice is enabled
+    if cfg.Services.PydioWebEditor.Eurooffice.Enabled {
+        fmt.Println("EuroOffice is ENABLED!")
+        fmt.Printf("Internal URL: %s\n", cfg.Services.PydioWebEditor.Eurooffice.InternalURL)
+        fmt.Printf("Public URL: %s\n", cfg.Services.PydioWebEditor.Eurooffice.PublicURL)
+        fmt.Printf("WOP Host Base URL: %s\n", cfg.Services.PydioWebEditor.Eurooffice.WOPHostBaseURL)
+        fmt.Printf("Extensions: %v\n", cfg.Services.PydioWebEditor.Eurooffice.Extensions)
+        fmt.Printf("Auth Method: %s\n", cfg.Services.PydioWebEditor.Eurooffice.AuthMethod)
+    } else {
+        fmt.Println("EuroOffice is DISABLED")
+    }
+}

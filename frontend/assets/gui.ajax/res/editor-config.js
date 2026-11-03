@@ -14,8 +14,8 @@
     constructor(props) {
       super(props);
       this.state = {
-        showEuroOffice: true,
-        defaultEditor: 'eurooffice',
+        showEuroOffice: false,
+        defaultEditor: 'libreoffice',
         extensions: ['docx', 'xlsx', 'pptx', 'doc', 'xls', 'ppt', 'pdf'],
         maxFileSize: 50,
         enableCollaboration: true,

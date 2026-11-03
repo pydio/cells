@@ -21,8 +21,8 @@
         error: null,
         editorOptions: {
           fixedToolbar: false,
-          showEuroOfficeOption: true,
-          defaultEditor: 'eurooffice'
+          showEuroOfficeOption: false,
+          defaultEditor: 'libreoffice'
         }
       };
       this.cancelled = false;

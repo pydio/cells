@@ -1,6 +1,7 @@
 // Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com
 // This file is part of Pydio Cells.
 //
+//go:build !unit_test
 // +build !unit_test
 
 package utils
@@ -10,11 +11,10 @@ import (
 	"strings"
 )
 
-// OfficeFileTypes returns true if the file is an Office document type
-supportsOffice := map[string]bool{
+var supportsOffice = map[string]bool{
 	"docx": true, "dotx": true, "xlsx": true, "xltx": true, "pptx": true, "potx": true,
-	"doc":  true, "dot":  true, "xls":  true, "xlt":  true, "ppt":  true, "pot":  true,
-	"pdf":  true,
+	"doc": true, "dot": true, "xls": true, "xlt": true, "ppt": true, "pot": true,
+	"pdf": true,
 }
 
 // IsOfficeFile checks if a file path points to an Office document
@@ -36,25 +36,24 @@ func GetOfficeType(path string) string {
 	if !IsOfficeFile(path) {
 		return ""
 	}
-	ext := strings.ToLower(filepath.Ext(path))
-		ex = strings.TrimPrefix(ext, ".")
-		switch ext {
-		case "docx", "dotx":
-			return "word"
-		case "xlsx", "xltx":
-			return "excel"
-		case "pptx", "potx":
-			return "powerpoint"
-		case "doc", "dot":
-			return "word"
-		case "xls", "xlt":
-			return "excel"
-		case "ppt", "pot":
-			return "powerpoint"
-		case "pdf":
-			return "pdf"
-		default:
-			return "office"
+	ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(path)), ".")
+	switch ext {
+	case "docx", "dotx":
+		return "word"
+	case "xlsx", "xltx":
+		return "excel"
+	case "pptx", "potx":
+		return "powerpoint"
+	case "doc", "dot":
+		return "word"
+	case "xls", "xlt":
+		return "excel"
+	case "ppt", "pot":
+		return "powerpoint"
+	case "pdf":
+		return "pdf"
+	default:
+		return "office"
 	}
 }
 
@@ -70,12 +69,12 @@ func IsEuroOfficeSupported(path string, mimeType string) bool {
 	// Check by MIME type
 	switch mimeType {
 	case "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-	     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-	     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-	     "application/msword",
-	     "application/vnd.ms-excel",
-	     "application/vnd.ms-powerpoint",
-	     "application/pdf":
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+		"application/msword",
+		"application/vnd.ms-excel",
+		"application/vnd.ms-powerpoint",
+		"application/pdf":
 		return true
 	}
 	return false
@@ -89,12 +88,7 @@ func GetEditorPreference(path string, mimeType string, userPrefs map[string]stri
 			return pref
 		}
 	}
-	// Auto-detect based on file type
-	if IsEuroOfficeSupported(path, mimeType) {
-		// Check if Euro-Office is enabled in config
-		// This would read from config in real implementation
-		return "eurooffice"
-	}
-	// Fallback to LibreOffice
+	// Keep the existing editor as the default. Euro-Office is opt-in through
+	// the editor plugin configuration or an explicit per-user preference.
 	return "libreoffice"
 }

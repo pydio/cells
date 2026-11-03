@@ -10,66 +10,34 @@ The goal is to build on the existing Cells v5 codebase rather than start another
 
 Current areas of interest:
 
-- **Document editing:** investigate integration with [Euro-Office](https://github.com/Euro-Office), an open-source collaborative office suite project, as the preferred office integration.
+- **Document editing:** offer [Euro-Office](https://github.com/Euro-Office), an open-source collaborative office suite, as an optional editor without relying on the Cells Enterprise edition.
 - **Open integrations:** keep core functionality and integrations accessible without making essential capabilities dependent on an enterprise-only edition.
 - **Self-hosting:** make the platform practical to operate on independently managed infrastructure.
 - **Maintainability:** preserve useful upstream work and make changes deliberately, with clear documentation.
 
-These are project goals, not claims that the integrations or changes are already implemented. In particular, Euro-Office integration is planned work.
+Euro-Office integration is implemented as an optional editor plugin. It is **disabled by default**. When disabled, Cells skips starting the WOPI service and continues to use whichever other editor plugins are enabled.
 
-## Enhanced Document Editing
-
-The fork now includes **Euro-Office integration** for collaborative document editing:
-
-- **Direct Euro-Office editor** embedded in the web interface
-- **WOPI protocol** integration for real-time collaboration
-- **File type auto-detection** for Office documents (.docx, .xlsx, .pptx, etc.)
-- **Configurable editor preferences** (Euro-Office vs LibreOffice)
-- **Session management** with timeout controls
-- **Batch operations** for multiple files
-- **Version history** tracking per document
-
-### Euro-Office Configuration
-Configure Euro-Office via `common/config/eurooffice.yaml`:
+To enable it, configure these values under `frontend.plugin.editor.eurooffice` in the Cells configuration, then restart Cells:
 
 ```yaml
-# Core Euro-Office settings
-services:
-  pydio.web.editor:
-    eurooffice:
-      # Internal URL for Euro-Office discovery (used by backend)
-      internal_url: "http://localhost:8080"
-      # Public URL for frontend access (used by browser)
-      public_url: "http://localhost:8080"
-      # WOPI host base URL (must match Euro-Office server)
-      wopi_host_base_url: "http://localhost:8080"
-      # Auto-refresh window for access tokens (seconds)
-      auto_refresh_window: 3600
-      # Default language for UI
-      default_language: "en"
-      # File extensions to open with Euro-Office
-      extensions: ["docx", "xlsx", "pptx", "doc", "xls", "ppt", "pdf"]
-      # Enable/disable Euro-Office editor globally
-      enabled: true
-      # Fallback to LibreOffice when Euro-Office not available
-      fallback_to_libreoffice: true
-
-# Backend configuration for Euro-Office WOPI handler
-gateway:
-  restv2:
-    editor:
-      eurooffice:
-        # WOPI server endpoint
-        wopi_server: "http://localhost:8080/wopi"
-        # Authentication token for WOPI requests
-        auth_token: "${EUROOFFICE_WOPI_TOKEN:-}"
-        # Proof key validation
-        validate_proof: true
-        # Auto-save interval (seconds)
-        auto_save_interval: 30
-        # Enable real-time collaboration
-        enable_realtime: true
+frontend:
+  plugin:
+    editor.eurooffice:
+      PYDIO_PLUGIN_ENABLED: true
+      EUROOFFICE_INTERNAL_URL: "http://euro-office:8080"
+      EUROOFFICE_PUBLIC_URL: "https://office.example.com"
+      WOPI_HOST_BASE_URL: "https://cells.example.com"
 ```
+
+`EUROOFFICE_INTERNAL_URL` is used by Cells to fetch Euro-Office discovery data. `EUROOFFICE_PUBLIC_URL` is reached by the user's browser. `WOPI_HOST_BASE_URL` is the public Cells origin that Euro-Office must call back to. Use URLs reachable from each respective network location and HTTPS for public deployments. The corresponding disabled example is in `common/config/eurooffice.yaml`.
+
+The integration currently covers editor discovery, launch, and WOPI document access. It does not add a separate session-management, batch-editing, or version-history feature.
+
+### Euro-Office deployment and resource notes
+
+Follow the [official Docker installation guide](https://euro-office.github.io/documentation/installation/docker/) for the Document Server. Its current prerequisites list 4 GB RAM minimum and 5 GB disk for the image. Euro-Office includes document and conversion services; its documented architecture also uses Redis, RabbitMQ, and a SQL database. Budget those resources in addition to Cells and its own database/services.
+
+For a production deployment, set a persistent `JWT_SECRET`, keep `JWT_ENABLED=true`, set `WOPI_ENABLED=true` for this integration, and leave the example app disabled. The official guide documents these settings and health check. Use its supported image and persistence instructions rather than the old sample values that used to be in this repository.
 
 ## Current status
 
@@ -81,7 +49,7 @@ This repository is based on the Pydio Cells v5 development code. It currently re
 - Language: Go
 - License: [GNU Affero General Public License v3](LICENSE)
 
-Expect incomplete work and upstream behavior until changes are implemented and documented here.
+Some fork-specific work remains experimental; check the relevant feature documentation before relying on it.
 
 ## Building from source
 

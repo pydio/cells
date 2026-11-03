@@ -1,56 +1,9 @@
-# Euro-Office Integration Configuration
-# Configuration for Euro-Office document editing integration
-
-services:
-  pydio.web.editor:
-    eurooffice:
-      # Internal URL for Euro-Office discovery (used by backend)
-      internal_url: "http://localhost:8080"
-      # Public URL for frontend access (used by browser)
-      public_url: "http://localhost:8080"
-      # WOPI host base URL (must match Euro-Office server)
-      wopi_host_base_url: "http://localhost:8080"
-      # Auto-refresh window for access tokens (seconds)
-      auto_refresh_window: 3600
-      # Default language for UI
-      default_language: "en"
-      # Default UI language
-      default_ui_language: "en"
-      # Enable/disable Euro-Office editor globally
-      enabled: true
-      # File extensions to open with Euro-Office (in addition to auto-detection)
-      extensions: ["docx", "xlsx", "pptx", "doc", "xls", "ppt", "pdf"]
-      # Mime types for Euro-Office
-      mime_types: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "application/msword", "application/vnd.ms-excel", "application/vnd.ms-powerpoint", "application/pdf"]
-      # Authentication method for Euro-Office sessions
-      auth_method: "oauth2"
-      # Session timeout (seconds)
-      session_timeout: 3600
-      # Maximum file size for Euro-Office (MB)
-      max_file_size: 50
-      # Enable version history tracking
-      enable_version_history: true
-      # Enable collaborative editing indicators
-      enable_collaboration_indicators: true
-      # Show Euro-Office as primary editor for supported types
-      primary_editor: true
-      # Fallback to LibreOffice when Euro-Office not available
-      fallback_to_libreoffice: true
-
-# Backend configuration for Euro-Office WOPI handler
-gateway:
-  restv2:
-    editor:
-      eurooffice:
-        # WOPI proof validation settings
-        proof_validation: true
-        # Maximum proof age (seconds)
-        max_proof_age: 300
-        # Lock timeout (seconds)
-        lock_timeout: 300
-        # Auto-save interval (seconds)
-        auto_save_interval: 30
-        # Enable real-time collaboration
-        enable_realtime: true
-        # Collaboration server URL
-        collaboration_server: "ws://localhost:8080/ws"
+# Optional Cells config overlay. Euro-Office is disabled by default.
+# Set PYDIO_PLUGIN_ENABLED to true only after configuring the three URLs below.
+frontend:
+  plugin:
+    editor.eurooffice:
+      PYDIO_PLUGIN_ENABLED: false
+      EUROOFFICE_INTERNAL_URL: ""
+      EUROOFFICE_PUBLIC_URL: ""
+      WOPI_HOST_BASE_URL: ""

@@ -29,10 +29,10 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/errors"
+	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/auth"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
-	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/utils/i18n/languages"
 )
@@ -63,12 +63,12 @@ type euroOfficeLaunchPayload struct {
 }
 
 type EuroOfficeProvider struct {
-	Actions            []euroOfficeDiscoveryAction
-	PublicURL           string
-	WOPIHostBaseURL     string
-	AutoRefreshWindow   int32
-	RequestLanguage     string
-	RequestUILanguage   string
+	Actions           []euroOfficeDiscoveryAction
+	PublicURL         string
+	WOPIHostBaseURL   string
+	AutoRefreshWindow int32
+	RequestLanguage   string
+	RequestUILanguage string
 }
 
 var euroOfficeDiscoveryCache struct {
@@ -267,7 +267,7 @@ func (p *EuroOfficeProvider) Get(ctx context.Context, node *tree.Node) (*rest.Pr
 
 func GetEuroOfficeProvider(ctx context.Context, req *restful.Request) (EditorProvider, bool) {
 	conf := config.Get(ctx, "frontend/plugin/editor.eurooffice")
-	if !conf.Val(config.KeyFrontPluginEnabled).Bool() {
+	if !conf.Val(config.KeyFrontPluginEnabled).Default(false).Bool() {
 		return nil, false
 	}
 	internalURL := strings.TrimSpace(conf.Val("EUROOFFICE_INTERNAL_URL").String())
@@ -307,7 +307,7 @@ func GetEuroOfficeProvider(ctx context.Context, req *restful.Request) (EditorPro
 	}
 	lang, ui := languages.DetectLocale(req.Request)
 	return &EuroOfficeProvider{
-		Actions:          actions,
+		Actions:           actions,
 		PublicURL:         publicURL,
 		WOPIHostBaseURL:   wopiHostBaseURL,
 		AutoRefreshWindow: int32(refresh.Seconds()),

@@ -25,6 +25,7 @@ import (
 	"context"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/config"
 	"github.com/pydio/cells/v5/common/config/routing"
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/nodes"
@@ -46,6 +47,10 @@ func init() {
 	routing.RegisterRoute(RouteWOPI, "WOPI API service", "/wopi")
 
 	runtime.Register("main", func(ctx context.Context) {
+		if !config.Get(ctx, config.FrontendPluginPath("editor.eurooffice", config.KeyFrontPluginEnabled)...).Default(false).Bool() {
+			return
+		}
+
 		service.NewService(
 			service.Name(common.ServiceGatewayWopi),
 			service.Context(ctx),
