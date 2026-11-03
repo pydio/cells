@@ -239,11 +239,16 @@ func (s *sqlimpl) DeleteNode(ctx context.Context, nodeUuid, owner string) error 
 			if er := tx.Where(&encryption.RangedBlock{NodeId: nodeUuid, OwnerId: owner}).Delete(&encryption.RangedBlock{}).Error; er != nil {
 				return er
 			}
-			// Same UUID still used by another datasource: keep the node entry
 			var remaining int64
-			if er := tx.Model(&encryption.NodeKey{}).Where(&encryption.NodeKey{NodeId: nodeUuid}).Count(&remaining).Error; er != nil || remaining > 0 {
+			if er := tx.Model(&encryption.NodeKey{}).Where(&encryption.NodeKey{NodeId: nodeUuid}).Count(&remaining).Error; er != nil {
 				return er
 			}
+			if remaining > 0 {
+				// Same UUID still used by another datasource: keep the node entry
+				return nil
+			}
+			// No NodeKey rows remain for this node: safe to delete it entirely
+			return tx.Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{}).Error
 		}
 		if er := tx.Where(&encryption.Node{NodeId: nodeUuid}).Delete(&encryption.Node{}).Error; er != nil {
 			return er

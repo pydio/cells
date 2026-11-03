@@ -32,13 +32,12 @@ import (
 	"testing"
 	"time"
 
-	ggrpc "google.golang.org/grpc"
-
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/abstract"
+	"github.com/pydio/cells/v5/common/nodes/encryption/encryptiontest"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	"github.com/pydio/cells/v5/common/proto/encryption"
 	"github.com/pydio/cells/v5/common/proto/object"
@@ -126,7 +125,7 @@ func TestHandler_GetPut_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	grpc.RegisterMock(common.ServiceEncKeyGRPC, &setNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryptiontest.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
 	}})
 
@@ -317,7 +316,7 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	grpc.RegisterMock(common.ServiceEncKeyGRPC, &setNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryptiontest.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
 	}})
 
@@ -397,36 +396,3 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 	})
 }
 
-// setNodeInfoErrStub forwards the error returned by the SetNodeInfo handler to the client, as real gRPC does.
-// shortcut: the generated stub (cmd/protoc-gen-go-client-stub) drops it and the client blocks, fix the generator to drop this
-type setNodeInfoErrStub struct {
-	encryption.NodeKeyManagerStub
-}
-
-func (s *setNodeInfoErrStub) NewStream(ctx context.Context, desc *ggrpc.StreamDesc, method string, opts ...ggrpc.CallOption) (ggrpc.ClientStream, error) {
-	if method != "/encryption.NodeKeyManager/SetNodeInfo" {
-		return s.NodeKeyManagerStub.NewStream(ctx, desc, method, opts...)
-	}
-	st := &setNodeInfoErrStreamer{}
-	st.Init(ctx)
-	go func() {
-		if e := s.NodeKeyManagerServer.SetNodeInfo(st); e != nil {
-			st.err = e
-			close(st.RespChan)
-		}
-	}()
-	return st, nil
-}
-
-type setNodeInfoErrStreamer struct {
-	encryption.NodeKeyManagerStub_SetNodeInfoStreamer
-	err error
-}
-
-func (s *setNodeInfoErrStreamer) RecvMsg(m interface{}) error {
-	e := s.NodeKeyManagerStub_SetNodeInfoStreamer.RecvMsg(m)
-	if e == io.EOF && s.err != nil {
-		return s.err
-	}
-	return e
-}

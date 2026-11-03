@@ -14,6 +14,7 @@ import (
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/encryption/encryptiontest"
 	"github.com/pydio/cells/v5/common/nodes/models"
 	omock "github.com/pydio/cells/v5/common/nodes/objects/mock"
 	"github.com/pydio/cells/v5/common/proto/encryption"
@@ -47,7 +48,7 @@ func TestHandler_CopyMultipartAndEdgeCases(t *testing.T) {
 		handler := &Handler{}
 		handler.SetNextHandler(mock)
 		handler.SetUserKeyTool(NewMockUserKeyTool())
-		grpc.RegisterMock(common.ServiceEncKeyGRPC, &setNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
+		grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryptiontest.SetNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 			NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
 		}})
 		keyClient := encryption.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
