@@ -49,6 +49,10 @@ var (
 	copyMoveActionName = "actions.tree.copymove"
 )
 
+func childLockLookupFailure(input *jobs.ActionMessage, err error) (*jobs.ActionMessage, error) {
+	return input.AsRunError(err)
+}
+
 type CopyMoveAction struct {
 	tools.ScopedRouterConsumer
 	move              bool
@@ -191,7 +195,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	var childrenLocks []string
 	if parentResp, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil && !nodes.IsUnitTestEnv {
 		if cl, err := permissions.GetChildrenLocks(ctx, parentResp.GetNode()); err != nil {
-			return input.WithError(err), err
+			return childLockLookupFailure(input, err)
 		} else {
 			childrenLocks = append(childrenLocks, cl...)
 		}

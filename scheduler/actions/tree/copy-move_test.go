@@ -22,6 +22,7 @@ package tree
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/config/mock"
@@ -42,6 +43,21 @@ func init() {
 	// Ignore client pool for unit tests
 	nodes.IsUnitTestEnv = true
 	global, _ = mock.RegisterMockConfig(context.Background())
+}
+
+func TestChildLockLookupFailureReturnsActionError(t *testing.T) {
+	cause := errors.New("child lock lookup failed")
+	output, err := childLockLookupFailure(&jobs.ActionMessage{}, cause)
+
+	if !errors.Is(err, cause) {
+		t.Fatalf("error = %v, want %v", err, cause)
+	}
+	if output.GetLastOutput().Success {
+		t.Fatal("last action output unexpectedly reports success")
+	}
+	if output.GetLastOutput().ErrorString != cause.Error() {
+		t.Fatalf("output error = %q, want %q", output.GetLastOutput().ErrorString, cause.Error())
+	}
 }
 
 func TestCopyMoveAction_GetName(t *testing.T) {

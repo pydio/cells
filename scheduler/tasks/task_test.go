@@ -22,6 +22,7 @@ package tasks
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -69,6 +70,35 @@ func TestNewTaskFromEvent(t *testing.T) {
 		opId, _ := propagator.CanonicalMeta(task.context, common.CtxSchedulerOperationId)
 		So(opId, ShouldEqual, "ajob-"+task.task.ID[0:8])
 	})
+}
+
+func TestTaskCleanupPreservesFailureStatus(t *testing.T) {
+	task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+	task.SetError(errors.New("move incomplete"), false)
+	task.CleanUp()
+
+	if task.task.Status != jobs.TaskStatus_Error {
+		t.Fatalf("status = %s, want Error", task.task.Status)
+	}
+	if task.task.StatusMessage != "move incomplete" {
+		t.Fatalf("status message = %q, want the action error", task.task.StatusMessage)
+	}
+
+	if !task.task.UserSpaceErrorStatus() {
+		t.Fatal("UserSpaceErrorStatus() = false, want true for failed user-space task")
+	}
+	if task.task.StatusMessage != "Oops, something went wrong" {
+		t.Fatalf("user-visible status message = %q, want generic message", task.task.StatusMessage)
+	}
+}
+
+func TestTaskCleanupFinishesSuccessfulTask(t *testing.T) {
+	task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+	task.CleanUp()
+
+	if task.task.Status != jobs.TaskStatus_Finished {
+		t.Fatalf("status = %s, want Finished", task.task.Status)
+	}
 }
 
 func TestTaskSetters(t *testing.T) {
