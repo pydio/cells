@@ -390,6 +390,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				taskLogger.Info("-- Copy/Move Success for " + lastNode.Path)
 			}
 		}
+		if len(errs) > 0 {
+			panic(errs[0])
+		}
 		log.Logger(ctx).Info("Recursive copy operation timing", zap.Duration("duration", time.Since(t)))
 
 	}
