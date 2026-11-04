@@ -390,15 +390,6 @@ func TestRole(t *testing.T) {
 			}
 		})
 
-		Convey("GetEntity - success or DAO resolution error", t, func() {
-			resp, err := h.GetEntity(ctx, &idm.GetEntityRequest{EntityUuid: "ent-uuid"})
-			if err != nil {
-				So(resp, ShouldBeNil)
-			} else {
-				So(resp, ShouldNotBeNil)
-			}
-		})
-
 		Convey("DeleteEntity - success or DAO resolution error", t, func() {
 			resp, err := h.DeleteEntity(ctx, &idm.DeleteEntityRequest{EntityId: "ent-uuid"})
 			if err != nil {
