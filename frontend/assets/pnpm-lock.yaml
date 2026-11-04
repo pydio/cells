@@ -175,8 +175,8 @@ importers:
         specifier: ^5.59.4
         version: 5.65.20
       lodash:
-        specifier: ^4.17.23
-        version: 4.17.23
+        specifier: ^4.18.1
+        version: 4.18.1
       lodash.shuffle:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1245,8 +1245,8 @@ importers:
         specifier: ^1.8.0
         version: 1.15.13
       lodash:
-        specifier: 4.17.23
-        version: 4.17.23
+        specifier: 4.18.1
+        version: 4.18.1
       lodash.debounce:
         specifier: ^4.0.8
         version: 4.0.8
@@ -6245,6 +6245,9 @@ packages:
   lodash@4.17.23:
     resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
+
   log-update@6.1.0:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
     engines: {node: '>=18'}
@@ -10621,7 +10624,7 @@ snapshots:
   '@rjsf/core@6.2.4(@rjsf/utils@6.2.4(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@rjsf/utils': 6.2.4(react@18.3.1)
-      lodash: 4.17.23
+      lodash: 4.18.1
       lodash-es: 4.17.22
       markdown-to-jsx: 8.0.0(react@18.3.1)
       prop-types: 15.8.1
@@ -10641,7 +10644,7 @@ snapshots:
       '@x0k/json-schema-merge': 1.0.2
       fast-uri: 3.1.0
       jsonpointer: 5.0.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       lodash-es: 4.17.22
       react: 18.3.1
       react-is: 18.3.1
@@ -10651,7 +10654,7 @@ snapshots:
       '@rjsf/utils': 6.2.4(react@18.3.1)
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
-      lodash: 4.17.23
+      lodash: 4.18.1
       lodash-es: 4.17.22
 
   '@rolldown/pluginutils@1.0.1': {}
@@ -11469,7 +11472,7 @@ snapshots:
 
   async@2.6.4:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
 
   async@3.2.6: {}
 
@@ -12401,7 +12404,7 @@ snapshots:
     dependencies:
       asap: 2.0.6
       invariant: 2.2.4
-      lodash: 4.17.23
+      lodash: 4.18.1
       redux: 3.7.2
 
   doc-ready@1.0.4:
@@ -12528,7 +12531,7 @@ snapshots:
     dependencies:
       enzyme: 3.11.0
       enzyme-adapter-utils: 1.14.2(react@18.3.1)
-      lodash: 4.17.23
+      lodash: 4.18.1
       object.assign: 4.1.7
       object.values: 1.2.1
       prop-types: 15.8.1
@@ -14227,6 +14230,8 @@ snapshots:
 
   lodash@4.17.23: {}
 
+  lodash@4.18.1: {}
+
   log-update@6.1.0:
     dependencies:
       ansi-escapes: 7.3.0
@@ -15713,7 +15718,7 @@ snapshots:
 
   react-dnd-html5-backend@2.6.0:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
 
   react-dnd@2.6.0(react@18.3.1):
     dependencies:
@@ -15721,7 +15726,7 @@ snapshots:
       dnd-core: 2.6.0
       hoist-non-react-statics: 2.5.5
       invariant: 2.2.4
-      lodash: 4.17.23
+      lodash: 4.18.1
       prop-types: 15.8.1
       react: 18.3.1
 
@@ -15886,7 +15891,7 @@ snapshots:
     dependencies:
       hoist-non-react-statics: 2.5.5
       invariant: 2.2.4
-      lodash: 4.17.23
+      lodash: 4.18.1
       lodash-es: 4.17.22
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -16213,7 +16218,7 @@ snapshots:
 
   redux@3.7.2:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       lodash-es: 4.17.22
       loose-envify: 1.4.0
       symbol-observable: 1.2.0
