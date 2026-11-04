@@ -17,6 +17,7 @@ type orderedCopyMoveHandler struct {
 	children  []*tree.Node
 	forbidden string
 	deleted   map[string]bool
+	copied    map[string]bool
 }
 
 func (h *orderedCopyMoveHandler) ListNodes(ctx context.Context, _ *tree.ListNodesRequest, _ ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
@@ -34,6 +35,7 @@ func (h *orderedCopyMoveHandler) CopyObject(ctx context.Context, from, to *tree.
 	if from.Path == h.forbidden {
 		return models.ObjectInfo{}, fmt.Errorf("%w: %s", errors.StatusForbidden, from.Path)
 	}
+	h.copied[to.Path] = true
 	return models.ObjectInfo{Size: from.Size}, nil
 }
 
@@ -91,6 +93,7 @@ func TestCopyMoveNodesRecursiveChildFailures(t *testing.T) {
 				children:    children,
 				forbidden:   test.forbidden,
 				deleted:     make(map[string]bool),
+				copied:      make(map[string]bool),
 			}
 
 			bi := BranchInfo{LoadedSource: LoadedSource{DataSource: &object.DataSource{Name: "test"}}}
@@ -106,9 +109,18 @@ func TestCopyMoveNodesRecursiveChildFailures(t *testing.T) {
 				if !handler.deleted[path] {
 					t.Errorf("permitted child %q was not moved", path)
 				}
+				targetPath := "target/" + path
+				if !handler.copied[targetPath] {
+					t.Errorf("permitted child %q was not copied to %q", path, targetPath)
+				}
 			}
-			if test.forbidden != "" && handler.deleted[test.forbidden] {
-				t.Errorf("forbidden child %q was moved", test.forbidden)
+			if test.forbidden != "" {
+				if handler.deleted[test.forbidden] {
+					t.Errorf("forbidden child %q was moved", test.forbidden)
+				}
+				if handler.copied["target/"+test.forbidden] {
+					t.Errorf("forbidden child %q was copied", test.forbidden)
+				}
 			}
 		})
 	}
