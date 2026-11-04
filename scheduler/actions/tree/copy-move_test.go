@@ -78,8 +78,11 @@ func TestCopyMoveActionChildLockLookupFailure(t *testing.T) {
 	if !lookupCalled {
 		t.Fatal("children-lock lookup was skipped")
 	}
-	if !errors.Is(err, cause) {
-		t.Fatalf("Run() error = %v, want %v", err, cause)
+	if err == nil || err.Error() == cause.Error() {
+		t.Fatalf("Run() error = %v, want a nonnil sanitized error", err)
+	}
+	if output.GetLastOutput().ErrorString == cause.Error() {
+		t.Fatal("action output exposed the raw lock lookup error")
 	}
 	if output.GetLastOutput().Success {
 		t.Fatal("last action output unexpectedly reports success")

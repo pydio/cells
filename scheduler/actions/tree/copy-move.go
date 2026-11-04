@@ -200,7 +200,8 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 			lookupChildrenLocks = permissions.GetChildrenLocks
 		}
 		if cl, err := lookupChildrenLocks(ctx, parentResp.GetNode()); err != nil {
-			return childLockLookupFailure(input, err)
+			log.Logger(ctx).Error("Could not retrieve target folder child locks", zap.Error(err))
+			return childLockLookupFailure(input, errors.New("Could not verify target folder permissions"))
 		} else {
 			childrenLocks = append(childrenLocks, cl...)
 		}

@@ -389,7 +389,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				e := processCopyMove(skipAclContext, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 				childrenResult.record(e)
 				if Is403(e) {
-					taskLogger.Info("-- Ignoring " + childNode.Path + " (" + e.Error() + ")")
+					taskLogger.Info("-- Ignoring inaccessible child")
 				} else if e == nil {
 					taskLogger.Info("-- Copy/Move Success for " + childNode.Path)
 				}
@@ -405,7 +405,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			e := processCopyMove(skipAclContext, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 			childrenResult.record(e)
 			if Is403(e) {
-				taskLogger.Info("-- Ignoring " + lastNode.Path + " (" + e.Error() + ")")
+				taskLogger.Info("-- Ignoring inaccessible child")
 			} else if e == nil {
 				taskLogger.Info("-- Copy/Move Success for " + lastNode.Path)
 			}
