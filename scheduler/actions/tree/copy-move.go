@@ -59,6 +59,7 @@ type CopyMoveAction struct {
 	targetPlaceholder string
 	createFolder      bool
 	targetIsParent    bool
+	getChildrenLocks  func(context.Context, *tree.Node) ([]string, error)
 }
 
 func (c *CopyMoveAction) GetDescription(_ ...string) actions.ActionDescription {
@@ -194,7 +195,11 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	// Handle already existing - Feed with parent folder children locks
 	var childrenLocks []string
 	if parentResp, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil && !nodes.IsUnitTestEnv {
-		if cl, err := permissions.GetChildrenLocks(ctx, parentResp.GetNode()); err != nil {
+		lookupChildrenLocks := c.getChildrenLocks
+		if lookupChildrenLocks == nil {
+			lookupChildrenLocks = permissions.GetChildrenLocks
+		}
+		if cl, err := lookupChildrenLocks(ctx, parentResp.GetNode()); err != nil {
 			return childLockLookupFailure(input, err)
 		} else {
 			childrenLocks = append(childrenLocks, cl...)

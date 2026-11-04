@@ -45,18 +45,44 @@ func init() {
 	global, _ = mock.RegisterMockConfig(context.Background())
 }
 
-func TestChildLockLookupFailureReturnsActionError(t *testing.T) {
-	cause := errors.New("child lock lookup failed")
-	output, err := childLockLookupFailure(&jobs.ActionMessage{}, cause)
+func TestCopyMoveActionChildLockLookupFailure(t *testing.T) {
+	oldUnitTestEnv := nodes.IsUnitTestEnv
+	nodes.IsUnitTestEnv = false
+	defer func() { nodes.IsUnitTestEnv = oldUnitTestEnv }()
 
+	cause := errors.New("child lock lookup failed")
+	lookupCalled := false
+	action := &CopyMoveAction{
+		getChildrenLocks: func(context.Context, *tree.Node) ([]string, error) {
+			lookupCalled = true
+			return nil, cause
+		},
+	}
+	if err := action.Init(global, &jobs.Job{}, &jobs.Action{Parameters: map[string]string{
+		"target": "target/moved",
+		"type":   "move",
+	}}); err != nil {
+		t.Fatalf("Init() error = %v", err)
+	}
+
+	source := &tree.Node{Path: "source/item", Type: tree.NodeType_LEAF}
+	parent := &tree.Node{Path: "target", Uuid: "target-id", Type: tree.NodeType_COLLECTION}
+	mock := &nodes.HandlerMock{Nodes: map[string]*tree.Node{
+		source.Path: source,
+		parent.Path: parent,
+	}}
+	action.PresetHandler(mock)
+
+	output, err := action.Run(global, &actions.RunnableChannels{}, &jobs.ActionMessage{Nodes: []*tree.Node{source}})
+
+	if !lookupCalled {
+		t.Fatal("children-lock lookup was skipped")
+	}
 	if !errors.Is(err, cause) {
-		t.Fatalf("error = %v, want %v", err, cause)
+		t.Fatalf("Run() error = %v, want %v", err, cause)
 	}
 	if output.GetLastOutput().Success {
 		t.Fatal("last action output unexpectedly reports success")
-	}
-	if output.GetLastOutput().ErrorString != cause.Error() {
-		t.Fatalf("output error = %q, want %q", output.GetLastOutput().ErrorString, cause.Error())
 	}
 }
 

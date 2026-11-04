@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/scheduler/actions"
 
 	_ "github.com/pydio/cells/v5/scheduler/actions/scheduler"
 
@@ -70,6 +71,38 @@ func TestNewTaskFromEvent(t *testing.T) {
 		opId, _ := propagator.CanonicalMeta(task.context, common.CtxSchedulerOperationId)
 		So(opId, ShouldEqual, "ajob-"+task.task.ID[0:8])
 	})
+}
+
+type failingRunnableAction struct {
+	err error
+}
+
+func (a failingRunnableAction) GetName() string                                     { return "test.failure" }
+func (a failingRunnableAction) Init(context.Context, *jobs.Job, *jobs.Action) error { return nil }
+func (a failingRunnableAction) Run(context.Context, *actions.RunnableChannels, *jobs.ActionMessage) (*jobs.ActionMessage, error) {
+	return &jobs.ActionMessage{}, a.err
+}
+
+func TestRunnableActionErrorFinalizesTaskAsError(t *testing.T) {
+	cause := errors.New("incomplete move")
+	task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+	task.Add(1)
+	runnable := Runnable{
+		Action:         &jobs.Action{ID: "test.failure"},
+		Task:           task,
+		Message:        &jobs.ActionMessage{},
+		Context:        context.Background(),
+		Implementation: failingRunnableAction{err: cause},
+	}
+
+	runnable.RunAction(make(chan RunnerFunc, 1))
+
+	if task.task.Status != jobs.TaskStatus_Error {
+		t.Fatalf("status = %s, want Error", task.task.Status)
+	}
+	if task.task.StatusMessage == "Complete" {
+		t.Fatal("failed action was finalized as successful")
+	}
 }
 
 func TestTaskCleanupPreservesFailureStatus(t *testing.T) {
