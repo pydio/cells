@@ -32,6 +32,8 @@ import (
 	"testing"
 	"time"
 
+	ggrpc "google.golang.org/grpc"
+
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/client/grpc"
 	"github.com/pydio/cells/v5/common/errors"
@@ -124,9 +126,9 @@ func TestHandler_GetPut_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryption.NodeKeyManagerStub{
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &setNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
-	})
+	}})
 
 	branchInfo := nodes.BranchInfo{}
 	branchInfo.DataSource = &object.DataSource{
@@ -240,6 +242,41 @@ func TestHandler_GetPut_Encrypted(t *testing.T) {
 			So(e, ShouldNotBeNil)
 			So(reader, ShouldBeNil)
 		})
+
+		Convey("Test Put same UUID in another datasource (cross-ds move) keeps both readable", t, func() {
+			otherInfo := nodes.BranchInfo{}
+			otherInfo.DataSource = &object.DataSource{
+				Name:           "test2",
+				EncryptionMode: object.EncryptionMode_MASTER,
+			}
+			otherCtx := nodes.WithBranchInfo(ctx, "in", otherInfo)
+			node := tree.Node{Path: "test-moved", Uuid: "test"}
+			node.MustSetMeta(common.MetaNamespaceDatasourceName, "test2")
+			_, e := handler.PutObject(otherCtx, &node, strings.NewReader(data), &models.PutRequestData{})
+			So(e, ShouldBeNil)
+
+			// Plain size sums the node blocks: each datasource must only see its own
+			keyClient := encryption.NewNodeKeyManagerClient(grpc.ResolveConn(ctx, common.ServiceEncKeyGRPC))
+			for _, ds := range []string{"test", "test2"} {
+				ps, er := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{NodeId: "test", UserId: "ds:" + ds})
+				So(er, ShouldBeNil)
+				So(ps.GetSize(), ShouldEqual, len(data))
+			}
+
+			// Ranged reads list blocks too
+			for _, c := range []struct {
+				ctx  context.Context
+				ds   string
+				node *tree.Node
+			}{{ctx, "test", &tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}}, {otherCtx, "test2", &tree.Node{Path: "test-moved", Uuid: "test", Size: int64(len(data))}}} {
+				c.node.MustSetMeta(common.MetaNamespaceDatasourceName, c.ds)
+				reader, e := handler.GetObject(c.ctx, c.node, &models.GetRequestData{StartOffset: 15, Length: 30})
+				So(e, ShouldBeNil)
+				readData, err := io.ReadAll(reader)
+				So(err, ShouldBeNil)
+				So(string(readData), ShouldEqual, data[15:45])
+			}
+		})
 	})
 
 }
@@ -280,9 +317,9 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 
 	handler.SetNextHandler(mock)
 	handler.SetUserKeyTool(NewMockUserKeyTool())
-	grpc.RegisterMock(common.ServiceEncKeyGRPC, &encryption.NodeKeyManagerStub{
+	grpc.RegisterMock(common.ServiceEncKeyGRPC, &setNodeInfoErrStub{NodeKeyManagerStub: encryption.NodeKeyManagerStub{
 		NodeKeyManagerServer: srv.NewNodeKeyManagerHandler(),
-	})
+	}})
 
 	branchInfo := nodes.BranchInfo{}
 	branchInfo.DataSource = &object.DataSource{
@@ -358,4 +395,38 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 			}
 		})
 	})
+}
+
+// setNodeInfoErrStub forwards the error returned by the SetNodeInfo handler to the client, as real gRPC does.
+// shortcut: the generated stub (cmd/protoc-gen-go-client-stub) drops it and the client blocks, fix the generator to drop this
+type setNodeInfoErrStub struct {
+	encryption.NodeKeyManagerStub
+}
+
+func (s *setNodeInfoErrStub) NewStream(ctx context.Context, desc *ggrpc.StreamDesc, method string, opts ...ggrpc.CallOption) (ggrpc.ClientStream, error) {
+	if method != "/encryption.NodeKeyManager/SetNodeInfo" {
+		return s.NodeKeyManagerStub.NewStream(ctx, desc, method, opts...)
+	}
+	st := &setNodeInfoErrStreamer{}
+	st.Init(ctx)
+	go func() {
+		if e := s.NodeKeyManagerServer.SetNodeInfo(st); e != nil {
+			st.err = e
+			close(st.RespChan)
+		}
+	}()
+	return st, nil
+}
+
+type setNodeInfoErrStreamer struct {
+	encryption.NodeKeyManagerStub_SetNodeInfoStreamer
+	err error
+}
+
+func (s *setNodeInfoErrStreamer) RecvMsg(m interface{}) error {
+	e := s.NodeKeyManagerStub_SetNodeInfoStreamer.RecvMsg(m)
+	if e == io.EOF && s.err != nil {
+		return s.err
+	}
+	return e
 }

@@ -250,6 +250,12 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to set nodeKey", zap.Error(err))
 			return models.ObjectInfo{}, err
 		}
+		// Drop blocks a previous failed write may have left for this datasource
+		err = streamer.ClearBlocks(info.NodeKey.OwnerId)
+		if err != nil {
+			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to clear old blocks", zap.Error(err))
+			return models.ObjectInfo{}, err
+		}
 
 	} else {
 		encryptionKeyPlainBytes, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
@@ -258,7 +264,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			return models.ObjectInfo{}, err
 		}
 
-		err = streamer.ClearBlocks(clone.Uuid)
+		err = streamer.ClearBlocks(info.NodeKey.OwnerId)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to clear old blocks", zap.Error(err))
 			return models.ObjectInfo{}, err
@@ -288,6 +294,13 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 
 	n, err := e.Next.PutObject(ctx, node, encryptionMaterials, requestData)
+	// Key and blocks are only acknowledged on close: without them the object cannot be read, so callers (e.g. move) must not go on
+	if err == nil {
+		if err = streamer.Close(); err != nil {
+			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to store encryption info", zap.Error(err))
+			return models.ObjectInfo{}, err
+		}
+	}
 
 	if err == nil && plainSizeUnknown && branchInfo.FlatStorage {
 		ps, psErr := e.recomputeNodePlainSize(ctx, node, dsName)
@@ -459,7 +472,7 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 	}
 	defer streamer.Close()
 
-	_, err = e.getNodeInfoForWrite(ctx, clone, true)
+	existing, err := e.getNodeInfoForWrite(ctx, clone, true)
 	if err != nil {
 		if !errors.Is(err, errors.StatusNotFound) {
 			return "", err
@@ -483,13 +496,24 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to create nodeInfo", zap.Error(err))
 			return "", err
 		}
-
-	} else {
-		err = streamer.ClearBlocks(clone.Uuid)
+		// Drop blocks a previous failed write may have left for this datasource
+		err = streamer.ClearBlocks(info.NodeKey.OwnerId)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to clear old blocks", zap.Error(err))
 			return "", err
 		}
+
+	} else {
+		err = streamer.ClearBlocks(existing.NodeKey.OwnerId)
+		if err != nil {
+			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to clear old blocks", zap.Error(err))
+			return "", err
+		}
+	}
+	// Make sure the key is stored before creating the upload
+	if err = streamer.Close(); err != nil {
+		log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to store encryption info", zap.Error(err))
+		return "", err
 	}
 
 	return e.Next.MultipartCreate(ctx, target, requestData)
@@ -558,6 +582,8 @@ func (e *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 	part, err := e.Next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, encryptionMaterials, requestData)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: Next handler failed", zap.Error(err))
+	} else if err = nodeBlocksStreamer.Close(); err != nil {
+		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to store blocks info", zap.Error(err))
 	}
 	// Replace part Size with plain size value
 	part.Size = plainSize
