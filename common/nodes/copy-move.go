@@ -337,6 +337,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		t := time.Now()
 		var lastNode *tree.Node
 		var errs []error
+		var resultMu sync.Mutex
 		progress := &copyPgReader{
 			progressChan: progressChan,
 			total:        totalSize,
@@ -358,8 +359,10 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					defer wg.Done()
 				}()
 				e := processCopyMove(skipAclContext, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
+				resultMu.Lock()
+				defer resultMu.Unlock()
 				if Is403(e) {
-					childrenMoved++
+					errs = append(errs, e)
 					taskLogger.Info("-- Ignoring " + childNode.Path + " (" + e.Error() + ")")
 				} else if e != nil {
 					errs = append(errs, e)
@@ -378,7 +381,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			// Now process very last node
 			e := processCopyMove(skipAclContext, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 			if Is403(e) {
-				childrenMoved++
+				errs = append(errs, e)
 				taskLogger.Info("-- Ignoring " + lastNode.Path + " (" + e.Error() + ")")
 			} else if e != nil {
 				panic(e)

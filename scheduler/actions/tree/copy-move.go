@@ -191,7 +191,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	var childrenLocks []string
 	if parentResp, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil && !nodes.IsUnitTestEnv {
 		if cl, err := permissions.GetChildrenLocks(ctx, parentResp.GetNode()); err != nil {
-			return input.WithError(err), nil
+			return input.WithError(err), err
 		} else {
 			childrenLocks = append(childrenLocks, cl...)
 		}
