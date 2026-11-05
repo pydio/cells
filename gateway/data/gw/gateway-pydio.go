@@ -153,6 +153,12 @@ func pydioToMinioError(err error, bucket, key string) error {
 			Bucket: bucket,
 			Object: key,
 		}
+	} else if errors.Is(err, errors.InvalidParameters) {
+		err = minio.InvalidArgument{
+			Bucket: bucket,
+			Object: key,
+			Err:    err,
+		}
 	} else if errors.Is(err, errors.StatusQuotaReached) {
 		err = minio.PydioQuotaExceeded{
 			Bucket: bucket,
