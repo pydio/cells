@@ -37,6 +37,8 @@ type ClientWithMeta struct {
 	Client
 	metaClient tree.NodeReceiverClient
 	runtimeCtx context.Context
+	// metaReader reads metadata while walking, resolved from the meta service if nil
+	metaReader tree.NodeProviderStreamerClient
 }
 
 // NewClientWithMeta creates a new client supporting metadata load
@@ -53,7 +55,10 @@ func NewClientWithMeta(ctx context.Context, dsName string, reader tree.NodeProvi
 // Walk wraps the initial Walk function to load metadata on the fly
 func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
-	metaClient := tree.NewNodeProviderStreamerClient(grpc.ResolveConn(m.runtimeCtx, common.ServiceMetaGRPC))
+	metaClient := m.metaReader
+	if metaClient == nil {
+		metaClient = tree.NewNodeProviderStreamerClient(grpc.ResolveConn(m.runtimeCtx, common.ServiceMetaGRPC))
+	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	metaStreamer, e := metaClient.ReadNodeStream(ctx)
@@ -62,14 +67,20 @@ func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, 
 	}
 	walkWrapped := func(path string, node tree.N, err error) error {
 		if err == nil {
-			metaStreamer.Send(&tree.ReadNodeRequest{Node: node.AsProto()})
-			if resp, e := metaStreamer.Recv(); e == nil && resp.Node != nil && resp.Node.MetaStore != nil {
-				node.SetRawMetadata(resp.Node.MetaStore)
+			// A node without its metadata would make them look deleted: report stream errors
+			if err = metaStreamer.Send(&tree.ReadNodeRequest{Node: node.AsProto()}); err == nil {
+				var resp *tree.ReadNodeResponse
+				if resp, err = metaStreamer.Recv(); err == nil && resp.Node != nil && resp.Node.MetaStore != nil {
+					node.SetRawMetadata(resp.Node.MetaStore)
+				}
+			}
+			if err != nil {
+				return walknFc(path, nil, err)
 			}
 		}
 		return walknFc(path, node, err)
 	}
-	return m.Client.Walk(nil, walkWrapped, root, recursive)
+	return m.Client.Walk(ctx, walkWrapped, root, recursive)
 
 }
 

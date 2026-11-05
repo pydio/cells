@@ -623,3 +623,23 @@ func diffFromSnaps(folder string) (*TreeDiff, error) {
 	e = diff.Compute(ctx, "/", nil, nil)
 	return diff, e
 }
+
+func TestBranchesWithMetadataOperations(t *testing.T) {
+
+	metaOp := func(t OperationType, p string) Operation {
+		return NewOperation(t, model.EventInfo{Path: p}, &tree.Node{Path: p, Type: NodeType_METADATA})
+	}
+
+	Convey("Metadata operations load the branch of their node's parent, not the node itself", t, func() {
+
+		source, target := memory.NewMemDB(), memory.NewMemDB()
+		patch := newTreePatch(source, target, PatchOptions{})
+		patch.Enqueue(metaOp(OpUpdateMeta, "docs/archive.zip/usermeta-box-id"))
+		So(patch.BranchesWithOperations(target), ShouldResemble, []string{"docs"})
+
+		patch = newTreePatch(source, target, PatchOptions{})
+		patch.Enqueue(metaOp(OpCreateMeta, "root.zip/usermeta-box-id"))
+		So(patch.BranchesWithOperations(target), ShouldResemble, []string{""})
+
+	})
+}

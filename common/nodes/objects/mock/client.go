@@ -97,7 +97,7 @@ func (c *Client) GetObject(ctx context.Context, bucketName, objectName string, o
 	if object, ok := bucket[objectName]; ok {
 		return newReadCloser(object.contents), models.ObjectInfo{Size: int64(len(object.contents))}, nil
 	} else {
-		return nil, models.ObjectInfo{}, errors.New("object not found")
+		return nil, models.ObjectInfo{}, errors.WithStack(errors.ObjectNotFound)
 	}
 }
 
@@ -109,7 +109,7 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 	if object, ok := bucket[objectName]; ok {
 		return object.ObjectInfo, nil
 	} else {
-		return models.ObjectInfo{}, errors.New("object not found")
+		return models.ObjectInfo{}, errors.WithStack(errors.ObjectNotFound)
 	}
 }
 
@@ -145,7 +145,7 @@ func (c *Client) RemoveObject(ctx context.Context, bucketName, objectName string
 		return fmt.Errorf("bucket not found %s", bucketName)
 	}
 	if _, ok := bucket[objectName]; !ok {
-		return errors.New("object not found")
+		return errors.WithStack(errors.ObjectNotFound)
 	}
 	delete(bucket, objectName)
 	return nil

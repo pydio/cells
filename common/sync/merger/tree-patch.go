@@ -22,9 +22,9 @@ package merger
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"sort"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -64,11 +64,12 @@ type TreePatch struct {
 func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) *TreePatch {
 	p := &TreePatch{
 		AbstractPatch: AbstractPatch{
-			uuid:    uuid.New(),
-			source:  source,
-			target:  target,
-			options: options,
-			mTime:   time.Now(),
+			uuid:      uuid.New(),
+			source:    source,
+			target:    target,
+			options:   options,
+			mTime:     time.Now(),
+			stateLock: &sync.Mutex{},
 		},
 		TreeNode:      *NewTree(),
 		createFiles:   make(map[string]Operation),
@@ -134,6 +135,11 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 			return // Skip Processed Operations
 		}
 		d := path.Dir(operation.GetRefPath())
+		if operation.Type() == OpCreateMeta || operation.Type() == OpUpdateMeta || operation.Type() == OpDeleteMeta {
+			// Metadata paths are <node>/<namespace>: the branch is the node's parent, never the node itself.
+			// A file as walk root is listed as a virtual folder by the router when it is an archive.
+			d = path.Dir(d)
+		}
 		if d == "." {
 			d = ""
 		}
@@ -184,8 +190,13 @@ func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model
 				}
 			}
 		}()
-		inMemory, _ := cacheProvider.GetCachedBranches(ctx, branches...)
+		inMemory, err := cacheProvider.GetCachedBranches(ctx, branches...)
 		close(done)
+		if err != nil {
+			// Do not use a partial or missing cache: callers fall back to the endpoint itself
+			log.Logger(ctx).Warn("[BranchCache] Cannot load branches in cache, using endpoint", zap.String("endpoint", endpoint.GetEndpointInfo().URI), zap.Error(err))
+			return nil, false
+		}
 		return inMemory, true
 	}
 	return nil, false
@@ -222,23 +233,28 @@ func (t *TreePatch) HasTransfers() bool {
 	return ht
 }
 
-// HasErrors checks if this patch has a global error status or any operation in Error state
+// HasErrors checks if this patch has a global error status, any operation in Error state, or a conflict that was not
+// solved (ConflictError)
 func (t *TreePatch) HasErrors() (errs []error, has bool) {
-	if t.patchError != nil {
-		errs = append(errs, t.patchError)
+	if pe := t.getPatchError(); pe != nil {
+		errs = append(errs, pe)
 	}
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		if e := operation.Error(); e != nil {
 			errs = append(errs, e)
-		} else if operation.Type() == OpConflict {
-			errs = append(errs, fmt.Errorf("conflict on path %s", operation.GetRefPath()))
+		} else if operation.Type() == OpConflict && !isSolvedConflict(operation) {
+			ce := &ConflictError{Path: operation.GetRefPath()}
+			if c, ok := operation.(ConflictOperation); ok {
+				ce.Type, _, _ = c.ConflictInfo()
+			}
+			errs = append(errs, ce)
 		}
 	})
 	return errs, len(errs) > 0
 }
 
 func (t *TreePatch) CleanErrors() {
-	t.patchError = nil
+	t.SetError(nil)
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		operation.CleanError()
 	})
@@ -279,6 +295,9 @@ func (t *TreePatch) Stats() map[string]interface{} {
 		"Target": t.Target().GetEndpointInfo().URI,
 	}
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
+		if isSolvedConflict(operation) {
+			return // its copies are counted
+		}
 		var target map[string]int
 		if operation.IsProcessed() {
 			target = processed
@@ -318,8 +337,8 @@ func (t *TreePatch) MarshalJSON() ([]byte, error) {
 		"Root":  &t.TreeNode,
 		"Stats": t.Stats(),
 	}
-	if t.patchError != nil {
-		data["Error"] = t.patchError.Error()
+	if pe := t.getPatchError(); pe != nil {
+		data["Error"] = pe.Error()
 	}
 	return json.Marshal(data)
 }

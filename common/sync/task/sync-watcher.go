@@ -38,37 +38,39 @@ func (s *Sync) startWatchers(ctx context.Context) {
 	target, tOk := model.AsPathSyncTarget(s.Target)
 	if s.Direction != model.DirectionLeft && sOk && tOk {
 		if stop, err := s.setupWatcher(ctx, source, target); err == nil {
-			s.watchersChan = append(s.watchersChan, stop)
+			s.addWatcher(stop)
 		} else {
 			log.Logger(ctx).Error("Could not setup watcher on "+s.Source.GetEndpointInfo().URI, zap.Error(err))
 		}
-	} else if s.watchConn != nil {
+	} else {
 		// No need to setup watcher, assume connected
-		s.watchConn <- &model.EndpointStatus{
+		s.watchStatus(&model.EndpointStatus{
 			WatchConnection: model.WatchConnected,
 			EndpointInfo:    source.GetEndpointInfo(),
-		}
+		})
 	}
 	source2, sOk2 := model.AsPathSyncSource(s.Target)
 	target2, tOk2 := model.AsPathSyncTarget(s.Source)
 	if s.Direction != model.DirectionRight && sOk2 && tOk2 {
 		if stop, err := s.setupWatcher(ctx, source2, target2); err == nil {
-			s.watchersChan = append(s.watchersChan, stop)
+			s.addWatcher(stop)
 		} else {
 			log.Logger(ctx).Error("Could not setup watcher on "+s.Target.GetEndpointInfo().URI, zap.Error(err))
 		}
-	} else if s.watchConn != nil {
+	} else {
 		// No need to setup watcher, assume connected
-		s.watchConn <- &model.EndpointStatus{
+		s.watchStatus(&model.EndpointStatus{
 			WatchConnection: model.WatchConnected,
 			EndpointInfo:    source2.GetEndpointInfo(),
-		}
+		})
 	}
 
 }
 
 // stopWatchers sends stop instruction to events watchers
 func (s *Sync) stopWatchers() {
+	s.watchersLock.Lock()
+	defer s.watchersLock.Unlock()
 	for _, stop := range s.watchersChan {
 		close(stop)
 	}
@@ -106,11 +108,11 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	// Finally Batch filtered events and register batcher for force-close session broadcast
 	batcher := filters.NewEventsBatcher(ctx, source, target, s.Ignores)
 	batcher.SetupChannels(s.statuses, s.runDone, s.cmd)
-	if s.watchConn != nil {
-		batcher.SetEndpointStatusChan(s.watchConn)
-	}
+	batcher.SetEndpointStatusSender(func(st *model.EndpointStatus) { s.watchStatus(st) })
 	batcher.Batch(out, s.patchChan)
+	s.watchersLock.Lock()
 	s.eventsBatchers = append(s.eventsBatchers, batcher)
+	s.watchersLock.Unlock()
 
 	go func() {
 		// Wait for all events.
@@ -134,21 +136,19 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 					if err.Error() == "API Not Supported" {
 						// Special case for S3 Client => Send Disconnected Status if API does not support events watch
 						log.Logger(ctx).Error("Endpoint does not support watching with this config", zap.Error(err))
-						s.watchConn <- &model.EndpointStatus{
+						s.watchStatus(&model.EndpointStatus{
 							WatchConnection: model.WatchDisconnected,
 							EndpointInfo:    source.GetEndpointInfo(),
-						}
+						})
 						close(input)
 						return
 					}
 				}
 			case connInfo := <-watchObject.ConnectionInfo:
-				if s.watchConn != nil {
-					s.watchConn <- &model.EndpointStatus{
-						WatchConnection: connInfo,
-						EndpointInfo:    source.GetEndpointInfo(),
-					}
-				}
+				s.watchStatus(&model.EndpointStatus{
+					WatchConnection: connInfo,
+					EndpointInfo:    source.GetEndpointInfo(),
+				})
 			case <-inputCloser:
 				inputClosed = true
 				watchObject.DoneChan <- true
@@ -158,14 +158,35 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 		}
 	}()
 
-	if watchObject.ConnectionInfo == nil && s.watchConn != nil {
+	if watchObject.ConnectionInfo == nil {
 		// This Watcher does not send info about its connection state - so we declare it as connected
-		s.watchConn <- &model.EndpointStatus{
+		s.watchStatus(&model.EndpointStatus{
 			WatchConnection: model.WatchConnected,
 			EndpointInfo:    source.GetEndpointInfo(),
-		}
+		})
 	}
 
 	return inputCloser, nil
 
+}
+
+// addWatcher registers a watcher stop chan, or stops the watcher if Shutdown has started
+func (s *Sync) addWatcher(stop chan bool) {
+	s.watchersLock.Lock()
+	defer s.watchersLock.Unlock()
+	if s.watchersShutdown {
+		close(stop)
+		return
+	}
+	s.watchersChan = append(s.watchersChan, stop)
+}
+
+// watchStatus sends a status on watchConn, if any, unless Shutdown has started (see sendWatchConn)
+func (s *Sync) watchStatus(status *model.EndpointStatus) {
+	s.connLock.Lock()
+	wc := s.watchConn
+	s.connLock.Unlock()
+	if wc != nil {
+		s.sendWatchConn(wc, status)
+	}
 }

@@ -30,6 +30,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/merger"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
@@ -58,10 +59,10 @@ type EventsBatcher struct {
 	cmd      *model.Command
 
 	// Monitor batcher activity (receiving events)
-	active       bool
-	activeChan   chan bool
-	activeDone   chan bool
-	epStatusChan chan *model.EndpointStatus
+	active     bool
+	activeChan chan bool
+	activeDone chan bool
+	epStatus   func(*model.EndpointStatus)
 }
 
 // NewEventsBatcher creates a new EventsBatcher
@@ -83,7 +84,7 @@ func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target m
 	if len(debounce) > 0 {
 		b.debounce = debounce[0]
 	} else {
-		b.debounce = 1 * time.Second
+		b.debounce = timings.BatcherDebounce.Get()
 	}
 
 	return b
@@ -104,7 +105,7 @@ func (ev *EventsBatcher) MonitorActivity() {
 		select {
 		case <-ev.activeChan:
 			ev.setActivity(true)
-		case <-time.After(500 * time.Millisecond):
+		case <-time.After(timings.BatcherIdleDelay.Get()):
 			ev.setActivity(false)
 		case <-ev.activeDone:
 			return
@@ -122,17 +123,17 @@ func (ev *EventsBatcher) setActivity(active bool) {
 	}
 	log.Logger(ev.globalContext).Debug("Updating watcher activity", zap.Bool("active", active))
 	ev.active = active
-	if ev.epStatusChan != nil {
+	if ev.epStatus != nil {
 		if active {
-			ev.epStatusChan <- &model.EndpointStatus{
+			ev.epStatus(&model.EndpointStatus{
 				EndpointInfo:    ev.Source.GetEndpointInfo(),
 				WatchConnection: model.WatchActive,
-			}
+			})
 		} else {
-			ev.epStatusChan <- &model.EndpointStatus{
+			ev.epStatus(&model.EndpointStatus{
 				EndpointInfo:    ev.Source.GetEndpointInfo(),
 				WatchConnection: model.WatchIdle,
-			}
+			})
 		}
 	}
 }
@@ -293,7 +294,13 @@ func (ev *EventsBatcher) SetupChannels(status chan model.Status, done chan inter
 }
 
 func (ev *EventsBatcher) SetEndpointStatusChan(c chan *model.EndpointStatus) {
-	ev.epStatusChan = c
+	ev.epStatus = func(st *model.EndpointStatus) { c <- st }
+}
+
+// SetEndpointStatusSender is like SetEndpointStatusChan, for an owner that must guard the sends (e.g. against a
+// channel closed concurrently)
+func (ev *EventsBatcher) SetEndpointStatusSender(send func(*model.EndpointStatus)) {
+	ev.epStatus = send
 }
 
 func (ev *EventsBatcher) Status(s model.Status) {

@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints/bus/events"
 	"github.com/pydio/cells/v5/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 	"github.com/pydio/cells/v5/common/utils/propagator"
@@ -80,6 +81,11 @@ type Options struct {
 	// When writing a file, remember the ETag reported by the sync source along with the Cells hash, and
 	// report the source ETag instead of the Cells hash as long as the content is unchanged. Use this when
 	// the other endpoint computes ETags differently (e.g. SHA-1), so that the merger compares like with like.
+	//
+	// Only supported for one-way imports into this endpoint, without watcher: LoadNode and Walk report the
+	// source ETag, but change events (and the snapshot updates they trigger) still carry the Cells hash, so a
+	// watched or bidirectional sync would see the files written by the sync as modified (EP-CELLS-01).
+	// Watch returns an error when it is set.
 	SourceEtags bool
 }
 
@@ -97,9 +103,12 @@ type Abstract struct {
 	// as core metadata through the meta service. Required by Options.SourceEtags.
 	CoreMetaWriter func(ctx context.Context, node *tree.Node) error
 
-	watchConn         chan model.WatchConnectionInfo
-	updateSnapshot    model.PathSyncTarget
-	watchCtxCancelled bool
+	updateSnapshot model.PathSyncTarget
+
+	// deletedFolders are the folders deleted by this client, with the time until which the delete events of their
+	// content are dropped (see isOwnDeleteEcho). A zero time means the delete request is still running.
+	deletedFolders     map[string]time.Time
+	deletedFoldersLock sync.Mutex
 }
 
 // SetUpdateSnapshot registers a snapshot to be updated when events are received from server
@@ -186,7 +195,8 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 	}
 	for {
 		resp, e := s.Recv()
-		if e == io.EOF || e == io.ErrUnexpectedEOF || (e == nil && resp == nil) {
+		// Only io.EOF ends the listing: a truncated one (io.ErrUnexpectedEOF) would make the missing nodes look deleted
+		if e == io.EOF || (e == nil && resp == nil) {
 			break
 		}
 		if e != nil {
@@ -243,54 +253,85 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (mode
 
 // Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the Tree Service via a Router).
 func (c *Abstract) Watch(ct context.Context, recursivePath string) (*model.WatchObject, error) {
+	if c.Options.SourceEtags {
+		return nil, errors.WithMessage(errors.StatusNotImplemented, "watch is not supported with sourceEtags (one-way imports only)")
+	}
 
-	c.watchConn = make(chan model.WatchConnectionInfo)
+	// Each watch has its own connection channel and state: watchers restarted without being
+	// stopped must not share them (closing the shared channel twice panicked).
+	conn := make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
-	// Reset watchCtxCancelled if it's a Resume after a Pause
-	c.watchCtxCancelled = false
 	ctx, cancel := context.WithCancel(ct)
+	// receivers tracks the goroutines that send to this watch's channels: they are closed only
+	// once all of them have returned.
+	// spawn is only called by this function and its dispatcher goroutine, which runs Wait itself:
+	// every Add happens before Wait.
+	receivers := &sync.WaitGroup{}
+	spawn := func(f func()) {
+		receivers.Add(1)
+		go func() {
+			defer receivers.Done()
+			f()
+		}()
+	}
+	receive := func() {
+		spawn(func() { c.receiveEvents(ctx, changes, finished, conn) })
+	}
 
 	obj := &model.WatchObject{
 		EventInfoChan:  make(chan model.EventInfo),
 		DoneChan:       make(chan bool, 1),
 		ErrorChan:      make(chan error),
-		ConnectionInfo: c.watchConn,
+		ConnectionInfo: conn,
 	}
 	go func() {
 		defer func() {
-			close(obj.EventInfoChan)
-			close(c.watchConn)
 			cancel()
+			receivers.Wait()
+			close(obj.EventInfoChan)
+			close(conn)
 		}()
 		for {
 			select {
 			case changeEvent := <-changes:
 				if event, send := c.changeToEventInfo(changeEvent); send {
-					obj.EventInfoChan <- event
+					select {
+					case obj.EventInfoChan <- event:
+					case <-obj.DoneChan:
+						log.Logger(c.GlobalCtx).Info("Stopping event watcher")
+						return
+					}
 				} else if changeEvent.Target != nil && changeEvent.Target.Etag == common.NodeFlagEtagTemporary &&
 					(changeEvent.Type == tree.NodeChangeEvent_CREATE || changeEvent.Type == tree.NodeChangeEvent_UPDATE_CONTENT) {
-					go c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan)
+					spawn(func() { c.deferEventUntilEtagReady(ctx, changeEvent, obj.EventInfoChan) })
 				}
 			case er := <-finished:
 				if !strings.Contains(er.Error(), "DeadlineExceeded") {
 					log.Logger(c.GlobalCtx).Info("Connection finished " + er.Error())
 				}
-				if c.watchConn != nil {
-					c.watchConn <- model.WatchDisconnected
+				select {
+				case conn <- model.WatchDisconnected:
+				case <-obj.DoneChan:
+					log.Logger(c.GlobalCtx).Info("Stopping event watcher")
+					return
 				}
-				<-time.After(5 * time.Second)
+				select {
+				case <-time.After(5 * time.Second):
+				case <-obj.DoneChan:
+					log.Logger(c.GlobalCtx).Info("Stopping event watcher")
+					return
+				}
 				log.Logger(c.GlobalCtx).Info("Restarting events watcher after 5s")
-				go c.receiveEvents(ctx, changes, finished)
+				receive()
 			case <-obj.DoneChan:
 				log.Logger(c.GlobalCtx).Info("Stopping event watcher")
-				c.watchCtxCancelled = true
 				return
 			}
 		}
 	}()
 
-	go c.receiveEvents(ctx, changes, finished)
+	receive()
 
 	if len(c.Options.MetadataGlobs) > 0 {
 		_ = broker.SubscribeCancellable(ctx, common.TopicUserMetaDiffs, func(ctx context.Context, msg broker.Message) error {
@@ -385,6 +426,10 @@ func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 		return
 	}
 	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.ClientUUID
+	if send && change.Type == tree.NodeChangeEvent_DELETE && c.isOwnDeleteEcho(change.Source.GetPath()) {
+		log.Logger(c.GlobalCtx).Debug("Dropping echo of our own folder delete " + change.Source.GetPath())
+		send = false // the snapshot is still updated below
+	}
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
 		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
 		event, _ = events.TreeNodeChangeToModelEvent(change, time.Now(), c.Source)
@@ -445,38 +490,42 @@ func (c *Abstract) metaDiffToEventInfo(ct context.Context, ev *idm.UpdateUserMet
 
 }
 
-// receiveEvents starts a streamer to the GRPC gateway
-func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error) {
-	ctx, cli, err := c.Factory.GetNodeChangesStreamClient(c.getContext(ctx))
-	if err != nil {
-		if !c.watchCtxCancelled {
-			finished <- err
+// receiveEvents starts a streamer to the GRPC gateway. All its sends give up once ctx is cancelled
+// (watch stopped), so that the watch can close its channels after it returns.
+func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error, conn chan model.WatchConnectionInfo) {
+	fail := func(e error) {
+		select {
+		case finished <- e:
+		case <-ctx.Done():
 		}
+	}
+	// sctx, not ctx: the factory returns a nil context on error, and fail needs the watch's.
+	sctx, cli, err := c.Factory.GetNodeChangesStreamClient(c.getContext(ctx))
+	if err != nil {
+		fail(err)
 		return
 	}
 
-	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root})
+	streamer, e := cli.StreamChanges(sctx, &tree.StreamChangesRequest{RootPath: c.Root})
 	if e != nil {
-		if !c.watchCtxCancelled {
-			finished <- e
-		}
+		fail(e)
 		return
 	}
 	defer streamer.CloseSend()
-	if c.watchConn != nil {
-		c.watchConn <- model.WatchConnected
+	select {
+	case conn <- model.WatchConnected:
+	case <-ctx.Done():
+		return
 	}
 	for {
 		change, e := streamer.Recv()
-		if c.watchCtxCancelled {
+		if ctx.Err() != nil {
 			return
 		}
 		if e != nil {
 			log.Logger(c.GlobalCtx).Error("Stopping watcher on error" + e.Error())
-			if !c.watchCtxCancelled {
-				finished <- e
-			}
-			break
+			fail(e)
+			return
 		}
 		if change.Source != nil {
 			change.Source.Path = c.unrooted(change.Source.Path)
@@ -484,7 +533,11 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		if change.Target != nil {
 			change.Target.Path = c.unrooted(change.Target.Path)
 		}
-		changes <- change
+		select {
+		case changes <- change:
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
@@ -550,8 +603,47 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	}
 	sendCtx, can := context.WithTimeout(ctx, 5*time.Minute)
 	defer can()
+	if !read.Node.IsLeaf() {
+		c.markFolderDeleted(name, true)
+		defer c.markFolderDeleted(name, false)
+	}
 	_, err = cliWrite.DeleteNode(sendCtx, &tree.DeleteNodeRequest{Node: proto.Clone(read.Node).(*tree.Node)})
 	return
+}
+
+// markFolderDeleted records a folder deleted by this client: while the request runs, then for EchoDeleteWindow
+func (c *Abstract) markFolderDeleted(name string, running bool) {
+	c.deletedFoldersLock.Lock()
+	defer c.deletedFoldersLock.Unlock()
+	if c.deletedFolders == nil {
+		c.deletedFolders = make(map[string]time.Time)
+	}
+	until := time.Time{}
+	if !running {
+		until = time.Now().Add(timings.EchoDeleteWindow.Get())
+	}
+	c.deletedFolders[strings.Trim(name, "/")] = until
+}
+
+// isOwnDeleteEcho tells if a deleted path is in a folder deleted by this client. The server deletes the content of
+// a folder asynchronously, and these delete events don't carry our client UUID: applied late, they deleted files
+// recreated in the meantime on the other side (#30).
+func (c *Abstract) isOwnDeleteEcho(p string) bool {
+	p = strings.Trim(p, "/")
+	c.deletedFoldersLock.Lock()
+	defer c.deletedFoldersLock.Unlock()
+	now := time.Now()
+	echo := false
+	for folder, until := range c.deletedFolders {
+		if !until.IsZero() && now.After(until) {
+			delete(c.deletedFolders, folder)
+			continue
+		}
+		if p == folder || strings.HasPrefix(p, folder+"/") {
+			echo = true
+		}
+	}
+	return echo
 }
 
 // MoveNode renames a file or folder and *blocks* until the node has been properly moved (sync)

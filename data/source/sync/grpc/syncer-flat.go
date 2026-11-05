@@ -49,6 +49,12 @@ func (s *Syncer) FlatScanEmpty(ctx context.Context, syncStatus chan model.Status
 	defer s.IndexClientSession.CloseSession(ctx, &tree.CloseSessionRequest{Session: session})
 	var nodesCreated int
 	e := source.Walk(ctx, func(path string, node tree.N, err error) error {
+		if err != nil {
+			// This scan only creates nodes in an empty index: log and skip unreadable objects
+			log.Logger(ctx).Error("Could not read s3 object", zap.String("path", path), zap.Error(err))
+			log.TasksLogger(ctx).Error(" - Could not read s3 object " + path + ": " + err.Error())
+			return nil
+		}
 		// If set, N.Uuid is read from s3 metadata. Set the Path as Uuid instead.
 		clone := node.AsProto().Clone()
 		clone.Uuid = node.GetPath()
