@@ -193,7 +193,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 				log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", existing), zap.Any("to", nodeTo))
 				if err = s.indexDAO.MoveNodeTree(ctx, existing, nodeTo); err != nil {
 					if targetCreated {
-						if cleanupErr := s.indexDAO.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil && !errors.Is(cleanupErr, errors.StatusConflict) {
+						if cleanupErr := s.indexDAO.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil {
 							log.Logger(ctx).Warn("Could not clean target placeholder after failed move", zap.Error(cleanupErr))
 						}
 					}

@@ -1420,16 +1420,41 @@ func TestDeleteMoveTargetRejectsReplacedReservation(t *testing.T) {
 	}, true)
 }
 
-func TestDelNodeIfUUIDRemovesOwnedSubtree(t *testing.T) {
+func TestDelNodeIfUUIDRefusesTargetWithChildren(t *testing.T) {
 	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
-			Convey("Delete removes only the owned target subtree", t, func() {
+			Convey("Cleanup refuses to delete a target with descendants", t, func() {
+				targetUuid := uuid.New()
+				childUuid := uuid.New()
 				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
-					Uuid: uuid.New(),
+					Uuid: targetUuid,
 					Type: tree.NodeType_COLLECTION,
 				})
 				So(err, ShouldBeNil)
 				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				So(errors.Is(dao.DelNodeIfUUID(ctx, target), errors.StatusConflict), ShouldBeTrue)
+				root, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(root.GetNode().GetUuid(), ShouldEqual, targetUuid)
+				child, err := dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldBeNil)
+				So(child.GetNode().GetUuid(), ShouldEqual, childUuid)
+			})
+		}
+	}, true)
+}
+
+func TestDelNodeIfUUIDRemovesOwnedLeaf(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Delete removes an owned leaf target", t, func() {
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target.txt", &tree.Node{
 					Uuid: uuid.New(),
 					Type: tree.NodeType_LEAF,
 				})
@@ -1437,9 +1462,7 @@ func TestDelNodeIfUUIDRemovesOwnedSubtree(t *testing.T) {
 				So(dao.Flush(ctx, false), ShouldBeNil)
 
 				So(dao.DelNodeIfUUID(ctx, target), ShouldBeNil)
-				_, err = dao.GetNodeByPath(ctx, "/target")
-				So(err, ShouldNotBeNil)
-				_, err = dao.GetNodeByPath(ctx, "/target/child.txt")
+				_, err = dao.GetNodeByPath(ctx, "/target.txt")
 				So(err, ShouldNotBeNil)
 			})
 		}

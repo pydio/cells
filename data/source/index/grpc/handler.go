@@ -560,7 +560,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	if err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
 		if targetCreated {
-			if cleanupErr := dao.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil && !errors.Is(cleanupErr, errors.StatusConflict) {
+			if cleanupErr := dao.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil {
 				log.Logger(ctx).Warn("Could not clean target placeholder after failed move", zap.Error(cleanupErr))
 			}
 		}

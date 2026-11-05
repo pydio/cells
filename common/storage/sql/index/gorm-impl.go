@@ -296,8 +296,8 @@ func (dao *gormImpl[T]) DelNode(ctx context.Context, node tree.ITreeNode) error 
 
 func (dao *gormImpl[T]) DelNodeIfUUID(ctx context.Context, node tree.ITreeNode) error {
 	model := dao.factory.Struct()
-	return storagesql.WithTxRetry(ctx, dao.instance(ctx), moveTreeMaxAttempts, "delete reserved node subtree", func(tx *gorm.DB) error {
-		return deleteMoveTarget(tx, model, node.GetMPath(), node.GetNode().GetUuid())
+	return storagesql.WithTxRetry(ctx, dao.instance(ctx), moveTreeMaxAttempts, "delete reserved node", func(tx *gorm.DB) error {
+		return deleteReservedNodeIfLeaf(tx, model, node.GetMPath(), node.GetNode().GetUuid())
 	})
 }
 
@@ -754,6 +754,35 @@ func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 }
 
 const moveTreeMaxAttempts = 5
+
+func deleteReservedNodeIfLeaf(tx *gorm.DB, model interface{}, targetMPath *tree.MPath, targetUuid string) error {
+	if targetUuid == "" {
+		return errors.WithMessage(errors.StatusConflict, "Target path has no stable UUID")
+	}
+
+	var descendants int64
+	if err := tx.Model(model).
+		Where(tree.MPathLike{Value: targetMPath}).
+		Where("level > ?", targetMPath.Length()).
+		Count(&descendants).Error; err != nil {
+		return err
+	}
+	if descendants > 0 {
+		return errors.WithMessage(errors.StatusConflict, "Target has descendants; refusing cleanup")
+	}
+
+	rootDelete := tx.
+		Where(tree.MPathEquals{Value: targetMPath}).
+		Where("uuid = ?", targetUuid).
+		Delete(model)
+	if rootDelete.Error != nil {
+		return rootDelete.Error
+	}
+	if rootDelete.RowsAffected != 1 {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before cleanup")
+	}
+	return nil
+}
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
 func deleteMoveTarget(tx *gorm.DB, model interface{}, targetMPath *tree.MPath, targetUuid string) error {
