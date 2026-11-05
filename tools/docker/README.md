@@ -14,6 +14,16 @@ Important points:
 
 ## Building the image
 
+### Automatic image builds for this fork
+
+Pushes to the `feat/euro-office-wopi` branch that change Go code, embedded assets, or the container build files automatically build and publish multi-platform (`linux/amd64` and `linux/arm64`) images to GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/italiatroller-1990/cells-personal-fork:feat-euro-office-wopi
+```
+
+Each build also publishes an immutable commit tag such as `sha-abc1234`. The workflow can be started manually from the repository's Actions page. The first publish may require making the GHCR package public in the package settings before anonymous pulls work.
+
 The image at `images/cells/buildx-dockerfile` supports three build modes selected with `--build-arg BUILD_MODE=<mode>`:
 
 | Mode | Behavior | Required args | Build context |

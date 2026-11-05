@@ -1,0 +1,80 @@
+name: Build and publish container image
+
+on:
+  push:
+    branches:
+      - feat/euro-office-wopi
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - "assets/**"
+      - "frontend/assets/**"
+      - "tools/docker/images/cells/**"
+      - "Makefile"
+      - ".github/workflows/build-container-image.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare image metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=feat-euro-office-wopi
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+      - name: Read Go toolchain version
+        id: go
+        run: echo "version=$(awk '/^toolchain/ {sub("go", "", $2); print $2}' go.mod)" >> "$GITHUB_OUTPUT"
+
+      - name: Set build timestamp
+        id: stamp
+        run: echo "value=$(date -u +%Y-%m-%dT%H:%M:%S)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push multi-platform image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: tools/docker/images/cells/buildx-dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_MODE=compile
+            GO_VERSION=${{ steps.go.outputs.version }}
+            VERSION=5.1.1-dev
+            GIT_REV=${{ github.sha }}
+            BUILD_STAMP=${{ steps.stamp.outputs.value }}
+            DOCKER_ENTRYPOINT_SRC_DIR=tools/docker/images/cells
+          cache-from: type=gha,scope=personal-cells-image
+          cache-to: type=gha,mode=max,scope=personal-cells-image
