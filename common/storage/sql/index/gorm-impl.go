@@ -294,6 +294,13 @@ func (dao *gormImpl[T]) DelNode(ctx context.Context, node tree.ITreeNode) error 
 		Delete(&node).Error
 }
 
+func (dao *gormImpl[T]) DelNodeIfUUID(ctx context.Context, node tree.ITreeNode) error {
+	model := dao.factory.Struct()
+	return storagesql.WithTxRetry(ctx, dao.instance(ctx), moveTreeMaxAttempts, "delete reserved node subtree", func(tx *gorm.DB) error {
+		return deleteMoveTarget(tx, model, node.GetMPath(), node.GetNode().GetUuid())
+	})
+}
+
 // GetNode from path
 func (dao *gormImpl[T]) GetNodeByMPath(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
@@ -746,6 +753,8 @@ func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 	return c
 }
 
+const moveTreeMaxAttempts = 5
+
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
 func deleteMoveTarget(tx *gorm.DB, model interface{}, targetMPath *tree.MPath, targetUuid string) error {
 	if targetUuid == "" {
@@ -875,7 +884,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
 
-	return storagesql.WithTxRetry(ctx, ist, 3, "move node tree in"+tableName, func(tx *gorm.DB) error {
+	return storagesql.WithTxRetry(ctx, ist, moveTreeMaxAttempts, "move node tree in"+tableName, func(tx *gorm.DB) error {
 		target := dao.factory.Struct()
 		targetLookup := tx.Where(tree.MPathEquals{Value: nodeToMPath}).Take(target)
 		if targetLookup.Error != nil && !errors.Is(targetLookup.Error, gorm.ErrRecordNotFound) {

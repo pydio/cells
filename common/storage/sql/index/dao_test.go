@@ -1406,7 +1406,7 @@ func TestDeleteMoveTargetRejectsReplacedReservation(t *testing.T) {
 				So(result.Error, ShouldBeNil)
 				So(result.RowsAffected, ShouldEqual, 1)
 
-				err = deleteMoveTarget(gormDAO.instance(ctx), model, target.GetMPath(), targetUuid)
+				err = dao.DelNodeIfUUID(ctx, target)
 				So(errors.Is(err, errors.StatusConflict), ShouldBeTrue)
 
 				root, err := dao.GetNodeByPath(ctx, "/target")
@@ -1415,6 +1415,32 @@ func TestDeleteMoveTargetRejectsReplacedReservation(t *testing.T) {
 				child, err := dao.GetNodeByPath(ctx, "/target/child.txt")
 				So(err, ShouldBeNil)
 				So(child.GetNode().GetUuid(), ShouldEqual, childUuid)
+			})
+		}
+	}, true)
+}
+
+func TestDelNodeIfUUIDRemovesOwnedSubtree(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Delete removes only the owned target subtree", t, func() {
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/child.txt", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				So(dao.DelNodeIfUUID(ctx, target), ShouldBeNil)
+				_, err = dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldNotBeNil)
+				_, err = dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldNotBeNil)
 			})
 		}
 	}, true)

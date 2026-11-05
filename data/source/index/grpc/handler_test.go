@@ -207,6 +207,24 @@ func TestIndex(t *testing.T) {
 			So(er, ShouldBeNil)
 		})
 
+		Convey("Remove a created target placeholder when a move fails", t, func() {
+			source := mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/cleanup-move-source", Type: tree.NodeType_COLLECTION})
+			mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/cleanup-move-source/parent", Type: tree.NodeType_COLLECTION})
+			targetPath := "/cleanup-move-source/parent/moved"
+
+			_, err := send(ctx, s, "UpdateNode", &tree.UpdateNodeRequest{
+				From: source,
+				To:   &tree.Node{Path: targetPath, Type: tree.NodeType_COLLECTION},
+			})
+			So(err, ShouldNotBeNil)
+
+			_, err = s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetPath}})
+			So(err, ShouldNotBeNil)
+			remainingSource, err := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: source.Path}})
+			So(err, ShouldBeNil)
+			So(remainingSource.GetNode().GetUuid(), ShouldEqual, source.GetUuid())
+		})
+
 		Convey("Moving a child from 1.4.2 to 1.6.5", t, func() {
 			node1_4_2 := &tree.Node{Uuid: "test_1_4_2", Path: "/test_1_4/test_1_4_2"}
 			nodeA := mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/test_1_4/test_1_4_2/A", Type: tree.NodeType_COLLECTION})
