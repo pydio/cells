@@ -22,6 +22,7 @@ package tasks
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -32,6 +33,7 @@ import (
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/utils/propagator"
+	"github.com/pydio/cells/v5/scheduler/actions"
 
 	_ "github.com/pydio/cells/v5/scheduler/actions/scheduler"
 
@@ -68,6 +70,59 @@ func TestNewTaskFromEvent(t *testing.T) {
 		So(task.task.StatusMessage, ShouldEqual, "Pending")
 		opId, _ := propagator.CanonicalMeta(task.context, common.CtxSchedulerOperationId)
 		So(opId, ShouldEqual, "ajob-"+task.task.ID[0:8])
+	})
+}
+
+type failingRunnableAction struct {
+	err error
+}
+
+func (a failingRunnableAction) GetName() string                                     { return "test.failure" }
+func (a failingRunnableAction) Init(context.Context, *jobs.Job, *jobs.Action) error { return nil }
+func (a failingRunnableAction) Run(context.Context, *actions.RunnableChannels, *jobs.ActionMessage) (*jobs.ActionMessage, error) {
+	return &jobs.ActionMessage{}, a.err
+}
+
+func TestRunnableActionErrorFinalizesTaskAsError(t *testing.T) {
+	Convey("a failed action finalizes its task as an error", t, func() {
+		cause := errors.New("incomplete move")
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+		task.Add(1)
+		runnable := Runnable{
+			Action:         &jobs.Action{ID: "test.failure"},
+			Task:           task,
+			Message:        &jobs.ActionMessage{},
+			Context:        context.Background(),
+			Implementation: failingRunnableAction{err: cause},
+		}
+
+		runnable.RunAction(make(chan RunnerFunc, 1))
+
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Error)
+		So(task.task.StatusMessage, ShouldNotEqual, "Complete")
+	})
+}
+
+func TestTaskCleanupPreservesFailureStatus(t *testing.T) {
+	Convey("cleanup preserves a failed task and hides its error from the user", t, func() {
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+		task.SetError(errors.New("move incomplete"), false)
+		task.CleanUp()
+
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Error)
+		So(task.task.StatusMessage, ShouldEqual, "move incomplete")
+
+		So(task.task.UserSpaceErrorStatus(), ShouldBeTrue)
+		So(task.task.StatusMessage, ShouldEqual, "Oops, something went wrong")
+	})
+}
+
+func TestTaskCleanupFinishesSuccessfulTask(t *testing.T) {
+	Convey("cleanup finishes a successful task", t, func() {
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+		task.CleanUp()
+
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Finished)
 	})
 }
 

@@ -22,6 +22,7 @@ package tree
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/pydio/cells/v5/common/config/mock"
@@ -42,6 +43,49 @@ func init() {
 	// Ignore client pool for unit tests
 	nodes.IsUnitTestEnv = true
 	global, _ = mock.RegisterMockConfig(context.Background())
+}
+
+func TestCopyMoveActionChildLockLookupFailure(t *testing.T) {
+	Convey("a child lock lookup failure stops the move without exposing its details", t, func() {
+		oldUnitTestEnv := nodes.IsUnitTestEnv
+		nodes.IsUnitTestEnv = false
+		defer func() { nodes.IsUnitTestEnv = oldUnitTestEnv }()
+
+		cause := errors.New("child lock lookup failed")
+		lookupCalled := false
+		action := &CopyMoveAction{
+			getChildrenLocks: func(context.Context, *tree.Node) ([]string, error) {
+				lookupCalled = true
+				return nil, cause
+			},
+		}
+		err := action.Init(global, &jobs.Job{}, &jobs.Action{Parameters: map[string]string{
+			"target": "target/moved",
+			"type":   "move",
+		}})
+		So(err, ShouldBeNil)
+		if err != nil {
+			return
+		}
+
+		source := &tree.Node{Path: "source/item", Type: tree.NodeType_LEAF}
+		parent := &tree.Node{Path: "target", Uuid: "target-id", Type: tree.NodeType_COLLECTION}
+		mock := &nodes.HandlerMock{Nodes: map[string]*tree.Node{
+			source.Path: source,
+			parent.Path: parent,
+		}}
+		action.PresetHandler(mock)
+
+		output, err := action.Run(global, &actions.RunnableChannels{}, &jobs.ActionMessage{Nodes: []*tree.Node{source}})
+
+		So(lookupCalled, ShouldBeTrue)
+		So(err, ShouldNotBeNil)
+		if err != nil {
+			So(err.Error(), ShouldNotEqual, cause.Error())
+		}
+		So(output.GetLastOutput().ErrorString, ShouldNotEqual, cause.Error())
+		So(output.GetLastOutput().Success, ShouldBeFalse)
+	})
 }
 
 func TestCopyMoveAction_GetName(t *testing.T) {
