@@ -84,54 +84,46 @@ func (a failingRunnableAction) Run(context.Context, *actions.RunnableChannels, *
 }
 
 func TestRunnableActionErrorFinalizesTaskAsError(t *testing.T) {
-	cause := errors.New("incomplete move")
-	task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
-	task.Add(1)
-	runnable := Runnable{
-		Action:         &jobs.Action{ID: "test.failure"},
-		Task:           task,
-		Message:        &jobs.ActionMessage{},
-		Context:        context.Background(),
-		Implementation: failingRunnableAction{err: cause},
-	}
+	Convey("a failed action finalizes its task as an error", t, func() {
+		cause := errors.New("incomplete move")
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+		task.Add(1)
+		runnable := Runnable{
+			Action:         &jobs.Action{ID: "test.failure"},
+			Task:           task,
+			Message:        &jobs.ActionMessage{},
+			Context:        context.Background(),
+			Implementation: failingRunnableAction{err: cause},
+		}
 
-	runnable.RunAction(make(chan RunnerFunc, 1))
+		runnable.RunAction(make(chan RunnerFunc, 1))
 
-	if task.task.Status != jobs.TaskStatus_Error {
-		t.Fatalf("status = %s, want Error", task.task.Status)
-	}
-	if task.task.StatusMessage == "Complete" {
-		t.Fatal("failed action was finalized as successful")
-	}
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Error)
+		So(task.task.StatusMessage, ShouldNotEqual, "Complete")
+	})
 }
 
 func TestTaskCleanupPreservesFailureStatus(t *testing.T) {
-	task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
-	task.SetError(errors.New("move incomplete"), false)
-	task.CleanUp()
+	Convey("cleanup preserves a failed task and hides its error from the user", t, func() {
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+		task.SetError(errors.New("move incomplete"), false)
+		task.CleanUp()
 
-	if task.task.Status != jobs.TaskStatus_Error {
-		t.Fatalf("status = %s, want Error", task.task.Status)
-	}
-	if task.task.StatusMessage != "move incomplete" {
-		t.Fatalf("status message = %q, want the action error", task.task.StatusMessage)
-	}
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Error)
+		So(task.task.StatusMessage, ShouldEqual, "move incomplete")
 
-	if !task.task.UserSpaceErrorStatus() {
-		t.Fatal("UserSpaceErrorStatus() = false, want true for failed user-space task")
-	}
-	if task.task.StatusMessage != "Oops, something went wrong" {
-		t.Fatalf("user-visible status message = %q, want generic message", task.task.StatusMessage)
-	}
+		So(task.task.UserSpaceErrorStatus(), ShouldBeTrue)
+		So(task.task.StatusMessage, ShouldEqual, "Oops, something went wrong")
+	})
 }
 
 func TestTaskCleanupFinishesSuccessfulTask(t *testing.T) {
-	task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
-	task.CleanUp()
+	Convey("cleanup finishes a successful task", t, func() {
+		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "move"}, &jobs.JobTriggerEvent{JobID: "move"})
+		task.CleanUp()
 
-	if task.task.Status != jobs.TaskStatus_Finished {
-		t.Fatalf("status = %s, want Finished", task.task.Status)
-	}
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Finished)
+	})
 }
 
 func TestTaskSetters(t *testing.T) {
