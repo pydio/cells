@@ -46,47 +46,46 @@ func init() {
 }
 
 func TestCopyMoveActionChildLockLookupFailure(t *testing.T) {
-	oldUnitTestEnv := nodes.IsUnitTestEnv
-	nodes.IsUnitTestEnv = false
-	defer func() { nodes.IsUnitTestEnv = oldUnitTestEnv }()
+	Convey("a child lock lookup failure stops the move without exposing its details", t, func() {
+		oldUnitTestEnv := nodes.IsUnitTestEnv
+		nodes.IsUnitTestEnv = false
+		defer func() { nodes.IsUnitTestEnv = oldUnitTestEnv }()
 
-	cause := errors.New("child lock lookup failed")
-	lookupCalled := false
-	action := &CopyMoveAction{
-		getChildrenLocks: func(context.Context, *tree.Node) ([]string, error) {
-			lookupCalled = true
-			return nil, cause
-		},
-	}
-	if err := action.Init(global, &jobs.Job{}, &jobs.Action{Parameters: map[string]string{
-		"target": "target/moved",
-		"type":   "move",
-	}}); err != nil {
-		t.Fatalf("Init() error = %v", err)
-	}
+		cause := errors.New("child lock lookup failed")
+		lookupCalled := false
+		action := &CopyMoveAction{
+			getChildrenLocks: func(context.Context, *tree.Node) ([]string, error) {
+				lookupCalled = true
+				return nil, cause
+			},
+		}
+		err := action.Init(global, &jobs.Job{}, &jobs.Action{Parameters: map[string]string{
+			"target": "target/moved",
+			"type":   "move",
+		}})
+		So(err, ShouldBeNil)
+		if err != nil {
+			return
+		}
 
-	source := &tree.Node{Path: "source/item", Type: tree.NodeType_LEAF}
-	parent := &tree.Node{Path: "target", Uuid: "target-id", Type: tree.NodeType_COLLECTION}
-	mock := &nodes.HandlerMock{Nodes: map[string]*tree.Node{
-		source.Path: source,
-		parent.Path: parent,
-	}}
-	action.PresetHandler(mock)
+		source := &tree.Node{Path: "source/item", Type: tree.NodeType_LEAF}
+		parent := &tree.Node{Path: "target", Uuid: "target-id", Type: tree.NodeType_COLLECTION}
+		mock := &nodes.HandlerMock{Nodes: map[string]*tree.Node{
+			source.Path: source,
+			parent.Path: parent,
+		}}
+		action.PresetHandler(mock)
 
-	output, err := action.Run(global, &actions.RunnableChannels{}, &jobs.ActionMessage{Nodes: []*tree.Node{source}})
+		output, err := action.Run(global, &actions.RunnableChannels{}, &jobs.ActionMessage{Nodes: []*tree.Node{source}})
 
-	if !lookupCalled {
-		t.Fatal("children-lock lookup was skipped")
-	}
-	if err == nil || err.Error() == cause.Error() {
-		t.Fatalf("Run() error = %v, want a nonnil sanitized error", err)
-	}
-	if output.GetLastOutput().ErrorString == cause.Error() {
-		t.Fatal("action output exposed the raw lock lookup error")
-	}
-	if output.GetLastOutput().Success {
-		t.Fatal("last action output unexpectedly reports success")
-	}
+		So(lookupCalled, ShouldBeTrue)
+		So(err, ShouldNotBeNil)
+		if err != nil {
+			So(err.Error(), ShouldNotEqual, cause.Error())
+		}
+		So(output.GetLastOutput().ErrorString, ShouldNotEqual, cause.Error())
+		So(output.GetLastOutput().Success, ShouldBeFalse)
+	})
 }
 
 func TestCopyMoveAction_GetName(t *testing.T) {
