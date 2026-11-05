@@ -854,6 +854,24 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
 
 	return storagesql.WithTxRetry(ctx, ist, 3, "move node tree in"+tableName, func(tx *gorm.DB) error {
+		target := dao.factory.Struct()
+		targetLookup := tx.Where(tree.MPathEquals{Value: nodeToMPath}).Take(target)
+		if targetLookup.Error != nil && !errors.Is(targetLookup.Error, gorm.ErrRecordNotFound) {
+			return targetLookup.Error
+		}
+		if targetLookup.RowsAffected > 0 {
+			targetUuid := target.GetNode().GetUuid()
+			sourceUuid := nodeFrom.GetNode().GetUuid()
+			if targetUuid != sourceUuid && targetUuid != nodeTo.GetNode().GetUuid() {
+				return errors.WithMessage(errors.StatusConflict, "Target path changed before move")
+			}
+			if targetUuid != sourceUuid {
+				if err := tx.Where(tree.MPathEqualsOrLike{Value: nodeToMPath}).Delete(model).Error; err != nil {
+					return err
+				}
+			}
+		}
+
 		// TODO - ApplyOrderedUpdates should really be handled in the hooks of the respective models
 		_, err := helper.ApplyOrderedUpdates(tx, tableName, []storagesql.OrderedUpdate{
 			{Key: "name", Value: nodeTo.GetName()},

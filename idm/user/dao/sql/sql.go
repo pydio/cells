@@ -180,8 +180,9 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 						created = append(created, cc...)
 					}
 				}
-				// Delete target before moving to it
-				_ = s.indexDAO.DelNode(ctx, nodeTo)
+				if err = s.indexDAO.Flush(ctx, false); err != nil {
+					return nil, nil, wrap(err)
+				}
 				log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", existing), zap.Any("to", nodeTo))
 				if err = s.indexDAO.MoveNodeTree(ctx, existing, nodeTo); err != nil {
 					return nil, nil, wrap(err)

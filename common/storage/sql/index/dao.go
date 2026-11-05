@@ -82,7 +82,7 @@ type DAO interface {
 	UpdateNode(context.Context, tree.ITreeNode) error
 	// DelNode removes a node from the tree
 	DelNode(context.Context, tree.ITreeNode) error
-	// MoveNodeTree moves a whole tree from one position to another. The target must not exist.
+	// MoveNodeTree moves a whole tree from one position to another, replacing the target path atomically.
 	MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error
 
 	// BATCH Operations

@@ -1308,6 +1308,119 @@ func TestSmallArborescence(t *testing.T) {
 	}, true)
 }
 
+func TestMoveNodeTreeReplacesReservedTarget(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Move replaces a reserved target path atomically", t, func() {
+				sourceUuid := uuid.New()
+				targetUuid := uuid.New()
+				source, _, err := dao.GetOrCreateNodeByPath(ctx, "/source.txt", &tree.Node{
+					Uuid: sourceUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target.txt", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				err = dao.MoveNodeTree(ctx, source, target)
+				So(err, ShouldBeNil)
+
+				moved, err := dao.GetNodeByPath(ctx, "/target.txt")
+				So(err, ShouldBeNil)
+				So(moved.GetNode().GetUuid(), ShouldEqual, sourceUuid)
+				_, err = dao.GetNodeByUUID(ctx, targetUuid)
+				So(err, ShouldNotBeNil)
+				_, err = dao.GetNodeByPath(ctx, "/source.txt")
+				So(err, ShouldNotBeNil)
+			})
+		}
+	}, true)
+}
+
+func TestMoveNodeTreeRejectsStaleTarget(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Move rejects a target slot reserved by another node", t, func() {
+				sourceUuid := uuid.New()
+				targetUuid := uuid.New()
+				source, _, err := dao.GetOrCreateNodeByPath(ctx, "/source.txt", &tree.Node{
+					Uuid: sourceUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target.txt", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				staleTarget := proto.Clone(target).(tree.ITreeNode)
+				staleTarget.GetNode().SetUuid(uuid.New())
+				err = dao.MoveNodeTree(ctx, source, staleTarget)
+				So(errors.Is(err, errors.StatusConflict), ShouldBeTrue)
+
+				unchangedSource, err := dao.GetNodeByPath(ctx, "/source.txt")
+				So(err, ShouldBeNil)
+				So(unchangedSource.GetNode().GetUuid(), ShouldEqual, sourceUuid)
+				unchangedTarget, err := dao.GetNodeByPath(ctx, "/target.txt")
+				So(err, ShouldBeNil)
+				So(unchangedTarget.GetNode().GetUuid(), ShouldEqual, targetUuid)
+			})
+		}
+	}, true)
+}
+
+func TestMoveNodeTreeReplacesTargetSubtree(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Move replaces the destination subtree", t, func() {
+				sourceUuid := uuid.New()
+				sourceChildUuid := uuid.New()
+				targetUuid := uuid.New()
+				targetChildUuid := uuid.New()
+				source, _, err := dao.GetOrCreateNodeByPath(ctx, "/source", &tree.Node{
+					Uuid: sourceUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/source/child.txt", &tree.Node{
+					Uuid: sourceChildUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/old.txt", &tree.Node{
+					Uuid: targetChildUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				err = dao.MoveNodeTree(ctx, source, target)
+				So(err, ShouldBeNil)
+
+				movedRoot, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(movedRoot.GetNode().GetUuid(), ShouldEqual, sourceUuid)
+				movedChild, err := dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldBeNil)
+				So(movedChild.GetNode().GetUuid(), ShouldEqual, sourceChildUuid)
+				_, err = dao.GetNodeByUUID(ctx, targetChildUuid)
+				So(err, ShouldNotBeNil)
+			})
+		}
+	})
+}
+
 func TestMoveInsideOwnChild(t *testing.T) {
 	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
