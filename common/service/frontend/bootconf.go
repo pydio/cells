@@ -101,7 +101,7 @@ func VersionHash(ctx context.Context) string {
 		config.Save(ctx, common.PydioSystemUsername, "Generating version seed")
 	}
 	md := md5.New()
-	md.Write([]byte(vSeed + common.Version().String()))
+	md.Write([]byte(vSeed + "\x00" + common.Version().String() + "\x00" + common.BuildRevision))
 	versionHash = hex.EncodeToString(md.Sum(nil))
 	return versionHash
 }

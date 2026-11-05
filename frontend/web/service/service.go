@@ -110,7 +110,11 @@ func init() {
 				recoveryWrap := handlers.RecoveryHandler(handlers.RecoveryLogger(&recoveryLogger{logger: log.Logger(ctx)}))
 
 				httpFs := http.FS(frontend.GetPluginsFS())
-				fs := gzipped.FileServer(httpFs)
+				fs := cacheVersionedStaticAssets(
+					gzipped.FileServer(httpFs),
+					frontend.VersionHash(ctx),
+					common.BuildRevision,
+				)
 				fs = timeoutWrap(fs)
 				fs = recoveryWrap(fs)
 
@@ -156,6 +160,18 @@ func init() {
 				return nil
 			}),
 		)
+	})
+}
+
+func cacheVersionedStaticAssets(next http.Handler, version, buildRevision string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Vary", "Accept-Encoding")
+		if buildRevision != "" && buildRevision != "dev" && r.URL.Query().Get("v") == version {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			w.Header().Set("Cache-Control", "no-cache")
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 
