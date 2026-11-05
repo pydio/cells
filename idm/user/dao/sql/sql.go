@@ -169,7 +169,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 			sourcePath := existing.GetNode().GetPath()
 			if existing.GetNode().GetPath() != targetPath {
 				// Move in Tree, user or group
-				nodeTo, cc, er := s.indexDAO.GetOrCreateNodeByPath(ctx, targetPath, nil)
+				nodeTo, cc, er := s.indexDAO.GetOrCreateNodeByPath(ctx, targetPath, &tree.Node{Type: existing.GetNode().GetType()})
 				if er != nil || len(cc) == 0 { // Error or already existing, this is not expected
 					return nil, nil, wrap(er)
 				}
@@ -192,7 +192,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 				}
 				log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", existing), zap.Any("to", nodeTo))
 				if err = s.indexDAO.MoveNodeTree(ctx, existing, nodeTo); err != nil {
-					if targetCreated {
+					if targetCreated && nodeTo.GetNode().GetType() == tree.NodeType_LEAF {
 						if cleanupErr := s.indexDAO.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil {
 							log.Logger(ctx).Warn("Could not clean target placeholder after failed move", zap.Error(cleanupErr))
 						}

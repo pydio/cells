@@ -296,8 +296,9 @@ func (dao *gormImpl[T]) DelNode(ctx context.Context, node tree.ITreeNode) error 
 
 func (dao *gormImpl[T]) DelNodeIfUUID(ctx context.Context, node tree.ITreeNode) error {
 	model := dao.factory.Struct()
+	target := dao.factory.Struct()
 	return storagesql.WithTxRetry(ctx, dao.instance(ctx), moveTreeMaxAttempts, "delete reserved node", func(tx *gorm.DB) error {
-		return deleteReservedNodeIfLeaf(tx, model, node.GetMPath(), node.GetNode().GetUuid())
+		return deleteReservedNodeIfLeaf(tx, model, target, node.GetMPath(), node.GetNode().GetUuid())
 	})
 }
 
@@ -755,9 +756,23 @@ func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 
 const moveTreeMaxAttempts = 5
 
-func deleteReservedNodeIfLeaf(tx *gorm.DB, model interface{}, targetMPath *tree.MPath, targetUuid string) error {
+func deleteReservedNodeIfLeaf(tx *gorm.DB, model interface{}, target tree.ITreeNode, targetMPath *tree.MPath, targetUuid string) error {
 	if targetUuid == "" {
 		return errors.WithMessage(errors.StatusConflict, "Target path has no stable UUID")
+	}
+
+	lookup := tx.Where(tree.MPathEquals{Value: targetMPath}).Take(target)
+	if errors.Is(lookup.Error, gorm.ErrRecordNotFound) {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before cleanup")
+	}
+	if lookup.Error != nil {
+		return lookup.Error
+	}
+	if lookup.RowsAffected != 1 || target.GetNode().GetUuid() != targetUuid {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before cleanup")
+	}
+	if target.GetNode().GetType() != tree.NodeType_LEAF {
+		return errors.WithMessage(errors.StatusConflict, "Refusing cleanup of non-leaf target")
 	}
 
 	var descendants int64
@@ -1194,6 +1209,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 			return nil, nil, errors.WithStack(errors.NodeNotFound)
 		}
 		return parentNode, []tree.ITreeNode{}, nil
+	}
+	if create && parentNode != nil && parentNode.GetNode().GetType() == tree.NodeType_LEAF {
+		return nil, nil, errors.WithMessage(errors.StatusForbidden, "Cannot create children under a leaf node")
 	}
 
 	// The current node to be retrieved or created is the first item in the path

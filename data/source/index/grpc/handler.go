@@ -541,7 +541,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	} else {
 		var created []tree.ITreeNode
-		if nodeTo, created, err = dao.GetOrCreateNodeByPath(ctx, reqToPath, nil); err != nil {
+		if nodeTo, created, err = dao.GetOrCreateNodeByPath(ctx, reqToPath, &tree.Node{Type: nodeFrom.GetNode().GetType()}); err != nil {
 			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", req.To.Path)
 		}
 		for _, createdNode := range created {
@@ -559,7 +559,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	}
 
 	if err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
-		if targetCreated {
+		if targetCreated && nodeTo.GetNode().GetType() == tree.NodeType_LEAF {
 			if cleanupErr := dao.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil {
 				log.Logger(ctx).Warn("Could not clean target placeholder after failed move", zap.Error(cleanupErr))
 			}

@@ -207,7 +207,7 @@ func TestIndex(t *testing.T) {
 			So(er, ShouldBeNil)
 		})
 
-		Convey("Remove a created target placeholder when a move fails", t, func() {
+		Convey("Preserve a folder target when a move fails", t, func() {
 			source := mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/cleanup-move-source", Type: tree.NodeType_COLLECTION})
 			mustCreateNodeReadResponse(ctx, s, &tree.Node{Path: "/cleanup-move-source/parent", Type: tree.NodeType_COLLECTION})
 			targetPath := "/cleanup-move-source/parent/moved"
@@ -218,11 +218,14 @@ func TestIndex(t *testing.T) {
 			})
 			So(err, ShouldNotBeNil)
 
-			_, err = s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetPath}})
-			So(err, ShouldNotBeNil)
+			target, err := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetPath}})
+			So(err, ShouldBeNil)
+			So(target.GetNode().GetType(), ShouldEqual, tree.NodeType_COLLECTION)
 			remainingSource, err := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: source.Path}})
 			So(err, ShouldBeNil)
 			So(remainingSource.GetNode().GetUuid(), ShouldEqual, source.GetUuid())
+			_, err = s.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: target.GetNode()})
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Moving a child from 1.4.2 to 1.6.5", t, func() {
