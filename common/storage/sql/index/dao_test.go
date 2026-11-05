@@ -1375,6 +1375,51 @@ func TestMoveNodeTreeRejectsStaleTarget(t *testing.T) {
 	}, true)
 }
 
+func TestDeleteMoveTargetRejectsReplacedReservation(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("A stale reservation cannot delete the replacement subtree", t, func() {
+				targetUuid := uuid.New()
+				replacementUuid := uuid.New()
+				childUuid := uuid.New()
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				baseDAO := DAO(dao)
+				if session, ok := baseDAO.(*sessionDAO); ok {
+					baseDAO = session.DAO
+				}
+				gormDAO := baseDAO.(*gormImpl[*tree.TreeNode])
+				model := gormDAO.factory.Struct()
+				result := gormDAO.instance(ctx).Model(model).
+					Where("uuid = ?", targetUuid).
+					Update("uuid", replacementUuid)
+				So(result.Error, ShouldBeNil)
+				So(result.RowsAffected, ShouldEqual, 1)
+
+				err = deleteMoveTarget(gormDAO.instance(ctx), model, target.GetMPath(), targetUuid)
+				So(errors.Is(err, errors.StatusConflict), ShouldBeTrue)
+
+				root, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(root.GetNode().GetUuid(), ShouldEqual, replacementUuid)
+				child, err := dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldBeNil)
+				So(child.GetNode().GetUuid(), ShouldEqual, childUuid)
+			})
+		}
+	}, true)
+}
+
 func TestMoveNodeTreeReplacesTargetSubtree(t *testing.T) {
 	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {

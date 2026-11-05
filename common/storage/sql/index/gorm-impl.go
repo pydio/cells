@@ -747,6 +747,28 @@ func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
+func deleteMoveTarget(tx *gorm.DB, model interface{}, targetMPath *tree.MPath, targetUuid string) error {
+	if targetUuid == "" {
+		return errors.WithMessage(errors.StatusConflict, "Target path has no stable UUID")
+	}
+
+	rootDelete := tx.
+		Where(tree.MPathEquals{Value: targetMPath}).
+		Where("uuid = ?", targetUuid).
+		Delete(model)
+	if rootDelete.Error != nil {
+		return rootDelete.Error
+	}
+	if rootDelete.RowsAffected != 1 {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before move")
+	}
+
+	return tx.
+		Where(tree.MPathEqualsOrLike{Value: targetMPath}).
+		Where("level > ?", targetMPath.Length()).
+		Delete(model).Error
+}
+
 func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
 
 	model := dao.factory.Struct()
@@ -866,7 +888,7 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 				return errors.WithMessage(errors.StatusConflict, "Target path changed before move")
 			}
 			if targetUuid != sourceUuid {
-				if err := tx.Where(tree.MPathEqualsOrLike{Value: nodeToMPath}).Delete(model).Error; err != nil {
+				if err := deleteMoveTarget(tx, model, nodeToMPath, targetUuid); err != nil {
 					return err
 				}
 			}
