@@ -287,6 +287,10 @@ func (m *Codex) customMetaQueryCodex(s string, q query2.Query, not bool) (string
 
 		return "uuid", nil, false
 
+	} else if s == "Path" {
+
+		return "path", nil, false
+
 	} else if strings.HasPrefix(s, "Meta.") {
 		s = strings.TrimPrefix(s, "Meta.")
 		finalMeta := "meta." + s
