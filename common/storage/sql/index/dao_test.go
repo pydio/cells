@@ -66,6 +66,21 @@ var (
 
 type testdao DAO
 
+type childLookupBarrierDAO struct {
+	DAO
+	parentRead chan struct{}
+	resumeRead chan struct{}
+}
+
+func (d *childLookupBarrierDAO) getNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
+	node, err := d.DAO.getNodeChild(ctx, mPath, name)
+	if name == "target" {
+		d.parentRead <- struct{}{}
+		<-d.resumeRead
+	}
+	return node, err
+}
+
 func TestMain(m *testing.M) {
 	v := viper.New()
 	runtime.SetRuntime(v)
@@ -834,6 +849,50 @@ func TestGetOrCreateNodeUnderLeafFails(t *testing.T) {
 				So(errors.Is(err, errors.StatusForbidden), ShouldBeTrue)
 				_, err = dao.GetNodeByPath(ctx, "/leaf.txt/child.txt")
 				So(err, ShouldNotBeNil)
+			})
+		}
+	}, true)
+}
+
+func TestCleanupLeafOverlapsStaleChildCreation(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("A stale child lookup cannot insert under a leaf being cleaned up", t, func() {
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				barrier := &childLookupBarrierDAO{
+					DAO:        DAO(dao),
+					parentRead: make(chan struct{}, 1),
+					resumeRead: make(chan struct{}),
+				}
+				childUuid := uuid.New()
+				child := tree.NewTreeNode("/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				childResult := make(chan error, 1)
+				go func() {
+					_, _, createErr := toMPath(ctx, barrier, child, nil, true)
+					childResult <- createErr
+				}()
+
+				select {
+				case <-barrier.parentRead:
+				case <-time.After(5 * time.Second):
+					t.Fatal("child creation did not resolve its parent")
+				}
+
+				So(dao.DelNodeIfUUID(ctx, target), ShouldBeNil)
+				close(barrier.resumeRead)
+				createErr := <-childResult
+				So(errors.Is(createErr, errors.StatusForbidden), ShouldBeTrue)
+				_, err = dao.GetNodeByUUID(ctx, childUuid)
+				So(errors.Is(err, errors.NodeNotFound), ShouldBeTrue)
 			})
 		}
 	}, true)
