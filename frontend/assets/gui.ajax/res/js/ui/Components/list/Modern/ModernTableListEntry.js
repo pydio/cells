@@ -22,6 +22,7 @@ import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 const {moment} = Pydio.requireLib('boot');
 import { ModernListEntry } from './ModernListEntry';
+import {withNodeListenerEntry} from "../withNodeListenerEntry";
 
 // Simplified roundFileSize utility
 const simpleRoundFileSize = (bytes) => {
@@ -35,7 +36,7 @@ const simpleRoundFileSize = (bytes) => {
     return parseFloat((numericBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-const ModernTableListEntry = (props) => {
+let ModernTableListEntry = (props) => {
     const {
         node,
         pydio,
@@ -177,5 +178,8 @@ ModernTableListEntry.defaultProps = {
     style: {},
     showSelector: false,
 };
+
+// Wrapped so the table row provides its own rename anchor (ModernListEntry's ref is unused when children are passed)
+ModernTableListEntry = withNodeListenerEntry(ModernTableListEntry);
 
 export { ModernTableListEntry };
