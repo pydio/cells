@@ -101,7 +101,7 @@ func Is403(e error) bool {
 type copyMoveChildrenResult struct {
 	mu            sync.Mutex
 	childrenMoved int
-	errs          []error
+	err           error
 }
 
 func (r *copyMoveChildrenResult) record(err error) {
@@ -112,7 +112,9 @@ func (r *copyMoveChildrenResult) record(err error) {
 		if Is403(err) {
 			err = errors.StatusForbidden
 		}
-		r.errs = append(r.errs, err)
+		if r.err == nil {
+			r.err = err
+		}
 		return
 	}
 	r.childrenMoved++
@@ -122,10 +124,7 @@ func (r *copyMoveChildrenResult) firstError() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if len(r.errs) == 0 {
-		return nil
-	}
-	return r.errs[0]
+	return r.err
 }
 
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.

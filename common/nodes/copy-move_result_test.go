@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"github.com/pydio/cells/v5/common/errors"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCopyMoveChildrenResult(t *testing.T) {
-	t.Run("forbidden concurrent child preserves progress and fails", func(t *testing.T) {
+	Convey("forbidden concurrent child preserves progress and fails", t, func() {
 		var result copyMoveChildrenResult
 		var wg sync.WaitGroup
 		wg.Add(2)
@@ -23,37 +24,35 @@ func TestCopyMoveChildrenResult(t *testing.T) {
 		}()
 		wg.Wait()
 
-		if result.childrenMoved != 1 {
-			t.Fatalf("childrenMoved = %d, want 1", result.childrenMoved)
-		}
-		if !Is403(result.firstError()) {
-			t.Fatalf("firstError = %v, want forbidden", result.firstError())
-		}
+		So(result.childrenMoved, ShouldEqual, 1)
+		So(Is403(result.firstError()), ShouldBeTrue)
 	})
 
-	t.Run("forbidden last child fails without discarding prior progress", func(t *testing.T) {
+	Convey("forbidden last child fails without discarding prior progress", t, func() {
 		var result copyMoveChildrenResult
 		result.record(nil)                                                         // A permitted sibling was moved first.
 		result.record(fmt.Errorf("%w: secret-child-path", errors.StatusForbidden)) // The designated last child was denied.
 
-		if result.childrenMoved != 1 {
-			t.Fatalf("childrenMoved = %d, want 1", result.childrenMoved)
-		}
-		if result.firstError() != errors.StatusForbidden {
-			t.Fatalf("firstError = %v, want generic forbidden error", result.firstError())
-		}
+		So(result.childrenMoved, ShouldEqual, 1)
+		So(result.firstError(), ShouldEqual, errors.StatusForbidden)
 	})
 
-	t.Run("all children succeed", func(t *testing.T) {
+	Convey("first error remains after another child fails", t, func() {
+		var result copyMoveChildrenResult
+		first := fmt.Errorf("first failure")
+		result.record(first)
+		result.record(errors.StatusForbidden)
+
+		So(result.firstError(), ShouldEqual, first)
+		So(result.childrenMoved, ShouldEqual, 0)
+	})
+
+	Convey("all children succeed", t, func() {
 		var result copyMoveChildrenResult
 		result.record(nil)
 		result.record(nil)
 
-		if result.childrenMoved != 2 {
-			t.Fatalf("childrenMoved = %d, want 2", result.childrenMoved)
-		}
-		if err := result.firstError(); err != nil {
-			t.Fatalf("firstError = %v, want nil", err)
-		}
+		So(result.childrenMoved, ShouldEqual, 2)
+		So(result.firstError(), ShouldBeNil)
 	})
 }
