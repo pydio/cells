@@ -143,7 +143,7 @@ import (
 	_ "github.com/pydio/cells/v5/idm/meta/rest/service"
 	_ "github.com/pydio/cells/v5/idm/oauth/grpc/service"
 	_ "github.com/pydio/cells/v5/idm/oauth/rest/service"
-	// _ "github.com/pydio/cells/v5/idm/oauth/web/service"
+	_ "github.com/pydio/cells/v5/idm/oauth/web/service"
 	_ "github.com/pydio/cells/v5/idm/policy/grpc/service"
 	_ "github.com/pydio/cells/v5/idm/policy/rest/service"
 	_ "github.com/pydio/cells/v5/idm/role/grpc/service"
