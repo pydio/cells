@@ -97,6 +97,12 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer BleveFieldTransformerF
 			} else {
 				filters = append(filters, bson.E{Key: fName, Value: true})
 			}
+		} else if not {
+			opts := ""
+			if insensitive {
+				opts = "i"
+			}
+			filters = append(filters, bson.E{Key: fName, Value: bson.M{"$not": primitive.Regex{Pattern: regexp, Options: opts}}})
 		} else if insensitive {
 			filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 		} else {
@@ -146,11 +152,19 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer BleveFieldTransformerF
 			if !strings.HasSuffix(phrase, "*") {
 				regexp += "$"
 			}
-			if insensitive {
+			if not {
+				opts := ""
+				if insensitive {
+					opts = "i"
+				}
+				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$not": primitive.Regex{Pattern: regexp, Options: opts}}})
+			} else if insensitive {
 				filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp, Options: "i"}})
 			} else {
 				filters = append(filters, bson.E{Key: fName, Value: primitive.Regex{Pattern: regexp}})
 			}
+		} else if not {
+			filters = append(filters, bson.E{Key: fName, Value: bson.M{"$ne": phrase}})
 		} else {
 			filters = append(filters, bson.E{Key: fName, Value: phrase})
 		}
