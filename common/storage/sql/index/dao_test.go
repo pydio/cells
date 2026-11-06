@@ -881,10 +881,17 @@ func TestCleanupLeafOverlapsStaleChildCreation(t *testing.T) {
 					childResult <- createErr
 				}()
 
+				parentResolved := false
 				select {
 				case <-barrier.parentRead:
+					parentResolved = true
 				case <-time.After(5 * time.Second):
-					t.Fatal("child creation did not resolve its parent")
+				}
+				So(parentResolved, ShouldBeTrue)
+				if !parentResolved {
+					close(barrier.resumeRead)
+					<-childResult
+					return
 				}
 
 				So(dao.DelNodeIfUUID(ctx, target), ShouldBeNil)
