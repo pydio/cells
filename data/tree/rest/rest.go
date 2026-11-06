@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/v5/common/middleware"
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/nodes/compose"
+	"github.com/pydio/cells/v5/common/nodes/writevalidation"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	rest_meta "github.com/pydio/cells/v5/data/meta/rest"
@@ -93,6 +94,10 @@ func (h *Handler) HeadNode(req *restful.Request, resp *restful.Response) error {
 }
 
 func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) error {
+	return h.createNodes(req, resp, writevalidation.DefaultRegistry())
+}
+
+func (h *Handler) createNodes(req *restful.Request, resp *restful.Response, registry *writevalidation.Registry) error {
 
 	var input rest.CreateNodesRequest
 	if e := req.ReadEntity(&input); e != nil {
@@ -103,6 +108,16 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) erro
 	}
 
 	ctx := req.Request.Context()
+	validationRequests := make([]writevalidation.Request, 0, len(input.Nodes))
+	for _, node := range input.Nodes {
+		validationRequests = append(validationRequests, writevalidation.Request{
+			Operation:   writevalidation.OperationCreate,
+			Destination: node,
+		})
+	}
+	if err := registry.ValidateAll(ctx, validationRequests); err != nil {
+		return err
+	}
 	nn, er := userspace.MkDirsOrFiles(ctx, h.GetRouter(), input.Nodes, input.Recursive, input.TemplateUUID)
 	if er != nil {
 		return er

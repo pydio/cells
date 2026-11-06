@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/acl"
 	"github.com/pydio/cells/v5/common/nodes/compose"
 	"github.com/pydio/cells/v5/common/nodes/models"
+	"github.com/pydio/cells/v5/common/nodes/writevalidation"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/docstore"
 	"github.com/pydio/cells/v5/common/proto/jobs"
@@ -529,6 +530,21 @@ func CopyMoveTask(ctx context.Context, router nodes.Client, selectedPaths []stri
 			checkNode := targetNode.Clone()
 			if !targetIsParent { // Use real target to eventually check for name / extension
 				checkNode.Path = targetNodePath
+			}
+			validationTarget := checkNode.Clone()
+			if targetIsParent {
+				validationTarget.Path = path.Join(targetNodePath, path.Base(srcNode.Path))
+			}
+			operation := writevalidation.OperationCopy
+			if move {
+				operation = writevalidation.OperationMove
+			}
+			if err := writevalidation.ValidateWrite(targetCtx, writevalidation.Request{
+				Operation:   operation,
+				Source:      r.Node,
+				Destination: validationTarget,
+			}); err != nil {
+				return err
 			}
 			if move {
 				if sErr := router.WrappedCanApply(srcCtx, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_PATH, Source: r.Node, Target: checkNode}); sErr != nil {
