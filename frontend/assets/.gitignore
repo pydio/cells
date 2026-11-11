@@ -1,5 +1,7 @@
 */res/build
 **/*.min.js.LICENSE.txt
 
+gui.ajax/res/dist/pydio.material.min.js
+gui.ajax/res/dist/pydio.material.min.js.gz
 
 .nx/
