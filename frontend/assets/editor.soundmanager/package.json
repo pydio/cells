@@ -1,6 +1,6 @@
 {
-  "name": "editor.diaporama",
-  "description": "Diaporama viewer",
+  "name": "editor.soundmanager",
+  "description": "SoundManager editor",
   "source_path": "res/js",
   "main": "index.js",
   "author": "Abstrium SAS",

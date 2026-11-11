@@ -1,4 +1,4 @@
-DEV_VERSION=5.1.1-dev
+DEV_VERSION=5.1.2-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -10,7 +10,7 @@ FORCE_REBUILD ?=
 REBUILD_FLAGS := $(if $(FORCE_REBUILD),-a,)
 GO_BUILD_FLAGS := $(REBUILD_FLAGS) -trimpath
 
-.PHONY: all clean build main dev darwin arm win docker docker-image start ds licenses
+.PHONY: all clean build main dev darwin arm win docker docker-image start ds licenses cells-web-assets
 
 GO_TOOLCHAIN := $(shell awk '/^toolchain/ {sub("go","",$$2); print $$2}' go.mod)
 DOCKER_IMAGE ?= pydio/cells
@@ -142,6 +142,9 @@ start:
 	./cells start
 
 ds: dev start
+
+cells-web-assets:
+	cd frontend/assets && NODE_ENV=production pnpm exec nx run-many -t build
 
 licenses:
 	go-licenses report . --template ${GOPATH}/src/github.com/google/go-licenses/testdata/modules/hello01/licenses.tpl > DEPENDENCIES
