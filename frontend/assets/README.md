@@ -6,16 +6,10 @@ The commands below use Nx projects inferred from each plugin's `package.json`. R
 
 ### From `frontend/assets`
 
-Build every plugin for development and keep webpack watching for changes:
+Build one plugin for development/watch (recommended; keeps only the selected plugin watcher active):
 
 ```sh
-pnpm run build:dev --skip-nx-cache
-```
-
-Build only `<plugin.name>` for development/watch:
-
-```sh
-pnpm run build:dev:plugin meta.user:build --skip-nx-cache
+pnpm run build:dev meta.user:build --skip-nx-cache
 ```
 
 Build every plugin for production by supplying the environment as the caller:
@@ -33,7 +27,7 @@ NODE_ENV=production pnpm run build:prod:plugin meta.user:build
 Replace `meta.user` with another Nx project name to target a different plugin. For example, to build only `editor.pdfjs` in development mode, run:
 
 ```sh
-env -u NODE_ENV pnpm run build:dev:plugin editor.pdfjs:build --skip-nx-cache
+env -u NODE_ENV pnpm run build:dev editor.pdfjs:build --skip-nx-cache
 ```
 
 The plugin-specific scripts are parameterized wrappers around `nx run`; there is no separate root script to maintain for each plugin. Pass the target directly after the script name, without a `--` separator: pnpm forwards that separator to Nx, preventing it from parsing the target. Extra Nx options, such as `--verbose`, follow the target. You can also invoke Nx directly for a development build:
@@ -47,7 +41,7 @@ pnpm exec nx build meta.user --skip-nx-cache
 Prefix the same package scripts with `pnpm --dir frontend/assets`. For example:
 
 ```sh
-pnpm --dir frontend/assets run build:dev:plugin meta.user:build --skip-nx-cache
+pnpm --dir frontend/assets run build:dev meta.user:build --skip-nx-cache
 make cells-web-assets
 ```
 
@@ -64,7 +58,7 @@ Use `--skip-nx-cache` for development/watch commands. The shared `build` target 
 For example, to watch `access.settings` with verbose output:
 
 ```sh
-pnpm run build:dev:plugin access.settings:build --skip-nx-cache --verbose
+pnpm run build:dev access.settings:build --skip-nx-cache --verbose
 ```
 
 The watcher runs in the foreground, not detached. Leave that terminal open while editing source files; use another terminal for other commands. Stop the watcher with `Ctrl+C`. If the command returns to the prompt, it is no longer watching. If you previously exported `NODE_ENV=production` in your terminal yourself, run `unset NODE_ENV` before development; the package scripts intentionally respect the caller's environment.

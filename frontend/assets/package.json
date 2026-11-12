@@ -7,8 +7,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky install",
-    "build:dev": "nx run-many -t build",
-    "build:dev:plugin": "nx run",
+    "build:dev": "nx run",
     "build:prod": "nx run-many -t build",
     "build:prod:plugin": "nx run"
   },
