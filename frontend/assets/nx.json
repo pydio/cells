@@ -24,7 +24,7 @@
     "targetDefaults": {
         "build": {
             "cache": true,
-            "inputs": ["production", "^production"],
+            "inputs": ["production", "^production", { "env": "NODE_ENV" }],
             "outputs": ["{projectRoot}/res/dist"]
         }
     },
