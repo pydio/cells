@@ -17,6 +17,8 @@ discovery/metrics
 /assets/src/pydio/*
 node_modules
 package-lock.json
+**/dist/
+
 
 /config/file/*
 !/config/file/loader.go
@@ -44,3 +46,5 @@ frontend/front-srv/*
 install*.yaml
 
 .claude
+.hermes
+
