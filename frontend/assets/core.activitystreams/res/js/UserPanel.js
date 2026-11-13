@@ -79,7 +79,9 @@ class UserPanel extends React.Component {
             open: false,
         });
     }
-
+    // TODO: This observer remains registered on the shared Pydio instance after the panel unmounts. 
+    // Remounting the panel adds another listener, so subsequent activity events accumulate duplicate API requests and retain discarded components. 
+    // Keep the callback reference, unregister it on unmount, and cancel both pending debounced reloads.
     componentWillMount() {
         this.reloadUnread();
         this.props.pydio.observe('websocket_event:activity', (event) => {
