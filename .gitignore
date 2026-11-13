@@ -44,3 +44,6 @@ frontend/front-srv/*
 install*.yaml
 
 .claude
+.hermes
+
+frontend/.nx/*
