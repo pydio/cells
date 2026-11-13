@@ -169,9 +169,16 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 			sourcePath := existing.GetNode().GetPath()
 			if existing.GetNode().GetPath() != targetPath {
 				// Move in Tree, user or group
-				nodeTo, cc, er := s.indexDAO.GetOrCreateNodeByPath(ctx, targetPath, nil)
+				nodeTo, cc, er := s.indexDAO.GetOrCreateNodeByPath(ctx, targetPath, &tree.Node{Type: existing.GetNode().GetType()})
 				if er != nil || len(cc) == 0 { // Error or already existing, this is not expected
 					return nil, nil, wrap(er)
+				}
+				targetCreated := false
+				for _, createdNode := range cc {
+					if createdNode.GetNode().GetUuid() == nodeTo.GetNode().GetUuid() {
+						targetCreated = true
+						break
+					}
 				}
 				pathTo := nodeTo.GetMPath()
 				for _, c := range cc {
@@ -180,10 +187,16 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*idm.
 						created = append(created, cc...)
 					}
 				}
-				// Delete target before moving to it
-				_ = s.indexDAO.DelNode(ctx, nodeTo)
+				if err = s.indexDAO.Flush(ctx, false); err != nil {
+					return nil, nil, wrap(err)
+				}
 				log.Logger(ctx).Debug("MOVE TREE", zap.Any("from", existing), zap.Any("to", nodeTo))
 				if err = s.indexDAO.MoveNodeTree(ctx, existing, nodeTo); err != nil {
+					if targetCreated && nodeTo.GetNode().GetType() == tree.NodeType_LEAF {
+						if cleanupErr := s.indexDAO.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil {
+							log.Logger(ctx).Warn("Could not clean target placeholder after failed move", zap.Error(cleanupErr))
+						}
+					}
 					return nil, nil, wrap(err)
 				}
 				if reload, er := s.indexDAO.GetNodeByMPath(ctx, pathTo); er != nil {

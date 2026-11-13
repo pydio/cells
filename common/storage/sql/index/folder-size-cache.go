@@ -184,6 +184,11 @@ func (dao *FolderSizeCacheSQL) DelNode(ctx context.Context, node tree.ITreeNode)
 	return dao.DAO.DelNode(ctx, node)
 }
 
+func (dao *FolderSizeCacheSQL) DelNodeIfUUID(ctx context.Context, node tree.ITreeNode) error {
+	dao.invalidateMPathHierarchy(ctx, node.GetMPath(), -1)
+	return dao.DAO.DelNodeIfUUID(ctx, node)
+}
+
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
 func (dao *FolderSizeCacheSQL) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
 	root := nodeTo.GetMPath().CommonRoot(nodeFrom.GetMPath())
