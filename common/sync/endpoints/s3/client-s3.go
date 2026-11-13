@@ -27,6 +27,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -149,6 +150,22 @@ func (c *Client) getFullPath(path string) string {
 	}
 }
 
+// isMissingObject tells if a storage error proves that an object does not exist
+func isMissingObject(e error) bool {
+	if model.IsNotFound(e) {
+		return true
+	}
+	r := minio.ToErrorResponse(e)
+	return r.Code == "NoSuchKey" || r.Code == "NotFound" || r.StatusCode == http.StatusNotFound
+}
+
+// isUnder tells if an object key is the object at fullPath itself or inside the folder at fullPath
+// (fullPath without trailing slash): listing by fullPath as a bare prefix also returns siblings
+// like fullPath.bak or fullPath-2020/x.
+func isUnder(key, fullPath string) bool {
+	return fullPath == "" || key == fullPath || strings.HasPrefix(key, fullPath+"/")
+}
+
 func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error) {
 	fullPath := c.getFullPath(pa)
 	if fullPath == "" || fullPath == "/" {
@@ -171,6 +188,11 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 		// Try folder
 		folderInfo, e2 := c.Oc.StatObject(ctx, c.Bucket, path.Join(fullPath, common.PydioSyncHiddenFile), models.ReadMeta{})
 		if e2 != nil {
+			if isMissingObject(e) && isMissingObject(e2) {
+				return nil, errors.WithMessage(errors.NodeNotFound, fullPath)
+			} else if isMissingObject(e) {
+				return nil, e2
+			}
 			return nil, e
 		}
 		return newFolderInfo(folderInfo), nil
@@ -188,11 +210,18 @@ func (c *Client) CreateNode(ctx context.Context, node tree.N, updateIfExists boo
 }
 
 func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
-	path = c.getFullPath(path)
+	// No trailing slash: a folder is the objects under path + "/"
+	path = strings.TrimRight(c.getFullPath(path), "/")
 
 	ctx2, cancel := context.WithCancel(ctx)
 	defer cancel()
 	for object := range c.listAllObjects(ctx2, c.Bucket, path, true) {
+		if object.Err != nil {
+			return object.Err
+		}
+		if !isUnder(object.Key, path) {
+			continue
+		}
 		if err = c.Oc.RemoveObject(ctx, c.Bucket, object.Key); err != nil {
 			log.Logger(c.globalContext).Error("Error while deleting object", zap.String("key", object.Key), zap.Error(err))
 			return err
@@ -205,12 +234,19 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 
 	doneChan := make(chan struct{})
 	defer close(doneChan)
-	oldPath = c.getFullPath(oldPath)
-	newPath = c.getFullPath(newPath)
+	// No trailing slash: a folder is the objects under path + "/"
+	oldPath = strings.TrimRight(c.getFullPath(oldPath), "/")
+	newPath = strings.TrimRight(c.getFullPath(newPath), "/")
 
 	ctx2, cancel := context.WithCancel(ctx)
 	defer cancel()
 	for object := range c.listAllObjects(ctx2, c.Bucket, oldPath, true) {
+		if object.Err != nil {
+			return object.Err
+		}
+		if !isUnder(object.Key, oldPath) {
+			continue
+		}
 		targetKey := newPath + strings.TrimPrefix(object.Key, oldPath)
 		// Switch to multipart for copy
 		if object.Size > c.Oc.CopyObjectMultipartThreshold() {
@@ -283,7 +319,10 @@ func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root st
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
 
-	wrapper := func(path string, info *fileInfo, node tree.N) error {
+	wrapper := func(path string, info *fileInfo, node tree.N, err error) error {
+		if err != nil {
+			return walkFunc(path, nil, err)
+		}
 		node.SetMTime(info.ModTime().Unix())
 		node.SetSize(info.Size())
 		node.SetMode(int32(info.Mode()))
@@ -337,7 +376,9 @@ func (c *Client) actualLsRecursive(ctx context.Context, recursive bool, recursiv
 		}
 		folderKey := path.Dir(objectInfo.Key)
 		if strings.HasSuffix(objectInfo.Key, "/") {
-			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			if er := c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false); er != nil {
+				return er
+			}
 			continue
 		}
 		if strings.HasSuffix(objectInfo.Key, common.PydioSyncHiddenFile) {
@@ -351,26 +392,39 @@ func (c *Client) actualLsRecursive(ctx context.Context, recursive bool, recursiv
 					// Walk the .pydio before continuing, otherwise this creates an issue if another hidden file like ".aaa"
 					// is appearing in the folder before arriving to the ".pydio" file
 					s3FileInfo := newFileInfo(objectInfo)
-					_ = walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+					if er := walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil); er != nil {
+						return er
+					}
 				}
 				continue
 			}
 			folderObjectInfo := objectInfo
 			//This will be called again inside the walknFc
-			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, true)
-			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(ctx, folderKey)
+			if er := c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, true); er != nil {
+				return er
+			}
+			var er error
+			if folderObjectInfo.ETag, _, er = c.readOrCreateFolderId(ctx, folderKey); er != nil {
+				return er
+			}
 			s3FileInfo := newFolderInfo(folderObjectInfo)
-			_ = walknFc(c.normalize(folderKey), s3FileInfo, nil)
+			if er = walknFc(c.normalize(folderKey), s3FileInfo, nil); er != nil {
+				return er
+			}
 			createdDirs[folderKey] = true
 		}
 		if c.isIgnoredFile(objectInfo.Key) {
 			continue
 		}
 		if folderKey != "" && folderKey != "." {
-			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			if er := c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false); er != nil {
+				return er
+			}
 		}
 		s3FileInfo := newFileInfo(objectInfo)
-		_ = walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+		if er := walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil); er != nil {
+			return er
+		}
 	}
 	return nil
 }
@@ -441,14 +495,14 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 }
 
 // Will try to create PydioSyncHiddenFile to avoid missing empty folders
-func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs map[string]bool, walknFc func(path string, info *fileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
+func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs map[string]bool, walknFc func(path string, info *fileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) error {
 
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
 	if skipLast {
 		max = len(parts) - 1
 		if max == 0 {
-			return
+			return nil
 		}
 	}
 	for i := 0; i < max; i++ {
@@ -456,7 +510,10 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 		if _, exists := createdDirs[testDir]; exists {
 			continue
 		}
-		uid, created, _ := c.readOrCreateFolderId(ctx, testDir)
+		uid, created, er := c.readOrCreateFolderId(ctx, testDir)
+		if er != nil {
+			return er
+		}
 		dirObjectInfo := models.ObjectInfo{
 			ETag:         uid,
 			Key:          testDir,
@@ -464,13 +521,18 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 			Size:         0,
 		}
 		s3FolderInfo := newFolderInfo(dirObjectInfo)
-		_ = walknFc(c.normalize(testDir), s3FolderInfo, nil)
+		if er = walknFc(c.normalize(testDir), s3FolderInfo, nil); er != nil {
+			return er
+		}
 		if created.Key != "" {
-			_ = walknFc(c.normalize(created.Key), newFileInfo(created), nil)
+			if er = walknFc(c.normalize(created.Key), newFileInfo(created), nil); er != nil {
+				return er
+			}
 		}
 
 		createdDirs[testDir] = true
 	}
+	return nil
 
 }
 
@@ -656,13 +718,17 @@ func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (u
 	if err == nil {
 		defer object.Close()
 		bb, er := io.ReadAll(object)
-		if er == nil {
-			uid = string(bb)
-			if len(strings.TrimSpace(uid)) > 0 {
-				log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
-				return
-			}
+		if er != nil {
+			return "", models.ObjectInfo{}, er
 		}
+		uid = string(bb)
+		if len(strings.TrimSpace(uid)) > 0 {
+			log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
+			return
+		}
+	} else if !isMissingObject(err) {
+		// Do not replace the folder identity on a transient error (network, permissions, server error)
+		return "", models.ObjectInfo{}, err
 	}
 
 	// Readonly mode, return a stable UUID based on folderPath

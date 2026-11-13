@@ -1,0 +1,187 @@
+{
+  "conflict": {
+    "OpType": 7,
+    "Dir": 0,
+    "Node": {
+      "Uuid": "uuid-a",
+      "Path": "folder/a.txt",
+      "Type": 1,
+      "Size": 42,
+      "MTime": 1700000000,
+      "Mode": 420,
+      "Etag": "etag-a",
+      "MetaStore": {
+        "name": "\"a.txt\""
+      }
+    },
+    "EventInfo": {
+      "Time": "",
+      "Size": 0,
+      "Etag": "",
+      "Folder": false,
+      "Path": "",
+      "Type": "",
+      "Host": "",
+      "Port": "",
+      "UserAgent": "",
+      "OperationId": "",
+      "ScanEvent": false,
+      "ScanSourceNode": null,
+      "Metadata": null,
+      "MoveSource": null,
+      "MoveTarget": null
+    },
+    "InternalStatus": null,
+    "Processed": false,
+    "ProcessingErrorString": ""
+  },
+  "create": {
+    "OpType": 0,
+    "Dir": 0,
+    "Node": {
+      "Uuid": "uuid-a",
+      "Path": "folder/a.txt",
+      "Type": 1,
+      "Size": 42,
+      "MTime": 1700000000,
+      "Mode": 420,
+      "Etag": "etag-a",
+      "MetaStore": {
+        "name": "\"a.txt\""
+      }
+    },
+    "EventInfo": {
+      "Time": "2023-09-19T07:38:42Z",
+      "Size": 42,
+      "Etag": "etag-a",
+      "Folder": false,
+      "Path": "folder/a.txt",
+      "Type": "ObjectCreated",
+      "Host": "",
+      "Port": "",
+      "UserAgent": "",
+      "OperationId": "op-1",
+      "ScanEvent": false,
+      "ScanSourceNode": null,
+      "Metadata": {
+        "X-Pydio-Session": "sess"
+      },
+      "MoveSource": null,
+      "MoveTarget": null
+    },
+    "InternalStatus": {
+      "IsError": false,
+      "Progress": 1,
+      "StatusString": "Transferred file"
+    },
+    "Processed": true,
+    "ProcessingErrorString": ""
+  },
+  "failed": {
+    "OpType": 5,
+    "Dir": 0,
+    "Node": {
+      "Path": "folder/gone.txt",
+      "Type": 1
+    },
+    "EventInfo": {
+      "Time": "",
+      "Size": 0,
+      "Etag": "",
+      "Folder": false,
+      "Path": "folder/gone.txt",
+      "Type": "ObjectRemoved",
+      "Host": "",
+      "Port": "",
+      "UserAgent": "",
+      "OperationId": "",
+      "ScanEvent": false,
+      "ScanSourceNode": null,
+      "Metadata": null,
+      "MoveSource": null,
+      "MoveTarget": null
+    },
+    "InternalStatus": {
+      "IsError": true,
+      "Node": "{\"Uuid\":\"uuid-a\",\"Path\":\"folder/a.txt\",\"Type\":1,\"Size\":42,\"MTime\":1700000000,\"Mode\":420,\"Etag\":\"etag-a\",\"MetaStore\":{\"name\":\"\\\"a.txt\\\"\"}}",
+      "StatusString": "Cannot delete"
+    },
+    "Processed": false,
+    "ProcessingErrorString": "permission denied"
+  },
+  "move": {
+    "OpType": 4,
+    "Dir": 0,
+    "Node": {
+      "Uuid": "uuid-a",
+      "Path": "folder/old.txt",
+      "Type": 1,
+      "Etag": "etag-a"
+    },
+    "EventInfo": {
+      "Time": "",
+      "Size": 0,
+      "Etag": "",
+      "Folder": false,
+      "Path": "folder/a.txt",
+      "Type": "NodeMoved",
+      "Host": "",
+      "Port": "",
+      "UserAgent": "",
+      "OperationId": "",
+      "ScanEvent": false,
+      "ScanSourceNode": null,
+      "Metadata": null,
+      "MoveSource": {
+        "Uuid": "uuid-a",
+        "Path": "folder/old.txt",
+        "Type": 1,
+        "Etag": "etag-a"
+      },
+      "MoveTarget": {
+        "Uuid": "uuid-a",
+        "Path": "folder/a.txt",
+        "Type": 1,
+        "Etag": "etag-a"
+      }
+    },
+    "InternalStatus": null,
+    "Processed": false,
+    "ProcessingErrorString": ""
+  },
+  "scan": {
+    "OpType": 2,
+    "Dir": 0,
+    "Node": {
+      "Uuid": "uuid-f",
+      "Path": "folder",
+      "Type": 2,
+      "Etag": "-1"
+    },
+    "EventInfo": {
+      "Time": "",
+      "Size": 0,
+      "Etag": "",
+      "Folder": true,
+      "Path": "folder",
+      "Type": "",
+      "Host": "",
+      "Port": "",
+      "UserAgent": "",
+      "OperationId": "",
+      "ScanEvent": true,
+      "ScanSourceNode": {
+        "Uuid": "uuid-f",
+        "Path": "folder",
+        "Type": 2,
+        "Etag": "-1"
+      },
+      "Metadata": null,
+      "MoveSource": null,
+      "MoveTarget": null
+    },
+    "InternalStatus": null,
+    "Processed": false,
+    "ProcessingErrorString": ""
+  }
+}

@@ -77,7 +77,8 @@ func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 	}
 	for {
 		response, rErr := responseClient.Recv()
-		if rErr == io.EOF || rErr == io.ErrUnexpectedEOF || (rErr == nil && response == nil) {
+		// Only io.EOF ends the listing: a truncated one (io.ErrUnexpectedEOF) would make the missing nodes look deleted
+		if rErr == io.EOF || (rErr == nil && response == nil) {
 			break
 		}
 		if rErr != nil {

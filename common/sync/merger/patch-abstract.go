@@ -47,6 +47,7 @@ type AbstractPatch struct {
 
 	skipFilterToTarget bool
 	postFilter         []func() error
+	postProcess        []func() error
 
 	statusChan chan model.Status
 	doneChan   chan interface{}
@@ -54,6 +55,24 @@ type AbstractPatch struct {
 	closing    bool
 	closeLock  *sync.Mutex
 	patchError error
+	// stateLock protects mTime and patchError, updated from processing goroutines
+	stateLock *sync.Mutex
+}
+
+// fallbackStateLock is used by patches not created through a constructor
+var fallbackStateLock sync.Mutex
+
+func (b *AbstractPatch) state() *sync.Mutex {
+	if b.stateLock != nil {
+		return b.stateLock
+	}
+	return &fallbackStateLock
+}
+
+func (b *AbstractPatch) getPatchError() error {
+	b.state().Lock()
+	defer b.state().Unlock()
+	return b.patchError
 }
 
 func (b *AbstractPatch) GetUUID() string {
@@ -65,11 +84,15 @@ func (b *AbstractPatch) SetUUID(u string) {
 }
 
 func (b *AbstractPatch) GetStamp() time.Time {
+	b.state().Lock()
+	defer b.state().Unlock()
 	return b.mTime
 }
 
 func (b *AbstractPatch) Stamp(t time.Time) {
+	b.state().Lock()
 	b.mTime = t
+	b.state().Unlock()
 }
 
 func (b *AbstractPatch) SetupChannels(status chan model.Status, done chan interface{}, cmd *model.Command) {
@@ -89,10 +112,12 @@ func (b *AbstractPatch) SetPatchError(e error) error {
 }
 
 func (b *AbstractPatch) Status(s model.Status) {
+	b.state().Lock()
 	b.mTime = time.Now()
 	if s.IsError() {
 		b.patchError = s.Error()
 	}
+	b.state().Unlock()
 	if b.statusChan != nil {
 		go func() {
 			defer func() {
@@ -109,7 +134,7 @@ func (b *AbstractPatch) Status(s model.Status) {
 }
 
 func (b *AbstractPatch) Done(info interface{}) {
-	b.mTime = time.Now()
+	b.Stamp(time.Now())
 	if b.doneChan != nil {
 		b.closeLock.Lock()
 		b.closing = true
@@ -120,7 +145,9 @@ func (b *AbstractPatch) Done(info interface{}) {
 
 // SetError sets a global error status on this patch
 func (b *AbstractPatch) SetError(e error) {
+	b.state().Lock()
 	b.patchError = e
+	b.state().Unlock()
 }
 
 func (b *AbstractPatch) Source(newSource ...model.PathSyncSource) model.PathSyncSource {
@@ -189,6 +216,14 @@ func (b *AbstractPatch) PostFilter(f ...func() error) []func() error {
 		b.postFilter = append(b.postFilter, f...)
 	}
 	return b.postFilter
+}
+
+// PostProcess gets or sets a callback to be triggered once the patch is processed, before it is Done
+func (b *AbstractPatch) PostProcess(f ...func() error) []func() error {
+	if len(f) > 0 {
+		b.postProcess = append(b.postProcess, f...)
+	}
+	return b.postProcess
 }
 
 func (b *AbstractPatch) zapSource() zapcore.Field {

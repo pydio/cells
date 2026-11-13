@@ -64,8 +64,9 @@ func TestMergeWithConflicts(t *testing.T) {
 		So(target.CreateNode(bg, &tree.Node{Path: "/diverging-folder-B", MTime: old.Unix()}, true), ShouldBeNil)
 		So(target.CreateNode(bg, &tree.Node{Path: "/toto2/other-location/diverging-file-B", MTime: recent.Unix()}, true), ShouldBeNil)
 
+		// Each patch reads from its own endpoint: left changes are on source, right changes on target
 		left := newTreePatch(source, target, PatchOptions{MoveDetection: false})
-		right := newTreePatch(source, target, PatchOptions{MoveDetection: false})
+		right := newTreePatch(target, source, PatchOptions{MoveDetection: false})
 
 		left.Enqueue(&patchOperation{OpType: OpMoveFolder, Node: &tree.Node{Path: "/source-folder"}, EventInfo: model.EventInfo{Path: "/moved-folder-same"}})
 		right.Enqueue(&patchOperation{OpType: OpMoveFolder, Node: &tree.Node{Path: "/source-folder"}, EventInfo: model.EventInfo{Path: "/moved-folder-same"}})

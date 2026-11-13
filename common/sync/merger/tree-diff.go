@@ -256,8 +256,9 @@ func (diff *TreeDiff) ToBidirectionalPatch(ctx context.Context, leftTarget model
 		}
 		b.Enqueue(NewConflictOperation(c.NodeLeft, c.Type, leftOp, rightOp))
 	}
-	if errs, ok := b.HasErrors(); ok {
-		err = fmt.Errorf("diff has conflicts %v", errs)
+	// Conflicts are held back, the rest of the patch is applied
+	if errs, _ := b.HasErrors(); len(WithoutConflicts(errs)) > 0 {
+		err = fmt.Errorf("diff has errors %v", WithoutConflicts(errs))
 	}
 	return
 }

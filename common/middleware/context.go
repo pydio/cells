@@ -48,10 +48,15 @@ import (
 
 type HttpContextModifier func(r *http.Request) (*http.Request, error)
 
+// GrpcExternalContextModifier is an incoming modifier applied only by gRPC servers exposed to external
+// clients (grpc+auth scheme), before JWT verification. Internal servers do not apply it.
+type GrpcExternalContextModifier func(ctx context.Context) (context.Context, bool, error)
+
 var (
 	outgoingModifiers     []propagator.OutgoingContextModifier
 	incomingModifiers     []propagator.IncomingContextModifier
 	httpIncomingModifiers []HttpContextModifier
+	grpcExternalModifiers []propagator.IncomingContextModifier
 
 	recoverOptions = []grpc_recovery.Option{
 		grpc_recovery.WithRecoveryHandlerContext(func(ctx context.Context, p interface{}) (err error) {
@@ -73,6 +78,8 @@ func RegisterModifier(m any) {
 		incomingModifiers = append(incomingModifiers, v)
 	case HttpContextModifier:
 		httpIncomingModifiers = append(httpIncomingModifiers, v)
+	case GrpcExternalContextModifier:
+		grpcExternalModifiers = append(grpcExternalModifiers, propagator.IncomingContextModifier(v))
 	default:
 		panic("unknown propagator type")
 	}
@@ -138,6 +145,22 @@ func GrpcStreamServerInterceptors(rootContext context.Context) []grpc.StreamServ
 	}
 	uu = append(uu, ErrorFormatStreamInterceptor)
 	return uu
+}
+
+// GrpcExternalUnaryServerInterceptors returns the registered GrpcExternalContextModifier as grpc.UnaryServerInterceptor
+func GrpcExternalUnaryServerInterceptors() (uu []grpc.UnaryServerInterceptor) {
+	for _, o := range grpcExternalModifiers {
+		uu = append(uu, propagator.ContextUnaryServerInterceptor(o))
+	}
+	return
+}
+
+// GrpcExternalStreamServerInterceptors returns the registered GrpcExternalContextModifier as grpc.StreamServerInterceptor
+func GrpcExternalStreamServerInterceptors() (uu []grpc.StreamServerInterceptor) {
+	for _, o := range grpcExternalModifiers {
+		uu = append(uu, propagator.ContextStreamServerInterceptor(o))
+	}
+	return
 }
 
 // ClientConnIncomingContext adds the ClientConn to context
