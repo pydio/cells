@@ -50,6 +50,10 @@ func NewDAO(db *gorm.DB) policy.DAO {
 	return &sqlimpl{DB: db, Manager: NewManager(db)}
 }
 
+func (s *sqlimpl) PolicyCacheNamespace() string {
+	return sql.TableNameFromModel(s.DB, &idm.PolicyGroup{})
+}
+
 type sqlimpl struct {
 	DB *gorm.DB
 
@@ -190,6 +194,14 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	}
 
 	for _, p := range storeGroup.Policies {
+		// // Public templates are authoritative on round-trip updates. Store returns
+		// // ORM associations too; appending to those would retain revoked subjects
+		// // and duplicate old action/resource relations. Preserve ORM-only callers.
+		// if p.Actions != nil || p.Resources != nil || p.Subjects != nil {
+		// 	p.OrmActions = nil
+		// 	p.OrmResources = nil
+		// 	p.OrmSubjects = nil
+		// }
 		for _, template := range p.GetActions() {
 			action := &idm.PolicyAction{}
 			if err := converter.StringToTemplate(template, action); err == nil {
@@ -210,24 +222,18 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		}
 	}
 
-	if deleteFirst {
-		if er := sql.WithTxRetry(ctx, s.instance(ctx), 3, "storing policy group "+storeGroup.GetUuid(), func(tx *gorm.DB) error {
-			// Insert Policy Group - with transaction retries
-			if er := s.deleteInTransaction(ctx, tx, storeGroup); er != nil {
-				return er
+	if err := sql.WithTxRetry(ctx, s.instance(ctx), 3, "storing policy group "+storeGroup.GetUuid(), func(tx *gorm.DB) error {
+		if deleteFirst {
+			if err := s.deleteInTransaction(ctx, tx, storeGroup); err != nil {
+				return err
 			}
-			return tx.Error
-		}); er != nil {
-			return nil, er
 		}
-	}
-
-	tx2 := s.instance(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "uuid"}},
-		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}), // column needed to be updated
-	}).Create(storeGroup)
-	if tx2.Error != nil {
-		return nil, tx2.Error
+		return tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "uuid"}},
+			DoUpdates: clause.AssignmentColumns([]string{"name", "description", "owner_uuid", "resource_group", "last_updated"}),
+		}).Create(storeGroup).Error
+	}); err != nil {
+		return nil, err
 	}
 
 	if deleteFirst {
@@ -241,37 +247,57 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 }
 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
-func (s *sqlimpl) ListPolicyGroups(ctx context.Context, query service.Enquirer) (groups []*idm.PolicyGroup, e error) {
+func (s *sqlimpl) ListPolicyGroups(
+	ctx context.Context,
+	query service.Enquirer,
+) (groups []*idm.PolicyGroup, e error) {
 
-	tx, err := service.NewQueryBuilder[*gorm.DB](query, new(queryConverter)).Build(ctx, s.instance(ctx))
+	tx, err := service.NewQueryBuilder[*gorm.DB](
+		query, new(queryConverter),
+	).Build(ctx, s.instance(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	tx = tx.Preload("Policies.OrmActions").Preload("Policies.OrmResources").Preload("Policies.OrmSubjects").Preload("Policies").Find(&groups)
+	tx = tx.
+		Preload("Policies.OrmActions").
+		Preload("Policies.OrmResources").
+		Preload("Policies.OrmSubjects").
+		Find(&groups)
+
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
-	// Convert OrmXX to XX
+
 	for _, gr := range groups {
 		for _, p := range gr.Policies {
-			for _, a := range p.OrmActions {
-				p.Actions = append(p.Actions, a.Template)
+			if p.OrmActions != nil {
+				p.Actions = make([]string, len(p.OrmActions))
+				for i, a := range p.OrmActions {
+					p.Actions[i] = a.Template
+				}
+				p.OrmActions = nil
 			}
-			for _, r := range p.OrmResources {
-				p.Resources = append(p.Resources, r.Template)
+
+			if p.OrmResources != nil {
+				p.Resources = make([]string, len(p.OrmResources))
+				for i, r := range p.OrmResources {
+					p.Resources[i] = r.Template
+				}
+				p.OrmResources = nil
 			}
-			for _, sub := range p.OrmSubjects {
-				p.Subjects = append(p.Subjects, sub.Template)
+
+			if p.OrmSubjects != nil {
+				p.Subjects = make([]string, len(p.OrmSubjects))
+				for i, sub := range p.OrmSubjects {
+					p.Subjects[i] = sub.Template
+				}
+				p.OrmSubjects = nil
 			}
-			// These should not be exposed to outside world
-			p.OrmActions = nil
-			p.OrmResources = nil
-			p.OrmSubjects = nil
 		}
 	}
 
-	return
+	return groups, nil
 }
 
 // DeletePolicyGroup deletes a policy group and all related policies.
@@ -370,7 +396,29 @@ func (s *sqlimpl) deletePolicyById(ctx context.Context, tx *gorm.DB, id string) 
 	return tx4.Error
 }
 
-// IsAllowed implements API
+// FindPolicyGroupIDs discovers groups without hydrating the policy catalogue.
+func (s *sqlimpl) FindPolicyGroupIDs(ctx context.Context, r *ladon.Request) ([]string, error) {
+	db := s.instance(ctx)
+	table := func(model interface{}) string { return sql.QuoteTo(db, sql.TableNameFromModel(db, model)) }
+	candidates := policyCandidateQuery(ctx, db, r).Select(table(&idm.Policy{}) + ".id")
+	var ids []string
+	err := db.Model(&idm.PolicyGroup{}).Where(fmt.Sprintf(
+		"EXISTS (SELECT 1 FROM %s AS pgrel WHERE pgrel.group_uuid = %s.uuid AND pgrel.policy_id IN (?))",
+		table(&idm.PolicyRel{}), table(&idm.PolicyGroup{})), candidates).Pluck("uuid", &ids).Error
+	return ids, err
+}
+
+// FindRequestCandidates retains the grouped-only service authorization contract.
+func (s *sqlimpl) FindRequestCandidates(ctx context.Context, r *ladon.Request) (ladon.Policies, error) {
+	db := s.instance(ctx)
+	pol := sql.QuoteTo(db, sql.TableNameFromModel(db, &idm.Policy{}))
+	rel := sql.QuoteTo(db, sql.TableNameFromModel(db, &idm.PolicyRel{}))
+	groups := sql.QuoteTo(db, sql.TableNameFromModel(db, &idm.PolicyGroup{}))
+	return hydrateCandidates(policyCandidateQuery(ctx, db, r).Where(fmt.Sprintf(
+		"EXISTS (SELECT 1 FROM %s AS pgrel JOIN %s AS pgroup ON pgroup.uuid = pgrel.group_uuid WHERE pgrel.policy_id = %s.id)", rel, groups, pol)))
+}
+
+// IsAllowed implements API.
 func (s *sqlimpl) IsAllowed(ctx context.Context, r *ladon.Request) error {
 	mg := NewManager(s.instance(ctx))
 	return (&ladon.Ladon{Manager: mg}).IsAllowed(ctx, r)

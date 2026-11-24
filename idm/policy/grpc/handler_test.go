@@ -91,7 +91,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 		Convey("IsAllowed — explicit allow", t, func() {
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-allow", "user:alice", "res:doc1", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:alice", "res:doc1", "read")
 			So(err, ShouldBeNil)
@@ -101,7 +100,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 
 		Convey("IsAllowed — default deny for unmatched subject", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:nobody", "res:secret", "delete")
 			So(err, ShouldBeNil)
@@ -130,7 +128,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 				},
 			})
 			So(err, ShouldBeNil)
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:bob", "res:doc2", "read")
 			So(err, ShouldBeNil)
@@ -141,7 +138,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 		Convey("IsAllowed — any matching subject grants access", t, func() {
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-multi", "user:carol", "res:shared", "write")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			// One unmatched subject + one matching subject — must be Allowed.
 			resp, err := h.IsAllowed(ctx, &idm.PolicyEngineRequest{
@@ -153,8 +149,8 @@ func TestHandlerIsAllowed(t *testing.T) {
 			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 
-		Convey("IsAllowed — nil engine falls back to DAO", t, func() {
-			// Leave cachedEngine nil to simulate the startup window before warmEngine completes.
+		Convey("IsAllowed — cold cache resolves candidates from DAO", t, func() {
+			// A cold handler loads candidates lazily without a catalogue warm-up.
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-dao", "user:dave", "res:fallback", "read")
 
@@ -177,7 +173,6 @@ func TestHandlerConcurrentIsAllowed(t *testing.T) {
 		Convey("Concurrent IsAllowed calls share the engine without data races", t, func() {
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-concurrent", "user:eve", "res:concurrent", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			const goroutines = 50
 			errs := make([]error, goroutines)
@@ -235,49 +230,44 @@ func TestRunChecksRaceDetector(t *testing.T) {
 // Engine lifecycle tests
 // ---------------------------------------------------------------------------
 
-func TestHandlerEngineRebuild(t *testing.T) {
+func TestHandlerPolicyVisibility(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("rebuildEngine — empty DB yields default deny", t, func() {
+		Convey("policy cache — empty DB yields default deny", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:frank", "res:rebuild", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 		})
 
-		Convey("rebuildEngine — new policy group is reflected after rebuild", t, func() {
+		Convey("policy cache — new policy group is reflected after mutation", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			// No policy yet — denied.
 			resp, err := checkAllowed(ctx, h, "user:frank", "res:rebuild", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 
-			// Add a policy group and rebuild.
+			// Add a policy group and verify the new lookup.
 			seedGroup(ctx, h, "grp-rebuild", "user:frank", "res:rebuild", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err = checkAllowed(ctx, h, "user:frank", "res:rebuild", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 
-		Convey("rebuildEngine — deleted policy group loses access after rebuild", t, func() {
+		Convey("policy cache — deleted policy group loses access after mutation", t, func() {
 			h := &Handler{}
 			stored := seedGroup(ctx, h, "grp-delete", "user:grace", "res:gone", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:grace", "res:gone", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 
-			// Delete and rebuild.
+			// Delete and verify invalidation.
 			_, err = h.DeletePolicyGroup(ctx, &idm.DeletePolicyGroupRequest{PolicyGroup: stored})
 			So(err, ShouldBeNil)
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err = checkAllowed(ctx, h, "user:grace", "res:gone", "read")
 			So(err, ShouldBeNil)
@@ -293,9 +283,8 @@ func TestHandlerEngineRebuild(t *testing.T) {
 func TestHandlerNotifyPolicyChange(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("notifyPolicyChange — StorePolicyGroup rebuilds the local engine synchronously", t, func() {
+		Convey("notifyPolicyChange — StorePolicyGroup invalidates the local cache synchronously", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			// No policy yet.
 			resp, err := checkAllowed(ctx, h, "user:nick", "res:notify-store", "read")
@@ -303,7 +292,7 @@ func TestHandlerNotifyPolicyChange(t *testing.T) {
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 
 			// StorePolicyGroup calls notifyPolicyChange internally — no explicit
-			// rebuildEngine call here, the point is to prove it already happened.
+			// invalidation call here, the point is to prove it already happened.
 			_, err = h.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{
 				PolicyGroup: &idm.PolicyGroup{
 					Uuid:          "grp-notify-store",
@@ -327,18 +316,18 @@ func TestHandlerNotifyPolicyChange(t *testing.T) {
 			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 
-		Convey("notifyPolicyChange — DeletePolicyGroup rebuilds the local engine synchronously", t, func() {
+		Convey("notifyPolicyChange — DeletePolicyGroup invalidates the local cache synchronously", t, func() {
 			h := &Handler{}
 			stored := seedGroup(ctx, h, "grp-notify-delete", "user:olive", "res:notify-delete", "read")
 
 			// seedGroup already went through StorePolicyGroup -> notifyPolicyChange,
-			// so the engine should already reflect the new policy without a manual rebuild.
+			// so a subsequent lookup must reflect the new policy.
 			resp, err := checkAllowed(ctx, h, "user:olive", "res:notify-delete", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 
 			// DeletePolicyGroup calls notifyPolicyChange internally — again, no
-			// explicit rebuildEngine call here.
+			// explicit cache invalidation call here.
 			_, err = h.DeletePolicyGroup(ctx, &idm.DeletePolicyGroupRequest{PolicyGroup: stored})
 			So(err, ShouldBeNil)
 
@@ -347,20 +336,17 @@ func TestHandlerNotifyPolicyChange(t *testing.T) {
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 		})
 
-		Convey("notifyPolicyChange — broker publish propagates the change to other pods", t, func() {
-			// h1 represents the pod handling the write; h2 represents a sibling
-			// pod that only learns about the change through watchPolicyChanges'
-			// subscription to the broker, exercising the best-effort publish
-			// side of notifyPolicyChange (not just its synchronous local rebuild).
+		Convey("notifyPolicyChange — independent handlers observe policy changes", t, func() {
+			// Handlers in one process share the bounded cache. Cross-process
+			// broker delivery remains an operational validation gate.
 			h1 := &Handler{}
 			h2 := &Handler{}
-			So(h1.rebuildEngine(ctx), ShouldBeNil)
-			So(h2.rebuildEngine(ctx), ShouldBeNil)
+
 			h2.watchPolicyChanges(ctx)
 
 			seedGroup(ctx, h1, "grp-notify-cross", "user:peter", "res:notify-cross", "read")
 
-			// h1's own engine is already up to date (synchronous local rebuild).
+			// h1's local cache is already invalidated.
 			resp, err := checkAllowed(ctx, h1, "user:peter", "res:notify-cross", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
@@ -383,17 +369,16 @@ func TestHandlerNotifyPolicyChange(t *testing.T) {
 	})
 }
 
-func TestHandlerWarmEngine(t *testing.T) {
+func TestHandlerFreshCache(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("warmEngine populates cachedEngine from DB when cache is empty", t, func() {
+		Convey("a fresh handler loads only matching policies", t, func() {
 			// Seed data via a first handler so it lands in the DB.
 			seeder := &Handler{}
 			seedGroup(ctx, seeder, "grp-warm", "user:hank", "res:warm", "read")
 
-			// Fresh handler: warmEngine must pick up the persisted data.
+			// A fresh handler resolves the persisted group lazily.
 			h := &Handler{}
-			h.warmEngine(ctx)
 
 			resp, err := checkAllowed(ctx, h, "user:hank", "res:warm", "read")
 			So(err, ShouldBeNil)
