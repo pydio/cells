@@ -49,12 +49,27 @@ import (
 	"github.com/pydio/cells/v5/scheduler/actions/images"
 )
 
+// CreateCheckRecovery optionally waits for a distribution-specific workspace to become visible.
+// A true result allows CreateCheck to repeat its normal, permission-checked path lookup.
+type CreateCheckRecovery interface {
+	WaitForWorkspace(context.Context, string) (bool, error)
+}
+
+// CreateCheckRecoveryProvider constructs an optional CreateCheck recovery dependency.
+type CreateCheckRecoveryProvider func() CreateCheckRecovery
+
+// CreateCheckRecoveryProviderFactory is optionally set by distributions that provision
+// workspaces asynchronously. The default Cells build leaves it nil.
+var CreateCheckRecoveryProviderFactory CreateCheckRecoveryProvider
+
 type Handler struct {
 	SearchHandler    *searcher.Handler
 	TreeHandler      *treeer.Handler
 	TemplatesHandler *tpl.Handler
 	SharesHandler    *shares.SharesHandler
 	UserMetaHandler  *umeta.UserMetaHandler
+	// CreateCheckRecovery is optional and defaults to nil for standard Cells.
+	CreateCheckRecovery CreateCheckRecovery
 }
 
 type PreviewMeta struct {
@@ -66,13 +81,17 @@ type PreviewMeta struct {
 
 func NewHandler() *Handler {
 	th := &treeer.Handler{}
-	return &Handler{
+	h := &Handler{
 		SearchHandler:    &searcher.Handler{},
 		TreeHandler:      th,
 		TemplatesHandler: &tpl.Handler{Dao: templates.GetProvider()},
 		SharesHandler:    shares.NewSharesHandler(),
 		UserMetaHandler:  umeta.NewUserMetaHandler(),
 	}
+	if CreateCheckRecoveryProviderFactory != nil {
+		h.CreateCheckRecovery = CreateCheckRecoveryProviderFactory()
+	}
+	return h
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service

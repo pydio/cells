@@ -305,9 +305,10 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		log.Logger(ctx).Debug("No Claims in Context, workspaces will be empty - probably anonymous user")
 		return
 	}
-	if cached, ok := newFromCache(ctx, claims.GetUniqueKey()); ok {
-
-		return cached, nil
+	if !hasFreshAccessList(ctx) {
+		if cached, ok := newFromCache(ctx, claims.GetUniqueKey()); ok {
+			return cached, nil
+		}
 	}
 
 	var span trace.Span

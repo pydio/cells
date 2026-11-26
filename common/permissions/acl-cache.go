@@ -36,6 +36,19 @@ import (
 	"github.com/pydio/cells/v5/common/utils/std"
 )
 
+type freshAccessListKey struct{}
+
+// WithFreshAccessList skips the cached access list for the current request.
+// It is intended for a retry after an authorization-changing operation.
+func WithFreshAccessList(ctx context.Context) context.Context {
+	return context.WithValue(ctx, freshAccessListKey{}, true)
+}
+
+func hasFreshAccessList(ctx context.Context) bool {
+	fresh, _ := ctx.Value(freshAccessListKey{}).(bool)
+	return fresh
+}
+
 var (
 	aclOnce         sync.Once
 	ancestorsConfig = cache.Config{

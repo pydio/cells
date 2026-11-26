@@ -21,6 +21,7 @@
 package restv2
 
 import (
+	"context"
 	"path"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -97,6 +98,7 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 	pathRouter := h.TreeHandler.GetRouter()
 	uuidRouter := h.UuidClient(true)
 	for _, n := range input.GetInputs() {
+		lookupCtx := ctx
 		var handler nodes.Handler
 		targetNode := &tree.Node{}
 		pa := n.GetLocator().GetPath()
@@ -106,7 +108,10 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 		if pa != "" {
 			handler = pathRouter
 			targetNode.SetPath(pa)
-			iNode, er = nodes.FindNodeByInsensitiveName(ctx, pathRouter, targetNode)
+			lookup := func(lookupCtx context.Context) (*tree.Node, error) {
+				return nodes.FindNodeByInsensitiveName(lookupCtx, pathRouter, targetNode)
+			}
+			lookupCtx, iNode, er = resolveCreateCheckPath(ctx, pa, lookup, h.CreateCheckRecovery)
 		} else {
 			handler = uuidRouter
 			targetNode.SetUuid(n.GetLocator().GetUuid())
@@ -121,18 +126,18 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 		cr := &rest.CheckResult{InputLocator: n.GetLocator(), Exists: false}
 		if er == nil {
 			cr.Exists = true
-			cr.Node = h.TreeNodeToNode(ctx, iNode)
+			cr.Node = h.TreeNodeToNode(lookupCtx, iNode)
 			if pa != "" && findNext {
 				// Find next available name
 				var childrenLocks []string
-				if parentResp, er := pathRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil {
-					if cl, err := permissions.GetChildrenLocks(ctx, parentResp.GetNode()); err != nil {
+				if parentResp, er := pathRouter.ReadNode(lookupCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); er == nil {
+					if cl, err := permissions.GetChildrenLocks(lookupCtx, parentResp.GetNode()); err != nil {
 						return errors.WithMessage(err, "cannot find next available path (children locks)")
 					} else {
 						childrenLocks = append(childrenLocks, cl...)
 					}
 				}
-				if err := nodes.SuffixPathIfNecessary(ctx, pathRouter, targetNode, n.Type == tree.NodeType_COLLECTION, childrenLocks...); err == nil {
+				if err := nodes.SuffixPathIfNecessary(lookupCtx, pathRouter, targetNode, n.Type == tree.NodeType_COLLECTION, childrenLocks...); err == nil {
 					cr.NextPath = targetNode.GetPath()
 				} else {
 					return errors.WithMessage(err, "cannot find next available path")
@@ -146,4 +151,24 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 		}
 	}
 	return resp.WriteEntity(output)
+}
+
+func resolveCreateCheckPath(ctx context.Context, path string, lookup func(context.Context) (*tree.Node, error), recovery CreateCheckRecovery) (context.Context, *tree.Node, error) {
+	node, err := lookup(ctx)
+	if err == nil || !errors.Is(err, errors.WorkspaceNotFound) || recovery == nil {
+		return ctx, node, err
+	}
+
+	originalErr := err
+	retry, recoveryErr := recovery.WaitForWorkspace(ctx, path)
+	if recoveryErr != nil {
+		return ctx, nil, recoveryErr
+	}
+	if !retry {
+		return ctx, nil, originalErr
+	}
+
+	freshCtx := permissions.WithFreshAccessList(ctx)
+	node, err = lookup(freshCtx)
+	return freshCtx, node, err
 }
