@@ -4,21 +4,30 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	cellserrors "github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 )
 
 type fakeCreateCheckRecovery struct {
-	retry bool
-	err   error
-	calls int
-	path  string
+	retry        bool
+	err          error
+	calls        int
+	beginCalls   int
+	path         string
+	waitContexts []context.Context
 }
 
-func (f *fakeCreateCheckRecovery) WaitForWorkspace(_ context.Context, path string) (bool, error) {
+func (f *fakeCreateCheckRecovery) BeginRequest(ctx context.Context) (context.Context, context.CancelFunc) {
+	f.beginCalls++
+	return context.WithTimeout(ctx, time.Hour)
+}
+
+func (f *fakeCreateCheckRecovery) WaitForWorkspace(ctx context.Context, path string) (bool, error) {
 	f.calls++
 	f.path = path
+	f.waitContexts = append(f.waitContexts, ctx)
 	return f.retry, f.err
 }
 
@@ -78,6 +87,24 @@ func TestResolveCreateCheckPathRecovery(t *testing.T) {
 		}
 	})
 
+	t.Run("READY workspace still absent preserves retry lookup 404", func(t *testing.T) {
+		recovery := &fakeCreateCheckRecovery{retry: true}
+		lookups := 0
+		lookup := func(context.Context) (*tree.Node, error) {
+			lookups++
+			return nil, workspaceErr
+		}
+
+		_, _, err := resolveCreateCheckPath(context.Background(), path, lookup, recovery)
+
+		if !cellserrors.Is(err, cellserrors.WorkspaceNotFound) {
+			t.Fatalf("resolveCreateCheckPath() error = %v, want WorkspaceNotFound", err)
+		}
+		if lookups != 2 {
+			t.Fatalf("path lookups = %d, want initial lookup and one retry", lookups)
+		}
+	})
+
 	t.Run("missing or denied workspace preserves original error", func(t *testing.T) {
 		recovery := &fakeCreateCheckRecovery{}
 		lookup := func(context.Context) (*tree.Node, error) { return nil, workspaceErr }
@@ -115,6 +142,33 @@ func TestResolveCreateCheckPathRecovery(t *testing.T) {
 		}
 		if recovery.calls != 0 {
 			t.Fatalf("recovery calls = %d, want 0", recovery.calls)
+		}
+	})
+
+	t.Run("multiple eligible paths share one recovery budget", func(t *testing.T) {
+		recovery := &fakeCreateCheckRecovery{retry: true}
+		scope := &createCheckRecoveryScope{}
+		defer scope.Close()
+		lookup := func(context.Context) (*tree.Node, error) { return nil, workspaceErr }
+
+		for _, candidate := range []string{path, "b470baed-cf48-444b-892a-40c2761eb957@wire.example/another.txt"} {
+			ctx := scope.ContextOr(context.Background())
+			_, _, err := resolveCreateCheckPathInScope(ctx, candidate, lookup, recovery, scope)
+			if !cellserrors.Is(err, cellserrors.WorkspaceNotFound) {
+				t.Fatalf("resolveCreateCheckPathInScope(%q) error = %v, want WorkspaceNotFound", candidate, err)
+			}
+		}
+
+		if recovery.beginCalls != 1 || recovery.calls != 2 {
+			t.Fatalf("budget starts/waits = %d/%d, want 1/2", recovery.beginCalls, recovery.calls)
+		}
+		if len(recovery.waitContexts) != 2 || recovery.waitContexts[0] != recovery.waitContexts[1] {
+			t.Fatalf("wait contexts = %v, want same request budget context", recovery.waitContexts)
+		}
+		firstDeadline, firstHasDeadline := recovery.waitContexts[0].Deadline()
+		secondDeadline, secondHasDeadline := recovery.waitContexts[1].Deadline()
+		if !firstHasDeadline || !secondHasDeadline || !firstDeadline.Equal(secondDeadline) {
+			t.Fatalf("recovery deadlines = (%v, %v), want one shared deadline", firstDeadline, secondDeadline)
 		}
 	})
 

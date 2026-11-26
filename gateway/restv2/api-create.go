@@ -97,8 +97,10 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 	output := &rest.CreateCheckResponse{}
 	pathRouter := h.TreeHandler.GetRouter()
 	uuidRouter := h.UuidClient(true)
+	recoveryScope := &createCheckRecoveryScope{}
+	defer recoveryScope.Close()
 	for _, n := range input.GetInputs() {
-		lookupCtx := ctx
+		lookupCtx := recoveryScope.ContextOr(ctx)
 		var handler nodes.Handler
 		targetNode := &tree.Node{}
 		pa := n.GetLocator().GetPath()
@@ -111,7 +113,7 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 			lookup := func(lookupCtx context.Context) (*tree.Node, error) {
 				return nodes.FindNodeByInsensitiveName(lookupCtx, pathRouter, targetNode)
 			}
-			lookupCtx, iNode, er = resolveCreateCheckPath(ctx, pa, lookup, h.CreateCheckRecovery)
+			lookupCtx, iNode, er = resolveCreateCheckPathInScope(lookupCtx, pa, lookup, h.CreateCheckRecovery, recoveryScope)
 		} else {
 			handler = uuidRouter
 			targetNode.SetUuid(n.GetLocator().GetUuid())
@@ -153,22 +155,54 @@ func (h *Handler) CreateCheck(req *restful.Request, resp *restful.Response) erro
 	return resp.WriteEntity(output)
 }
 
+type createCheckRecoveryScope struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+}
+
+func (s *createCheckRecoveryScope) ContextOr(parent context.Context) context.Context {
+	if s.ctx != nil {
+		return s.ctx
+	}
+	return parent
+}
+
+func (s *createCheckRecoveryScope) Begin(parent context.Context, recovery CreateCheckRecovery) context.Context {
+	if s.ctx == nil {
+		s.ctx, s.cancel = recovery.BeginRequest(parent)
+	}
+	return s.ctx
+}
+
+func (s *createCheckRecoveryScope) Close() {
+	if s.cancel != nil {
+		s.cancel()
+	}
+}
+
 func resolveCreateCheckPath(ctx context.Context, path string, lookup func(context.Context) (*tree.Node, error), recovery CreateCheckRecovery) (context.Context, *tree.Node, error) {
+	scope := &createCheckRecoveryScope{}
+	defer scope.Close()
+	return resolveCreateCheckPathInScope(ctx, path, lookup, recovery, scope)
+}
+
+func resolveCreateCheckPathInScope(ctx context.Context, path string, lookup func(context.Context) (*tree.Node, error), recovery CreateCheckRecovery, scope *createCheckRecoveryScope) (context.Context, *tree.Node, error) {
 	node, err := lookup(ctx)
 	if err == nil || !errors.Is(err, errors.WorkspaceNotFound) || recovery == nil {
 		return ctx, node, err
 	}
 
 	originalErr := err
-	retry, recoveryErr := recovery.WaitForWorkspace(ctx, path)
+	recoveryCtx := scope.Begin(ctx, recovery)
+	retry, recoveryErr := recovery.WaitForWorkspace(recoveryCtx, path)
 	if recoveryErr != nil {
-		return ctx, nil, recoveryErr
+		return recoveryCtx, nil, recoveryErr
 	}
 	if !retry {
-		return ctx, nil, originalErr
+		return recoveryCtx, nil, originalErr
 	}
 
-	freshCtx := permissions.WithFreshAccessList(ctx)
+	freshCtx := permissions.WithFreshAccessList(recoveryCtx)
 	node, err = lookup(freshCtx)
 	return freshCtx, node, err
 }

@@ -52,6 +52,7 @@ import (
 // CreateCheckRecovery optionally waits for a distribution-specific workspace to become visible.
 // A true result allows CreateCheck to repeat its normal, permission-checked path lookup.
 type CreateCheckRecovery interface {
+	BeginRequest(context.Context) (context.Context, context.CancelFunc)
 	WaitForWorkspace(context.Context, string) (bool, error)
 }
 
