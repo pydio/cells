@@ -148,6 +148,22 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	ctx := req.Request.Context()
 
 	claims, _ := claim.FromContext(ctx)
+	// Older clients send only TaskId for task controls. Resolve its owning job
+	// from stored tasks before checking ownership or dispatching the command.
+	if cmd.JobId == "" && cmd.TaskId != "" {
+		stream, err := jobsc.JobServiceClient(ctx).ListTasks(ctx, &jobs.ListTasksRequest{Status: jobs.TaskStatus_Any})
+		if err := commons.ForEach(stream, err, func(resp *jobs.ListTasksResponse) error {
+			if task := resp.GetTask(); task.GetID() == cmd.TaskId {
+				cmd.JobId = task.GetJobID()
+			}
+			return nil
+		}); err != nil {
+			return err
+		}
+		if cmd.JobId == "" {
+			return errors.WithMessage(errors.StatusNotFound, "cannot resolve the job for this task")
+		}
+	}
 	jobResp, err := jobsc.JobServiceClient(ctx).GetJob(ctx, &jobs.GetJobRequest{JobID: cmd.JobId})
 	if err != nil {
 		return err
@@ -241,11 +257,16 @@ func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Respons
 	ctx := req.Request.Context()
 
 	claims, _ := claim.FromContext(ctx)
-	jobResp, err := jobsc.JobServiceClient(ctx).GetJob(ctx, &jobs.GetJobRequest{JobID: request.JobId})
-	if err != nil {
-		return err
+	var job *jobs.Job
+	// An empty JobId selects tasks across all jobs; only admins may use this mode.
+	if request.JobId != "" {
+		jobResp, err := jobsc.JobServiceClient(ctx).GetJob(ctx, &jobs.GetJobRequest{JobID: request.JobId})
+		if err != nil {
+			return err
+		}
+		job = jobResp.GetJob()
 	}
-	if er := assertCanControlJob(claims, jobResp.GetJob()); er != nil {
+	if er := assertCanControlJob(claims, job); er != nil {
 		return er
 	}
 
