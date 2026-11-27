@@ -206,14 +206,17 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 
 // FrontSession initiate a cookie-based session based on a LoginRequest
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) error {
-	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
-	if err != nil {
-		return err
-	}
-
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
 		return e
+	}
+	if loginRequest.AuthInfo["type"] == "exchange_pat" {
+		return errors.WithMessage(errors.InvalidParameters, "exchange_pat is no longer supported")
+	}
+
+	dao, err := manager.Resolve[sessions.DAO](req.Request.Context())
+	if err != nil {
+		return err
 	}
 
 	ctx := req.Request.Context()
@@ -253,7 +256,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 	// Now handle errors
 	if e != nil {
-		return errors.WithAPICode(e, errors.ApiLoginFailed) //errors.Tag(e, errors.LoginFailed)
+		return frontSessionAuthError(loginRequest.AuthInfo["type"], e)
 	} else if response.Error != "" {
 		return errors.WithAPICode(errors.WithMessage(errors.LoginFailed, response.Error), errors.ApiLoginFailed)
 	}
@@ -270,6 +273,13 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	return rsp.WriteEntity(response)
+}
+
+func frontSessionAuthError(authType string, err error) error {
+	if authType == "credentials" && (errors.Is(err, errors.UserNotFound) || errors.Is(err, errors.StatusForbidden)) {
+		err = errors.WithStack(errors.LoginFailed)
+	}
+	return errors.WithAPICode(err, errors.ApiLoginFailed)
 }
 
 // FrontSessionDel logs out user by clearing the associated cookie session.
