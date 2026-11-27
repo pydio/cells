@@ -349,7 +349,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	}
 
 	host, _ := middleware.HttpMetaFromGrpcContext(ctx, keys.HttpMetaHost)
-	log.Auditer(ctx).Info("OAuth CreateAuthCode inputs",
+	log.Logger(ctx).Debug("OAuth CreateAuthCode inputs",
 		zap.String("host", host),
 		zap.String("client_id", in.GetClientID()),
 		zap.Bool("redirect_uri_empty", in.GetRedirectURI() == ""),
@@ -383,7 +383,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	ar, err := reg.OAuth2Provider().NewAuthorizeRequest(ctx, req)
 	if err != nil {
-		auditOAuthFailure(ctx, "create_authorize_request", err)
+		logOAuthFailure(ctx, "create_authorize_request", err)
 		return nil, errors.WithMessage(err, "while trying to create authorize request")
 	}
 
@@ -461,7 +461,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	})
 
 	if err != nil {
-		auditOAuthFailure(ctx, "create_authorize_response", err)
+		logOAuthFailure(ctx, "create_authorize_response", err)
 		return nil, errors.WithMessage(err, "while trying to authorize response")
 	}
 
@@ -641,7 +641,7 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	if err != nil {
 		return nil, err
 	}
-	log.Auditer(ctx).Info("PasswordCredentialsToken started", zap.String("client_id", config.DefaultOAuthClientID))
+	log.Logger(ctx).Debug("PasswordCredentialsToken started", zap.String("client_id", config.DefaultOAuthClientID))
 	verif := h.makeUUID(false)
 	csrf := h.makeUUID(false)
 
@@ -652,14 +652,14 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 		Audiences: []string{},
 	}, verif, csrf)
 	if err != nil {
-		auditOAuthFailure(ctx, "create_login_flow", err)
+		logOAuthFailure(ctx, "create_login_flow", err)
 		return nil, errors.WithMessage(err, "while trying to CreateLogin")
 	}
 
 	// Get login challenge
 	challenge, err := f.ToLoginChallenge(ctx, reg)
 	if err != nil {
-		auditOAuthFailure(ctx, "create_login_challenge", err)
+		logOAuthFailure(ctx, "create_login_challenge", err)
 		return nil, errors.WithMessage(err, "while trying to GetLogin")
 	}
 
@@ -671,14 +671,14 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 	// Range PasswordConnectors
 	identity, source, err := h.rangePasswordConnectors(ctx, in.GetUsername(), in.GetPassword())
 	if err != nil {
-		auditOAuthFailure(ctx, "password_connector", err)
+		logOAuthFailure(ctx, "password_connector", err)
 		return nil, err
 	}
-	log.Auditer(ctx).Info("PasswordCredentialsToken password connector accepted", zap.String("auth_source", source))
+	log.Logger(ctx).Debug("PasswordCredentialsToken password connector accepted", zap.String("auth_source", source))
 
 	code, err := h.loginToCode(ctx, challenge, identity, source, f.RequestedScope, f.RequestedAudience, f.RequestURL, clientID)
 	if err != nil {
-		auditOAuthFailure(ctx, "create_authorization_code", err)
+		logOAuthFailure(ctx, "create_authorization_code", err)
 		return nil, err
 	}
 
@@ -687,7 +687,7 @@ func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.Passwo
 		CodeVerifier: verif,
 	})
 	if err != nil {
-		auditOAuthFailure(ctx, "exchange_authorization_code", err)
+		logOAuthFailure(ctx, "exchange_authorization_code", err)
 		return nil, err
 	}
 
@@ -779,7 +779,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 	values.Set("code", in.Code)
 	values.Set("code_verifier", "")
 	values.Set("redirect_uri", routing.GetDefaultSiteURL(ctx)+"/auth/callback")
-	log.Auditer(ctx).Info("OAuth authorization-code exchange inputs",
+	log.Logger(ctx).Debug("OAuth authorization-code exchange inputs",
 		zap.String("client_id", config.DefaultOAuthClientID),
 		zap.Bool("redirect_uri_empty", values.Get("redirect_uri") == ""),
 		zap.Bool("code_verifier_supplied", in.GetCodeVerifier() != ""),
@@ -794,13 +794,13 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest) (*pau
 
 	ar, err := reg.OAuth2Provider().NewAccessRequest(ctx, req, session)
 	if err != nil {
-		auditOAuthFailure(ctx, "exchange_request", err)
+		logOAuthFailure(ctx, "exchange_request", err)
 		return nil, err
 	}
 
 	resp, err := reg.OAuth2Provider().NewAccessResponse(ctx, ar)
 	if err != nil {
-		auditOAuthFailure(ctx, "exchange_response", err)
+		logOAuthFailure(ctx, "exchange_response", err)
 		return nil, err
 	}
 
@@ -1012,8 +1012,8 @@ func (h *Handler) rangePasswordConnectors(ctx context.Context, username, passwor
 
 }
 
-func auditOAuthFailure(ctx context.Context, stage string, err error) {
-	log.Auditer(ctx).Warn("OAuth authentication failed",
+func logOAuthFailure(ctx context.Context, stage string, err error) {
+	log.Logger(ctx).Debug("OAuth authentication failed",
 		zap.String("stage", stage),
 		zap.String("reason", oauthFailureReason(err)),
 	)
@@ -1057,16 +1057,16 @@ func oauthFailureReason(err error) string {
 func (h *Handler) loginToCode(ctx context.Context, challenge string, identity auth.Identity, source string, requestedScope, requestedAudience []string, requestURL, clientID string) (string, error) {
 	parsedURL, err := url.Parse(requestURL)
 	if err != nil {
-		auditOAuthFailure(ctx, "parse_authorization_url", err)
+		logOAuthFailure(ctx, "parse_authorization_url", err)
 		return "", err
 	}
 	requestURLValues := parsedURL.Query()
 	redirectURL, err := oauth.GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
-		auditOAuthFailure(ctx, "parse_redirect_uri", err)
+		logOAuthFailure(ctx, "parse_redirect_uri", err)
 		return "", err
 	}
-	log.Auditer(ctx).Info("OAuth authorization-code inputs",
+	log.Logger(ctx).Debug("OAuth authorization-code inputs",
 		zap.String("client_id", clientID),
 		zap.String("request_host", parsedURL.Host),
 		zap.String("request_path", parsedURL.Path),
@@ -1078,14 +1078,14 @@ func (h *Handler) loginToCode(ctx context.Context, challenge string, identity au
 	// Accepting login challenge
 	verifyLogin, err := h.AcceptLogin(ctx, &pauth.AcceptLoginRequest{Challenge: challenge, Subject: identity.UserID})
 	if err != nil {
-		auditOAuthFailure(ctx, "accept_login", err)
+		logOAuthFailure(ctx, "accept_login", err)
 		return "", errors.WithMessage(err, "while trying to AcceptLogin")
 	}
 
 	// Creating consent
 	cstResp, err := h.CreateConsent(ctx, &pauth.CreateConsentRequest{LoginChallenge: verifyLogin.Challenge})
 	if err != nil {
-		auditOAuthFailure(ctx, "create_consent", err)
+		logOAuthFailure(ctx, "create_consent", err)
 		return "", errors.WithMessage(err, "while creating consent")
 	}
 	cst := cstResp.GetConsent()
@@ -1103,7 +1103,7 @@ func (h *Handler) loginToCode(ctx context.Context, challenge string, identity au
 		},
 	})
 	if err != nil {
-		auditOAuthFailure(ctx, "accept_consent", err)
+		logOAuthFailure(ctx, "accept_consent", err)
 		return "", errors.WithMessage(err, "while accepting consent")
 	}
 	cst.Challenge = acceptResp.GetChallenge()
@@ -1122,7 +1122,7 @@ func (h *Handler) loginToCode(ctx context.Context, challenge string, identity au
 		CodeChallengeMethod: codeChallengeMethod,
 	})
 	if err != nil {
-		auditOAuthFailure(ctx, "create_authorization_code", err)
+		logOAuthFailure(ctx, "create_authorization_code", err)
 		return "", errors.WithMessage(err, "while creating auth code")
 	}
 
