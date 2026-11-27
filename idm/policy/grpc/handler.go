@@ -25,11 +25,12 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-	"sync/atomic"
+	"text/template"
+	"time"
 
 	"github.com/ory/ladon"
-	"github.com/ory/ladon/manager/memory"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v5/common"
@@ -39,260 +40,148 @@ import (
 	"github.com/pydio/cells/v5/common/proto/service"
 	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/telemetry/log"
-	"github.com/pydio/cells/v5/common/utils/cache"
-	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 	json "github.com/pydio/cells/v5/common/utils/jsonx"
-	"github.com/pydio/cells/v5/common/utils/propagator"
 	"github.com/pydio/cells/v5/idm/policy"
 	"github.com/pydio/cells/v5/idm/policy/converter"
 )
 
-var groupsCacheConfig = cache.Config{
-	Prefix:      "pydio.grpc.policy/groups",
-	Eviction:    "72h",
-	CleanWindow: "72h",
-}
-
-// engineEntry holds the result of an in-flight engine rebuild.
-// Multiple concurrent callers wait on ready to serialize access.
-type engineEntry struct {
-	ready chan struct{}
-	err   error
-}
-
 type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
+	policyMu     sync.Mutex
+	definitions  map[idm.PolicyResourceGroup]cachedPolicyDefinitions
+	cacheEnabled bool
+}
 
-	mu           sync.Mutex // guards cachedEngine and rebuildEntry
-	cachedEngine *ladon.Ladon
-	rebuildEntry *engineEntry // non-nil while a rebuild is in flight
+const policyDefinitionsTTL = 5 * time.Minute
+
+type cachedPolicyDefinitions struct {
+	policies []*idm.Policy
+	expires  time.Time
+}
+
+func (h *Handler) invalidatePolicyDefinitions() {
+	h.policyMu.Lock()
+	defer h.policyMu.Unlock()
+	h.definitions = nil
+}
+
+func (h *Handler) policyDefinitions(ctx context.Context, group idm.PolicyResourceGroup) ([]*idm.Policy, error) {
+	// Never retain the growing ACL population or request-specific conditions.
+	if !h.cacheEnabled || (group != idm.PolicyResourceGroup_rest && group != idm.PolicyResourceGroup_oidc) {
+		return h.loadPolicyDefinitions(ctx, group)
+	}
+	// Serialize refresh and invalidation so a stale load cannot refill the cache.
+	h.policyMu.Lock()
+	defer h.policyMu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if cached, ok := h.definitions[group]; ok && time.Now().Before(cached.expires) {
+		return cached.policies, nil
+	}
+	policies, err := h.loadPolicyDefinitions(ctx, group)
+	if err != nil {
+		delete(h.definitions, group)
+		return nil, err
+	}
+	if h.definitions == nil {
+		h.definitions = make(map[idm.PolicyResourceGroup]cachedPolicyDefinitions)
+	}
+	h.definitions[group] = cachedPolicyDefinitions{policies: policies, expires: time.Now().Add(policyDefinitionsTTL)}
+	return policies, nil
 }
 
 func NewHandler(ctx context.Context) idm.PolicyEngineServiceServer {
 	h := &Handler{}
-	go h.warmEngine(ctx) // IsAllowed waits for engine to warm
-	h.watchPolicyChanges(ctx)
+	if err := broker.SubscribeCancellable(ctx, common.TopicIdmPolicies, func(context.Context, broker.Message) error {
+		h.invalidatePolicyDefinitions()
+		return nil
+	}, broker.WithCounterName("policy-definitions")); err != nil {
+		log.Logger(ctx).Error("Cannot subscribe to policy changes; definition caching disabled", zap.Error(err))
+	} else {
+		h.cacheEnabled = true
+	}
 	return h
 }
 
-// getOrRebuildEngine serializes access to engine rebuilds using a ready channel.
-// Only one goroutine does the DB work; all others wait for the result.
-// Returns the cached engine and any error from the rebuild attempt.
-func (h *Handler) getOrRebuildEngine(ctx context.Context) (*ladon.Ladon, error) {
-	h.mu.Lock()
-	if h.cachedEngine != nil {
-		e := h.cachedEngine
-		h.mu.Unlock()
-		return e, nil
-	}
-	if h.rebuildEntry != nil {
-		// A rebuild is already in flight; join it.
-		entry := h.rebuildEntry
-		h.mu.Unlock()
-		<-entry.ready
-		h.mu.Lock()
-		e := h.cachedEngine
-		h.mu.Unlock()
-		return e, entry.err
-	}
-	// We are the first; become responsible for the rebuild.
-	entry := &engineEntry{ready: make(chan struct{})}
-	h.rebuildEntry = entry
-	h.mu.Unlock()
-
-	err := h.rebuildEngine(ctx)
-
-	h.mu.Lock()
-	h.rebuildEntry = nil
-	h.mu.Unlock()
-
-	entry.err = err
-	close(entry.ready) // broadcast to all waiters
-
-	h.mu.Lock()
-	e := h.cachedEngine
-	h.mu.Unlock()
-	return e, err
-}
-
-// rebuildEngine loads all policy groups from the DAO, builds a new ladon engine,
-// swaps it under the write-lock, and refreshes the shared cache.
-func (h *Handler) rebuildEngine(ctx context.Context) error {
-	dao, err := manager.Resolve[policy.DAO](ctx)
-	if err != nil {
-		return fmt.Errorf("policy: resolve DAO: %w", err)
-	}
-	groups, err := dao.ListPolicyGroups(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("policy: list groups: %w", err)
-	}
-
-	mem := memory.NewMemoryManager()
-	for _, g := range groups {
-		for _, p := range g.Policies {
-			if er := mem.Create(ctx, converter.ProtoToLadonPolicy(p)); er != nil {
-				log.Logger(ctx).Warn("policy: skipping bad policy during engine rebuild",
-					zap.String("id", p.GetID()), zap.Error(er))
-			}
-		}
-	}
-
-	engine := &ladon.Ladon{Manager: mem}
-
-	h.mu.Lock()
-	h.cachedEngine = engine
-	h.mu.Unlock() // Notify waiters in getOrRebuildEngine
-
-	log.Logger(ctx).Info("policy: engine rebuilt", zap.Int("groups", len(groups)))
-
-	if ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); er == nil {
-		if msg, er := json.Marshal(groups); er == nil {
-			_ = ka.Set("policyGroup", msg)
-		}
-
-	} else {
-		log.Logger(ctx).Error("policy: failed to cache engine groups in Redis", zap.Error(er))
-	}
-
-	return nil
-}
-
-// warmEngine populates cachedEngine on startup, trying Redis before falling back to the DB.
-func (h *Handler) warmEngine(ctx context.Context) {
-	var bb []byte
-	if ka, err := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig); err == nil && ka.Get("policyGroup", &bb) {
-		var groups []*idm.PolicyGroup
-		if json.Unmarshal(bb, &groups) == nil && len(groups) > 0 {
-			mem := memory.NewMemoryManager()
-			for _, g := range groups {
-				for _, p := range g.Policies {
-					_ = mem.Create(ctx, converter.ProtoToLadonPolicy(p))
-				}
-			}
-			h.mu.Lock()
-			h.cachedEngine = &ladon.Ladon{Manager: mem}
-			h.mu.Unlock()
-			log.Logger(ctx).Info("policy: engine warmed from Redis cache", zap.Int("groups", len(groups)))
-			return
-		}
-	}
-	if _, err := h.getOrRebuildEngine(ctx); err != nil {
-		log.Logger(ctx).Error("policy: failed to warm engine from DB on startup", zap.Error(err))
-	}
-}
-
-// watchPolicyChanges subscribes to TopicIdmPolicies and rebuilds the engine on any mutation.
-func (h *Handler) watchPolicyChanges(ctx context.Context) {
-	subCtx := propagator.ForkedBackgroundWithMeta(ctx)
-	if err := broker.SubscribeCancellable(subCtx, common.TopicIdmPolicies,
-		func(evCtx context.Context, msg broker.Message) error {
-			log.Logger(evCtx).Info("policy: change event received, rebuilding engine")
-			if err := h.rebuildEngine(context.WithoutCancel(evCtx)); err != nil {
-				log.Logger(evCtx).Error("policy: engine rebuild failed", zap.Error(err))
-			}
-			return nil
-		},
-		broker.WithCounterName("policy-engine-rebuild"),
-	); err != nil {
-		// Without this subscription, other pods' engines are never refreshed on
-		// policy changes made elsewhere; make sure that's visible in the logs.
-		log.Logger(ctx).Error("policy: failed to subscribe to policy change events, engine may serve stale policies", zap.Error(err))
-	}
-}
-
-// notifyPolicyChange rebuilds this pod's engine synchronously so the write is
-// immediately reflected locally, then best-effort notifies other pods via the
-// broker. The broker publish is not relied upon for local consistency: it may
-// fail or be delayed, and we must not keep enforcing a stale/revoked policy
-// on this pod while waiting for it.
-func (h *Handler) notifyPolicyChange(ctx context.Context) {
-	if err := h.rebuildEngine(context.WithoutCancel(ctx)); err != nil {
-		log.Logger(ctx).Error("policy: local engine rebuild after policy change failed", zap.Error(err))
-	}
-	if err := broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE}); err != nil {
-		log.Logger(ctx).Error("policy: failed to publish policy change event, other pods may serve stale policies", zap.Error(err))
-	}
-}
-
 func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
-	engine, err := h.getOrRebuildEngine(ctx)
+	if request == nil {
+		return nil, errors.New("request cannot be nil")
+	}
+	group := idm.PolicyResourceGroup_acl
+	if strings.HasPrefix(request.Resource, "rest:") {
+		group = idm.PolicyResourceGroup_rest
+	} else if request.Resource == "oidc" {
+		group = idm.PolicyResourceGroup_oidc
+	}
+	definitions, err := h.policyDefinitions(ctx, group)
 	if err != nil {
 		return nil, err
 	}
-	if engine == nil {
-		// Still no engine after rebuild attempt; should not happen, but fail safely.
-		return nil, fmt.Errorf("policy: engine unavailable")
-	}
-	return h.isAllowedFromEngine(ctx, engine, request)
-}
-
-// isAllowedFromEngine checks permissions against the in-process ladon engine.
-func (h *Handler) isAllowedFromEngine(ctx context.Context, engine *ladon.Ladon, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+	var policies ladon.Policies
+	evaluator := &ladon.Ladon{AuditLogger: ladon.DefaultAuditLogger, Metric: ladon.DefaultMetric}
+	prepared := false
 	return runChecks(ctx, request, func(ctx context.Context, r *ladon.Request) error {
-		return engine.IsAllowed(ctx, r)
+		if !prepared {
+			policies, err = preparePolicies(ctx, definitions, request, r.Context)
+			prepared = true
+			if err != nil {
+				return err
+			}
+		}
+		// Evaluate static and resolved dynamic policies together: any deny wins.
+		return evaluator.DoPoliciesAllow(ctx, r, policies)
 	})
 }
 
-// runChecks fans out one goroutine per subject and aggregates the results.
-// Shared by isAllowedFromEngine and isAllowedFromDAO.
-func runChecks(ctx context.Context, request *idm.PolicyEngineRequest, checkFn func(context.Context, *ladon.Request) error) (*idm.PolicyEngineResponse, error) {
-	reqContext := make(map[string]interface{}, len(request.Context))
-	for k, v := range request.Context {
-		reqContext[k] = v
+func (h *Handler) loadPolicyDefinitions(ctx context.Context, group idm.PolicyResourceGroup) ([]*idm.Policy, error) {
+	groups, err := h.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + group.String()})
+	if err != nil {
+		return nil, err
 	}
-
-	var (
-		allowed       atomic.Bool
-		explicitDeny  atomic.Bool
-		checkErrorPtr atomic.Pointer[error]
-	)
-
-	ctx, can := context.WithCancel(ctx)
-	defer can()
-
-	wg := &sync.WaitGroup{}
-	wg.Add(len(request.Subjects))
-	for _, subject := range request.Subjects {
-		go func(sub string) {
-			defer wg.Done()
-			r := &ladon.Request{
-				Subject:  sub,
-				Resource: request.Resource,
-				Action:   request.Action,
-				Context:  reqContext,
-			}
-			err := checkFn(ctx, r)
-			switch {
-			case err == nil:
-				allowed.Store(true)
-			case errors.Is(err, ladon.ErrRequestForcefullyDenied):
-				explicitDeny.Store(true)
-				can()
-			case errors.Is(err, ladon.ErrRequestDenied), errors.Is(err, context.Canceled):
-				// deny-by-default; not an error
-			default:
-				if strings.Contains(err.Error(), "connection refused") {
-					err = errors.New("DAO error received")
-				}
-				checkErrorPtr.CompareAndSwap(nil, &err)
-				can()
-			}
-		}(subject)
+	var policies []*idm.Policy
+	for _, group := range groups.PolicyGroups {
+		policies = append(policies, group.Policies...)
 	}
-	wg.Wait()
+	return policies, nil
+}
 
+// runChecks evaluates subjects synchronously; a matching deny overrides any allow.
+func runChecks(ctx context.Context, request *idm.PolicyEngineRequest, checker func(context.Context, *ladon.Request) error) (*idm.PolicyEngineResponse, error) {
 	response := &idm.PolicyEngineResponse{}
-	if ptr := checkErrorPtr.Load(); ptr != nil {
-		return response, *ptr
+	requestContext := make(ladon.Context, len(request.Context))
+	for key, value := range request.Context {
+		requestContext[key] = value
 	}
-	switch {
-	case explicitDeny.Load():
-		response.ExplicitDeny = true
-	case allowed.Load():
-		response.Allowed = true
-	default:
-		response.DefaultDeny = true
+	r := &ladon.Request{Resource: request.Resource, Action: request.Action, Context: requestContext}
+	for _, subject := range request.Subjects {
+		if err := ctx.Err(); err != nil {
+			return &idm.PolicyEngineResponse{}, err
+		}
+		r.Subject = subject
+		err := checker(ctx, r)
+		if canceled := ctx.Err(); canceled != nil {
+			return &idm.PolicyEngineResponse{}, canceled
+		}
+		switch {
+		case err == nil:
+			response.Allowed = true
+		case errors.Is(err, ladon.ErrRequestForcefullyDenied):
+			return &idm.PolicyEngineResponse{ExplicitDeny: true}, nil
+		case errors.Is(err, ladon.ErrRequestDenied):
+			// Another subject may still match.
+		default:
+			if strings.Contains(err.Error(), "connection refused") {
+				log.Logger(ctx).Error("Connection to DB error", zap.Error(err))
+				err = errors.New("DAO error received")
+			}
+			return &idm.PolicyEngineResponse{}, err
+		}
 	}
+	if err := ctx.Err(); err != nil {
+		return &idm.PolicyEngineResponse{}, err
+	}
+	response.DefaultDeny = !response.Allowed
 	return response, nil
 }
 
@@ -321,16 +210,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	ka, er := cache_helper.ResolveCache(ctx, common.CacheTypeShared, groupsCacheConfig)
-	var bb []byte
-	if er == nil && request.GetFilter() == "" && request.GetQuery() == nil && ka.Get("policyGroup", &bb) {
-		if json.Unmarshal(bb, &response.PolicyGroups) == nil {
-			response.Total = int32(len(response.PolicyGroups))
-			return response, nil
-		}
-	}
-
-	// TODO Convert legacy string filter to a structured query.
+	// Legacy code - making sure we convert
 	if filter := request.GetFilter(); request.GetQuery() == nil && filter != "" {
 		var queries []*anypb.Any
 
@@ -372,13 +252,6 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
-	if request.GetFilter() == "" && request.GetQuery() == nil && ka != nil {
-		msg, _ := json.Marshal(groups)
-		if err = ka.Set("policyGroup", msg); err != nil {
-			log.Logger(ctx).Error("Cannot fill cache for policy groups", zap.Error(err))
-		}
-	}
-
 	return response, nil
 }
 
@@ -400,15 +273,14 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		return nil, err
 	}
 
+	h.invalidatePolicyDefinitions()
 	response.PolicyGroup = stored
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Stored policy group [%s]", stored.Name),
 		log.GetAuditId(common.AuditPolicyGroupStore),
 		stored.ZapUuid(),
 	)
-
-	// Rebuild this pod's engine immediately
-	h.notifyPolicyChange(ctx)
+	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
 
 	return response, nil
 }
@@ -427,15 +299,94 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		return nil, err
 	}
 
+	h.invalidatePolicyDefinitions()
 	response.Success = true
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Deleted policy group [%s]", request.PolicyGroup.Name),
 		log.GetAuditId(common.AuditPolicyGroupDelete),
 		request.PolicyGroup.ZapUuid(),
 	)
-
-	// Rebuild this pod's engine immediately
-	h.notifyPolicyChange(ctx)
+	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
 
 	return response, nil
+}
+
+// Definitions remain untouched in the cache. Static and resolved dynamic policies
+// are returned in one request-local set, without a retained engine or index.
+func preparePolicies(ctx context.Context, definitions []*idm.Policy, request *idm.PolicyEngineRequest, values ladon.Context) (ladon.Policies, error) {
+	var policies ladon.Policies
+	seen := make(map[string]bool, len(definitions))
+	templates := make(map[string]*template.Template)
+	for _, definition := range definitions {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		if definition == nil {
+			return nil, fmt.Errorf("nil policy definition")
+		}
+		if seen[definition.ID] {
+			continue
+		}
+		seen[definition.ID] = true
+		// Conversion sorts selectors, so keep cached definitions immutable.
+		selectors := proto.Clone(definition).(*idm.Policy)
+		selectors.Conditions = nil
+		candidate := converter.ProtoToLadonPolicy(selectors)
+		matched, err := matchesPolicyRequest(candidate, request)
+		if err != nil {
+			return nil, err
+		}
+		if !matched {
+			continue
+		}
+		compiled := candidate.(*ladon.DefaultPolicy)
+		compiled.Conditions = make(ladon.Conditions, len(definition.Conditions))
+		for key, condition := range definition.Conditions {
+			create, ok := ladon.ConditionFactories[condition.GetType()]
+			if !ok {
+				return nil, fmt.Errorf("policy %s: unknown condition type %q", definition.ID, condition.GetType())
+			}
+			options := condition.GetJsonOptions()
+			if strings.Contains(options, "{{") {
+				tmpl := templates[options]
+				if tmpl == nil {
+					tmpl, err = template.New("policy-condition").Option("missingkey=error").Parse(options)
+					if err != nil {
+						return nil, fmt.Errorf("policy %s: parse condition %s: %w", definition.ID, key, err)
+					}
+					templates[options] = tmpl
+				}
+				var rendered strings.Builder
+				if err := tmpl.Execute(&rendered, values); err != nil {
+					return nil, fmt.Errorf("policy %s: execute condition %s: %w", definition.ID, key, err)
+				}
+				options = rendered.String()
+			}
+			value := create()
+			if options != "" {
+				if err := json.Unmarshal([]byte(options), value); err != nil {
+					return nil, fmt.Errorf("policy %s: decode condition %s: %w", definition.ID, key, err)
+				}
+			}
+			compiled.Conditions[key] = value
+		}
+		policies = append(policies, compiled)
+	}
+	return policies, nil
+}
+
+func matchesPolicyRequest(policy ladon.Policy, request *idm.PolicyEngineRequest) (bool, error) {
+	if ok, err := ladon.DefaultMatcher.Matches(policy, policy.GetActions(), request.Action); err != nil || !ok {
+		return ok, err
+	}
+	for _, subject := range request.Subjects {
+		ok, err := ladon.DefaultMatcher.Matches(policy, policy.GetSubjects(), subject)
+		if err != nil {
+			return false, err
+		}
+		if ok {
+			return ladon.DefaultMatcher.Matches(policy, policy.GetResources(), request.Resource)
+		}
+	}
+	return false, nil
 }

@@ -24,18 +24,21 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/ory/ladon"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/runtime/manager"
 	"github.com/pydio/cells/v5/common/storage/test"
+	"github.com/pydio/cells/v5/idm/policy"
 	"github.com/pydio/cells/v5/idm/policy/dao/sql"
-
-	_ "github.com/pydio/cells/v5/common/utils/cache/gocache"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 
@@ -91,7 +94,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 		Convey("IsAllowed — explicit allow", t, func() {
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-allow", "user:alice", "res:doc1", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:alice", "res:doc1", "read")
 			So(err, ShouldBeNil)
@@ -101,7 +103,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 
 		Convey("IsAllowed — default deny for unmatched subject", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:nobody", "res:secret", "delete")
 			So(err, ShouldBeNil)
@@ -130,7 +131,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 				},
 			})
 			So(err, ShouldBeNil)
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:bob", "res:doc2", "read")
 			So(err, ShouldBeNil)
@@ -141,7 +141,6 @@ func TestHandlerIsAllowed(t *testing.T) {
 		Convey("IsAllowed — any matching subject grants access", t, func() {
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-multi", "user:carol", "res:shared", "write")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			// One unmatched subject + one matching subject — must be Allowed.
 			resp, err := h.IsAllowed(ctx, &idm.PolicyEngineRequest{
@@ -153,8 +152,8 @@ func TestHandlerIsAllowed(t *testing.T) {
 			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 
-		Convey("IsAllowed — nil engine falls back to DAO", t, func() {
-			// Leave cachedEngine nil to simulate the startup window before warmEngine completes.
+		Convey("IsAllowed — fresh handler reads persisted groups", t, func() {
+
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-dao", "user:dave", "res:fallback", "read")
 
@@ -174,10 +173,9 @@ func TestHandlerIsAllowed(t *testing.T) {
 func TestHandlerConcurrentIsAllowed(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("Concurrent IsAllowed calls share the engine without data races", t, func() {
+		Convey("Concurrent IsAllowed calls independently read policy groups", t, func() {
 			h := &Handler{}
 			seedGroup(ctx, h, "grp-concurrent", "user:eve", "res:concurrent", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			const goroutines = 50
 			errs := make([]error, goroutines)
@@ -223,61 +221,52 @@ func TestRunChecksRaceDetector(t *testing.T) {
 		time.Sleep(time.Millisecond)
 		return nil // allow
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !resp.GetAllowed() {
-		t.Fatalf("expected Allowed=true, got %+v", resp)
-	}
+	Convey("Concurrent subject checks aggregate allow decisions safely", t, func() {
+		So(err, ShouldBeNil)
+		So(resp.GetAllowed(), ShouldBeTrue)
+	})
 }
 
 // ---------------------------------------------------------------------------
-// Engine lifecycle tests
+// Database visibility tests
 // ---------------------------------------------------------------------------
 
-func TestHandlerEngineRebuild(t *testing.T) {
+func TestHandlerDatabaseChanges(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("rebuildEngine — empty DB yields default deny", t, func() {
+		Convey("IsAllowed — empty DB yields default deny", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:frank", "res:rebuild", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 		})
 
-		Convey("rebuildEngine — new policy group is reflected after rebuild", t, func() {
+		Convey("IsAllowed — newly stored policy group is immediately visible", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			// No policy yet — denied.
 			resp, err := checkAllowed(ctx, h, "user:frank", "res:rebuild", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 
-			// Add a policy group and rebuild.
 			seedGroup(ctx, h, "grp-rebuild", "user:frank", "res:rebuild", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err = checkAllowed(ctx, h, "user:frank", "res:rebuild", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 
-		Convey("rebuildEngine — deleted policy group loses access after rebuild", t, func() {
+		Convey("IsAllowed — deleted policy group immediately loses access", t, func() {
 			h := &Handler{}
 			stored := seedGroup(ctx, h, "grp-delete", "user:grace", "res:gone", "read")
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err := checkAllowed(ctx, h, "user:grace", "res:gone", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 
-			// Delete and rebuild.
 			_, err = h.DeletePolicyGroup(ctx, &idm.DeletePolicyGroupRequest{PolicyGroup: stored})
 			So(err, ShouldBeNil)
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			resp, err = checkAllowed(ctx, h, "user:grace", "res:gone", "read")
 			So(err, ShouldBeNil)
@@ -287,23 +276,20 @@ func TestHandlerEngineRebuild(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// notifyPolicyChange tests
+// Mutation visibility tests
 // ---------------------------------------------------------------------------
 
-func TestHandlerNotifyPolicyChange(t *testing.T) {
+func TestHandlerMutationVisibility(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("notifyPolicyChange — StorePolicyGroup rebuilds the local engine synchronously", t, func() {
+		Convey("StorePolicyGroup is immediately reflected in authorization", t, func() {
 			h := &Handler{}
-			So(h.rebuildEngine(ctx), ShouldBeNil)
 
 			// No policy yet.
 			resp, err := checkAllowed(ctx, h, "user:nick", "res:notify-store", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 
-			// StorePolicyGroup calls notifyPolicyChange internally — no explicit
-			// rebuildEngine call here, the point is to prove it already happened.
 			_, err = h.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{
 				PolicyGroup: &idm.PolicyGroup{
 					Uuid:          "grp-notify-store",
@@ -327,18 +313,14 @@ func TestHandlerNotifyPolicyChange(t *testing.T) {
 			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 
-		Convey("notifyPolicyChange — DeletePolicyGroup rebuilds the local engine synchronously", t, func() {
+		Convey("DeletePolicyGroup is immediately reflected in authorization", t, func() {
 			h := &Handler{}
 			stored := seedGroup(ctx, h, "grp-notify-delete", "user:olive", "res:notify-delete", "read")
 
-			// seedGroup already went through StorePolicyGroup -> notifyPolicyChange,
-			// so the engine should already reflect the new policy without a manual rebuild.
 			resp, err := checkAllowed(ctx, h, "user:olive", "res:notify-delete", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 
-			// DeletePolicyGroup calls notifyPolicyChange internally — again, no
-			// explicit rebuildEngine call here.
 			_, err = h.DeletePolicyGroup(ctx, &idm.DeletePolicyGroupRequest{PolicyGroup: stored})
 			So(err, ShouldBeNil)
 
@@ -347,53 +329,32 @@ func TestHandlerNotifyPolicyChange(t *testing.T) {
 			So(resp.GetDefaultDeny(), ShouldBeTrue)
 		})
 
-		Convey("notifyPolicyChange — broker publish propagates the change to other pods", t, func() {
-			// h1 represents the pod handling the write; h2 represents a sibling
-			// pod that only learns about the change through watchPolicyChanges'
-			// subscription to the broker, exercising the best-effort publish
-			// side of notifyPolicyChange (not just its synchronous local rebuild).
+		Convey("Another handler immediately sees persisted policy changes", t, func() {
 			h1 := &Handler{}
 			h2 := &Handler{}
-			So(h1.rebuildEngine(ctx), ShouldBeNil)
-			So(h2.rebuildEngine(ctx), ShouldBeNil)
-			h2.watchPolicyChanges(ctx)
 
 			seedGroup(ctx, h1, "grp-notify-cross", "user:peter", "res:notify-cross", "read")
 
-			// h1's own engine is already up to date (synchronous local rebuild).
 			resp, err := checkAllowed(ctx, h1, "user:peter", "res:notify-cross", "read")
 			So(err, ShouldBeNil)
 			So(resp.GetAllowed(), ShouldBeTrue)
 
-			// h2 only finds out asynchronously once it receives the broker event,
-			// so poll with a bound instead of asserting instantly.
-			propagated := func() bool {
-				deadline := time.Now().Add(3 * time.Second)
-				for time.Now().Before(deadline) {
-					r, e := checkAllowed(ctx, h2, "user:peter", "res:notify-cross", "read")
-					if e == nil && r.GetAllowed() {
-						return true
-					}
-					time.Sleep(20 * time.Millisecond)
-				}
-				return false
-			}()
-			So(propagated, ShouldBeTrue)
+			resp, err = checkAllowed(ctx, h2, "user:peter", "res:notify-cross", "read")
+			So(err, ShouldBeNil)
+			So(resp.GetAllowed(), ShouldBeTrue)
 		})
 	})
 }
 
-func TestHandlerWarmEngine(t *testing.T) {
+func TestHandlerFreshInstance(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
 
-		Convey("warmEngine populates cachedEngine from DB when cache is empty", t, func() {
+		Convey("A fresh handler reads existing policies without warm-up", t, func() {
 			// Seed data via a first handler so it lands in the DB.
 			seeder := &Handler{}
 			seedGroup(ctx, seeder, "grp-warm", "user:hank", "res:warm", "read")
 
-			// Fresh handler: warmEngine must pick up the persisted data.
 			h := &Handler{}
-			h.warmEngine(ctx)
 
 			resp, err := checkAllowed(ctx, h, "user:hank", "res:warm", "read")
 			So(err, ShouldBeNil)
@@ -403,8 +364,53 @@ func TestHandlerWarmEngine(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// StorePolicyGroup tests
+// Direct database mutation tests
 // ---------------------------------------------------------------------------
+
+func TestHandlerDirectDatabaseChanges(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Authorization and unfiltered listing see direct DAO mutations", t, func() {
+			h := &Handler{}
+			dao, err := manager.Resolve[policy.DAO](ctx)
+			So(err, ShouldBeNil)
+			stored := seedGroup(ctx, h, "grp-direct", "user:direct", "res:direct", "read")
+
+			resp, err := checkAllowed(ctx, h, "user:direct", "res:direct", "read")
+			So(err, ShouldBeNil)
+			So(resp.GetAllowed(), ShouldBeTrue)
+			before, err := h.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+			So(err, ShouldBeNil)
+
+			So(dao.DeletePolicyGroup(ctx, stored), ShouldBeNil)
+			resp, err = checkAllowed(ctx, h, "user:direct", "res:direct", "read")
+			So(err, ShouldBeNil)
+			So(resp.GetDefaultDeny(), ShouldBeTrue)
+			after, err := h.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+			So(err, ShouldBeNil)
+			So(after.GetTotal(), ShouldEqual, before.GetTotal()-1)
+
+			_, err = dao.StorePolicyGroup(ctx, stored)
+			So(err, ShouldBeNil)
+			resp, err = checkAllowed(ctx, h, "user:direct", "res:direct", "read")
+			So(err, ShouldBeNil)
+			So(resp.GetAllowed(), ShouldBeTrue)
+		})
+
+		Convey("Standalone policies do not participate in group-based authorization", t, func() {
+			h := &Handler{}
+			dao, err := manager.Resolve[policy.DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao.Create(ctx, &ladon.DefaultPolicy{
+				ID: "standalone", Subjects: []string{"user:standalone"},
+				Resources: []string{"res:standalone"}, Actions: []string{"read"},
+				Effect: ladon.AllowAccess,
+			}), ShouldBeNil)
+			resp, err := checkAllowed(ctx, h, "user:standalone", "res:standalone", "read")
+			So(err, ShouldBeNil)
+			So(resp.GetDefaultDeny(), ShouldBeTrue)
+		})
+	})
+}
 
 func TestHandlerStorePolicyGroup(t *testing.T) {
 	test.RunStorageTests(testcases, t, func(ctx context.Context) {
@@ -556,3 +562,285 @@ func (m *policyGroupStreamMock) SendHeader(md metadata.MD) error { return nil }
 func (m *policyGroupStreamMock) SetTrailer(md metadata.MD)       {}
 func (m *policyGroupStreamMock) SendMsg(v any) error             { return nil }
 func (m *policyGroupStreamMock) RecvMsg(v any) error             { return nil }
+
+func TestHandlerScopedDefinitions(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("Authorization loads only the request's resource group", t, func() {
+			h := &Handler{cacheEnabled: true}
+			for _, scope := range []idm.PolicyResourceGroup{idm.PolicyResourceGroup_rest, idm.PolicyResourceGroup_oidc, idm.PolicyResourceGroup_acl} {
+				effect := idm.PolicyEffect_allow
+				if scope == idm.PolicyResourceGroup_acl {
+					effect = idm.PolicyEffect_deny
+				}
+				_, err := h.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{PolicyGroup: &idm.PolicyGroup{
+					Uuid: "scope-" + scope.String(), ResourceGroup: scope,
+					Policies: []*idm.Policy{{ID: "scope-" + scope.String(), Subjects: []string{"user:scoped"},
+						Actions: []string{"read"}, Resources: []string{"rest:/scope", "oidc", "acl"}, Effect: effect}},
+				}})
+				So(err, ShouldBeNil)
+			}
+			for _, resource := range []string{"rest:/scope", "oidc", "acl"} {
+				response, err := checkAllowed(ctx, h, "user:scoped", resource, "read")
+				So(err, ShouldBeNil)
+				So(response.GetAllowed(), ShouldEqual, resource != "acl")
+				So(response.GetExplicitDeny(), ShouldEqual, resource == "acl")
+			}
+			So(h.definitions, ShouldHaveLength, 2)
+			_, cached := h.definitions[idm.PolicyResourceGroup_acl]
+			So(cached, ShouldBeFalse)
+		})
+	})
+}
+
+func TestHandlerDefinitionCacheLifecycle(t *testing.T) {
+	test.RunStorageTests(testcases, t, func(ctx context.Context) {
+		Convey("REST definitions are reused until expiry or a handler mutation", t, func() {
+			h := &Handler{cacheEnabled: true}
+			dao, err := manager.Resolve[policy.DAO](ctx)
+			So(err, ShouldBeNil)
+			group := &idm.PolicyGroup{Uuid: "cache-lifecycle", ResourceGroup: idm.PolicyResourceGroup_rest,
+				Policies: []*idm.Policy{{ID: "cache-lifecycle", Effect: idm.PolicyEffect_allow,
+					Subjects: []string{"user:cached"}, Actions: []string{"read"}, Resources: []string{"rest:/cached"}}}}
+			_, err = h.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{PolicyGroup: group})
+			So(err, ShouldBeNil)
+			response, err := checkAllowed(ctx, h, "user:cached", "rest:/cached", "read")
+			So(err, ShouldBeNil)
+			So(response.GetAllowed(), ShouldBeTrue)
+
+			group.Policies[0].Effect = idm.PolicyEffect_deny
+			_, err = dao.StorePolicyGroup(ctx, group)
+			So(err, ShouldBeNil)
+			response, err = checkAllowed(ctx, h, "user:cached", "rest:/cached", "read")
+			So(err, ShouldBeNil)
+			So(response.GetAllowed(), ShouldBeTrue)
+
+			h.policyMu.Lock()
+			cached := h.definitions[idm.PolicyResourceGroup_rest]
+			cached.expires = time.Now().Add(-time.Second)
+			h.definitions[idm.PolicyResourceGroup_rest] = cached
+			h.policyMu.Unlock()
+			response, err = checkAllowed(ctx, h, "user:cached", "rest:/cached", "read")
+			So(err, ShouldBeNil)
+			So(response.GetExplicitDeny(), ShouldBeTrue)
+
+			group.Policies[0].Effect = idm.PolicyEffect_allow
+			_, err = h.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{PolicyGroup: group})
+			So(err, ShouldBeNil)
+			response, err = checkAllowed(ctx, h, "user:cached", "rest:/cached", "read")
+			So(err, ShouldBeNil)
+			So(response.GetAllowed(), ShouldBeTrue)
+			_, err = h.DeletePolicyGroup(ctx, &idm.DeletePolicyGroupRequest{PolicyGroup: group})
+			So(err, ShouldBeNil)
+			response, err = checkAllowed(ctx, h, "user:cached", "rest:/cached", "read")
+			So(err, ShouldBeNil)
+			So(response.GetDefaultDeny(), ShouldBeTrue)
+		})
+
+		Convey("ACL changes stay visible even when definition caching is enabled", t, func() {
+			h := &Handler{cacheEnabled: true}
+			group := seedGroup(ctx, h, "uncached-acl", "user:acl", "acl", "read")
+			response, err := checkAllowed(ctx, h, "user:acl", "acl", "read")
+			So(err, ShouldBeNil)
+			So(response.GetAllowed(), ShouldBeTrue)
+			dao, err := manager.Resolve[policy.DAO](ctx)
+			So(err, ShouldBeNil)
+			So(dao.DeletePolicyGroup(ctx, group), ShouldBeNil)
+			response, err = checkAllowed(ctx, h, "user:acl", "acl", "read")
+			So(err, ShouldBeNil)
+			So(response.GetDefaultDeny(), ShouldBeTrue)
+			So(h.definitions, ShouldBeEmpty)
+		})
+	})
+}
+
+func TestHandlerCachedConditions(t *testing.T) {
+	Convey("Cached definitions resolve conditions separately for every concurrent request", t, func() {
+		allow := &idm.Policy{ID: "static", Effect: idm.PolicyEffect_allow, Subjects: []string{"user:b", "user:a"},
+			Actions: []string{"write", "read"}, Resources: []string{"rest:/doc", "rest:/other"}}
+		deny := proto.Clone(allow).(*idm.Policy)
+		deny.ID, deny.Effect = "dynamic", idm.PolicyEffect_deny
+		deny.Conditions = map[string]*idm.PolicyCondition{"owner": {
+			Type: "StringEqualCondition", JsonOptions: `{"equals":"{{ .actor }}"}`,
+		}}
+		before := proto.Clone(deny)
+		h := &Handler{cacheEnabled: true, definitions: map[idm.PolicyResourceGroup]cachedPolicyDefinitions{
+			idm.PolicyResourceGroup_rest: {policies: []*idm.Policy{allow, deny, allow}, expires: time.Now().Add(time.Hour)},
+		}}
+		const count = 20
+		responses := make([]*idm.PolicyEngineResponse, count)
+		errs := make([]error, count)
+		var wg sync.WaitGroup
+		for i := 0; i < count; i++ {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				actor := "alice"
+				if i%2 != 0 {
+					actor = "bob"
+				}
+				responses[i], errs[i] = h.IsAllowed(context.Background(), &idm.PolicyEngineRequest{
+					Subjects: []string{"user:a", "user:b"}, Action: "read", Resource: "rest:/doc",
+					Context: map[string]string{"owner": "alice", "actor": actor},
+				})
+			}(i)
+		}
+		wg.Wait()
+		for i, response := range responses {
+			So(errs[i], ShouldBeNil)
+			So(response.GetExplicitDeny(), ShouldEqual, i%2 == 0)
+			So(response.GetAllowed(), ShouldEqual, i%2 != 0)
+		}
+		So(proto.Equal(deny, before), ShouldBeTrue)
+		So(allow.Subjects, ShouldResemble, []string{"user:b", "user:a"})
+		prepared, err := preparePolicies(context.Background(), []*idm.Policy{allow, allow}, &idm.PolicyEngineRequest{
+			Subjects: []string{"user:a"}, Action: "read", Resource: "rest:/doc",
+		}, nil)
+		So(err, ShouldBeNil)
+		So(prepared, ShouldHaveLength, 1)
+		h.invalidatePolicyDefinitions()
+		So(h.definitions, ShouldBeEmpty)
+	})
+}
+
+func TestHandlerInvalidConditions(t *testing.T) {
+	for _, tc := range []struct {
+		name, kind, options string
+	}{
+		{"unknown condition", "UnknownCondition", `{}`},
+		{"invalid JSON", "StringEqualCondition", `{"equals":`},
+		{"invalid template", "StringEqualCondition", `{"equals":"{{"}`},
+		{"missing template value", "StringEqualCondition", `{"equals":"{{ .missing }}"}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			Convey("Invalid matching conditions fail closed, unrelated policies are skipped", t, func() {
+				definition := &idm.Policy{ID: "invalid", Effect: idm.PolicyEffect_allow,
+					Subjects: []string{"user:a"}, Actions: []string{"read"}, Resources: []string{"rest:/doc"},
+					Conditions: map[string]*idm.PolicyCondition{"owner": {Type: tc.kind, JsonOptions: tc.options}}}
+				h := &Handler{cacheEnabled: true, definitions: map[idm.PolicyResourceGroup]cachedPolicyDefinitions{
+					idm.PolicyResourceGroup_rest: {policies: []*idm.Policy{definition}, expires: time.Now().Add(time.Hour)},
+				}}
+				response, err := checkAllowed(context.Background(), h, "user:a", "rest:/doc", "read")
+				So(err, ShouldNotBeNil)
+				So(response.GetAllowed(), ShouldBeFalse)
+				response, err = checkAllowed(context.Background(), h, "user:unrelated", "rest:/doc", "read")
+				So(err, ShouldBeNil)
+				So(response.GetDefaultDeny(), ShouldBeTrue)
+			})
+		})
+	}
+}
+
+func TestPreparePoliciesRejectsInvalidDefinitions(t *testing.T) {
+	Convey("Malformed selectors and nil definitions return errors", t, func() {
+		request := &idm.PolicyEngineRequest{Subjects: []string{"user:a"}, Action: "read", Resource: "rest:/doc"}
+		_, err := preparePolicies(context.Background(), []*idm.Policy{nil}, request, nil)
+		So(err, ShouldNotBeNil)
+		for _, field := range []string{"action", "subject", "resource"} {
+			definition := &idm.Policy{ID: "bad-selector", Subjects: []string{"user:a"}, Actions: []string{"read"}, Resources: []string{"rest:/doc"}}
+			switch field {
+			case "action":
+				definition.Actions = []string{"<[>"}
+			case "subject":
+				definition.Subjects = []string{"<[>"}
+			case "resource":
+				definition.Resources = []string{"<[>"}
+			}
+			_, err := preparePolicies(context.Background(), []*idm.Policy{definition}, request, nil)
+			So(err, ShouldNotBeNil)
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		_, err = preparePolicies(ctx, []*idm.Policy{{ID: "canceled"}}, request, nil)
+		So(errors.Is(err, context.Canceled), ShouldBeTrue)
+	})
+}
+
+func TestRunChecksDecisions(t *testing.T) {
+	for _, tc := range []struct {
+		name                         string
+		outcomes                     []error
+		allowed, denied, defaultDeny bool
+		errorText                    string
+	}{
+		{name: "no subjects", defaultDeny: true},
+		{name: "all unmatched", outcomes: []error{ladon.ErrRequestDenied}, defaultDeny: true},
+		{name: "later allow", outcomes: []error{ladon.ErrRequestDenied, nil}, allowed: true},
+		{name: "deny overrides allow", outcomes: []error{nil, ladon.ErrRequestForcefullyDenied, nil}, denied: true},
+		{name: "error clears allow", outcomes: []error{nil, fmt.Errorf("backend unavailable")}, errorText: "backend unavailable"},
+		{name: "connection error sanitized", outcomes: []error{fmt.Errorf("dial: connection refused")}, errorText: "DAO error received"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			Convey("Subject decisions preserve deny precedence and errors", t, func() {
+				request := &idm.PolicyEngineRequest{Subjects: make([]string, len(tc.outcomes)), Context: map[string]string{"actor": "original"}}
+				calls := 0
+				response, err := runChecks(context.Background(), request, func(_ context.Context, r *ladon.Request) error {
+					r.Context["actor"] = "local"
+					outcome := tc.outcomes[calls]
+					calls++
+					return outcome
+				})
+				if tc.errorText != "" {
+					So(err, ShouldNotBeNil)
+					So(err.Error(), ShouldEqual, tc.errorText)
+				} else {
+					So(err, ShouldBeNil)
+				}
+				So(response.GetAllowed(), ShouldEqual, tc.allowed)
+				So(response.GetExplicitDeny(), ShouldEqual, tc.denied)
+				So(response.GetDefaultDeny(), ShouldEqual, tc.defaultDeny)
+				if tc.denied {
+					So(calls, ShouldEqual, 2)
+				} else {
+					So(calls, ShouldEqual, len(tc.outcomes))
+				}
+				So(request.Context["actor"], ShouldEqual, "original")
+			})
+		})
+	}
+}
+
+func TestHandlerDefinitionLoadFailure(t *testing.T) {
+	Convey("A failed refresh removes expired definitions rather than granting stale access", t, func() {
+		ctx := context.Background() // No DAO registry: loading must return a resolution error.
+		h := &Handler{cacheEnabled: true, definitions: map[idm.PolicyResourceGroup]cachedPolicyDefinitions{
+			idm.PolicyResourceGroup_rest: {policies: []*idm.Policy{{ID: "expired-allow", Effect: idm.PolicyEffect_allow}}, expires: time.Now().Add(-time.Second)},
+		}}
+		_, err := h.policyDefinitions(ctx, idm.PolicyResourceGroup_rest)
+		So(err, ShouldNotBeNil)
+		So(h.definitions, ShouldBeEmpty)
+		response, err := checkAllowed(ctx, h, "user:a", "rest:/doc", "read")
+		So(err, ShouldNotBeNil)
+		So(response.GetAllowed(), ShouldBeFalse)
+		// Failed writes must not invalidate valid definitions.
+		h.definitions[idm.PolicyResourceGroup_oidc] = cachedPolicyDefinitions{expires: time.Now().Add(time.Hour)}
+		_, err = h.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{PolicyGroup: &idm.PolicyGroup{Uuid: "unavailable"}})
+		So(err, ShouldNotBeNil)
+		_, err = h.DeletePolicyGroup(ctx, &idm.DeletePolicyGroupRequest{PolicyGroup: &idm.PolicyGroup{Uuid: "unavailable"}})
+		So(err, ShouldNotBeNil)
+		So(h.definitions, ShouldHaveLength, 1)
+	})
+}
+
+func TestHandlerCanceledEvaluation(t *testing.T) {
+	Convey("Cancellation cannot return an allow from an incomplete evaluation", t, func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		request := &idm.PolicyEngineRequest{Subjects: []string{"user:a"}}
+		response, err := runChecks(ctx, request, func(context.Context, *ladon.Request) error {
+			cancel()
+			return nil
+		})
+		So(errors.Is(err, context.Canceled), ShouldBeTrue)
+		So(response.GetAllowed(), ShouldBeFalse)
+		response, err = runChecks(ctx, request, func(context.Context, *ladon.Request) error {
+			t.Fatal("checker must not run after cancellation")
+			return nil
+		})
+		So(errors.Is(err, context.Canceled), ShouldBeTrue)
+		So(response.GetAllowed(), ShouldBeFalse)
+		h := &Handler{cacheEnabled: true}
+		_, err = h.policyDefinitions(ctx, idm.PolicyResourceGroup_rest)
+		So(errors.Is(err, context.Canceled), ShouldBeTrue)
+		_, err = h.IsAllowed(context.Background(), nil)
+		So(err, ShouldNotBeNil)
+	})
+}
