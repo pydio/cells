@@ -324,7 +324,7 @@ func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (u
 		return nil, er
 	}
 
-	nfErr := wrap(errors.WithMessagef(errors.UserNotFound, "cannot find user %s", userName))
+	nfErr := wrap(errors.WithStack(errors.UserNotFound))
 
 	if len(results) == 0 {
 		// The error code is actually very important
