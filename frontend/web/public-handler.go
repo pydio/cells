@@ -37,7 +37,6 @@ import (
 	tplText "text/template"
 	"time"
 
-	sprig "github.com/Masterminds/sprig/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v5/common"
@@ -398,6 +397,20 @@ func (h *PublicHandler) davFindPath(req *http.Request, router nodes.Handler, ws 
 
 }
 
+var davIndexFuncs = map[string]any{
+	"base":       path.Base,
+	"dir":        path.Dir,
+	"ext":        path.Ext,
+	"clean":      path.Clean,
+	"join":       path.Join,
+	"hasPrefix":  strings.HasPrefix,
+	"hasSuffix":  strings.HasSuffix,
+	"trimPrefix": strings.TrimPrefix,
+	"trimSuffix": strings.TrimSuffix,
+	"lower":      strings.ToLower,
+	"upper":      strings.ToUpper,
+}
+
 func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request, router nodes.Handler, innerPath string) (served bool, serveError error) {
 
 	if r.Method != http.MethodGet {
@@ -498,7 +511,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 		// Parse Template and evaluate it, replace content
 		if cType == "application/json" {
 			tpl := tplText.New("json_listing")
-			tpl.Funcs(sprig.TxtFuncMap())
+			tpl.Funcs(davIndexFuncs)
 			tpl, er := tpl.Parse(string(content))
 			if er != nil {
 				serveError = er
@@ -510,7 +523,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 			}
 		} else {
 			tpl := template.New("html_listing")
-			tpl.Funcs(sprig.HtmlFuncMap())
+			tpl.Funcs(davIndexFuncs)
 			tpl, er := tpl.Parse(string(content))
 			if er != nil {
 				serveError = er
