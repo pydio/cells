@@ -26,6 +26,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
@@ -194,12 +195,31 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
 
-	output, err := h.sc.LinkById(ctx, id)
+	output, err := h.ReadableLinkById(ctx, id)
 	if err != nil {
 		return err
 	}
 	return rsp.WriteEntity(output)
 
+}
+
+// ReadableLinkById loads a link and enforces READ access on it. It returns WorkspaceNotFound
+// otherwise, to avoid leaking the link existence.
+func (h *SharesHandler) ReadableLinkById(ctx context.Context, id string) (*rest.ShareLink, error) {
+	output, err := h.sc.LinkById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if !h.MatchPolicies(ctx, id, output.Policies, service2.ResourcePolicyAction_READ) {
+		// WRITE implies READ (link policies give admins WRITE only), unless READ is explicitly denied
+		readDenied := slices.ContainsFunc(output.Policies, func(p *service2.ResourcePolicy) bool {
+			return p.Action == service2.ResourcePolicyAction_READ && p.Effect == service2.ResourcePolicy_deny
+		})
+		if readDenied || !h.MatchPolicies(ctx, id, output.Policies, service2.ResourcePolicyAction_WRITE) {
+			return nil, errors.WithStack(errors.WorkspaceNotFound)
+		}
+	}
+	return output, nil
 }
 
 // DeleteShareLink deletes a link information.

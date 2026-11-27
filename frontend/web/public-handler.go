@@ -470,7 +470,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 			content = []byte(defPhtml)
 			cType = "text/html"
 			evalT = true
-		} else if defJson := config.Get(ctx, config.FrontendPluginPath("action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML")...).String(); defJson != "" {
+		} else if defJson := config.Get(ctx, config.FrontendPluginPath("action.share", "LINK_PUBLIC_DIRECTORY_LISTING_JSON")...).String(); defJson != "" {
 			content = []byte(defJson)
 			cType = "application/json"
 			evalT = true

@@ -505,18 +505,11 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 		if workspace == nil {
 			return workspace, false, errors.WithMessagef(errors.WorkspaceNotFound, "Cannot find workspace with Uuid %s", wsUuid)
 		}
-		if refLabel != "" && label == refLabel {
-			label = "{{RefLabel}}"
-		}
-		if (label != "" && workspace.Label != label) || (description != "" && workspace.Description != description) {
-			workspace.Label = label
-			workspace.Description = description
-			// If not updateIfNeeded, workspace will already be updated outside the scope of this function
-			if updateIfNeeded {
-				_, e := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace})
-				if e != nil {
-					return workspace, false, e
-				}
+		// If not updateIfNeeded, workspace will already be updated outside the scope of this function
+		if applyWorkspaceLabel(workspace, label, refLabel, description) && updateIfNeeded {
+			_, e := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace})
+			if e != nil {
+				return workspace, false, e
 			}
 		}
 	}
@@ -524,6 +517,19 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 	log.Logger(ctx).Debug("GetOrCreateWorkspace::Return", zap.Any("ws", workspace), zap.Bool("create", create))
 
 	return workspace, create, nil
+}
+
+// applyWorkspaceLabel sets label and description on workspace and tells if anything changed.
+func applyWorkspaceLabel(workspace *idm.Workspace, label, refLabel, description string) bool {
+	if refLabel != "" && label == refLabel {
+		label = "{{RefLabel}}"
+	}
+	if (label != "" && workspace.Label != label) || (description != "" && workspace.Description != description) {
+		workspace.Label = label
+		workspace.Description = description
+		return true
+	}
+	return false
 }
 
 // DeleteLinkWorkspace wraps DeleteWorkspace to remove unnecessary parameters

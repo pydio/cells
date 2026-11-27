@@ -367,13 +367,30 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 			)
 			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserNotEditable)
 		}
+		if ctxClaims.Profile != common.PydioProfileAdmin {
+			// Node path is GroupPath + Login: changing either moves the user to another group
+			if inputUser.Login != update.Login {
+				return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserNotEditable)
+			}
+			if inputUser.GroupPath == "" {
+				inputUser.GroupPath = update.GroupPath
+			}
+			// Changing groups is an admin-only operation
+			if strings.Trim(inputUser.GroupPath, "/") != strings.Trim(update.GroupPath, "/") {
+				log.Auditer(ctx).Error(
+					fmt.Sprintf("Forbidden action: could not move user [%s] to group [%s]", update.GetLogin(), inputUser.GroupPath),
+					log.GetAuditId(common.AuditUserUpdate),
+					update.ZapUuid(),
+				)
+				return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserNotEditable)
+			}
+		}
 		// Check ADD/REMOVE Roles Policies
 		roleCli := idmc.RoleServiceClient(ctx)
-		rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
+		adds := s.diffRoles(inputUser.Roles, update.Roles)
 		removes := s.diffRoles(update.Roles, inputUser.Roles)
-		log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
-		rolesToCheck = append(rolesToCheck, removes...)
-		if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
+		log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", adds), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
+		if err := s.checkCanAssignRoles(ctx, adds, removes, roleCli, false); err != nil {
 			log.Auditer(ctx).Error(
 				fmt.Sprintf("Forbidden action: could not assign roles on [%s]", update.GetLogin()),
 				log.GetAuditId(common.AuditUserUpdate),
@@ -414,12 +431,6 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 	if update == nil && ctxClaims.Profile != common.PydioProfileAdmin {
 		// Clear roles
 		inputUser.Roles = nil
-		// Check that parent group exists, or it will be created automatically (ok for admin, nok for others)
-		if strings.Trim(inputUser.GroupPath, "/") != "" {
-			if _, ok := permissions.GroupExists(ctx, inputUser.GroupPath); !ok {
-				return errors.WithAPICode(errors.StatusForbidden, errors.ApiGroupCannotCreate)
-			}
-		}
 		// Check current isHidden
 		crtUser, e := permissions.SearchUniqueUser(ctx, ctxClaims.Name, "")
 		if e != nil {
@@ -427,6 +438,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) error
 		}
 		if crtUser.IsHidden() {
 			return errors.WithAPICode(errors.StatusForbidden, errors.ApiUserCannotCreate)
+		}
+		// Non-admins can only create users in their own group (placing users in groups is admin-only)
+		if inputUser.GroupPath == "" {
+			inputUser.GroupPath = ctxClaims.GroupPath
+		}
+		if strings.Trim(inputUser.GroupPath, "/") != strings.Trim(ctxClaims.GroupPath, "/") {
+			return errors.WithAPICode(errors.StatusForbidden, errors.ApiGroupCannotCreate)
 		}
 
 		// For creation by non-admin, check USER_CREATE_USERS plugins permission.
@@ -691,14 +709,19 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) erro
 	if update, er = s.userById(ctx, inputUser.Uuid, cli); er != nil {
 		return er
 	}
+	// Bind the target to the path, the body Uuid alone must not pick the user
+	if login := req.PathParameter("Login"); login != "" && login != update.GetLogin() {
+		return errors.WithMessage(errors.InvalidParameters, "user Uuid does not match Login")
+	}
+	// Without WRITE on the user, only team roles can be added or removed (e.g. team owner adding a member)
+	teamsOnly := !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE)
 
 	// Check ADD/REMOVE Roles Policies
 	roleCli := idmc.RoleServiceClient(ctx)
-	rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
+	adds := s.diffRoles(inputUser.Roles, update.Roles)
 	removes := s.diffRoles(update.Roles, inputUser.Roles)
-	log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
-	rolesToCheck = append(rolesToCheck, removes...)
-	if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
+	log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", adds), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
+	if err := s.checkCanAssignRoles(ctx, adds, removes, roleCli, teamsOnly); err != nil {
 		log.Auditer(ctx).Error(
 			fmt.Sprintf("Forbidden action: could not assign roles to user [%s]", update.GetLogin()),
 			log.GetAuditId(common.AuditUserUpdate),
@@ -743,8 +766,9 @@ func (s *UserHandler) PoliciesForUserId(ctx context.Context, resourceId string, 
 }
 
 // Load all roles that will be changed and use their Policies to check if they can be
-// assigned in the current context.
-func (s *UserHandler) checkCanAssignRoles(ctx context.Context, roles []*idm.Role, cli idm.RoleServiceClient) error {
+// assigned in the current context. Added roles must exist. If teamsOnly is set, only team roles may change.
+func (s *UserHandler) checkCanAssignRoles(ctx context.Context, adds, removes []*idm.Role, cli idm.RoleServiceClient, teamsOnly bool) error {
+	roles := append(append([]*idm.Role{}, adds...), removes...)
 	if len(roles) == 0 {
 		// Ignore
 		return nil
@@ -759,6 +783,7 @@ func (s *UserHandler) checkCanAssignRoles(ctx context.Context, roles []*idm.Role
 		return e
 	}
 	defer streamer.CloseSend()
+	found := map[string]bool{}
 	for {
 		rsp, e := streamer.Recv()
 		if e != nil {
@@ -767,8 +792,25 @@ func (s *UserHandler) checkCanAssignRoles(ctx context.Context, roles []*idm.Role
 		if rsp == nil {
 			continue
 		}
+		found[rsp.Role.Uuid] = true
+		if teamsOnly && !rsp.Role.IsTeam {
+			return errors.WithStack(errors.RoleNotAssignable)
+		}
 		if !s.MatchPolicies(ctx, rsp.Role.Uuid, rsp.Role.Policies, service2.ResourcePolicyAction_WRITE) {
 			return errors.WithStack(errors.RoleNotAssignable)
+		}
+	}
+	for _, a := range adds {
+		if !found[a.Uuid] {
+			return errors.WithStack(errors.RoleNotAssignable)
+		}
+	}
+	if teamsOnly {
+		// Removed roles that no longer exist cannot be checked for IsTeam
+		for _, r := range removes {
+			if !found[r.Uuid] {
+				return errors.WithStack(errors.RoleNotAssignable)
+			}
 		}
 	}
 	return nil
