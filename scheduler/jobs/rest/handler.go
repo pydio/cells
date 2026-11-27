@@ -146,12 +146,36 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 		return err
 	}
 	ctx := req.Request.Context()
+
+	claims, _ := claim.FromContext(ctx)
+	jobResp, err := jobsc.JobServiceClient(ctx).GetJob(ctx, &jobs.GetJobRequest{JobID: cmd.JobId})
+	if err != nil {
+		return err
+	}
+	if er := assertCanControlJob(claims, jobResp.GetJob()); er != nil {
+		return er
+	}
+
 	resp, er := SendControlCommand(ctx, &cmd)
 	if er != nil {
 		return errors.Tag(er, errors.StatusInternalServerError)
 	}
 	return rsp.WriteEntity(resp)
 
+}
+
+// assertCanControlJob verifies that the caller is allowed to issue a control/delete
+// command against job. Administrators can control any job. Non-admin users can only
+// control jobs they own: a job with no owner (legacy data, Owner == "") or an owner
+// that does not match the caller is rejected, as is a nil job (lookup failed to resolve).
+func assertCanControlJob(claims claim.Claims, job *jobs.Job) error {
+	if claims.Profile == common.PydioProfileAdmin {
+		return nil
+	}
+	if job == nil || job.GetOwner() == "" || job.GetOwner() != claims.Name {
+		return errors.WithMessage(errors.StatusForbidden, "you are not allowed to control this job")
+	}
+	return nil
 }
 
 func SendControlCommand(ctx context.Context, cmd *jobs.CtrlCommand) (*jobs.CtrlCommandResponse, error) {
@@ -215,6 +239,16 @@ func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Respons
 	}
 
 	ctx := req.Request.Context()
+
+	claims, _ := claim.FromContext(ctx)
+	jobResp, err := jobsc.JobServiceClient(ctx).GetJob(ctx, &jobs.GetJobRequest{JobID: request.JobId})
+	if err != nil {
+		return err
+	}
+	if er := assertCanControlJob(claims, jobResp.GetJob()); er != nil {
+		return er
+	}
+
 	response, e := jobsc.JobServiceClient(ctx).DeleteTasks(ctx, &request)
 	if e != nil {
 		return e
