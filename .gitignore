@@ -17,6 +17,8 @@ discovery/metrics
 /assets/src/pydio/*
 node_modules
 package-lock.json
+**/dist/
+
 
 /config/file/*
 !/config/file/loader.go
@@ -46,4 +48,7 @@ install*.yaml
 .claude
 .hermes
 
+<<<<<<< HEAD
 frontend/.nx/*
+=======
+>>>>>>> f7131ac17 (chore(frontend): Remove minified js and add them to gitignore)
