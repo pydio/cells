@@ -30,6 +30,8 @@ import (
 	"golang.org/x/net/webdav"
 
 	"github.com/pydio/cells/v5/common/auth/claim"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 const lockBody = `<?xml version="1.0"?><D:lockinfo xmlns:D="DAV:"><D:lockscope><D:exclusive/></D:lockscope><D:locktype><D:write/></D:locktype></D:lockinfo>`
@@ -46,27 +48,35 @@ func davRequest(h http.Handler, user, method, target, body string, headers map[s
 }
 
 func TestPerUserLocks(t *testing.T) {
-	h := perUserLockHandler(context.Background(), webdav.NewMemFS(), "")
+	Convey("WebDAV locks are isolated per user", t, func() {
+		h := perUserLockHandler(context.Background(), webdav.NewMemFS(), "")
+		lock := davRequest(h, "alice", "LOCK", "/", lockBody, map[string]string{"Depth": "infinity", "Timeout": "Infinite"})
+		So(lock.Code, ShouldEqual, http.StatusOK)
+		token := lock.Header().Get("Lock-Token")
+		Reset(func() {
+			davRequest(h, "alice", "UNLOCK", "/", "", map[string]string{"Lock-Token": token})
+		})
 
-	lock := davRequest(h, "alice", "LOCK", "/", lockBody, map[string]string{"Depth": "infinity", "Timeout": "Infinite"})
-	if lock.Code != http.StatusOK {
-		t.Fatalf("alice LOCK /: got %d", lock.Code)
-	}
-	token := lock.Header().Get("Lock-Token")
-	if !strings.Contains(lock.Body.String(), "Second-3600") {
-		t.Errorf("Infinite timeout should be capped to one hour, got %s", lock.Body.String())
-	}
+		Convey("caps an infinite lock timeout to one hour", func() {
+			So(lock.Body.String(), ShouldContainSubstring, "Second-3600")
+		})
 
-	if w := davRequest(h, "bob", "PUT", "/b.txt", "x", nil); w.Code != http.StatusCreated {
-		t.Errorf("bob PUT under alice's lock on /: got %d, want 201", w.Code)
-	}
-	if w := davRequest(h, "alice", "PUT", "/a.txt", "x", nil); w.Code != http.StatusLocked {
-		t.Errorf("alice PUT without her token: got %d, want 423", w.Code)
-	}
-	if w := davRequest(h, "bob", "UNLOCK", "/", "", map[string]string{"Lock-Token": token}); w.Code == http.StatusNoContent {
-		t.Errorf("bob must not release alice's lock")
-	}
-	if w := davRequest(h, "alice", "UNLOCK", "/", "", map[string]string{"Lock-Token": token}); w.Code != http.StatusNoContent {
-		t.Errorf("alice UNLOCK: got %d, want 204", w.Code)
-	}
+		Convey("another user can write under the locked path", func() {
+			w := davRequest(h, "bob", "PUT", "/b.txt", "x", nil)
+			So(w.Code, ShouldEqual, http.StatusCreated)
+		})
+
+		Convey("the lock owner cannot write without her token", func() {
+			w := davRequest(h, "alice", "PUT", "/a.txt", "x", nil)
+			So(w.Code, ShouldEqual, http.StatusLocked)
+		})
+
+		Convey("only the owner can release the lock, even when another user knows its token", func() {
+			w := davRequest(h, "bob", "UNLOCK", "/", "", map[string]string{"Lock-Token": token})
+			So(w.Code, ShouldNotEqual, http.StatusNoContent)
+
+			w = davRequest(h, "alice", "UNLOCK", "/", "", map[string]string{"Lock-Token": token})
+			So(w.Code, ShouldEqual, http.StatusNoContent)
+		})
+	})
 }

@@ -25,23 +25,32 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v5/common/auth/claim"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestValidBasicUser(t *testing.T) {
-	now := time.Now()
-	cases := map[string]struct {
-		entry validBasicUser
-		pass  string
-		want  bool
-	}{
-		"fresh":          {validBasicUser{Hash: "pw"}, "pw", true},
-		"wrong password": {validBasicUser{Hash: "pw"}, "other", false},
-		"claims expired": {validBasicUser{Hash: "pw", Claims: claim.Claims{Expiry: now.Add(-time.Second)}}, "pw", false},
-		"claims valid":   {validBasicUser{Hash: "pw", Claims: claim.Claims{Expiry: now.Add(time.Minute)}}, "pw", true},
-	}
-	for name, c := range cases {
-		if got := c.entry.valid(c.pass, now); got != c.want {
-			t.Errorf("%s: got %v, want %v", name, got, c.want)
-		}
-	}
+	Convey("Cached basic users validate passwords and claim expiry", t, func() {
+		now := time.Now()
+
+		Convey("accepts a matching password when claims have no expiry", func() {
+			entry := validBasicUser{Hash: "pw"}
+			So(entry.valid("pw", now), ShouldBeTrue)
+		})
+
+		Convey("rejects an incorrect password", func() {
+			entry := validBasicUser{Hash: "pw"}
+			So(entry.valid("other", now), ShouldBeFalse)
+		})
+
+		Convey("rejects expired claims even when the password matches", func() {
+			entry := validBasicUser{Hash: "pw", Claims: claim.Claims{Expiry: now.Add(-time.Second)}}
+			So(entry.valid("pw", now), ShouldBeFalse)
+		})
+
+		Convey("accepts unexpired claims when the password matches", func() {
+			entry := validBasicUser{Hash: "pw", Claims: claim.Claims{Expiry: now.Add(time.Minute)}}
+			So(entry.valid("pw", now), ShouldBeTrue)
+		})
+	})
 }
