@@ -24,7 +24,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/auth/claim"
+	"github.com/pydio/cells/v5/common/utils/cache"
+	cache_helper "github.com/pydio/cells/v5/common/utils/cache/helper"
 )
 
 func NewBasicAuthenticator(realm string, ttl time.Duration) *BasicAuthenticator {
@@ -32,20 +35,30 @@ func NewBasicAuthenticator(realm string, ttl time.Duration) *BasicAuthenticator 
 		Realm: realm,
 		TTL:   ttl,
 	}
-	ba.cache = make(map[string]*validBasicUser)
+	ba.cacheConfig = cache.Config{
+		Prefix:          "auth/basic",
+		Eviction:        ttl.String(),
+		CleanWindow:     (2 * ttl).String(),
+		DiscardFallback: true,
+	}
 	return ba
 }
 
 type validBasicUser struct {
-	Hash      string
-	Connexion time.Time
-	Claims    claim.Claims
+	Hash   string
+	Claims claim.Claims
+}
+
+// valid reports whether a cached entry can serve a request. The cache eviction is
+// absolute (a hit does not extend it), so deleted or locked users are cut off after TTL.
+func (v *validBasicUser) valid(pass string, now time.Time) bool {
+	return v.Hash == pass && (v.Claims.Expiry.IsZero() || now.Before(v.Claims.Expiry))
 }
 
 type BasicAuthenticator struct {
-	TTL   time.Duration
-	Realm string
-	cache map[string]*validBasicUser
+	TTL         time.Duration
+	Realm       string
+	cacheConfig cache.Config
 }
 
 func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
@@ -55,10 +68,11 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 		if user, pass, ok := r.BasicAuth(); ok {
 
 			ctx := r.Context()
+			ca := cache_helper.MustResolveCache(ctx, common.CacheTypeLocal, b.cacheConfig)
 
-			if valid, vOk := b.cache[user]; vOk && time.Since(valid.Connexion) <= b.TTL && valid.Hash == pass {
-				r = r.WithContext(claim.ToContext(ctx, valid.Claims))
-				valid.Connexion = time.Now()
+			var cached *validBasicUser
+			if ca.Get(user, &cached) && cached.valid(pass, time.Now()) {
+				r = r.WithContext(claim.ToContext(ctx, cached.Claims))
 				handler.ServeHTTP(w, r)
 				return
 			}
@@ -67,11 +81,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 			if tokenCtx, tokenClaims, err := djv.Verify(ctx, pass); err == nil && tokenClaims.Name == user {
 				// Password used is directly an access token and user name is correct, use these claims directly
 				r = r.WithContext(tokenCtx)
-				b.cache[user] = &validBasicUser{
-					Hash:      pass,
-					Connexion: time.Now(),
-					Claims:    tokenClaims,
-				}
+				_ = ca.Set(user, &validBasicUser{Hash: pass, Claims: tokenClaims})
 				handler.ServeHTTP(w, r)
 				return
 			}
@@ -85,11 +95,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 			newCtx, claims, err := djv.Verify(ctx, token.AccessToken)
 			if err == nil {
 				r = r.WithContext(newCtx)
-				b.cache[user] = &validBasicUser{
-					Hash:      pass,
-					Connexion: time.Now(),
-					Claims:    claims,
-				}
+				_ = ca.Set(user, &validBasicUser{Hash: pass, Claims: claims})
 				handler.ServeHTTP(w, r)
 				return
 			}

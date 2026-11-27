@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -40,6 +41,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes"
 	"github.com/pydio/cells/v5/common/runtime"
 	"github.com/pydio/cells/v5/common/telemetry/log"
+	"github.com/pydio/cells/v5/common/utils/cache/gocache"
 )
 
 type ValidUser struct {
@@ -81,9 +83,57 @@ func newHandler(ctx context.Context, prefix string, router nodes.Handler, withBa
 		mu:     &sync.Mutex{},
 	}
 
-	memLs := NewMemLS()
+	h := logRequest(perUserLockHandler(ctx, fs, prefix))
+	h = patchDestinationURI(h)
+	if len(withBasicRealm) > 0 {
+		basicAuthenticator := auth.NewBasicAuthenticator(withBasicRealm[0], 10*time.Minute)
+		h = basicAuthenticator.Wrap(h)
+	}
+	return middleware.HttpContextWrapper(ctx, h)
+}
 
-	dav := &webdav.Handler{
+// perUserLockHandler gives each user their own lock store. Lock paths are relative to
+// each user's view, so a shared store let any user lock "/" for everyone and release
+// other users' locks.
+func perUserLockHandler(ctx context.Context, fs webdav.FileSystem, prefix string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capLockTimeout(r)
+		newDavHandler(ctx, fs, prefix, userLockSystem(r.Context())).ServeHTTP(w, r)
+	})
+}
+
+var (
+	userLocksPool = gocache.MustOpenNonExpirableMemory()
+	userLocksMu   sync.Mutex
+)
+
+// userLockSystem returns the lock store of the context user, in the context tenant.
+func userLockSystem(ctx context.Context) webdav.LockSystem {
+	user := claim.UserNameFromContext(ctx)
+	ka, _ := userLocksPool.Get(ctx)
+	userLocksMu.Lock()
+	defer userLocksMu.Unlock()
+	var ls webdav.LockSystem
+	if !ka.Get(user, &ls) {
+		ls = NewMemLS()
+		_ = ka.Set(user, ls)
+	}
+	return ls
+}
+
+// capLockTimeout bounds every lock to one hour, including "Infinite" or missing
+// timeouts, so the client is told the real lifetime and stale locks cannot pile up.
+func capLockTimeout(r *http.Request) {
+	if r.Method != "LOCK" {
+		return
+	}
+	if n, err := strconv.Atoi(strings.TrimPrefix(r.Header.Get("Timeout"), "Second-")); err != nil || n < 0 || n > 3600 {
+		r.Header.Set("Timeout", "Second-3600")
+	}
+}
+
+func newDavHandler(ctx context.Context, fs webdav.FileSystem, prefix string, memLs webdav.LockSystem) *webdav.Handler {
+	return &webdav.Handler{
 		FileSystem: fs,
 		Prefix:     prefix,
 		LockSystem: memLs,
@@ -129,12 +179,4 @@ func newHandler(ctx context.Context, prefix string, router nodes.Handler, withBa
 			}
 		},
 	}
-
-	h := logRequest(dav)
-	h = patchDestinationURI(h)
-	if len(withBasicRealm) > 0 {
-		basicAuthenticator := auth.NewBasicAuthenticator(withBasicRealm[0], 10*time.Minute)
-		h = basicAuthenticator.Wrap(h)
-	}
-	return middleware.HttpContextWrapper(ctx, h)
 }
