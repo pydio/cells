@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/nodes"
+	"github.com/pydio/cells/v5/common/nodes/writevalidation"
 	"github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/rest"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -45,6 +46,7 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 	ctx := req.Request.Context()
 
 	byTpl := map[string][]*tree.Node{}
+	var validationRequests []writevalidation.Request
 	for _, n := range input.GetInputs() {
 		node := &tree.Node{
 			Path: n.GetLocator().GetPath(),
@@ -71,6 +73,13 @@ func (h *Handler) Create(req *restful.Request, resp *restful.Response) error {
 		}
 		tpl := n.GetTemplateUuid()
 		byTpl[tpl] = append(byTpl[tpl], node)
+		validationRequests = append(validationRequests, writevalidation.Request{
+			Operation:   writevalidation.OperationCreate,
+			Destination: node,
+		})
+	}
+	if err := writevalidation.ValidateWrites(ctx, validationRequests); err != nil {
+		return err
 	}
 	output := &rest.NodeCollection{}
 	// tpl may be an empty string

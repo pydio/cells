@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/sync"
 	"github.com/pydio/cells/v5/common/nodes/version"
 	"github.com/pydio/cells/v5/common/nodes/virtual"
+	"github.com/pydio/cells/v5/common/nodes/writevalidation"
 )
 
 func PathClient(oo ...nodes.Option) nodes.Client {
@@ -45,8 +46,9 @@ func PathClientAdmin(oo ...nodes.Option) nodes.Client {
 }
 
 func pathComposer(oo ...nodes.Option) []nodes.Option {
+	options := append([]nodes.Option{writevalidation.WithRegisteredRules()}, oo...)
 
-	return append(oo,
+	return append(options,
 		nodes.WithCore(&core.Executor{}),
 		nodes.WithTracer("PathClient", 2),
 		acl.WithAccessList(),

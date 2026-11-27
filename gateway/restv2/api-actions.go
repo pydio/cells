@@ -84,6 +84,9 @@ func (h *Handler) PerformAction(req *restful.Request, resp *restful.Response) er
 		targetIsParent := cmo.GetTargetIsParent()
 		j, er := userspace.CopyMoveTask(ctx, router, inPaths, cmo.GetTargetPath(), targetIsParent, actionID == rest.UserActionType_move, ll...)
 		if er != nil {
+			if errors.Is(er, errors.InvalidParameters) {
+				return er
+			}
 			return errors.Tag(er, errors.StatusInternalServerError)
 		}
 		jj = append(jj, j)

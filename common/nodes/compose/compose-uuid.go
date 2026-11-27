@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v5/common/nodes/put"
 	"github.com/pydio/cells/v5/common/nodes/uuid"
 	"github.com/pydio/cells/v5/common/nodes/version"
+	"github.com/pydio/cells/v5/common/nodes/writevalidation"
 )
 
 func UuidClient(oo ...nodes.Option) nodes.Client {
@@ -42,6 +43,7 @@ func uuidComposer(oo ...nodes.Option) []nodes.Option {
 		acl.WithAccessList(),
 		uuid.WithWorkspace(),
 		uuid.WithDatasource(),
+		writevalidation.WithRegisteredRules(),
 		events.WithAudit(),
 		acl.WithFilter(),
 		//events.WithRead(), why not?
