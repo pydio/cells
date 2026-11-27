@@ -397,9 +397,13 @@ func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, db *gorm.D
 	}
 	count := 0
 
-	where := db.Where
-	if q.GetNot() {
-		where = db.Not
+	// Resolve the receiver on every call: a bound db.Where/db.Not method
+	// captures the initial query and can discard previously added conditions.
+	where := func(query any, args ...any) *gorm.DB {
+		if q.GetNot() {
+			return db.Not(query, args...)
+		}
+		return db.Where(query, args...)
 	}
 
 	if res := q.GetResourceGroup(); res != "" {
