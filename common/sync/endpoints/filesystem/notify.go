@@ -52,19 +52,32 @@ var (
 
 type FSEventDebouncer struct {
 	Input chan model.EventInfo
-	out   chan model.EventInfo
-	errs  chan error
-	c     *FSClient
+	// Done is closed once the debouncer has exited (after finished has run): it no longer reads Input.
+	Done chan struct{}
+	out  chan model.EventInfo
+	errs chan error
+	c    *FSClient
 }
 
-func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClient, finished func()) *FSEventDebouncer {
+// NewFSEventDebouncer starts a debouncer that sends the last event received on Input to out, once
+// the file is stable. It gives up as soon as stop is closed, so that out can be closed safely
+// after finished has been called.
+func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClient, stop <-chan struct{}, finished func()) *FSEventDebouncer {
 	d := &FSEventDebouncer{
 		out:   out,
 		errs:  errors,
 		c:     c,
 		Input: make(chan model.EventInfo),
+		Done:  make(chan struct{}),
+	}
+	send := func(ev model.EventInfo) {
+		select {
+		case d.out <- ev:
+		case <-stop:
+		}
 	}
 	go func() {
+		defer close(d.Done)
 		defer finished()
 		var eventInfo model.EventInfo
 		var lastSize int64
@@ -74,6 +87,8 @@ func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClien
 		defer maxTicker.Stop()
 		for {
 			select {
+			case <-stop:
+				return
 			case ev := <-d.Input:
 				s, e := c.FS.Stat(ev.Path)
 				if os.IsNotExist(e) && ev.Type != model.EventRemove {
@@ -89,7 +104,7 @@ func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClien
 					s, e := c.FS.Stat(eventInfo.Path)
 					if os.IsNotExist(e) {
 						if eventInfo.Type == model.EventRemove {
-							d.out <- eventInfo
+							send(eventInfo)
 						}
 						return
 					}
@@ -99,12 +114,12 @@ func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClien
 					}
 					lastSize = s.Size()
 					lastTime = s.ModTime()
-					d.out <- eventInfo
+					send(eventInfo)
 				}
 				return
 			case <-maxTicker.C:
 				if eventInfo.Path != "" {
-					d.out <- eventInfo
+					send(eventInfo)
 				}
 				//fmt.Println("expiring event debouncer for", eventInfo.Path)
 				return

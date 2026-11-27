@@ -162,6 +162,9 @@ func (w *writeWrapper) Close() error {
 	if er := w.WriteCloser.Close(); er != nil {
 		return er
 	}
+	if w.closeCallback == nil {
+		return nil
+	}
 	return w.closeCallback()
 }
 
@@ -188,17 +191,37 @@ func (d *DataPubSubEndpoint) GetWriterOn(cancel context.Context, path string, ta
 		return
 	}
 	// Flat storage
-	out, writeDone, writeErr, err = d.tgt.GetWriterOn(cancel, node.GetUuid(), targetSize, node)
+	out, tgtDone, tgtErr, err := d.tgt.GetWriterOn(cancel, node.GetUuid(), targetSize, node)
 	if err != nil {
 		return
 	}
-	// After copy is finished, call CreateNode to trigger event and index in snapshot
-	return &writeWrapper{
-		WriteCloser: out,
-		closeCallback: func() error {
-			return d.CreateNode(cancel, node, true)
-		},
-	}, writeDone, writeErr, nil
+	// After write is finished, call CreateNode to trigger event and index in snapshot
+	if tgtDone == nil {
+		// Write is finished when the target writer is closed
+		return &writeWrapper{
+			WriteCloser: out,
+			closeCallback: func() error {
+				return d.CreateNode(cancel, node, true)
+			},
+		}, nil, nil, nil
+	}
+	// Write is finished when the target signals it: wait for its result before indexing
+	writeDone = make(chan bool, 1)
+	writeErr = make(chan error, 1)
+	go func() {
+		defer func() {
+			close(writeDone)
+			close(writeErr)
+		}()
+		e := model.WaitWriteResult(cancel, tgtDone, tgtErr)
+		if e == nil {
+			e = d.CreateNode(cancel, node, true)
+		}
+		if e != nil {
+			writeErr <- e
+		}
+	}()
+	return &writeWrapper{WriteCloser: out}, writeDone, writeErr, nil
 }
 
 func (d *DataPubSubEndpoint) GetReaderOn(ctx context.Context, path string, node tree.N) (out io.ReadCloser, err error) {

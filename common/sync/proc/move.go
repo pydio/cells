@@ -23,7 +23,11 @@ package proc
 import (
 	"context"
 
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/merger"
+	"github.com/pydio/cells/v5/common/sync/model"
 )
 
 func (pr *Processor) processMove(ctx context.Context, operation merger.Operation, operationId string, pg chan int64) error {
@@ -39,6 +43,29 @@ func (pr *Processor) processMove(ctx context.Context, operation merger.Operation
 		defer pr.Locker.UnlockFile(operation, fromPath)
 	}
 
-	return operation.Target().MoveNode(operation.CreateContext(pr.GlobalContext), fromPath, toPath)
+	err := operation.Target().MoveNode(operation.CreateContext(pr.GlobalContext), fromPath, toPath)
+	if err != nil && model.IsNotFound(err) && operation.Type() == merger.OpMoveFile {
+		// The source is missing on the target (e.g. the echo of a move whose origin was already renamed here): the
+		// move can never succeed, transfer the destination from the source instead.
+		if n, e := operation.Source().LoadNode(ctx, toPath); e == nil && n.IsLeaf() {
+			pr.Logger().Info("Move source is missing on target, transferring destination instead", zap.String("from", fromPath), zap.String("to", toPath))
+			return pr.processCreateFile(ctx, &moveAsCreate{Operation: operation, node: n}, operationId, pg)
+		}
+	}
+	return err
 
+}
+
+// moveAsCreate processes a file move as the creation of its destination, with the node loaded from the source
+type moveAsCreate struct {
+	merger.Operation
+	node tree.N
+}
+
+func (m *moveAsCreate) GetNode() tree.N {
+	return m.node
+}
+
+func (m *moveAsCreate) Type() merger.OperationType {
+	return merger.OpCreateFile
 }

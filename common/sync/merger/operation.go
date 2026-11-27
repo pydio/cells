@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"sync"
 
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
@@ -39,12 +40,14 @@ type patchOperation struct {
 
 	processingError error
 	patch           Patch
+	// statusMu protects InternalStatus and processingError, updated from processing goroutines
+	statusMu sync.Mutex
 }
 
 type marshalOperation struct {
 	OpType                OperationType
 	Dir                   OperationDirection
-	Node                  tree.N
+	Node                  *tree.Node
 	EventInfo             marshalEventInfo
 	InternalStatus        *model.ProcessingStatus
 	Processed             bool
@@ -63,21 +66,69 @@ type marshalEventInfo struct {
 	UserAgent      string
 	OperationId    string
 	ScanEvent      bool
-	ScanSourceNode tree.N
+	ScanSourceNode *tree.Node
 	Metadata       map[string]string
-	MoveSource     tree.N
-	MoveTarget     tree.N
+	MoveSource     *tree.Node
+	MoveTarget     *tree.Node
+}
+
+// protoOrNil converts a node for JSON: light nodes (filesystem, merger) have no exported fields
+// and were serialized as {}, losing path, type and size.
+func protoOrNil(n tree.N) *tree.Node {
+	if n == nil {
+		return nil
+	}
+	return n.AsProto()
+}
+
+// unmarshalOperation mirrors marshalOperation with concrete node types: tree.N is an
+// interface and cannot be decoded into. Field names must stay stable, as serialized
+// operations are persisted by cells-sync (patch store) and read back across versions.
+type unmarshalOperation struct {
+	OpType                OperationType
+	Dir                   OperationDirection
+	Node                  *tree.Node
+	EventInfo             unmarshalEventInfo
+	InternalStatus        *model.ProcessingStatus
+	Processed             bool
+	ProcessingErrorString string
+}
+
+type unmarshalEventInfo struct {
+	Time           string
+	Size           int64
+	Etag           string
+	Folder         bool
+	Path           string
+	Type           model.EventType
+	Host           string
+	Port           string
+	UserAgent      string
+	OperationId    string
+	ScanEvent      bool
+	ScanSourceNode *tree.Node
+	Metadata       map[string]string
+	MoveSource     *tree.Node
+	MoveTarget     *tree.Node
+}
+
+// nodeOrNil avoids storing a typed nil pointer in a tree.N interface.
+func nodeOrNil(n *tree.Node) tree.N {
+	if n == nil {
+		return nil
+	}
+	return n
 }
 
 func (o *patchOperation) UnmarshalJSON(bytes []byte) error {
-	mo := &marshalOperation{}
+	mo := &unmarshalOperation{}
 
 	if er := json.Unmarshal(bytes, mo); er != nil {
 		return er
 	} else {
 		o.OpType = mo.OpType
 		o.Dir = mo.Dir
-		o.Node = mo.Node
+		o.Node = nodeOrNil(mo.Node)
 		o.EventInfo = model.EventInfo{
 			Time:           mo.EventInfo.Time,
 			Size:           mo.EventInfo.Size,
@@ -90,10 +141,10 @@ func (o *patchOperation) UnmarshalJSON(bytes []byte) error {
 			UserAgent:      mo.EventInfo.UserAgent,
 			OperationId:    mo.EventInfo.OperationId,
 			ScanEvent:      mo.EventInfo.ScanEvent,
-			ScanSourceNode: mo.EventInfo.ScanSourceNode,
+			ScanSourceNode: nodeOrNil(mo.EventInfo.ScanSourceNode),
 			Metadata:       mo.EventInfo.Metadata,
-			MoveSource:     mo.EventInfo.MoveSource,
-			MoveTarget:     mo.EventInfo.MoveTarget,
+			MoveSource:     nodeOrNil(mo.EventInfo.MoveSource),
+			MoveTarget:     nodeOrNil(mo.EventInfo.MoveTarget),
 		}
 		o.InternalStatus = mo.InternalStatus
 		o.Processed = mo.Processed
@@ -105,10 +156,12 @@ func (o *patchOperation) UnmarshalJSON(bytes []byte) error {
 }
 
 func (o *patchOperation) MarshalJSON() ([]byte, error) {
+	o.statusMu.Lock()
+	defer o.statusMu.Unlock()
 	mo := &marshalOperation{
 		OpType: o.OpType,
 		Dir:    o.Dir,
-		Node:   o.Node,
+		Node:   protoOrNil(o.Node),
 		EventInfo: marshalEventInfo{
 			Time:        o.EventInfo.Time,
 			Size:        o.EventInfo.Size,
@@ -126,15 +179,9 @@ func (o *patchOperation) MarshalJSON() ([]byte, error) {
 		InternalStatus: o.InternalStatus,
 		Processed:      o.Processed,
 	}
-	if o.EventInfo.ScanSourceNode != nil {
-		mo.EventInfo.ScanSourceNode = o.EventInfo.ScanSourceNode
-	}
-	if o.EventInfo.MoveSource != nil {
-		mo.EventInfo.MoveSource = o.EventInfo.MoveSource
-	}
-	if o.EventInfo.MoveTarget != nil {
-		mo.EventInfo.MoveTarget = o.EventInfo.MoveTarget
-	}
+	mo.EventInfo.ScanSourceNode = protoOrNil(o.EventInfo.ScanSourceNode)
+	mo.EventInfo.MoveSource = protoOrNil(o.EventInfo.MoveSource)
+	mo.EventInfo.MoveTarget = protoOrNil(o.EventInfo.MoveTarget)
 	if o.processingError != nil {
 		mo.ProcessingErrorString = o.processingError.Error()
 	}
@@ -146,6 +193,30 @@ type conflictOperation struct {
 	ConflictType ConflictType
 	LeftOp       Operation
 	RightOp      Operation
+	Solved       bool
+}
+
+// MarshalJSON adds conflict details to the base operation fields. Without it, the promoted
+// patchOperation.MarshalJSON was used and ConflictType/LeftOp/RightOp/Solved were silently dropped.
+// Decoding is left to callers (see cells-sync PatchStore.unmarshalConflict), as
+// NewOpForUnmarshall returns a plain patchOperation.
+func (c *conflictOperation) MarshalJSON() ([]byte, error) {
+	base, er := c.patchOperation.MarshalJSON()
+	if er != nil {
+		return nil, er
+	}
+	var m map[string]json.RawMessage
+	if er := json.Unmarshal(base, &m); er != nil {
+		return nil, er
+	}
+	for k, v := range map[string]interface{}{"ConflictType": c.ConflictType, "LeftOp": c.LeftOp, "RightOp": c.RightOp, "Solved": c.Solved} {
+		raw, er := json.Marshal(v)
+		if er != nil {
+			return nil, er
+		}
+		m[k] = raw
+	}
+	return json.Marshal(m)
 }
 
 func NewOperation(t OperationType, e model.EventInfo, loadedNode ...tree.N) Operation {
@@ -161,11 +232,16 @@ func NewOperation(t OperationType, e model.EventInfo, loadedNode ...tree.N) Oper
 }
 
 func NewConflictOperation(node tree.N, t ConflictType, left, right Operation) Operation {
+	var e model.EventInfo
+	if node != nil {
+		e.Path = node.GetPath() // ref path, used in conflict errors
+	}
 	return &conflictOperation{
 		patchOperation: patchOperation{
-			OpType: OpConflict,
-			Node:   node,
-			Dir:    OperationDirDefault,
+			OpType:    OpConflict,
+			EventInfo: e,
+			Node:      node,
+			Dir:       OperationDirDefault,
 		},
 		ConflictType: t,
 		LeftOp:       left,
@@ -173,12 +249,26 @@ func NewConflictOperation(node tree.N, t ConflictType, left, right Operation) Op
 	}
 }
 
+// NewSolvedConflictOperation records a conflict solved by keeping both versions: left and right are the creations
+// of the two copies, at their new paths. It is not processed and is not an error.
+func NewSolvedConflictOperation(node tree.N, t ConflictType, leftCopy, rightCopy Operation) Operation {
+	c := NewConflictOperation(node, t, leftCopy, rightCopy).(*conflictOperation)
+	c.Solved = true
+	return c
+}
+
 func (c *conflictOperation) ConflictInfo() (t ConflictType, left Operation, right Operation) {
 	return c.ConflictType, c.LeftOp, c.RightOp
 }
 
+func (c *conflictOperation) IsSolved() bool {
+	return c.Solved
+}
+
 func (c *conflictOperation) Clone(_ ...OperationType) Operation {
-	return NewConflictOperation(c.Node, c.ConflictType, c.LeftOp, c.RightOp)
+	cl := NewConflictOperation(c.Node, c.ConflictType, c.LeftOp, c.RightOp).(*conflictOperation)
+	cl.Solved = c.Solved
+	return cl
 }
 
 func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
@@ -220,16 +310,20 @@ func (o *patchOperation) IsProcessed() bool {
 }
 
 func (o *patchOperation) CleanError() {
+	o.statusMu.Lock()
 	o.processingError = nil
+	o.statusMu.Unlock()
 }
 
 func (o *patchOperation) Error() error {
+	o.statusMu.Lock()
+	defer o.statusMu.Unlock()
 	return o.processingError
 }
 
 func (o *patchOperation) ErrorString() string {
-	if o.processingError != nil {
-		return o.processingError.Error()
+	if e := o.Error(); e != nil {
+		return e.Error()
 	}
 	return ""
 }
@@ -241,16 +335,20 @@ func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
 
 func (o *patchOperation) Status(status model.Status) {
 	// Transform status to ProcessingStatus
+	o.statusMu.Lock()
 	if p, ok := status.(*model.ProcessingStatus); ok {
 		o.InternalStatus = p
 	}
 	if status.IsError() {
 		o.processingError = status.Error()
 	}
+	o.statusMu.Unlock()
 	o.patch.Status(status)
 }
 
 func (o *patchOperation) GetStatus() model.Status {
+	o.statusMu.Lock()
+	defer o.statusMu.Unlock()
 	// This is super important!
 	// nil struct model.ProcessingStatus is NOT nil interface model.Status
 	if o.InternalStatus == nil {
@@ -267,7 +365,7 @@ func (o *patchOperation) UpdateRefPath(p string) {
 	o.EventInfo.Path = p
 	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
 	if o.Node != nil && !o.IsTypeMove() {
-		o.Node.SetPath(p)
+		o.setNodePath(p)
 	}
 }
 
@@ -276,6 +374,16 @@ func (o *patchOperation) GetMoveOriginPath() string {
 }
 
 func (o *patchOperation) UpdateMoveOriginPath(p string) {
+	o.setNodePath(p)
+}
+
+// setNodePath changes the path of a copy of the operation node: the node may be shared with a TreeNode, whose path
+// must not change (a data operation redirected to a move target would otherwise rename the move origin).
+func (o *patchOperation) setNodePath(p string) {
+	if o.Node.GetPath() == p {
+		return
+	}
+	o.Node = o.Node.AsProto().Clone()
 	o.Node.SetPath(p)
 }
 

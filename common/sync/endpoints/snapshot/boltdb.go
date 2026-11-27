@@ -32,6 +32,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -39,6 +40,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v5/common"
 	"github.com/pydio/cells/v5/common/errors"
 	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/sync/endpoints"
@@ -100,7 +102,7 @@ type BoltSnapshot struct {
 	ctx        context.Context
 	db         *bbolt.DB
 	name       string
-	empty      bool
+	empty      atomic.Bool // set by Capture, read concurrently by later runs
 	folderPath string
 
 	createsSession     map[string]tree.N
@@ -108,6 +110,10 @@ type BoltSnapshot struct {
 
 	autoBatchChan  chan tree.N
 	autoBatchClose chan struct{}
+	// autoBatchDone is closed once the auto-batcher has flushed and exited
+	autoBatchDone chan struct{}
+	stopBatchOnce sync.Once
+	closeOnce     sync.Once
 
 	manualCollector  bool
 	captureStripPath bool
@@ -126,14 +132,14 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 		name: name,
 		ctx:  ctx,
 	}
-	options := bbolt.DefaultOptions
+	options := *bbolt.DefaultOptions // a copy: DefaultOptions is a shared pointer
 	options.Timeout = 5 * time.Second
 	s.folderPath = folderOrFullPath
 	p := filepath.Join(s.folderPath, openName)
 	if _, err := os.Stat(p); err != nil {
-		s.empty = true
+		s.empty.Store(true)
 	}
-	db, err := bbolt.Open(p, 0644, options)
+	db, err := bbolt.Open(p, 0644, &options)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +147,7 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 
 	s.autoBatchChan = make(chan tree.N)
 	s.autoBatchClose = make(chan struct{}, 1)
+	s.autoBatchDone = make(chan struct{})
 
 	go s.startAutoBatching()
 
@@ -149,7 +156,7 @@ func NewBoltSnapshot(ctx context.Context, folderOrFullPath, name string) (*BoltS
 
 func (s *BoltSnapshot) AutoCreateBucket() error {
 	s.manualCollector = true
-	close(s.autoBatchClose) // Disable batching
+	s.stopAutoBatching() // Disable batching
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b == nil {
 			_, er := tx.CreateBucket(bucketName)
@@ -183,10 +190,17 @@ func (s *BoltSnapshot) sortByKey(data map[string]tree.N) (output []tree.N) {
 	return
 }
 
+// stopAutoBatching asks the auto-batcher to flush and exit. It can be called several times.
+func (s *BoltSnapshot) stopAutoBatching() {
+	s.stopBatchOnce.Do(func() {
+		close(s.autoBatchClose)
+	})
+}
+
+// startAutoBatching receives nodes on autoBatchChan. This channel is never closed, as CreateNode
+// may still send on it: senders select on autoBatchDone instead.
 func (s *BoltSnapshot) startAutoBatching() {
-	defer func() {
-		close(s.autoBatchChan)
-	}()
+	defer close(s.autoBatchDone)
 	creates := make(map[string]tree.N, 500)
 	nextTime := 1 * time.Hour
 	flush := func() {
@@ -320,7 +334,7 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 			return nil
 		})
 		if er != nil {
-			return
+			return er
 		}
 		if s.manualCollector {
 			// Do not AutoBatch
@@ -336,7 +350,11 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExis
 			})
 		}
 		for _, n := range nn {
-			s.autoBatchChan <- n
+			select {
+			case s.autoBatchChan <- n:
+			case <-s.autoBatchDone:
+				return errors.New("snapshot is closed")
+			}
 		}
 		return nil
 	}
@@ -394,19 +412,19 @@ func (s *BoltSnapshot) MoveNode(ctx context.Context, oldPath string, newPath str
 }
 
 func (s *BoltSnapshot) IsEmpty() bool {
-	return s.empty
+	return s.empty.Load()
 }
 
+// Close flushes pending auto-batched writes, then closes the DB. Calling it again does nothing.
 func (s *BoltSnapshot) Close(delete ...bool) {
-	if !s.manualCollector {
-		close(s.autoBatchClose)
-	}
-	<-time.After(500 * time.Millisecond)
-	s.db.Close()
-	<-time.After(500 * time.Millisecond)
-	if len(delete) > 0 && delete[0] && s.folderPath != "" {
-		os.RemoveAll(s.folderPath)
-	}
+	s.closeOnce.Do(func() {
+		s.stopAutoBatching()
+		<-s.autoBatchDone
+		s.db.Close()
+		if len(delete) > 0 && delete[0] && s.folderPath != "" {
+			os.RemoveAll(s.folderPath)
+		}
+	})
 }
 
 // Shutdown implements Shutdowner
@@ -430,6 +448,14 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 		}
 		if len(paths) == 0 {
 			return source.Walk(ctx, func(path string, node tree.N, err error) error {
+				if err != nil {
+					log.Logger(ctx).Error("BoltDB:Capture: walk error", zap.String("path", path), zap.Error(err))
+					return err
+				}
+				// Some endpoints report the root itself, possibly with an empty path (not a valid key)
+				if path == "" || path == "/" {
+					return nil
+				}
 				return capture.Put([]byte(path), s.marshal(node))
 			}, "/", true)
 		} else {
@@ -477,19 +503,25 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 		}
 		return tx.DeleteBucket(captureBucketName)
 	}); e == nil {
-		s.empty = false
+		s.empty.Store(false)
 	}
 	return e
 }
 
 func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
-	if path == "/" {
+	// Keys are stored without the leading slash (like Walk expects), but callers like the selective
+	// roots of a task pass "/folder".
+	key := strings.Trim(path, "/")
+	if key == "" {
 		// Return fake Root
 		node = &tree.Node{Path: "/"}
 	} else {
 		err = s.db.View(func(tx *bbolt.Tx) error {
 			if b := tx.Bucket(bucketName); b != nil {
-				value := b.Get([]byte(path))
+				value := b.Get([]byte(key))
+				if value == nil && key != path {
+					value = b.Get([]byte(path))
+				}
 				if value != nil {
 					if node, err = s.unmarshal(value); err != nil {
 						return err
@@ -507,9 +539,13 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 	}
 	if len(extendedStats) > 0 && extendedStats[0] {
 		var size, folders, files int64
-		_ = s.Walk(nil, func(path string, node tree.N, err error) error {
-			if node.IsLeaf() {
-				size += node.GetSize()
+		_ = s.Walk(nil, func(p string, n tree.N, err error) error {
+			// Like the endpoints' own stats: hidden folder markers are not user files
+			if n == nil || p == common.PydioSyncHiddenFile || strings.HasSuffix(p, "/"+common.PydioSyncHiddenFile) {
+				return nil
+			}
+			if n.IsLeaf() {
+				size += n.GetSize()
 				files += 1
 			} else {
 				folders += 1

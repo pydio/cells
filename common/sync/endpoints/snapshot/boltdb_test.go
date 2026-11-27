@@ -43,12 +43,19 @@ func basicDiff(l, r model.PathSyncSource) error {
 	left, right := make(map[string]tree.N), make(map[string]tree.N)
 	var leftPaths, rightPaths []string
 	ctx := context.Background()
+	// The root itself is not compared: snapshots do not store it
 	l.Walk(ctx, func(path string, node tree.N, err error) error {
+		if path == "" || path == "/" {
+			return nil
+		}
 		left[path] = node
 		leftPaths = append(leftPaths, path)
 		return nil
 	}, "/", true)
 	r.Walk(ctx, func(path string, node tree.N, err error) error {
+		if path == "" || path == "/" {
+			return nil
+		}
 		right[path] = node
 		rightPaths = append(rightPaths, path)
 		return nil

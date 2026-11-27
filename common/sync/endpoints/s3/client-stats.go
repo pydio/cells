@@ -41,7 +41,7 @@ type statBatcher struct {
 	c        *Client
 	pending  []*input
 	size     int
-	walker   func(path string, info *fileInfo, node tree.N) error
+	walker   func(path string, info *fileInfo, node tree.N, err error) error
 }
 
 func (b *statBatcher) push(n *input) error {
@@ -58,6 +58,7 @@ func (b *statBatcher) flush() error {
 	}
 
 	results := make([]*tree.Node, len(b.pending))
+	errs := make([]error, len(b.pending))
 
 	process := b.pending
 	b.pending = b.pending[0:0]
@@ -68,21 +69,14 @@ func (b *statBatcher) flush() error {
 	for i, in := range process {
 		go func(idx int, input *input) {
 			defer wg.Done()
-			if tN, e := b.c.loadNode(b.batchCtx, input.path, !input.info.isDir); e == nil {
-				results[idx] = tN
-			} else {
-				results[idx] = nil
-			}
+			results[idx], errs[idx] = b.c.loadNode(b.batchCtx, input.path, !input.info.isDir)
 		}(i, in)
 	}
 	wg.Wait()
 	log.Logger(b.batchCtx).Debug("Finished sending LoadNodes in parallel", zap.Duration("d", time.Since(t)))
 	for i, n := range results {
-		if n == nil {
-			continue
-		}
-		e := b.walker(process[i].path, process[i].info, n)
-		if e != nil {
+		// Report load errors to the walker: skipping the node would make it look deleted
+		if e := b.walker(process[i].path, process[i].info, n, errs[i]); e != nil {
 			return e
 		}
 	}

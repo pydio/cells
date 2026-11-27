@@ -378,22 +378,37 @@ func (s *Server) prepareInternalOptions(rootContext context.Context) (serverOpti
 }
 
 func (s *Server) prepareAuthenticatedOptions(ctx context.Context) (serverOptions []grpc.ServerOption) {
-	jwtModifier := s.createJwtCtxModifier(ctx)
+	jwtModifier := s.createJwtCtxModifier()
+	forkModifier := func(ct context.Context) (context.Context, bool, error) {
+		return propagator.ForkContext(ct, ctx), true, nil
+	}
+
+	// Fork runtime first, so that it does not override values set by later modifiers. Then meta (so that
+	// audit logs from the JWT verification have it), then external modifiers (e.g. tenant), then
+	// JWT verification, which may depend on them.
+	unary := []grpc.UnaryServerInterceptor{
+		//propagator.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
+		middleware.MetricsUnaryServerInterceptor(),
+		propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
+		propagator.ContextUnaryServerInterceptor(forkModifier),
+		propagator.ContextUnaryServerInterceptor(s.grpcMetaCtxModifier),
+	}
+	unary = append(unary, middleware.GrpcExternalUnaryServerInterceptors()...)
+	unary = append(unary, propagator.ContextUnaryServerInterceptor(jwtModifier))
+
+	stream := []grpc.StreamServerInterceptor{
+		//propagator.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
+		middleware.MetricsStreamServerInterceptor(),
+		propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
+		propagator.ContextStreamServerInterceptor(forkModifier),
+		propagator.ContextStreamServerInterceptor(s.grpcMetaCtxModifier),
+	}
+	stream = append(stream, middleware.GrpcExternalStreamServerInterceptors()...)
+	stream = append(stream, propagator.ContextStreamServerInterceptor(jwtModifier))
+
 	grpcOptions := []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(
-			//propagator.ContextUnaryServerInterceptor(servicecontext.OperationIdIncomingContext),
-			middleware.MetricsUnaryServerInterceptor(),
-			propagator.ContextUnaryServerInterceptor(middleware.CellsMetadataIncomingContext),
-			propagator.ContextUnaryServerInterceptor(jwtModifier),
-			propagator.ContextUnaryServerInterceptor(s.grpcMetaCtxModifier),
-		),
-		grpc.ChainStreamInterceptor(
-			//propagator.ContextStreamServerInterceptor(servicecontext.OperationIdIncomingContext),
-			middleware.MetricsStreamServerInterceptor(),
-			propagator.ContextStreamServerInterceptor(middleware.CellsMetadataIncomingContext),
-			propagator.ContextStreamServerInterceptor(jwtModifier),
-			propagator.ContextStreamServerInterceptor(s.grpcMetaCtxModifier),
-		),
+		grpc.ChainUnaryInterceptor(unary...),
+		grpc.ChainStreamInterceptor(stream...),
 	}
 
 	return grpcOptions
@@ -413,12 +428,10 @@ func (s *Server) prepareTLSOptions(ctx context.Context) (serverOptions []grpc.Se
 }
 
 // jwtCtxModifier extracts x-pydio-bearer metadata to validate authentication
-func (s *Server) createJwtCtxModifier(runtimeCtx context.Context) propagator.IncomingContextModifier {
+// Runtime fork and meta extraction are done earlier in the chain, see prepareAuthenticatedOptions.
+func (s *Server) createJwtCtxModifier() propagator.IncomingContextModifier {
 
 	return func(ctx context.Context) (context.Context, bool, error) {
-
-		ctx = propagator.ForkContext(ctx, runtimeCtx)
-		ctx, _, _ = s.grpcMetaCtxModifier(ctx)
 
 		jwtVerifier := auth.DefaultJWTVerifier()
 		meta, ok := metadata2.FromIncomingContext(ctx)

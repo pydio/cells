@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -62,6 +63,40 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 		check := n[0]
 		return node.GetEtag() == check.GetEtag()
 	}
+	// Check that a node is known to be missing: target cannot be read or load errors do not prove it
+	missing := func(target model.PathSyncTarget, path string) bool {
+		src := sources[target]
+		if src == nil {
+			return false
+		}
+		node, err := src.LoadNode(ctx, path)
+		if err != nil {
+			return model.IsNotFound(err)
+		}
+		return node == nil
+	}
+
+	// Paths of the other operations, case-folded: a case-only rename on a case-insensitive source (a -> A) must not
+	// make the delete of "a" look stale
+	otherPaths := make(map[string]string)
+	t.WalkOperations([]OperationType{}, func(op Operation) {
+		if op.Type() != OpDelete {
+			otherPaths[strings.ToLower(op.GetRefPath())] = op.GetRefPath()
+		}
+	})
+	// A delete is stale if its path exists again on the source: it was recreated there after the delete event
+	// (e.g. late server events of our own recursive delete, #30). Load errors do not prove anything.
+	stale := func(op Operation, path string) bool {
+		if p, ok := otherPaths[strings.ToLower(path)]; ok && p != path {
+			return false
+		}
+		src := sources[op.Source()]
+		if src == nil {
+			return false
+		}
+		node, err := src.LoadNode(ctx, path)
+		return err == nil && node != nil
+	}
 
 	stats := t.Stats()
 	var total, idx, crtPercent int
@@ -92,8 +127,18 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 					n.PathOperation = nil
 				}
 			} else if n.PathOperation.Type() == OpDelete {
-				if !exists(n.PathOperation.Target(), n.ProcessedPath(false)) {
+				if missing(n.PathOperation.Target(), n.ProcessedPath(false)) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (target node is not there)", zap.String("path", n.ProcessedPath(false)))
+					n.PathOperation = nil
+				} else if stale(n.PathOperation, n.ProcessedPath(false)) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (node exists again on source)", zap.String("path", n.ProcessedPath(false)))
+					n.PathOperation = nil
+				}
+			} else if n.PathOperation.IsTypeMove() {
+				// Echoes of our own moves on asynchronous targets (Cells) are dropped by client UUID; if one gets through, drop it here
+				op := n.PathOperation
+				if missing(op.Target(), op.GetMoveOriginPath()) && exists(op.Target(), op.GetRefPath()) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring Move Operation (already applied on target)", zap.String("from", op.GetMoveOriginPath()), zap.String("to", op.GetRefPath()))
 					n.PathOperation = nil
 				}
 			}

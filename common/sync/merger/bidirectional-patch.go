@@ -47,8 +47,14 @@ type Solver func(left, right *TreeNode)
 // It handles conflicts detection and tries to solve them automatically if possible
 type BidirectionalPatch struct {
 	TreePatch
-	matrix              map[OperationType]map[OperationType]Solver
-	inputsModified      bool
+	matrix         map[OperationType]map[OperationType]Solver
+	inputsModified bool
+	// conflictCopies are the copies created by the "keep both" solver (and the solved conflicts recording them), which
+	// already renamed the files on the endpoints and removed the input operations: they are re-enqueued after a second
+	// pass resets the patch
+	conflictCopies []Operation
+	// conflicted is set by enqueueConflict, so that merge can tell mergeTrees to hold back the node children
+	conflicted          bool
 	unexpected          []error
 	ctx                 context.Context
 	ignoreUUIDConflicts bool
@@ -104,6 +110,9 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 			log.Logger(ctx).Info("Input trees modified, running a second pass")
 			b.TreePatch = *newTreePatch(source, target, PatchOptions{MoveDetection: false})
 			b.mergeTrees(&l.TreeNode, &r.TreeNode)
+			for _, op := range b.conflictCopies {
+				b.Enqueue(op)
+			}
 		}
 		log.Logger(ctx).Info("Merged Patch", zap.Any("stats", b.Stats()))
 	}
@@ -112,7 +121,7 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 		for _, e := range b.unexpected {
 			ss = append(ss, e.Error())
 		}
-		b.patchError = fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
+		b.SetError(fmt.Errorf("error during merge: %s", strings.Join(ss, "|")))
 		return b, fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
 	}
 	return b, e
@@ -223,16 +232,25 @@ func (p *BidirectionalPatch) initMatrix() {
 	mrg := p.mergeDataOperations
 	cnT := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictNodeType) }
 	cnP := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictPathOperation) }
+	mgm := p.mergeMetaOperations
+	dvb := p.deleteVsBranch
+	// Rows are left operations, columns right operations. Every cell is explicit and the matrix is mirror-symmetric
+	// (eql and eqr swapped): a reverse lookup would apply asymmetric solvers to the wrong side (BUG-40).
 	p.matrix = map[OperationType]map[OperationType]Solver{
-		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
-		OpCreateFolder: {OpNone: nil, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
-		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: cmt, OpMoveFolder: cnT, OpDelete: rst, OpCreateFile: cnP, OpUpdateFile: eqb, OpMoveTarget: eqb},
-		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: cmt, OpDelete: rst, OpCreateFile: cnT, OpUpdateFile: cnT, OpMoveTarget: eqb},
-		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
-		OpCreateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
-		OpUpdateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: mrg, OpMoveTarget: eqb},
-		OpMoveTarget:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: nil, OpMoveTarget: cms},
+		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: dvb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
+		OpCreateFolder: {OpNone: eqb, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
+		OpMoveFile:     {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cmt, OpMoveFolder: cnT, OpDelete: rst, OpCreateFile: cnP, OpUpdateFile: eqb, OpMoveTarget: eqb},
+		OpMoveFolder:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cnT, OpMoveFolder: cmt, OpDelete: rst, OpCreateFile: cnT, OpUpdateFile: cnT, OpMoveTarget: eqb},
+		OpDelete:       {OpNone: dvb, OpCreateFolder: eqr, OpMoveFile: rst, OpMoveFolder: rst, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
+		OpCreateFile:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: cnP, OpMoveFolder: cnT, OpDelete: eql, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
+		OpUpdateFile:   {OpNone: eqb, OpCreateFolder: cnP, OpMoveFile: eqb, OpMoveFolder: cnT, OpDelete: eql, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
+		OpMoveTarget:   {OpNone: eqb, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: cms},
 	}
+	// Metadata operations: a value set on one side wins over a delete on the other side.
+	p.matrix[OpNone][OpCreateMeta], p.matrix[OpNone][OpUpdateMeta], p.matrix[OpNone][OpDeleteMeta] = eqb, eqb, eqb
+	p.matrix[OpCreateMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: mgm, OpUpdateMeta: mgm, OpDeleteMeta: eql}
+	p.matrix[OpUpdateMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: mgm, OpUpdateMeta: mgm, OpDeleteMeta: eql}
+	p.matrix[OpDeleteMeta] = map[OperationType]Solver{OpNone: eqb, OpCreateMeta: eqr, OpUpdateMeta: eqr, OpDeleteMeta: ign}
 }
 
 // mergeTrees performs the walk of left and right to enqueue operations to the current Patch
@@ -245,9 +263,10 @@ func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
 		if a != nil && b != nil {
 			switch strings.Compare(a.Label(), b.Label()) {
 			case 0:
-				// MAYBE A Conflict here!
-				p.merge(a, b)
-				p.mergeTrees(a, b)
+				// An unsolved conflict holds back the node and its children, the rest of the patch is applied (CS-U-06)
+				if p.merge(a, b) {
+					p.mergeTrees(a, b)
+				}
 				a = cL.Next()
 				b = cR.Next()
 				continue
@@ -284,8 +303,8 @@ func (p *BidirectionalPatch) enqueueOperations(branch *TreeNode, direction ...Op
 	})
 }
 
-// merge finds the correct solver for two similar nodes
-func (p *BidirectionalPatch) merge(left, right *TreeNode) {
+// merge finds the correct solver for two similar nodes. It returns false if it registered an unsolved conflict.
+func (p *BidirectionalPatch) merge(left, right *TreeNode) bool {
 	// Merge PATH or Data Ops
 	opLeft, opRight := OpNone, OpNone
 	if left.PathOperation != nil {
@@ -304,9 +323,26 @@ func (p *BidirectionalPatch) merge(left, right *TreeNode) {
 	}
 	solver := p.matrix[opLeft][opRight]
 	if solver == nil {
-		solver = p.matrix[opRight][opLeft]
+		// Unexpected combination: register a conflict rather than crash
+		log.Logger(p.ctx).Error("-- No solver for operations", zap.String("left", opLeft.String()), zap.String("right", opRight.String()), zap.String("path", left.GetPath()))
+		p.enqueueConflict(left, right, ConflictPathOperation)
+		return false
 	}
+	p.conflicted = false
 	solver(left, right)
+	return !p.conflicted
+}
+
+// mergeMetaOperations solves a metadata changed on both sides: nothing to do if values are equal, otherwise the
+// right value wins. Metadata nodes have no modification time to pick the most recent change, and a conflict would
+// block the whole patch.
+func (p *BidirectionalPatch) mergeMetaOperations(left, right *TreeNode) {
+	if left.DataOperation.GetNode().GetEtag() == right.DataOperation.GetNode().GetEtag() {
+		log.Logger(p.ctx).Debug("-- Same metadata value on both sides, ignore", zap.String("path", left.GetPath()))
+		return
+	}
+	log.Logger(p.ctx).Info("-- Metadata changed on both sides with different values, right wins", zap.String("path", left.GetPath()))
+	p.enqueueRight(left, right)
 }
 
 // ignore does not enqueue anything to patch
@@ -332,10 +368,11 @@ func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
 	p.enqueueOperations(right, OperationDirLeft)
 }
 
-// enqueueConflict sets a Conflict flag on the given path in side the patch. The Conflict has references to left and right operations
+// enqueueConflict sets a Conflict flag on the given path in side the patch. The Conflict has references to left and right operations.
+// The path is not synced, but the rest of the patch is: HasErrors reports it as a ConflictError.
 func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictType) {
-	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
-	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.GetPath()))
+	log.Logger(p.ctx).Warn("-- Unsolvable conflict, path is held back", zap.String("path", left.GetPath()), zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
+	p.conflicted = true
 	var leftOp, rightOp Operation
 	if left.PathOperation != nil {
 		leftOp = left.PathOperation
@@ -349,6 +386,59 @@ func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictTy
 	}
 	op := NewConflictOperation(left.N, t, leftOp, rightOp)
 	p.QueueOperation(op)
+}
+
+// deleteVsBranch solves a node deleted on one side and unchanged on the other side. If the other side changed the
+// content of this folder (created, edited or moved files inside), the delete must not win (BUG-05): it is dropped
+// and the folder is re-created on the deleting side with the content of the other side, in a second merge pass.
+func (p *BidirectionalPatch) deleteVsBranch(left, right *TreeNode) {
+	deleted, kept := left, right
+	if right.PathOperation != nil && right.PathOperation.Type() == OpDelete {
+		deleted, kept = right, left
+	}
+	var source model.PathSyncSource
+	changed := map[string]bool{}
+	kept.WalkOperations([]OperationType{}, func(o Operation) {
+		if o.Type() == OpDelete || o.Type() == OpDeleteMeta {
+			return
+		}
+		changed[o.GetRefPath()] = true
+		if source == nil {
+			source, _ = model.AsPathSyncSource(o.Source())
+		}
+	})
+	if len(changed) == 0 || source == nil {
+		p.enqueueBoth(left, right)
+		return
+	}
+	folder := deleted.PathOperation.GetRefPath()
+	log.Logger(p.ctx).Info("Folder deleted on one side but modified on the other side: re-creating it", zap.String("path", folder))
+	deleted.PathOperation = nil
+	n, e := source.LoadNode(p.ctx, folder)
+	if e != nil {
+		// Cannot read the folder on the other side: neither delete nor re-create it, the next run will decide
+		log.Logger(p.ctx).Warn("Cannot load folder to re-create it, delete is skipped", zap.String("path", folder), zap.Error(e))
+		return
+	}
+	root := kept.getRoot()
+	queue := func(p string, node tree.N) {
+		node = node.AsProto().Clone()
+		node.SetPath(p)
+		oType := OpCreateFolder
+		if node.IsLeaf() {
+			oType = OpCreateFile
+		}
+		root.QueueOperation(NewOperation(oType, model.EventInfo{Path: p, Folder: !node.IsLeaf(), Etag: node.GetEtag()}, node))
+	}
+	queue(folder, n)
+	_ = source.Walk(p.ctx, func(path string, node tree.N, err error) error {
+		// Unreadable children are not re-created now: they are missing on the deleting side for the next run
+		if err == nil && node != nil && !changed[path] && path != folder {
+			queue(path, node)
+		}
+		return nil
+	}, folder, true)
+	p.inputsModified = true
 }
 
 // reSyncTarget tries to fix a Deleted resource that has been recreated on the other target by recreating it recursively
@@ -416,8 +506,9 @@ func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
 	if left.OpMoveTarget.GetPath() == right.OpMoveTarget.GetPath() {
 		log.Logger(p.ctx).Debug("-- Moved toward the same path, ignore!")
 	} else {
+		// Load both move targets from the endpoints where the moves happened (patches sources)
 		l, err1 := left.PathOperation.Source().LoadNode(p.ctx, left.OpMoveTarget.GetPath())
-		r, err2 := right.PathOperation.Target().LoadNode(p.ctx, right.OpMoveTarget.GetPath())
+		r, err2 := right.PathOperation.Source().LoadNode(p.ctx, right.OpMoveTarget.GetPath())
 		if err1 != nil {
 			p.unexpected = append(p.unexpected, err1)
 		} else if err2 != nil {
@@ -481,19 +572,35 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 
 		// TODO - FIND A CLEANER WAY ?
 		leftSuffix, rightSuffix := p.computeAutoFixSuffixes(left.DataOperation.Source().GetEndpointInfo(), right.DataOperation.Source().GetEndpointInfo())
+		leftCopy, rightCopy := basePath+"-"+leftSuffix+ext, basePath+"-"+rightSuffix+ext
 		leftSource, _ := model.AsPathSyncTarget(left.DataOperation.Source())
-		leftSource.MoveNode(p.ctx, initialPath, basePath+"-"+leftSuffix+ext)
-
-		lOp.UpdateRefPath(basePath + "-" + leftSuffix + ext)
-		lOp.UpdateType(OpCreateFile)
-		p.Enqueue(lOp.Clone().SetDirection(OperationDirRight))
-
 		rightSource, _ := model.AsPathSyncTarget(right.DataOperation.Source())
-		rightSource.MoveNode(p.ctx, initialPath, basePath+"-"+rightSuffix+ext)
+		// A failed rename leaves the conflict unsolved: both versions stay at their path, which is held back
+		if e := leftSource.MoveNode(p.ctx, initialPath, leftCopy); e != nil {
+			log.Logger(p.ctx).Warn("-- Cannot rename conflicting file", zap.String("path", initialPath), zap.Error(e))
+			p.enqueueConflict(left, right, ConflictFileContent)
+			return
+		}
+		if e := rightSource.MoveNode(p.ctx, initialPath, rightCopy); e != nil {
+			log.Logger(p.ctx).Warn("-- Cannot rename conflicting file", zap.String("path", initialPath), zap.Error(e))
+			if e2 := leftSource.MoveNode(p.ctx, leftCopy, initialPath); e2 != nil {
+				log.Logger(p.ctx).Error("-- Cannot rename conflicting file back", zap.String("path", leftCopy), zap.Error(e2))
+			}
+			p.enqueueConflict(left, right, ConflictFileContent)
+			return
+		}
 
-		rOp.UpdateRefPath(basePath + "-" + rightSuffix + ext)
+		lOp.UpdateRefPath(leftCopy)
+		lOp.UpdateType(OpCreateFile)
+		lCopyOp := lOp.Clone().SetDirection(OperationDirRight)
+		p.enqueueConflictCopy(lCopyOp)
+
+		rOp.UpdateRefPath(rightCopy)
 		rOp.UpdateType(OpCreateFile)
-		p.Enqueue(rOp.Clone().SetDirection(OperationDirLeft))
+		rCopyOp := rOp.Clone().SetDirection(OperationDirLeft)
+		p.enqueueConflictCopy(rCopyOp)
+		// Record the solved conflict, so that the user can pick a version afterward
+		p.enqueueConflictCopy(NewSolvedConflictOperation(left.N, ConflictFileContent, lCopyOp.Clone(), rCopyOp.Clone()))
 		// Remove original ones
 		left.DataOperation = nil
 		right.DataOperation = nil
@@ -504,6 +611,12 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 		p.Enqueue(right.DataOperation.Clone().SetDirection(OperationDirLeft))
 	}
 
+}
+
+// enqueueConflictCopy enqueues a copy created by the "keep both" solver and keeps it for a second pass (BUG-06)
+func (p *BidirectionalPatch) enqueueConflictCopy(op Operation) {
+	p.conflictCopies = append(p.conflictCopies, op)
+	p.Enqueue(op)
 }
 
 func (p *BidirectionalPatch) computeAutoFixSuffixes(source, target model.EndpointInfo) (string, string) {

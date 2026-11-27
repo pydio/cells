@@ -120,7 +120,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	// Compute Diff
 	diff := merger.NewDiff(source, targetAsSource)
 	lock := s.monitorDiff(ctx, diff, rootsInfo)
-	if e := diff.Compute(ctx, rootPath, lock, rootsInfo, s.Ignores...); e != nil {
+	if e := diff.Compute(ctx, rootPath, lock, s.statsForRoot(ctx, rootPath, rootsInfo), s.Ignores...); e != nil {
 		return patch.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 	}
 
@@ -144,17 +144,17 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 				}
 			})
 			if len(ops) > 50 {
-				// Recheck deleted resources
+				// Recheck deleted resources on the patch source, where the deletion was observed
 				for _, op := range ops {
 					log.Logger(ctx).Debug("Failsafe : rechecking deletion operation is real on " + op.GetRefPath())
-					ep := op.Source()
-					if s.Direction == model.DirectionLeft {
-						ep = op.Target().(model.PathSyncSource)
-					}
-					n, er := ep.LoadNode(ctx, op.GetRefPath())
-					if er == nil || n != nil {
+					n, er := op.Source().LoadNode(ctx, op.GetRefPath())
+					if er == nil && n != nil {
 						// This is not normal - this node should not exist
 						return errors.New("detected delete of existing node " + op.GetRefPath())
+					}
+					if er != nil && !model.IsNotFound(er) {
+						// The source may be unhealthy: the deletion cannot be confirmed
+						return errors.Wrap(er, "cannot confirm delete of node "+op.GetRefPath())
 					}
 				}
 			}
@@ -201,6 +201,17 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 				useSnapshots = true
 			}
 		}
+	} else if s.snapshotFactory != nil {
+		// Forced resync: diff the sources, but re-capture the snapshots once the patch succeeded, otherwise
+		// the next run has no history and resurrects deleted files (BUG-41). Updaters are unhooked until then.
+		var er1, er2 error
+		leftSnap, er1 = s.forcedSnapshot(source)
+		rightSnap, er2 = s.forcedSnapshot(targetAsSource)
+		captureSnapshots = er1 == nil && er2 == nil
+	}
+
+	if useSnapshots || captureSnapshots {
+		s.captureAfterSuccess(ctx, bb, leftSnap, rightSnap, roots, captureSnapshots)
 	}
 
 	if useSnapshots {
@@ -223,7 +234,7 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
 			diff := merger.NewDiff(source, targetAsSource)
-			if e := diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...); e != nil {
+			if e := diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), s.statsForRoot(ctx, r, rootsInfo), s.Ignores...); e != nil {
 				return bb.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 			}
 			if dryRun {
@@ -238,26 +249,58 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 
 		}
 
-		if captureSnapshots {
-			log.Logger(ctx).Info("Capturing first snapshots now")
-			leftSnap.Capture(ctx, source, roots...)
-			rightSnap.Capture(ctx, targetAsSource, roots...)
-			log.Logger(ctx).Info("Hooking Snapshots to clients")
-			if updater, ok := source.(model.SnapshotUpdater); ok {
-				if pst, ok2 := leftSnap.(model.PathSyncTarget); ok2 {
-					updater.SetUpdateSnapshot(pst)
-				}
-			}
-			if updater, ok := targetAsSource.(model.SnapshotUpdater); ok {
-				if pst, ok2 := rightSnap.(model.PathSyncTarget); ok2 {
-					updater.SetUpdateSnapshot(pst)
-				}
-			}
-		}
-
 	}
 
 	return nil
+}
+
+// captureAfterSuccess (re-)captures both snapshots once the patch is processed without errors (BUG-12 / V5R-02):
+// snapshots must only record changes applied on both sides, so that the next run retries failed operations, and
+// they must be refreshed after each run, otherwise stale snapshots revert local changes (e.g. resurrect deleted
+// files). Dry-runs are never processed, interrupted or failed patches do not capture.
+// Known trade-off: a change made on an endpoint while the patch is processing is absorbed by the capture without
+// being synced (see TestKnownBug_ChangeDuringPatchAbsorbedBySnapshot).
+func (s *Sync) captureAfterSuccess(ctx context.Context, bb *merger.BidirectionalPatch, leftSnap, rightSnap model.Snapshoter, roots []string, hookUpdaters bool) {
+	source, _ := model.AsPathSyncSource(s.Source)
+	targetAsSource, _ := model.AsPathSyncSource(s.Target)
+	// The patch is processed after Run returns
+	ctx = context.WithoutCancel(ctx)
+	bb.PostProcess(func() error {
+		if _, has := bb.HasErrors(); has {
+			log.Logger(ctx).Info("Patch has errors, keeping previous snapshots")
+			return nil
+		}
+		log.Logger(ctx).Info("Capturing snapshots after successful patch")
+		if e := leftSnap.Capture(ctx, source, roots...); e != nil {
+			return errors.Wrap(e, "cannot capture left snapshot")
+		}
+		if e := rightSnap.Capture(ctx, targetAsSource, roots...); e != nil {
+			return errors.Wrap(e, "cannot capture right snapshot")
+		}
+		if !hookUpdaters {
+			return nil
+		}
+		log.Logger(ctx).Info("Hooking Snapshots to clients")
+		if updater, ok := source.(model.SnapshotUpdater); ok {
+			if pst, ok2 := leftSnap.(model.PathSyncTarget); ok2 {
+				updater.SetUpdateSnapshot(pst)
+			}
+		}
+		if updater, ok := targetAsSource.(model.SnapshotUpdater); ok {
+			if pst, ok2 := rightSnap.(model.PathSyncTarget); ok2 {
+				updater.SetUpdateSnapshot(pst)
+			}
+		}
+		return nil
+	})
+}
+
+// forcedSnapshot loads the snapshot of a source for a forced resync and unhooks it from the source
+func (s *Sync) forcedSnapshot(source model.PathSyncSource) (model.Snapshoter, error) {
+	if updater, ok := source.(model.SnapshotUpdater); ok {
+		updater.SetUpdateSnapshot(nil)
+	}
+	return s.snapshotFactory.Load(source)
 }
 
 func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*model.EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
@@ -284,7 +327,7 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 	patches := make(map[string]merger.Patch, len(roots))
 	for _, r := range roots {
 		diff := merger.NewDiff(source, snap)
-		er = diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...)
+		er = diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), s.statsForRoot(ctx, r, rootsInfo), s.Ignores...)
 		if er != nil {
 			return nil, nil, er
 		}
@@ -296,13 +339,10 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 		}
 		patches[r] = patch
 	}
-	// NOTE: snap.Capture is NOT called here anymore. It will be called after patch operations
-	// are successfully applied to the target. This prevents capturing files into the snapshot
-	// before they are actually transferred, which could cause them to be permanently skipped
-	// if they had temporary ETags during diff.Compute but real ETags when Capture runs.
-	// if e := snap.Capture(ctx, source, roots...); e != nil {
-	// 	log.Logger(ctx).Error("Error while capturing snapshot!", zap.Error(e))
-	// }
+	// NOTE: snap.Capture is NOT called here: it is called once the patch is successfully applied (see
+	// captureAfterSuccess). This prevents capturing files into the snapshot before they are actually
+	// transferred, which could cause them to be permanently skipped if they had temporary ETags during
+	// diff.Compute but real ETags when Capture runs.
 	updatable, ok1 := snap.(model.PathSyncTarget)
 	if ok1 && ok2 {
 		snapUpdater.SetUpdateSnapshot(updatable)
@@ -323,7 +363,10 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 			select {
 			case status := <-indexStatus:
 				if root, ok := rootsInfo[status.EndpointURI()]; ok {
-					if pgStatus, ok := s.computeIndexProgress(status, root); ok && pgStatus != nil {
+					s.rootsInfoLock.Lock()
+					pgStatus, ok := s.computeIndexProgress(status, root)
+					s.rootsInfoLock.Unlock()
+					if ok && pgStatus != nil {
 						log.Logger(ctx).Info(pgStatus.String())
 						if s.statuses != nil {
 							s.statuses <- pgStatus
@@ -333,10 +376,12 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 			case <-done:
 				var totalStrings []string
 				var total int64
+				s.rootsInfoLock.Lock()
 				for uri, root := range rootsInfo {
 					total += root.PgChildren
 					totalStrings = append(totalStrings, fmt.Sprintf("%d on %s", root.PgChildren, uri))
 				}
+				s.rootsInfoLock.Unlock()
 				tString := strings.Join(totalStrings, ", ")
 				log.Logger(ctx).Info(fmt.Sprintf("Finished analyze : %d nodes (%s)", total, tString), zap.Any("i", total))
 				if s.statuses != nil {

@@ -22,30 +22,28 @@ package merger
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v5/common/sync/internal/timings"
 	"github.com/pydio/cells/v5/common/sync/model"
 	"github.com/pydio/cells/v5/common/telemetry/log"
 )
 
 // Validate tries to match the status of the target to verify that all operations are correctly applied.
+// Both endpoints are validated sequentially: walking operations updates their paths, so the
+// patch tree cannot be walked concurrently.
+//
+// To validate endpoints in parallel again, do all tree accesses first in a single goroutine:
+// walk once to collect, per endpoint URI, the processed operations (and the branches with
+// operations for CachedBranchProvider targets), which also freezes their recomputed paths.
+// Then run one goroutine per endpoint that only performs endpoint I/O (GetCachedBranches,
+// LoadNode) against these collected lists, without calling WalkOperations / WalkToFirstOperations.
 func (t *TreePatch) Validate(ctx context.Context) error {
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
-	var e1, e2 error
-	go func() {
-		e1 = t.validateEndpoint(ctx, t.Target())
-		wg.Done()
-	}()
-	go func() {
-		e2 = t.validateEndpoint(ctx, t.Source())
-		wg.Done()
-	}()
-	wg.Wait()
+	e1 := t.validateEndpoint(ctx, t.Target())
+	e2 := t.validateEndpoint(ctx, t.Source())
 	if e1 != nil || e2 != nil {
 		if e1 != nil {
 			log.Logger(ctx).Error("Could not validate changes on target", zap.Error(e1))
@@ -73,11 +71,11 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 		}
 		// If we are validating with a cache, it's probably a remote server, and it has probably a small delay
 		// => wait before first try
-		<-time.After(1 * time.Second)
+		<-time.After(timings.ValidateFirstWait.Get())
 		t.Status(model.NewProcessingStatus("Validating modifications have been correctly reported...").SetProgress(1))
 		return model.RetryWithCtx(ctx, func(retry int) error {
 			return t.validateWithPreLoad(ctx, branches, syncSource)
-		}, 6*time.Second, 4*time.Minute)
+		}, timings.ValidateRetryInterval.Get(), timings.ValidateRetryTimeout.Get())
 
 	} else {
 

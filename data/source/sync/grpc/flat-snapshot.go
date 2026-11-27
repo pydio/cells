@@ -159,20 +159,14 @@ func writeSnapshot(client model.Endpoint, fsPath, storageKey string) error {
 		return e
 	}
 	_, err := io.Copy(writer, src)
-	writer.Close()
-	if err == nil && writeDone != nil {
-		// Wait for real write to be finished
-		for {
-			select {
-			case <-writeDone:
-				return nil
-			case e := <-writeErr:
-				return e
-			}
-		}
-	} else {
+	if e := writer.Close(); err == nil {
+		err = e
+	}
+	if err != nil {
 		return err
 	}
+	// Wait for real write to be finished
+	return model.WaitWriteResult(context.Background(), writeDone, writeErr)
 }
 
 func deleteSnapshot(client model.Endpoint, storageKey string) error {

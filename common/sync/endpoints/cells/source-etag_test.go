@@ -54,6 +54,8 @@ type fakeTree struct {
 	// keepOldHash makes pending reads show the previous hash instead of none (update in progress).
 	keepOldHash bool
 	oldHash     map[string]string
+	// listEnd is returned by ListNodes streams after the last node, instead of io.EOF.
+	listEnd error
 }
 
 func newFakeTree() *fakeTree {
@@ -109,7 +111,7 @@ func (t *fakeTree) ListNodes(_ context.Context, _ *tree.ListNodesRequest, _ ...g
 		paths = append(paths, p)
 	}
 	sort.Strings(paths)
-	st := &fakeListStream{}
+	st := &fakeListStream{end: t.listEnd}
 	for _, p := range paths {
 		st.nodes = append(st.nodes, t.view(t.nodes[p]))
 	}
@@ -119,10 +121,14 @@ func (t *fakeTree) ListNodes(_ context.Context, _ *tree.ListNodesRequest, _ ...g
 type fakeListStream struct {
 	grpc.ClientStream
 	nodes []*tree.Node
+	end   error
 }
 
 func (s *fakeListStream) Recv() (*tree.ListNodesResponse, error) {
 	if len(s.nodes) == 0 {
+		if s.end != nil {
+			return nil, s.end
+		}
 		return nil, io.EOF
 	}
 	n := s.nodes[0]
@@ -488,4 +494,14 @@ func TestSourceEtagsRead(t *testing.T) {
 			So(walkAll(c)["folder"].GetEtag(), ShouldEqual, "-1")
 		})
 	})
+}
+
+// Watch events and the snapshot updates they trigger carry the Cells hash, not the source ETag reported by
+// LoadNode/Walk (EP-CELLS-01): SourceEtags is only supported for one-way imports, without watcher.
+func TestWatchRefusedWithSourceEtags(t *testing.T) {
+	c, _, _ := newTestAbstract(true)
+	wo, e := c.Watch(context.Background(), "")
+	if e == nil || wo != nil {
+		t.Fatalf("Watch should be refused when SourceEtags is set, got %v, %v", wo, e)
+	}
 }

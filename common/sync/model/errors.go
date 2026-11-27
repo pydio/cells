@@ -20,6 +20,15 @@
 
 package model
 
+import (
+	"io/fs"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/pydio/cells/v5/common/errors"
+)
+
 type Networking interface {
 	NetworkError() error
 }
@@ -50,4 +59,20 @@ func IsConfigError(e error) bool {
 
 func NewConfigError(err error) error {
 	return &ConfigError{error: err}
+}
+
+// IsNotFound tells if an error returned by an endpoint proves that a node does not exist, as opposed to
+// errors that prevent knowing it (network, permissions, timeouts...). Endpoints should return errors
+// matching errors.StatusNotFound (e.g. errors.NodeNotFound); filesystem and raw gRPC errors are accepted too.
+func IsNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, errors.StatusNotFound) || errors.Is(err, fs.ErrNotExist) {
+		return true
+	}
+	if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
+		return true
+	}
+	return false
 }

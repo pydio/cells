@@ -75,6 +75,7 @@ func (pr *Processor) processCreateFile(ctx context.Context, operation merger.Ope
 		}
 		defer reader.Close()
 		wCtx, cancel := context.WithCancel(ctx)
+		defer cancel()
 		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(wCtx, localPath, operation.GetNode().GetSize(), operation.GetNode())
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
@@ -88,25 +89,19 @@ func (pr *Processor) processCreateFile(ctx context.Context, operation merger.Ope
 		_, err := io.Copy(writer, progressReader)
 		if err != nil {
 			cancel() // There was an error during copy, properly cancel the Writer
-			if progressReader.totalRead > 0 {
-				// Revert progress count to 0 for this operation
-				pg <- -progressReader.totalRead
-			}
 		}
-		writer.Close()
-		if err == nil && writeDone != nil {
+		if e := writer.Close(); err == nil {
+			err = e
+		}
+		if err == nil {
 			// Wait for real write to be finished
-			for {
-				select {
-				case <-writeDone:
-					return nil
-				case e := <-writeErr:
-					return e
-				}
-			}
-		} else {
-			return err
+			err = model.WaitWriteResult(ctx, writeDone, writeErr)
 		}
+		if err != nil && progressReader.totalRead > 0 {
+			// Revert progress count to 0 for this operation
+			pg <- -progressReader.totalRead
+		}
+		return err
 
 	} else {
 
