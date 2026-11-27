@@ -127,6 +127,9 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 	}
 	if link.Uuid == "" {
 		create = true
+		// A new link always gets a new hidden user
+		link.UserLogin = ""
+		link.UserUuid = ""
 		workspace, _, err = sc.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, false)
 		if err != nil {
 			return nil, err
@@ -153,15 +156,32 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 				return nil, errors.WithMessagef(errors.ShareLinkHashMinLengthRequired, "Please use a link hash with at least %d characters", options.HashMinLength)
 			}
 		}
-		workspace, create, err = sc.GetOrCreateWorkspace(ctx, ownerUser, link.Uuid, idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, true)
+		workspace, err = sc.GetLinkWorkspace(ctx, link.Uuid)
+		if err != nil {
+			return nil, err
+		}
+		// Check editable before persisting any label/description change
+		if !sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
+			return nil, errors.WithStack(errors.ShareLinkNotEditable)
+		}
+		track("IsContextEditable")
+		if applyWorkspaceLabel(workspace, link.Label, refLabel, link.Description) {
+			if _, er := idmc.WorkspaceServiceClient(ctx).CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); er != nil {
+				return nil, er
+			}
+		}
 	}
-	if err != nil {
-		return nil, err
+
+	var storedLink *rest.ShareLink
+	if !create {
+		// Never trust the client for the hidden user: use the one stored with the link
+		storedLink = &rest.ShareLink{Uuid: link.Uuid}
+		if er := sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); er != nil {
+			return nil, er
+		}
+		link.UserLogin = storedLink.UserLogin
+		link.UserUuid = storedLink.UserUuid
 	}
-	if !create && !sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
-		return nil, errors.WithStack(errors.ShareLinkNotEditable)
-	}
-	track("IsContextEditable")
 
 	// Load Hidden User
 	user, err = sc.GetOrCreateHiddenUser(ctx, ownerUser, link, linkOptions.GetPasswordEnabled(), linkOptions.GetCreatePassword(), false)
@@ -188,10 +208,6 @@ func (sc *Client) UpsertLink(ctx context.Context, link *rest.ShareLink, linkOpti
 		track("CreateWorkspace")
 	} else {
 		// Manage password if status was updated
-		storedLink := &rest.ShareLink{Uuid: link.Uuid}
-		if er := sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); er != nil {
-			return nil, er
-		}
 		link.PasswordRequired = storedLink.PasswordRequired
 		var passNewEnable = linkOptions.GetPasswordEnabled() && !storedLink.PasswordRequired
 		var passNewDisable = !linkOptions.GetPasswordEnabled() && storedLink.PasswordRequired

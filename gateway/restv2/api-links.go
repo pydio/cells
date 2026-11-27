@@ -92,7 +92,7 @@ func (h *Handler) GetPublicLink(req *restful.Request, resp *restful.Response) er
 	uuid := req.PathParameter("LinkUuid")
 	ctx := req.Request.Context()
 
-	link, er := h.SharesHandler.GetShareClient().LinkById(ctx, uuid)
+	link, er := h.SharesHandler.ReadableLinkById(ctx, uuid)
 	if er != nil {
 		return er
 	}

@@ -90,8 +90,13 @@ func (sc *Client) GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User
 
 	} else {
 
+		// Only ever load a hidden user here: its ACLs get wiped and replaced by the link ACLs
 		uQ, _ := anypb.New(&idm.UserSingleQuery{Login: link.UserLogin})
-		stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{uQ}}})
+		hQ, _ := anypb.New(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
+		stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{
+			SubQueries: []*anypb.Any{uQ, hQ},
+			Operation:  service.OperationType_AND,
+		}})
 		if e != nil {
 			return nil, e
 		}
@@ -103,6 +108,9 @@ func (sc *Client) GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User
 			}
 			user = rsp.User
 			break
+		}
+		if user == nil {
+			return nil, errors.WithMessagef(errors.UserNotFound, "cannot find hidden user for link %s", link.Uuid)
 		}
 
 	}

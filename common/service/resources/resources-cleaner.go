@@ -61,7 +61,7 @@ func (c *PoliciesCleaner) Handle(ctx context.Context, dao resources.DAO, msg *id
 	}
 
 	for _, subject := range subjects {
-		log.Logger(ctx).Info("Deleting policies on event", zap.Any("event", msg), zap.String("subject", subject))
+		log.Logger(ctx).Debug("Deleting policies on event", zap.Any("event", msg), zap.String("subject", subject))
 		if er := dao.DeletePoliciesBySubject(ctx, subject); er != nil {
 			log.Logger(ctx).Info("Failed to delete policies on event", zap.String("subject", subject), zap.Error(er))
 		}
