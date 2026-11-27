@@ -27,8 +27,10 @@ import (
 	"testing"
 
 	"github.com/pydio/cells/v5/common"
+	"github.com/pydio/cells/v5/common/auth/claim"
 	permissions2 "github.com/pydio/cells/v5/common/permissions"
 	"github.com/pydio/cells/v5/common/proto/idm"
+	"github.com/pydio/cells/v5/common/proto/tree"
 	"github.com/pydio/cells/v5/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v5/common/storage/sql"
 	"github.com/pydio/cells/v5/common/storage/test"
@@ -168,6 +170,34 @@ func TestSearchUniqueUser(t *testing.T) {
 			So(acl, ShouldNotBeEmpty)
 			wss := acl.DetectedWsRights(ctx)
 			So(wss, ShouldHaveLength, 4)
+
+			roles, er := permissions2.GetRolesForUser(ctx, user, false)
+			So(er, ShouldBeNil)
+			roleIDs := make([]string, 0, len(roles))
+			for _, role := range roles {
+				roleIDs = append(roleIDs, role.Uuid)
+			}
+			claims := claim.Claims{Subject: "acl-cache-test-" + uuid.New(), Roles: strings.Join(roleIDs, ",")}
+			claimsCtx := claim.ToContext(ctx, claims)
+
+			// Populate the actual accessor cache, then deliberately write a stale
+			// node policy into that same entry through the AccessList cache hook.
+			cached, er := permissions2.AccessListFromContextClaims(claimsCtx)
+			So(er, ShouldBeNil)
+			staleNodeID := "stale-node-" + uuid.New()
+			staleRead := permissions2.Bitmask{}
+			staleRead.AddFlag(permissions2.FlagRead)
+			cached.AddNodeBitmask(staleNodeID, staleRead)
+			So(cached.ReplicateBitmask(ctx, staleNodeID, staleNodeID, true), ShouldBeTrue)
+
+			stale, er := permissions2.AccessListFromContextClaims(claimsCtx)
+			So(er, ShouldBeNil)
+			So(stale.CanRead(ctx, &tree.Node{Uuid: staleNodeID}), ShouldBeTrue)
+
+			fresh, er := permissions2.AccessListFromContextClaims(permissions2.WithFreshAccessList(claimsCtx))
+			So(er, ShouldBeNil)
+			So(fresh.CanRead(ctx, &tree.Node{Uuid: staleNodeID}), ShouldBeFalse)
+			So(fresh.GetWorkspaces(), ShouldNotBeEmpty)
 		})
 
 	})
