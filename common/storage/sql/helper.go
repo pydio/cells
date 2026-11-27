@@ -77,7 +77,7 @@ func QuoteTo(db *gorm.DB, s string) string {
 }
 
 // WithTxRetry runs fn inside a transaction and retries automatically
-// on transient SQL errors like deadlocks or serialization failures.
+// on transient SQL errors like deadlocks, serialization failures, or MySQL 1020.
 // It works across MySQL, Postgres, and SQLite.
 func WithTxRetry(ctx context.Context, db *gorm.DB, maxRetries int, retryMsg string, fn func(tx *gorm.DB) error) error {
 	var err error
@@ -92,16 +92,10 @@ func WithTxRetry(ctx context.Context, db *gorm.DB, maxRetries int, retryMsg stri
 			return nil
 		}
 
-		lower := strings.ToLower(err.Error())
-		retryable := strings.Contains(lower, "deadlock") ||
-			strings.Contains(lower, "40001") || // SQLSTATE serialization
-			strings.Contains(lower, "database is locked") ||
-			strings.Contains(lower, "busy")
-
-		if retryable && attempt < maxRetries {
-			// exponential backoff with small jitter
+		if isRetryableTransactionError(err) && attempt < maxRetries {
+			// Exponential backoff gives the conflicting transaction time to finish.
 			time.Sleep(baseDelay * time.Duration(1<<uint(attempt-1)))
-			log.Logger(ctx).Warn("Retrying transaction after deadlock: " + retryMsg)
+			log.Logger(ctx).Warn("Retrying transaction after transient SQL error: " + retryMsg)
 			continue
 		}
 
@@ -109,4 +103,14 @@ func WithTxRetry(ctx context.Context, db *gorm.DB, maxRetries int, retryMsg stri
 	}
 
 	return err
+}
+
+func isRetryableTransactionError(err error) bool {
+	lower := strings.ToLower(err.Error())
+	return strings.Contains(lower, "deadlock") ||
+		strings.Contains(lower, "40001") || // SQLSTATE serialization
+		strings.Contains(lower, "database is locked") ||
+		strings.Contains(lower, "busy") ||
+		strings.Contains(lower, "record has changed since last read") ||
+		strings.Contains(lower, "error 1020")
 }

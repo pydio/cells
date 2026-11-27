@@ -294,6 +294,14 @@ func (dao *gormImpl[T]) DelNode(ctx context.Context, node tree.ITreeNode) error 
 		Delete(&node).Error
 }
 
+func (dao *gormImpl[T]) DelNodeIfUUID(ctx context.Context, node tree.ITreeNode) error {
+	model := dao.factory.Struct()
+	target := dao.factory.Struct()
+	return storagesql.WithTxRetry(ctx, dao.instance(ctx), moveTreeMaxAttempts, "delete reserved node", func(tx *gorm.DB) error {
+		return deleteReservedNodeIfLeaf(tx, model, target, node.GetMPath(), node.GetNode().GetUuid())
+	})
+}
+
 // GetNode from path
 func (dao *gormImpl[T]) GetNodeByMPath(ctx context.Context, path *tree.MPath) (tree.ITreeNode, error) {
 	node := dao.factory.Struct()
@@ -746,7 +754,74 @@ func (dao *gormImpl[T]) GetNodeTree(ctx context.Context, mPath *tree.MPath, filt
 	return c
 }
 
+const moveTreeMaxAttempts = 5
+
+func deleteReservedNodeIfLeaf(tx *gorm.DB, model interface{}, target tree.ITreeNode, targetMPath *tree.MPath, targetUuid string) error {
+	if targetUuid == "" {
+		return errors.WithMessage(errors.StatusConflict, "Target path has no stable UUID")
+	}
+
+	lookup := tx.Where(tree.MPathEquals{Value: targetMPath}).Take(target)
+	if errors.Is(lookup.Error, gorm.ErrRecordNotFound) {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before cleanup")
+	}
+	if lookup.Error != nil {
+		return lookup.Error
+	}
+	if lookup.RowsAffected != 1 || target.GetNode().GetUuid() != targetUuid {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before cleanup")
+	}
+	if target.GetNode().GetType() != tree.NodeType_LEAF {
+		return errors.WithMessage(errors.StatusConflict, "Refusing cleanup of non-leaf target")
+	}
+
+	var descendants int64
+	if err := tx.Model(model).
+		Where(tree.MPathLike{Value: targetMPath}).
+		Where("level > ?", targetMPath.Length()).
+		Count(&descendants).Error; err != nil {
+		return err
+	}
+	if descendants > 0 {
+		return errors.WithMessage(errors.StatusConflict, "Target has descendants; refusing cleanup")
+	}
+
+	rootDelete := tx.
+		Where(tree.MPathEquals{Value: targetMPath}).
+		Where("uuid = ?", targetUuid).
+		Delete(model)
+	if rootDelete.Error != nil {
+		return rootDelete.Error
+	}
+	if rootDelete.RowsAffected != 1 {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before cleanup")
+	}
+	return nil
+}
+
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
+func deleteMoveTarget(tx *gorm.DB, model interface{}, targetMPath *tree.MPath, targetUuid string) error {
+	if targetUuid == "" {
+		return errors.WithMessage(errors.StatusConflict, "Target path has no stable UUID")
+	}
+
+	rootDelete := tx.
+		Where(tree.MPathEquals{Value: targetMPath}).
+		Where("uuid = ?", targetUuid).
+		Delete(model)
+	if rootDelete.Error != nil {
+		return rootDelete.Error
+	}
+	if rootDelete.RowsAffected != 1 {
+		return errors.WithMessage(errors.StatusConflict, "Target path changed before move")
+	}
+
+	return tx.
+		Where(tree.MPathEqualsOrLike{Value: targetMPath}).
+		Where("level > ?", targetMPath.Length()).
+		Delete(model).Error
+}
+
 func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNode, nodeTo tree.ITreeNode) error {
 
 	model := dao.factory.Struct()
@@ -853,7 +928,25 @@ func (dao *gormImpl[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 	wheres = append(wheres, sql.Named("wTreeLike", tree.MPathLike{Value: nodeFromMPath}))
 	wheres = append(wheres, sql.Named("wLevel", gorm.Expr("level >= ?", mpathFromLevel)))
 
-	return storagesql.WithTxRetry(ctx, ist, 3, "move node tree in"+tableName, func(tx *gorm.DB) error {
+	return storagesql.WithTxRetry(ctx, ist, moveTreeMaxAttempts, "move node tree in"+tableName, func(tx *gorm.DB) error {
+		target := dao.factory.Struct()
+		targetLookup := tx.Where(tree.MPathEquals{Value: nodeToMPath}).Take(target)
+		if targetLookup.Error != nil && !errors.Is(targetLookup.Error, gorm.ErrRecordNotFound) {
+			return targetLookup.Error
+		}
+		if targetLookup.RowsAffected > 0 {
+			targetUuid := target.GetNode().GetUuid()
+			sourceUuid := nodeFrom.GetNode().GetUuid()
+			if targetUuid != sourceUuid && targetUuid != nodeTo.GetNode().GetUuid() {
+				return errors.WithMessage(errors.StatusConflict, "Target path changed before move")
+			}
+			if targetUuid != sourceUuid {
+				if err := deleteMoveTarget(tx, model, nodeToMPath, targetUuid); err != nil {
+					return err
+				}
+			}
+		}
+
 		// TODO - ApplyOrderedUpdates should really be handled in the hooks of the respective models
 		_, err := helper.ApplyOrderedUpdates(tx, tableName, []storagesql.OrderedUpdate{
 			{Key: "name", Value: nodeTo.GetName()},
@@ -1116,6 +1209,9 @@ func toMPath(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode
 			return nil, nil, errors.WithStack(errors.NodeNotFound)
 		}
 		return parentNode, []tree.ITreeNode{}, nil
+	}
+	if create && parentNode != nil && parentNode.GetNode().GetType() == tree.NodeType_LEAF {
+		return nil, nil, errors.WithMessage(errors.StatusForbidden, "Cannot create children under a leaf node")
 	}
 
 	// The current node to be retrieved or created is the first item in the path

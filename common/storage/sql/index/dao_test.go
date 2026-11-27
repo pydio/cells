@@ -66,6 +66,21 @@ var (
 
 type testdao DAO
 
+type childLookupBarrierDAO struct {
+	DAO
+	parentRead chan struct{}
+	resumeRead chan struct{}
+}
+
+func (d *childLookupBarrierDAO) getNodeChild(ctx context.Context, mPath *tree.MPath, name string) (tree.ITreeNode, error) {
+	node, err := d.DAO.getNodeChild(ctx, mPath, name)
+	if name == "target" {
+		d.parentRead <- struct{}{}
+		<-d.resumeRead
+	}
+	return node, err
+}
+
 func TestMain(m *testing.M) {
 	v := viper.New()
 	runtime.SetRuntime(v)
@@ -816,6 +831,80 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 	}, true)
 }
 
+func TestGetOrCreateNodeUnderLeafFails(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Cannot create a child under a leaf node", t, func() {
+				_, _, err := dao.GetOrCreateNodeByPath(ctx, "/leaf.txt", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/leaf.txt/child.txt", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				So(errors.Is(err, errors.StatusForbidden), ShouldBeTrue)
+				_, err = dao.GetNodeByPath(ctx, "/leaf.txt/child.txt")
+				So(err, ShouldNotBeNil)
+			})
+		}
+	}, true)
+}
+
+func TestCleanupLeafOverlapsStaleChildCreation(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("A stale child lookup cannot insert under a leaf being cleaned up", t, func() {
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				barrier := &childLookupBarrierDAO{
+					DAO:        DAO(dao),
+					parentRead: make(chan struct{}, 1),
+					resumeRead: make(chan struct{}),
+				}
+				childUuid := uuid.New()
+				child := tree.NewTreeNode("/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				childResult := make(chan error, 1)
+				go func() {
+					_, _, createErr := toMPath(ctx, barrier, child, nil, true)
+					childResult <- createErr
+				}()
+
+				parentResolved := false
+				select {
+				case <-barrier.parentRead:
+					parentResolved = true
+				case <-time.After(5 * time.Second):
+				}
+				So(parentResolved, ShouldBeTrue)
+				if !parentResolved {
+					close(barrier.resumeRead)
+					<-childResult
+					return
+				}
+
+				So(dao.DelNodeIfUUID(ctx, target), ShouldBeNil)
+				close(barrier.resumeRead)
+				createErr := <-childResult
+				So(errors.Is(createErr, errors.StatusForbidden), ShouldBeTrue)
+				_, err = dao.GetNodeByUUID(ctx, childUuid)
+				So(errors.Is(err, errors.NodeNotFound), ShouldBeTrue)
+			})
+		}
+	}, true)
+}
+
 func TestStreams(t *testing.T) {
 	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
 		return func(t *testing.T) {
@@ -1306,6 +1395,255 @@ func TestSmallArborescence(t *testing.T) {
 			})
 		}
 	}, true)
+}
+
+func TestMoveNodeTreeReplacesReservedTarget(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Move replaces a reserved target path atomically", t, func() {
+				sourceUuid := uuid.New()
+				targetUuid := uuid.New()
+				source, _, err := dao.GetOrCreateNodeByPath(ctx, "/source.txt", &tree.Node{
+					Uuid: sourceUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target.txt", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				err = dao.MoveNodeTree(ctx, source, target)
+				So(err, ShouldBeNil)
+
+				moved, err := dao.GetNodeByPath(ctx, "/target.txt")
+				So(err, ShouldBeNil)
+				So(moved.GetNode().GetUuid(), ShouldEqual, sourceUuid)
+				_, err = dao.GetNodeByUUID(ctx, targetUuid)
+				So(err, ShouldNotBeNil)
+				_, err = dao.GetNodeByPath(ctx, "/source.txt")
+				So(err, ShouldNotBeNil)
+			})
+		}
+	}, true)
+}
+
+func TestMoveNodeTreeRejectsStaleTarget(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Move rejects a target slot reserved by another node", t, func() {
+				sourceUuid := uuid.New()
+				targetUuid := uuid.New()
+				source, _, err := dao.GetOrCreateNodeByPath(ctx, "/source.txt", &tree.Node{
+					Uuid: sourceUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target.txt", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				staleTarget := proto.Clone(target).(tree.ITreeNode)
+				staleTarget.GetNode().SetUuid(uuid.New())
+				err = dao.MoveNodeTree(ctx, source, staleTarget)
+				So(errors.Is(err, errors.StatusConflict), ShouldBeTrue)
+
+				unchangedSource, err := dao.GetNodeByPath(ctx, "/source.txt")
+				So(err, ShouldBeNil)
+				So(unchangedSource.GetNode().GetUuid(), ShouldEqual, sourceUuid)
+				unchangedTarget, err := dao.GetNodeByPath(ctx, "/target.txt")
+				So(err, ShouldBeNil)
+				So(unchangedTarget.GetNode().GetUuid(), ShouldEqual, targetUuid)
+			})
+		}
+	}, true)
+}
+
+func TestDeleteMoveTargetRejectsReplacedReservation(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("A stale reservation cannot delete the replacement subtree", t, func() {
+				targetUuid := uuid.New()
+				replacementUuid := uuid.New()
+				childUuid := uuid.New()
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				baseDAO := DAO(dao)
+				if session, ok := baseDAO.(*sessionDAO); ok {
+					baseDAO = session.DAO
+				}
+				gormDAO := baseDAO.(*gormImpl[*tree.TreeNode])
+				model := gormDAO.factory.Struct()
+				result := gormDAO.instance(ctx).Model(model).
+					Where("uuid = ?", targetUuid).
+					Update("uuid", replacementUuid)
+				So(result.Error, ShouldBeNil)
+				So(result.RowsAffected, ShouldEqual, 1)
+
+				err = dao.DelNodeIfUUID(ctx, target)
+				So(errors.Is(err, errors.StatusConflict), ShouldBeTrue)
+
+				root, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(root.GetNode().GetUuid(), ShouldEqual, replacementUuid)
+				child, err := dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldBeNil)
+				So(child.GetNode().GetUuid(), ShouldEqual, childUuid)
+			})
+		}
+	}, true)
+}
+
+func TestDelNodeIfUUIDRefusesTargetWithChildren(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Cleanup refuses to delete a target with descendants", t, func() {
+				targetUuid := uuid.New()
+				childUuid := uuid.New()
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				So(errors.Is(dao.DelNodeIfUUID(ctx, target), errors.StatusConflict), ShouldBeTrue)
+				root, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(root.GetNode().GetUuid(), ShouldEqual, targetUuid)
+				child, err := dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldBeNil)
+				So(child.GetNode().GetUuid(), ShouldEqual, childUuid)
+			})
+		}
+	}, true)
+}
+
+func TestDelNodeIfUUIDRefusesLeafWithDescendants(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Cleanup refuses a leaf that has descendants", t, func() {
+				targetUuid := uuid.New()
+				childUuid := uuid.New()
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/child.txt", &tree.Node{
+					Uuid: childUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				baseDAO := DAO(dao)
+				if session, ok := baseDAO.(*sessionDAO); ok {
+					baseDAO = session.DAO
+				}
+				gormDAO := baseDAO.(*gormImpl[*tree.TreeNode])
+				model := gormDAO.factory.Struct()
+				result := gormDAO.instance(ctx).Model(model).
+					Where("uuid = ?", targetUuid).
+					Update("leaf", tree.NodeType_LEAF)
+				So(result.Error, ShouldBeNil)
+				So(result.RowsAffected, ShouldEqual, 1)
+
+				So(errors.Is(dao.DelNodeIfUUID(ctx, target), errors.StatusConflict), ShouldBeTrue)
+				root, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(root.GetNode().GetUuid(), ShouldEqual, targetUuid)
+				child, err := dao.GetNodeByUUID(ctx, childUuid)
+				So(err, ShouldBeNil)
+				So(child.GetNode().GetUuid(), ShouldEqual, childUuid)
+			})
+		}
+	}, true)
+}
+
+func TestDelNodeIfUUIDRemovesOwnedLeaf(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Delete removes an owned leaf target", t, func() {
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target.txt", &tree.Node{
+					Uuid: uuid.New(),
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				So(dao.DelNodeIfUUID(ctx, target), ShouldBeNil)
+				_, err = dao.GetNodeByPath(ctx, "/target.txt")
+				So(err, ShouldNotBeNil)
+			})
+		}
+	}, true)
+}
+
+func TestMoveNodeTreeReplacesTargetSubtree(t *testing.T) {
+	testAll(t, func(ctx context.Context, dao testdao) func(t *testing.T) {
+		return func(t *testing.T) {
+			Convey("Move replaces the destination subtree", t, func() {
+				sourceUuid := uuid.New()
+				sourceChildUuid := uuid.New()
+				targetUuid := uuid.New()
+				targetChildUuid := uuid.New()
+				source, _, err := dao.GetOrCreateNodeByPath(ctx, "/source", &tree.Node{
+					Uuid: sourceUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/source/child.txt", &tree.Node{
+					Uuid: sourceChildUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				target, _, err := dao.GetOrCreateNodeByPath(ctx, "/target", &tree.Node{
+					Uuid: targetUuid,
+					Type: tree.NodeType_COLLECTION,
+				})
+				So(err, ShouldBeNil)
+				_, _, err = dao.GetOrCreateNodeByPath(ctx, "/target/old.txt", &tree.Node{
+					Uuid: targetChildUuid,
+					Type: tree.NodeType_LEAF,
+				})
+				So(err, ShouldBeNil)
+				So(dao.Flush(ctx, false), ShouldBeNil)
+
+				err = dao.MoveNodeTree(ctx, source, target)
+				So(err, ShouldBeNil)
+
+				movedRoot, err := dao.GetNodeByPath(ctx, "/target")
+				So(err, ShouldBeNil)
+				So(movedRoot.GetNode().GetUuid(), ShouldEqual, sourceUuid)
+				movedChild, err := dao.GetNodeByPath(ctx, "/target/child.txt")
+				So(err, ShouldBeNil)
+				So(movedChild.GetNode().GetUuid(), ShouldEqual, sourceChildUuid)
+				_, err = dao.GetNodeByUUID(ctx, targetChildUuid)
+				So(err, ShouldNotBeNil)
+			})
+		}
+	})
 }
 
 func TestMoveInsideOwnChild(t *testing.T) {

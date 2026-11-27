@@ -527,6 +527,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	var pathTo *tree.MPath
 	var nodeFrom, nodeTo tree.ITreeNode
+	targetCreated := false
 
 	nodeTo = tree.NewTreeNode(reqToPath)
 
@@ -539,23 +540,30 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		pathTo, nodeTo, err = cache.PathCreateNoAdd(ctx, reqToPath)
 
 	} else {
-		if nodeTo, _, err = dao.GetOrCreateNodeByPath(ctx, reqToPath, nil); err != nil {
+		var created []tree.ITreeNode
+		if nodeTo, created, err = dao.GetOrCreateNodeByPath(ctx, reqToPath, &tree.Node{Type: nodeFrom.GetNode().GetType()}); err != nil {
 			return nil, errors.WithMessagef(errors.NodeNotFound, "Could not retrieve node %s", req.To.Path)
+		}
+		for _, createdNode := range created {
+			if createdNode.GetNode().GetUuid() == nodeTo.GetNode().GetUuid() {
+				targetCreated = true
+				break
+			}
 		}
 		pathTo = nodeTo.GetMPath()
 
-		// Legacy : to Avoid Duplicate error when using a CacheDAO - Flush now and after delete.
-		_ = dao.Flush(ctx, false)
-
-		// First of all, we delete the existing node
-		if err = dao.DelNode(ctx, nodeTo); err != nil {
-			return nil, errors.WithMessagef(errors.StatusInternalServerError, "Could not delete former to node at %s %v", req.To.Path, err)
+		// Persist the target placeholder so MoveNodeTree can replace it in its transaction.
+		if err = dao.Flush(ctx, false); err != nil {
+			return nil, err
 		}
-
-		_ = dao.Flush(ctx, false)
 	}
 
 	if err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
+		if targetCreated && nodeTo.GetNode().GetType() == tree.NodeType_LEAF {
+			if cleanupErr := dao.DelNodeIfUUID(ctx, nodeTo); cleanupErr != nil {
+				log.Logger(ctx).Warn("Could not clean target placeholder after failed move", zap.Error(cleanupErr))
+			}
+		}
 		return nil, err
 	}
 
